@@ -127,7 +127,6 @@ csharp_space_before_open_square_brackets = false
 csharp_space_between_empty_square_brackets = false
 csharp_space_between_square_brackets = false
 csharp_preserve_single_line_statements = false
-csharp_preserve_single_line_blocks = false
 
 #### Naming styles ####
 
