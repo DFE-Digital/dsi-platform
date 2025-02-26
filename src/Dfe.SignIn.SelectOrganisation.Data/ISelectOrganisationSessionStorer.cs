@@ -18,7 +18,7 @@ public interface ISelectOrganisationSessionStorer
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="sessionKey"/> is an empty string.</para>
     /// </exception>
-    Task StoreSession(string sessionKey, SelectOrganisationSessionData sessionData);
+    Task StoreSessionAsync(string sessionKey, SelectOrganisationSessionData sessionData);
 
     /// <summary>
     /// Invalidates a "select organisation" session.
@@ -39,5 +39,5 @@ public interface ISelectOrganisationSessionStorer
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="sessionKey"/> is an empty string.</para>
     /// </exception>
-    Task InvalidateSession(string sessionKey);
+    Task InvalidateSessionAsync(string sessionKey);
 }

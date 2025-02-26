@@ -19,5 +19,5 @@ public interface ISelectOrganisationSessionRetriever
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="sessionKey"/> is an empty string.</para>
     /// </exception>
-    Task<SelectOrganisationSessionData?> RetrieveSession(string sessionKey);
+    Task<SelectOrganisationSessionData?> RetrieveSessionAsync(string sessionKey);
 }
