@@ -3,7 +3,7 @@ namespace Dfe.SignIn.SelectOrganisation.Data;
 /// <summary>
 /// A model representing a "select organisation" session.
 /// </summary>
-public sealed record SelectOrganisationSessionData
+public sealed record SelectOrganisationSessionData()
 {
     /// <summary>
     /// Gets the date/time that the session was created.

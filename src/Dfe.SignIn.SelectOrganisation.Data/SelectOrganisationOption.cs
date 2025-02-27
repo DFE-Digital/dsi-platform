@@ -3,7 +3,7 @@ namespace Dfe.SignIn.SelectOrganisation.Data;
 /// <summary>
 /// A model representing an organisation option that can be selected by a user.
 /// </summary>
-public sealed record SelectOrganisationOption
+public sealed record SelectOrganisationOption()
 {
     /// <summary>
     /// Gets the unique identifier of the organisation.
