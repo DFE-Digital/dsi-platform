@@ -4,23 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.Controllers;
 
-public sealed class HomeController : Controller
+/// <summary>
+/// A user facing controller to present a general error message.
+/// </summary>
+public sealed class ErrorController : Controller
 {
-    private readonly ILogger<HomeController> logger;
-
-    public HomeController(ILogger<HomeController> logger)
-    {
-        this.logger = logger;
-    }
-
-    public IActionResult Index()
-    {
-        this.logger.LogTrace("Example log...");
-        return this.View();
-    }
-
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    public IActionResult Index()
     {
         return this.View(new ErrorViewModel {
             RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier,

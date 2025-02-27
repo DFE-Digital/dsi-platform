@@ -1,10 +1,17 @@
 namespace Dfe.SignIn.SelectOrganisation.Web.Models;
 
-public sealed class ErrorViewModel
+/// <summary>
+/// View model for a general purpose error page.
+/// </summary>
+public sealed record ErrorViewModel
 {
-    public string? RequestId {
-        get; set;
-    }
+    /// <summary>
+    /// Gets a unique identifier representing the request.
+    /// </summary>
+    public string? RequestId { get; init; }
 
+    /// <summary>
+    /// Gets a value indicating whether the request ID should be presented.
+    /// </summary>
     public bool ShowRequestId => !string.IsNullOrEmpty(this.RequestId);
 }
