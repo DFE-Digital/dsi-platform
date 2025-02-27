@@ -11,6 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FB967767
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.Web.Tests", "tests\Dfe.SignIn.SelectOrganisation.Web.Tests\Dfe.SignIn.SelectOrganisation.Web.Tests.csproj", "{EF6FB476-8670-46D6-A800-190B66E57C2C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.Data", "src\Dfe.SignIn.SelectOrganisation.Data\Dfe.SignIn.SelectOrganisation.Data.csproj", "{9C32CC62-C2D3-4F6E-8C7D-7677C16D8B0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.Data.Tests", "tests\Dfe.SignIn.SelectOrganisation.Data.Tests\Dfe.SignIn.SelectOrganisation.Data.Tests.csproj", "{B2FBF53C-B533-4AD1-85F9-5C464CA23ABB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,9 +32,19 @@ Global
 		{EF6FB476-8670-46D6-A800-190B66E57C2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF6FB476-8670-46D6-A800-190B66E57C2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF6FB476-8670-46D6-A800-190B66E57C2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C32CC62-C2D3-4F6E-8C7D-7677C16D8B0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C32CC62-C2D3-4F6E-8C7D-7677C16D8B0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C32CC62-C2D3-4F6E-8C7D-7677C16D8B0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C32CC62-C2D3-4F6E-8C7D-7677C16D8B0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2FBF53C-B533-4AD1-85F9-5C464CA23ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2FBF53C-B533-4AD1-85F9-5C464CA23ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2FBF53C-B533-4AD1-85F9-5C464CA23ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2FBF53C-B533-4AD1-85F9-5C464CA23ABB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7BBC2394-262D-4BBD-9687-9279505E52B2} = {DE9175AD-BCCC-431C-8586-3A65DB97E0EA}
 		{EF6FB476-8670-46D6-A800-190B66E57C2C} = {FB967767-67A6-410B-A8B5-24A4B82351F4}
+		{9C32CC62-C2D3-4F6E-8C7D-7677C16D8B0C} = {DE9175AD-BCCC-431C-8586-3A65DB97E0EA}
+		{B2FBF53C-B533-4AD1-85F9-5C464CA23ABB} = {FB967767-67A6-410B-A8B5-24A4B82351F4}
 	EndGlobalSection
 EndGlobal
