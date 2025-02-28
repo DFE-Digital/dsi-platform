@@ -1,6 +1,8 @@
 using Dfe.SignIn.SelectOrganisation.Data;
+using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.Controllers;
 
@@ -9,11 +11,14 @@ namespace Dfe.SignIn.SelectOrganisation.Web.Controllers;
 /// </summary>
 public sealed class SelectOrganisationController : Controller
 {
+    private readonly ApplicationOptions applicationOptions;
     private readonly ISelectOrganisationSessionRetriever selectOrganisationRetriever;
 
     public SelectOrganisationController(
+        IOptions<ApplicationOptions> applicationOptionsAccessor,
         ISelectOrganisationSessionRetriever selectOrganisationRetriever)
     {
+        this.applicationOptions = applicationOptionsAccessor.Value;
         this.selectOrganisationRetriever = selectOrganisationRetriever;
     }
 
@@ -26,7 +31,7 @@ public sealed class SelectOrganisationController : Controller
         if (session == null) {
             // TODO: Redirect to home page of service identified by clientId.
             return this.View("InvalidSessionError", new InvalidSessionViewModel {
-                ReturnUrl = new Uri("https://services.localhost"),
+                ReturnUrl = this.applicationOptions.ServicesUrl,
             });
         }
 

@@ -25,11 +25,6 @@ public sealed class AssetOptions : IOptions<AssetOptions>
     /// </remarks>
     public string Version { get; set; } = "0";
 
-    /// <summary>
-    /// Gets the survey URL.
-    /// </summary>
-    public Uri SurveyUrl { get; set; } = new Uri("https://survey.localhost");
-
     /// <inheritdoc/>
     AssetOptions IOptions<AssetOptions>.Value => this;
 }

@@ -15,6 +15,7 @@ builder.Services.AddStackExchangeRedisCache(options => {
 });
 
 builder.Services.AddSelectOrganisationSessionCache(options => { });
+builder.Services.AddApplication(options => { });
 builder.Services.AddFrontendAssets(options => { });
 
 var app = builder.Build();
