@@ -5,7 +5,7 @@ namespace Dfe.SignIn.SelectOrganisation.Web.Models;
 /// <summary>
 /// View model for the "Select organisation" user interface.
 /// </summary>
-public sealed record SelectOrganisationViewModel
+public sealed class SelectOrganisationViewModel
 {
     /// <summary>
     /// Gets the user prompt content.
@@ -16,4 +16,9 @@ public sealed record SelectOrganisationViewModel
     /// Gets the list of organisations that the user can select from.
     /// </summary>
     public required IEnumerable<SelectOrganisationOption> OrganisationOptions { get; init; }
+
+    /// <summary>
+    /// Gets or sets the unique ID of the selected organisation.
+    /// </summary>
+    public Guid SelectedOrganisationId { get; set; }
 }

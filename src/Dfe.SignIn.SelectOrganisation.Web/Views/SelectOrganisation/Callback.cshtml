@@ -1,0 +1,26 @@
+﻿@model SelectOrganisationCallbackViewModel
+
+@{
+    ViewData["Title"] = "Redirecting to service";
+}
+
+<form id="callbackForm" method="post" action="@(Model.CallbackUrl)">
+    <h1 class="govuk-heading-l">Redirecting to service</h1>
+
+    <input name="payload" type="hidden" asp-for=PayloadData />
+    <input name="sig" type="hidden" asp-for=DigitalSignature />
+    <input name="kid" type="hidden" asp-for=PublicKeyId />
+
+    <noscript>
+        <p class="govuk-body">Cannot automatically redirected to service because JavaScript is disabled in your web
+            browser.</p>
+        <p class="govuk-body">Please use the following button to proceed.</p>
+        <govuk-button type="submit">Proceed to service</govuk-button>
+    </noscript>
+</form>
+
+<script>
+    window.onload = function () {
+        document.getElementById("callbackForm").submit()
+    };
+</script>
