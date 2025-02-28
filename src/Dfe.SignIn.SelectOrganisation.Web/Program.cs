@@ -1,4 +1,5 @@
 using Dfe.SignIn.SelectOrganisation.Data.DistributedCache;
+using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddStackExchangeRedisCache(options => {
 });
 
 builder.Services.AddSelectOrganisationSessionCache(options => { });
+builder.Services.AddFrontendAssets(options => { });
 
 var app = builder.Build();
 

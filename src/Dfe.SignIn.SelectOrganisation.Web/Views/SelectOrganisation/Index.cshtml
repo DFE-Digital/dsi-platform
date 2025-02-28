@@ -4,22 +4,26 @@
     ViewData["Title"] = Model.Prompt.Heading;
 }
 
-<div>
-    <h1>@Model.Prompt.Heading</h1>
-    @if (!String.IsNullOrEmpty(Model.Prompt.Hint))
-    {
-        <p>@Model.Prompt.Hint</p>
-    }
-    <form>
-        @{
-            int index = 0;
-        }
-        @foreach (var option in Model.OrganisationOptions)
-        {
-            <input id="option-@index" name="selectedOrganisation" type="radio" value="@option.Id" />
-            <label for="option-@index">@option.Name</label>
-            ++index;
-        }
-        <button type="submit">Save and continue</button>
-    </form>
-</div>
+<form method="post">
+    <govuk-radios name="selectedOrganisation">
+        <govuk-radios-fieldset>
+            <govuk-radios-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">
+                @Model.Prompt.Heading
+            </govuk-radios-fieldset-legend>
+
+            @if (!String.IsNullOrEmpty(Model.Prompt.Hint))
+            {
+                <govuk-radios-hint>
+                    @Model.Prompt.Hint
+                </govuk-radios-hint>
+            }
+
+            @foreach (var option in Model.OrganisationOptions)
+            {
+                <govuk-radios-item value="@option.Id">@option.Name</govuk-radios-item>
+            }
+        </govuk-radios-fieldset>
+    </govuk-radios>
+
+    <govuk-button type="submit">Save and continue</govuk-button>
+</form>
