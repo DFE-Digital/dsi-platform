@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.NodeApiClient.Applications;
 
+[NodeApi(NodeApiName.Applications)]
 public sealed class GetApplicationByClientIdRequester
     : IApiRequester<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
 {

@@ -50,7 +50,19 @@ public static class ServiceCollectionExtensions
         services.AddOptions();
         services.Configure(setupAction);
 
+        // authenticated http client
+
         foreach (var apiName in apiNames) {
+            services.AddKeyedScoped(apiName, (provider, key) => {
+                // var options = provider.GetRequiredService<IOptions<NodeApiClientOptions>>().Value
+                //     .Apis.First(apiOptions => apiOptions.ApiName == apiName);
+                // var httpClient = new HttpClient {
+                //     BaseAddress = new Uri(options.BaseAddress)
+                // };
+                // return httpClient;
+                throw new NotImplementedException();
+            });
+
             services.AddInteractors(
                 InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
                     .Where(descriptor => descriptor.IsFor(apiName))

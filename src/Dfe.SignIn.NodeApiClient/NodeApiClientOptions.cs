@@ -8,30 +8,26 @@ namespace Dfe.SignIn.NodeApiClient;
 public sealed class NodeApiClientOptions : IOptions<NodeApiClientOptions>
 {
     /// <summary>
-    /// Gets or sets the base address of the <see cref="NodeApiName.Access"/> API.
+    /// Gets or sets per-API options.
     /// </summary>
-    public Uri? AccessBaseAddress { get; set; }
-
-    /// <summary>
-    /// Gets or sets the base address of the <see cref="NodeApiName.Applications"/> API.
-    /// </summary>
-    public Uri? ApplicationsBaseAddress { get; set; }
-
-    /// <summary>
-    /// Gets or sets the base address of the <see cref="NodeApiName.Directories"/> API.
-    /// </summary>
-    public Uri? DirectoriesBaseAddress { get; set; }
-
-    /// <summary>
-    /// Gets or sets the base address of the <see cref="NodeApiName.Organisations"/> API.
-    /// </summary>
-    public Uri? OrganisationsBaseAddress { get; set; }
-
-    /// <summary>
-    /// Gets or sets the base address of the <see cref="NodeApiName.Search"/> API.
-    /// </summary>
-    public Uri? SearchBaseAddress { get; set; }
+    public IEnumerable<NodeApiOptions> Apis { get; set; } = [];
 
     /// <inheritdoc/>
     NodeApiClientOptions IOptions<NodeApiClientOptions>.Value => this;
+}
+
+/// <summary>
+/// Options for a specific mid-tier API.
+/// </summary>
+public sealed class NodeApiOptions
+{
+    /// <summary>
+    /// Gets or sets the name of the API.
+    /// </summary>
+    public required NodeApiName ApiName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the base address of the API.
+    /// </summary>
+    public required Uri BaseAddress { get; set; }
 }
