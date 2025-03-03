@@ -1,17 +1,47 @@
 namespace Dfe.SignIn.Core.Models.Applications;
 
 /// <summary>
-/// A model representing an application registration in DfE Sign-in.
+/// A model representing a service application registration in DfE Sign-in.
 /// </summary>
 public sealed record ApplicationModel
 {
     /// <summary>
-    /// Gets a unique value that identifies the application.
+    /// Gets the unique value that identifies the service application.
+    /// </summary>
+    public required Guid Id { get; init; }
+
+    /// <summary>
+    /// Gets the unique client ID of the service application.
     /// </summary>
     public required string ClientId { get; init; }
 
     /// <summary>
-    /// Gets the name of the application.
+    /// Gets the name of the service.
     /// </summary>
     public required string Name { get; init; }
+
+    /// <summary>
+    /// Gets a description of the service.
+    /// </summary>
+    public required string Description { get; init; }
+
+    /// <summary>
+    /// Gets the home URL of the service.
+    /// </summary>
+    public required Uri ServiceHomeUrl { get; init; }
+
+    /// <summary>
+    /// Gets a boolean value indicating if this is an external service.
+    /// </summary>
+    public required bool IsExternalService { get; init; }
+
+    /// <summary>
+    /// Gets a boolean value indicating if this is an ID-only service.
+    /// </summary>
+    public required bool IsIdOnlyService { get; init; }
+
+    /// <summary>
+    /// Gets a boolean value indicating if the service is hidden.
+    /// </summary>
+    public required bool IsHiddenService { get; init; }
 }
