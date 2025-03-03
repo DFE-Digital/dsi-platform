@@ -5,11 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C0DEE863-D046-4896-B759-3BF6203AB9B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.InternalApiClient", "src\Dfe.SignIn.InternalApiClient\Dfe.SignIn.InternalApiClient.csproj", "{6EF4474B-145F-466D-9979-C6575ABD57CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.NodeApiClient", "src\Dfe.SignIn.NodeApiClient\Dfe.SignIn.NodeApiClient.csproj", "{6EF4474B-145F-466D-9979-C6575ABD57CC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FAB4CB2C-BAF1-4893-B952-9290ACB9609E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.InternalApiClient.Tests", "tests\Dfe.SignIn.InternalApiClient.Tests\Dfe.SignIn.InternalApiClient.Tests.csproj", "{CD911B36-7D7F-4B32-9754-EBDCFB92FF95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.NodeApiClient.Tests", "tests\Dfe.SignIn.NodeApiClient.Tests\Dfe.SignIn.NodeApiClient.Tests.csproj", "{CD911B36-7D7F-4B32-9754-EBDCFB92FF95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

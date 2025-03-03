@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Dfe.SignIn.InternalApiClient\Dfe.SignIn.InternalApiClient.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.NodeApiClient\Dfe.SignIn.NodeApiClient.csproj" />
   </ItemGroup>
 
 </Project>
