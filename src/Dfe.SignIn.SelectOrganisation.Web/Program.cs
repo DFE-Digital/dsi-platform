@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.NodeApiClient;
 using Dfe.SignIn.SelectOrganisation.Data.DistributedCache;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 
@@ -13,6 +15,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddStackExchangeRedisCache(options => {
     options.Configuration = "localhost:6379";
 });
+
+builder.Services.AddNodeApiClient([NodeApiName.Access], options => { });
 
 builder.Services.AddSelectOrganisationSessionCache(options => { });
 builder.Services.AddApplication(options => { });
@@ -47,3 +51,6 @@ app.MapControllerRoute(
 );
 
 app.Run();
+
+[ExcludeFromCodeCoverage]
+public partial class Program { }
