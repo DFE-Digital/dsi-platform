@@ -27,7 +27,7 @@ public interface IInteractor<TRequest, TResponse>
 ///     <para>An example implementation:</para>
 ///     <code language="csharp"><![CDATA[
 ///       [InteractorContract]
-///       public interface IGetExampleByIdUseCase
+///       public interface IGetExampleById
 ///           : IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>;
 ///     ]]></code>
 ///   </example>
@@ -48,10 +48,9 @@ public sealed class InteractorContractAttribute : Attribute
 ///     <para>An example implementation:</para>
 ///     <code language="csharp"><![CDATA[
 ///       [UseCaseHandler]
-///       public sealed class GetExampleByIdUseCase
-///           : IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>
+///       public sealed class GetExampleById_UseCaseHandler : IGetExampleById
 ///       {
-///           public Task<GetExampleByIdResponse> HandleAsync(GetExampleByIdRequest request)
+///           public Task<GetExampleByIdResponse> InvokeAsync(GetExampleByIdRequest request)
 ///           {
 ///               return Task.FromResult(
 ///                   new GetExampleByIdResponse {
@@ -78,10 +77,9 @@ public sealed class UseCaseHandlerAttribute : Attribute
 ///     <para>An example implementation:</para>
 ///     <code language="csharp"><![CDATA[
 ///       [ApiRequester]
-///       public sealed class GetExampleByIdUseCase
-///           : IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>
+///       public sealed class GetExampleById_ApiRequester : IGetExampleById
 ///       {
-///           public Task<GetExampleByIdResponse> HandleAsync(GetExampleByIdRequest request)
+///           public Task<GetExampleByIdResponse> InvokeAsync(GetExampleByIdRequest request)
 ///           {
 ///               return Task.FromResult(
 ///                   new GetExampleByIdResponse {
