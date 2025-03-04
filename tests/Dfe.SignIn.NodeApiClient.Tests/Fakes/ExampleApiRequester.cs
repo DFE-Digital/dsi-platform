@@ -10,15 +10,17 @@ public sealed record ExampleResponse
 {
 }
 
-public sealed class ExampleApiRequesterUnspecifiedApi
-    : IApiRequester<ExampleRequest, ExampleResponse>
+[InteractorContract]
+public interface IExampleInteractor : IInteractor<ExampleRequest, ExampleResponse>;
+
+[ApiRequester]
+public sealed class ExampleApiRequesterUnspecifiedApi : IExampleInteractor
 {
     public Task<ExampleResponse> HandleAsync(ExampleRequest request) => throw new NotImplementedException();
 }
 
-[NodeApi(NodeApiName.Access)]
-public sealed class ExampleApiRequesterForAccessApi
-    : IApiRequester<ExampleRequest, ExampleResponse>
+[ApiRequester, NodeApi(NodeApiName.Access)]
+public sealed class ExampleApiRequesterForAccessApi : IExampleInteractor
 {
     public Task<ExampleResponse> HandleAsync(ExampleRequest request) => throw new NotImplementedException();
 }
