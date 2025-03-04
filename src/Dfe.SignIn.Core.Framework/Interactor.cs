@@ -20,7 +20,25 @@ public interface IInteractor<TRequest, TResponse>
 }
 
 /// <summary>
-/// Represents a use case handler within the system.
+/// Marks an interactor contract within the system.
+/// </summary>
+/// <remarks>
+///   <example>
+///     <para>An example implementation:</para>
+///     <code language="csharp"><![CDATA[
+///       [InteractorContract]
+///       public interface IGetExampleByIdUseCase
+///           : IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>;
+///     ]]></code>
+///   </example>
+/// </remarks>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
+public sealed class InteractorContractAttribute : Attribute
+{
+}
+
+/// <summary>
+/// Marks a use case handler within the system.
 /// </summary>
 /// <remarks>
 ///   <para>A use case handler has the business logic to interact with models.
@@ -29,8 +47,9 @@ public interface IInteractor<TRequest, TResponse>
 ///   <example>
 ///     <para>An example implementation:</para>
 ///     <code language="csharp"><![CDATA[
+///       [UseCaseHandler]
 ///       public sealed class GetExampleByIdUseCase
-///           : IUseCaseHandler<GetExampleByIdRequest, GetExampleByIdResponse>
+///           : IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>
 ///       {
 ///           public Task<GetExampleByIdResponse> HandleAsync(GetExampleByIdRequest request)
 ///           {
@@ -44,15 +63,13 @@ public interface IInteractor<TRequest, TResponse>
 ///     ]]></code>
 ///   </example>
 /// </remarks>
-/// <typeparam name="TRequest">The type of request.</typeparam>
-/// <typeparam name="TResponse">The type of response.</typeparam>
-public interface IUseCaseHandler<TRequest, TResponse>
-    : IInteractor<TRequest, TResponse>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+public sealed class UseCaseHandlerAttribute : Attribute
 {
 }
 
 /// <summary>
-/// Represents a API requester within the system.
+/// Marks an API requester within the system.
 /// </summary>
 /// <remarks>
 ///   <para>Whilst an API requester cannot directly handle a request; it can forward
@@ -60,8 +77,9 @@ public interface IUseCaseHandler<TRequest, TResponse>
 ///   <example>
 ///     <para>An example implementation:</para>
 ///     <code language="csharp"><![CDATA[
+///       [ApiRequester]
 ///       public sealed class GetExampleByIdUseCase
-///           : IApiRequester<GetExampleByIdRequest, GetExampleByIdResponse>
+///           : IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>
 ///       {
 ///           public Task<GetExampleByIdResponse> HandleAsync(GetExampleByIdRequest request)
 ///           {
@@ -75,9 +93,7 @@ public interface IUseCaseHandler<TRequest, TResponse>
 ///     ]]></code>
 ///   </example>
 /// </remarks>
-/// <typeparam name="TRequest">The type of request.</typeparam>
-/// <typeparam name="TResponse">The type of response.</typeparam>
-public interface IApiRequester<TRequest, TResponse>
-    : IInteractor<TRequest, TResponse>
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+public sealed class ApiRequesterAttribute : Attribute
 {
 }

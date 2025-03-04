@@ -1,10 +1,10 @@
+using Dfe.SignIn.Core.Framework;
+
 namespace Dfe.SignIn.Core.Models.Applications.Interactions;
 
 /// <summary>
-/// Represents a request to get an application using the client identifier which
-/// uniquely identifies the application.
+/// Request model for interactor <see cref="IGetApplicationByClientId"/>.
 /// </summary>
-/// <seealso cref="GetApplicationByClientIdResponse"/>
 public record GetApplicationByClientIdRequest
 {
     /// <summary>
@@ -14,7 +14,7 @@ public record GetApplicationByClientIdRequest
 }
 
 /// <summary>
-/// Represents a response having requested <see cref="GetApplicationByClientIdRequest"/>.
+/// Response model for interactor <see cref="IGetApplicationByClientId"/>.
 /// </summary>
 public record GetApplicationByClientIdResponse
 {
@@ -23,3 +23,10 @@ public record GetApplicationByClientIdResponse
     /// </summary>
     public required ApplicationModel Application { get; init; }
 }
+
+/// <summary>
+/// An interactor that gets an application with the given unique client identifier.
+/// </summary>
+[InteractorContract]
+public interface IGetApplicationByClientId
+    : IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>;

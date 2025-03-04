@@ -9,10 +9,6 @@ public sealed record ExampleResponse
     public required string Name { get; init; }
 }
 
-public sealed record AnotherExampleRequest
-{
-}
-
-public sealed record AnotherExampleResponse
-{
-}
+[InteractorContract]
+public interface IExampleInteractor
+    : IInteractor<ExampleRequest, ExampleResponse>;

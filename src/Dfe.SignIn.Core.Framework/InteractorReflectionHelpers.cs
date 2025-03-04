@@ -8,55 +8,45 @@ namespace Dfe.SignIn.Core.Framework;
 public static class InteractorReflectionHelpers
 {
     /// <summary>
-    /// Discovers all interactor types in an assembly that implement a specific
-    /// generic contract type.
+    /// Discovers all interactor types in an assembly.
     /// </summary>
     /// <remarks>
     ///   <example>
-    ///     <para>Discover all interactor types that implement <see cref="IUseCaseHandler{,}"/>:</para>
+    ///     <para>Discover all interactor types that implement <see cref="IInteractor{,}"/>:</para>
     ///     <code language="csharp"><![CDATA[
     ///       var types = InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(
-    ///         typeof(SomeClass).Assembly,
-    ///         typeof(IUseCaseHandler<,>)
+    ///         typeof(SomeClass).Assembly
     ///       );
     ///     ]]></code>
     ///   </example>
     /// </remarks>
     /// <param name="assembly">The assembly to scan.</param>
-    /// <param name="genericContractType">Generic contract type.</param>
     /// <returns>
     ///   <para>An enumerable collection of interactor type descriptors.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="assembly"/> is null</para>
-    ///   <para>- or -</para>
-    ///   <para>If <paramref name="genericContractType"/> is null</para>
     /// </exception>
-    public static IEnumerable<InteractorTypeDescriptor> DiscoverInteractorTypesInAssembly(Assembly assembly, Type genericContractType)
+    public static IEnumerable<InteractorTypeDescriptor> DiscoverInteractorTypesInAssembly(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
-        ArgumentNullException.ThrowIfNull(genericContractType, nameof(genericContractType));
 
         return assembly.GetTypes()
             .Where(type => type.IsClass && !type.IsAbstract)
-            .SelectMany(type => type.GetInterfaces(), (type, interfaceType) => new {
-                Type = type,
-                InterfaceType = interfaceType,
+            .SelectMany(type => type.GetInterfaces(), (type, interfaceType) => new InteractorTypeDescriptor {
+                ContractType = interfaceType,
+                ConcreteType = type,
             })
-            .Where(x =>
-                x.InterfaceType.IsGenericType &&
-                x.InterfaceType.GetGenericTypeDefinition() == genericContractType
-            )
-            .Select(x => new InteractorTypeDescriptor {
-                ContractType = x.Type.GetInterfaces()
-                    .First(interfaceType => interfaceType.GetGenericTypeDefinition() == typeof(IInteractor<,>)),
-                ConcreteType = x.Type,
-            });
+            .Where(descriptor =>
+                descriptor.ContractType.IsGenericType &&
+                descriptor.ContractType.GetGenericTypeDefinition() == typeof(IInteractor<,>)
+            );
     }
 
     /// <summary>
-    /// Discovers all interactor types in an assembly (implement <see cref="IInteractor{,}"/>).
+    /// Discovers annotated interactors.
     /// </summary>
+    /// <typeparam name="TAttribute">The annotation attribute type.</typeparam>
     /// <param name="assembly">The assembly to scan.</param>
     /// <returns>
     ///   <para>An enumerable collection of interactor type descriptors.</para>
@@ -64,15 +54,26 @@ public static class InteractorReflectionHelpers
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="assembly"/> is null.</para>
     /// </exception>
-    public static IEnumerable<InteractorTypeDescriptor> DiscoverInteractorTypesInAssembly(Assembly assembly)
+    ///
+    public static IEnumerable<InteractorTypeDescriptor> DiscoverAnnotatedInteractorsInAssembly<TAttribute>(Assembly assembly)
+        where TAttribute : Attribute
     {
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
 
-        return DiscoverInteractorTypesInAssembly(assembly, typeof(IInteractor<,>));
+        return assembly.GetTypes()
+            .Where(type => type.IsClass && !type.IsAbstract && type.GetCustomAttribute<TAttribute>() != null)
+            .Select(type => new InteractorTypeDescriptor {
+                ConcreteType = type,
+                ContractType = type.GetInterfaces().FirstOrDefault(interfaceType =>
+                    interfaceType.GetCustomAttribute<InteractorContractAttribute>(inherit: false) != null
+                )!
+            })
+            .Where(descriptor => descriptor.ContractType != null);
     }
 
     /// <summary>
-    /// Discovers all use case handler types in an assembly (implement <see cref="IUseCaseHandler{,}"/>).
+    /// Discovers all use case handler types in an assembly (interactors that are annotated
+    /// with the <see cref="UseCaseHandlerAttribute"/>).
     /// </summary>
     /// <param name="assembly">The assembly to scan.</param>
     /// <returns>
@@ -83,13 +84,12 @@ public static class InteractorReflectionHelpers
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverUseCaseHandlerTypesInAssembly(Assembly assembly)
     {
-        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
-
-        return DiscoverInteractorTypesInAssembly(assembly, typeof(IUseCaseHandler<,>));
+        return DiscoverAnnotatedInteractorsInAssembly<UseCaseHandlerAttribute>(assembly);
     }
 
     /// <summary>
-    /// Discovers all API requester types in an assembly (implement <see cref="IApiRequester{,}"/>).
+    /// Discovers all use case handler types in an assembly (interactors that are annotated
+    /// with the <see cref="ApiRequesterAttribute"/>).
     /// </summary>
     /// <param name="assembly">The assembly to scan.</param>
     /// <returns>
@@ -100,9 +100,7 @@ public static class InteractorReflectionHelpers
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverApiRequesterTypesInAssembly(Assembly assembly)
     {
-        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
-
-        return DiscoverInteractorTypesInAssembly(assembly, typeof(IApiRequester<,>));
+        return DiscoverAnnotatedInteractorsInAssembly<ApiRequesterAttribute>(assembly);
     }
 }
 
