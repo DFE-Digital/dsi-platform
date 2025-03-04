@@ -8,7 +8,7 @@
 public interface IInteractor<TRequest, TResponse>
 {
     /// <summary>
-    /// Handles the interaction.
+    /// Invokes an interaction request.
     /// </summary>
     /// <param name="request">The interaction request.</param>
     /// <returns>
@@ -16,7 +16,7 @@ public interface IInteractor<TRequest, TResponse>
     /// </returns>
     /// <seealso cref="IUseCaseHandler{TRequest, TResponse}"/>
     /// <seealso cref="IApiRequester{TRequest, TResponse}"/>
-    Task<TResponse> HandleAsync(TRequest request);
+    Task<TResponse> InvokeAsync(TRequest request);
 }
 
 /// <summary>
