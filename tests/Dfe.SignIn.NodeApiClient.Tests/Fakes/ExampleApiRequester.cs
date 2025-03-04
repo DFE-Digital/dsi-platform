@@ -16,11 +16,11 @@ public interface IExampleInteractor : IInteractor<ExampleRequest, ExampleRespons
 [ApiRequester]
 public sealed class ExampleApiRequesterUnspecifiedApi : IExampleInteractor
 {
-    public Task<ExampleResponse> HandleAsync(ExampleRequest request) => throw new NotImplementedException();
+    public Task<ExampleResponse> InvokeAsync(ExampleRequest request) => throw new NotImplementedException();
 }
 
 [ApiRequester, NodeApi(NodeApiName.Access)]
 public sealed class ExampleApiRequesterForAccessApi : IExampleInteractor
 {
-    public Task<ExampleResponse> HandleAsync(ExampleRequest request) => throw new NotImplementedException();
+    public Task<ExampleResponse> InvokeAsync(ExampleRequest request) => throw new NotImplementedException();
 }

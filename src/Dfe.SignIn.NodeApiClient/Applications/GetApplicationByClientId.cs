@@ -17,7 +17,7 @@ public sealed class GetApplicationByClientId_ApiRequester : IGetApplicationByCli
     }
 
     /// <inheritdoc/>
-    public async Task<GetApplicationByClientIdResponse> HandleAsync(GetApplicationByClientIdRequest request)
+    public async Task<GetApplicationByClientIdResponse> InvokeAsync(GetApplicationByClientIdRequest request)
     {
         var httpResponse = await this.httpClient.GetAsync($"services/{request.ClientId}");
         throw new NotImplementedException();
