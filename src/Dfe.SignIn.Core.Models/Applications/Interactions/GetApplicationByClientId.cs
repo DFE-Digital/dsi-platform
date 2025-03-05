@@ -20,7 +20,7 @@ public record GetApplicationByClientIdRequest
 public record GetApplicationByClientIdResponse
 {
     /// <summary>
-    /// Gets a model representing the application when application was found;
+    /// Gets a model representing the application when the application was found;
     /// otherwise, a value of <c>null</c>.
     /// </summary>
     public required ApplicationModel? Application { get; init; }
