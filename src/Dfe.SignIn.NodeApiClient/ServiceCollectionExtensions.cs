@@ -1,5 +1,8 @@
+using System.Net;
 using System.Reflection;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
+using Dfe.SignIn.NodeApiClient.ConfidentialClientApplication;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.NodeApiClient;
@@ -29,44 +32,55 @@ public static class ServiceCollectionExtensions
     /// Adds services to support the Node.js API clients.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
-    /// <param name="apiNames">Indicates which mid-tier APIs are required.</param>
-    /// <param name="descriptors">An enumerable collection of interactor type descriptors.</param>
+    /// <param name="setupAction">An actions to configure the provided options.</param>
     /// <returns>
     ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="apiNames"/> is null.</para>
-    ///   <para>- or -</para>
-    ///   <para>If <paramref name="descriptors"/> is null.</para>
+    ///   <para>If <paramref name="setupAction"/> is null.</para>
     /// </exception>
-    public static IServiceCollection AddNodeApiClient(this IServiceCollection services, IEnumerable<NodeApiName> apiNames, Action<NodeApiClientOptions> setupAction)
+    public static IServiceCollection AddNodeApiClient(this IServiceCollection services, Action<NodeApiClientOptions> setupAction)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(apiNames, nameof(apiNames));
         ArgumentNullException.ThrowIfNull(setupAction, nameof(setupAction));
 
         services.AddOptions();
         services.Configure(setupAction);
 
-        // authenticated http client
+        var instanceOptions = new NodeApiClientOptions();
+        setupAction(instanceOptions);
 
-        foreach (var apiName in apiNames) {
-            services.AddKeyedScoped(apiName, (provider, key) => {
-                // var options = provider.GetRequiredService<IOptions<NodeApiClientOptions>>().Value
-                //     .Apis.First(apiOptions => apiOptions.ApiName == apiName);
-                // var httpClient = new HttpClient {
-                //     BaseAddress = new Uri(options.BaseAddress)
-                // };
-                // return httpClient;
-                throw new NotImplementedException();
+        foreach (var api in instanceOptions.Apis) {
+
+            services.AddHttpClient(api.ApiName.ToString(), client => {
+                client.BaseAddress = api.BaseAddress;
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler {
+                UseProxy = instanceOptions.AuthenticatedHttpClientOptions.UseProxy,
+                Proxy = new WebProxy(instanceOptions.AuthenticatedHttpClientOptions.ProxyUrl)
+            })
+            .AddHttpMessageHandler(provider => {
+                var confidentialClientApplicationManager = provider.GetRequiredService<IConfidentialClientApplicationManager>();
+                return new AuthenticatedHttpClientHandler(api.ApiName, confidentialClientApplicationManager);
+            });
+
+            // endpoints can use the httpClient via  
+            // app.MapGet("your-route", [FromKeyedServices(NodeApiName.Applications)] HttpClient client)
+            services.AddKeyedSingleton(api.ApiName, (provider, key) => {
+                var factory = provider.GetRequiredService<IHttpClientFactory>();
+                var client = factory.CreateClient(key!.ToString()!);
+                return client!;
             });
 
             services.AddInteractors(
                 InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
-                    .Where(descriptor => descriptor.IsFor(apiName))
+                    .Where(descriptor => descriptor.IsFor(api.ApiName))
             );
+        }
+
+        if (instanceOptions.Apis.Any()) {
+            services.AddSingleton<IConfidentialClientApplicationManager>(ccm => new ConfidentialClientApplicationManager([.. instanceOptions.Apis.Select(x => x.ApiName)], instanceOptions.AuthenticatedHttpClientOptions));
         }
 
         return services;
