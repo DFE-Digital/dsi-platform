@@ -1,7 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.NodeApiClient;
 using Dfe.SignIn.SelectOrganisation.Data.DistributedCache;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
+using Dfe.SignIn.SelectOrganisation.Web.Signing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,19 @@ builder.Services.AddNodeApiClient([NodeApiName.Access], options => { });
 builder.Services.AddSelectOrganisationSessionCache(options => { });
 builder.Services.AddApplication(options => { });
 builder.Services.AddFrontendAssets(options => { });
+
+// TEMP: Add mocked interactors.
+builder.Services.AddInteractors(
+    InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly)
+);
+builder.Services.Configure<DefaultCallbackPayloadSignerOptions>(options => {
+    using var rsa = new RSACryptoServiceProvider(2048);
+    options.Algorithm = HashAlgorithmName.SHA256;
+    options.KeyId = "3605fbcf-7664-4e9f-aecc-a7d1ae7b175e";
+    options.Padding = RSASignaturePadding.Pkcs1;
+    options.PrivateKeyPem = rsa.ExportRSAPrivateKeyPem();
+});
+builder.Services.AddSingleton<ICallbackPayloadSigner, DefaultCallbackPayloadSigner>();
 
 var app = builder.Build();
 

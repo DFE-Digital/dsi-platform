@@ -28,20 +28,11 @@ public sealed class DeveloperController : Controller
                 Heading = "Which organisation would you like to use?",
                 Hint = "Select one option.",
             },
-            OrganisationOptions = [
-                new SelectOrganisationOption {
-                    Id = Guid.NewGuid(),
-                    Name = "Organisation A",
-                },
-                new SelectOrganisationOption {
-                    Id = Guid.NewGuid(),
-                    Name = "Organisation B",
-                },
-                new SelectOrganisationOption {
-                    Id = Guid.NewGuid(),
-                    Name = "Organisation C",
-                },
-            ],
+            OrganisationOptions = MockOrganisations.Models.Values
+                .Select(organisation => new SelectOrganisationOption {
+                    Id = organisation.Id,
+                    Name = organisation.Name,
+                }),
         };
 
         await this.selectOrganisationStorer.StoreSessionAsync("test", session);
