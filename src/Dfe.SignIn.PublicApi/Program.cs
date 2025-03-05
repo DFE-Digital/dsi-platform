@@ -1,3 +1,4 @@
+using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseHttpsRedirection();
+app.UseBearerTokenAuthMiddleware(options => { });
 
 app.RegisterSelectOrganisationEndpoints();
 
