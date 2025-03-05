@@ -4,10 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dfe.SignIn.NodeApiClient" Version="1.0.0" />
+    <PackageReference Include="Dfe.SignIn.NodeApiClient" Version="1.0.9195.22950" />
     <PackageReference Include="GovUk.Frontend.AspNetCore" Version="2.8.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
   </ItemGroup>
