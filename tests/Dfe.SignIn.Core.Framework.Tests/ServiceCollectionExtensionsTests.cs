@@ -46,28 +46,28 @@ public sealed class ServiceCollectionExtensionsTests
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
-                descriptor.ImplementationType == typeof(ExampleUseCaseHandler)
+                descriptor.ImplementationType == typeof(Example_UseCaseHandler)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>) &&
-                descriptor.ImplementationType == typeof(AnotherExampleUseCaseHandler)
+                descriptor.ImplementationType == typeof(AnotherExample_UseCaseHandler)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
-                descriptor.ImplementationType == typeof(ExampleApiRequester)
+                descriptor.ImplementationType == typeof(Example_ApiRequester)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>) &&
-                descriptor.ImplementationType == typeof(AnotherExampleApiRequester)
+                descriptor.ImplementationType == typeof(AnotherExample_ApiRequester)
             )
         );
     }

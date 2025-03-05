@@ -20,24 +20,6 @@ public interface IInteractor<TRequest, TResponse>
 }
 
 /// <summary>
-/// Marks an interactor contract within the system.
-/// </summary>
-/// <remarks>
-///   <example>
-///     <para>An example implementation:</para>
-///     <code language="csharp"><![CDATA[
-///       [InteractorContract]
-///       public interface IGetExampleById
-///           : IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>;
-///     ]]></code>
-///   </example>
-/// </remarks>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
-public sealed class InteractorContractAttribute : Attribute
-{
-}
-
-/// <summary>
 /// Marks a use case handler within the system.
 /// </summary>
 /// <remarks>

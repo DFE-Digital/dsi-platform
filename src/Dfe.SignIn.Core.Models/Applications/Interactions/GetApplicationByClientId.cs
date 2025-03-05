@@ -1,9 +1,7 @@
-using Dfe.SignIn.Core.Framework;
-
 namespace Dfe.SignIn.Core.Models.Applications.Interactions;
 
 /// <summary>
-/// Request model for interactor <see cref="IGetApplicationByClientId"/>.
+/// Request to get an application by its unique client identifier.
 /// </summary>
 public record GetApplicationByClientIdRequest
 {
@@ -14,7 +12,7 @@ public record GetApplicationByClientIdRequest
 }
 
 /// <summary>
-/// Response model for interactor <see cref="IGetApplicationByClientId"/>.
+/// Response model for request <see cref="GetApplicationByClientIdRequest"/>.
 /// </summary>
 public record GetApplicationByClientIdResponse
 {
@@ -23,10 +21,3 @@ public record GetApplicationByClientIdResponse
     /// </summary>
     public required ApplicationModel Application { get; init; }
 }
-
-/// <summary>
-/// An interactor that gets an application with the given unique client identifier.
-/// </summary>
-[InteractorContract]
-public interface IGetApplicationByClientId
-    : IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>;

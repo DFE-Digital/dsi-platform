@@ -1,5 +1,6 @@
 using System.Reflection;
 using Dfe.SignIn.Core.Framework.Tests.Fakes;
+using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.Framework.Tests;
 
@@ -28,19 +29,19 @@ public sealed class InteractorReflectionHelpersTests
 
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
-            ConcreteType = typeof(ExampleUseCaseHandler),
+            ConcreteType = typeof(Example_UseCaseHandler),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
-            ConcreteType = typeof(AnotherExampleUseCaseHandler),
+            ConcreteType = typeof(AnotherExample_UseCaseHandler),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
-            ConcreteType = typeof(ExampleApiRequester),
+            ConcreteType = typeof(Example_ApiRequester),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
-            ConcreteType = typeof(AnotherExampleApiRequester),
+            ConcreteType = typeof(AnotherExample_ApiRequester),
         });
     }
 
@@ -65,12 +66,12 @@ public sealed class InteractorReflectionHelpersTests
             .ToArray();
 
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IExampleInteractor),
-            ConcreteType = typeof(ExampleUseCaseHandler),
+            ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
+            ConcreteType = typeof(Example_UseCaseHandler),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IAnotherExampleInteractor),
-            ConcreteType = typeof(AnotherExampleUseCaseHandler),
+            ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
+            ConcreteType = typeof(AnotherExample_UseCaseHandler),
         });
     }
 
@@ -95,13 +96,27 @@ public sealed class InteractorReflectionHelpersTests
             .ToArray();
 
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IExampleInteractor),
-            ConcreteType = typeof(ExampleApiRequester),
+            ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
+            ConcreteType = typeof(Example_ApiRequester),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IAnotherExampleInteractor),
-            ConcreteType = typeof(AnotherExampleApiRequester),
+            ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
+            ConcreteType = typeof(AnotherExample_ApiRequester),
         });
+    }
+
+    #endregion
+
+    #region Unit testing
+
+    [TestMethod]
+    public void UnitTesting_CanEasilyInjectMockInteractors()
+    {
+        var autoMocker = new AutoMocker();
+
+        var service = autoMocker.CreateInstance<FakeServiceWithInteraction>();
+
+        Assert.IsNotNull(service.Interaction);
     }
 
     #endregion

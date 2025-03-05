@@ -1,8 +1,8 @@
-
 namespace Dfe.SignIn.Core.Framework.Tests.Fakes;
 
 [UseCaseHandler]
-public sealed class ExampleUseCaseHandler : IExampleInteractor
+public sealed class Example_UseCaseHandler
+    : IInteractor<ExampleRequest, ExampleResponse>
 {
     public Task<ExampleResponse> InvokeAsync(ExampleRequest request)
     {
@@ -13,7 +13,8 @@ public sealed class ExampleUseCaseHandler : IExampleInteractor
 }
 
 [UseCaseHandler]
-public sealed class AnotherExampleUseCaseHandler : IAnotherExampleInteractor
+public sealed class AnotherExample_UseCaseHandler
+    : IInteractor<AnotherExampleRequest, AnotherExampleResponse>
 {
     public Task<AnotherExampleResponse> InvokeAsync(AnotherExampleRequest request)
     {
