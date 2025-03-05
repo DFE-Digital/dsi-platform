@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
     /// <param name="apiNames">Indicates which mid-tier APIs are required.</param>
-    /// <param name="descriptors">An enumerable collection of interactor type descriptors.</param>
+    /// <param name="setupAction">An action to configure the provided options.</param>
     /// <returns>
     ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
     /// </returns>
@@ -39,9 +39,12 @@ public static class ServiceCollectionExtensions
     ///   <para>- or -</para>
     ///   <para>If <paramref name="apiNames"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="descriptors"/> is null.</para>
+    ///   <para>If <paramref name="setupAction"/> is null.</para>
     /// </exception>
-    public static IServiceCollection AddNodeApiClient(this IServiceCollection services, IEnumerable<NodeApiName> apiNames, Action<NodeApiClientOptions> setupAction)
+    public static IServiceCollection AddNodeApiClient(
+        this IServiceCollection services,
+        IEnumerable<NodeApiName> apiNames,
+        Action<NodeApiClientOptions> setupAction)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
         ArgumentNullException.ThrowIfNull(apiNames, nameof(apiNames));
@@ -53,15 +56,15 @@ public static class ServiceCollectionExtensions
         // authenticated http client
 
         foreach (var apiName in apiNames) {
-            services.AddKeyedScoped(apiName, (provider, key) => {
-                // var options = provider.GetRequiredService<IOptions<NodeApiClientOptions>>().Value
-                //     .Apis.First(apiOptions => apiOptions.ApiName == apiName);
-                // var httpClient = new HttpClient {
-                //     BaseAddress = new Uri(options.BaseAddress)
-                // };
-                // return httpClient;
-                throw new NotImplementedException();
-            });
+            // services.AddKeyedScoped(apiName, (provider, key) => {
+            //     // var options = provider.GetRequiredService<IOptions<NodeApiClientOptions>>().Value
+            //     //     .Apis.First(apiOptions => apiOptions.ApiName == apiName);
+            //     // var httpClient = new HttpClient {
+            //     //     BaseAddress = new Uri(options.BaseAddress)
+            //     // };
+            //     // return httpClient;
+            //     throw new NotImplementedException();
+            // });
 
             services.AddInteractors(
                 InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
