@@ -1,8 +1,8 @@
 {
-    "editor.formatOnSave": true,
-    "files.exclude": {
-        "**/bin": true,
-        "**/obj": true,
-        "**/TestResults": true
-    },
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/TestResults": true
+  },
 }

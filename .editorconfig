@@ -7,6 +7,11 @@ trim_trailing_whitespace = false
 insert_final_newline = true
 indent_style = space
 
+[*.json]
+indent_size = 2
+indent_style = space
+tab_width = 2
+
 [*.cs]
 # Here we set all microsoft's IDExxxx rule violations as compile errors
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/
@@ -61,8 +66,8 @@ dotnet_style_null_propagation = true:error
 dotnet_style_object_initializer = true:error
 dotnet_style_prefer_auto_properties = true:error
 dotnet_style_prefer_compound_assignment = true:error
-dotnet_style_prefer_conditional_expression_over_assignment = true:error
-dotnet_style_prefer_conditional_expression_over_return = true:error
+dotnet_style_prefer_conditional_expression_over_assignment = false
+dotnet_style_prefer_conditional_expression_over_return = false
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:error
 dotnet_style_prefer_inferred_tuple_names = true:error
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:error
