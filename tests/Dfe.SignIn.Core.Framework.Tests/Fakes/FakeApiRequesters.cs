@@ -1,8 +1,8 @@
-
 namespace Dfe.SignIn.Core.Framework.Tests.Fakes;
 
 [ApiRequester]
-public sealed class ExampleApiRequester : IExampleInteractor
+public sealed class Example_ApiRequester
+    : IInteractor<ExampleRequest, ExampleResponse>
 {
     public Task<ExampleResponse> InvokeAsync(ExampleRequest request)
     {
@@ -13,7 +13,8 @@ public sealed class ExampleApiRequester : IExampleInteractor
 }
 
 [ApiRequester]
-public sealed class AnotherExampleApiRequester : IAnotherExampleInteractor
+public sealed class AnotherExample_ApiRequester
+    : IInteractor<AnotherExampleRequest, AnotherExampleResponse>
 {
     public Task<AnotherExampleResponse> InvokeAsync(AnotherExampleRequest request)
     {

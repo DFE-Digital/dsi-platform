@@ -8,7 +8,3 @@ public sealed record ExampleResponse
 {
     public required string Name { get; init; }
 }
-
-[InteractorContract]
-public interface IExampleInteractor
-    : IInteractor<ExampleRequest, ExampleResponse>;

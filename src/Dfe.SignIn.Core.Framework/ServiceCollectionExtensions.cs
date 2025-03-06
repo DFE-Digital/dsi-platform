@@ -33,4 +33,31 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Decorates interactors with request and response model validation.
+    /// </summary>
+    /// <param name="services">The collection to add services to.</param>
+    /// <returns>
+    ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="services"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="setupAction"/> is null.</para>
+    /// </exception>
+    public static IServiceCollection AddInteractorModelValidation(
+        this IServiceCollection services,
+        Action<InteractorModelValidationOptions> setupAction)
+    {
+        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ArgumentNullException.ThrowIfNull(setupAction, nameof(setupAction));
+
+        services.AddOptions();
+        services.Configure(setupAction);
+
+        services.Decorate(typeof(IInteractor<,>), typeof(InteractorModelValidator<,>));
+
+        return services;
+    }
 }

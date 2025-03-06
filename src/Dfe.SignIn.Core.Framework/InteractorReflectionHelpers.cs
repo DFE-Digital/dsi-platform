@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 namespace Dfe.SignIn.Core.Framework;
 
@@ -63,10 +63,10 @@ public static class InteractorReflectionHelpers
         return assembly.GetTypes()
             .Where(type => type.IsClass && !type.IsAbstract && type.GetCustomAttribute<TAttribute>() != null)
             .Select(type => new InteractorTypeDescriptor {
-                ConcreteType = type,
                 ContractType = type.GetInterfaces().FirstOrDefault(interfaceType =>
-                    interfaceType.GetCustomAttribute<InteractorContractAttribute>(inherit: false) != null
-                )!
+                    interfaceType.GetGenericTypeDefinition() == typeof(IInteractor<,>)
+                )!,
+                ConcreteType = type,
             })
             .Where(descriptor => descriptor.ContractType != null);
     }
