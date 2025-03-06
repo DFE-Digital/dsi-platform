@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Applications.Interactions;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +15,7 @@ public class BearerTokenAuthMiddlewareTests
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     private DefaultHttpContext context;
     private Mock<IServiceProvider> mockServiceProvider;
-    private Mock<IGetServiceApiSecretByServiceId> mockGetServiceApiSecretByServiceId;
+    private Mock<IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>> mockGetServiceApiSecretByServiceId;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
     private readonly string validJsonContentType = "application/json; charset=utf-8";
@@ -34,9 +35,9 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Response.Body = new MemoryStream();
         this.mockNext.Setup(n => n(It.IsAny<HttpContext>())).Returns(Task.CompletedTask);
 
-        this.mockGetServiceApiSecretByServiceId = new Mock<IGetServiceApiSecretByServiceId>();
+        this.mockGetServiceApiSecretByServiceId = new Mock<IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>>();
         this.mockServiceProvider = new Mock<IServiceProvider>();
-        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IGetServiceApiSecretByServiceId))).Returns(this.mockGetServiceApiSecretByServiceId.Object);
+        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>))).Returns(this.mockGetServiceApiSecretByServiceId.Object);
         this.context.RequestServices = this.mockServiceProvider.Object;
 
     }
@@ -125,7 +126,7 @@ public class BearerTokenAuthMiddlewareTests
     [TestMethod("Return 401 when the dependency injected service isn't available")]
     public async Task UseBearerTokenAuthMiddleware_Returns_401_WhenDiServiceNotFound()
     {
-        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IGetServiceApiSecretByServiceId)))
+        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>)))
             .Throws(new InvalidOperationException());
 
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");

@@ -1,4 +1,5 @@
 
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Applications.Interactions;
 using Dfe.SignIn.NodeApiClient;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ public static class SelectOrganisationEndpoints
         });
 
         // Test using injected IGetClientByServiceId
-        app.MapGet("select-injected", async ([FromServices] IGetServiceApiSecretByServiceId service) => {
+        app.MapGet("select-injected", async ([FromServices] IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse> service) => {
             var result = await service.InvokeAsync(new GetServiceApiSecretByServiceIdRequest { ServiceId = Guid.Parse("") });
             return Results.Json(result);
         });

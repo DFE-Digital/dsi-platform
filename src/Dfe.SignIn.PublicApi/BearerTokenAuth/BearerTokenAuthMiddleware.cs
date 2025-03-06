@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Applications.Interactions;
 using Microsoft.IdentityModel.Tokens;
 
@@ -64,9 +65,9 @@ public class BearerTokenAuthMiddleware
         }
 
         var serviceProvider = context.RequestServices;
-        IGetServiceApiSecretByServiceId? service = null;
+        IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>? service = null;
         try {
-            service = serviceProvider.GetRequiredService<IGetServiceApiSecretByServiceId>();
+            service = serviceProvider.GetRequiredService<IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>>();
         }
         catch {
         }
@@ -78,7 +79,7 @@ public class BearerTokenAuthMiddleware
 
         var response = await service.InvokeAsync(new GetServiceApiSecretByServiceIdRequest { ServiceId = serviceId });
 
-        if (response is null) {
+        if (response is null || response.Service is null) {
             await SendErrorResponseAsync("Unknown issuer", context, StatusCodes.Status403Forbidden);
             return;
         }
