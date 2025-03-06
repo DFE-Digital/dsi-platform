@@ -7,7 +7,3 @@ public sealed record AnotherExampleRequest
 public sealed record AnotherExampleResponse
 {
 }
-
-[InteractorContract]
-public interface IAnotherExampleInteractor
-    : IInteractor<AnotherExampleRequest, AnotherExampleResponse>;
