@@ -41,13 +41,10 @@ public static class ServiceCollectionExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="apiNames"/> is null.</para>
-    ///   <para>- or -</para>
     ///   <para>If <paramref name="setupAction"/> is null.</para>
     /// </exception>
     public static IServiceCollection AddNodeApiClient(
         this IServiceCollection services,
-        IEnumerable<NodeApiName> apiNames,
         Action<NodeApiClientOptions> setupAction)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));

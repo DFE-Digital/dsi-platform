@@ -80,7 +80,13 @@ public sealed class ServiceCollectionExtensionsTests
 
         static void NewNodeClientOptions(NodeApiClientOptions options)
         {
-            options.Apis = [new NodeApiOptions { ApiName = NodeApiName.Access, BaseAddress = new Uri("https://access.localhost") }];
+            options.Apis = [
+                new NodeApiOptions {
+                    ApiName = NodeApiName.Access,
+                    BaseAddress = new Uri("https://access.localhost"),
+                    AuthenticatedHttpClientOptions = default!
+                }
+            ];
         }
 
         Action<NodeApiClientOptions> options = NewNodeClientOptions;
@@ -104,7 +110,13 @@ public sealed class ServiceCollectionExtensionsTests
 
         static void NewNodeClientOptions(NodeApiClientOptions options)
         {
-            options.Apis = [new NodeApiOptions { ApiName = NodeApiName.Applications, BaseAddress = new Uri("https://applications.localhost") }];
+            options.Apis = [
+                new NodeApiOptions {
+                    ApiName = NodeApiName.Applications,
+                    BaseAddress = new Uri("https://applications.localhost"),
+                    AuthenticatedHttpClientOptions = default!
+                }
+            ];
         }
 
         Action<NodeApiClientOptions> options = NewNodeClientOptions;
@@ -128,7 +140,13 @@ public sealed class ServiceCollectionExtensionsTests
 
         static void NewNodeClientOptions(NodeApiClientOptions options)
         {
-            options.Apis = [new NodeApiOptions { ApiName = NodeApiName.Directories, BaseAddress = new Uri("https://directories.localhost") }];
+            options.Apis = [
+                new NodeApiOptions {
+                    ApiName = NodeApiName.Directories,
+                    BaseAddress = new Uri("https://directories.localhost"),
+                    AuthenticatedHttpClientOptions = default!
+                }
+            ];
         }
 
         Action<NodeApiClientOptions> options = NewNodeClientOptions;
@@ -152,7 +170,13 @@ public sealed class ServiceCollectionExtensionsTests
 
         static void NewNodeClientOptions(NodeApiClientOptions options)
         {
-            options.Apis = [new NodeApiOptions { ApiName = NodeApiName.Organisations, BaseAddress = new Uri("https://organisations.localhost") }];
+            options.Apis = [
+                new NodeApiOptions {
+                    ApiName = NodeApiName.Organisations,
+                    BaseAddress = new Uri("https://organisations.localhost"),
+                    AuthenticatedHttpClientOptions = default!
+                }
+            ];
         }
 
         Action<NodeApiClientOptions> options = NewNodeClientOptions;
@@ -176,7 +200,13 @@ public sealed class ServiceCollectionExtensionsTests
 
         static void NewNodeClientOptions(NodeApiClientOptions options)
         {
-            options.Apis = [new NodeApiOptions { ApiName = NodeApiName.Search, BaseAddress = new Uri("https://search.localhost") }];
+            options.Apis = [
+                new NodeApiOptions {
+                    ApiName = NodeApiName.Search,
+                    BaseAddress = new Uri("https://search.localhost"),
+                    AuthenticatedHttpClientOptions = default!
+                }
+            ];
         }
 
         Action<NodeApiClientOptions> options = NewNodeClientOptions;

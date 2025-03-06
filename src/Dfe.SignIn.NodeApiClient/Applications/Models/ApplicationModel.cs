@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.NodeApiClient.Applications.Models;
 
-public sealed record ServiceModel()
+public sealed record ApplicationModel()
 {
     public required Guid Id { get; init; }
     public required string Name { get; init; }
