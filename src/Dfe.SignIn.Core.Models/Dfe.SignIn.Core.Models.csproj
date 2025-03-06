@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dfe.SignIn.Core.Framework\Dfe.SignIn.Core.Framework.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.PublicModels\Dfe.SignIn.Core.PublicModels.csproj" />
   </ItemGroup>
 
 </Project>
