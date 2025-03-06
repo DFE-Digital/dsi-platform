@@ -10,7 +10,7 @@ namespace Dfe.SignIn.NodeApiClient.Applications;
 /// ApiRequester for obtaining a services ApiSecret
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
-public sealed class GetServiceApiSecretById_ApiRequester : IGetServiceApiSecretByServiceId
+public sealed class GetServiceApiSecretById_ApiRequester : IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>
 {
     private readonly HttpClient httpClient;
 
@@ -24,10 +24,8 @@ public sealed class GetServiceApiSecretById_ApiRequester : IGetServiceApiSecretB
     {
         var response = await this.httpClient.GetFromJsonAsync<Models.ServiceModel>($"services/{request.ServiceId}");
 
-        //TODO: in the event that response is null what should be returned, or what exception thrown
-
         return new GetServiceApiSecretByServiceIdResponse {
-            Service = new Core.Models.Applications.ServiceApiSecretModel {
+            Service = response is null ? null : new Core.Models.Applications.ServiceApiSecretModel {
                 Id = response.Id,
                 ApiSecret = response.RelyingParty.ApiSecret
             }
