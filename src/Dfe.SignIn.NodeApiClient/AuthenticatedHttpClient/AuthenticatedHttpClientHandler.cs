@@ -1,4 +1,4 @@
-using Dfe.SignIn.NodeApiClient.ConfidentialClientApplication;
+using Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
 
 namespace Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 
@@ -7,24 +7,21 @@ namespace Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 /// </summary>
 public sealed class AuthenticatedHttpClientHandler : DelegatingHandler
 {
-    private readonly NodeApiName nodeApiName;
-    private readonly IConfidentialClientApplicationManager confidentialClientApplicationManager;
+    private readonly IHttpSecurityProvider httpSecurityProvider;
 
     /// <summary>
-    /// Create a new instance of AuthenticatedHttpClientHandler with the provided options
+    /// Instantiate an instance of AuthenticatedHttpClientHandler
     /// </summary>
-    /// <param name="nodeApiName">NodeApiName for this instance.</param>
-    /// <param name="confidentialClientApplicationManager">Confidential Client Application Manager instance.</param>
-    public AuthenticatedHttpClientHandler(NodeApiName nodeApiName, IConfidentialClientApplicationManager confidentialClientApplicationManager)
+    /// <param name="httpSecurityProvider"></param>
+    public AuthenticatedHttpClientHandler(IHttpSecurityProvider httpSecurityProvider)
     {
-        this.nodeApiName = nodeApiName;
-        this.confidentialClientApplicationManager = confidentialClientApplicationManager;
+        this.httpSecurityProvider = httpSecurityProvider;
     }
 
     /// <inheritdoc/>
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        await this.confidentialClientApplicationManager.AddAuthorizationAsync(this.nodeApiName, request);
+        await this.httpSecurityProvider.AddAuthorizationAsync(request);
         return await base.SendAsync(request, cancellationToken);
     }
 }

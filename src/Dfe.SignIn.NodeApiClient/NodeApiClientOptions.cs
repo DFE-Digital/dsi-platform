@@ -12,11 +12,6 @@ public sealed class NodeApiClientOptions : IOptions<NodeApiClientOptions>
     /// </summary>
     public IEnumerable<NodeApiOptions> Apis { get; set; } = [];
 
-    /// <summary>
-    /// Gets or sets common Authenticated Http Client Options
-    /// </summary>
-    public NodeApiAuthenticatedHttpClientOptions AuthenticatedHttpClientOptions { get; set; } = new();
-
     /// <inheritdoc/>
     NodeApiClientOptions IOptions<NodeApiClientOptions>.Value => this;
 }
@@ -35,6 +30,11 @@ public sealed class NodeApiOptions
     /// Gets or sets the base address of the API.
     /// </summary>
     public required Uri BaseAddress { get; set; }
+
+    /// <summary>
+    /// Gets or sets common Authenticated Http Client Options
+    /// </summary>
+    public required NodeApiAuthenticatedHttpClientOptions AuthenticatedHttpClientOptions { get; set; }
 }
 
 public sealed class NodeApiAuthenticatedHttpClientOptions

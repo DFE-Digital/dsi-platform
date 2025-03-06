@@ -2,8 +2,9 @@ using System.Net;
 using System.Reflection;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
-using Dfe.SignIn.NodeApiClient.ConfidentialClientApplication;
+using Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApiClient;
 
@@ -57,12 +58,14 @@ public static class ServiceCollectionExtensions
             services.AddHttpClient(api.ApiName.ToString(), client => {
                 client.BaseAddress = api.BaseAddress;
             }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler {
-                UseProxy = instanceOptions.AuthenticatedHttpClientOptions.UseProxy,
-                Proxy = new WebProxy(instanceOptions.AuthenticatedHttpClientOptions.ProxyUrl)
+                UseProxy = api.AuthenticatedHttpClientOptions.UseProxy,
+                Proxy = new WebProxy(api.AuthenticatedHttpClientOptions.ProxyUrl)
             })
             .AddHttpMessageHandler(provider => {
-                var confidentialClientApplicationManager = provider.GetRequiredService<IConfidentialClientApplicationManager>();
-                return new AuthenticatedHttpClientHandler(api.ApiName, confidentialClientApplicationManager);
+                string[] scopes = [$"{api.AuthenticatedHttpClientOptions.Resource}/.default"];
+                var msal = provider.GetRequiredKeyedService<IConfidentialClientApplication>(api.ApiName);
+                var msalHttpSecurityProvider = new MsalHttpSecurityProvider(scopes, msal);
+                return new AuthenticatedHttpClientHandler(msalHttpSecurityProvider);
             });
 
             // endpoints can use the httpClient via  
@@ -73,14 +76,18 @@ public static class ServiceCollectionExtensions
                 return client!;
             });
 
+            services.AddKeyedSingleton(api.ApiName, (provider, key) => {
+                return ConfidentialClientApplicationBuilder
+                    .Create(api.AuthenticatedHttpClientOptions.ClientId.ToString())
+                    .WithClientSecret(api.AuthenticatedHttpClientOptions.ClientSecret)
+                    .WithAuthority(api.AuthenticatedHttpClientOptions.HostUrl)
+                    .Build();
+            });
+
             services.AddInteractors(
                 InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
                     .Where(descriptor => descriptor.IsFor(api.ApiName))
             );
-        }
-
-        if (instanceOptions.Apis.Any()) {
-            services.AddSingleton<IConfidentialClientApplicationManager>(ccm => new ConfidentialClientApplicationManager([.. instanceOptions.Apis.Select(x => x.ApiName)], instanceOptions.AuthenticatedHttpClientOptions));
         }
 
         return services;
