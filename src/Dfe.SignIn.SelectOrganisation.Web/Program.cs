@@ -13,13 +13,17 @@ builder.WebHost.ConfigureKestrel(options => {
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services
+    .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"));
+builder.Services
+    .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
+    .SetupFrontendAssets();
+builder.Services
+    .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
+    .SetupNodeApiClient([NodeApiName.Access]);
+
 builder.Services.SetupPublicApiSigningInteractions();
 builder.Services.SetupSelectOrganisationInteractions();
-
-builder.Services.AddNodeApiClient([NodeApiName.Access], options => { });
-
-builder.Services.AddApplication(options => { });
-builder.Services.AddFrontendAssets(options => { });
 
 // TEMP: Add mocked interactors.
 builder.Services.AddInteractors(
@@ -56,5 +60,6 @@ app.MapControllerRoute(
 
 app.Run();
 
+/// <exclude/>
 [ExcludeFromCodeCoverage]
 public partial class Program { }

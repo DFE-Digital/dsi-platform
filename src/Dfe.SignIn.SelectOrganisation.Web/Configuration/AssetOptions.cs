@@ -14,7 +14,7 @@ public sealed class AssetOptions : IOptions<AssetOptions>
     ///   <para>Defaults to a URL that is suitable for a local development environment
     ///   when using the <c>login.dfe.ui-toolkit</c> package.</para>
     /// </remarks>
-    public Uri BaseUrl { get; set; } = new Uri("https://localhost:3001/");
+    public Uri BaseAddress { get; set; } = new Uri("https://localhost:3001");
 
     /// <summary>
     /// Assets version string.
