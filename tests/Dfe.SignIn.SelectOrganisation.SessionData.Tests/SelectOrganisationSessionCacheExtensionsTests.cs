@@ -1,9 +1,9 @@
-using Dfe.SignIn.SelectOrganisation.Data.DistributedCache;
-using Dfe.SignIn.SelectOrganisation.Data.Json;
+using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
+using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.SelectOrganisation.Data.Tests.DistributedCache;
+namespace Dfe.SignIn.SelectOrganisation.SessionData.Tests;
 
 [TestClass]
 public sealed class SelectOrganisationSessionCacheExtensionsTests
@@ -65,15 +65,8 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(ISelectOrganisationSessionRetriever) &&
-                descriptor.ImplementationType == typeof(DistributedCacheSelectOrganisationSessionRetriever)
-            )
-        );
-        Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(ISelectOrganisationSessionStorer) &&
-                descriptor.ImplementationType == typeof(DistributedCacheSelectOrganisationSessionStorer)
+                descriptor.ServiceType == typeof(ISelectOrganisationSessionRepository) &&
+                descriptor.ImplementationType == typeof(DistributedCacheSelectOrganisationSessionRepository)
             )
         );
     }

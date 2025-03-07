@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.SelectOrganisation.Data.DistributedCache;
+namespace Dfe.SignIn.SelectOrganisation.SessionData;
 
 /// <summary>
 /// Options for distributed cache implementation of "select organisation" sessions.

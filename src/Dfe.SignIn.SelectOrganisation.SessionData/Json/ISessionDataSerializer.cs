@@ -1,4 +1,6 @@
-namespace Dfe.SignIn.SelectOrganisation.Data.Json;
+using Dfe.SignIn.Core.Models.SelectOrganisation;
+
+namespace Dfe.SignIn.SelectOrganisation.SessionData.Json;
 
 /// <summary>
 /// Represents a service that serializes and deserializes <see cref="SelectOrganisationSessionData"/>.

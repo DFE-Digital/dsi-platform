@@ -1,7 +1,8 @@
-using Dfe.SignIn.SelectOrganisation.Data.Json;
+using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
+using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.SelectOrganisation.Data.DistributedCache;
+namespace Dfe.SignIn.SelectOrganisation.SessionData;
 
 /// <summary>
 /// Extension methods for setting up the distributed cache implementation for
@@ -32,8 +33,7 @@ public static class SelectOrganisationSessionCacheExtensions
 
         services.Configure(setupAction);
         services.AddSingleton<ISessionDataSerializer, DefaultSessionDataSerializer>();
-        services.AddSingleton<ISelectOrganisationSessionRetriever, DistributedCacheSelectOrganisationSessionRetriever>();
-        services.AddSingleton<ISelectOrganisationSessionStorer, DistributedCacheSelectOrganisationSessionStorer>();
+        services.AddSingleton<ISelectOrganisationSessionRepository, DistributedCacheSelectOrganisationSessionRepository>();
 
         return services;
     }

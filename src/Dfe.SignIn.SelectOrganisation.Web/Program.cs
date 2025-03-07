@@ -1,10 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Core.UseCases.PublicApiSigning;
+using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.NodeApiClient;
-using Dfe.SignIn.SelectOrganisation.Data.DistributedCache;
+using Dfe.SignIn.SelectOrganisation.SessionData;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
-using Dfe.SignIn.SelectOrganisation.Web.Signing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,14 +30,17 @@ builder.Services.AddFrontendAssets(options => { });
 builder.Services.AddInteractors(
     InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly)
 );
-builder.Services.Configure<DefaultCallbackPayloadSignerOptions>(options => {
+
+builder.Services.Configure<PublicApiSigningOptions>(options => {
     using var rsa = new RSACryptoServiceProvider(2048);
     options.Algorithm = HashAlgorithmName.SHA256;
-    options.KeyId = "3605fbcf-7664-4e9f-aecc-a7d1ae7b175e";
+    options.PublicKeyId = "3605fbcf-7664-4e9f-aecc-a7d1ae7b175e";
     options.Padding = RSASignaturePadding.Pkcs1;
     options.PrivateKeyPem = rsa.ExportRSAPrivateKeyPem();
 });
-builder.Services.AddSingleton<ICallbackPayloadSigner, DefaultCallbackPayloadSigner>();
+builder.Services.AddInteractor<CreateDigitalSignatureForPayload_UseCase>();
+
+builder.Services.AddInteractor<GetSelectOrganisationSessionByKey_UseCase>();
 
 var app = builder.Build();
 

@@ -2,10 +2,11 @@ using System.Text.Json;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Applications.Interactions;
 using Dfe.SignIn.Core.Models.Organisations.Interactions;
-using Dfe.SignIn.SelectOrganisation.Data;
+using Dfe.SignIn.Core.Models.PublicApiSigning.Interactions;
+using Dfe.SignIn.Core.Models.SelectOrganisation;
+using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Models;
-using Dfe.SignIn.SelectOrganisation.Web.Signing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -18,8 +19,8 @@ public sealed class SelectOrganisationController(
     IOptions<ApplicationOptions> applicationOptionsAccessor,
     IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
     IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse> getOrganisationById,
-    ISelectOrganisationSessionRetriever selectOrganisationRetriever,
-    ICallbackPayloadSigner callbackPayloadSigner
+    IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse> getSelectOrganisationSessionByKey,
+    IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse> createDigitalSignatureForPayload
 ) : Controller
 {
     private static readonly JsonSerializerOptions jsonSerializerOptions = new() {
@@ -30,13 +31,9 @@ public sealed class SelectOrganisationController(
     [Route("{clientId}/{sessionKey}")]
     public async Task<IActionResult> Index(string clientId, string sessionKey)
     {
-        var session = await selectOrganisationRetriever.RetrieveSessionAsync(sessionKey);
-
+        var session = await this.GetSessionData(clientId, sessionKey);
         if (session == null) {
             return await this.HandleInvalidSessionAsync(clientId);
-        }
-        if (clientId != session.ClientId) {
-            throw new InvalidOperationException("Invalid client");
         }
 
         return this.View(new SelectOrganisationViewModel {
@@ -49,13 +46,9 @@ public sealed class SelectOrganisationController(
     [Route("{clientId}/{sessionKey}")]
     public async Task<IActionResult> PostIndex(string clientId, string sessionKey, SelectOrganisationViewModel viewModel)
     {
-        var session = await selectOrganisationRetriever.RetrieveSessionAsync(sessionKey);
-
+        var session = await this.GetSessionData(clientId, sessionKey);
         if (session == null) {
             return await this.HandleInvalidSessionAsync(clientId);
-        }
-        if (clientId != session.ClientId) {
-            throw new InvalidOperationException("Invalid client");
         }
 
         var organisation = await getOrganisationById.InvokeAsync(new() {
@@ -63,14 +56,32 @@ public sealed class SelectOrganisationController(
         });
 
         var json = JsonSerializer.Serialize(organisation, jsonSerializerOptions);
-        var signature = callbackPayloadSigner.CreateDigitalSignature(json);
+        var signingResponse = await createDigitalSignatureForPayload.InvokeAsync(new() {
+            Payload = json,
+        });
 
         return this.View("Callback", new SelectOrganisationCallbackViewModel {
             CallbackUrl = session.CallbackUrl,
             PayloadData = json,
-            DigitalSignature = signature.Signature,
-            PublicKeyId = signature.KeyId,
+            DigitalSignature = signingResponse.Signature.Signature,
+            PublicKeyId = signingResponse.Signature.KeyId,
         });
+    }
+
+    private async Task<SelectOrganisationSessionData?> GetSessionData(string clientId, string sessionKey)
+    {
+        var sessionResponse = await getSelectOrganisationSessionByKey.InvokeAsync(new() {
+            SessionKey = sessionKey,
+        });
+
+        if (sessionResponse.SessionData == null) {
+            return null;
+        }
+        if (clientId != sessionResponse.SessionData.ClientId) {
+            throw new InvalidOperationException("Invalid client");
+        }
+
+        return sessionResponse.SessionData;
     }
 
     private async Task<IActionResult> HandleInvalidSessionAsync(string? clientId)

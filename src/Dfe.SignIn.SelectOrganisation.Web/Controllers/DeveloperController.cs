@@ -1,4 +1,6 @@
-using Dfe.SignIn.SelectOrganisation.Data;
+using Dfe.SignIn.Core.Models.SelectOrganisation;
+using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
+using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.Controllers;
@@ -6,16 +8,10 @@ namespace Dfe.SignIn.SelectOrganisation.Web.Controllers;
 /// <summary>
 /// A controller to assist with development.
 /// </summary>
-public sealed class DeveloperController : Controller
+public sealed class DeveloperController(
+    ISelectOrganisationSessionRepository sessionRepository
+) : Controller
 {
-    private readonly ISelectOrganisationSessionStorer selectOrganisationStorer;
-
-    public DeveloperController(
-        ISelectOrganisationSessionStorer selectOrganisationStorer)
-    {
-        this.selectOrganisationStorer = selectOrganisationStorer;
-    }
-
     public async Task<IActionResult> Index()
     {
         var session = new SelectOrganisationSessionData {
@@ -35,7 +31,7 @@ public sealed class DeveloperController : Controller
                 }),
         };
 
-        await this.selectOrganisationStorer.StoreSessionAsync("test", session);
+        await sessionRepository.StoreAsync("test", session);
 
         return this.View();
     }

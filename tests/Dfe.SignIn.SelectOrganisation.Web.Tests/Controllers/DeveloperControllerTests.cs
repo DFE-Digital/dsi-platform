@@ -1,4 +1,5 @@
-using Dfe.SignIn.SelectOrganisation.Data;
+using Dfe.SignIn.Core.Models.SelectOrganisation;
+using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Dfe.SignIn.SelectOrganisation.Web.Controllers;
 using Moq;
 using Moq.AutoMock;
@@ -18,9 +19,9 @@ public sealed class DeveloperControllerTests
 
         var result = await controller.Index();
 
-        var selectOrganisationStorerMock = mocker.GetMock<ISelectOrganisationSessionStorer>();
-        selectOrganisationStorerMock.Verify(
-            x => x.StoreSessionAsync(
+        var selectOrganisationRepositoryMock = mocker.GetMock<ISelectOrganisationSessionRepository>();
+        selectOrganisationRepositoryMock.Verify(
+            x => x.StoreAsync(
                 It.Is<string>(param => param == "test"),
                 It.Is<SelectOrganisationSessionData>(param =>
                     param.CallbackUrl == new Uri("https://example.localhost/callback") &&
