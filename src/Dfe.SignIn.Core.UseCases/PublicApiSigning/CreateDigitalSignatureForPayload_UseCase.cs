@@ -7,6 +7,10 @@ using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.UseCases.PublicApiSigning;
 
+/// <summary>
+/// Use case for creating a digital signature for a given payload.
+/// </summary>
+/// <param name="optionsAccessor">Provides access to digital signing options.</param>
 public sealed class CreateDigitalSignatureForPayload_UseCase(
     IOptions<PublicApiSigningOptions> optionsAccessor
 ) : IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse>

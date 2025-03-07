@@ -6,6 +6,11 @@ using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 
+/// <summary>
+/// Use case for creating a "select organisation" session.
+/// </summary>
+/// <param name="optionsAccessor">Provides access to "select organisation" options.</param>
+/// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
 public sealed class CreateSelectOrganisationSession_UseCase(
     IOptions<SelectOrganisationOptions> optionsAccessor,
     ISelectOrganisationSessionRepository sessionRepository
