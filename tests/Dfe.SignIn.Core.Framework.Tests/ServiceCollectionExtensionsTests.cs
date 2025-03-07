@@ -10,6 +10,36 @@ public sealed class ServiceCollectionExtensionsTests
 {
     private static readonly Assembly TestAssembly = typeof(InteractorReflectionHelpersTests).Assembly;
 
+    #region AddInteractor<TConcreteInteractor>(IServiceCollection)
+
+    [TestMethod]
+    public void AddInteractor_Throws_WhenServicesArgumentIsNull()
+    {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+        Assert.ThrowsException<ArgumentNullException>(
+            () => ServiceCollectionExtensions.AddInteractor<Example_UseCaseHandler>(null)
+        );
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+    }
+
+    [TestMethod]
+    public void AddInteractor_RegistersExpectedServices()
+    {
+        var services = new ServiceCollection();
+
+        services.AddInteractor<Example_UseCaseHandler>();
+
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
+                descriptor.ImplementationType == typeof(Example_UseCaseHandler)
+            )
+        );
+    }
+
+    #endregion
+
     #region AddInteractors(IServiceCollection, Assembly)
 
     [TestMethod]
