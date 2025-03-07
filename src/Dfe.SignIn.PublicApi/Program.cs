@@ -39,6 +39,11 @@ builder.Services.AddSwaggerGen(config => {
     config.IncludeXmlComments(GetXmlFileName(typeof(Program)));
 });
 
+builder.Services.AddAutoMapper(options => {
+    // Add mapping profiles here...
+    //options.AddProfile<ExampleMappingProfile>();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
