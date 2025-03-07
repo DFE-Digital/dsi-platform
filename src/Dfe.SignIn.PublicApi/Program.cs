@@ -63,6 +63,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 
+app.RegisterDigitalSigningEndpoints();
 app.RegisterSelectOrganisationEndpoints();
 
 app.Run();
