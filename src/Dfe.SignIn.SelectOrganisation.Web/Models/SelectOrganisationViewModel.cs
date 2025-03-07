@@ -1,4 +1,4 @@
-using Dfe.SignIn.SelectOrganisation.Data;
+using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.Models;
 

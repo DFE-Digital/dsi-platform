@@ -1,7 +1,8 @@
 using System.Text.Json;
-using Dfe.SignIn.SelectOrganisation.Data.Json;
+using Dfe.SignIn.Core.Models.SelectOrganisation;
+using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 
-namespace Dfe.SignIn.SelectOrganisation.Data.Tests.Json;
+namespace Dfe.SignIn.SelectOrganisation.SessionData.Tests.Json;
 
 [TestClass]
 public sealed class DefaultSessionDataSerializerTests

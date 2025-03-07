@@ -10,13 +10,18 @@
 
   <ItemGroup>
     <PackageReference Include="Dfe.SignIn.Core.Framework" Version="1.0.*" />
+    <PackageReference Include="Dfe.SignIn.Core.PublicModels" Version="1.0.*" />
+    <PackageReference Include="Dfe.SignIn.Core.Models" Version="1.0.*" />
     <PackageReference Include="Dfe.SignIn.NodeApiClient" Version="1.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GovUk.Frontend.AspNetCore" Version="2.8.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dfe.SignIn.SelectOrganisation.Data\Dfe.SignIn.SelectOrganisation.Data.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.SelectOrganisation.SessionData\Dfe.SignIn.SelectOrganisation.SessionData.csproj" />
   </ItemGroup>
 
 </Project>

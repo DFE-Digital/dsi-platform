@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Dfe.SignIn.SelectOrganisation.Data\Dfe.SignIn.SelectOrganisation.Data.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.SelectOrganisation.SessionData\Dfe.SignIn.SelectOrganisation.SessionData.csproj" />
   </ItemGroup>
 
 </Project>

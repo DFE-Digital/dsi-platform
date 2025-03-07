@@ -1,6 +1,7 @@
 using System.Text.Json;
+using Dfe.SignIn.Core.Models.SelectOrganisation;
 
-namespace Dfe.SignIn.SelectOrganisation.Data.Json;
+namespace Dfe.SignIn.SelectOrganisation.SessionData.Json;
 
 /// <inheritdoc/>
 public sealed class DefaultSessionDataSerializer : ISessionDataSerializer
