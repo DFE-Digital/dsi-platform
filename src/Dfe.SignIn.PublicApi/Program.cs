@@ -1,4 +1,7 @@
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Core.UseCases.SelectOrganisation;
+using Dfe.SignIn.SelectOrganisation.SessionData;
 using Dfe.SignIn.PublicApi.Endpoints;
 using System.Text.Json;
 
@@ -39,10 +42,16 @@ builder.Services.AddSwaggerGen(config => {
     config.IncludeXmlComments(GetXmlFileName(typeof(Program)));
 });
 
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = "localhost:6379";
+});
+builder.Services.AddSelectOrganisationSessionCache(options => { });
+
 builder.Services.AddAutoMapper(options => {
     // Add mapping profiles here...
     //options.AddProfile<ExampleMappingProfile>();
 });
+builder.Services.AddInteractor<CreateSelectOrganisationSession_UseCase>();
 
 var app = builder.Build();
 
