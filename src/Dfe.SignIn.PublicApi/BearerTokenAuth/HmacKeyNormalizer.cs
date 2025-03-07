@@ -1,6 +1,9 @@
 
 namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
 
+/// <summary>
+/// Resolves difference between Node and C# hmac
+/// </summary>
 public sealed class HmacKeyNormalizer
 {
     /// <summary>

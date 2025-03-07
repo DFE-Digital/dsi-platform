@@ -68,5 +68,8 @@ app.RegisterSelectOrganisationEndpoints();
 
 app.Run();
 
+/// <summary>
+/// ExcludeFromCodeCoverage
+/// </summary>
 [ExcludeFromCodeCoverage]
 public partial class Program { }

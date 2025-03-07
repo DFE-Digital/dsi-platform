@@ -36,6 +36,7 @@ public class BearerTokenAuthMiddleware
         await context.Response.WriteAsJsonAsync(new ErrorResponse { Message = message });
     }
 
+    /// <inheritdoc/>
     public async Task InvokeAsync(HttpContext context)
     {
         if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader)) {
