@@ -1,11 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.UseCases.PublicApiSigning;
-using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.NodeApiClient;
-using Dfe.SignIn.SelectOrganisation.SessionData;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
+using Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,13 +13,11 @@ builder.WebHost.ConfigureKestrel(options => {
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddStackExchangeRedisCache(options => {
-    options.Configuration = "localhost:6379";
-});
+builder.Services.SetupPublicApiSigningInteractions();
+builder.Services.SetupSelectOrganisationInteractions();
 
 builder.Services.AddNodeApiClient([NodeApiName.Access], options => { });
 
-builder.Services.AddSelectOrganisationSessionCache(options => { });
 builder.Services.AddApplication(options => { });
 builder.Services.AddFrontendAssets(options => { });
 
@@ -30,17 +25,6 @@ builder.Services.AddFrontendAssets(options => { });
 builder.Services.AddInteractors(
     InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly)
 );
-
-builder.Services.Configure<PublicApiSigningOptions>(options => {
-    using var rsa = new RSACryptoServiceProvider(2048);
-    options.Algorithm = HashAlgorithmName.SHA256;
-    options.PublicKeyId = "3605fbcf-7664-4e9f-aecc-a7d1ae7b175e";
-    options.Padding = RSASignaturePadding.Pkcs1;
-    options.PrivateKeyPem = rsa.ExportRSAPrivateKeyPem();
-});
-builder.Services.AddInteractor<CreateDigitalSignatureForPayload_UseCase>();
-
-builder.Services.AddInteractor<GetSelectOrganisationSessionByKey_UseCase>();
 
 var app = builder.Build();
 
