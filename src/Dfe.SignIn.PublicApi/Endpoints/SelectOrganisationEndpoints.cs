@@ -21,8 +21,8 @@ public static class SelectOrganisationEndpoints
         });
 
         // Test using injected IGetClientByServiceId
-        app.MapGet("select-injected", async ([FromServices] IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse> service) => {
-            var result = await service.InvokeAsync(new GetServiceApiSecretByServiceIdRequest { ServiceId = Guid.Parse("") });
+        app.MapGet("select-injected", async ([FromServices] IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse> service) => {
+            var result = await service.InvokeAsync(new GetApplicationApiSecretByClientIdRequest { ClientId = "" });
             return Results.Json(result);
         });
     }

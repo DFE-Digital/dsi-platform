@@ -59,32 +59,23 @@ public class BearerTokenAuthMiddleware
         }
 
         var jwtToken = tokenHandler.ReadJwtToken(token);
-        if (string.IsNullOrEmpty(jwtToken.Issuer) || !Guid.TryParse(jwtToken.Issuer, out var serviceId)) {
+        if (string.IsNullOrEmpty(jwtToken.Issuer)) {
             await SendErrorResponseAsync("Missing or invalid iss claim", context, StatusCodes.Status403Forbidden);
             return;
         }
 
         var serviceProvider = context.RequestServices;
-        IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>? service = null;
-        try {
-            service = serviceProvider.GetRequiredService<IInteractor<GetServiceApiSecretByServiceIdRequest, GetServiceApiSecretByServiceIdResponse>>();
-        }
-        catch {
-        }
+        IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse> service =
+            serviceProvider.GetRequiredService<IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse>>();
 
-        if (service is null) {
-            await SendErrorResponseAsync("Service unavailable", context);
-            return;
-        }
+        var response = await service.InvokeAsync(new GetApplicationApiSecretByClientIdRequest { ClientId = jwtToken.Issuer });
 
-        var response = await service.InvokeAsync(new GetServiceApiSecretByServiceIdRequest { ServiceId = serviceId });
-
-        if (response is null || response.Service is null) {
+        if (response is null || response.Application is null) {
             await SendErrorResponseAsync("Unknown issuer", context, StatusCodes.Status403Forbidden);
             return;
         }
 
-        if (string.IsNullOrEmpty(response.Service.ApiSecret)) {
+        if (string.IsNullOrEmpty(response.Application.ApiSecret)) {
             await SendErrorResponseAsync("Your client is not authorized to use this api", context, StatusCodes.Status403Forbidden);
             return;
         }
@@ -96,13 +87,13 @@ public class BearerTokenAuthMiddleware
         var hasNbf = jwtToken.Claims.Any(c => c.Type == "nbf");
 
         // Convert the string into a byte-array
-        var keyBytes = System.Text.Encoding.UTF8.GetBytes(response.Service.ApiSecret);
+        var keyBytes = System.Text.Encoding.UTF8.GetBytes(response.Application.ApiSecret);
 
         keyBytes = HmacKeyNormalizer.NormalizeHmacSha256Key(keyBytes);
 
         var tokenValidationParameters = new TokenValidationParameters {
             ValidateIssuer = true,
-            ValidIssuer = response.Service.Id.ToString(),
+            ValidIssuer = response.Application.ClientId,
             ValidateAudience = true,
             ValidAudience = this.options.ValidAudience,
             ValidateLifetime = hasExp || hasNbf,
