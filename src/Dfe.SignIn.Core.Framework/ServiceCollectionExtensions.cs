@@ -8,6 +8,31 @@ namespace Dfe.SignIn.Core.Framework;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
+    /// Adds a concrete interactor implementation into a service collection.
+    /// </summary>
+    /// <typeparam name="TConcreteInteractor">The type of interactor.</typeparam>
+    /// <param name="services">The collection to add services to.</param>
+    /// <returns>
+    ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="services"/> is null.</para>
+    /// </exception>
+    public static IServiceCollection AddInteractor<TConcreteInteractor>(
+        this IServiceCollection services)
+        where TConcreteInteractor : class
+    {
+        ArgumentNullException.ThrowIfNull(services, nameof(services));
+
+        var contractType = typeof(TConcreteInteractor).GetInterfaces()
+            .First(interfaceType => interfaceType.GetGenericTypeDefinition() == typeof(IInteractor<,>));
+
+        services.AddSingleton(contractType, typeof(TConcreteInteractor));
+
+        return services;
+    }
+
+    /// <summary>
     /// Adds discovered interactors into a service collection.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
