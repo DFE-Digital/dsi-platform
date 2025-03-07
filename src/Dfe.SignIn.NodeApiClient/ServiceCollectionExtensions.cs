@@ -1,6 +1,10 @@
+using System.Net;
 using System.Reflection;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
+using Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApiClient;
 
@@ -37,38 +41,55 @@ public static class ServiceCollectionExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="apiNames"/> is null.</para>
-    ///   <para>- or -</para>
     ///   <para>If <paramref name="setupAction"/> is null.</para>
     /// </exception>
     public static IServiceCollection AddNodeApiClient(
         this IServiceCollection services,
-        IEnumerable<NodeApiName> apiNames,
         Action<NodeApiClientOptions> setupAction)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(apiNames, nameof(apiNames));
         ArgumentNullException.ThrowIfNull(setupAction, nameof(setupAction));
 
         services.AddOptions();
         services.Configure(setupAction);
 
-        // authenticated http client
+        var instanceOptions = new NodeApiClientOptions();
+        setupAction(instanceOptions);
 
-        foreach (var apiName in apiNames) {
-            // services.AddKeyedScoped(apiName, (provider, key) => {
-            //     // var options = provider.GetRequiredService<IOptions<NodeApiClientOptions>>().Value
-            //     //     .Apis.First(apiOptions => apiOptions.ApiName == apiName);
-            //     // var httpClient = new HttpClient {
-            //     //     BaseAddress = new Uri(options.BaseAddress)
-            //     // };
-            //     // return httpClient;
-            //     throw new NotImplementedException();
-            // });
+        foreach (var api in instanceOptions.Apis) {
+
+            services.AddHttpClient(api.ApiName.ToString(), client => {
+                client.BaseAddress = api.BaseAddress;
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler {
+                UseProxy = api.AuthenticatedHttpClientOptions.UseProxy,
+                Proxy = new WebProxy(api.AuthenticatedHttpClientOptions.ProxyUrl)
+            })
+            .AddHttpMessageHandler(provider => {
+                string[] scopes = [$"{api.AuthenticatedHttpClientOptions.Resource}/.default"];
+                var msal = provider.GetRequiredKeyedService<IConfidentialClientApplication>(api.ApiName);
+                var msalHttpSecurityProvider = new MsalHttpSecurityProvider(scopes, msal);
+                return new AuthenticatedHttpClientHandler(msalHttpSecurityProvider);
+            });
+
+            // endpoints can use the httpClient via  
+            // app.MapGet("your-route", [FromKeyedServices(NodeApiName.Applications)] HttpClient client)
+            services.AddKeyedSingleton(api.ApiName, (provider, key) => {
+                var factory = provider.GetRequiredService<IHttpClientFactory>();
+                var client = factory.CreateClient(key!.ToString()!);
+                return client!;
+            });
+
+            services.AddKeyedSingleton(api.ApiName, (provider, key) => {
+                return ConfidentialClientApplicationBuilder
+                    .Create(api.AuthenticatedHttpClientOptions.ClientId.ToString())
+                    .WithClientSecret(api.AuthenticatedHttpClientOptions.ClientSecret)
+                    .WithAuthority(api.AuthenticatedHttpClientOptions.HostUrl)
+                    .Build();
+            });
 
             services.AddInteractors(
                 InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
-                    .Where(descriptor => descriptor.IsFor(apiName))
+                    .Where(descriptor => descriptor.IsFor(api.ApiName))
             );
         }
 
