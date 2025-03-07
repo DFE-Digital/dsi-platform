@@ -1,29 +1,32 @@
-
+using AutoMapper;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.Applications.Interactions;
-using Dfe.SignIn.NodeApiClient;
-using Microsoft.AspNetCore.Mvc;
+using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.PublicApi.Models.Requests;
 
 namespace Dfe.SignIn.PublicApi.Endpoints;
 
+/// <summary>
+/// Endpoints for the "select organisation" feature.
+/// </summary>
 public static class SelectOrganisationEndpoints
 {
+    /// <summary>
+    /// Registers all endpoints for the "select organisation" feature.
+    /// </summary>
+    /// <param name="app">The application instance.</param>
     public static void RegisterSelectOrganisationEndpoints(this WebApplication app)
     {
-        // Test with Applications
-        app.MapGet("select-applications", ([FromKeyedServices(NodeApiName.Applications)] HttpClient client) => {
-            return Results.Ok(client.BaseAddress);
-        });
-
-        // Test with Directories
-        app.MapGet("select-directories", ([FromKeyedServices(NodeApiName.Directories)] HttpClient client) => {
-            return Results.Ok(client.BaseAddress);
-        });
-
-        // Test using injected IGetClientByServiceId
-        app.MapGet("select-injected", async ([FromServices] IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse> service) => {
-            var result = await service.InvokeAsync(new GetApplicationApiSecretByClientIdRequest { ClientId = "" });
-            return Results.Json(result);
+        app.MapPost("v2/select-organisation", async (
+            CreateSelectOrganisationSessionApiRequest apiRequest,
+            IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse> createSelectOrganisationSession,
+            IMapper mapper
+        ) => {
+            var response = await createSelectOrganisationSession.InvokeAsync(
+                mapper.Map<CreateSelectOrganisationSessionRequest>(apiRequest) with {
+                    ClientId = "test"
+                }
+            );
+            return response;
         });
     }
 }

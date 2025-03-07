@@ -1,6 +1,8 @@
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.NodeApiClient;
 using Dfe.SignIn.PublicApi.Endpoints;
+using Dfe.SignIn.PublicApi.Configuration;
+using Dfe.SignIn.PublicApi.Configuration.Interactions;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -43,9 +45,12 @@ builder.Services.AddNodeApiClient(options => {
 });
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.SetupEndpoints();
+builder.Services.SetupSwagger();
+builder.Services.SetupAutoMapper();
+
+builder.Services.SetupSelectOrganisationInteractions();
 
 var app = builder.Build();
 
@@ -58,6 +63,7 @@ if (app.Environment.IsDevelopment()) {
 app.UseHttpsRedirection();
 app.UseBearerTokenAuthMiddleware(options => { });
 
+app.RegisterDigitalSigningEndpoints();
 app.RegisterSelectOrganisationEndpoints();
 
 app.Run();
