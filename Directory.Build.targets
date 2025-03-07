@@ -1,0 +1,28 @@
+<Project>
+
+    <!-- Added to workaround issue with .xml files not being copied for Swagger. -->
+    <!-- See: https://github.com/dotnet/sdk/issues/9498 -->
+    <Target Name="CopyReferenceFiles" BeforeTargets="Build">
+        <ItemGroup>
+            <XmlReferenceFiles Condition="Exists('$(OutputPath)%(Filename).dll')" Include="%(Reference.RelativeDir)%(Reference.Filename).xml" />
+        </ItemGroup>
+
+        <Message Text="Found XML: %(XmlReferenceFiles.FullPath)" Importance="normal"/>
+
+        <!-- In local build need to copy to output folder, ex: bin/debug/net8.0/ -->
+        <Copy
+            SourceFiles="@(XmlReferenceFiles)"
+            DestinationFolder="$(OutputPath)"
+            Condition="Exists('%(RootDir)%(Directory)%(Filename)%(Extension)') AND $([System.String]::Copy('%(Filename)').StartsWith('Dfe.SignIn'))"
+        />
+
+        <!-- In Azure CI/CD pipeline need to copy to final publish dir -->
+        <Copy
+            SourceFiles="@(XmlReferenceFiles)"
+            DestinationFolder="$(PublishDir)"
+            Condition="Exists('%(RootDir)%(Directory)%(Filename)%(Extension)') AND $([System.String]::Copy('%(Filename)').StartsWith('Dfe.SignIn'))"
+        />
+
+    </Target>
+
+</Project>

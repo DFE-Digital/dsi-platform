@@ -1,4 +1,6 @@
 using Dfe.SignIn.PublicApi.Endpoints;
+using Dfe.SignIn.PublicApi.Configuration;
+using Dfe.SignIn.PublicApi.Configuration.Interactions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,9 +9,12 @@ builder.WebHost.ConfigureKestrel(options => {
 });
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.SetupEndpoints();
+builder.Services.SetupSwagger();
+builder.Services.SetupAutoMapper();
+
+builder.Services.SetupSelectOrganisationInteractions();
 
 var app = builder.Build();
 
@@ -21,6 +26,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 
+app.RegisterDigitalSigningEndpoints();
 app.RegisterSelectOrganisationEndpoints();
 
 app.Run();
