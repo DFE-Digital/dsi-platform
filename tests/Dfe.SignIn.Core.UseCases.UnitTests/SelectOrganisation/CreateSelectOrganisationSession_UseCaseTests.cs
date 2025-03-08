@@ -8,12 +8,13 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.Core.UseCases.Tests.SelectOrganisation;
+namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 
 [TestClass]
 public sealed class CreateSelectOrganisationSession_UseCaseTests
 {
-    private static readonly CreateSelectOrganisationSessionRequest FakeRequest = new() {
+    private static readonly CreateSelectOrganisationSessionRequest FakeRequest = new()
+    {
         CallbackUrl = new Uri("https://example.localhost/callback"),
         ClientId = "test-client",
         UserId = new Guid("d4176ff4-ff7e-4e3b-86ad-2aa9890b26c4"),
@@ -24,7 +25,8 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     private static async Task<(CreateSelectOrganisationSessionResponse, string?)> InvokeCaptureSessionKey(
         AutoMocker? autoMocker = null)
     {
-        if (autoMocker == null) {
+        if (autoMocker == null)
+        {
             autoMocker = new AutoMocker();
             autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions());
         }
@@ -34,7 +36,8 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
             .Setup(x =>
                 x.StoreAsync(It.IsAny<string>(), It.IsAny<SelectOrganisationSessionData>())
             )
-            .Callback<string, SelectOrganisationSessionData>((sessionKey, _sessionData) => {
+            .Callback<string, SelectOrganisationSessionData>((sessionKey, _sessionData) =>
+            {
                 capturedSessionKey = sessionKey;
             });
 
@@ -49,7 +52,8 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
         Expression<Func<SelectOrganisationSessionData, bool>> match,
         AutoMocker? autoMocker = null)
     {
-        if (autoMocker == null) {
+        if (autoMocker == null)
+        {
             autoMocker = new AutoMocker();
             autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions());
         }
@@ -134,7 +138,8 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     public async Task InvokeAsync_SessionHasExpectedSessionTimeout()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions {
+        autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions
+        {
             SessionTimeoutInMinutes = 10,
         });
 
@@ -148,7 +153,8 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     public async Task InvokeAsync_ReturnsExpectedUrl()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions {
+        autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions
+        {
             SelectOrganisationBaseAddress = new Uri("https://select-organisation.localhost"),
         });
 

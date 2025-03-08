@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.Core.Framework.Tests.Fakes;
+namespace Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 
 [UseCaseHandler]
 public sealed class Example_UseCaseHandler

@@ -63,6 +63,7 @@ public static class ServiceCollectionExtensions
     /// Decorates interactors with request and response model validation.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
+    /// <param name="setupAction">Action to setup options.</param>
     /// <returns>
     ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
     /// </returns>

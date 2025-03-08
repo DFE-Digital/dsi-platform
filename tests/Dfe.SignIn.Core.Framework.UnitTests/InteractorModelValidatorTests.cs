@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using Dfe.SignIn.Core.Framework.Tests.Fakes;
+using Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.Core.Framework.Tests;
+namespace Dfe.SignIn.Core.Framework.UnitTests;
 
 [TestClass]
 public sealed class InteractorModelValidatorTests
@@ -18,14 +18,16 @@ public sealed class InteractorModelValidatorTests
 
         autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
             .SetupGet(x => x.Value)
-            .Returns(new InteractorModelValidationOptions {
+            .Returns(new InteractorModelValidationOptions
+            {
                 ValidateRequestModels = true,
                 ValidateResponseModels = true,
             });
 
         autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
             .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
-            .ReturnsAsync(new ExampleInteractorWithValidationResponse {
+            .ReturnsAsync(new ExampleInteractorWithValidationResponse
+            {
                 Percentage = 0.5f,
             });
 
@@ -33,7 +35,8 @@ public sealed class InteractorModelValidatorTests
             InteractorModelValidator<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
         >();
 
-        await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
+        await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest
+        {
             Name = "Jerry",
         });
     }
@@ -45,13 +48,15 @@ public sealed class InteractorModelValidatorTests
 
         autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
             .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
-            .ReturnsAsync(new ExampleInteractorWithValidationResponse {
+            .ReturnsAsync(new ExampleInteractorWithValidationResponse
+            {
                 Percentage = 1.5f,
             });
 
         autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
             .SetupGet(x => x.Value)
-            .Returns(new InteractorModelValidationOptions {
+            .Returns(new InteractorModelValidationOptions
+            {
                 ValidateRequestModels = false,
                 ValidateResponseModels = false,
             });
@@ -60,7 +65,8 @@ public sealed class InteractorModelValidatorTests
             InteractorModelValidator<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
         >();
 
-        await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
+        await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest
+        {
             Name = "Alex",
         });
     }
@@ -72,7 +78,8 @@ public sealed class InteractorModelValidatorTests
 
         autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
             .SetupGet(x => x.Value)
-            .Returns(new InteractorModelValidationOptions {
+            .Returns(new InteractorModelValidationOptions
+            {
                 ValidateRequestModels = true,
             });
 
@@ -81,7 +88,8 @@ public sealed class InteractorModelValidatorTests
         >();
 
         await Assert.ThrowsExceptionAsync<ValidationException>(
-            () => decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
+            () => decorator.InvokeAsync(new ExampleInteractorWithValidationRequest
+            {
                 Name = "A",
             })
         );
@@ -94,13 +102,15 @@ public sealed class InteractorModelValidatorTests
 
         autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
             .SetupGet(x => x.Value)
-            .Returns(new InteractorModelValidationOptions {
+            .Returns(new InteractorModelValidationOptions
+            {
                 ValidateResponseModels = true,
             });
 
         autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
             .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
-            .ReturnsAsync(new ExampleInteractorWithValidationResponse {
+            .ReturnsAsync(new ExampleInteractorWithValidationResponse
+            {
                 Percentage = 1.5f,
             });
 
@@ -109,7 +119,8 @@ public sealed class InteractorModelValidatorTests
         >();
 
         await Assert.ThrowsExceptionAsync<ValidationException>(
-            () => decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
+            () => decorator.InvokeAsync(new ExampleInteractorWithValidationRequest
+            {
                 Name = "Alex",
             })
         );
