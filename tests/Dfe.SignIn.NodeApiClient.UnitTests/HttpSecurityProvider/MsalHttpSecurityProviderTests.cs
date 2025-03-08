@@ -3,7 +3,7 @@ using Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
 using Microsoft.Identity.Client;
 using Moq;
 
-namespace Dfe.SignIn.NodeApiClient.Tests.HttpSecurityProvider;
+namespace Dfe.SignIn.NodeApiClient.UnitTests.HttpSecurityProvider;
 
 [TestClass]
 public class MsalHttpSecurityProviderTests

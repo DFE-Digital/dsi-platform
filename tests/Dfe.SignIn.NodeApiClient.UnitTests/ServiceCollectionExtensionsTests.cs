@@ -1,8 +1,8 @@
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.NodeApiClient.Tests.Fakes;
+using Dfe.SignIn.NodeApiClient.UnitTests.Fakes;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.NodeApiClient.Tests;
+namespace Dfe.SignIn.NodeApiClient.UnitTests;
 
 [TestClass]
 public sealed class ServiceCollectionExtensionsTests
@@ -12,7 +12,8 @@ public sealed class ServiceCollectionExtensionsTests
     [TestMethod]
     public void IsFor_ReturnsTrue_WhenAssociatedWithApi()
     {
-        var descriptor = new InteractorTypeDescriptor {
+        var descriptor = new InteractorTypeDescriptor
+        {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
             ConcreteType = typeof(ExampleApiRequesterForAccessApi)
         };
@@ -27,7 +28,8 @@ public sealed class ServiceCollectionExtensionsTests
     [DataRow(typeof(ExampleApiRequesterForAccessApi))]
     public void IsFor_ReturnsFalse_WhenNotAssociatedWithApi(Type requesterType)
     {
-        var descriptor = new InteractorTypeDescriptor {
+        var descriptor = new InteractorTypeDescriptor
+        {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
             ConcreteType = requesterType,
         };
