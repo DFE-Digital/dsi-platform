@@ -1,4 +1,6 @@
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Dfe.SignIn.Core.Models.Applications.Interactions;
 
 /// <summary>
@@ -9,6 +11,7 @@ public record GetApplicationApiSecretByClientIdRequest
     /// <summary>
     /// Gets the unique client identifier of the application.
     /// </summary>
+    [MinLength(1)]
     public required string ClientId { get; init; }
 }
 
