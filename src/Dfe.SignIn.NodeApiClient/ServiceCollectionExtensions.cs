@@ -22,7 +22,9 @@ public static class ServiceCollectionExtensions
     /// <param name="descriptor">The interactor type descriptor.</param>
     /// <param name="apiName">The name of a DfE Sign-in mid-tier API.</param>
     /// <returns>
-    // </returns>
+    ///   <para>True when interactor is associated with the named mid-tier API;
+    ///   otherwise, a value of false.</para>
+    /// </returns>
     public static bool IsFor(this InteractorTypeDescriptor descriptor, NodeApiName apiName)
     {
         var attr = descriptor.ConcreteType.GetCustomAttribute<NodeApiAttribute>(inherit: true);

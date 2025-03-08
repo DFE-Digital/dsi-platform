@@ -37,6 +37,9 @@ public sealed class NodeApiOptions
     public required NodeApiAuthenticatedHttpClientOptions AuthenticatedHttpClientOptions { get; set; }
 }
 
+/// <summary>
+/// Authentication options for the Node API HTTP client.
+/// </summary>
 public sealed class NodeApiAuthenticatedHttpClientOptions
 {
     /// <summary>

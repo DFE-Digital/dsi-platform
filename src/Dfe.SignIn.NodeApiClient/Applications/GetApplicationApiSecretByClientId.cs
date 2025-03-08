@@ -10,19 +10,14 @@ namespace Dfe.SignIn.NodeApiClient.Applications;
 /// ApiRequester for obtaining an applications ApiSecret
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
-public sealed class GetApplicationApiSecretByClientId_ApiRequester : IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse>
+public sealed class GetApplicationApiSecretByClientId_ApiRequester(
+    [FromKeyedServices(NodeApiName.Applications)] HttpClient httpClient
+) : IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse>
 {
-    private readonly HttpClient httpClient;
-
-    public GetApplicationApiSecretByClientId_ApiRequester([FromKeyedServices(NodeApiName.Applications)] HttpClient httpClient)
-    {
-        this.httpClient = httpClient;
-    }
-
     /// <inheritdoc/>
     public async Task<GetApplicationApiSecretByClientIdResponse> InvokeAsync(GetApplicationApiSecretByClientIdRequest request)
     {
-        var response = await this.httpClient.GetFromJsonAsync<Models.ApplicationModel>($"services/{request.ClientId}");
+        var response = await httpClient.GetFromJsonAsync<Models.ApplicationModel>($"services/{request.ClientId}");
 
         return new GetApplicationApiSecretByClientIdResponse {
             Application = response is null ? null : new Core.Models.Applications.ApplicationApiSecretModel {
