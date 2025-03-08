@@ -39,59 +39,46 @@ public sealed class ServiceCollectionExtensionsTests
 
     #endregion
 
-    #region AddNodeApiClient(IServiceCollection, IEnumerable<NodeApiName>, Action<NodeApiClientOptions>)
+    #region SetupNodeApiClient(IServiceCollection, IEnumerable<NodeApiName>, Action<NodeApiClientOptions>)
 
     [TestMethod]
-    public void AddNodeApiClient_Throws_WhenServicesArgumentIsNull()
+    public void SetupNodeApiClient_Throws_WhenServicesArgumentIsNull()
     {
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         Assert.ThrowsException<ArgumentNullException>(
-            () => ServiceCollectionExtensions.AddNodeApiClient(null, options => { })
+            () => ServiceCollectionExtensions.SetupNodeApiClient(null, [])
         );
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
-    public void AddNodeApiClient_Throws_WhenSetupActionArgumentIsNull()
+    public void SetupNodeApiClient_Throws_WhenApiNamesArgumentIsNull()
     {
         var services = new ServiceCollection();
 
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         Assert.ThrowsException<ArgumentNullException>(
-            () => services.AddNodeApiClient(null)
+            () => services.SetupNodeApiClient(null)
         );
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
-    public void AddNodeApiClient_RegistersExpectedServices()
+    public void SetupNodeApiClient_RegistersExpectedServices()
     {
         var services = new ServiceCollection();
 
-        services.AddNodeApiClient(options => { });
+        services.SetupNodeApiClient([]);
 
         // TODO: Test general HttpClient registration.
     }
 
     [TestMethod]
-    public void AddNodeApiClient_RegistersAccessApiRequesters()
+    public void SetupNodeApiClient_RegistersAccessApiRequesters()
     {
         var services = new ServiceCollection();
 
-        static void NewNodeClientOptions(NodeApiClientOptions options)
-        {
-            options.Apis = [
-                new NodeApiOptions {
-                    ApiName = NodeApiName.Access,
-                    BaseAddress = new Uri("https://access.localhost"),
-                    AuthenticatedHttpClientOptions = default!
-                }
-            ];
-        }
-
-        Action<NodeApiClientOptions> options = NewNodeClientOptions;
-
-        services.AddNodeApiClient(options);
+        services.SetupNodeApiClient([NodeApiName.Access]);
 
         // TODO: Test for Access api requester registration.
         // Assert.IsTrue(
@@ -104,24 +91,11 @@ public sealed class ServiceCollectionExtensionsTests
     }
 
     [TestMethod]
-    public void AddNodeApiClient_RegistersApplicationsApiRequesters()
+    public void SetupNodeApiClient_RegistersApplicationsApiRequesters()
     {
         var services = new ServiceCollection();
 
-        static void NewNodeClientOptions(NodeApiClientOptions options)
-        {
-            options.Apis = [
-                new NodeApiOptions {
-                    ApiName = NodeApiName.Applications,
-                    BaseAddress = new Uri("https://applications.localhost"),
-                    AuthenticatedHttpClientOptions = default!
-                }
-            ];
-        }
-
-        Action<NodeApiClientOptions> options = NewNodeClientOptions;
-
-        services.AddNodeApiClient(options);
+        services.SetupNodeApiClient([NodeApiName.Applications]);
 
         // TODO: Test for Applications api requester registration.
         // Assert.IsTrue(
@@ -134,24 +108,11 @@ public sealed class ServiceCollectionExtensionsTests
     }
 
     [TestMethod]
-    public void AddNodeApiClient_RegistersDirectoriesApiRequesters()
+    public void SetupNodeApiClient_RegistersDirectoriesApiRequesters()
     {
         var services = new ServiceCollection();
 
-        static void NewNodeClientOptions(NodeApiClientOptions options)
-        {
-            options.Apis = [
-                new NodeApiOptions {
-                    ApiName = NodeApiName.Directories,
-                    BaseAddress = new Uri("https://directories.localhost"),
-                    AuthenticatedHttpClientOptions = default!
-                }
-            ];
-        }
-
-        Action<NodeApiClientOptions> options = NewNodeClientOptions;
-
-        services.AddNodeApiClient(options);
+        services.SetupNodeApiClient([NodeApiName.Directories]);
 
         // TODO: Test for Directories api requester registration.
         // Assert.IsTrue(
@@ -164,24 +125,11 @@ public sealed class ServiceCollectionExtensionsTests
     }
 
     [TestMethod]
-    public void AddNodeApiClient_RegistersOrganisationsApiRequesters()
+    public void SetupNodeApiClient_RegistersOrganisationsApiRequesters()
     {
         var services = new ServiceCollection();
 
-        static void NewNodeClientOptions(NodeApiClientOptions options)
-        {
-            options.Apis = [
-                new NodeApiOptions {
-                    ApiName = NodeApiName.Organisations,
-                    BaseAddress = new Uri("https://organisations.localhost"),
-                    AuthenticatedHttpClientOptions = default!
-                }
-            ];
-        }
-
-        Action<NodeApiClientOptions> options = NewNodeClientOptions;
-
-        services.AddNodeApiClient(options);
+        services.SetupNodeApiClient([NodeApiName.Organisations]);
 
         // TODO: Test for Organisations api requester registration.
         // Assert.IsTrue(
@@ -194,24 +142,11 @@ public sealed class ServiceCollectionExtensionsTests
     }
 
     [TestMethod]
-    public void AddNodeApiClient_RegistersSearchApiRequesters()
+    public void SetupNodeApiClient_RegistersSearchApiRequesters()
     {
         var services = new ServiceCollection();
 
-        static void NewNodeClientOptions(NodeApiClientOptions options)
-        {
-            options.Apis = [
-                new NodeApiOptions {
-                    ApiName = NodeApiName.Search,
-                    BaseAddress = new Uri("https://search.localhost"),
-                    AuthenticatedHttpClientOptions = default!
-                }
-            ];
-        }
-
-        Action<NodeApiClientOptions> options = NewNodeClientOptions;
-
-        services.AddNodeApiClient(options);
+        services.SetupNodeApiClient([NodeApiName.Search]);
 
         // TODO: Test for Search api requester registration.
         // Assert.IsTrue(
