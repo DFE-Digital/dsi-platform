@@ -6,24 +6,16 @@ namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
 public static class BearerTokenAuthExtensions
 {
     /// <summary>
-    /// Setup BearerTokenAuthMiddleware
+    /// Register bearer token auth middleware into application.
     /// </summary>
     /// <param name="builder">The builder to register the middleware on.</param>
-    /// <param name="setupAction">An actions to configure the provided options.</param>
-    /// <returns>The <see cref="IApplicationBuilder"/> instance.</returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="builder"/> is null.</para>
-    ///   <para>- or -</para>
-    ///   <para>If <paramref name="setupAction"/> is null.</para>
     /// </exception>
-    public static IApplicationBuilder UseBearerTokenAuthMiddleware(this IApplicationBuilder builder, Action<BearerTokenOptions> setupAction)
+    public static void UseBearerTokenAuthMiddleware(this IApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
-        ArgumentNullException.ThrowIfNull(setupAction, nameof(setupAction));
 
-        var options = new BearerTokenOptions();
-        setupAction.Invoke(options);
-
-        return builder.UseMiddleware<BearerTokenAuthMiddleware>(options);
+        builder.UseMiddleware<BearerTokenAuthMiddleware>();
     }
 }
