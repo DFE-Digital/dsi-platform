@@ -9,11 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisati
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FB967767-67A6-410B-A8B5-24A4B82351F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.Web.Tests", "tests\Dfe.SignIn.SelectOrganisation.Web.Tests\Dfe.SignIn.SelectOrganisation.Web.Tests.csproj", "{EF6FB476-8670-46D6-A800-190B66E57C2C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.Web.UnitTests", "tests\Dfe.SignIn.SelectOrganisation.Web.UnitTests\Dfe.SignIn.SelectOrganisation.Web.UnitTests.csproj", "{EF6FB476-8670-46D6-A800-190B66E57C2C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.SessionData", "src\Dfe.SignIn.SelectOrganisation.SessionData\Dfe.SignIn.SelectOrganisation.SessionData.csproj", "{9C32CC62-C2D3-4F6E-8C7D-7677C16D8B0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.SessionData.Tests", "tests\Dfe.SignIn.SelectOrganisation.SessionData.Tests\Dfe.SignIn.SelectOrganisation.SessionData.Tests.csproj", "{B2FBF53C-B533-4AD1-85F9-5C464CA23ABB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.SessionData.UnitTests", "tests\Dfe.SignIn.SelectOrganisation.SessionData.UnitTests\Dfe.SignIn.SelectOrganisation.SessionData.UnitTests.csproj", "{B2FBF53C-B533-4AD1-85F9-5C464CA23ABB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

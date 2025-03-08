@@ -3,7 +3,7 @@ using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.SelectOrganisation.SessionData.Tests;
+namespace Dfe.SignIn.SelectOrganisation.SessionData.UnitTests;
 
 [TestClass]
 public sealed class SelectOrganisationSessionCacheExtensionsTests
@@ -37,7 +37,8 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddSelectOrganisationSessionCache(options => {
+        services.AddSelectOrganisationSessionCache(options =>
+        {
             options.CacheKeyPrefix = "overriden-prefix:";
         });
 

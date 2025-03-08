@@ -1,6 +1,6 @@
 using Dfe.SignIn.SelectOrganisation.Web.Models;
 
-namespace Dfe.SignIn.SelectOrganisation.Web.Tests.Models;
+namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Models;
 
 [TestClass]
 public sealed class ErrorViewModelTests
@@ -10,7 +10,8 @@ public sealed class ErrorViewModelTests
     [TestMethod]
     public void ShowRequestId_ReturnsTrue_WhenRequestIdIsProvided()
     {
-        var viewModel = new ErrorViewModel {
+        var viewModel = new ErrorViewModel
+        {
             RequestId = "26feedcd-a584-43df-99d0-7d865047aa80",
         };
 
@@ -22,7 +23,8 @@ public sealed class ErrorViewModelTests
     [DataRow("")]
     public void ShowRequestId_ReturnsFalse_WhenRequestIdIsNotProvided(string? requestId)
     {
-        var viewModel = new ErrorViewModel {
+        var viewModel = new ErrorViewModel
+        {
             RequestId = requestId,
         };
 

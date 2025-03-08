@@ -4,7 +4,7 @@ using Dfe.SignIn.SelectOrganisation.Web.Controllers;
 using Moq;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.SelectOrganisation.Web.Tests.Controllers;
+namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Controllers;
 
 [TestClass]
 public sealed class DeveloperControllerTests
