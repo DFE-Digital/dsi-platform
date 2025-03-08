@@ -1,0 +1,49 @@
+using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
+
+namespace Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation.Models;
+
+/// <summary>
+/// Represents a request to create a URL where the end-user can select an organisation.
+/// </summary>
+public sealed record CreateSelectOrganisationSession_PublicApiRequest()
+{
+    /// <summary>
+    /// Callback URL where the selected organisation response will be posted.
+    /// </summary>
+    public required Uri CallbackUrl { get; init; }
+
+    /// <summary>
+    /// Unique DfE Sign-in ID of the user.
+    /// </summary>
+    public required Guid UserId { get; init; }
+
+    /// <summary>
+    /// Prompt that will be presented to the user when they are making their selection
+    /// using the "select organisation" web frontend.
+    /// </summary>
+    public SelectOrganisationPrompt Prompt { get; init; } = new SelectOrganisationPrompt {
+        Heading = "Which organisation would you like to use?",
+        Hint = "You are associated with more than one organisation. Select one option.",
+    };
+
+    /// <summary>
+    /// Level of organisation detail required in the callback response.
+    /// </summary>
+    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
+
+    /// <summary>
+    /// Organisation filtering specification.
+    /// </summary>
+    public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
+}
+
+/// <summary>
+/// Response from creating a URL where the end-user can select an organisation..
+/// </summary>
+public sealed record CreateSelectOrganisationSession_PublicApiResponse()
+{
+    /// <summary>
+    /// URL where the user can be redirected to select an organisation.
+    /// </summary>
+    public required Uri Url { get; init; }
+}

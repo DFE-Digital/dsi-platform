@@ -15,8 +15,7 @@ public static class AutoMapperExtensions
         ArgumentNullException.ThrowIfNull(services, nameof(services));
 
         services.AddAutoMapper(options => {
-            // Add mapping profiles here...
-            //options.AddProfile<ExampleMappingProfile>();
+            options.AddProfile<SelectOrganisationMappingProfile>();
         });
     }
 }
