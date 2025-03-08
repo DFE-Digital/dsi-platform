@@ -1,6 +1,7 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.SelectOrganisation;
 using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Microsoft.Extensions.Options;
 
@@ -31,7 +32,24 @@ public sealed class CreateSelectOrganisationSession_UseCase(
             ClientId = request.ClientId,
             UserId = request.UserId,
             Prompt = request.Prompt,
-            OrganisationOptions = [],
+            OrganisationOptions = [
+                new SelectOrganisationOption {
+                    Id = Guid.NewGuid(),
+                    Name = "Organisation A",
+                },
+                new SelectOrganisationOption {
+                    Id = Guid.NewGuid(),
+                    Name = "Organisation B",
+                },
+                new SelectOrganisationOption {
+                    Id = Guid.NewGuid(),
+                    Name = "Organisation C",
+                },
+                new SelectOrganisationOption {
+                    Id = Guid.NewGuid(),
+                    Name = "Organisation D",
+                },
+            ],
             Created = createdUtc,
             Expires = createdUtc + new TimeSpan(0, options.SessionTimeoutInMinutes, 0),
         };
