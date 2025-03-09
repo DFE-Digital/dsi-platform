@@ -3,18 +3,18 @@ namespace Dfe.SignIn.Core.Models.Organisations.Interactions;
 /// <summary>
 /// Request to get an organisation by its unique identifier.
 /// </summary>
-public record GetOrganisationByIdRequest
+public record GetOrganisationByIdRequest()
 {
     /// <summary>
     /// Gets the unique identifier of the organisation.
     /// </summary>
-    public required Guid Id { get; init; }
+    public required Guid OrganisationId { get; init; }
 }
 
 /// <summary>
 /// Response model for request <see cref="GetOrganisationByIdRequest"/>.
 /// </summary>
-public record GetOrganisationByIdResponse
+public record GetOrganisationByIdResponse()
 {
     /// <summary>
     /// Gets a model representing the organisation when the organisation was found;

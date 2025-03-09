@@ -3,7 +3,7 @@ namespace Dfe.SignIn.Core.Models.Organisations;
 /// <summary>
 /// A model representing an organisation in DfE Sign-in.
 /// </summary>
-public sealed record OrganisationModel
+public sealed record OrganisationModel()
 {
     /// <summary>
     /// Gets the unique value that identifies the organisation.
