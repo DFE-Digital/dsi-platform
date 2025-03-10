@@ -3,7 +3,9 @@ using System.Text.Json.Serialization;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Applications.Interactions;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
+using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.AspNetCore.Http;
+
 using Moq;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth;
@@ -14,8 +16,9 @@ public class BearerTokenAuthMiddlewareTests
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     private DefaultHttpContext context;
+    private ScopedSession.ScopedSessionProvider mockScopedSessionProvider;
     private Mock<IServiceProvider> mockServiceProvider;
-    private Mock<IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse>> mockGetServiceApiSecretByClientId;
+    private Mock<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>> mockApplicationByClientId;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
     private readonly string validJsonContentType = "application/json; charset=utf-8";
@@ -35,11 +38,15 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Response.Body = new MemoryStream();
         this.mockNext.Setup(n => n(It.IsAny<HttpContext>())).Returns(Task.CompletedTask);
 
-        this.mockGetServiceApiSecretByClientId = new Mock<IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse>>();
-        this.mockServiceProvider = new Mock<IServiceProvider>();
-        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse>))).Returns(this.mockGetServiceApiSecretByClientId.Object);
-        this.context.RequestServices = this.mockServiceProvider.Object;
+        this.mockScopedSessionProvider = new() { Application = default! };
 
+        this.mockApplicationByClientId = new Mock<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>();
+        this.mockServiceProvider = new Mock<IServiceProvider>();
+        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>))).Returns(this.mockApplicationByClientId.Object);
+        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IScopedSessionReader))).Returns(this.mockScopedSessionProvider);
+        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IScopedSessionWriter))).Returns(this.mockScopedSessionProvider);
+
+        this.context.RequestServices = this.mockServiceProvider.Object;
     }
 
     private record ErrorResponse
@@ -128,12 +135,19 @@ public class BearerTokenAuthMiddlewareTests
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithInvalidIss}");
 
-        this.mockGetServiceApiSecretByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationApiSecretByClientIdRequest>()))
-            .ReturnsAsync(new GetApplicationApiSecretByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationApiSecretModel {
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = new Core.Models.Applications.ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
-                    ClientId = "mock-invalid-client-id"
+                    ClientId = "mock-invalid-client-id",
+                    Id = Guid.Empty,
+                    Description = "mock-description",
+                    IsExternalService = false,
+                    IsHiddenService = false,
+                    IsIdOnlyService = false,
+                    Name = "mock-name",
+                    ServiceHomeUrl = new Uri("https://localhost")
                 }
             });
 
@@ -150,12 +164,19 @@ public class BearerTokenAuthMiddlewareTests
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
-        this.mockGetServiceApiSecretByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationApiSecretByClientIdRequest>()))
-            .ReturnsAsync(new GetApplicationApiSecretByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationApiSecretModel {
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = new Core.Models.Applications.ApplicationModel {
+                    Id = Guid.Empty,
                     ApiSecret = null,
-                    ClientId = "mock-client-id"
+                    ClientId = "mock-client-id",
+                    Description = "mock-description",
+                    IsExternalService = false,
+                    IsHiddenService = false,
+                    IsIdOnlyService = false,
+                    Name = "mock-name",
+                    ServiceHomeUrl = new Uri("https://localhost")
                 }
             });
 
@@ -172,12 +193,19 @@ public class BearerTokenAuthMiddlewareTests
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
-        this.mockGetServiceApiSecretByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationApiSecretByClientIdRequest>()))
-            .ReturnsAsync(new GetApplicationApiSecretByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationApiSecretModel {
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = new Core.Models.Applications.ApplicationModel {
                     ApiSecret = "does-not-match-secret",
-                    ClientId = string.Empty
+                    ClientId = string.Empty,
+                    Id = Guid.Empty,
+                    Description = "mock-description",
+                    IsExternalService = false,
+                    IsHiddenService = false,
+                    IsIdOnlyService = false,
+                    Name = "mock-name",
+                    ServiceHomeUrl = new Uri("https://localhost")
                 }
             });
 
@@ -194,12 +222,19 @@ public class BearerTokenAuthMiddlewareTests
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIssButInvalidAudience}");
 
-        this.mockGetServiceApiSecretByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationApiSecretByClientIdRequest>()))
-            .ReturnsAsync(new GetApplicationApiSecretByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationApiSecretModel {
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = new Core.Models.Applications.ApplicationModel {
                     ApiSecret = "does-not-match-secret",
-                    ClientId = string.Empty
+                    ClientId = string.Empty,
+                    Id = Guid.Empty,
+                    Description = "mock-description",
+                    IsExternalService = false,
+                    IsHiddenService = false,
+                    IsIdOnlyService = false,
+                    Name = "mock-name",
+                    ServiceHomeUrl = new Uri("https://localhost")
                 }
             });
 
@@ -216,12 +251,19 @@ public class BearerTokenAuthMiddlewareTests
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
-        this.mockGetServiceApiSecretByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationApiSecretByClientIdRequest>()))
-            .ReturnsAsync(new GetApplicationApiSecretByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationApiSecretModel {
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = new Core.Models.Applications.ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
-                    ClientId = this.mockValidJwtIss
+                    ClientId = this.mockValidJwtIss,
+                    Id = Guid.Empty,
+                    Description = "mock-description",
+                    IsExternalService = false,
+                    IsHiddenService = false,
+                    IsIdOnlyService = false,
+                    Name = "mock-name",
+                    ServiceHomeUrl = new Uri("https://localhost")
                 }
             });
 
@@ -230,5 +272,34 @@ public class BearerTokenAuthMiddlewareTests
 
         Assert.AreEqual(StatusCodes.Status200OK, this.context.Response.StatusCode);
         this.mockNext.Verify(n => n(this.context), Times.Once, "Next middleware should be called exactly once.");
+    }
+
+    [TestMethod("ScopedSessionProvider should be assigned after successful verification")]
+    public async Task UseBearerTokenAuthMiddleware_ShouldSetScopedSessionVariables()
+    {
+        this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
+
+        var application = new Core.Models.Applications.ApplicationModel {
+            ApiSecret = this.mockValidJwtSecret,
+            ClientId = this.mockValidJwtIss,
+            Id = Guid.Empty,
+            Description = "mock-description",
+            IsExternalService = false,
+            IsHiddenService = false,
+            IsIdOnlyService = false,
+            Name = "mock-name",
+            ServiceHomeUrl = new Uri("https://localhost")
+        };
+
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = application
+            });
+
+        var middleware = new BearerTokenAuthMiddleware(this.mockNext.Object, new BearerTokenOptions());
+        await middleware.InvokeAsync(this.context);
+
+        Assert.AreSame(this.mockScopedSessionProvider.Application, application);
     }
 }
