@@ -19,4 +19,6 @@ public sealed record OrganisationModel()
     /// Gets the legal name of the organisation.
     /// </summary>
     public required string LegalName { get; init; }
+
+    // TODO: Add missing properties...
 }
