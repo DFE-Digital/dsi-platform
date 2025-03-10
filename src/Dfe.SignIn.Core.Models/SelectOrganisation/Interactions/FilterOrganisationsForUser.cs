@@ -23,7 +23,7 @@ public sealed record FilterOrganisationsForUserRequest()
     /// <summary>
     /// Gets the organisation filtering specification.
     /// </summary>
-    public required OrganisationFilter Filter { get; init; } = new OrganisationFilter();
+    public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
 }
 
 /// <summary>
