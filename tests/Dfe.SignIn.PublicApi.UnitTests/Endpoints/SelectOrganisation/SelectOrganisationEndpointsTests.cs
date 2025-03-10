@@ -102,6 +102,7 @@ public sealed class SelectOrganisationEndpointsTests
             .Returns(FakeApplicationModel);
 
         var fakeResponse = new CreateSelectOrganisationSessionResponse {
+            HasOptions = true,
             Url = new Uri("https://select-organisation.localhost"),
         };
         autoMocker.GetMock<IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>>()
