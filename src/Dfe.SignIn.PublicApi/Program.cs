@@ -3,8 +3,7 @@ using Dfe.SignIn.NodeApiClient;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Configuration.Interactions;
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.PublicApi.Endpoints.DigitalSigning;
-using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,8 +38,8 @@ if (app.Environment.IsDevelopment()) {
 app.UseHttpsRedirection();
 app.UseBearerTokenAuthMiddleware();
 
-app.UseDigitalSigningEndpoints();
-app.UseSelectOrganisationEndpoints();
+app.RegisterDigitalSigningEndpoints();
+app.RegisterSelectOrganisationEndpoints();
 
 app.Run();
 
