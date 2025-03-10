@@ -1,11 +1,11 @@
 using Dfe.SignIn.SelectOrganisation.Web.Controllers;
 using Dfe.SignIn.SelectOrganisation.Web.Models;
-using Dfe.SignIn.SelectOrganisation.Web.Tests.TestHelpers;
+using Dfe.SignIn.SelectOrganisation.Web.UnitTests.TestHelpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.SelectOrganisation.Web.Tests.Controllers;
+namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Controllers;
 
 [TestClass]
 public sealed class ErrorControllerTests
@@ -17,8 +17,10 @@ public sealed class ErrorControllerTests
     {
         var mocker = new AutoMocker();
         var controller = mocker.CreateInstance<ErrorController>();
-        controller.ControllerContext = new ControllerContext {
-            HttpContext = new DefaultHttpContext {
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
                 TraceIdentifier = "a492f33c-a859-4098-8c01-b8b2f09a6090"
             }
         };

@@ -1,7 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Dfe.SignIn.SelectOrganisation.Web.Tests.TestHelpers;
+namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.TestHelpers;
 
 public static class TypeAssert
 {
