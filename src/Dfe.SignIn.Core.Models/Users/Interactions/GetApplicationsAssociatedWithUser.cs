@@ -17,7 +17,7 @@ public sealed record GetApplicationsAssociatedWithUserRequest()
 public sealed record GetApplicationsAssociatedWithUserResponse()
 {
     /// <summary>
-    /// Gets the enumerable collection of user service mappings.
+    /// Gets the enumerable collection of user application mappings.
     /// </summary>
-    public required IEnumerable<UserServiceMappingModel> UserServiceMappings { get; init; }
+    public required IEnumerable<UserApplicationMappingModel> UserApplicationMappings { get; init; }
 }
