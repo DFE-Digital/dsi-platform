@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Dfe.SignIn.NodeApiClient.Applications;
 
 /// <summary>
-/// ApiRequester for obtaining an applications ApiSecret
+/// ApiRequester for obtaining an application.
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
 public sealed class GetApplicationByClientId_ApiRequester(
