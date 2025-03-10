@@ -43,11 +43,12 @@ public sealed class CreateSelectOrganisationSession_UseCase(
             .ToArray();
 
         var sessionData = new SelectOrganisationSessionData {
-            CallbackUrl = request.CallbackUrl,
             ClientId = request.ClientId,
             UserId = request.UserId,
             Prompt = request.Prompt,
             OrganisationOptions = filteredOptions,
+            CallbackUrl = request.CallbackUrl,
+            DetailLevel = request.DetailLevel,
             Created = createdUtc,
             Expires = createdUtc + new TimeSpan(0, options.SessionTimeoutInMinutes, 0),
         };

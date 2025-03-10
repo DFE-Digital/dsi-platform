@@ -97,14 +97,6 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedCallbackUrl()
-    {
-        await VerifyInvokeAsyncSession(FakeRequest, session =>
-            session.CallbackUrl == FakeRequest.CallbackUrl
-        );
-    }
-
-    [TestMethod]
     public async Task InvokeAsync_SessionHasExpectedClientId()
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
@@ -200,6 +192,22 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
             session.OrganisationOptions.Intersect(expectedOptions)
                 .Count() == expectedOptions.Length,
             autoMocker
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_SessionHasExpectedCallbackUrl()
+    {
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
+            session.CallbackUrl == FakeRequest.CallbackUrl
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_SessionHasExpectedDetailLevel()
+    {
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
+            session.DetailLevel == FakeRequest.DetailLevel
         );
     }
 

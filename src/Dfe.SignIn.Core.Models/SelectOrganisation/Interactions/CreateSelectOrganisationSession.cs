@@ -9,11 +9,6 @@ namespace Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
 public sealed record CreateSelectOrganisationSessionRequest()
 {
     /// <summary>
-    /// Gets the callback URL where the selected organisation response will be posted.
-    /// </summary>
-    public required Uri CallbackUrl { get; init; }
-
-    /// <summary>
     /// Gets the unique DfE Sign-in client ID of the application.
     /// </summary>
     [MinLength(1)]
@@ -34,14 +29,19 @@ public sealed record CreateSelectOrganisationSessionRequest()
     };
 
     /// <summary>
-    /// Gets the level of organisation detail required in the callback response.
-    /// </summary>
-    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
-
-    /// <summary>
     /// Gets the organisation filtering specification.
     /// </summary>
     public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
+
+    /// <summary>
+    /// Gets the callback URL where the selected organisation response will be posted.
+    /// </summary>
+    public required Uri CallbackUrl { get; init; }
+
+    /// <summary>
+    /// Gets the level of organisation detail required in the callback response.
+    /// </summary>
+    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
 }
 
 /// <summary>
