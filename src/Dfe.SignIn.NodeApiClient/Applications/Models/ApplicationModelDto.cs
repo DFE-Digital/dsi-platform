@@ -2,15 +2,18 @@ using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.NodeApiClient.Applications.Models;
 
-internal sealed record ApplicationModel()
+internal sealed record ApplicationModelDto()
 {
     public required Guid Id { get; init; }
     public required string Name { get; init; }
     public string? Description { get; init; }
-    public required RelyingPartyModel RelyingParty { get; init; }
+    public bool IsExternalService { get; init; }
+    public bool IsIdOnlyService { get; init; }
+    public bool IsHiddenService { get; init; }
+    public required RelyingPartyModelDto RelyingParty { get; init; }
 }
 
-internal sealed record RelyingPartyModel()
+internal sealed record RelyingPartyModelDto()
 {
     [JsonPropertyName("client_id")]
     public required string ClientId { get; init; }
@@ -22,7 +25,7 @@ internal sealed record RelyingPartyModel()
     public string? ApiSecret { get; init; } = null;
 
     [JsonPropertyName("service_home")]
-    public string? ServiceHome { get; init; }
+    public required string ServiceHome { get; init; }
 
     [JsonPropertyName("redirect_uris")]
     public required string[] RedirectUris { get; init; } = [];
@@ -36,9 +39,9 @@ internal sealed record RelyingPartyModel()
     [JsonPropertyName("response_types")]
     public required string[] ResponseTypes { get; init; } = [];
 
-    public RelyingPartyParamModel? Params { get; init; }
+    public RelyingPartyParamModelDto? Params { get; init; }
 }
-internal sealed record RelyingPartyParamModel()
+internal sealed record RelyingPartyParamModelDto()
 {
     public required string Header { get; init; }
     public required string HeaderMessage { get; init; }
