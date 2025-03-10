@@ -21,14 +21,19 @@ public sealed record ApplicationModel
     public required string Name { get; init; }
 
     /// <summary>
-    /// Gets a description of the service.
+    /// Gets a description of the application.
     /// </summary>
-    public required string Description { get; init; }
+    public string? Description { get; init; }
 
     /// <summary>
     /// Gets the home URL of the service.
     /// </summary>
     public required Uri ServiceHomeUrl { get; init; }
+
+    /// <summary>
+    /// The ApiSecret of the application.
+    /// </summary>
+    public string? ApiSecret { get; init; } = null;
 
     /// <summary>
     /// Gets a boolean value indicating if this is an external service.
