@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Applications.Interactions;
+using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
@@ -66,10 +67,10 @@ public class BearerTokenAuthMiddleware
         }
 
         var serviceProvider = context.RequestServices;
-        IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse> service =
-            serviceProvider.GetRequiredService<IInteractor<GetApplicationApiSecretByClientIdRequest, GetApplicationApiSecretByClientIdResponse>>();
+        IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> service =
+            serviceProvider.GetRequiredService<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>();
 
-        var response = await service.InvokeAsync(new GetApplicationApiSecretByClientIdRequest { ClientId = jwtToken.Issuer });
+        var response = await service.InvokeAsync(new GetApplicationByClientIdRequest { ClientId = jwtToken.Issuer });
 
         if (response is null || response.Application is null) {
             await SendErrorResponseAsync("Unknown issuer", context, StatusCodes.Status403Forbidden);
@@ -106,6 +107,9 @@ public class BearerTokenAuthMiddleware
 
         try {
             tokenHandler.ValidateToken(token, tokenValidationParameters, out var _);
+
+            var scopedSession = serviceProvider.GetRequiredService<IScopedSessionWriter>();
+            scopedSession.Application = response.Application;
         }
         catch (Exception ex) {
             Console.WriteLine(ex.ToString());

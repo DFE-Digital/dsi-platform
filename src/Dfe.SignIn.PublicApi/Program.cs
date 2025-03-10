@@ -50,6 +50,7 @@ builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();
 builder.Services.SetupAutoMapper();
 
+builder.Services.SetupScopedSession();
 builder.Services.SetupSelectOrganisationInteractions();
 
 var app = builder.Build();
