@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 
 namespace Dfe.SignIn.Core.Models.Applications.Interactions;
 
@@ -10,17 +9,16 @@ public record GetApplicationByClientIdRequest
     /// <summary>
     /// Gets the unique client identifier of the application.
     /// </summary>
-    [MinLength(1)]
     public required string ClientId { get; init; }
 }
 
 /// <summary>
-/// Response model for request <see cref="GetApplicationByClientIdRequest"/>.
+/// Response model for interactor <see cref="GetApplicationByClientIdRequest"/>.
 /// </summary>
 public record GetApplicationByClientIdResponse
 {
     /// <summary>
-    /// Gets a model representing the application when the application was found;
+    /// Gets the application model
     /// otherwise, a value of <c>null</c>.
     /// </summary>
     public required ApplicationModel? Application { get; init; }
