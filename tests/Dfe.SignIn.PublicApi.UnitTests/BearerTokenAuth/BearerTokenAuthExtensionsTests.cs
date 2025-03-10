@@ -11,19 +11,7 @@ public class BearerTokenAuthExtensionsTests
     {
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         Assert.ThrowsException<ArgumentNullException>(
-            () => BearerTokenAuthExtensions.UseBearerTokenAuthMiddleware(null, (options) => { })
-        );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-    }
-
-    [TestMethod]
-    public void UseBearerTokenAuthMiddleware_Throws_WhenOptionsArgumentIsNull()
-    {
-        var fakeApplicationBuilder = new FakeApplicationBuilder();
-
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => BearerTokenAuthExtensions.UseBearerTokenAuthMiddleware(fakeApplicationBuilder, null)
+            () => BearerTokenAuthExtensions.UseBearerTokenAuthMiddleware(null)
         );
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
@@ -32,7 +20,7 @@ public class BearerTokenAuthExtensionsTests
     public void UseBearerTokenAuthMiddleware_Should_Be_Registered()
     {
         var fakeApplicationBuilder = new FakeApplicationBuilder();
-        fakeApplicationBuilder.UseBearerTokenAuthMiddleware((options) => { });
+        fakeApplicationBuilder.UseBearerTokenAuthMiddleware();
 
         Assert.AreEqual(1, fakeApplicationBuilder.Middleware.Count);
     }

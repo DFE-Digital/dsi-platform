@@ -2,6 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Applications.Interactions;
 using Dfe.SignIn.PublicApi.ScopedSession;
+using Microsoft.Extensions.Options;
+
 using Microsoft.IdentityModel.Tokens;
 
 namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
@@ -18,11 +20,13 @@ public class BearerTokenAuthMiddleware
     /// Construct and instance of BearerTokenAuthMiddleware.
     /// </summary>
     /// <param name="next">The next RequestDelegate to process after the middleware.</param>
-    /// <param name="options">Options to be used by the BearerTokenAuthMiddleware.</param>
-    public BearerTokenAuthMiddleware(RequestDelegate next, BearerTokenOptions options)
+    /// <param name="optionsAccessor">Accesses options to be used by the BearerTokenAuthMiddleware.</param>
+    public BearerTokenAuthMiddleware(
+        RequestDelegate next,
+        IOptions<BearerTokenOptions> optionsAccessor)
     {
         this.next = next;
-        this.options = options;
+        this.options = optionsAccessor.Value;
     }
 
     private record ErrorResponse()
