@@ -21,6 +21,7 @@ public static class SelectOrganisationExtensions
         SetupRedisSessionStore(services);
 
         services.AddInteractor<CreateSelectOrganisationSession_UseCase>();
+        services.AddInteractor<FilterOrganisationsForUser_UseCase>();
     }
 
     private static void SetupRedisSessionStore(this IServiceCollection services)

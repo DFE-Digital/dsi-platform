@@ -43,6 +43,22 @@ public sealed record CreateSelectOrganisationSession_PublicApiRequest()
 public sealed record CreateSelectOrganisationSession_PublicApiResponse()
 {
     /// <summary>
+    /// A value indicating whether there is at least one option for the user
+    /// to select from.
+    /// </summary>
+    /// <remarks>
+    ///   <para>An implementor can choose to avoid redirecting to the given <see cref="Url"/>
+    ///   when <see cref="HasOptions"/> is false.</para>
+    ///   <list type="bullet">
+    ///     <item>A value of <c>true</c> indicates that there are one or more options
+    ///     for the user to select from.</item>
+    ///     <item>A value of <c>false</c> indicates that there are zero options for the
+    ///     user to select from.</item>
+    ///   </list>
+    /// </remarks>
+    public required bool HasOptions { get; init; }
+
+    /// <summary>
     /// URL where the user can be redirected to select an organisation.
     /// </summary>
     public required Uri Url { get; init; }
