@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
         var contractType = typeof(TConcreteInteractor).GetInterfaces()
             .First(interfaceType => interfaceType.GetGenericTypeDefinition() == typeof(IInteractor<,>));
 
-        services.AddSingleton(contractType, typeof(TConcreteInteractor));
+        services.AddTransient(contractType, typeof(TConcreteInteractor));
 
         return services;
     }
@@ -53,7 +53,7 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(descriptors, nameof(descriptors));
 
         foreach (var descriptor in descriptors) {
-            services.AddSingleton(descriptor.ContractType, descriptor.ConcreteType);
+            services.AddTransient(descriptor.ContractType, descriptor.ConcreteType);
         }
 
         return services;

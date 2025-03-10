@@ -31,7 +31,7 @@ public sealed class ServiceCollectionExtensionsTests
 
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
                 descriptor.ImplementationType == typeof(Example_UseCaseHandler)
             )
@@ -75,28 +75,28 @@ public sealed class ServiceCollectionExtensionsTests
 
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
                 descriptor.ImplementationType == typeof(Example_UseCaseHandler)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>) &&
                 descriptor.ImplementationType == typeof(AnotherExample_UseCaseHandler)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
                 descriptor.ImplementationType == typeof(Example_ApiRequester)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>) &&
                 descriptor.ImplementationType == typeof(AnotherExample_ApiRequester)
             )
@@ -134,7 +134,7 @@ public sealed class ServiceCollectionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton<
+        services.AddTransient<
             IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>,
             ExampleInteractorWithValidation_ApiRequester
         >();
@@ -149,8 +149,7 @@ public sealed class ServiceCollectionExtensionsTests
         Assert.IsNotNull(interactor);
 
         await Assert.ThrowsExceptionAsync<ValidationException>(
-            () => interactor.InvokeAsync(new ExampleInteractorWithValidationRequest
-            {
+            () => interactor.InvokeAsync(new ExampleInteractorWithValidationRequest {
                 Name = "A",
             })
         );

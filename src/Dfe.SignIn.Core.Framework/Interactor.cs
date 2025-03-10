@@ -3,6 +3,15 @@
 /// <summary>
 /// Represents an interaction within the system.
 /// </summary>
+/// <remarks>
+///   <para>Interactors should be added to service collections with the transient lifetime:</para>
+///   <code language="csharp"><![CDATA[]]>
+///     services.AddTransient<
+///         IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>,
+///         GetExampleById_ApiRequester
+///     >();
+///   </code>
+/// </remarks>
 /// <typeparam name="TRequest">The type of request.</typeparam>
 /// <typeparam name="TResponse">The type of response.</typeparam>
 public interface IInteractor<TRequest, TResponse>
