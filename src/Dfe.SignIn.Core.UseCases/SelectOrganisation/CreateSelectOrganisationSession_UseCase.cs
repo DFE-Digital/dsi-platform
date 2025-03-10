@@ -12,9 +12,11 @@ namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 /// </summary>
 /// <param name="optionsAccessor">Provides access to "select organisation" options.</param>
 /// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
+/// <param name="filterOrganisationsForUser">Interaction to filter organisations for a user.</param>
 public sealed class CreateSelectOrganisationSession_UseCase(
     IOptions<SelectOrganisationOptions> optionsAccessor,
-    ISelectOrganisationSessionRepository sessionRepository
+    ISelectOrganisationSessionRepository sessionRepository,
+    IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse> filterOrganisationsForUser
 ) : IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>
 {
     private static string GenerateSessionKey() => Guid.NewGuid().ToString();
@@ -27,29 +29,25 @@ public sealed class CreateSelectOrganisationSession_UseCase(
 
         var createdUtc = DateTime.UtcNow;
 
+        var filteredOrganisationsResponse = await filterOrganisationsForUser.InvokeAsync(new() {
+            ClientId = request.ClientId,
+            UserId = request.UserId,
+            Filter = request.Filter,
+        });
+
+        var filteredOptions = filteredOrganisationsResponse.FilteredOrganisations
+            .Select(organisation => new SelectOrganisationOption {
+                Id = organisation.Id,
+                Name = organisation.Name,
+            })
+            .ToArray();
+
         var sessionData = new SelectOrganisationSessionData {
             CallbackUrl = request.CallbackUrl,
             ClientId = request.ClientId,
             UserId = request.UserId,
             Prompt = request.Prompt,
-            OrganisationOptions = [
-                new SelectOrganisationOption {
-                    Id = Guid.NewGuid(),
-                    Name = "Organisation A",
-                },
-                new SelectOrganisationOption {
-                    Id = Guid.NewGuid(),
-                    Name = "Organisation B",
-                },
-                new SelectOrganisationOption {
-                    Id = Guid.NewGuid(),
-                    Name = "Organisation C",
-                },
-                new SelectOrganisationOption {
-                    Id = Guid.NewGuid(),
-                    Name = "Organisation D",
-                },
-            ],
+            OrganisationOptions = filteredOptions,
             Created = createdUtc,
             Expires = createdUtc + new TimeSpan(0, options.SessionTimeoutInMinutes, 0),
         };
@@ -58,6 +56,7 @@ public sealed class CreateSelectOrganisationSession_UseCase(
         await sessionRepository.StoreAsync(sessionKey, sessionData);
 
         return new CreateSelectOrganisationSessionResponse {
+            HasOptions = filteredOptions.Length > 0,
             Url = new Uri(options.SelectOrganisationBaseAddress, $"{request.ClientId}/{sessionKey}"),
         };
     }

@@ -50,6 +50,22 @@ public sealed record CreateSelectOrganisationSessionRequest()
 public sealed record CreateSelectOrganisationSessionResponse()
 {
     /// <summary>
+    /// Gets a value indicating whether there is at least one option for the user
+    /// to select from.
+    /// </summary>
+    /// <remarks>
+    ///   <para>An implementor can choose to avoid redirecting to the given <see cref="Url"/>
+    ///   when <see cref="HasOptions"/> is false.</para>
+    ///   <list type="bullet">
+    ///     <item>A value of <c>true</c> indicates that there are one or more options
+    ///     for the user to select from.</item>
+    ///     <item>A value of <c>false</c> indicates that there are zero options for the
+    ///     user to select from.</item>
+    ///   </list>
+    /// </remarks>
+    public required bool HasOptions { get; init; }
+
+    /// <summary>
     /// Gets the generated URL which the user can be redirected to so that they
     /// can select an organisation.
     /// </summary>
