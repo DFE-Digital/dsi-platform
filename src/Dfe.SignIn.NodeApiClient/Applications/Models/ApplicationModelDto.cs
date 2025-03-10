@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.NodeApiClient.Applications.Models;
 
-public sealed record ApplicationModelDto()
+internal sealed record ApplicationModelDto()
 {
     public required Guid Id { get; init; }
     public required string Name { get; init; }
@@ -13,7 +13,7 @@ public sealed record ApplicationModelDto()
     public required RelyingPartyModelDto RelyingParty { get; init; }
 }
 
-public sealed record RelyingPartyModelDto()
+internal sealed record RelyingPartyModelDto()
 {
     [JsonPropertyName("client_id")]
     public required string ClientId { get; init; }
@@ -41,7 +41,7 @@ public sealed record RelyingPartyModelDto()
 
     public RelyingPartyParamModelDto? Params { get; init; }
 }
-public sealed record RelyingPartyParamModelDto()
+internal sealed record RelyingPartyParamModelDto()
 {
     public required string Header { get; init; }
     public required string HeaderMessage { get; init; }

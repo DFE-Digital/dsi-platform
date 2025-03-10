@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApiClient;
@@ -22,7 +23,9 @@ public static class ServiceCollectionExtensions
     /// <param name="descriptor">The interactor type descriptor.</param>
     /// <param name="apiName">The name of a DfE Sign-in mid-tier API.</param>
     /// <returns>
-    // </returns>
+    ///   <para>True when interactor is associated with the named mid-tier API;
+    ///   otherwise, a value of false.</para>
+    /// </returns>
     public static bool IsFor(this InteractorTypeDescriptor descriptor, NodeApiName apiName)
     {
         var attr = descriptor.ConcreteType.GetCustomAttribute<NodeApiAttribute>(inherit: true);
@@ -32,67 +35,70 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds services to support the Node.js API clients.
     /// </summary>
+    /// <remarks>
+    ///   <para>Ensure that service collection is configured with <see cref="NodeApiClientOptions"/>.</para>
+    /// </remarks>
     /// <param name="services">The collection to add services to.</param>
     /// <param name="apiNames">Indicates which mid-tier APIs are required.</param>
-    /// <param name="setupAction">An action to configure the provided options.</param>
-    /// <returns>
-    ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
-    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="setupAction"/> is null.</para>
+    ///   <para>If <paramref name="apiNames"/> is null.</para>
     /// </exception>
-    public static IServiceCollection AddNodeApiClient(
+    public static void SetupNodeApiClient(
         this IServiceCollection services,
-        Action<NodeApiClientOptions> setupAction)
+        IEnumerable<NodeApiName> apiNames)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(setupAction, nameof(setupAction));
+        ArgumentNullException.ThrowIfNull(apiNames, nameof(apiNames));
 
-        services.AddOptions();
-        services.Configure(setupAction);
-
-        var instanceOptions = new NodeApiClientOptions();
-        setupAction(instanceOptions);
-
-        foreach (var api in instanceOptions.Apis) {
-
-            services.AddHttpClient(api.ApiName.ToString(), client => {
-                client.BaseAddress = api.BaseAddress;
-            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler {
-                UseProxy = api.AuthenticatedHttpClientOptions.UseProxy,
-                Proxy = new WebProxy(api.AuthenticatedHttpClientOptions.ProxyUrl)
+        foreach (var apiName in apiNames) {
+            services.AddHttpClient(apiName.ToString(), (provider, client) => {
+                var apiOptions = GetNodeApiOptions(provider, apiName);
+                client.BaseAddress = apiOptions.BaseAddress;
             })
-            .AddHttpMessageHandler(provider => {
-                string[] scopes = [$"{api.AuthenticatedHttpClientOptions.Resource}/.default"];
-                var msal = provider.GetRequiredKeyedService<IConfidentialClientApplication>(api.ApiName);
+            .ConfigurePrimaryHttpMessageHandler((provider) => {
+                var apiOptions = GetNodeApiOptions(provider, apiName);
+                return new HttpClientHandler {
+                    UseProxy = apiOptions.AuthenticatedHttpClientOptions.UseProxy,
+                    Proxy = new WebProxy(apiOptions.AuthenticatedHttpClientOptions.ProxyUrl)
+                };
+            })
+            .AddHttpMessageHandler((provider) => {
+                var apiOptions = GetNodeApiOptions(provider, apiName);
+                string[] scopes = [$"{apiOptions.AuthenticatedHttpClientOptions.Resource}/.default"];
+                var msal = provider.GetRequiredKeyedService<IConfidentialClientApplication>(apiName);
                 var msalHttpSecurityProvider = new MsalHttpSecurityProvider(scopes, msal);
                 return new AuthenticatedHttpClientHandler(msalHttpSecurityProvider);
             });
 
             // endpoints can use the httpClient via  
             // app.MapGet("your-route", [FromKeyedServices(NodeApiName.Applications)] HttpClient client)
-            services.AddKeyedSingleton(api.ApiName, (provider, key) => {
+            services.AddKeyedSingleton(apiName, (provider, key) => {
                 var factory = provider.GetRequiredService<IHttpClientFactory>();
                 var client = factory.CreateClient(key!.ToString()!);
                 return client!;
             });
 
-            services.AddKeyedSingleton(api.ApiName, (provider, key) => {
+            services.AddKeyedSingleton(apiName, (provider, key) => {
+                var apiOptions = GetNodeApiOptions(provider, apiName);
                 return ConfidentialClientApplicationBuilder
-                    .Create(api.AuthenticatedHttpClientOptions.ClientId.ToString())
-                    .WithClientSecret(api.AuthenticatedHttpClientOptions.ClientSecret)
-                    .WithAuthority(api.AuthenticatedHttpClientOptions.HostUrl)
+                    .Create(apiOptions.AuthenticatedHttpClientOptions.ClientId.ToString())
+                    .WithClientSecret(apiOptions.AuthenticatedHttpClientOptions.ClientSecret)
+                    .WithAuthority(apiOptions.AuthenticatedHttpClientOptions.HostUrl)
                     .Build();
             });
 
             services.AddInteractors(
                 InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
-                    .Where(descriptor => descriptor.IsFor(api.ApiName))
+                    .Where(descriptor => descriptor.IsFor(apiName))
             );
         }
+    }
 
-        return services;
+    private static NodeApiOptions GetNodeApiOptions(IServiceProvider provider, NodeApiName apiName)
+    {
+        return provider.GetRequiredService<IOptions<NodeApiClientOptions>>()
+            .Value.Apis[apiName.ToString()];
     }
 }

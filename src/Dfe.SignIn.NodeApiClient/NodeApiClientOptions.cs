@@ -10,7 +10,7 @@ public sealed class NodeApiClientOptions : IOptions<NodeApiClientOptions>
     /// <summary>
     /// Gets or sets per-API options.
     /// </summary>
-    public IEnumerable<NodeApiOptions> Apis { get; set; } = [];
+    public IReadOnlyDictionary<string, NodeApiOptions> Apis { get; set; } = new Dictionary<string, NodeApiOptions>();
 
     /// <inheritdoc/>
     NodeApiClientOptions IOptions<NodeApiClientOptions>.Value => this;
@@ -22,11 +22,6 @@ public sealed class NodeApiClientOptions : IOptions<NodeApiClientOptions>
 public sealed class NodeApiOptions
 {
     /// <summary>
-    /// Gets or sets the name of the API.
-    /// </summary>
-    public required NodeApiName ApiName { get; set; }
-
-    /// <summary>
     /// Gets or sets the base address of the API.
     /// </summary>
     public required Uri BaseAddress { get; set; }
@@ -37,6 +32,9 @@ public sealed class NodeApiOptions
     public required NodeApiAuthenticatedHttpClientOptions AuthenticatedHttpClientOptions { get; set; }
 }
 
+/// <summary>
+/// Authentication options for the Node API HTTP client.
+/// </summary>
 public sealed class NodeApiAuthenticatedHttpClientOptions
 {
     /// <summary>

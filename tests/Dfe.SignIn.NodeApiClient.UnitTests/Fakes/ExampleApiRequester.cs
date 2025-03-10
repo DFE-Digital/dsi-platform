@@ -1,6 +1,6 @@
 using Dfe.SignIn.Core.Framework;
 
-namespace Dfe.SignIn.NodeApiClient.Tests.Fakes;
+namespace Dfe.SignIn.NodeApiClient.UnitTests.Fakes;
 
 public sealed record ExampleRequest
 {
