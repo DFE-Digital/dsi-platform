@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.Models.Organisations;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
+using Microsoft.OpenApi.Models;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
@@ -28,6 +29,29 @@ public static class SwaggerExtensions
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(config => {
             config.UseInlineDefinitionsForEnums();
+
+            config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+                Description = "Enter your JWT bearer token",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT"
+            });
+
+            config.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
 
             // Include XML comments for 'SignIn.Core.Models.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(OrganisationModel)));
