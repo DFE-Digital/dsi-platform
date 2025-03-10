@@ -46,7 +46,8 @@ public sealed record ApplicationModel
     public required bool IsIdOnlyService { get; init; }
 
     /// <summary>
-    /// Gets a boolean value indicating if the service is hidden.
+    /// Gets a boolean value hinting that the service should be hidden on the
+    /// "My Services" page if possible. Role based services are not hidden.
     /// </summary>
     public required bool IsHiddenService { get; init; }
 }

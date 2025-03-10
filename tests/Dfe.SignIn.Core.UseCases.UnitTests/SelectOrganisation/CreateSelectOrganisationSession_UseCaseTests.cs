@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.Core.UseCases.Tests.SelectOrganisation;
+namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 
 [TestClass]
 public sealed class CreateSelectOrganisationSession_UseCaseTests
@@ -22,6 +22,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     #region InvokeAsync(CreateSelectOrganisationSessionRequest)
 
     private static async Task<(CreateSelectOrganisationSessionResponse, string?)> InvokeCaptureSessionKey(
+        CreateSelectOrganisationSessionRequest request,
         AutoMocker? autoMocker = null)
     {
         if (autoMocker == null) {
@@ -40,12 +41,13 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
 
         var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
 
-        var response = await useCase.InvokeAsync(FakeRequest);
+        var response = await useCase.InvokeAsync(request);
 
         return (response, capturedSessionKey);
     }
 
     private static async Task VerifyInvokeAsyncSession(
+        CreateSelectOrganisationSessionRequest request,
         Expression<Func<SelectOrganisationSessionData, bool>> match,
         AutoMocker? autoMocker = null)
     {
@@ -56,7 +58,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
 
         var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
 
-        await useCase.InvokeAsync(FakeRequest);
+        await useCase.InvokeAsync(request);
 
         autoMocker.Verify<ISelectOrganisationSessionRepository>(
             x => x.StoreAsync(
@@ -70,8 +72,8 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     [TestMethod]
     public async Task InvokeAsync_StoresSessionInRepositoryWithUniqueKey()
     {
-        var (response1, capturedSessionKey1) = await InvokeCaptureSessionKey();
-        var (response2, capturedSessionKey2) = await InvokeCaptureSessionKey();
+        var (response1, capturedSessionKey1) = await InvokeCaptureSessionKey(FakeRequest);
+        var (response2, capturedSessionKey2) = await InvokeCaptureSessionKey(FakeRequest);
 
         Assert.AreNotEqual(capturedSessionKey1, capturedSessionKey2);
     }
@@ -79,7 +81,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     [TestMethod]
     public async Task InvokeAsync_SessionHasExpectedCallbackUrl()
     {
-        await VerifyInvokeAsyncSession(session =>
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.CallbackUrl == FakeRequest.CallbackUrl
         );
     }
@@ -87,7 +89,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     [TestMethod]
     public async Task InvokeAsync_SessionHasExpectedClientId()
     {
-        await VerifyInvokeAsyncSession(session =>
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.ClientId == FakeRequest.ClientId
         );
     }
@@ -95,16 +97,46 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     [TestMethod]
     public async Task InvokeAsync_SessionHasExpectedUserId()
     {
-        await VerifyInvokeAsyncSession(session =>
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.UserId == FakeRequest.UserId
         );
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedPrompt()
+    public async Task InvokeAsync_SessionHasExpectedPrompt_WhenPromptIsNotSpecified()
     {
-        await VerifyInvokeAsyncSession(session =>
-            session.Prompt == FakeRequest.Prompt
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
+            session.Prompt.Heading == "Which organisation would you like to use?" &&
+            session.Prompt.Hint == "You are associated with more than one organisation. Select one option."
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_SessionHasExpectedPrompt_WhenPromptIsSpecified()
+    {
+        var request = FakeRequest with {
+            Prompt = new() {
+                Heading = "Which organisation would you like to contact?",
+                Hint = "You are associated with multiple organisations. Select one option.",
+            },
+        };
+        await VerifyInvokeAsyncSession(request, session =>
+            session.Prompt.Heading == request.Prompt.Heading &&
+            session.Prompt.Hint == request.Prompt.Hint
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_SessionHasExpectedPrompt_WhenHeadingIsSpecified()
+    {
+        var request = FakeRequest with {
+            Prompt = new() {
+                Heading = "Which organisation would you like to contact?",
+            },
+        };
+        await VerifyInvokeAsyncSession(request, session =>
+            session.Prompt.Heading == request.Prompt.Heading &&
+            session.Prompt.Hint == "Select one option."
         );
     }
 
@@ -115,7 +147,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
 
         // TODO: Inject fake organisation options...
 
-        await VerifyInvokeAsyncSession(session =>
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.OrganisationOptions.Intersect(organisationOptions)
                 .Count() == organisationOptions.Length
         );
@@ -124,7 +156,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     [TestMethod]
     public async Task InvokeAsync_SessionHasExpectedCreationTime()
     {
-        await VerifyInvokeAsyncSession(session =>
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
             // Was created within the past 5 seconds?
             (DateTime.UtcNow - session.Created) < new TimeSpan(0, 0, 5)
         );
@@ -138,7 +170,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
             SessionTimeoutInMinutes = 10,
         });
 
-        await VerifyInvokeAsyncSession(session =>
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
             (session.Expires - session.Created) == new TimeSpan(0, 10, 0),
             autoMocker
         );
@@ -152,7 +184,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
             SelectOrganisationBaseAddress = new Uri("https://select-organisation.localhost"),
         });
 
-        var (response, capturedSessionKey) = await InvokeCaptureSessionKey(autoMocker);
+        var (response, capturedSessionKey) = await InvokeCaptureSessionKey(FakeRequest, autoMocker);
 
         Assert.AreEqual(
             $"https://select-organisation.localhost/test-client/{capturedSessionKey}",

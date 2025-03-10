@@ -5,7 +5,7 @@ using Dfe.SignIn.Core.UseCases.PublicApiSigning;
 using Microsoft.Extensions.Options;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.Core.UseCases.Tests.PublicApiSigning;
+namespace Dfe.SignIn.Core.UseCases.UnitTests.PublicApiSigning;
 
 [TestClass]
 public sealed class CreateDigitalSignatureForPayload_UseCaseTests
@@ -57,7 +57,8 @@ dzro5QIDAQAB
 
         autoMocker.GetMock<IOptions<PublicApiSigningOptions>>()
             .Setup(x => x.Value)
-            .Returns(new PublicApiSigningOptions {
+            .Returns(new PublicApiSigningOptions
+            {
                 Algorithm = HashAlgorithmName.MD5,
                 Padding = RSASignaturePadding.Pkcs1,
                 PrivateKeyPem = FakePrivateKey,
@@ -72,7 +73,8 @@ dzro5QIDAQAB
     {
         var useCase = CreateMockedUseCase();
 
-        var response = await useCase.InvokeAsync(new() {
+        var response = await useCase.InvokeAsync(new()
+        {
             Payload = "Hello, world!",
         });
 
@@ -94,7 +96,8 @@ dzro5QIDAQAB
         var useCase = CreateMockedUseCase();
 
         string payload = "Hello, world!";
-        var response = await useCase.InvokeAsync(new() {
+        var response = await useCase.InvokeAsync(new()
+        {
             Payload = payload,
         });
 

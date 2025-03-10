@@ -4,6 +4,10 @@ using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 
 namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 
+/// <summary>
+/// Use case for getting a "select organisation" session by its unique key.
+/// </summary>
+/// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
 public sealed class GetSelectOrganisationSessionByKey_UseCase(
     ISelectOrganisationSessionRepository sessionRepository
 ) : IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse>

@@ -1,11 +1,17 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.SelectOrganisation;
 using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 
+/// <summary>
+/// Use case for creating a "select organisation" session.
+/// </summary>
+/// <param name="optionsAccessor">Provides access to "select organisation" options.</param>
+/// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
 public sealed class CreateSelectOrganisationSession_UseCase(
     IOptions<SelectOrganisationOptions> optionsAccessor,
     ISelectOrganisationSessionRepository sessionRepository
@@ -26,7 +32,24 @@ public sealed class CreateSelectOrganisationSession_UseCase(
             ClientId = request.ClientId,
             UserId = request.UserId,
             Prompt = request.Prompt,
-            OrganisationOptions = [],
+            OrganisationOptions = [
+                new SelectOrganisationOption {
+                    Id = Guid.NewGuid(),
+                    Name = "Organisation A",
+                },
+                new SelectOrganisationOption {
+                    Id = Guid.NewGuid(),
+                    Name = "Organisation B",
+                },
+                new SelectOrganisationOption {
+                    Id = Guid.NewGuid(),
+                    Name = "Organisation C",
+                },
+                new SelectOrganisationOption {
+                    Id = Guid.NewGuid(),
+                    Name = "Organisation D",
+                },
+            ],
             Created = createdUtc,
             Expires = createdUtc + new TimeSpan(0, options.SessionTimeoutInMinutes, 0),
         };

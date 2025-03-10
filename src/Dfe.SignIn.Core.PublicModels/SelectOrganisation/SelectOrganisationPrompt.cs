@@ -21,5 +21,5 @@ public sealed record SelectOrganisationPrompt()
     /// <remarks>
     ///   <para>This is the grey text that appears below the heading text.</para>
     /// </remarks>
-    public required string Hint { get; init; }
+    public string Hint { get; init; } = "Select one option.";
 }

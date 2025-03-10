@@ -87,5 +87,5 @@ public enum OrganisationFilterAssociation
     /// Only include organisations that are assigned to the user where the user
     /// has permissions to interact with that service.
     /// </summary>
-    AssignedToUseForService = 2,
+    AssignedToUserForService = 2,
 }

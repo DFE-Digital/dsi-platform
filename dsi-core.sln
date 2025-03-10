@@ -13,9 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.UseCases", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A386C8A8-09FD-492D-A41B-CDEE32BF7BD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.UseCases.Tests", "tests\Dfe.SignIn.Core.UseCases.Tests\Dfe.SignIn.Core.UseCases.Tests.csproj", "{C6418840-EB70-449F-B2D8-10C322A85FEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.UseCases.UnitTests", "tests\Dfe.SignIn.Core.UseCases.UnitTests\Dfe.SignIn.Core.UseCases.UnitTests.csproj", "{C6418840-EB70-449F-B2D8-10C322A85FEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.Framework.Tests", "tests\Dfe.SignIn.Core.Framework.Tests\Dfe.SignIn.Core.Framework.Tests.csproj", "{414D1B3B-B4E9-4E2E-8EAE-B353AA8E79E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.Framework.UnitTests", "tests\Dfe.SignIn.Core.Framework.UnitTests\Dfe.SignIn.Core.Framework.UnitTests.csproj", "{414D1B3B-B4E9-4E2E-8EAE-B353AA8E79E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.PublicModels", "src\Dfe.SignIn.Core.PublicModels\Dfe.SignIn.Core.PublicModels.csproj", "{399988CE-5D6F-4FDA-BC38-B9A952C36483}"
 EndProject
