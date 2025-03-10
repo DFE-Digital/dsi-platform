@@ -23,7 +23,7 @@ public enum OrganisationDetailLevel
     ///     <item><c>type</c> - Type of organisation.</item>
     ///     <item><c>urn</c> - Unique reference number.</item>
     ///     <item><c>uid</c> - Unique identifier.</item>
-    ///     <item><c>upin</c> - Unique personal identification number.</item>
+    ///     <item><c>upin</c> - Unique provider identification number.</item>
     ///     <item><c>ukprn</c> - UK provider reference number.</item>
     ///     <item><c>establishmentNumber</c> - Code that identifies which establishment.</item>
     ///     <item><c>localAuthority</c> - Local authority if applicable.</item>

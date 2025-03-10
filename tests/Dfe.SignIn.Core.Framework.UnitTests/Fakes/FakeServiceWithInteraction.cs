@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.Core.Framework.Tests.Fakes;
+namespace Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 
 public sealed class FakeServiceWithInteraction(IInteractor<ExampleRequest, ExampleResponse> interaction)
 {

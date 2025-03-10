@@ -5,7 +5,7 @@ using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Moq;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.Core.UseCases.Tests.SelectOrganisation;
+namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 
 [TestClass]
 public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
@@ -18,7 +18,8 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKey_UseCase>();
 
-        var response = await useCase.InvokeAsync(new() {
+        var response = await useCase.InvokeAsync(new()
+        {
             SessionKey = "cd66b69c-144c-4365-96f6-4302b754c18b",
         });
 
@@ -36,13 +37,15 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
     {
         var autoMocker = new AutoMocker();
 
-        var fakeSession = new SelectOrganisationSessionData {
+        var fakeSession = new SelectOrganisationSessionData
+        {
             Created = DateTime.UtcNow,
             Expires = DateTime.UtcNow + new TimeSpan(0, 10, 0),
             CallbackUrl = new Uri("https://example.localhost/callback"),
             ClientId = "test-client",
             UserId = Guid.NewGuid(),
-            Prompt = new SelectOrganisationPrompt {
+            Prompt = new SelectOrganisationPrompt
+            {
                 Heading = "Which organisation?",
                 Hint = "Select one option."
             },
@@ -57,7 +60,8 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
 
         var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKey_UseCase>();
 
-        var response = await useCase.InvokeAsync(new() {
+        var response = await useCase.InvokeAsync(new()
+        {
             SessionKey = "cd66b69c-144c-4365-96f6-4302b754c18b",
         });
 

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 namespace Dfe.SignIn.Core.UseCases.PublicApiSigning;
 
 /// <summary>
-/// Options for <see cref="DefaultCallbackPayloadSigner"/.
+/// Options for digital signing with the Public API.
 /// </summary>
 public sealed class PublicApiSigningOptions : IOptions<PublicApiSigningOptions>
 {

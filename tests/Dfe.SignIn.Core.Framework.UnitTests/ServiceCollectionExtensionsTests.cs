@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using Dfe.SignIn.Core.Framework.Tests.Fakes;
+using Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.Core.Framework.Tests;
+namespace Dfe.SignIn.Core.Framework.UnitTests;
 
 [TestClass]
 public sealed class ServiceCollectionExtensionsTests
@@ -149,7 +149,8 @@ public sealed class ServiceCollectionExtensionsTests
         Assert.IsNotNull(interactor);
 
         await Assert.ThrowsExceptionAsync<ValidationException>(
-            () => interactor.InvokeAsync(new ExampleInteractorWithValidationRequest {
+            () => interactor.InvokeAsync(new ExampleInteractorWithValidationRequest
+            {
                 Name = "A",
             })
         );

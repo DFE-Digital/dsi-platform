@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Dfe.SignIn.Core.Framework.Tests.Fakes;
+namespace Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 
 public sealed record ExampleInteractorWithValidationRequest
 {
@@ -19,7 +19,8 @@ public sealed class ExampleInteractorWithValidation_ApiRequester
 {
     public Task<ExampleInteractorWithValidationResponse> InvokeAsync(ExampleInteractorWithValidationRequest request)
     {
-        return Task.FromResult(new ExampleInteractorWithValidationResponse {
+        return Task.FromResult(new ExampleInteractorWithValidationResponse
+        {
             Percentage = 1f,
         });
     }
