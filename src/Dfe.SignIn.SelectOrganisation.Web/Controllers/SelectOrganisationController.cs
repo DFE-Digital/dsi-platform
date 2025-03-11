@@ -23,6 +23,7 @@ public sealed class SelectOrganisationController(
     IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
     IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse> getOrganisationById,
     IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse> getSelectOrganisationSessionByKey,
+    IInteractor<InvalidateSelectOrganisationSessionRequest, InvalidateSelectOrganisationSessionResponse> invalidateSelectOrganisationSessionRequest,
     IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse> createDigitalSignatureForPayload,
     IMapper mapper
 ) : Controller
@@ -35,10 +36,11 @@ public sealed class SelectOrganisationController(
     [Route("{clientId}/{sessionKey}")]
     public async Task<IActionResult> Index(string clientId, string sessionKey)
     {
-        var session = await this.GetSessionData(clientId, sessionKey);
-        if (session == null) {
-            return await this.HandleInvalidSessionAsync(clientId);
+        var sessionResult = await this.GetSessionAsync(clientId, sessionKey);
+        if (sessionResult.Session is null) {
+            return sessionResult.RedirectActionResult!;
         }
+        var session = sessionResult.Session;
 
         return this.View(new SelectOrganisationViewModel {
             Prompt = session.Prompt,
@@ -50,17 +52,20 @@ public sealed class SelectOrganisationController(
     [Route("{clientId}/{sessionKey}")]
     public async Task<IActionResult> PostIndex(string clientId, string sessionKey, SelectOrganisationViewModel viewModel)
     {
-        var session = await this.GetSessionData(clientId, sessionKey);
-        if (session == null) {
-            return await this.HandleInvalidSessionAsync(clientId);
+        var sessionResult = await this.GetSessionAsync(clientId, sessionKey);
+        if (sessionResult.Session is null) {
+            return sessionResult.RedirectActionResult!;
         }
+        var session = sessionResult.Session;
 
-        // TODO: Invalidate session!
+        await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
+            SessionKey = sessionKey,
+        });
 
         bool didUserSelectOptionThatWasPresented = session.OrganisationOptions.Any(
             option => option.Id == viewModel.SelectedOrganisationId);
         if (!didUserSelectOptionThatWasPresented) {
-            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
+            return await this.HandleInvalidSessionAsync(clientId);
         }
 
         var selectedOrganisation = (await getOrganisationById.InvokeAsync(new() {
@@ -99,20 +104,36 @@ public sealed class SelectOrganisationController(
         });
     }
 
-    private async Task<SelectOrganisationSessionData?> GetSessionData(string clientId, string sessionKey)
+    private sealed record GetSessionResult
     {
-        var sessionResponse = await getSelectOrganisationSessionByKey.InvokeAsync(new() {
+        public SelectOrganisationSessionData? Session { get; init; } = null;
+        public IActionResult? RedirectActionResult { get; init; } = null;
+    }
+
+    private async Task<GetSessionResult> GetSessionAsync(string clientId, string sessionKey)
+    {
+        var session = (await getSelectOrganisationSessionByKey.InvokeAsync(new() {
             SessionKey = sessionKey,
-        });
+        })).SessionData;
 
-        if (sessionResponse.SessionData == null) {
-            return null;
-        }
-        if (clientId != sessionResponse.SessionData.ClientId) {
-            throw new InvalidOperationException("Invalid client");
+        if (session is null) {
+            // Redirect when session does not exist.
+            return new GetSessionResult {
+                RedirectActionResult = await this.HandleInvalidSessionAsync(clientId),
+            };
         }
 
-        return sessionResponse.SessionData;
+        if (clientId != session.ClientId) {
+            // User has tampered with the clientId parameter of the URL.
+            await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
+                SessionKey = sessionKey,
+            });
+            return new GetSessionResult {
+                RedirectActionResult = await this.HandleInvalidSessionAsync(session.ClientId),
+            };
+        }
+
+        return new GetSessionResult { Session = session };
     }
 
     private object RemapSelectedOrganisationToCallbackData(
