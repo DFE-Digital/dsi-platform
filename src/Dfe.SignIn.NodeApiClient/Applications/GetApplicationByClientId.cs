@@ -1,7 +1,7 @@
 
-using System.Net.Http.Json;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Applications.Interactions;
+using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.NodeApiClient.Applications;
@@ -18,7 +18,7 @@ public sealed class GetApplicationByClientId_ApiRequester(
     /// <inheritdoc/>
     public async Task<GetApplicationByClientIdResponse> InvokeAsync(GetApplicationByClientIdRequest request)
     {
-        var response = await httpClient.GetFromJsonAsync<Models.ApplicationModelDto>($"services/{request.ClientId}");
+        var response = await httpClient.GetFromJsonSafeAsync<Models.ApplicationModelDto>($"services/{request.ClientId}");
 
         return new GetApplicationByClientIdResponse {
             Application = response is null ? null : new Core.Models.Applications.ApplicationModel {

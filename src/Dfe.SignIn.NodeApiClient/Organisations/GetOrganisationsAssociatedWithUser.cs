@@ -1,7 +1,7 @@
-using System.Net.Http.Json;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Organisations;
 using Dfe.SignIn.Core.Models.Users.Interactions;
+using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.NodeApiClient.Organisations;
@@ -19,7 +19,7 @@ public sealed class GetOrganisationsAssociatedWithUser_ApiRequester(
     /// <inheritdoc/>
     public async Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(GetOrganisationsAssociatedWithUserRequest request)
     {
-        var response = await httpClient.GetFromJsonAsync<Models.OrganisationsAssociatedWithUserDto[]>($"/organisations/v2/associated-with-user/{request.UserId}");
+        var response = await httpClient.GetFromJsonSafeAsync<Models.OrganisationsAssociatedWithUserDto[]>($"/organisations/v2/associated-with-user/{request.UserId}");
 
         var organisations = response?.Select(org => new OrganisationModel {
             Id = org.Organisation.Id,

@@ -1,6 +1,6 @@
-using System.Net.Http.Json;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Users.Interactions;
+using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.NodeApiClient.Access;
@@ -17,7 +17,7 @@ public sealed class GetApplicationByClientId_ApiRequester(
     /// <inheritdoc/>
     public async Task<GetApplicationsAssociatedWithUserResponse> InvokeAsync(GetApplicationsAssociatedWithUserRequest request)
     {
-        var response = await httpClient.GetFromJsonAsync<Models.ApplicationDto[]>($"users/{request.UserId}/services");
+        var response = await httpClient.GetFromJsonSafeAsync<Models.ApplicationDto[]>($"users/{request.UserId}/services");
 
         return new GetApplicationsAssociatedWithUserResponse {
             UserApplicationMappings = response?.Select(s => new UserApplicationMappingModel {
