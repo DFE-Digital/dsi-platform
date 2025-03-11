@@ -1,10 +1,49 @@
 namespace Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 
 /// <summary>
+/// Represents callback data for a "select organisation" submission.
+/// </summary>
+public abstract record SelectOrganisationCallback()
+{
+    /// <summary>
+    /// Gets type type of callback payload.
+    /// </summary>
+    public required string Type { get; init; }
+}
+
+/// <summary>
+/// The type of data payload supplied to the "select organisation" callback when an
+/// error has occurred.
+/// </summary>
+public record SelectOrganisationCallbackError() : SelectOrganisationCallback
+{
+    /// <summary>
+    /// Gets a value indicating the kind of error that has occurred.
+    /// </summary>
+    public required SelectOrganisationErrorCode Code { get; init; }
+}
+
+/// <summary>
+/// Indicates the type of error that has occurred.
+/// </summary>
+public enum SelectOrganisationErrorCode
+{
+    /// <summary>
+    /// Indicates that an internal error has occurred.
+    /// </summary>
+    InternalError = 0,
+
+    /// <summary>
+    /// Indicates that an invalid selection was made.
+    /// </summary>
+    InvalidSelection = 1,
+}
+
+/// <summary>
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Id"/> is specified.
 /// </summary>
-public record SelectOrganisationCallbackDataId()
+public record SelectOrganisationCallbackId() : SelectOrganisationCallback
 {
     /// <summary>
     /// Gets the unique value that identifies the organisation.
@@ -16,8 +55,8 @@ public record SelectOrganisationCallbackDataId()
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Basic"/> is specified.
 /// </summary>
-public record SelectOrganisationCallbackDataBasic()
-    : SelectOrganisationCallbackDataId
+public record SelectOrganisationCallbackBasic()
+    : SelectOrganisationCallbackId
 {
     /// <summary>
     /// Gets the name of the organisation.
@@ -46,8 +85,8 @@ public record SelectOrganisationCallbackDataBasic()
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Extended"/> is specified.
 /// </summary>
-public record SelectOrganisationCallbackDataExtended()
-    : SelectOrganisationCallbackDataBasic
+public record SelectOrganisationCallbackExtended()
+    : SelectOrganisationCallbackBasic
 {
     // TODO: Add missing properties...
     //   address - Non-structured address.
@@ -62,8 +101,8 @@ public record SelectOrganisationCallbackDataExtended()
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Legacy"/> is specified.
 /// </summary>
-public record SelectOrganisationCallbackDataLegacy()
-    : SelectOrganisationCallbackDataExtended
+public record SelectOrganisationCallbackLegacy()
+    : SelectOrganisationCallbackExtended
 {
     // TODO: Add missing properties...
     //   legacyId - A unique ID from an older version of the system.
