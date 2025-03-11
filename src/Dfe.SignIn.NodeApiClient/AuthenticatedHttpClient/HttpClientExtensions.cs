@@ -19,7 +19,7 @@ public static class HttpClientExtensions
     /// <exception cref="HttpRequestException" />
     /// <exception cref="TaskCanceledException" />
     /// <exception cref="UriFormatException" />
-    public static async Task<T?> GetFromJsonSafeAsync<T>(this HttpClient client, string url)
+    public static async Task<T?> GetFromJsonOrDefaultAsync<T>(this HttpClient client, string url)
     {
         var response = await client.GetAsync(url);
 

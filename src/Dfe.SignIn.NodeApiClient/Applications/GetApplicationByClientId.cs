@@ -18,7 +18,7 @@ public sealed class GetApplicationByClientId_ApiRequester(
     /// <inheritdoc/>
     public async Task<GetApplicationByClientIdResponse> InvokeAsync(GetApplicationByClientIdRequest request)
     {
-        var response = await httpClient.GetFromJsonSafeAsync<Models.ApplicationModelDto>($"services/{request.ClientId}");
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationModelDto>($"services/{request.ClientId}");
 
         return new GetApplicationByClientIdResponse {
             Application = response is null ? null : new Core.Models.Applications.ApplicationModel {

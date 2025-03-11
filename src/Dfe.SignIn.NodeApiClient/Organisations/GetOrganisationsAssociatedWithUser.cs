@@ -19,7 +19,7 @@ public sealed class GetOrganisationsAssociatedWithUser_ApiRequester(
     /// <inheritdoc/>
     public async Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(GetOrganisationsAssociatedWithUserRequest request)
     {
-        var response = await httpClient.GetFromJsonSafeAsync<Models.OrganisationsAssociatedWithUserDto[]>($"/organisations/v2/associated-with-user/{request.UserId}");
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationsAssociatedWithUserDto[]>($"/organisations/v2/associated-with-user/{request.UserId}");
 
         var organisations = response?.Select(org => new OrganisationModel {
             Id = org.Organisation.Id,

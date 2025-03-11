@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.Organisations;
 using Dfe.SignIn.Core.Models.Organisations.Interactions;
@@ -10,23 +11,20 @@ namespace Dfe.SignIn.NodeApiClient.Organisations;
 /// ApiRequester for obtaining an organisation by its unique identifier.
 /// </summary>
 /// <param name="httpClient"></param>
+/// <param name="mapper"></param>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationById_ApiRequester(
-    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient)
+    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper)
     : IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>
 {
 
     /// <inheritdoc/>
     public async Task<GetOrganisationByIdResponse> InvokeAsync(GetOrganisationByIdRequest request)
     {
-        var response = await httpClient.GetFromJsonSafeAsync<Models.OrganisationByIdDto>($"/organisations/{request.OrganisationId}");
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationByIdDto>($"/organisations/{request.OrganisationId}");
 
         return new GetOrganisationByIdResponse {
-            Organisation = response is null ? null : new OrganisationModel {
-                Id = response.Id,
-                LegalName = response.LegalName ?? string.Empty,
-                Name = response.Name
-            }
+            Organisation = response is null ? null : mapper.Map<OrganisationModel>(response)
         };
     }
 }

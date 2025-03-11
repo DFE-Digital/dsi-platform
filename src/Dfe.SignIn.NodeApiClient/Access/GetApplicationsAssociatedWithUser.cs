@@ -17,7 +17,7 @@ public sealed class GetApplicationByClientId_ApiRequester(
     /// <inheritdoc/>
     public async Task<GetApplicationsAssociatedWithUserResponse> InvokeAsync(GetApplicationsAssociatedWithUserRequest request)
     {
-        var response = await httpClient.GetFromJsonSafeAsync<Models.ApplicationDto[]>($"users/{request.UserId}/services");
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationDto[]>($"users/{request.UserId}/services");
 
         return new GetApplicationsAssociatedWithUserResponse {
             UserApplicationMappings = response?.Select(s => new UserApplicationMappingModel {
