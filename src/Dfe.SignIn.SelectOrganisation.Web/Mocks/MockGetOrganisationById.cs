@@ -6,7 +6,7 @@ public sealed class MockGetOrganisationById
 {
     public Task<GetOrganisationByIdResponse> InvokeAsync(GetOrganisationByIdRequest request)
     {
-        MockOrganisations.Models.TryGetValue(request.Id, out var model);
+        MockOrganisations.Models.TryGetValue(request.OrganisationId, out var model);
         return Task.FromResult(new GetOrganisationByIdResponse {
             Organisation = model,
         });

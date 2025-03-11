@@ -1,4 +1,4 @@
-﻿@model SelectOrganisationCallbackViewModel
+﻿@model CallbackViewModel
 
 @{
     ViewData["Title"] = "Redirecting to service";
@@ -7,6 +7,7 @@
 <form id="callbackForm" method="post" action="@(Model.CallbackUrl)">
     <h1 class="govuk-heading-l">Redirecting to service</h1>
 
+    <input name="payloadType" type="hidden" asp-for=PayloadType />
     <input name="payload" type="hidden" asp-for=PayloadData />
     <input name="sig" type="hidden" asp-for=DigitalSignature />
     <input name="kid" type="hidden" asp-for=PublicKeyId />

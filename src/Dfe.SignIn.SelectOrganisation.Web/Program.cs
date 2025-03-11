@@ -22,6 +22,8 @@ builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient([NodeApiName.Access]);
 
+builder.Services.SetupAutoMapper();
+
 builder.Services.SetupPublicApiSigningInteractions();
 builder.Services.SetupSelectOrganisationInteractions();
 

@@ -17,7 +17,6 @@ public sealed class DeveloperController(
         var session = new SelectOrganisationSessionData {
             Created = DateTime.UtcNow,
             Expires = DateTime.UtcNow + new TimeSpan(24, 0, 0),
-            CallbackUrl = new Uri("https://example.localhost/callback"),
             ClientId = "test-client",
             UserId = Guid.NewGuid(),
             Prompt = new() {
@@ -29,6 +28,8 @@ public sealed class DeveloperController(
                     Id = organisation.Id,
                     Name = organisation.Name,
                 }),
+            DetailLevel = OrganisationDetailLevel.Basic,
+            CallbackUrl = new Uri("https://example.localhost/callback"),
         };
 
         await sessionRepository.StoreAsync("test", session);
