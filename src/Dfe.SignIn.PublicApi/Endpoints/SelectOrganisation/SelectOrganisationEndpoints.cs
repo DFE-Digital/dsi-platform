@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
@@ -16,6 +17,7 @@ public static class SelectOrganisationEndpoints
     /// Registers all endpoints for the "select organisation" feature.
     /// </summary>
     /// <param name="app">The application instance.</param>
+    [ExcludeFromCodeCoverage]
     public static void UseSelectOrganisationEndpoints(this WebApplication app)
     {
         app.MapPost("v2/select-organisation", PostSelectOrganisationSession);

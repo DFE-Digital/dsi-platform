@@ -1,4 +1,3 @@
-
 using Dfe.SignIn.PublicApi.ScopedSession;
 
 /// <exclude/>
@@ -11,7 +10,6 @@ public static class ScopedSessionExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
-
     public static void SetupScopedSession(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));

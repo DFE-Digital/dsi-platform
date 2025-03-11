@@ -12,9 +12,8 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
 
 [TestClass]
-public sealed class SelectOrganisationEndpointsTests
+public sealed class PostSelectOrganisationSessionTests
 {
-
     private static readonly CreateSelectOrganisationSession_PublicApiRequest FakePublicApiMinimalRequest = new() {
         CallbackUrl = new Uri("https://example.localhost/callback"),
         UserId = new Guid("6c843439-4633-4369-af49-f8b04b2529bc"),

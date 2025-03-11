@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.PublicApi.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -12,6 +13,7 @@ public static class DigitalSigningEndpoints
     /// Registers all endpoints for the digital signing feature.
     /// </summary>
     /// <param name="app">The application instance.</param>
+    [ExcludeFromCodeCoverage]
     public static void UseDigitalSigningEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("v2/.well-known/keys", GetKeys);

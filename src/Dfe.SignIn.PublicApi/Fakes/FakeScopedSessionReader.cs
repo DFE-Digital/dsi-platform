@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Models.Applications;
 using Dfe.SignIn.PublicApi.ScopedSession;
 
 /// <summary>
 /// ...
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class FakeScopedSessionReader : IScopedSessionReader
 {
     /// <inheritdoc/>

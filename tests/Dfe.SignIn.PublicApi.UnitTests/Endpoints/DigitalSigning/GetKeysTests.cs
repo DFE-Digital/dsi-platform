@@ -6,7 +6,7 @@ using Moq;
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.DigitalSigning;
 
 [TestClass]
-public sealed class WellKnownKeysEndpointsTests
+public sealed class GetKeysTests
 {
     [DataTestMethod]
     [DataRow(null)]
@@ -20,9 +20,12 @@ public sealed class WellKnownKeysEndpointsTests
                 PublicKeysJson = fakePublicKeysJsonValue,
             });
 
-        Assert.ThrowsException<InvalidOperationException>(
-            () => DigitalSigningEndpoints.GetKeys(mockedOptionsAccessor.Object),
-            "Missing configuration 'ApplicationOptions.PublicKeysJson'."
+        var ex = Assert.ThrowsException<InvalidOperationException>(() =>
+            DigitalSigningEndpoints.GetKeys(mockedOptionsAccessor.Object)
+        );
+        Assert.AreEqual(
+            "Missing configuration 'ApplicationOptions.PublicKeysJson'.",
+            ex.Message
         );
     }
 

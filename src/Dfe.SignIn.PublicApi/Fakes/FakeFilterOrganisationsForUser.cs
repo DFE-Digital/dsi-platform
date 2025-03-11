@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
 
 /// <summary>
 /// ...
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class FakeFilterOrganisationsForUser
     : IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>
 {

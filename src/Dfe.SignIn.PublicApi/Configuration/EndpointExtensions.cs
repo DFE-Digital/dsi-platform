@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
 /// <exclude/>
+[ExcludeFromCodeCoverage]
 public static class EndpointExtensions
 {
     /// <summary>
