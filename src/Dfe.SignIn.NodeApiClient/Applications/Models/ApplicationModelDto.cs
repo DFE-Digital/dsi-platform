@@ -39,11 +39,16 @@ internal sealed record RelyingPartyModelDto()
     [JsonPropertyName("response_types")]
     public required string[] ResponseTypes { get; init; } = [];
 
-    public RelyingPartyParamModelDto? Params { get; init; }
+    // public RelyingPartyParamModelDto? Params { get; init; }
 }
-internal sealed record RelyingPartyParamModelDto()
-{
-    public required string Header { get; init; }
-    public required string HeaderMessage { get; init; }
-    public required Guid ServiceId { get; init; }
-}
+// internal sealed record RelyingPartyParamModelDto()
+// {
+//     public required string Header { get; init; }
+//     public required string HeaderMessage { get; init; }
+//     public required Guid ServiceId { get; init; }
+// }
+
+/*
+System.Text.Json.JsonException: JSON deserialization for type 'Dfe.SignIn.NodeApiClient.Applications.Models.RelyingPartyParamModelDto' was missing required properties, including the following: header, headerMessage, serviceId
+   at System.Text.Json.ThrowHelper.ThrowJsonException_JsonRequiredPropertyMissing(JsonTypeInfo parent, BitArray requiredPropertiesSet)
+*/
