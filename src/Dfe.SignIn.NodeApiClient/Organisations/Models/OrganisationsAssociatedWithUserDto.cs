@@ -15,7 +15,7 @@ internal sealed record OrganisationsAssociatedWithUserDto()
 internal sealed record UserOrganisationDto() : OrganisationDto
 {
     [JsonPropertyName("status")]
-    public StatusDto? Status { get; set; }
+    public required StatusDto Status { get; set; }
 
     [JsonPropertyName("category")]
     public CategoryDto? Category { get; init; }

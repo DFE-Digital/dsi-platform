@@ -29,7 +29,7 @@ internal abstract record OrganisationDto()
     public string? EstablishmentNumber { get; set; }
 
     [JsonPropertyName("closedOn")]
-    public DateTime? ClosedOn { get; set; }
+    public DateOnly? ClosedOn { get; set; }
 
     [JsonPropertyName("address")]
     public string? Address { get; set; }
