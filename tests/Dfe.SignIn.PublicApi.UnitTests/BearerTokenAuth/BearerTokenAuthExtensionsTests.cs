@@ -7,12 +7,11 @@ namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth;
 public class BearerTokenAuthExtensionsTests
 {
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void UseBearerTokenAuthMiddleware_Throws_WhenBuilderArgumentIsNull()
     {
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            BearerTokenAuthExtensions.UseBearerTokenAuthMiddleware(
-                builder: null!
-            )
+        BearerTokenAuthExtensions.UseBearerTokenAuthMiddleware(
+            builder: null!
         );
     }
 

@@ -4,12 +4,11 @@ namespace Dfe.SignIn.PublicApi.UnitTests.ScopedSessionProvider;
 public class ScopedSessionExtensionsTests
 {
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupScopedSession_Throws_WhenServicesArgumentIsNull()
     {
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            ScopedSessionExtensions.SetupScopedSession(
-                services: null!
-            )
+        ScopedSessionExtensions.SetupScopedSession(
+            services: null!
         );
     }
 }

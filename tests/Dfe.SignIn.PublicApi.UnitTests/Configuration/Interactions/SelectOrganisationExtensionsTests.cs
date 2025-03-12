@@ -12,12 +12,11 @@ public sealed class SelectOrganisationExtensionsTests
     #region SetupSelectOrganisationInteractions(IServiceCollection)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupSelectOrganisationInteractions_Throws_WhenServicesArgumentIsNull()
     {
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            SelectOrganisationExtensions.SetupSelectOrganisationInteractions(
-                services: null!
-            )
+        SelectOrganisationExtensions.SetupSelectOrganisationInteractions(
+            services: null!
         );
     }
 

@@ -9,12 +9,11 @@ public sealed class ScopedSessionExtensionsTests
     #region SetupScopedSession(IServiceCollection)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupScopedSession_Throws_WhenServicesArgumentIsNull()
     {
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            ScopedSessionExtensions.SetupScopedSession(
-                services: null!
-            )
+        ScopedSessionExtensions.SetupScopedSession(
+            services: null!
         );
     }
 
