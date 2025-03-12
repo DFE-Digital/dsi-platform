@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Dfe.SignIn.Core.Models.SelectOrganisation;
+using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 
 namespace Dfe.SignIn.SelectOrganisation.SessionData.UnitTests.Json;
@@ -7,15 +8,12 @@ namespace Dfe.SignIn.SelectOrganisation.SessionData.UnitTests.Json;
 [TestClass]
 public sealed class DefaultSessionDataSerializerTests
 {
-    private static readonly SelectOrganisationSessionData FakeSessionData = new()
-    {
+    private static readonly SelectOrganisationSessionData FakeSessionData = new() {
         Created = new DateTime(2024, 2, 22),
         Expires = new DateTime(2024, 2, 22) + new TimeSpan(0, 10, 0),
-        CallbackUrl = new Uri("https://example.localhost/callback"),
         ClientId = "example-client-id",
         UserId = new Guid("a205d032-e65f-47e0-810c-4ddb424219fd"),
-        Prompt = new()
-        {
+        Prompt = new() {
             Heading = "Which organisation?",
             Hint = "Select one option.",
         },
@@ -25,20 +23,21 @@ public sealed class DefaultSessionDataSerializerTests
                 Name = "Example organisation",
             },
         ],
+        CallbackUrl = new Uri("https://example.localhost/callback"),
+        DetailLevel = OrganisationDetailLevel.Basic,
     };
 
     #region Serialize(SelectOrganisationSessionData)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void Serialize_Throws_WhenSessionDataArgumentIsNull()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => serializer.Serialize(null)
+        serializer.Serialize(
+            sessionData: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
@@ -56,44 +55,46 @@ public sealed class DefaultSessionDataSerializerTests
     #region Deserialize(string)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void Deserialize_Throws_WhenJsonArgumentIsNull()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => serializer.Deserialize(null)
+        serializer.Deserialize(
+            json: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void Deserialize_Throws_WhenJsonArgumentIsEmptyString()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-        Assert.ThrowsException<ArgumentException>(
-            () => serializer.Deserialize("")
+        serializer.Deserialize(
+            json: ""
         );
     }
 
     [TestMethod]
+    [ExpectedException(typeof(JsonException))]
     public void Deserialize_Throws_WhenInputIsInvalid()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-        Assert.ThrowsException<JsonException>(
-            () => serializer.Deserialize("42")
+        serializer.Deserialize(
+            json: "42"
         );
     }
 
     [TestMethod]
+    [ExpectedException(typeof(JsonException))]
     public void Deserialize_Throws_WhenInputIsNull()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-        Assert.ThrowsException<JsonException>(
-            () => serializer.Deserialize("null")
+        serializer.Deserialize(
+            json: "null"
         );
     }
 
@@ -105,8 +106,7 @@ public sealed class DefaultSessionDataSerializerTests
 
         var result = serializer.Deserialize(json);
 
-        Assert.AreEqual(FakeSessionData, result! with
-        {
+        Assert.AreEqual(FakeSessionData, result! with {
             OrganisationOptions = FakeSessionData.OrganisationOptions,
         });
         CollectionAssert.AreEqual(

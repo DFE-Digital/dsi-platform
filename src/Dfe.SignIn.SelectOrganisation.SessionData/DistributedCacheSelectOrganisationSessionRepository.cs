@@ -32,7 +32,7 @@ public sealed class DistributedCacheSelectOrganisationSessionRepository(
 
         string cacheKey = $"{options.Value.CacheKeyPrefix}{sessionKey}";
         string? sessionDataJson = await cache.GetStringAsync(cacheKey);
-        if (sessionDataJson == null) {
+        if (sessionDataJson is null) {
             return null;
         }
 

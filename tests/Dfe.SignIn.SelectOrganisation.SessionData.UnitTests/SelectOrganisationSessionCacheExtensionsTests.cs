@@ -11,25 +11,24 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
     #region AddSelectOrganisationSessionCache(IServiceCollection, Action<SelectOrganisationSessionCacheOptions>)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void AddSelectOrganisationSessionCache_Throws_WhenServicesArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => SelectOrganisationSessionCacheExtensions.AddSelectOrganisationSessionCache(null, (options) => { })
+        SelectOrganisationSessionCacheExtensions.AddSelectOrganisationSessionCache(
+            services: null!,
+            setupAction: (options) => { }
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
-    public void AddSelectOrganisationSessionCache_Throws_WhenOptionsArgumentIsNull()
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void AddSelectOrganisationSessionCache_Throws_WhenSetupActionArgumentIsNull()
     {
         var services = new ServiceCollection();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => services.AddSelectOrganisationSessionCache(null)
+        services.AddSelectOrganisationSessionCache(
+            setupAction: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
@@ -37,8 +36,7 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddSelectOrganisationSessionCache(options =>
-        {
+        services.AddSelectOrganisationSessionCache(options => {
             options.CacheKeyPrefix = "overriden-prefix:";
         });
 

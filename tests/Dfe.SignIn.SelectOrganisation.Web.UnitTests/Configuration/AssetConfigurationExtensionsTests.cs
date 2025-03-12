@@ -9,13 +9,12 @@ public sealed class AssetConfigurationExtensionsTests
     #region SetupFrontendAssets(IServiceCollection, Action<AssetOptions>)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupFrontendAssets_Throws_WhenServicesArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => AssetConfigurationExtensions.SetupFrontendAssets(null)
+        AssetConfigurationExtensions.SetupFrontendAssets(
+            services: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]

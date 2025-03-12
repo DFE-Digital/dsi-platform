@@ -21,6 +21,7 @@ public static class SelectOrganisationExtensions
         SetupRedisSessionStore(services);
 
         services.AddInteractor<GetSelectOrganisationSessionByKey_UseCase>();
+        services.AddInteractor<InvalidateSelectOrganisationSession_UseCase>();
     }
 
     private static void SetupRedisSessionStore(this IServiceCollection services)
