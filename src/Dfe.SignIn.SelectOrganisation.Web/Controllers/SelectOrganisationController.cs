@@ -167,7 +167,7 @@ public sealed class SelectOrganisationController(
             var response = await getApplicationByClientId.InvokeAsync(new GetApplicationByClientIdRequest {
                 ClientId = clientId,
             });
-            if (response.Application != null) {
+            if (response.Application is not null) {
                 returnUrl = response.Application.ServiceHomeUrl;
             }
         }
