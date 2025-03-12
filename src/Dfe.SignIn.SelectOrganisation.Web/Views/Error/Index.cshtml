@@ -1,0 +1,15 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h1 class="govuk-heading-l">@ViewData["Title"]</h1>
+
+<p class="govuk-body">An error occurred while processing your request.</p>
+
+@if (Model.ShowRequestId)
+{
+    <p class="govuk-body">
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}

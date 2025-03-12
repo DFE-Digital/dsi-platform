@@ -7,6 +7,11 @@ trim_trailing_whitespace = false
 insert_final_newline = true
 indent_style = space
 
+[*.json]
+indent_size = 2
+indent_style = space
+tab_width = 2
+
 [*.cs]
 # Here we set all microsoft's IDExxxx rule violations as compile errors
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/
