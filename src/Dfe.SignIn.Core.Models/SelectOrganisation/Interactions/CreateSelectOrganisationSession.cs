@@ -9,11 +9,6 @@ namespace Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
 public sealed record CreateSelectOrganisationSessionRequest()
 {
     /// <summary>
-    /// Gets the callback URL where the selected organisation response will be posted.
-    /// </summary>
-    public required Uri CallbackUrl { get; init; }
-
-    /// <summary>
     /// Gets the unique DfE Sign-in client ID of the application.
     /// </summary>
     [MinLength(1)]
@@ -34,14 +29,19 @@ public sealed record CreateSelectOrganisationSessionRequest()
     };
 
     /// <summary>
-    /// Gets the level of organisation detail required in the callback response.
-    /// </summary>
-    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
-
-    /// <summary>
     /// Gets the organisation filtering specification.
     /// </summary>
     public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
+
+    /// <summary>
+    /// Gets the callback URL where the selected organisation response will be posted.
+    /// </summary>
+    public required Uri CallbackUrl { get; init; }
+
+    /// <summary>
+    /// Gets the level of organisation detail required in the callback response.
+    /// </summary>
+    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
 }
 
 /// <summary>
@@ -49,6 +49,22 @@ public sealed record CreateSelectOrganisationSessionRequest()
 /// </summary>
 public sealed record CreateSelectOrganisationSessionResponse()
 {
+    /// <summary>
+    /// Gets a value indicating whether there is at least one option for the user
+    /// to select from.
+    /// </summary>
+    /// <remarks>
+    ///   <para>An implementor can choose to avoid redirecting to the given <see cref="Url"/>
+    ///   when <see cref="HasOptions"/> is false.</para>
+    ///   <list type="bullet">
+    ///     <item>A value of <c>true</c> indicates that there are one or more options
+    ///     for the user to select from.</item>
+    ///     <item>A value of <c>false</c> indicates that there are zero options for the
+    ///     user to select from.</item>
+    ///   </list>
+    /// </remarks>
+    public required bool HasOptions { get; init; }
+
     /// <summary>
     /// Gets the generated URL which the user can be redirected to so that they
     /// can select an organisation.

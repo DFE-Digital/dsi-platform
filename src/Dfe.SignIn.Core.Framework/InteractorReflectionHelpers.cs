@@ -54,21 +54,20 @@ public static class InteractorReflectionHelpers
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="assembly"/> is null.</para>
     /// </exception>
-    ///
     public static IEnumerable<InteractorTypeDescriptor> DiscoverAnnotatedInteractorsInAssembly<TAttribute>(Assembly assembly)
         where TAttribute : Attribute
     {
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
 
         return assembly.GetTypes()
-            .Where(type => type.IsClass && !type.IsAbstract && type.GetCustomAttribute<TAttribute>() != null)
+            .Where(type => type.IsClass && !type.IsAbstract && type.GetCustomAttribute<TAttribute>() is not null)
             .Select(type => new InteractorTypeDescriptor {
                 ContractType = type.GetInterfaces().FirstOrDefault(interfaceType =>
                     interfaceType.GetGenericTypeDefinition() == typeof(IInteractor<,>)
                 )!,
                 ConcreteType = type,
             })
-            .Where(descriptor => descriptor.ContractType != null);
+            .Where(descriptor => descriptor.ContractType is not null);
     }
 
     /// <summary>

@@ -1,4 +1,6 @@
 using System.Linq.Expressions;
+using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Core.Models.Organisations;
 using Dfe.SignIn.Core.Models.SelectOrganisation;
 using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
@@ -21,13 +23,28 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
 
     #region InvokeAsync(CreateSelectOrganisationSessionRequest)
 
+    private static void MockDefaultOptions(AutoMocker autoMocker)
+    {
+        autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions());
+    }
+
+    private static void MockFilteredOrganisations(AutoMocker autoMocker, IEnumerable<OrganisationModel>? filteredOrganisations = null)
+    {
+        autoMocker.GetMock<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>()
+            .Setup(x => x.InvokeAsync(It.IsAny<FilterOrganisationsForUserRequest>()))
+            .ReturnsAsync(new FilterOrganisationsForUserResponse {
+                FilteredOrganisations = filteredOrganisations ?? [],
+            });
+    }
+
     private static async Task<(CreateSelectOrganisationSessionResponse, string?)> InvokeCaptureSessionKey(
         CreateSelectOrganisationSessionRequest request,
         AutoMocker? autoMocker = null)
     {
-        if (autoMocker == null) {
+        if (autoMocker is null) {
             autoMocker = new AutoMocker();
-            autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions());
+            MockDefaultOptions(autoMocker);
+            MockFilteredOrganisations(autoMocker);
         }
 
         string? capturedSessionKey = null;
@@ -51,9 +68,10 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
         Expression<Func<SelectOrganisationSessionData, bool>> match,
         AutoMocker? autoMocker = null)
     {
-        if (autoMocker == null) {
+        if (autoMocker is null) {
             autoMocker = new AutoMocker();
-            autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions());
+            MockDefaultOptions(autoMocker);
+            MockFilteredOrganisations(autoMocker);
         }
 
         var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
@@ -76,14 +94,6 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
         var (response2, capturedSessionKey2) = await InvokeCaptureSessionKey(FakeRequest);
 
         Assert.AreNotEqual(capturedSessionKey1, capturedSessionKey2);
-    }
-
-    [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedCallbackUrl()
-    {
-        await VerifyInvokeAsyncSession(FakeRequest, session =>
-            session.CallbackUrl == FakeRequest.CallbackUrl
-        );
     }
 
     [TestMethod]
@@ -141,15 +151,65 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedOrganisations()
+    public async Task InvokeAsync_SessionHasExpectedOrganisations_WhenThereAreNoneToSelect()
     {
-        var organisationOptions = new SelectOrganisationOption[] { };
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
+            session.OrganisationOptions.Count() == 0
+        );
+    }
 
-        // TODO: Inject fake organisation options...
+    [TestMethod]
+    public async Task InvokeAsync_SessionHasExpectedOrganisations_WhenThereAreSomeToSelect()
+    {
+        var autoMocker = new AutoMocker();
+        MockDefaultOptions(autoMocker);
+
+        MockFilteredOrganisations(autoMocker, [
+            new() {
+                Id = new Guid("a4412d34-6471-4663-8d70-73fe6617b5e5"),
+                Name = "Organisation A",
+                LegalName = "Legal name A",
+                Status = 1,
+            },
+            new() {
+                Id = new Guid("561cdabf-d2f8-48f3-a66b-0f943837c9d7"),
+                Name = "Organisation B",
+                LegalName = "Legal name B",
+                Status = 1,
+            },
+        ]);
+
+        var expectedOptions = new SelectOrganisationOption[] {
+            new() {
+                Id = new Guid("a4412d34-6471-4663-8d70-73fe6617b5e5"),
+                Name = "Organisation A",
+            },
+            new() {
+                Id = new Guid("561cdabf-d2f8-48f3-a66b-0f943837c9d7"),
+                Name = "Organisation B",
+            },
+        };
 
         await VerifyInvokeAsyncSession(FakeRequest, session =>
-            session.OrganisationOptions.Intersect(organisationOptions)
-                .Count() == organisationOptions.Length
+            session.OrganisationOptions.Intersect(expectedOptions)
+                .Count() == expectedOptions.Length,
+            autoMocker
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_SessionHasExpectedCallbackUrl()
+    {
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
+            session.CallbackUrl == FakeRequest.CallbackUrl
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_SessionHasExpectedDetailLevel()
+    {
+        await VerifyInvokeAsyncSession(FakeRequest, session =>
+            session.DetailLevel == FakeRequest.DetailLevel
         );
     }
 
@@ -166,6 +226,8 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     public async Task InvokeAsync_SessionHasExpectedSessionTimeout()
     {
         var autoMocker = new AutoMocker();
+        MockFilteredOrganisations(autoMocker);
+
         autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions {
             SessionTimeoutInMinutes = 10,
         });
@@ -177,9 +239,46 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     }
 
     [TestMethod]
+    public async Task InvokeAsync_ReturnsHasOptionsTrue_WhenThereIsOneOption()
+    {
+        var autoMocker = new AutoMocker();
+        MockDefaultOptions(autoMocker);
+        MockFilteredOrganisations(autoMocker, [
+            new() {
+                Id = new Guid("ae85b0f0-ecca-4f15-962d-b7c937bb782f"),
+                Name = "Organisation A",
+                LegalName = "Legal name A",
+                Status = 1,
+            },
+        ]);
+
+        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
+
+        var response = await useCase.InvokeAsync(FakeRequest);
+
+        Assert.IsTrue(response.HasOptions);
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_ReturnsHasOptionsFalse_WhenThereAreNoOptions()
+    {
+        var autoMocker = new AutoMocker();
+        MockDefaultOptions(autoMocker);
+        MockFilteredOrganisations(autoMocker);
+
+        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
+
+        var response = await useCase.InvokeAsync(FakeRequest);
+
+        Assert.IsFalse(response.HasOptions);
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_ReturnsExpectedUrl()
     {
         var autoMocker = new AutoMocker();
+        MockFilteredOrganisations(autoMocker);
+
         autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions {
             SelectOrganisationBaseAddress = new Uri("https://select-organisation.localhost"),
         });

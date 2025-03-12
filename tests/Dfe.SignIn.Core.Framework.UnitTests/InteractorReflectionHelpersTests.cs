@@ -12,13 +12,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverInteractorTypesInAssembly(Assembly)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverInteractorTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(null)
+        InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(
+            assembly: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
@@ -27,23 +26,19 @@ public sealed class InteractorReflectionHelpersTests
         var interactorTypes = InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(TestAssembly)
             .ToArray();
 
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor
-        {
+        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
             ConcreteType = typeof(Example_UseCaseHandler),
         });
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor
-        {
+        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
             ConcreteType = typeof(AnotherExample_UseCaseHandler),
         });
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor
-        {
+        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
             ConcreteType = typeof(Example_ApiRequester),
         });
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor
-        {
+        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
             ConcreteType = typeof(AnotherExample_ApiRequester),
         });
@@ -54,13 +49,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverUseCaseHandlerTypesInAssembly(Assembly)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverUseCaseHandlerTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(null)
+        InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(
+            assembly: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
@@ -69,13 +63,11 @@ public sealed class InteractorReflectionHelpersTests
         var interactorTypes = InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(TestAssembly)
             .ToArray();
 
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor
-        {
+        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
             ConcreteType = typeof(Example_UseCaseHandler),
         });
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor
-        {
+        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
             ConcreteType = typeof(AnotherExample_UseCaseHandler),
         });
@@ -86,13 +78,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverApiRequesterTypesInAssembly(Assembly)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverApiRequesterTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(null)
+        InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(
+            assembly: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
@@ -101,13 +92,11 @@ public sealed class InteractorReflectionHelpersTests
         var interactorTypes = InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(TestAssembly)
             .ToArray();
 
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor
-        {
+        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
             ConcreteType = typeof(Example_ApiRequester),
         });
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor
-        {
+        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
             ConcreteType = typeof(AnotherExample_ApiRequester),
         });

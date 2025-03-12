@@ -8,4 +8,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.Framework\Dfe.SignIn.Core.Framework.csproj" />
+  </ItemGroup>
+
 </Project>

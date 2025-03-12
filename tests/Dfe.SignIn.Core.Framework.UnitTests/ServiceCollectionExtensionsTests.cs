@@ -13,13 +13,12 @@ public sealed class ServiceCollectionExtensionsTests
     #region AddInteractor<TConcreteInteractor>(IServiceCollection)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractor_Throws_WhenServicesArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => ServiceCollectionExtensions.AddInteractor<Example_UseCaseHandler>(null)
+        ServiceCollectionExtensions.AddInteractor<Example_UseCaseHandler>(
+            services: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
@@ -43,25 +42,24 @@ public sealed class ServiceCollectionExtensionsTests
     #region AddInteractors(IServiceCollection, Assembly)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractors_Throws_WhenServicesArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => ServiceCollectionExtensions.AddInteractors(null, [])
+        ServiceCollectionExtensions.AddInteractors(
+            services: null!,
+            descriptors: []
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
-    public void AddInteractors_Throws_WhenAssemblyArgumentIsNull()
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void AddInteractors_Throws_WhenDescriptorsArgumentIsNull()
     {
         var services = new ServiceCollection();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => services.AddInteractors(null)
+        services.AddInteractors(
+            descriptors: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
@@ -108,28 +106,28 @@ public sealed class ServiceCollectionExtensionsTests
     #region AddInteractorModelValidation(IServiceCollection)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractorModelValidation_Throws_WhenServicesArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => ServiceCollectionExtensions.AddInteractorModelValidation(null, options => { })
+        ServiceCollectionExtensions.AddInteractorModelValidation(
+            services: null!,
+            setupAction: options => { }
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractorModelValidation_Throws_WhenSetupActionArgumentIsNull()
     {
         var services = new ServiceCollection();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => services.AddInteractorModelValidation(null)
+        services.AddInteractorModelValidation(
+            setupAction: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ValidationException))]
     public async Task AddInteractorModelValidation_DecoratesInteractorWithValidator()
     {
         var services = new ServiceCollection();
@@ -148,11 +146,9 @@ public sealed class ServiceCollectionExtensionsTests
 
         Assert.IsNotNull(interactor);
 
-        await Assert.ThrowsExceptionAsync<ValidationException>(
-            () => interactor.InvokeAsync(new ExampleInteractorWithValidationRequest {
-                Name = "A",
-            })
-        );
+        await interactor.InvokeAsync(new ExampleInteractorWithValidationRequest {
+            Name = "A",
+        });
     }
 
     #endregion

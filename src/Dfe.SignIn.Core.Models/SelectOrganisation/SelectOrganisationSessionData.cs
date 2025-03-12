@@ -18,12 +18,6 @@ public sealed record SelectOrganisationSessionData()
     public required DateTime Expires { get; init; }
 
     /// <summary>
-    /// Gets the callback URL which is invoked when the user makes a selection;
-    /// when there is no selection to be made; or when an error has occurred.
-    /// </summary>
-    public required Uri CallbackUrl { get; init; }
-
-    /// <summary>
     /// Gets the unique client ID of the relying party that initiated the
     /// "select organisation" request on behalf of the user.
     /// </summary>
@@ -45,4 +39,15 @@ public sealed record SelectOrganisationSessionData()
     /// to the user as options when they are making their selection.
     /// </summary>
     public required IEnumerable<SelectOrganisationOption> OrganisationOptions { get; init; }
+
+    /// <summary>
+    /// Gets the callback URL which is invoked when the user makes a selection;
+    /// when there is no selection to be made; or when an error has occurred.
+    /// </summary>
+    public required Uri CallbackUrl { get; init; }
+
+    /// <summary>
+    /// Gets the level of detail to include in callback for selected organisation.
+    /// </summary>
+    public required OrganisationDetailLevel DetailLevel { get; init; }
 }
