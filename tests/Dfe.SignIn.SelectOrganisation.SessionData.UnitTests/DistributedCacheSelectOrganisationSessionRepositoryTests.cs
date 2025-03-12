@@ -33,27 +33,25 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     #region RetrieveAsync(string)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public async Task RetrieveSession_Throws_WhenSessionKeyArgumentIsNull()
     {
         var mocker = new AutoMocker();
         var retriever = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
-            () => retriever.RetrieveAsync(null)
+        await retriever.RetrieveAsync(
+            sessionKey: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public async Task RetrieveSession_Throws_WhenSessionKeyArgumentIsEmptyString()
     {
         var mocker = new AutoMocker();
         var retriever = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await Assert.ThrowsExceptionAsync<ArgumentException>(
-            () => retriever.RetrieveAsync("")
-        );
+        await retriever.RetrieveAsync("");
     }
 
     [TestMethod]
@@ -136,40 +134,42 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     #region StoreAsync(string, SelectOrganisationSessionData)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public async Task StoreAsync_Throws_WhenSessionKeyArgumentIsNull()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
-            () => storer.StoreAsync(null, FakeSessionData)
+        await storer.StoreAsync(
+            sessionKey: null!,
+            sessionData: FakeSessionData
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public async Task StoreAsync_Throws_WhenSessionKeyArgumentIsEmptyString()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await Assert.ThrowsExceptionAsync<ArgumentException>(
-            () => storer.StoreAsync("", FakeSessionData)
+        await storer.StoreAsync(
+            sessionKey: "",
+            sessionData: FakeSessionData
         );
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public async Task StoreAsync_Throws_WhenSessionDataArgumentIsNull()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
-            () => storer.StoreAsync("example-key", null)
+        await storer.StoreAsync(
+            sessionKey: "example-key",
+            sessionData: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
@@ -202,26 +202,26 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     #region InvalidateAsync(string)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public async Task InvalidateAsync_Throws_WhenSessionKeyArgumentIsNull()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
-            () => storer.InvalidateAsync(null)
+        await storer.InvalidateAsync(
+            sessionKey: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public async Task InvalidateAsync_Throws_WhenSessionKeyArgumentIsEmptyString()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await Assert.ThrowsExceptionAsync<ArgumentException>(
-            () => storer.InvalidateAsync("")
+        await storer.InvalidateAsync(
+            sessionKey: ""
         );
     }
 
