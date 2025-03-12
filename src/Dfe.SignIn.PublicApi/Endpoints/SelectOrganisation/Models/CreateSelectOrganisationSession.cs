@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation.Models;
@@ -10,6 +11,7 @@ public sealed record CreateSelectOrganisationSession_PublicApiRequest()
     /// <summary>
     /// Callback URL where the selected organisation response will be posted.
     /// </summary>
+    [ExampleValue("https://example-service.localhost")]
     public required Uri CallbackUrl { get; init; }
 
     /// <summary>

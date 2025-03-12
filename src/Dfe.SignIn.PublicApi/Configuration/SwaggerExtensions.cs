@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Models.Organisations;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Swagger;
 using Microsoft.OpenApi.Models;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
@@ -51,6 +52,9 @@ public static class SwaggerExtensions
                     Array.Empty<string>()
                 },
             });
+
+            // Enable example values from `SwaggerExampleValueAttribute` annotations.
+            config.SchemaFilter<SwaggerExampleValueSchemaFilter>();
 
             // Include XML comments for 'SignIn.Core.Models.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(OrganisationModel)));
