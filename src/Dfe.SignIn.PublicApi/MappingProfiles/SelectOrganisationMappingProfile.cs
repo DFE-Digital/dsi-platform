@@ -9,6 +9,7 @@ public sealed class SelectOrganisationMappingProfile : Profile
     public SelectOrganisationMappingProfile()
     {
         this.CreateMap<CreateSelectOrganisationSessionResponse, CreateSelectOrganisationSession_PublicApiResponse>();
+
         this.CreateMap<CreateSelectOrganisationSession_PublicApiRequest, CreateSelectOrganisationSessionRequest>()
             .ForMember(destination => destination.ClientId, options => options.Ignore());
     }
