@@ -54,7 +54,6 @@ public static class InteractorReflectionHelpers
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="assembly"/> is null.</para>
     /// </exception>
-    ///
     public static IEnumerable<InteractorTypeDescriptor> DiscoverAnnotatedInteractorsInAssembly<TAttribute>(Assembly assembly)
         where TAttribute : Attribute
     {
