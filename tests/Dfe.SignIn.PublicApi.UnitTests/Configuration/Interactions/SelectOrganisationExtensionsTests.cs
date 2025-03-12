@@ -51,7 +51,10 @@ public sealed class SelectOrganisationExtensionsTests
         services.SetupSelectOrganisationInteractions();
 
         Assert.IsTrue(
-            services.Any(descriptor => descriptor.ServiceType == interactionType)
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Transient &&
+                descriptor.ServiceType == interactionType
+            )
         );
     }
 
