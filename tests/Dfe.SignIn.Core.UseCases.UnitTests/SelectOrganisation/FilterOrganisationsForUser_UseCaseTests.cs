@@ -97,21 +97,21 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
     }
 
     [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException))]
     public async Task InvokeAsync_Throws_WhenUnexpectedFilterTypeIsSupplied()
     {
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
 
-        await Assert.ThrowsExceptionAsync<InvalidOperationException>(
-            () => useCase.InvokeAsync(FakeBasicRequest with {
-                Filter = new() {
-                    Type = (OrganisationFilterType)(-1),
-                },
-            })
-        );
+        await useCase.InvokeAsync(FakeBasicRequest with {
+            Filter = new() {
+                Type = (OrganisationFilterType)(-1),
+            },
+        });
     }
 
     [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException))]
     public async Task InvokeAsync_Throws_WhenApplicationIsNotFound()
     {
         var autoMocker = new AutoMocker();
@@ -122,14 +122,12 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         // Force "fake-client" to be non-existent.
         MockClientApplication(autoMocker, null);
 
-        await Assert.ThrowsExceptionAsync<InvalidOperationException>(
-            () => useCase.InvokeAsync(FakeBasicRequest with {
-                ClientId = "fake-client",
-                Filter = new() {
-                    Type = OrganisationFilterType.Associated,
-                },
-            })
-        );
+        await useCase.InvokeAsync(FakeBasicRequest with {
+            ClientId = "fake-client",
+            Filter = new() {
+                Type = OrganisationFilterType.Associated,
+            },
+        });
     }
 
     #region Type: OrganisationFilterType.AnyOf
