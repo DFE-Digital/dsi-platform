@@ -41,7 +41,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
         CreateSelectOrganisationSessionRequest request,
         AutoMocker? autoMocker = null)
     {
-        if (autoMocker == null) {
+        if (autoMocker is null) {
             autoMocker = new AutoMocker();
             MockDefaultOptions(autoMocker);
             MockFilteredOrganisations(autoMocker);
@@ -68,7 +68,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
         Expression<Func<SelectOrganisationSessionData, bool>> match,
         AutoMocker? autoMocker = null)
     {
-        if (autoMocker == null) {
+        if (autoMocker is null) {
             autoMocker = new AutoMocker();
             MockDefaultOptions(autoMocker);
             MockFilteredOrganisations(autoMocker);

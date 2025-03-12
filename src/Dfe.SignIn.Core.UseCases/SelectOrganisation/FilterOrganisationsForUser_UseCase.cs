@@ -131,7 +131,7 @@ public sealed class FilterOrganisationsForUser_UseCase(
         var applicationResponse = await getApplicationByClientId.InvokeAsync(new() {
             ClientId = clientId,
         });
-        if (applicationResponse.Application == null) {
+        if (applicationResponse.Application is null) {
             throw new InvalidOperationException("Application was not found.");
         }
         return applicationResponse.Application;
