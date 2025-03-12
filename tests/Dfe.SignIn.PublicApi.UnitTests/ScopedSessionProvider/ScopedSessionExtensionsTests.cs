@@ -4,12 +4,11 @@ namespace Dfe.SignIn.PublicApi.UnitTests.ScopedSessionProvider;
 public class ScopedSessionExtensionsTests
 {
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupScopedSession_Throws_WhenServicesArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => ScopedSessionExtensions.SetupScopedSession(null)
+        ScopedSessionExtensions.SetupScopedSession(
+            services: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 }

@@ -1,9 +1,10 @@
-using Dfe.SignIn.PublicApi.BearerTokenAuth;
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.NodeApiClient;
+using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Configuration.Interactions;
-using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.PublicApi.Endpoints;
+using Dfe.SignIn.PublicApi.Endpoints.DigitalSigning;
+using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,13 +19,13 @@ builder.Services
     .Configure<BearerTokenOptions>(builder.Configuration.GetRequiredSection("BearerToken"));
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([]);
+    .SetupNodeApiClient([NodeApiName.Applications, NodeApiName.Access, NodeApiName.Organisations]);
 
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();
 builder.Services.SetupAutoMapper();
-
 builder.Services.SetupScopedSession();
+
 builder.Services.SetupSelectOrganisationInteractions();
 
 var app = builder.Build();
@@ -38,8 +39,8 @@ if (app.Environment.IsDevelopment()) {
 app.UseHttpsRedirection();
 app.UseBearerTokenAuthMiddleware();
 
-app.RegisterDigitalSigningEndpoints();
-app.RegisterSelectOrganisationEndpoints();
+app.UseDigitalSigningEndpoints();
+app.UseSelectOrganisationEndpoints();
 
 app.Run();
 

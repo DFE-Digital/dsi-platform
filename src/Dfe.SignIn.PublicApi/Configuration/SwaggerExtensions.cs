@@ -1,10 +1,13 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Models.Organisations;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Swagger;
 using Microsoft.OpenApi.Models;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
 /// <exclude/>
+[ExcludeFromCodeCoverage]
 public static class SwaggerExtensions
 {
     private static string GetXmlFileName(Type type)
@@ -35,23 +38,23 @@ public static class SwaggerExtensions
                 Name = "Authorization",
                 Type = SecuritySchemeType.Http,
                 Scheme = "Bearer",
-                BearerFormat = "JWT"
+                BearerFormat = "JWT",
             });
 
-            config.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+            config.AddSecurityRequirement(new OpenApiSecurityRequirement {
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
+                    new OpenApiSecurityScheme {
+                        Reference = new OpenApiReference {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
+                            Id = "Bearer",
+                        },
                     },
                     Array.Empty<string>()
-                }
+                },
             });
+
+            // Enable example values from `SwaggerExampleValueAttribute` annotations.
+            config.SchemaFilter<SwaggerExampleValueSchemaFilter>();
 
             // Include XML comments for 'SignIn.Core.Models.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(OrganisationModel)));
