@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 
 namespace Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
@@ -7,7 +8,6 @@ namespace Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 /// </summary>
 public static class HttpClientExtensions
 {
-
     /// <summary>
     /// Return a default of T in 404 cases, otherwise return type of T
     /// </summary>
@@ -23,6 +23,8 @@ public static class HttpClientExtensions
     {
         var response = await client.GetAsync(url);
 
-        return response.StatusCode == System.Net.HttpStatusCode.NotFound ? default : await response.Content.ReadFromJsonAsync<T>();
+        return response.StatusCode == HttpStatusCode.NotFound
+            ? default
+            : await response.Content.ReadFromJsonAsync<T>();
     }
 }
