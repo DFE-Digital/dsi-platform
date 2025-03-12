@@ -8,6 +8,57 @@ namespace Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
 public static class PublicApiSigningExtensions
 {
     /// <summary>
+    /// Gets a delegate for reading the configuration section.
+    /// </summary>
+    /// <param name="configuration">The configuration section.</param>
+    /// <returns>
+    ///   <para>A configuration reader delegate.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="configuration"/> is null.</para>
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///   <para>If one or more required options are missing.</para>
+    ///   <para>- or -</para>
+    ///   <para>If one or more options are invalid.</para>
+    /// </exception>
+    public static Action<PublicApiSigningOptions> GetConfigurationReader(IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+
+        return (options) => {
+            string? privateKeyPem = configuration.GetValue<string>("PrivateKeyPem");
+            if (string.IsNullOrWhiteSpace(privateKeyPem)) {
+                throw new InvalidOperationException("Missing required option 'PrivateKeyPem'.");
+            }
+            options.PrivateKeyPem = privateKeyPem;
+
+            string? publicKeyId = configuration.GetValue<string>("PublicKeyId");
+            if (string.IsNullOrWhiteSpace(publicKeyId)) {
+                throw new InvalidOperationException("Missing required option 'PublicKeyId'.");
+            }
+            options.PublicKeyId = publicKeyId;
+
+            string? algorithm = configuration.GetValue<string>("Algorithm");
+            if (string.IsNullOrWhiteSpace(algorithm)) {
+                throw new InvalidOperationException("Missing required option 'Algorithm'.");
+            }
+            options.Algorithm = new HashAlgorithmName(algorithm);
+
+            string? paddingMode = configuration.GetValue<string>("Padding")?.ToLowerInvariant();
+            if (paddingMode == "pkcs1") {
+                options.Padding = RSASignaturePadding.Pkcs1;
+            }
+            else if (paddingMode == "pss") {
+                options.Padding = RSASignaturePadding.Pss;
+            }
+            else {
+                throw new InvalidOperationException("Invalid padding mode.");
+            }
+        };
+    }
+
+    /// <summary>
     /// Setup "public api signing" interactions.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
@@ -18,19 +69,6 @@ public static class PublicApiSigningExtensions
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
 
-        SetupDigitalSigning(services);
-
         services.AddInteractor<CreateDigitalSignatureForPayload_UseCase>();
-    }
-
-    private static void SetupDigitalSigning(this IServiceCollection services)
-    {
-        services.Configure<PublicApiSigningOptions>(options => {
-            using var rsa = new RSACryptoServiceProvider(2048);
-            options.Algorithm = HashAlgorithmName.SHA256;
-            options.PublicKeyId = "3605fbcf-7664-4e9f-aecc-a7d1ae7b175e";
-            options.Padding = RSASignaturePadding.Pkcs1;
-            options.PrivateKeyPem = rsa.ExportRSAPrivateKeyPem();
-        });
     }
 }
