@@ -159,6 +159,25 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Your client is not authorized to use this api" }, await this.GetResponseBodyAsync());
     }
 
+    [TestMethod("Return 403 when the associated service returns a null assigned application")]
+    public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenTheAssociatedServiceReturnsNullApplication()
+    {
+        this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
+
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = null
+            });
+
+        var middleware = new BearerTokenAuthMiddleware(this.mockNext.Object, new BearerTokenOptions());
+        await middleware.InvokeAsync(this.context);
+
+        Assert.AreEqual(this.validJsonContentType, this.context.Response.ContentType);
+        Assert.AreEqual(StatusCodes.Status403Forbidden, this.context.Response.StatusCode);
+        Assert.AreEqual(new ErrorResponse { Success = false, Message = "Unknown issuer" }, await this.GetResponseBodyAsync());
+    }
+
     [TestMethod("Return 403 when the associated service does not contain an ApiSecret")]
     public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenNoSecretIsAssignedToService()
     {
