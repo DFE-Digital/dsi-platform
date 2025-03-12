@@ -24,18 +24,21 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         Id = new Guid("a2dccb2c-6f1f-41f3-a9e3-84f081cc857c"),
         Name = "Organisation A",
         LegalName = "Legal Name A",
+        Status = 1,
     };
 
     private static readonly OrganisationModel FakeOrganisationB = new() {
         Id = new Guid("5728e48d-c067-400a-a211-8ec2c2e09b38"),
         Name = "Organisation B",
         LegalName = "Legal Name B",
+        Status = 1,
     };
 
     private static readonly OrganisationModel FakeOrganisationC = new() {
         Id = new Guid("69fdbe34-9fb0-4599-8609-d77ce665b433"),
         Name = "Organisation C",
         LegalName = "Legal Name C",
+        Status = 1,
     };
 
     private static readonly IEnumerable<OrganisationModel> FakeOrganisations = [
