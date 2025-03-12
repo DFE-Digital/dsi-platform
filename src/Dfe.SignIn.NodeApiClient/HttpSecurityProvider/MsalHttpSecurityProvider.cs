@@ -1,4 +1,5 @@
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
@@ -6,6 +7,7 @@ namespace Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
 /// <summary>
 /// MSAL implementation of IHttpSecurityProvider
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class MsalHttpSecurityProvider : IHttpSecurityProvider
 {
     private readonly IConfidentialClientApplication confidentialClientApplication;
