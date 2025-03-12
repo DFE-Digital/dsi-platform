@@ -52,7 +52,9 @@ public sealed class DistributedCacheSelectOrganisationSessionRepository(
 
         string cacheKey = $"{options.Value.CacheKeyPrefix}{sessionKey}";
         string sessionDataJson = serializer.Serialize(sessionData);
-        await cache.SetStringAsync(cacheKey, sessionDataJson);
+        await cache.SetStringAsync(cacheKey, sessionDataJson, new DistributedCacheEntryOptions {
+            AbsoluteExpiration = sessionData.Expires,
+        });
     }
 
     /// <inheritdoc/>

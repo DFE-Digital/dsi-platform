@@ -197,6 +197,31 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
         );
     }
 
+    [TestMethod]
+    public async Task StoreSession_StoreSessionInDistributedCache_WithAbsoluteCacheExpiration()
+    {
+        var mocker = new AutoMocker();
+        mocker.Use<IOptions<SelectOrganisationSessionCacheOptions>>(fakeOptions);
+        mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
+
+        var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
+
+        await storer.StoreAsync("example-key", FakeSessionData);
+
+        var distributedCacheMock = mocker.GetMock<IDistributedCache>();
+        distributedCacheMock.Verify(
+            x => x.SetAsync(
+                It.IsAny<string>(),
+                It.IsAny<byte[]>(),
+                It.Is<DistributedCacheEntryOptions>(options =>
+                    options.AbsoluteExpiration == FakeSessionData.Expires
+                ),
+                CancellationToken.None
+            ),
+            Times.Once
+        );
+    }
+
     #endregion
 
     #region InvalidateAsync(string)
