@@ -37,6 +37,11 @@ public enum SelectOrganisationErrorCode
     /// Indicates that an invalid selection was made.
     /// </summary>
     InvalidSelection = 1,
+
+    /// <summary>
+    /// Indicates that there were no options for the user to choose from.
+    /// </summary>
+    NoOptions = 2,
 }
 
 /// <summary>
