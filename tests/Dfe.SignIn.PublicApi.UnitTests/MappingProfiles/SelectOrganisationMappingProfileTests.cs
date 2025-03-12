@@ -1,5 +1,7 @@
 using AutoMapper;
 
+namespace Dfe.SignIn.PublicApi.UnitTests.MappingProfiles;
+
 [TestClass]
 public sealed class SelectOrganisationMappingProfileTests
 {
