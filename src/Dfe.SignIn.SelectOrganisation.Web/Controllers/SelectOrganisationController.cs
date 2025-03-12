@@ -42,6 +42,32 @@ public sealed class SelectOrganisationController(
         }
         var session = sessionResult.Session;
 
+        // If there is only one option; invoke the callback right away.
+        if (session.OrganisationOptions.Count() == 1) {
+            // Invalidate the session since it is being handled now.
+            await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
+                SessionKey = sessionKey,
+            });
+
+            var selectedOrganisation = (await getOrganisationById.InvokeAsync(new() {
+                OrganisationId = session.OrganisationOptions.First().Id
+            })).Organisation;
+
+            if (selectedOrganisation is null) {
+                // The organisation does not exist; maybe it was deleted.
+                return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
+            }
+
+            var selectionPayload = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
+            return await this.SendCallback(session, selectionPayload);
+        }
+
+        // If there are no options; invoke the callback right away.
+        if (session.OrganisationOptions.Count() == 0) {
+            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.NoOptions);
+        }
+
+        // Present prompt to the user.
         return this.View(new SelectOrganisationViewModel {
             Prompt = session.Prompt,
             OrganisationOptions = session.OrganisationOptions,
