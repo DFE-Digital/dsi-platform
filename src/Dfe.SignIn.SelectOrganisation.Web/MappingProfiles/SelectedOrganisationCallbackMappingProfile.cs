@@ -8,9 +8,16 @@ public sealed class SelectedOrganisationCallbackMappingProfile : Profile
     /// <exclude/>
     public SelectedOrganisationCallbackMappingProfile()
     {
-        this.CreateMap<OrganisationModel, SelectOrganisationCallbackId>();
-        this.CreateMap<OrganisationModel, SelectOrganisationCallbackBasic>();
-        this.CreateMap<OrganisationModel, SelectOrganisationCallbackExtended>();
-        this.CreateMap<OrganisationModel, SelectOrganisationCallbackLegacy>();
+        this.CreateMap<OrganisationModel, SelectOrganisationCallbackId>()
+            .ForMember(destination => destination.Type, options => options.Ignore());
+
+        this.CreateMap<OrganisationModel, SelectOrganisationCallbackBasic>()
+            .ForMember(destination => destination.Type, options => options.Ignore());
+
+        this.CreateMap<OrganisationModel, SelectOrganisationCallbackExtended>()
+            .ForMember(destination => destination.Type, options => options.Ignore());
+
+        this.CreateMap<OrganisationModel, SelectOrganisationCallbackLegacy>()
+            .ForMember(destination => destination.Type, options => options.Ignore());
     }
 }
