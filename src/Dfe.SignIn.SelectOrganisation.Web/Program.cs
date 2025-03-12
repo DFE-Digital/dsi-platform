@@ -16,6 +16,10 @@ builder.Services.AddControllersWithViews();
 builder.Services
     .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"));
 builder.Services
+    .Configure(PublicApiSigningExtensions.GetConfigurationReader(
+        builder.Configuration.GetRequiredSection("PublicApiSigning")
+    ));
+builder.Services
     .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
     .SetupFrontendAssets();
 builder.Services
