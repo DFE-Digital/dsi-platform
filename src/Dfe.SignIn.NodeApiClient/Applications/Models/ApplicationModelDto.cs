@@ -43,7 +43,7 @@ internal sealed record RelyingPartyModelDto()
 }
 internal sealed record RelyingPartyParamModelDto()
 {
-    public required string Header { get; init; }
-    public required string HeaderMessage { get; init; }
-    public required Guid ServiceId { get; init; }
+    public string? Header { get; init; }
+    public string? HeaderMessage { get; init; }
+    public Guid? ServiceId { get; init; }
 }

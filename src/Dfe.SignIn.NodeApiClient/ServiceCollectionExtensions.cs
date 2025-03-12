@@ -3,6 +3,7 @@ using System.Reflection;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
+using Dfe.SignIn.NodeApiClient.MappingProfiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -51,6 +52,10 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
         ArgumentNullException.ThrowIfNull(apiNames, nameof(apiNames));
+
+        services.AddAutoMapper(options => {
+            options.AddProfile<OrganisationProfile>();
+        });
 
         foreach (var apiName in apiNames) {
             services.AddHttpClient(apiName.ToString(), (provider, client) => {

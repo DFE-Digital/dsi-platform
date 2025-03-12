@@ -12,8 +12,7 @@ public sealed class ServiceCollectionExtensionsTests
     [TestMethod]
     public void IsFor_ReturnsTrue_WhenAssociatedWithApi()
     {
-        var descriptor = new InteractorTypeDescriptor
-        {
+        var descriptor = new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
             ConcreteType = typeof(ExampleApiRequesterForAccessApi)
         };
@@ -28,8 +27,7 @@ public sealed class ServiceCollectionExtensionsTests
     [DataRow(typeof(ExampleApiRequesterForAccessApi))]
     public void IsFor_ReturnsFalse_WhenNotAssociatedWithApi(Type requesterType)
     {
-        var descriptor = new InteractorTypeDescriptor
-        {
+        var descriptor = new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
             ConcreteType = requesterType,
         };
@@ -44,25 +42,24 @@ public sealed class ServiceCollectionExtensionsTests
     #region SetupNodeApiClient(IServiceCollection, IEnumerable<NodeApiName>, Action<NodeApiClientOptions>)
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupNodeApiClient_Throws_WhenServicesArgumentIsNull()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => ServiceCollectionExtensions.SetupNodeApiClient(null, [])
+        ServiceCollectionExtensions.SetupNodeApiClient(
+            services: null!,
+            apiNames: []
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupNodeApiClient_Throws_WhenApiNamesArgumentIsNull()
     {
         var services = new ServiceCollection();
 
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<ArgumentNullException>(
-            () => services.SetupNodeApiClient(null)
+        services.SetupNodeApiClient(
+            apiNames: null!
         );
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]
