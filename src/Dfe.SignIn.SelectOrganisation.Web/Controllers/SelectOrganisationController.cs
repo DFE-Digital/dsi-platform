@@ -42,6 +42,11 @@ public sealed class SelectOrganisationController(
         }
         var session = sessionResult.Session;
 
+        // If there are no options; invoke the callback right away.
+        if (session.OrganisationOptions.Count() == 0) {
+            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.NoOptions);
+        }
+
         // If there is only one option; invoke the callback right away.
         if (session.OrganisationOptions.Count() == 1) {
             // Invalidate the session since it is being handled now.
@@ -60,11 +65,6 @@ public sealed class SelectOrganisationController(
 
             var selectionPayload = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
             return await this.SendCallback(session, selectionPayload);
-        }
-
-        // If there are no options; invoke the callback right away.
-        if (session.OrganisationOptions.Count() == 0) {
-            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.NoOptions);
         }
 
         // Present prompt to the user.
@@ -130,7 +130,7 @@ public sealed class SelectOrganisationController(
         });
     }
 
-    private sealed record GetSessionResult
+    private sealed record GetSessionResult()
     {
         public SelectOrganisationSessionData? Session { get; init; } = null;
         public IActionResult? RedirectActionResult { get; init; } = null;

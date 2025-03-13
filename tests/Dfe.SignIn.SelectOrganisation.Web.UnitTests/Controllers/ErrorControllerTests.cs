@@ -17,10 +17,8 @@ public sealed class ErrorControllerTests
     {
         var mocker = new AutoMocker();
         var controller = mocker.CreateInstance<ErrorController>();
-        controller.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext
-            {
+        controller.ControllerContext = new ControllerContext {
+            HttpContext = new DefaultHttpContext {
                 TraceIdentifier = "a492f33c-a859-4098-8c01-b8b2f09a6090"
             }
         };
