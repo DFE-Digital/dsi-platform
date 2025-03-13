@@ -1,7 +1,6 @@
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.SelectOrganisation.SessionData.UnitTests;
 
@@ -15,36 +14,8 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
     public void AddSelectOrganisationSessionCache_Throws_WhenServicesArgumentIsNull()
     {
         SelectOrganisationSessionCacheExtensions.AddSelectOrganisationSessionCache(
-            services: null!,
-            setupAction: (options) => { }
+            services: null!
         );
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public void AddSelectOrganisationSessionCache_Throws_WhenSetupActionArgumentIsNull()
-    {
-        var services = new ServiceCollection();
-
-        services.AddSelectOrganisationSessionCache(
-            setupAction: null!
-        );
-    }
-
-    [TestMethod]
-    public void AddSelectOrganisationSessionCache_ConfigureUsingSetupAction()
-    {
-        var services = new ServiceCollection();
-
-        services.AddSelectOrganisationSessionCache(options => {
-            options.CacheKeyPrefix = "overriden-prefix:";
-        });
-
-        var factory = new DefaultServiceProviderFactory();
-        var provider = factory.CreateServiceProvider(services);
-        var actualOptions = provider.GetRequiredService<IOptions<SelectOrganisationSessionCacheOptions>>();
-
-        Assert.AreEqual("overriden-prefix:", actualOptions?.Value.CacheKeyPrefix);
     }
 
     [TestMethod]
@@ -52,7 +23,7 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddSelectOrganisationSessionCache(options => { });
+        services.AddSelectOrganisationSessionCache();
 
         Assert.IsTrue(
             services.Any(descriptor =>

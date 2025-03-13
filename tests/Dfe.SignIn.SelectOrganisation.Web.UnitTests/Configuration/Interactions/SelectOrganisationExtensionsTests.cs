@@ -1,6 +1,9 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.SelectOrganisation.SessionData;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Configuration.Interactions;
@@ -8,6 +11,45 @@ namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Configuration.Interactions
 [TestClass]
 public sealed class SelectOrganisationExtensionsTests
 {
+    #region SetupRedisSessionStore(IServiceCollection, IConfiguration)
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void SetupRedisSessionStore_Throws_WhenServicesArgumentIsNull()
+    {
+        var configuration = new ConfigurationRoot([]);
+
+        SelectOrganisationExtensions.SetupRedisSessionStore(null!, configuration);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void SetupRedisSessionStore_Throws_WhenConfigurationArgumentIsNull()
+    {
+        var services = new ServiceCollection();
+
+        services.SetupRedisSessionStore(null!);
+    }
+
+    [TestMethod]
+    public void SetupRedisSessionStore_HasExpectedServices()
+    {
+        var configuration = new ConfigurationRoot([]);
+        var services = new ServiceCollection();
+
+        services.SetupRedisSessionStore(configuration);
+
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                (string?)descriptor.ServiceKey == SelectOrganisationConstants.CacheStoreKey &&
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IDistributedCache)
+            )
+        );
+    }
+
+    #endregion
+
     #region SetupSelectOrganisationInteractions(IServiceCollection)
 
     [TestMethod]
