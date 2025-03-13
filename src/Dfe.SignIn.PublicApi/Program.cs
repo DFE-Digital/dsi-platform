@@ -26,7 +26,9 @@ builder.Services.SetupSwagger();
 builder.Services.SetupAutoMapper();
 builder.Services.SetupScopedSession();
 
-builder.Services.SetupSelectOrganisationInteractions();
+builder.Services
+    .SetupRedisSessionStore(builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
+    .SetupSelectOrganisationInteractions();
 
 var app = builder.Build();
 

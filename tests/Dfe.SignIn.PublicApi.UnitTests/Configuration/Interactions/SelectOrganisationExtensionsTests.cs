@@ -1,7 +1,9 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
-using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Dfe.SignIn.PublicApi.Configuration.Interactions;
+using Dfe.SignIn.SelectOrganisation.SessionData;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Configuration.Interactions;
@@ -9,6 +11,45 @@ namespace Dfe.SignIn.PublicApi.UnitTests.Configuration.Interactions;
 [TestClass]
 public sealed class SelectOrganisationExtensionsTests
 {
+    #region SetupRedisSessionStore(IServiceCollection, IConfiguration)
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void SetupRedisSessionStore_Throws_WhenServicesArgumentIsNull()
+    {
+        var configuration = new ConfigurationRoot([]);
+
+        SelectOrganisationExtensions.SetupRedisSessionStore(null!, configuration);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void SetupRedisSessionStore_Throws_WhenConfigurationArgumentIsNull()
+    {
+        var services = new ServiceCollection();
+
+        services.SetupRedisSessionStore(null!);
+    }
+
+    [TestMethod]
+    public void SetupRedisSessionStore_HasExpectedServices()
+    {
+        var configuration = new ConfigurationRoot([]);
+        var services = new ServiceCollection();
+
+        services.SetupRedisSessionStore(configuration);
+
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                (string?)descriptor.ServiceKey == SelectOrganisationConstants.CacheStoreKey &&
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IDistributedCache)
+            )
+        );
+    }
+
+    #endregion
+
     #region SetupSelectOrganisationInteractions(IServiceCollection)
 
     [TestMethod]
@@ -17,20 +58,6 @@ public sealed class SelectOrganisationExtensionsTests
     {
         SelectOrganisationExtensions.SetupSelectOrganisationInteractions(
             services: null!
-        );
-    }
-
-    [TestMethod]
-    public void SetupSelectOrganisationInteractions_SetupSelectOrganisationSessionCache()
-    {
-        var services = new ServiceCollection();
-
-        services.SetupSelectOrganisationInteractions();
-
-        Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.ServiceType == typeof(ISelectOrganisationSessionRepository)
-            )
         );
     }
 
