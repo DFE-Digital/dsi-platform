@@ -3,7 +3,6 @@ using Dfe.SignIn.Core.Models.SelectOrganisation;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
 
@@ -24,10 +23,6 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
         OrganisationOptions = [],
         CallbackUrl = new Uri("https://example.localhost/callback"),
         DetailLevel = OrganisationDetailLevel.Basic,
-    };
-
-    private static readonly SelectOrganisationSessionCacheOptions fakeOptions = new() {
-        CacheKeyPrefix = "example-prefix:",
     };
 
     #region RetrieveAsync(string)
@@ -58,7 +53,6 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     public async Task RetrieveSession_ReturnsNull_WhenSessionDoesNotExist()
     {
         var mocker = new AutoMocker();
-        mocker.Use<IOptions<SelectOrganisationSessionCacheOptions>>(fakeOptions);
         mocker.GetMock<IDistributedCache>()
             .Setup(x => x.GetAsync(
                 It.IsAny<string>(),
@@ -82,11 +76,10 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
         string fakeExpiredSessionJson = new DefaultSessionDataSerializer().Serialize(fakeExpiredSession);
 
         var mocker = new AutoMocker();
-        mocker.Use<IOptions<SelectOrganisationSessionCacheOptions>>(fakeOptions);
         mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
         mocker.GetMock<IDistributedCache>()
             .Setup(x => x.GetAsync(
-                It.Is<string>(param => param == "example-prefix:example-key"),
+                It.Is<string>(param => param == "example-key"),
                 CancellationToken.None
             ))
             .ReturnsAsync(Encoding.UTF8.GetBytes(fakeExpiredSessionJson));
@@ -107,11 +100,10 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
         string fakeSessionJson = new DefaultSessionDataSerializer().Serialize(fakeSession);
 
         var mocker = new AutoMocker();
-        mocker.Use<IOptions<SelectOrganisationSessionCacheOptions>>(fakeOptions);
         mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
         mocker.GetMock<IDistributedCache>()
             .Setup(x => x.GetAsync(
-                It.Is<string>(param => param == "example-prefix:example-key"),
+                It.Is<string>(param => param == "example-key"),
                 CancellationToken.None
             ))
             .ReturnsAsync(Encoding.UTF8.GetBytes(fakeSessionJson));
@@ -176,7 +168,6 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     public async Task StoreSession_StoreSessionInDistributedCache()
     {
         var mocker = new AutoMocker();
-        mocker.Use<IOptions<SelectOrganisationSessionCacheOptions>>(fakeOptions);
         mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
 
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
@@ -186,7 +177,7 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
         var distributedCacheMock = mocker.GetMock<IDistributedCache>();
         distributedCacheMock.Verify(
             x => x.SetAsync(
-                It.Is<string>(param => param == "example-prefix:example-key"),
+                It.Is<string>(param => param == "example-key"),
                 It.Is<byte[]>(param => Encoding.UTF8.GetString(param).Contains(
                     "\"clientId\":\"example-client-id\""
                 )),
@@ -201,7 +192,6 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     public async Task StoreSession_StoreSessionInDistributedCache_WithAbsoluteCacheExpiration()
     {
         var mocker = new AutoMocker();
-        mocker.Use<IOptions<SelectOrganisationSessionCacheOptions>>(fakeOptions);
         mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
 
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
@@ -254,7 +244,6 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     public async Task InvalidateAsync_RemovesExpectedKeyFromDistributedCache()
     {
         var mocker = new AutoMocker();
-        mocker.Use<IOptions<SelectOrganisationSessionCacheOptions>>(fakeOptions);
 
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
@@ -263,7 +252,7 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
         var distributedCacheMock = mocker.GetMock<IDistributedCache>();
         distributedCacheMock.Verify(
             x => x.RemoveAsync(
-                It.Is<string>(param => param == "example-prefix:example-key"),
+                It.Is<string>(param => param == "example-key"),
                 CancellationToken.None
             ),
             Times.Once

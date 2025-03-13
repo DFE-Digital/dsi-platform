@@ -28,8 +28,12 @@ builder.Services
 
 builder.Services.SetupAutoMapper();
 
-builder.Services.SetupPublicApiSigningInteractions();
-builder.Services.SetupSelectOrganisationInteractions();
+builder.Services
+    .SetupPublicApiSigningInteractions();
+
+builder.Services
+    .SetupRedisSessionStore(builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
+    .SetupSelectOrganisationInteractions();
 
 // TEMP: Add mocked interactors.
 builder.Services.AddInteractors(

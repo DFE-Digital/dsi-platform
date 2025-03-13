@@ -15,23 +15,16 @@ public static class SelectOrganisationSessionCacheExtensions
     /// specified <see cref="IServiceCollection"/>.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
-    /// <param name="setupAction">An action to configure the provided options.</param>
     /// <returns>
     ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="services"/> is null.</para>
-    ///   <para>- or -</para>
-    ///   <para>If <paramref name="setupAction"/> is null.</para>
     /// </exception>
-    public static IServiceCollection AddSelectOrganisationSessionCache(this IServiceCollection services, Action<SelectOrganisationSessionCacheOptions> setupAction)
+    public static IServiceCollection AddSelectOrganisationSessionCache(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(setupAction, nameof(setupAction));
 
-        services.AddOptions();
-
-        services.Configure(setupAction);
         services.AddSingleton<ISessionDataSerializer, DefaultSessionDataSerializer>();
         services.AddSingleton<ISelectOrganisationSessionRepository, DistributedCacheSelectOrganisationSessionRepository>();
 
