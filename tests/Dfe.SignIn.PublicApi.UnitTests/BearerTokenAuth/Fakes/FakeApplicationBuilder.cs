@@ -46,7 +46,5 @@ public class FakeApplicationBuilder : IApplicationBuilder
 
 public class FakeServiceProvider : IServiceProvider
 {
-#pragma warning disable CS8603 // Possible null reference return.
-    public object GetService(Type serviceType) => null;
-#pragma warning restore CS8603 // Possible null reference return.
+    public object GetService(Type serviceType) => null!;
 }

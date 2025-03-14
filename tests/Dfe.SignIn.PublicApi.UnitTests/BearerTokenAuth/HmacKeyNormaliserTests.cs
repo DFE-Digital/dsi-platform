@@ -48,8 +48,6 @@ public class HmacKeyPaddingTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void Null_Key_Should_Throw_ArgumentNullException()
     {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        HmacKeyNormalizer.NormalizeHmacSha256Key(null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+        HmacKeyNormalizer.NormalizeHmacSha256Key(null!);
     }
 }
