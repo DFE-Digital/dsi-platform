@@ -19,8 +19,7 @@ public sealed class ExampleInteractorWithValidation_ApiRequester
 {
     public Task<ExampleInteractorWithValidationResponse> InvokeAsync(ExampleInteractorWithValidationRequest request)
     {
-        return Task.FromResult(new ExampleInteractorWithValidationResponse
-        {
+        return Task.FromResult(new ExampleInteractorWithValidationResponse {
             Percentage = 1f,
         });
     }

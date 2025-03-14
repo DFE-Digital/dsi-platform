@@ -1,4 +1,4 @@
-﻿namespace Dfe.SignIn.Core.Framework;
+namespace Dfe.SignIn.Core.Framework;
 
 /// <summary>
 /// Represents an interaction within the system.
