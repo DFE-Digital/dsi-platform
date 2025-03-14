@@ -19,7 +19,7 @@ public class GetOrganisationByIdTests
     }
 
     [TestMethod]
-    public async Task GetOrganisationById_ApiRequester_ReturnsExpectedOrganisation()
+    public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
         var mockDto = new OrganisationByIdDto() {
             Id = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e"),
@@ -38,7 +38,7 @@ public class GetOrganisationByIdTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationById_ApiRequester(client, this.mapper!);
+        var controller = new GetOrganisationById_NodeApiRequester(client, this.mapper!);
 
         var response = await controller.InvokeAsync(new Core.Models.Organisations.Interactions.GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty
@@ -52,7 +52,7 @@ public class GetOrganisationByIdTests
     }
 
     [TestMethod]
-    public async Task GetOrganisationById_ApiRequester_ReturnsNullOrganisationWhenNotFound()
+    public async Task InvokeAsync_ReturnsNullOrganisationWhenNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
@@ -63,7 +63,7 @@ public class GetOrganisationByIdTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationById_ApiRequester(client, this.mapper!);
+        var controller = new GetOrganisationById_NodeApiRequester(client, this.mapper!);
 
         var response = await controller.InvokeAsync(new Core.Models.Organisations.Interactions.GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty
