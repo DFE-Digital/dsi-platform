@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Dfe.SignIn.SelectOrganisation.SessionData;
+namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 
 /// <summary>
 /// Defines library constants.

@@ -1,8 +1,7 @@
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
-using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.SelectOrganisation.SessionData;
+namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 
 /// <summary>
 /// Extension methods for setting up the distributed cache implementation for
