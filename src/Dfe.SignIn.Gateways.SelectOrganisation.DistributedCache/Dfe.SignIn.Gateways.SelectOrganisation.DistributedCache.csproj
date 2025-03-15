@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dfe.SignIn.Core.PublicModels" Version="1.0.*" />
     <PackageReference Include="Dfe.SignIn.Core.Models" Version="1.0.*" />
     <PackageReference Include="Dfe.SignIn.Core.UseCases" Version="1.0.*" />
