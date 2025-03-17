@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Dfe.SignIn.Core.Framework;
 
 /// <summary>
@@ -15,6 +17,8 @@ namespace Dfe.SignIn.Core.Framework;
 /// <typeparam name="TRequest">The type of request.</typeparam>
 /// <typeparam name="TResponse">The type of response.</typeparam>
 public interface IInteractor<TRequest, TResponse>
+    where TRequest : class
+    where TResponse : class
 {
     /// <summary>
     /// Invokes an interaction request.
@@ -23,6 +27,24 @@ public interface IInteractor<TRequest, TResponse>
     /// <returns>
     ///   <para>The interaction response.</para>
     /// </returns>
+    /// <exception cref="ValidationException">
+    ///   <para>Whilst interactions can explicitly throw such exceptions if applicable;
+    ///   this type of exception is generally thrown automatically when request and/or
+    ///   response model validation has been enabled (see: <see cref="InteractorModelValidator{TRequest,TResponse}"/>).</para>
+    ///   <para>If the <paramref name="request"/> model is invalid.</para>
+    ///   <para>- or -</para>
+    ///   <para>If the response model is invalid.</para>
+    /// </exception>
+    /// <exception cref="InteractionException">
+    ///   <para>If a business domain exception occurs. This should be a custom exception
+    ///   type residing in either the "Dfe.SignIn.Models" or "Dfe.SignIn.PublicModels"
+    ///   projects.</para>
+    /// </exception>
+    /// <exception cref="UnexpectedException">
+    ///   <para>If an unexpected exception occurs whilst processing the interaction.
+    ///   This type of exception is generally thrown automatically when request and/or
+    ///   model validation has been enabled (see: <see cref="InteractorModelValidator{TRequest,TResponse}"/>).</para>
+    /// </exception>
     /// <seealso cref="IUseCaseHandler{TRequest, TResponse}"/>
     /// <seealso cref="IApiRequester{TRequest, TResponse}"/>
     Task<TResponse> InvokeAsync(TRequest request);

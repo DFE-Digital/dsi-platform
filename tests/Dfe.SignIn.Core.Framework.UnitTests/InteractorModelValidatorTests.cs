@@ -9,19 +9,23 @@ namespace Dfe.SignIn.Core.Framework.UnitTests;
 [TestClass]
 public sealed class InteractorModelValidatorTests
 {
+    private static void MockInteractorModelValidationOptions(AutoMocker autoMocker, InteractorModelValidationOptions? options = null)
+    {
+        autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
+            .SetupGet(x => x.Value)
+            .Returns(options ?? new InteractorModelValidationOptions {
+                ValidateRequestModels = true,
+                ValidateResponseModels = true,
+            });
+    }
+
     #region InvokeAsync(TRequest)
 
     [TestMethod]
     public async Task InvokeAsync_PassesValidation()
     {
         var autoMocker = new AutoMocker();
-
-        autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
-            .SetupGet(x => x.Value)
-            .Returns(new InteractorModelValidationOptions {
-                ValidateRequestModels = true,
-                ValidateResponseModels = true,
-            });
+        MockInteractorModelValidationOptions(autoMocker);
 
         autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
             .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
@@ -43,17 +47,15 @@ public sealed class InteractorModelValidatorTests
     {
         var autoMocker = new AutoMocker();
 
+        MockInteractorModelValidationOptions(autoMocker, new() {
+            ValidateRequestModels = false,
+            ValidateResponseModels = false,
+        });
+
         autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
             .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
             .ReturnsAsync(new ExampleInteractorWithValidationResponse {
                 Percentage = 1.5f,
-            });
-
-        autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
-            .SetupGet(x => x.Value)
-            .Returns(new InteractorModelValidationOptions {
-                ValidateRequestModels = false,
-                ValidateResponseModels = false,
             });
 
         var decorator = autoMocker.CreateInstance<
@@ -71,11 +73,9 @@ public sealed class InteractorModelValidatorTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
-            .SetupGet(x => x.Value)
-            .Returns(new InteractorModelValidationOptions {
-                ValidateRequestModels = true,
-            });
+        MockInteractorModelValidationOptions(autoMocker, new() {
+            ValidateRequestModels = true,
+        });
 
         var decorator = autoMocker.CreateInstance<
             InteractorModelValidator<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
@@ -92,11 +92,9 @@ public sealed class InteractorModelValidatorTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.GetMock<IOptions<InteractorModelValidationOptions>>()
-            .SetupGet(x => x.Value)
-            .Returns(new InteractorModelValidationOptions {
-                ValidateResponseModels = true,
-            });
+        MockInteractorModelValidationOptions(autoMocker, new() {
+            ValidateResponseModels = true,
+        });
 
         autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
             .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
@@ -111,6 +109,50 @@ public sealed class InteractorModelValidatorTests
         await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
             Name = "Alex",
         });
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(FakeInteractionException))]
+    public async Task InvokeAsync_Throws_WhenInnerInteractionThrowsInteractionException()
+    {
+        var autoMocker = new AutoMocker();
+        MockInteractorModelValidationOptions(autoMocker);
+
+        autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
+            .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
+            .Throws(new FakeInteractionException("Fake exception."));
+
+        var decorator = autoMocker.CreateInstance<
+            InteractorModelValidator<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
+        >();
+
+        await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
+            Name = "Alex",
+        });
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_Throws_WhenInnerInteractionThrowsAnUnexpectedException()
+    {
+        var autoMocker = new AutoMocker();
+        MockInteractorModelValidationOptions(autoMocker);
+
+        autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
+            .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
+            .Throws(new ValidationException("Fake exception."));
+
+        var decorator = autoMocker.CreateInstance<
+            InteractorModelValidator<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
+        >();
+
+        var exception = await Assert.ThrowsExceptionAsync<UnexpectedException>(
+            () => decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
+                Name = "Alex",
+            })
+        );
+        Assert.IsInstanceOfType<ValidationException>(exception.InnerException);
+        Assert.AreEqual("Fake exception.", exception.InnerException.Message);
+        Assert.AreEqual("An unexpected exception occurred whilst processing interaction.", exception.Message);
     }
 
     #endregion

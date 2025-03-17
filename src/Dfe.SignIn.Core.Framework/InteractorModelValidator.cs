@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.ExceptionServices;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.Framework;
@@ -15,6 +16,8 @@ public sealed class InteractorModelValidator<TRequest, TResponse>(
     IInteractor<TRequest, TResponse> inner,
     IServiceProvider services
 ) : IInteractor<TRequest, TResponse>
+    where TRequest : class
+    where TResponse : class
 {
     /// <inheritdoc/>
     public async Task<TResponse> InvokeAsync(TRequest request)
@@ -22,9 +25,24 @@ public sealed class InteractorModelValidator<TRequest, TResponse>(
         if (options.Value.ValidateRequestModels) {
             this.Validate(request!);
         }
-        var response = await inner.InvokeAsync(request);
+
+        TResponse? response = null;
+
+        try {
+            response = await inner.InvokeAsync(request);
+        }
+        catch (Exception ex) {
+            if (ex is not InteractionException) {
+                // Inner validation exceptions fall into this category since they
+                // are unexpected from the context of this particular interaction.
+                ex = new UnexpectedException("An unexpected exception occurred whilst processing interaction.", ex);
+            }
+            ExceptionDispatchInfo.Throw(ex);
+            throw; // Keep compiler happy.
+        }
+
         if (options.Value.ValidateResponseModels) {
-            this.Validate(response!);
+            this.Validate(response);
         }
         return response;
     }
