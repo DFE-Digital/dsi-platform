@@ -218,7 +218,7 @@ public sealed class SelectOrganisationControllerTests
         Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
-            viewModel.PayloadData,
+            Convert.FromBase64String(viewModel.PayloadData),
             new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }
@@ -268,7 +268,7 @@ public sealed class SelectOrganisationControllerTests
         Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
-            viewModel.PayloadData,
+            Convert.FromBase64String(viewModel.PayloadData),
             new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }
@@ -293,7 +293,7 @@ public sealed class SelectOrganisationControllerTests
         Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackId>(
-            viewModel.PayloadData,
+            Convert.FromBase64String(viewModel.PayloadData),
             new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }
@@ -431,7 +431,7 @@ public sealed class SelectOrganisationControllerTests
         Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
-            viewModel.PayloadData,
+            Convert.FromBase64String(viewModel.PayloadData),
             new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }
@@ -459,7 +459,7 @@ public sealed class SelectOrganisationControllerTests
         Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackId>(
-            viewModel.PayloadData,
+            Convert.FromBase64String(viewModel.PayloadData),
             new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }

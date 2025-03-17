@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using AutoMapper;
 using Dfe.SignIn.Core.Framework;
@@ -116,7 +117,9 @@ public sealed class SelectOrganisationController(
 
     private async Task<IActionResult> SendCallback(SelectOrganisationSessionData session, object payload)
     {
-        var json = JsonSerializer.Serialize(payload, jsonSerializerOptions);
+        string json = JsonSerializer.Serialize(payload, jsonSerializerOptions);
+        byte[] payloadBytes = Encoding.UTF8.GetBytes(json);
+
         var signingResponse = await createDigitalSignatureForPayload.InvokeAsync(new() {
             Payload = json,
         });
@@ -124,7 +127,7 @@ public sealed class SelectOrganisationController(
         return this.View("Callback", new CallbackViewModel {
             CallbackUrl = session.CallbackUrl,
             PayloadType = ((SelectOrganisationCallback)payload).Type,
-            PayloadData = json,
+            PayloadData = Convert.ToBase64String(payloadBytes),
             DigitalSignature = signingResponse.Signature.Signature,
             PublicKeyId = signingResponse.Signature.KeyId,
         });
