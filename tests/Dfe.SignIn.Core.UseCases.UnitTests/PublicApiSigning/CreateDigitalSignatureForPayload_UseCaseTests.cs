@@ -57,8 +57,7 @@ dzro5QIDAQAB
 
         autoMocker.GetMock<IOptions<PublicApiSigningOptions>>()
             .Setup(x => x.Value)
-            .Returns(new PublicApiSigningOptions
-            {
+            .Returns(new PublicApiSigningOptions {
                 Algorithm = HashAlgorithmName.MD5,
                 Padding = RSASignaturePadding.Pkcs1,
                 PrivateKeyPem = FakePrivateKey,
@@ -73,8 +72,7 @@ dzro5QIDAQAB
     {
         var useCase = CreateMockedUseCase();
 
-        var response = await useCase.InvokeAsync(new()
-        {
+        var response = await useCase.InvokeAsync(new() {
             Payload = "Hello, world!",
         });
 
@@ -96,8 +94,7 @@ dzro5QIDAQAB
         var useCase = CreateMockedUseCase();
 
         string payload = "Hello, world!";
-        var response = await useCase.InvokeAsync(new()
-        {
+        var response = await useCase.InvokeAsync(new() {
             Payload = payload,
         });
 

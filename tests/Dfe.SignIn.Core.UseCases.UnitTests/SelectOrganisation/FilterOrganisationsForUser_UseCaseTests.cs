@@ -42,7 +42,9 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
     };
 
     private static readonly IEnumerable<OrganisationModel> FakeOrganisations = [
-        FakeOrganisationA, FakeOrganisationB, FakeOrganisationC
+        FakeOrganisationA,
+        FakeOrganisationB,
+        FakeOrganisationC
     ];
 
     private static readonly ApplicationModel FakeApplication = new() {
