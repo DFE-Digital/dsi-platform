@@ -57,8 +57,8 @@ public sealed class PostSelectOrganisationSessionTests
     }
 
     private static IEnumerable<object[]> SelectOrganisationEndpoints_InvokesExpectedInteractionRequest_Parameters => [
-        [ FakePublicApiMinimalRequest ],
-        [ FakePublicApiRequest ],
+        [FakePublicApiMinimalRequest],
+        [FakePublicApiRequest],
     ];
 
     [DataTestMethod]

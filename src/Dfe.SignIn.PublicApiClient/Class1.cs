@@ -1,4 +1,4 @@
-﻿namespace Dfe.SignIn.PublicApiClient;
+namespace Dfe.SignIn.PublicApiClient;
 
 /// <summary>
 /// ...

@@ -65,7 +65,7 @@ public class BearerTokenAuthMiddlewareTests
         return System.Text.Json.JsonSerializer.Deserialize<ErrorResponse>(responseText);
     }
 
-    [TestMethod("Return 401 when no authorization header is present")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_401_WhenNoAuthorizationHeaderIsPresent()
     {
         this.context.Request.Headers.Append("NoAuthorization", "");
@@ -78,7 +78,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Missing Authorization header" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 401 when the Authorization header does not contain Bearer")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_401_WhenInvalidBearer()
     {
         this.context.Request.Headers.Append("Authorization", "NoBearer");
@@ -91,7 +91,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Malformed Authorization header. Should be bearer {token}" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 401 when an invalid Bearer token is presented")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_401_WhenInvalidBearerToken()
     {
         this.context.Request.Headers.Append("Authorization", "Bearer ");
@@ -104,7 +104,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Invalid token provided" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 403 when a Bearer token is presented, but missing its ISS claim")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenBearerTokenNothing()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithNothing}");
@@ -117,7 +117,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Missing or invalid iss claim" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 403 when a Bearer token is provided but the ISS claim is not present")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenBearerTokenHasNoIss()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithNoIss}");
@@ -130,7 +130,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Missing or invalid iss claim" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 403 when a Bearer token is provided but the ISS claim is invalid")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenBearerTokenInvalidIss()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithInvalidIss}");
@@ -159,7 +159,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Your client is not authorized to use this api" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 403 when the associated service returns a null assigned application")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenTheAssociatedServiceReturnsNullApplication()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
@@ -178,7 +178,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Unknown issuer" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 403 when the associated service does not contain an ApiSecret")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenNoSecretIsAssignedToService()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
@@ -207,7 +207,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Your client is not authorized to use this api" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 403 when the Jwt secret does not match the services secret")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenJwtSecretDoesntMatch()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
@@ -236,7 +236,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Your client is not authorized to use this api" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 403 when the Jwt audience does not match the services audience")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenAudienceDoesntMatch()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIssButInvalidAudience}");
@@ -265,7 +265,7 @@ public class BearerTokenAuthMiddlewareTests
         Assert.AreEqual(new ErrorResponse { Success = false, Message = "Your client is not authorized to use this api" }, await this.GetResponseBodyAsync());
     }
 
-    [TestMethod("Return 200 and serve the next request delegate when all validation steps have passed")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_200_WhenAllValidationStepsPassed()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
@@ -293,7 +293,7 @@ public class BearerTokenAuthMiddlewareTests
         this.mockNext.Verify(n => n(this.context), Times.Once, "Next middleware should be called exactly once.");
     }
 
-    [TestMethod("ScopedSessionProvider should be assigned after successful verification")]
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_ShouldSetScopedSessionVariables()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
