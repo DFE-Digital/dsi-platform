@@ -9,7 +9,7 @@ public class GetApplicationsAssociatedWithUserTests
 {
 
     [TestMethod]
-    public async Task GetApplicationsAssociatedWithUser_ApiRequester_ApiRequester_ReturnsExpectedOrganisation()
+    public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
         ApplicationDto[] mockDto = [
             new ApplicationDto() {
@@ -41,7 +41,7 @@ public class GetApplicationsAssociatedWithUserTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationsAssociatedWithUser_ApiRequester(client);
+        var controller = new GetApplicationsAssociatedWithUser_NodeApiRequester(client);
 
         var response = await controller.InvokeAsync(new Core.Models.Users.Interactions.GetApplicationsAssociatedWithUserRequest {
             UserId = mockDto[0].UserId
@@ -67,7 +67,7 @@ public class GetApplicationsAssociatedWithUserTests
     }
 
     [TestMethod]
-    public async Task GetApplicationsAssociatedWithUser_ApiRequester_ReturnsEmptyCollectionOfApplicationsWhenNotFound()
+    public async Task InvokeAsync_ReturnsEmptyCollectionOfApplicationsWhenNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
@@ -78,7 +78,7 @@ public class GetApplicationsAssociatedWithUserTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationsAssociatedWithUser_ApiRequester(client);
+        var controller = new GetApplicationsAssociatedWithUser_NodeApiRequester(client);
 
         var response = await controller.InvokeAsync(new Core.Models.Users.Interactions.GetApplicationsAssociatedWithUserRequest {
             UserId = Guid.Parse("8f79e542-7b8a-4904-b6fb-85b0fa41a530")

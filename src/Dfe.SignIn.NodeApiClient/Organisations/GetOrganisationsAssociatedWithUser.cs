@@ -13,7 +13,7 @@ namespace Dfe.SignIn.NodeApiClient.Organisations;
 /// <param name="httpClient"></param>
 /// <param name="mapper"></param>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
-public sealed class GetOrganisationsAssociatedWithUser_ApiRequester(
+public sealed class GetOrganisationsAssociatedWithUser_NodeApiRequester(
     [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper)
     : IInteractor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {

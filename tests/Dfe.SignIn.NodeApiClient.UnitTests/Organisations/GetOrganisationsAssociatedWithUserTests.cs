@@ -20,7 +20,7 @@ public class GetOrganisationsAssociatedWithUserTests
     }
 
     [TestMethod]
-    public async Task GetOrganisationsAssociatedWithUser_ApiRequester_ReturnsExpectedOrganisation()
+    public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
         List<OrganisationsAssociatedWithUserDto> mockDtos = [];
         mockDtos.Add(
@@ -61,7 +61,7 @@ public class GetOrganisationsAssociatedWithUserTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationsAssociatedWithUser_ApiRequester(client, this.mapper!);
+        var controller = new GetOrganisationsAssociatedWithUser_NodeApiRequester(client, this.mapper!);
 
         var response = await controller.InvokeAsync(new Core.Models.Users.Interactions.GetOrganisationsAssociatedWithUserRequest {
             UserId = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e")
@@ -85,7 +85,7 @@ public class GetOrganisationsAssociatedWithUserTests
     }
 
     [TestMethod]
-    public async Task GetOrganisationsAssociatedWithUser_ApiRequester_ReturnsEmptyCollectionOfOrganisationsWhenNotFound()
+    public async Task InvokeAsync_ReturnsEmptyCollectionOfOrganisationsWhenNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
@@ -96,7 +96,7 @@ public class GetOrganisationsAssociatedWithUserTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationsAssociatedWithUser_ApiRequester(client, this.mapper!);
+        var controller = new GetOrganisationsAssociatedWithUser_NodeApiRequester(client, this.mapper!);
 
         var response = await controller.InvokeAsync(new Core.Models.Users.Interactions.GetOrganisationsAssociatedWithUserRequest {
             UserId = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e")

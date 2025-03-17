@@ -9,12 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dfe.SignIn.Core.Framework" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.Models" Version="1.0.*" />
+    <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Dfe.SignIn.NodeApiClient.UnitTests" />
+    <PackageReference Include="Dfe.SignIn.Core.Framework" Version="1.0.*" />
+    <PackageReference Include="Dfe.SignIn.Core.Models" Version="1.0.*" />
   </ItemGroup>
 
   <ItemGroup>

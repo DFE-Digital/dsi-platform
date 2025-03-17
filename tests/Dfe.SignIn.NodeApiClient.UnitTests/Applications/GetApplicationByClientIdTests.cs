@@ -8,7 +8,7 @@ namespace Dfe.SignIn.NodeApiClient.UnitTests.Applications;
 public class GetApplicationByClientId()
 {
     [TestMethod]
-    public async Task GetApplicationByClientId_ApiRequester_ReturnsExpectedOrganisation()
+    public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
         var mockDto = new ApplicationModelDto {
             Id = Guid.Parse("f3abb794-1399-4975-9c91-bf25d8ce9b4b"),
@@ -35,7 +35,7 @@ public class GetApplicationByClientId()
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationByClientId_ApiRequester(client);
+        var controller = new GetApplicationByClientId_NodeApiRequester(client);
 
         var response = await controller.InvokeAsync(new Core.Models.Applications.Interactions.GetApplicationByClientIdRequest {
             ClientId = "mock-client-id"
@@ -57,7 +57,7 @@ public class GetApplicationByClientId()
     }
 
     [TestMethod]
-    public async Task GetApplicationByClientId_ApiRequester_ReturnsEmptyCollectionOfApplicationsWhenNotFound()
+    public async Task InvokeAsync_ReturnsEmptyCollectionOfApplicationsWhenNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
@@ -68,7 +68,7 @@ public class GetApplicationByClientId()
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationByClientId_ApiRequester(client);
+        var controller = new GetApplicationByClientId_NodeApiRequester(client);
 
         var response = await controller.InvokeAsync(new Core.Models.Applications.Interactions.GetApplicationByClientIdRequest {
             ClientId = "mock-client-id"
