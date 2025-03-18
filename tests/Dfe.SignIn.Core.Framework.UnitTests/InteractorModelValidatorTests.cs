@@ -39,6 +39,7 @@ public sealed class InteractorModelValidatorTests
 
         await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
             Name = "Jerry",
+            SomeEnumProperty = ExampleInteractorEnum.FirstValue,
         });
     }
 
@@ -64,6 +65,7 @@ public sealed class InteractorModelValidatorTests
 
         await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
             Name = "Alex",
+            SomeEnumProperty = ExampleInteractorEnum.FirstValue,
         });
     }
 
@@ -83,6 +85,32 @@ public sealed class InteractorModelValidatorTests
 
         await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
             Name = "A",
+            SomeEnumProperty = ExampleInteractorEnum.FirstValue,
+        });
+    }
+
+    [DataRow(-1)]
+    [DataRow(2)]
+    [DataTestMethod]
+    [ExpectedException(typeof(ValidationException))]
+    public async Task InvokeAsync_Throws_WhenRequestModelHasInvalidEnumValue(int badEnumValue)
+    {
+        var autoMocker = new AutoMocker();
+        MockInteractorModelValidationOptions(autoMocker);
+
+        autoMocker.GetMock<IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>>()
+            .Setup(x => x.InvokeAsync(It.IsAny<ExampleInteractorWithValidationRequest>()))
+            .ReturnsAsync(new ExampleInteractorWithValidationResponse {
+                Percentage = 0.5f,
+            });
+
+        var decorator = autoMocker.CreateInstance<
+            InteractorModelValidator<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
+        >();
+
+        await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
+            Name = "Jerry",
+            SomeEnumProperty = (ExampleInteractorEnum)badEnumValue,
         });
     }
 
@@ -108,6 +136,7 @@ public sealed class InteractorModelValidatorTests
 
         await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
             Name = "Alex",
+            SomeEnumProperty = ExampleInteractorEnum.FirstValue,
         });
     }
 
@@ -128,6 +157,7 @@ public sealed class InteractorModelValidatorTests
 
         await decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
             Name = "Alex",
+            SomeEnumProperty = ExampleInteractorEnum.FirstValue,
         });
     }
 
@@ -148,6 +178,7 @@ public sealed class InteractorModelValidatorTests
         var exception = await Assert.ThrowsExceptionAsync<UnexpectedException>(
             () => decorator.InvokeAsync(new ExampleInteractorWithValidationRequest {
                 Name = "Alex",
+                SomeEnumProperty = ExampleInteractorEnum.FirstValue,
             })
         );
         Assert.IsInstanceOfType<ValidationException>(exception.InnerException);

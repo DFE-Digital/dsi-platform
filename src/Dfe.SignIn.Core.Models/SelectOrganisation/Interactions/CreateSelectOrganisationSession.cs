@@ -41,6 +41,7 @@ public sealed record CreateSelectOrganisationSessionRequest()
     /// <summary>
     /// Gets the level of organisation detail required in the callback response.
     /// </summary>
+    [EnumDataType(typeof(OrganisationDetailLevel))]
     public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
 }
 

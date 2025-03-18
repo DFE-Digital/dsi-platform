@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 
 /// <summary>
@@ -8,6 +10,7 @@ public abstract record SelectOrganisationCallback()
     /// <summary>
     /// Gets type type of callback payload.
     /// </summary>
+    [MinLength(1)]
     public required string Type { get; init; }
 }
 
@@ -20,6 +23,7 @@ public record SelectOrganisationCallbackError() : SelectOrganisationCallback
     /// <summary>
     /// Gets a value indicating the kind of error that has occurred.
     /// </summary>
+    [EnumDataType(typeof(SelectOrganisationErrorCode))]
     public required SelectOrganisationErrorCode Code { get; init; }
 }
 

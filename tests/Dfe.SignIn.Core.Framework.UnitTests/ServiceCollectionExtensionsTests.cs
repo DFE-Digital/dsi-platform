@@ -148,6 +148,7 @@ public sealed class ServiceCollectionExtensionsTests
 
         await interactor.InvokeAsync(new ExampleInteractorWithValidationRequest {
             Name = "A",
+            SomeEnumProperty = ExampleInteractorEnum.FirstValue,
         });
     }
 
