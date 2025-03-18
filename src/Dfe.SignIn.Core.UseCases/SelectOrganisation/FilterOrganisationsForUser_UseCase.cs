@@ -124,7 +124,7 @@ public sealed class FilterOrganisationsForUser_UseCase(
             ClientId = clientId,
         });
         if (applicationResponse.Application is null) {
-            throw new InvalidOperationException("Application was not found.");
+            throw new ApplicationNotFoundException(null, clientId);
         }
         return applicationResponse.Application;
     }

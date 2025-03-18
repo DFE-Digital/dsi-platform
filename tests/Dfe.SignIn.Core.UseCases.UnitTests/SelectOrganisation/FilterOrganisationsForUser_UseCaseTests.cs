@@ -116,7 +116,6 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public async Task InvokeAsync_Throws_WhenApplicationIsNotFound()
     {
         var autoMocker = new AutoMocker();
@@ -127,12 +126,15 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         // Force "fake-client" to be non-existent.
         MockClientApplication(autoMocker, null);
 
-        await useCase.InvokeAsync(FakeBasicRequest with {
-            ClientId = "fake-client",
-            Filter = new() {
-                Type = OrganisationFilterType.Associated,
-            },
-        });
+        var exception = await Assert.ThrowsExceptionAsync<ApplicationNotFoundException>(
+            () => useCase.InvokeAsync(FakeBasicRequest with {
+                ClientId = "fake-client",
+                Filter = new() {
+                    Type = OrganisationFilterType.Associated,
+                },
+            })
+        );
+        Assert.AreEqual("fake-client", exception.ClientId);
     }
 
     #region Type: OrganisationFilterType.AnyOf
