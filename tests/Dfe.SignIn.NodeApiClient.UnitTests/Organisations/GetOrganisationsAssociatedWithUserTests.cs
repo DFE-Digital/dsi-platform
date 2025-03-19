@@ -1,5 +1,6 @@
 using AutoMapper;
 using Dfe.SignIn.Core.Models.Organisations;
+using Dfe.SignIn.Core.PublicModels.Organisations;
 using Dfe.SignIn.NodeApiClient.MappingProfiles;
 using Dfe.SignIn.NodeApiClient.Organisations;
 using Dfe.SignIn.NodeApiClient.Organisations.Models;
@@ -31,8 +32,16 @@ public class GetOrganisationsAssociatedWithUserTests
                     Status = new StatusDto {
                         Id = 1,
                         Name = "mock-name-1",
-                        TagColor = "mock-tag-color-1"
-                    }
+                        TagColor = "mock-tag-color-1",
+                    },
+                    Category = new CategoryDto {
+                        Id = "001",
+                        Name = "Establishment",
+                    },
+                    EstablishmentType = new EstablishmentTypeDto {
+                        Id = "29",
+                        Name = "Higher education institution",
+                    },
                 }
             }
         );
@@ -45,7 +54,11 @@ public class GetOrganisationsAssociatedWithUserTests
                         Id = 1,
                         Name = "mock-name-2",
                         TagColor = "mock-tag-color-2"
-                    }
+                    },
+                    Category = new CategoryDto {
+                        Id = "002",
+                        Name = "Local Authority",
+                    },
                 }
             }
         );
@@ -74,13 +87,16 @@ public class GetOrganisationsAssociatedWithUserTests
         Assert.AreEqual(organisations[0], new OrganisationModel {
             Id = mockDtos[0].Organisation.Id,
             Name = mockDtos[0].Organisation.Name,
-            Status = 1
+            Status = OrganisationStatus.Open,
+            Category = OrganisationCategory.Establishment,
+            EstablishmentType = EstablishmentType.HigherEducationInstitution,
         });
 
         Assert.AreEqual(organisations[1], new OrganisationModel {
             Id = mockDtos[1].Organisation.Id,
             Name = mockDtos[1].Organisation.Name,
-            Status = 1
+            Status = OrganisationStatus.Open,
+            Category = OrganisationCategory.LocalAuthority,
         });
     }
 
