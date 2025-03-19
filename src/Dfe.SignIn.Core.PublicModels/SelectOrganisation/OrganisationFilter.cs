@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 
 /// <summary>
@@ -8,11 +10,13 @@ public sealed record OrganisationFilter()
     /// <summary>
     /// Gets a value specifying the type of filtering to be used.
     /// </summary>
+    [EnumDataType(typeof(OrganisationFilterType))]
     public OrganisationFilterType Type { get; init; } = OrganisationFilterType.Associated;
 
     /// <summary>
     /// Gets a value specifying the type of association to be used when filtering.
     /// </summary>
+    [EnumDataType(typeof(OrganisationFilterAssociation))]
     public OrganisationFilterAssociation Association { get; init; } = OrganisationFilterAssociation.Auto;
 
     /// <summary>

@@ -18,10 +18,6 @@ public sealed class FilterOrganisationsForUser_UseCase(
     /// <inheritdoc/>
     public async Task<FilterOrganisationsForUserResponse> InvokeAsync(FilterOrganisationsForUserRequest request)
     {
-        if (!Enum.IsDefined(request.Filter.Type)) {
-            throw new InvalidOperationException($"Unexpected filter type '{request.Filter.Type}'.");
-        }
-
         if (request.Filter.Type == OrganisationFilterType.AnyOf) {
             return new() {
                 FilteredOrganisations = await this.RetrieveOrganisationsById(request.Filter.OrganisationIds),
@@ -63,10 +59,6 @@ public sealed class FilterOrganisationsForUser_UseCase(
         FilterOrganisationsForUserRequest request,
         Func<OrganisationModel, bool> organisationPredicate)
     {
-        if (!Enum.IsDefined(request.Filter.Association)) {
-            throw new InvalidOperationException($"Unexpected association type '{request.Filter.Association}'.");
-        }
-
         var userOrganisations = (await this.GetOrganisationsAssociatedWithUserAsync(request.UserId))
             .Where(organisationPredicate)
             .ToArray();
@@ -132,7 +124,7 @@ public sealed class FilterOrganisationsForUser_UseCase(
             ClientId = clientId,
         });
         if (applicationResponse.Application is null) {
-            throw new InvalidOperationException("Application was not found.");
+            throw new ApplicationNotFoundException(null, clientId);
         }
         return applicationResponse.Application;
     }

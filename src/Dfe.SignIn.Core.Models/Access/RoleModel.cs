@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Dfe.SignIn.Core.Models.Access;
 
 /// <summary>
@@ -33,6 +35,7 @@ public sealed record RoleModel()
     /// <summary>
     /// Gets a value indicating the status of the role.
     /// </summary>
+    [EnumDataType(typeof(RoleStatus))]
     public required RoleStatus Status { get; init; }
 }
 
