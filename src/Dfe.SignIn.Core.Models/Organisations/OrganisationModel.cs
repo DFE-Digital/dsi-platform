@@ -1,3 +1,5 @@
+using Dfe.SignIn.Core.PublicModels.Organisations;
+
 namespace Dfe.SignIn.Core.Models.Organisations;
 
 /// <summary>
@@ -13,12 +15,7 @@ public sealed record OrganisationModel()
     /// <summary>
     /// Gets the status of the organisation.
     /// </summary>
-    public required int Status { get; init; }
-
-    /// <summary>
-    /// Gets the category of the organisation
-    /// </summary>
-    public string? Category { get; init; }
+    public required OrganisationStatus Status { get; init; }
 
     /// <summary>
     /// Gets the name of the organisation.
@@ -29,6 +26,28 @@ public sealed record OrganisationModel()
     /// Gets the legal name of the organisation.
     /// </summary>
     public string? LegalName { get; init; }
+
+    /// <summary>
+    /// Gets the category of the organisation
+    /// </summary>
+    /// <seealso cref="EstablishmentType"/>
+    public OrganisationCategory Category { get; init; }
+
+    /// <summary>
+    /// Gets the establishment type of the organisation.
+    /// </summary>
+    /// <remarks>
+    ///   <para>This property is applicable when <see cref="Category"/> is set to
+    ///   <see cref="OrganisationCategory.Establishment"/>.</para>
+    /// </remarks>
+    /// <seealso cref="EstablishmentNumber"/>
+    public EstablishmentType? EstablishmentType { get; set; }
+
+    /// <summary>
+    /// Gets the establishment number of the organisation.
+    /// </summary>
+    /// <seealso cref="EstablishmentType"/>
+    public string? EstablishmentNumber { get; set; }
 
     /// <summary>
     /// Gets the urn of the organisation.
@@ -49,11 +68,6 @@ public sealed record OrganisationModel()
     /// Gets the ukprn of the organisation.
     /// </summary>
     public string? Ukprn { get; set; }
-
-    /// <summary>
-    /// Gets the establisment number of the organisation.
-    /// </summary>
-    public string? EstablishmentNumber { get; set; }
 
     /// <summary>
     /// Gets the closed on of the organisation.

@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.Framework.U
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.PublicModels", "src\Dfe.SignIn.Core.PublicModels\Dfe.SignIn.Core.PublicModels.csproj", "{399988CE-5D6F-4FDA-BC38-B9A952C36483}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.PublicModels.UnitTests", "tests\Dfe.SignIn.Core.PublicModels.UnitTests\Dfe.SignIn.Core.PublicModels.UnitTests.csproj", "{AB00B14A-6051-4DF9-9554-F23531D6FE25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{399988CE-5D6F-4FDA-BC38-B9A952C36483}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{399988CE-5D6F-4FDA-BC38-B9A952C36483}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{399988CE-5D6F-4FDA-BC38-B9A952C36483}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB00B14A-6051-4DF9-9554-F23531D6FE25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB00B14A-6051-4DF9-9554-F23531D6FE25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB00B14A-6051-4DF9-9554-F23531D6FE25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB00B14A-6051-4DF9-9554-F23531D6FE25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FC1897A0-B960-4DB5-82DA-F31426AADBEA} = {E38EB7A9-9158-422A-9A6F-A11F4066986C}
@@ -60,5 +66,6 @@ Global
 		{C6418840-EB70-449F-B2D8-10C322A85FEF} = {A386C8A8-09FD-492D-A41B-CDEE32BF7BD3}
 		{414D1B3B-B4E9-4E2E-8EAE-B353AA8E79E1} = {A386C8A8-09FD-492D-A41B-CDEE32BF7BD3}
 		{399988CE-5D6F-4FDA-BC38-B9A952C36483} = {E38EB7A9-9158-422A-9A6F-A11F4066986C}
+		{AB00B14A-6051-4DF9-9554-F23531D6FE25} = {A386C8A8-09FD-492D-A41B-CDEE32BF7BD3}
 	EndGlobalSection
 EndGlobal
