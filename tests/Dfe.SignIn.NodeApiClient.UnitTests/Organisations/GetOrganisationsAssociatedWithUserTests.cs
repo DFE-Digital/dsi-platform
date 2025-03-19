@@ -35,7 +35,7 @@ public class GetOrganisationsAssociatedWithUserTests
                         TagColor = "mock-tag-color-1",
                     },
                     Category = new CategoryDto {
-                        Id = "001",
+                        Id = OrganisationConstants.CategoryId_Establishment,
                         Name = "Establishment",
                     },
                     EstablishmentType = new EstablishmentTypeDto {

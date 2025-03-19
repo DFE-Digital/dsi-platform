@@ -27,7 +27,7 @@ public class GetOrganisationByIdTests
             Id = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e"),
             Name = "mock-name",
             Status = 1,
-            Category = "001",
+            Category = OrganisationConstants.CategoryId_Establishment,
         };
 
         var testHandler = new FakeHttpMessageHandler((req, ct) => {

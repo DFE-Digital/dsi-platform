@@ -3,6 +3,7 @@ using AutoMapper;
 using Dfe.SignIn.Core.Models.Organisations;
 using Dfe.SignIn.Core.PublicModels.Organisations;
 using Dfe.SignIn.NodeApiClient.MappingProfiles;
+using Dfe.SignIn.NodeApiClient.Organisations;
 using Dfe.SignIn.NodeApiClient.Organisations.Models;
 
 namespace Dfe.SignIn.NodeApiClient.UnitTests.MappingProfile;
@@ -91,7 +92,7 @@ public class OrganisationProfileTests
 
         var organisation = mapper.Map<OrganisationModel>(FakeUserOrganisationDto with {
             Category = new CategoryDto {
-                Id = "001",
+                Id = OrganisationConstants.CategoryId_Establishment,
                 Name = "Establishment",
             },
             EstablishmentType = new EstablishmentTypeDto {
@@ -172,7 +173,7 @@ public class OrganisationProfileTests
         var mapper = CreateMapper();
 
         var organisation = mapper.Map<OrganisationModel>(FakeOrganisationByIdDto with {
-            Category = "001",
+            Category = OrganisationConstants.CategoryId_Establishment,
             EstablishmentType = id,
         });
 
