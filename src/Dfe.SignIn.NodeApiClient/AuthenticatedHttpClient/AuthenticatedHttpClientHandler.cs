@@ -1,3 +1,4 @@
+using System.Net;
 using Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
 
 namespace Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
@@ -22,6 +23,13 @@ public sealed class AuthenticatedHttpClientHandler : DelegatingHandler
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         await this.httpSecurityProvider.AddAuthorizationAsync(request);
-        return await base.SendAsync(request, cancellationToken);
+
+        var response = await base.SendAsync(request, cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.Forbidden) {
+            throw new HttpRequestException(HttpRequestError.ConnectionError);
+        }
+
+        return response;
     }
 }
