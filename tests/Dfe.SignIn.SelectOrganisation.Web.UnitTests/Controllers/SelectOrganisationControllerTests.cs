@@ -8,6 +8,7 @@ using Dfe.SignIn.Core.Models.Organisations.Interactions;
 using Dfe.SignIn.Core.Models.PublicApiSigning.Interactions;
 using Dfe.SignIn.Core.Models.SelectOrganisation;
 using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.Core.PublicModels.Organisations;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Controllers;
@@ -28,14 +29,14 @@ public sealed class SelectOrganisationControllerTests
         Id = new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"),
         Name = "Fake Organisation A",
         LegalName = "Legal Organisation A",
-        Status = 1,
+        Status = OrganisationStatus.Open,
     };
 
     private static readonly OrganisationModel FakeOrganisationB = new() {
         Id = new Guid("8498beb4-e3a4-4a1b-93c6-462084d84ab5"),
         Name = "Fake Organisation B",
         LegalName = "Legal Organisation B",
-        Status = 1,
+        Status = OrganisationStatus.Open,
     };
 
     private static readonly ApplicationModel FakeApplication = new() {
