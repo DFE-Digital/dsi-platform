@@ -1,8 +1,7 @@
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
-using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.SelectOrganisation.SessionData.UnitTests;
+namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests;
 
 [TestClass]
 public sealed class SelectOrganisationSessionCacheExtensionsTests

@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dfe.SignIn.Core.Framework" Version="1.0.*" />
     <PackageReference Include="Dfe.SignIn.Core.PublicModels" Version="1.0.*" />
     <PackageReference Include="Dfe.SignIn.Core.Models" Version="1.0.*" />
@@ -23,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dfe.SignIn.SelectOrganisation.SessionData\Dfe.SignIn.SelectOrganisation.SessionData.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj" />
   </ItemGroup>
 
 </Project>

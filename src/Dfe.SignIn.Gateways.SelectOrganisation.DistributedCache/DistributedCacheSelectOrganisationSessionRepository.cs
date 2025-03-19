@@ -1,10 +1,9 @@
 using Dfe.SignIn.Core.Models.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
-using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.SelectOrganisation.SessionData;
+namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 
 /// <summary>
 /// A service that retrieves "select organisation" sessions from using distributed cache.
@@ -27,12 +26,14 @@ public sealed class DistributedCacheSelectOrganisationSessionRepository(
         ArgumentException.ThrowIfNullOrEmpty(sessionKey, nameof(sessionKey));
 
         string? sessionDataJson = await cache.GetStringAsync(sessionKey);
-        if (sessionDataJson is null) {
+        if (sessionDataJson is null)
+        {
             return null;
         }
 
         var sessionData = serializer.Deserialize(sessionDataJson);
-        if (DateTime.UtcNow > sessionData.Expires) {
+        if (DateTime.UtcNow > sessionData.Expires)
+        {
             return null;
         }
 
@@ -46,7 +47,8 @@ public sealed class DistributedCacheSelectOrganisationSessionRepository(
         ArgumentNullException.ThrowIfNull(sessionData, nameof(sessionData));
 
         string sessionDataJson = serializer.Serialize(sessionData);
-        await cache.SetStringAsync(sessionKey, sessionDataJson, new DistributedCacheEntryOptions {
+        await cache.SetStringAsync(sessionKey, sessionDataJson, new DistributedCacheEntryOptions
+        {
             AbsoluteExpiration = sessionData.Expires,
         });
     }

@@ -1,19 +1,21 @@
 using System.Text.Json;
 using Dfe.SignIn.Core.Models.SelectOrganisation;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
-using Dfe.SignIn.SelectOrganisation.SessionData.Json;
+using Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 
-namespace Dfe.SignIn.SelectOrganisation.SessionData.UnitTests.Json;
+namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests;
 
 [TestClass]
 public sealed class DefaultSessionDataSerializerTests
 {
-    private static readonly SelectOrganisationSessionData FakeSessionData = new() {
+    private static readonly SelectOrganisationSessionData FakeSessionData = new()
+    {
         Created = new DateTime(2024, 2, 22),
         Expires = new DateTime(2024, 2, 22) + new TimeSpan(0, 10, 0),
         ClientId = "example-client-id",
         UserId = new Guid("a205d032-e65f-47e0-810c-4ddb424219fd"),
-        Prompt = new() {
+        Prompt = new()
+        {
             Heading = "Which organisation?",
             Hint = "Select one option.",
         },
@@ -106,7 +108,8 @@ public sealed class DefaultSessionDataSerializerTests
 
         var result = serializer.Deserialize(json);
 
-        Assert.AreEqual(FakeSessionData, result! with {
+        Assert.AreEqual(FakeSessionData, result! with
+        {
             OrganisationOptions = FakeSessionData.OrganisationOptions,
         });
         CollectionAssert.AreEqual(

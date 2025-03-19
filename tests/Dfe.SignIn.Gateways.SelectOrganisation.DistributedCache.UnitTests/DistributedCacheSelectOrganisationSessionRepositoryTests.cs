@@ -1,22 +1,23 @@
 using System.Text;
 using Dfe.SignIn.Core.Models.SelectOrganisation;
 using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
-using Dfe.SignIn.SelectOrganisation.SessionData.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Moq;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.SelectOrganisation.SessionData.UnitTests;
+namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests;
 
 [TestClass]
 public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
 {
-    private static readonly SelectOrganisationSessionData FakeSessionData = new() {
+    private static readonly SelectOrganisationSessionData FakeSessionData = new()
+    {
         Created = new DateTime(2024, 2, 22),
         Expires = new DateTime(2024, 2, 22) + new TimeSpan(0, 10, 0),
         ClientId = "example-client-id",
         UserId = new Guid("a205d032-e65f-47e0-810c-4ddb424219fd"),
-        Prompt = new() {
+        Prompt = new()
+        {
             Heading = "Which organisation?",
             Hint = "Select one option.",
         },
@@ -70,7 +71,8 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     [TestMethod]
     public async Task RetrieveSession_ReturnsNull_WhenSessionHasExpired()
     {
-        var fakeExpiredSession = FakeSessionData with {
+        var fakeExpiredSession = FakeSessionData with
+        {
             Expires = new DateTime(1955, 1, 1),
         };
         string fakeExpiredSessionJson = new DefaultSessionDataSerializer().Serialize(fakeExpiredSession);
@@ -94,7 +96,8 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     [TestMethod]
     public async Task RetrieveSession_RetrieveSessionFromDistributedCache()
     {
-        var fakeSession = FakeSessionData with {
+        var fakeSession = FakeSessionData with
+        {
             Expires = DateTime.UtcNow + new TimeSpan(0, 10, 0),
         };
         string fakeSessionJson = new DefaultSessionDataSerializer().Serialize(fakeSession);
@@ -112,7 +115,8 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
 
         var result = await retriever.RetrieveAsync("example-key");
 
-        Assert.AreEqual(fakeSession, result! with {
+        Assert.AreEqual(fakeSession, result! with
+        {
             OrganisationOptions = fakeSession.OrganisationOptions,
         });
         CollectionAssert.AreEqual(
