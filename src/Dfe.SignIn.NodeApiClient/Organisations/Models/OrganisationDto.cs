@@ -13,6 +13,9 @@ internal abstract record OrganisationDto()
     [JsonPropertyName("LegalName")]
     public string? LegalName { get; init; }
 
+    [JsonPropertyName("establishmentNumber")]
+    public string? EstablishmentNumber { get; set; }
+
     [JsonPropertyName("urn")]
     public string? Urn { get; set; }
 
@@ -24,9 +27,6 @@ internal abstract record OrganisationDto()
 
     [JsonPropertyName("ukprn")]
     public string? Ukprn { get; set; }
-
-    [JsonPropertyName("establishmentNumber")]
-    public string? EstablishmentNumber { get; set; }
 
     [JsonPropertyName("closedOn")]
     public DateOnly? ClosedOn { get; set; }

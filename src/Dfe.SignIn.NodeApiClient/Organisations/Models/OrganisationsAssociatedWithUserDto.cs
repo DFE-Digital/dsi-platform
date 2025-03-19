@@ -18,7 +18,10 @@ internal sealed record UserOrganisationDto() : OrganisationDto
     public required StatusDto Status { get; set; }
 
     [JsonPropertyName("category")]
-    public CategoryDto? Category { get; init; }
+    public required CategoryDto Category { get; init; }
+
+    [JsonPropertyName("type")]
+    public EstablishmentTypeDto? EstablishmentType { get; init; }
 
     [JsonPropertyName("role")]
     public RoleDto? Role { get; init; }
@@ -63,6 +66,15 @@ internal sealed record StatusDto()
 }
 
 internal sealed record CategoryDto()
+{
+    [JsonPropertyName("id")]
+    public required string Id { get; init; }
+
+    [JsonPropertyName("name")]
+    public required string Name { get; init; }
+}
+
+internal sealed record EstablishmentTypeDto()
 {
     [JsonPropertyName("id")]
     public required string Id { get; init; }

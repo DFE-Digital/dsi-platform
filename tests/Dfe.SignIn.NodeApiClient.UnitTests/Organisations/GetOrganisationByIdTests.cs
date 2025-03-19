@@ -1,4 +1,6 @@
 using AutoMapper;
+using Dfe.SignIn.Core.Models.Organisations;
+using Dfe.SignIn.Core.PublicModels.Organisations;
 using Dfe.SignIn.NodeApiClient.MappingProfiles;
 using Dfe.SignIn.NodeApiClient.Organisations;
 using Dfe.SignIn.NodeApiClient.Organisations.Models;
@@ -24,7 +26,8 @@ public class GetOrganisationByIdTests
         var mockDto = new OrganisationByIdDto() {
             Id = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e"),
             Name = "mock-name",
-            Status = 1
+            Status = 1,
+            Category = OrganisationConstants.CategoryId_Establishment,
         };
 
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
@@ -44,10 +47,11 @@ public class GetOrganisationByIdTests
             OrganisationId = Guid.Empty
         });
 
-        Assert.AreEqual(response.Organisation, new Core.Models.Organisations.OrganisationModel {
+        Assert.AreEqual(response.Organisation, new OrganisationModel {
             Id = mockDto.Id,
             Name = mockDto.Name,
-            Status = mockDto.Status
+            Status = OrganisationStatus.Open,
+            Category = OrganisationCategory.Establishment,
         });
     }
 
