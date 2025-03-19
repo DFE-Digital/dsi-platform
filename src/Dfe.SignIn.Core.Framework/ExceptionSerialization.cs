@@ -140,7 +140,7 @@ internal sealed class ExceptionJsonConverter : JsonConverter<Exception>
 
         foreach (var property in ExceptionReflectionHelpers.GetSerializableExceptionProperties(exceptionType)) {
             var propertyValue = property.GetValue(exception, null);
-            if (propertyValue != null) {
+            if (propertyValue is not null) {
                 writer.WritePropertyName(namingPolicy.ConvertName(property.Name));
                 JsonSerializer.Serialize(writer, propertyValue, property.PropertyType, options);
             }
