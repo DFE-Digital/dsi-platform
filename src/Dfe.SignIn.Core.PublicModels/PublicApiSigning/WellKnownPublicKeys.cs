@@ -42,9 +42,9 @@ public sealed record WellKnownPublicKey
     public required string E { get; init; }
 
     /// <summary>
-    /// Gets the expiry date.
+    /// Gets the expiry date (time in seconds from Unix epoc).
     /// </summary>
-    public required string Ed { get; init; }
+    public required int Ed { get; init; }
 
     /// <summary>
     /// Gets a value that indicates how the key is used.
