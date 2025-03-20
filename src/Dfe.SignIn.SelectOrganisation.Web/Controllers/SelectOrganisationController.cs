@@ -117,17 +117,17 @@ public sealed class SelectOrganisationController(
 
     private async Task<IActionResult> SendCallback(SelectOrganisationSessionData session, object payload)
     {
-        string json = JsonSerializer.Serialize(payload, jsonSerializerOptions);
-        byte[] payloadBytes = Encoding.UTF8.GetBytes(json);
+        string payloadJson = JsonSerializer.Serialize(payload, jsonSerializerOptions);
+        string payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payloadJson));
 
         var signingResponse = await createDigitalSignatureForPayload.InvokeAsync(new() {
-            Payload = json,
+            Payload = payloadBase64,
         });
 
         return this.View("Callback", new CallbackViewModel {
             CallbackUrl = session.CallbackUrl,
             PayloadType = ((SelectOrganisationCallback)payload).Type,
-            PayloadData = Convert.ToBase64String(payloadBytes),
+            PayloadData = payloadBase64,
             DigitalSignature = signingResponse.Signature.Signature,
             PublicKeyId = signingResponse.Signature.KeyId,
         });

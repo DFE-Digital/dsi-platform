@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using AutoMapper;
 using Dfe.SignIn.Core.Framework;
@@ -23,6 +24,10 @@ namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Controllers;
 [TestClass]
 public sealed class SelectOrganisationControllerTests
 {
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     private static readonly Guid FakeUserId = new();
 
     private static readonly OrganisationModel FakeOrganisationA = new() {
@@ -467,6 +472,36 @@ public sealed class SelectOrganisationControllerTests
         )!;
         Assert.AreEqual(PayloadTypeConstants.Id, callbackData.Type);
         Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Id);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_SignsExpectedPayload()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSession(autoMocker, FakeSessionWithMultipleOptions);
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.SelectedOrganisationId = new Guid("3c44b79a-991f-4068-b8d9-a761d651146f");
+
+        await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
+
+        var expectedPayload = new SelectOrganisationCallbackId {
+            Type = PayloadTypeConstants.Id,
+            Id = inputViewModel.SelectedOrganisationId,
+        };
+        var expectedPayloadJson = JsonSerializer.Serialize(expectedPayload, JsonSerializerOptions);
+        string expectedPayloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayloadJson));
+
+        autoMocker.Verify<
+            IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse>
+        >(x =>
+            x.InvokeAsync(
+                It.Is<CreateDigitalSignatureForPayloadRequest>(
+                    request => request.Payload == expectedPayloadBase64
+                )
+            )
+        );
     }
 
     #endregion
