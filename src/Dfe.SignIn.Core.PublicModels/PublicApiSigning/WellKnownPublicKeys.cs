@@ -44,7 +44,7 @@ public sealed record WellKnownPublicKey
     /// <summary>
     /// Gets the expiry date.
     /// </summary>
-    public required string Ed { get; init; }
+    public required int Ed { get; init; }
 
     /// <summary>
     /// Gets a value that indicates how the key is used.
