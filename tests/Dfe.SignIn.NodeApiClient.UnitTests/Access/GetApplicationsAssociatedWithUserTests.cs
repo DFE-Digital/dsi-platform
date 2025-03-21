@@ -1,3 +1,5 @@
+using Dfe.SignIn.Core.InternalModels.Users;
+using Dfe.SignIn.Core.InternalModels.Users.Interactions;
 using Dfe.SignIn.NodeApiClient.Access;
 using Dfe.SignIn.NodeApiClient.Access.Models;
 using Dfe.SignIn.NodeApiClient.UnitTests.Fakes;
@@ -43,7 +45,7 @@ public class GetApplicationsAssociatedWithUserTests
 
         var controller = new GetApplicationsAssociatedWithUser_NodeApiRequester(client);
 
-        var response = await controller.InvokeAsync(new Core.Models.Users.Interactions.GetApplicationsAssociatedWithUserRequest {
+        var response = await controller.InvokeAsync(new GetApplicationsAssociatedWithUserRequest {
             UserId = mockDto[0].UserId
         });
 
@@ -80,7 +82,7 @@ public class GetApplicationsAssociatedWithUserTests
 
         var controller = new GetApplicationsAssociatedWithUser_NodeApiRequester(client);
 
-        var response = await controller.InvokeAsync(new Core.Models.Users.Interactions.GetApplicationsAssociatedWithUserRequest {
+        var response = await controller.InvokeAsync(new GetApplicationsAssociatedWithUserRequest {
             UserId = Guid.Parse("8f79e542-7b8a-4904-b6fb-85b0fa41a530")
         });
 

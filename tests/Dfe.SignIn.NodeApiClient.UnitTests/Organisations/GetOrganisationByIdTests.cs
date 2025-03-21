@@ -1,6 +1,7 @@
 using AutoMapper;
-using Dfe.SignIn.Core.Models.Organisations;
-using Dfe.SignIn.Core.PublicModels.Organisations;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
+using Dfe.SignIn.Core.InternalModels.Organisations;
+using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
 using Dfe.SignIn.NodeApiClient.MappingProfiles;
 using Dfe.SignIn.NodeApiClient.Organisations;
 using Dfe.SignIn.NodeApiClient.Organisations.Models;
@@ -43,7 +44,7 @@ public class GetOrganisationByIdTests
 
         var controller = new GetOrganisationById_NodeApiRequester(client, this.mapper!);
 
-        var response = await controller.InvokeAsync(new Core.Models.Organisations.Interactions.GetOrganisationByIdRequest {
+        var response = await controller.InvokeAsync(new GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty
         });
 
@@ -69,7 +70,7 @@ public class GetOrganisationByIdTests
 
         var controller = new GetOrganisationById_NodeApiRequester(client, this.mapper!);
 
-        var response = await controller.InvokeAsync(new Core.Models.Organisations.Interactions.GetOrganisationByIdRequest {
+        var response = await controller.InvokeAsync(new GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty
         });
 
