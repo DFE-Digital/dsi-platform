@@ -1,5 +1,5 @@
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client;
 
@@ -22,12 +22,25 @@ public static class DfePublicApiExtensions
         services.AddOptions();
         services.Configure<PublicKeyCacheOptions>(_ => { });
 
-        // TODO: Setup the HttpClient properly...
-        services.AddKeyedSingleton<HttpClient>(DfePublicApiConstants.HttpClientKey);
+        services.AddSingleton<PublicApiBearerTokenHandler>();
+        services.AddHttpClient(DfePublicApiConstants.HttpClientKey, ConfigureHttpClient)
+            .AddHttpMessageHandler<PublicApiBearerTokenHandler>();
 
         services.AddSingleton<IPublicKeyCache, PublicKeyCache>();
         services.AddSingleton<IPayloadVerifier, DefaultPayloadVerifier>();
 
         return services;
+    }
+
+    private static void ConfigureHttpClient(IServiceProvider provider, HttpClient client)
+    {
+        var optionsAccessor = provider.GetRequiredService<IOptions<DfePublicApiOptions>>();
+        var options = optionsAccessor.Value;
+
+        if (options.BaseAddress is null) {
+            throw new InvalidOperationException("Invalid DfE Sign-in Public API base address");
+        }
+
+        client.BaseAddress = options.BaseAddress;
     }
 }
