@@ -114,8 +114,11 @@ public class BearerTokenAuthMiddleware
             var scopedSession = serviceProvider.GetRequiredService<IScopedSessionWriter>();
             scopedSession.Application = response.Application;
         }
-        catch (Exception ex) {
-            Console.WriteLine(ex.ToString());
+        catch (SecurityTokenExpiredException) {
+            await SendErrorResponseAsync("jwt expired", context, StatusCodes.Status403Forbidden);
+            return;
+        }
+        catch {
             await SendErrorResponseAsync("Your client is not authorized to use this api", context, StatusCodes.Status403Forbidden);
             return;
         }
