@@ -1,7 +1,7 @@
-using Dfe.SignIn.PublicApiClient.PublicApiSigning;
+using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.PublicApiClient;
+namespace Dfe.SignIn.PublicApi.Client;
 
 /// <summary>
 /// Extension methods for setting up a client to the DfE Sign-in Public API.

@@ -1,11 +1,11 @@
 using System.Security.Cryptography;
 using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
-using Dfe.SignIn.PublicApiClient.PublicApiSigning;
+using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.PublicApiClient.UnitTests;
+namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
 [TestClass]
 public sealed class DefaultPayloadVerifierTests

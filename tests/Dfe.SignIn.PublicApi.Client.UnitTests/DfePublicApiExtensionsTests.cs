@@ -1,8 +1,8 @@
-using Dfe.SignIn.PublicApiClient.PublicApiSigning;
+using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.PublicApiClient.UnitTests;
+namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
 [TestClass]
 public sealed class DfePublicApiExtensionsTests

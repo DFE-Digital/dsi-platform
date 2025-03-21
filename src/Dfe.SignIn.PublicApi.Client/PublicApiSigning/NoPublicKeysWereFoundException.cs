@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.PublicApiClient.PublicApiSigning;
+namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 
 /// <summary>
 /// The exception thrown when no public keys were retrieved when attempting to refresh

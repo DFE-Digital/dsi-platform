@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Dfe.SignIn.PublicApiClient.PublicApiSigning;
+namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 
 internal sealed class PublicKeyCache(
     IOptions<DfePublicApiOptions> publicApiOptionsAccessor,
@@ -42,7 +42,8 @@ internal sealed class PublicKeyCache(
 
     private async Task AutoRefreshAsync(string keyId)
     {
-        if (this.HasRefreshedRecently) {
+        if (this.HasRefreshedRecently)
+        {
             // Do not attempt to automatically refresh if a refresh was already requested recently.
             //   - Avoid the same keys being requested multiple times concurrently.
             //   - Avoid refreshing too frequently when unexpected key IDs are being encountered.
@@ -50,34 +51,41 @@ internal sealed class PublicKeyCache(
         }
 
         // Avoid multiple threads attempting to acquire a refresh concurrently.
-        lock (this.acquireRefreshLock) {
-            if (this.isRefreshing) {
+        lock (this.acquireRefreshLock)
+        {
+            if (this.isRefreshing)
+            {
                 return;
             }
             this.isRefreshing = true;
         }
 
-        try {
+        try
+        {
             bool wasUnknownKeyRequested = !this.publicKeys.ContainsKey(keyId);
-            if (wasUnknownKeyRequested) {
+            if (wasUnknownKeyRequested)
+            {
                 // Refresh cache and await so that we can see if we have encountered a new key.
                 await this.RefreshAsync();
             }
-            else if (this.IsCacheStale) {
+            else if (this.IsCacheStale)
+            {
                 // Refresh cache asynchronously; we don't need to await since we already have the key.
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 this.RefreshAsync();
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
-        finally {
+        finally
+        {
             this.isRefreshing = false;
         }
     }
 
     private async Task RefreshAsync()
     {
-        try {
+        try
+        {
             this.refreshRequestTime = DateTime.UtcNow;
 
             var keysListing = await this.FetchPublicKeysAsync();
@@ -85,9 +93,11 @@ internal sealed class PublicKeyCache(
             this.publicKeys = keysListing.Keys
                 // Exclude keys that have expired.
                 .Where(key => DateTime.UtcNow <= DateTime.UnixEpoch.AddSeconds(key.Ed))
-                .ToDictionary(key => key.Kid, key => {
+                .ToDictionary(key => key.Kid, key =>
+                {
                     // Retain existing key instance if it already exists.
-                    if (this.publicKeys.TryGetValue(key.Kid, out var existingKey)) {
+                    if (this.publicKeys.TryGetValue(key.Kid, out var existingKey))
+                    {
                         return existingKey;
                     }
                     // Read new public key.
@@ -96,7 +106,8 @@ internal sealed class PublicKeyCache(
 
             this.refreshTime = DateTime.UtcNow;
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             // Will continue to use public keys that have already been cached for
             // up to `MaximumRequestInterval` and then will try again.
             logger.LogWarning(ex, "Was unable to retrieve public keys from DfE Sign-in Public API.");
@@ -108,7 +119,8 @@ internal sealed class PublicKeyCache(
     {
         var requestUri = new Uri(publicApiOptionsAccessor.Value.BaseAddress, "v2/.well-known/keys");
         var response = await httpClient.GetFromJsonAsync<WellKnownPublicKeyListing>(requestUri);
-        if (response is null || !response.Keys.Any()) {
+        if (response is null || !response.Keys.Any())
+        {
             throw new NoPublicKeysWereFoundException();
         }
         return response;
@@ -116,7 +128,8 @@ internal sealed class PublicKeyCache(
 
     private static PublicKeyCacheEntry ReadPublicKey(WellKnownPublicKey publicKey)
     {
-        var rsa = RSA.Create(new RSAParameters {
+        var rsa = RSA.Create(new RSAParameters
+        {
             Modulus = Base64UrlEncoder.DecodeBytes(publicKey.N),
             Exponent = Base64UrlEncoder.DecodeBytes(publicKey.E),
         });
