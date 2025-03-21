@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
+using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.PublicApiSigning.Interactions;
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
+using Dfe.SignIn.Core.InternalModels.PublicApiSigning.Interactions;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.UseCases.PublicApiSigning;
