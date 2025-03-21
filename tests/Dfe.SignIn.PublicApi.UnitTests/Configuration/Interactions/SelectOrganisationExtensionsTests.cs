@@ -1,7 +1,7 @@
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
+using Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 using Dfe.SignIn.PublicApi.Configuration.Interactions;
-using Dfe.SignIn.SelectOrganisation.SessionData;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

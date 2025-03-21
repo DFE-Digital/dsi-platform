@@ -1,5 +1,5 @@
 using AutoMapper;
-using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation.Models;
 
 /// <exclude/>

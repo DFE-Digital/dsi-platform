@@ -1,5 +1,5 @@
 using System.Security.Cryptography;
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
+using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.PublicApiClient.PublicApiSigning;
 using Microsoft.IdentityModel.Tokens;
 using Moq;

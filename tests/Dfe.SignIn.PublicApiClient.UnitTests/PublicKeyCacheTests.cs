@@ -1,5 +1,5 @@
 using System.Net;
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
+using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.PublicApiClient.PublicApiSigning;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

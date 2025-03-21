@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.InternalModels.Applications;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.ScopedSessionProvider;
@@ -46,7 +47,7 @@ public class ScopedSessionExtensionsTests
     [TestMethod]
     public void SetupScopedSession_ReaderWriterMatchReferenceSameInstance()
     {
-        var mockApplication = new Core.Models.Applications.ApplicationModel {
+        var mockApplication = new ApplicationModel {
             ClientId = "mock-client-id",
             Id = Guid.Parse("9980e12f-dfca-4631-ae41-1cccd12d231b"),
             IsExternalService = true,

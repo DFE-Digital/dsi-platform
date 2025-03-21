@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using System.Security.Cryptography;
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
+using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

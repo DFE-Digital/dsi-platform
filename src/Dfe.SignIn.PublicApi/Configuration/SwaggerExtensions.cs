@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.Core.Models.Organisations;
-using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
+using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.PublicApi.Swagger;
 using Microsoft.OpenApi.Models;
 

@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
+using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 
 namespace Dfe.SignIn.PublicApiClient.PublicApiSigning;
 
