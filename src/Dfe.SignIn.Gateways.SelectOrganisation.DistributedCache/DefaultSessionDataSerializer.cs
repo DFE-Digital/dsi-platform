@@ -1,13 +1,12 @@
 using System.Text.Json;
-using Dfe.SignIn.Core.Models.SelectOrganisation;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 
 namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 
 /// <inheritdoc/>
 public sealed class DefaultSessionDataSerializer : ISessionDataSerializer
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-    {
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = false,
     };

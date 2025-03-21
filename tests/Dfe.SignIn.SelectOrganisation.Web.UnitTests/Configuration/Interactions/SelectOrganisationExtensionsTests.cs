@@ -1,5 +1,5 @@
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
 using Microsoft.Extensions.Caching.Distributed;

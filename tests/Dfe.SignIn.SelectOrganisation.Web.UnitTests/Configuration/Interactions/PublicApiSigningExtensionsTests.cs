@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.PublicApiSigning.Interactions;
+using Dfe.SignIn.Core.InternalModels.PublicApiSigning.Interactions;
 using Dfe.SignIn.Core.UseCases.PublicApiSigning;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
 using Microsoft.Extensions.Configuration;
