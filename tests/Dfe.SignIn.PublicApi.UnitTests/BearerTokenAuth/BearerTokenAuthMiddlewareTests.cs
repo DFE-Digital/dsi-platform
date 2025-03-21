@@ -31,6 +31,9 @@ public class BearerTokenAuthMiddlewareTests
     private readonly string mockJwtWithValidIss = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJteS1hcHBsaWNhdGlvbi1uYW1lIiwiYXVkIjoic2lnbmluLmVkdWNhdGlvbi5nb3YudWsifQ.nEn6xJz26M9gFxBd0_iVGCY_QYpe0BKKR5RItnivDFo";
     private readonly string mockJwtWithValidIssButInvalidAudience = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJteS1hcHBsaWNhdGlvbi1uYW1lIiwiYXVkIjoic2lnbmluLmVkdWNhdGlvbi5nb3YudSJ9.kBFYCJsNTG9rlDacZ9OUG2wN53zi450uRhU7OYJUR5w";
 
+    private readonly string mockJwtWithExpExpired = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJteS1hcHBsaWNhdGlvbi1uYW1lIiwiYXVkIjoic2lnbmluLmVkdWNhdGlvbi5nb3YudWsiLCJleHAiOjk1MzY0Nzg0Nn0.k21UWtkrs7w6uhphYawpWJfvGu_zQWbfP54AgI7k4aE";
+    private readonly string mockJwtWithValidExp = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJteS1hcHBsaWNhdGlvbi1uYW1lIiwiYXVkIjoic2lnbmluLmVkdWNhdGlvbi5nb3YudWsiLCJleHAiOjMyNTEwNTU3NjI4fQ.EdOSJbFSkCPnmvqOE5USDaCt2S2uGO1HI-5BPyjvw80";
+
     [TestInitialize]
     public void Setup()
     {
@@ -266,9 +269,66 @@ public class BearerTokenAuthMiddlewareTests
     }
 
     [TestMethod]
+    public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenBearerTokenExpired()
+    {
+        this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithExpExpired}");
+
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = new Core.Models.Applications.ApplicationModel {
+                    ApiSecret = this.mockValidJwtSecret,
+                    ClientId = this.mockValidJwtIss,
+                    Id = Guid.Empty,
+                    Description = "mock-description",
+                    IsExternalService = false,
+                    IsHiddenService = false,
+                    IsIdOnlyService = false,
+                    Name = "mock-name",
+                    ServiceHomeUrl = new Uri("https://localhost")
+                }
+            });
+
+        var middleware = new BearerTokenAuthMiddleware(this.mockNext.Object, new BearerTokenOptions());
+        await middleware.InvokeAsync(this.context);
+
+        Assert.AreEqual(this.validJsonContentType, this.context.Response.ContentType);
+        Assert.AreEqual(StatusCodes.Status403Forbidden, this.context.Response.StatusCode);
+        Assert.AreEqual(new ErrorResponse { Success = false, Message = "jwt expired" }, await this.GetResponseBodyAsync());
+    }
+
+    [TestMethod]
     public async Task UseBearerTokenAuthMiddleware_Returns_200_WhenAllValidationStepsPassed()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
+
+        this.mockApplicationByClientId
+            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = new Core.Models.Applications.ApplicationModel {
+                    ApiSecret = this.mockValidJwtSecret,
+                    ClientId = this.mockValidJwtIss,
+                    Id = Guid.Empty,
+                    Description = "mock-description",
+                    IsExternalService = false,
+                    IsHiddenService = false,
+                    IsIdOnlyService = false,
+                    Name = "mock-name",
+                    ServiceHomeUrl = new Uri("https://localhost")
+                }
+            });
+
+        var middleware = new BearerTokenAuthMiddleware(this.mockNext.Object, new BearerTokenOptions());
+        await middleware.InvokeAsync(this.context);
+
+        Assert.AreEqual(StatusCodes.Status200OK, this.context.Response.StatusCode);
+        this.mockNext.Verify(n => n(this.context), Times.Once, "Next middleware should be called exactly once.");
+    }
+
+    [TestMethod]
+    public async Task UseBearerTokenAuthMiddleware_Returns_200_WhenAllValidationStepsPassedWithValidExp()
+    {
+        this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidExp}");
 
         this.mockApplicationByClientId
             .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
