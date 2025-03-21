@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
+using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
