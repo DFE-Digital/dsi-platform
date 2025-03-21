@@ -19,7 +19,7 @@ builder.Services
     .Configure<BearerTokenOptions>(builder.Configuration.GetRequiredSection("BearerToken"));
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Applications, NodeApiName.Access, NodeApiName.Organisations]);
+    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
 
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();
