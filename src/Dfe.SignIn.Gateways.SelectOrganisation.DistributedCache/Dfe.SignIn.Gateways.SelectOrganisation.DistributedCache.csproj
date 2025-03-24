@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dfe.SignIn.Core.PublicModels" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.Models" Version="1.0.*" />
+    <PackageReference Include="Dfe.SignIn.Core.ExternalModels" Version="1.0.*" />
+    <PackageReference Include="Dfe.SignIn.Core.InternalModels" Version="1.0.*" />
     <PackageReference Include="Dfe.SignIn.Core.UseCases" Version="1.0.*" />
   </ItemGroup>
 

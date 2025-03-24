@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Models.SelectOrganisation;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Dfe.SignIn.SelectOrganisation.Web.Controllers;
 using Moq;

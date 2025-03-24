@@ -1,5 +1,5 @@
 // using Dfe.SignIn.Core.Framework;
-// using Dfe.SignIn.Core.Models.Organisations.Interactions;
+// using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
 
 // public sealed class MockGetOrganisationById
 //     : IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>

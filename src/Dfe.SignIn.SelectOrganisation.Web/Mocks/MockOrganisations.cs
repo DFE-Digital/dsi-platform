@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Models.Organisations;
-using Dfe.SignIn.Core.PublicModels.Organisations;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
+using Dfe.SignIn.Core.InternalModels.Organisations;
 
 public static class MockOrganisations
 {
