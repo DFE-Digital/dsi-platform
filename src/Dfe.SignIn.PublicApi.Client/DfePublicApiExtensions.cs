@@ -22,7 +22,7 @@ public static class DfePublicApiExtensions
         services.AddOptions();
         services.Configure<PublicKeyCacheOptions>(_ => { });
 
-        services.AddSingleton<PublicApiBearerTokenHandler>();
+        services.AddTransient<PublicApiBearerTokenHandler>();
         services.AddHttpClient(DfePublicApiConstants.HttpClientKey, ConfigureHttpClient)
             .AddHttpMessageHandler<PublicApiBearerTokenHandler>();
 
