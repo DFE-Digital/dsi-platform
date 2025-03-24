@@ -1,6 +1,10 @@
+using System.Text.Json;
+using System.Text;
+using System.Net;
 using AutoMapper;
-using Dfe.SignIn.Core.Models.Organisations;
-using Dfe.SignIn.Core.PublicModels.Organisations;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
+using Dfe.SignIn.Core.InternalModels.Organisations;
+using Dfe.SignIn.Core.InternalModels.Users.Interactions;
 using Dfe.SignIn.NodeApiClient.MappingProfiles;
 using Dfe.SignIn.NodeApiClient.Organisations;
 using Dfe.SignIn.NodeApiClient.Organisations.Models;
@@ -64,8 +68,8 @@ public class GetOrganisationsAssociatedWithUserTests
         );
 
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
-            var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK) {
-                Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(mockDtos), System.Text.Encoding.UTF8, "application/json")
+            var response = new HttpResponseMessage(HttpStatusCode.OK) {
+                Content = new StringContent(JsonSerializer.Serialize(mockDtos), Encoding.UTF8, "application/json")
             };
             return Task.FromResult(response);
         });
@@ -76,7 +80,7 @@ public class GetOrganisationsAssociatedWithUserTests
 
         var controller = new GetOrganisationsAssociatedWithUser_NodeApiRequester(client, this.mapper!);
 
-        var response = await controller.InvokeAsync(new Core.Models.Users.Interactions.GetOrganisationsAssociatedWithUserRequest {
+        var response = await controller.InvokeAsync(new GetOrganisationsAssociatedWithUserRequest {
             UserId = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e")
         });
 
@@ -104,7 +108,7 @@ public class GetOrganisationsAssociatedWithUserTests
     public async Task InvokeAsync_ReturnsEmptyCollectionOfOrganisationsWhenNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
-            var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+            var response = new HttpResponseMessage(HttpStatusCode.NotFound);
             return Task.FromResult(response);
         });
 
@@ -114,7 +118,7 @@ public class GetOrganisationsAssociatedWithUserTests
 
         var controller = new GetOrganisationsAssociatedWithUser_NodeApiRequester(client, this.mapper!);
 
-        var response = await controller.InvokeAsync(new Core.Models.Users.Interactions.GetOrganisationsAssociatedWithUserRequest {
+        var response = await controller.InvokeAsync(new GetOrganisationsAssociatedWithUserRequest {
             UserId = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e")
         });
 

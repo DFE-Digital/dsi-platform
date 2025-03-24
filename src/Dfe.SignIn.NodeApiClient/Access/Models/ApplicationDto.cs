@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Models.Access;
+using Dfe.SignIn.Core.InternalModels.Access;
 
 namespace Dfe.SignIn.NodeApiClient.Access.Models;
 

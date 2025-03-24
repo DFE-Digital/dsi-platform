@@ -1,7 +1,7 @@
 
 using AutoMapper;
-using Dfe.SignIn.Core.Models.Organisations;
-using Dfe.SignIn.Core.PublicModels.Organisations;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
+using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.NodeApiClient.MappingProfiles;
 using Dfe.SignIn.NodeApiClient.Organisations;
 using Dfe.SignIn.NodeApiClient.Organisations.Models;

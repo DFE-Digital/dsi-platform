@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.Users.Interactions;
+using Dfe.SignIn.Core.InternalModels.Users;
+using Dfe.SignIn.Core.InternalModels.Users.Interactions;
 using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,3 +1,5 @@
+using Dfe.SignIn.Core.InternalModels.Applications;
+using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
 using Dfe.SignIn.NodeApiClient.Applications;
 using Dfe.SignIn.NodeApiClient.Applications.Models;
 using Dfe.SignIn.NodeApiClient.UnitTests.Fakes;
@@ -37,13 +39,13 @@ public class GetApplicationByClientId()
 
         var controller = new GetApplicationByClientId_NodeApiRequester(client);
 
-        var response = await controller.InvokeAsync(new Core.Models.Applications.Interactions.GetApplicationByClientIdRequest {
+        var response = await controller.InvokeAsync(new GetApplicationByClientIdRequest {
             ClientId = "mock-client-id"
         });
 
         Assert.IsNotNull(response.Application);
 
-        Assert.AreEqual(response.Application, new Core.Models.Applications.ApplicationModel {
+        Assert.AreEqual(response.Application, new ApplicationModel {
             ApiSecret = mockDto.RelyingParty.ApiSecret,
             ClientId = mockDto.RelyingParty.ClientId,
             Description = mockDto.Description,
@@ -70,7 +72,7 @@ public class GetApplicationByClientId()
 
         var controller = new GetApplicationByClientId_NodeApiRequester(client);
 
-        var response = await controller.InvokeAsync(new Core.Models.Applications.Interactions.GetApplicationByClientIdRequest {
+        var response = await controller.InvokeAsync(new GetApplicationByClientIdRequest {
             ClientId = "mock-client-id"
         });
 

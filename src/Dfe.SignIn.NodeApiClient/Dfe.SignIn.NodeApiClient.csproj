@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dfe.SignIn.Core.Framework" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.Models" Version="1.0.*" />
+    <PackageReference Include="Dfe.SignIn.Core.InternalModels" Version="1.0.*" />
   </ItemGroup>
 
   <ItemGroup>
