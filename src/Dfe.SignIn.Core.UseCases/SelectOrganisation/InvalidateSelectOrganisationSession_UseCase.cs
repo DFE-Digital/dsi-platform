@@ -1,5 +1,5 @@
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 
 namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;

@@ -37,7 +37,8 @@ public interface IInteractor<TRequest, TResponse>
     /// </exception>
     /// <exception cref="InteractionException">
     ///   <para>If a business domain exception occurs. This should be a custom exception
-    ///   type residing in either the "Dfe.SignIn.Models" or "Dfe.SignIn.PublicModels"
+    ///   type residing in either the "Dfe.SignIn.Core.InternalModels" or
+    ///   "Dfe.SignIn.Core.ExternalModels"
     ///   projects.</para>
     /// </exception>
     /// <exception cref="UnexpectedException">

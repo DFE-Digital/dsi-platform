@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E38EB7A9-915
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.Framework", "src\Dfe.SignIn.Core.Framework\Dfe.SignIn.Core.Framework.csproj", "{FC1897A0-B960-4DB5-82DA-F31426AADBEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.Models", "src\Dfe.SignIn.Core.Models\Dfe.SignIn.Core.Models.csproj", "{AB43DF54-ACB1-4644-B001-0849E6479356}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.InternalModels", "src\Dfe.SignIn.Core.InternalModels\Dfe.SignIn.Core.InternalModels.csproj", "{AB43DF54-ACB1-4644-B001-0849E6479356}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.UseCases", "src\Dfe.SignIn.Core.UseCases\Dfe.SignIn.Core.UseCases.csproj", "{0B4F9970-68A3-4B80-9271-05BB7E4A63E2}"
 EndProject
@@ -17,9 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.UseCases.Un
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.Framework.UnitTests", "tests\Dfe.SignIn.Core.Framework.UnitTests\Dfe.SignIn.Core.Framework.UnitTests.csproj", "{414D1B3B-B4E9-4E2E-8EAE-B353AA8E79E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.PublicModels", "src\Dfe.SignIn.Core.PublicModels\Dfe.SignIn.Core.PublicModels.csproj", "{399988CE-5D6F-4FDA-BC38-B9A952C36483}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.ExternalModels", "src\Dfe.SignIn.Core.ExternalModels\Dfe.SignIn.Core.ExternalModels.csproj", "{399988CE-5D6F-4FDA-BC38-B9A952C36483}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.PublicModels.UnitTests", "tests\Dfe.SignIn.Core.PublicModels.UnitTests\Dfe.SignIn.Core.PublicModels.UnitTests.csproj", "{AB00B14A-6051-4DF9-9554-F23531D6FE25}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.ExternalModels.UnitTests", "tests\Dfe.SignIn.Core.ExternalModels.UnitTests\Dfe.SignIn.Core.ExternalModels.UnitTests.csproj", "{AB00B14A-6051-4DF9-9554-F23531D6FE25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

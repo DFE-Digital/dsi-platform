@@ -1,10 +1,11 @@
+using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.Applications;
-using Dfe.SignIn.Core.Models.Applications.Interactions;
-using Dfe.SignIn.Core.Models.Organisations;
-using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
-using Dfe.SignIn.Core.Models.Users.Interactions;
-using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
+using Dfe.SignIn.Core.InternalModels.Applications;
+using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
+using Dfe.SignIn.Core.InternalModels.Organisations;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
+using Dfe.SignIn.Core.InternalModels.Users;
+using Dfe.SignIn.Core.InternalModels.Users.Interactions;
 
 /// <summary>
 /// Use case for filtering organisations for a user.

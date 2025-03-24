@@ -1,7 +1,7 @@
+using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.SelectOrganisation;
-using Dfe.SignIn.Core.Models.SelectOrganisation.Interactions;
-using Dfe.SignIn.Core.PublicModels.SelectOrganisation;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Microsoft.Extensions.Options;
 

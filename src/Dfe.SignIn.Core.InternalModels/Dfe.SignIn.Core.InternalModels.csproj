@@ -9,12 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.Framework\Dfe.SignIn.Core.Framework.csproj" />
     <ProjectReference Include="..\..\src\Dfe.SignIn.Core.ExternalModels\Dfe.SignIn.Core.ExternalModels.csproj" />
-    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.InternalModels\Dfe.SignIn.Core.InternalModels.csproj" />
   </ItemGroup>
 
 </Project>
