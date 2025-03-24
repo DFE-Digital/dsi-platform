@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.Core.Models.Applications;
+using Dfe.SignIn.Core.InternalModels.Applications;
 using Dfe.SignIn.PublicApi.ScopedSession;
 
 /// <summary>

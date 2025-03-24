@@ -1,6 +1,6 @@
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
+using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 
-namespace Dfe.SignIn.PublicApiClient.PublicApiSigning;
+namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 
 /// <summary>
 /// Represents a service that verifies the integrity of a payload data by verifying

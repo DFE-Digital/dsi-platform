@@ -1,13 +1,13 @@
 using System.Net;
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
-using Dfe.SignIn.PublicApiClient.PublicApiSigning;
+using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
+using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
 using Moq.Protected;
 
-namespace Dfe.SignIn.PublicApiClient.UnitTests;
+namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
 [TestClass]
 [TestCategory("LongRunningTest")]

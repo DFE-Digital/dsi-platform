@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.PublicApiClient;
+namespace Dfe.SignIn.PublicApi.Client;
 
 /// <summary>
 /// Constant values for the DfE Sign-in public API.

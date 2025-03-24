@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
+using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 
-namespace Dfe.SignIn.PublicApiClient.PublicApiSigning;
+namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 
 internal interface IPublicKeyCache
 {

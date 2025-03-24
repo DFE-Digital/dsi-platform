@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Dfe.SignIn.PublicApiClient\Dfe.SignIn.PublicApiClient.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.PublicApi.Client\Dfe.SignIn.PublicApi.Client.csproj" />
   </ItemGroup>
 
 </Project>

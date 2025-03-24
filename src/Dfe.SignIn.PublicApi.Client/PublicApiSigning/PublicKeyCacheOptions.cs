@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.PublicApiClient.PublicApiSigning;
+namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 
 /// <summary>
 /// Options for the DfE Sign-in public key cache.

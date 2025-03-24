@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9A1957A5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi.UnitTests", "tests\Dfe.SignIn.PublicApi.UnitTests\Dfe.SignIn.PublicApi.UnitTests.csproj", "{EC24AF88-2282-4E6A-8619-55477D6AF980}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApiClient", "src\Dfe.SignIn.PublicApiClient\Dfe.SignIn.PublicApiClient.csproj", "{69529C2A-D5FF-41A7-BA3F-BA405FB302F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi.Client", "src\Dfe.SignIn.PublicApi.Client\Dfe.SignIn.PublicApi.Client.csproj", "{69529C2A-D5FF-41A7-BA3F-BA405FB302F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApiClient.UnitTests", "tests\Dfe.SignIn.PublicApiClient.UnitTests\Dfe.SignIn.PublicApiClient.UnitTests.csproj", "{BDBE104C-1EB4-40F2-BDEF-600B27E89905}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi.Client.UnitTests", "tests\Dfe.SignIn.PublicApi.Client.UnitTests\Dfe.SignIn.PublicApi.Client.UnitTests.csproj", "{BDBE104C-1EB4-40F2-BDEF-600B27E89905}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

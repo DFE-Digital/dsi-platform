@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.PublicApiClient;
+namespace Dfe.SignIn.PublicApi.Client;
 
 /// <summary>
 /// Options for the DfE Sign-in Public API.

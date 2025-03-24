@@ -1,12 +1,11 @@
 using System.Net.Http.Json;
 using System.Security.Cryptography;
-using Dfe.SignIn.Core.PublicModels.PublicApiSigning;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Dfe.SignIn.PublicApiClient.PublicApiSigning;
+namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 
 internal sealed class PublicKeyCache(
     IOptions<DfePublicApiOptions> publicApiOptionsAccessor,

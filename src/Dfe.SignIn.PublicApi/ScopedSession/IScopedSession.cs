@@ -1,5 +1,5 @@
 
-using Dfe.SignIn.Core.Models.Applications;
+using Dfe.SignIn.Core.InternalModels.Applications;
 
 namespace Dfe.SignIn.PublicApi.ScopedSession;
 

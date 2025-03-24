@@ -1,7 +1,8 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.Applications.Interactions;
+using Dfe.SignIn.Core.InternalModels.Applications;
+using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.AspNetCore.Http;
@@ -141,7 +142,7 @@ public class BearerTokenAuthMiddlewareTests
         this.mockApplicationByClientId
             .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationModel {
+                Application = new ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
                     ClientId = "mock-invalid-client-id",
                     Id = Guid.Empty,
@@ -189,7 +190,7 @@ public class BearerTokenAuthMiddlewareTests
         this.mockApplicationByClientId
             .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationModel {
+                Application = new ApplicationModel {
                     Id = Guid.Empty,
                     ApiSecret = null,
                     ClientId = "mock-client-id",
@@ -218,7 +219,7 @@ public class BearerTokenAuthMiddlewareTests
         this.mockApplicationByClientId
             .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationModel {
+                Application = new ApplicationModel {
                     ApiSecret = "does-not-match-secret",
                     ClientId = string.Empty,
                     Id = Guid.Empty,
@@ -247,7 +248,7 @@ public class BearerTokenAuthMiddlewareTests
         this.mockApplicationByClientId
             .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationModel {
+                Application = new ApplicationModel {
                     ApiSecret = "does-not-match-secret",
                     ClientId = string.Empty,
                     Id = Guid.Empty,
@@ -276,7 +277,7 @@ public class BearerTokenAuthMiddlewareTests
         this.mockApplicationByClientId
             .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationModel {
+                Application = new ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
                     ClientId = this.mockValidJwtIss,
                     Id = Guid.Empty,
@@ -305,7 +306,7 @@ public class BearerTokenAuthMiddlewareTests
         this.mockApplicationByClientId
             .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationModel {
+                Application = new ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
                     ClientId = this.mockValidJwtIss,
                     Id = Guid.Empty,
@@ -333,7 +334,7 @@ public class BearerTokenAuthMiddlewareTests
         this.mockApplicationByClientId
             .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
-                Application = new Core.Models.Applications.ApplicationModel {
+                Application = new ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
                     ClientId = this.mockValidJwtIss,
                     Id = Guid.Empty,
@@ -358,7 +359,7 @@ public class BearerTokenAuthMiddlewareTests
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
-        var application = new Core.Models.Applications.ApplicationModel {
+        var application = new ApplicationModel {
             ApiSecret = this.mockValidJwtSecret,
             ClientId = this.mockValidJwtIss,
             Id = Guid.Empty,

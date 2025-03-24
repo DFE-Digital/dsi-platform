@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.Models.Applications.Interactions;
+using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
