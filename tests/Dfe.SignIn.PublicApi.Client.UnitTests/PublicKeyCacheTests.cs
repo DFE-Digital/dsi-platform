@@ -100,12 +100,8 @@ public sealed class PublicKeyCacheTests
 
     private static void UseHttpClient(AutoMocker autoMocker, HttpClient httpClient)
     {
-        autoMocker.GetMock<IHttpClientFactory>()
-            .Setup(x =>
-                x.CreateClient(
-                    It.Is<string>(name => name == DfePublicApiConstants.HttpClientKey)
-                )
-            )
+        autoMocker.GetMock<IPublicApiClient>()
+            .Setup(x => x.HttpClient)
             .Returns(httpClient);
     }
 

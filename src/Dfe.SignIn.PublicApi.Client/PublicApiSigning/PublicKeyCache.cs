@@ -7,7 +7,7 @@ namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 internal sealed class PublicKeyCache(
     IOptions<DfePublicApiOptions> publicApiOptionsAccessor,
     IOptions<PublicKeyCacheOptions> cacheOptionsAccessor,
-    IHttpClientFactory httpClientFactory,
+    IPublicApiClient publicApiClient,
     ILogger<PublicKeyCache> logger
 ) : IPublicKeyCache
 {
@@ -102,7 +102,7 @@ internal sealed class PublicKeyCache(
 
     private async Task<WellKnownPublicKeyListing> FetchPublicKeysAsync()
     {
-        var httpClient = httpClientFactory.CreateClient(DfePublicApiConstants.HttpClientKey);
+        var httpClient = publicApiClient.HttpClient;
 
         var requestUri = new Uri(publicApiOptionsAccessor.Value.BaseAddress, "v2/.well-known/keys");
         var response = await httpClient.GetFromJsonAsync<WellKnownPublicKeyListing>(requestUri);
