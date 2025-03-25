@@ -25,7 +25,7 @@ public sealed class DfePublicApiExtensionsTests
 
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(PublicApiBearerTokenHandler)
             )
         );
