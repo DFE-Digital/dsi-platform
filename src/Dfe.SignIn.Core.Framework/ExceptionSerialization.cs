@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.Core.Framework;
 
@@ -42,29 +43,16 @@ public interface IExceptionJsonSerializer
 /// The default implementation of a service that serializes exceptions to or from JSON
 /// encoded strings using <see cref="JsonSerializer"/>.
 /// </summary>
-public sealed class DefaultExceptionJsonSerializer : IExceptionJsonSerializer
+public sealed class DefaultExceptionJsonSerializer(
+    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions options
+) : IExceptionJsonSerializer
 {
-    private readonly JsonSerializerOptions options;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DefaultExceptionJsonSerializer"/> class.
-    /// </summary>
-    public DefaultExceptionJsonSerializer()
-    {
-        this.options = new() {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-        };
-        this.options.Converters.Add(new ExceptionJsonConverter());
-    }
-
     /// <inheritdoc/>
     public string SerializeExceptionToJson(Exception exception)
     {
         ArgumentNullException.ThrowIfNull(exception, nameof(exception));
 
-        return JsonSerializer.Serialize(exception, this.options);
+        return JsonSerializer.Serialize(exception, options);
     }
 
     /// <inheritdoc/>
@@ -73,7 +61,7 @@ public sealed class DefaultExceptionJsonSerializer : IExceptionJsonSerializer
         if (string.IsNullOrWhiteSpace(json)) {
             return new UnexpectedException("Unknown exception type.");
         }
-        return JsonSerializer.Deserialize<Exception>(json, this.options)!;
+        return JsonSerializer.Deserialize<Exception>(json, options)!;
     }
 }
 
