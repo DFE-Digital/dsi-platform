@@ -25,9 +25,13 @@ public sealed class DfePublicApiExtensionsTests
 
         Assert.IsTrue(
             services.Any(descriptor =>
-                (string?)descriptor.ServiceKey == DfePublicApiConstants.HttpClientKey &&
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(HttpClient)
+                descriptor.ServiceType == typeof(PublicApiBearerTokenHandler)
+            )
+        );
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.ServiceType == typeof(IHttpClientFactory)
             )
         );
         Assert.IsTrue(

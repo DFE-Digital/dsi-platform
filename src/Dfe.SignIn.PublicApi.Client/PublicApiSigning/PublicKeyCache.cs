@@ -1,7 +1,4 @@
-using System.Net.Http.Json;
 using System.Security.Cryptography;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,7 +7,7 @@ namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 internal sealed class PublicKeyCache(
     IOptions<DfePublicApiOptions> publicApiOptionsAccessor,
     IOptions<PublicKeyCacheOptions> cacheOptionsAccessor,
-    [FromKeyedServices(DfePublicApiConstants.HttpClientKey)] HttpClient httpClient,
+    IHttpClientFactory httpClientFactory,
     ILogger<PublicKeyCache> logger
 ) : IPublicKeyCache
 {
@@ -105,6 +102,8 @@ internal sealed class PublicKeyCache(
 
     private async Task<WellKnownPublicKeyListing> FetchPublicKeysAsync()
     {
+        var httpClient = httpClientFactory.CreateClient(DfePublicApiConstants.HttpClientKey);
+
         var requestUri = new Uri(publicApiOptionsAccessor.Value.BaseAddress, "v2/.well-known/keys");
         var response = await httpClient.GetFromJsonAsync<WellKnownPublicKeyListing>(requestUri);
         if (response is null || !response.Keys.Any()) {

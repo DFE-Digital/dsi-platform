@@ -1,7 +1,7 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 
-namespace Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation.Models;
+namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
 /// <summary>
 /// Represents a request to create a URL where the end-user can select an organisation.

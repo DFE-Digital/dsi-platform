@@ -4,10 +4,10 @@ using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.Applications;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
-using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation.Models;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq;
 using Moq.AutoMock;
+using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
 

@@ -36,6 +36,14 @@ public sealed class DfePublicApiOptions : IOptions<DfePublicApiOptions>
     /// </remarks>
     public required string ApiSecret { get; set; }
 
+    /// <summary>
+    /// Gets or sets the Public API bearer token TTL (time to live) in minutes.
+    /// </summary>
+    /// <remarks>
+    ///   <para>By default the TTL for bearer tokens is 7 days.</para>
+    /// </remarks>
+    public double BearerTokenTtlInMinutes { get; set; } = TimeSpan.FromDays(7).TotalMinutes;
+
     /// <inheritdoc/>
     DfePublicApiOptions IOptions<DfePublicApiOptions>.Value => this;
 }

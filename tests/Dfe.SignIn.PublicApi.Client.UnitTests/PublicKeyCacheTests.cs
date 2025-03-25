@@ -1,5 +1,4 @@
 using System.Net;
-using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -99,6 +98,17 @@ public sealed class PublicKeyCacheTests
             });
     }
 
+    private static void UseHttpClient(AutoMocker autoMocker, HttpClient httpClient)
+    {
+        autoMocker.GetMock<IHttpClientFactory>()
+            .Setup(x =>
+                x.CreateClient(
+                    It.Is<string>(name => name == DfePublicApiConstants.HttpClientKey)
+                )
+            )
+            .Returns(httpClient);
+    }
+
     private static void UseHttpClientWithFakeResponse(AutoMocker autoMocker, string fakeHttpResponse)
     {
         var mockHttp = autoMocker.GetMock<HttpMessageHandler>();
@@ -111,10 +121,10 @@ public sealed class PublicKeyCacheTests
             )
             .ReturnsAsync(new HttpResponseMessage {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(fakeHttpResponse)
+                Content = new StringContent(fakeHttpResponse),
             });
 
-        autoMocker.Use(new HttpClient(mockHttp.Object));
+        UseHttpClient(autoMocker, new HttpClient(mockHttp.Object));
     }
 
     private static void UseHttpClientWithTwoFakePublicKeysNextTime(AutoMocker autoMocker)
@@ -136,7 +146,7 @@ public sealed class PublicKeyCacheTests
                 Content = new StringContent(FakeTwoKeysHttpResponse)
             });
 
-        autoMocker.Use(new HttpClient(mockHttp.Object));
+        UseHttpClient(autoMocker, new HttpClient(mockHttp.Object));
     }
 
     private static void UseHttpClientWithUnexpectedException(AutoMocker autoMocker)
@@ -151,7 +161,7 @@ public sealed class PublicKeyCacheTests
             )
             .Throws<HttpRequestException>();
 
-        autoMocker.Use(new HttpClient(mockHttp.Object));
+        UseHttpClient(autoMocker, new HttpClient(mockHttp.Object));
     }
 
     #region GetPublicKeyAsync(string)
@@ -187,7 +197,7 @@ public sealed class PublicKeyCacheTests
         UseMockedOptions(autoMocker);
 
         var mockHttp = autoMocker.GetMock<HttpMessageHandler>();
-        autoMocker.Use(new HttpClient(mockHttp.Object));
+        UseHttpClient(autoMocker, new HttpClient(mockHttp.Object));
 
         var publicKeyCache = autoMocker.CreateInstance<PublicKeyCache>();
 
@@ -264,7 +274,7 @@ public sealed class PublicKeyCacheTests
         UseMockedOptions(autoMocker, maximumRefreshIntervalMilliseconds: 12);
 
         var mockHttp = autoMocker.GetMock<HttpMessageHandler>();
-        autoMocker.Use(new HttpClient(mockHttp.Object));
+        UseHttpClient(autoMocker, new HttpClient(mockHttp.Object));
 
         var publicKeyCache = autoMocker.CreateInstance<PublicKeyCache>();
 

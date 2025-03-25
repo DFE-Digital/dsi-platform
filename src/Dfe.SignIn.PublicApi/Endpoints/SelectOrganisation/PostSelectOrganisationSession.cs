@@ -1,7 +1,7 @@
 using AutoMapper;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation.Models;
+using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.AspNetCore.Mvc;
 
