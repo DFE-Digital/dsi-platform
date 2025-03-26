@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.ExternalModels\Dfe.SignIn.Core.ExternalModels.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.InternalModels\Dfe.SignIn.Core.InternalModels.csproj" />
+  </ItemGroup>
+
+</Project>
