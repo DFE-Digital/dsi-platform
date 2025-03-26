@@ -18,6 +18,12 @@ public sealed class ExceptionSerialization
         }
     }
 
+    private static DefaultExceptionJsonSerializer CreateDefaultExceptionJsonSerializer()
+    {
+        var options = JsonHelperExtensions.CreateStandardOptions();
+        return new DefaultExceptionJsonSerializer(options);
+    }
+
     #region SerializeExceptionToJson(Exception)
 
     private static void AssertNoUnwantedProperties(JsonDocument jsonDocument)
@@ -33,7 +39,7 @@ public sealed class ExceptionSerialization
     [ExpectedException(typeof(ArgumentNullException))]
     public void SerializeExceptionToJson_Throws_WhenExceptionArgumentIsNull()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
         serializer.SerializeExceptionToJson(null!);
     }
@@ -41,7 +47,7 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void SerializeExceptionToJson_CanSerializeSystemExceptionType()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
         var exception = new Exception("Example exception message.");
         exception = AddFakeStackTraceToException(exception);
@@ -57,7 +63,7 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void SerializeExceptionToJson_IgnoresInnerException()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
         var innerException = new Exception("Example inner exception message.", null);
         innerException = AddFakeStackTraceToException(innerException);
@@ -83,7 +89,7 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void SerializeExceptionToJson_CanSerializeCustomExceptionType()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
         var exception = new FakeInteractionException("Example exception message.");
         exception = AddFakeStackTraceToException(exception);
@@ -102,7 +108,7 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void SerializeExceptionToJson_WritesPersistedProperties()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
         var exception = new FakeInteractionExceptionWithPeristedProperties(
             message: "Example exception message.",
@@ -130,7 +136,7 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void DeserializeExceptionFromJson_ReturnsUnexpectedException_WhenJsonArgumentIsNull()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
         var result = serializer.DeserializeExceptionFromJson(null!);
 
@@ -141,7 +147,7 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void DeserializeExceptionFromJson_ReturnsUnexpectedException_WhenJsonArgumentIsEmptyString()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
         var result = serializer.DeserializeExceptionFromJson("");
 
@@ -152,10 +158,9 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void DeserializeExceptionFromJson_ReturnsUnexpectedException_WhenExceptionTypeIsUnknown()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
-#pragma warning disable JSON002 // Probable JSON string detected
-        var result = serializer.DeserializeExceptionFromJson("""
+        var result = serializer.DeserializeExceptionFromJson(/*lang=json,strict*/ """
             {
               "type": "NonExistentException",
               "message": "An example of an exception that does not exist.",
@@ -163,7 +168,6 @@ public sealed class ExceptionSerialization
               "computedProperty": "Attempting to deserialize to a computed property..."
             }
         """);
-#pragma warning restore JSON002 // Probable JSON string detected
 
         Assert.IsInstanceOfType<UnexpectedException>(result);
         var exception = (UnexpectedException)result;
@@ -174,16 +178,14 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void DeserializeExceptionFromJson_ReturnsUnexpectedException_WhenExceptionConstructorIsMissing()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
-#pragma warning disable JSON002 // Probable JSON string detected
-        var result = serializer.DeserializeExceptionFromJson("""
+        var result = serializer.DeserializeExceptionFromJson(/*lang=json,strict*/ """
             {
               "type": "Dfe.SignIn.Core.Framework.UnitTests.Fakes.FakeInteractionExceptionWithMissingConstructor",
               "message": "An example of an exception with missing constructors."
             }
         """);
-#pragma warning restore JSON002 // Probable JSON string detected
 
         Assert.IsInstanceOfType<UnexpectedException>(result);
         var exception = (UnexpectedException)result;
@@ -194,16 +196,14 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void DeserializeExceptionFromJson_ReturnsExpectedException()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
-#pragma warning disable JSON002 // Probable JSON string detected
-        var result = serializer.DeserializeExceptionFromJson("""
+        var result = serializer.DeserializeExceptionFromJson(/*lang=json,strict*/ """
             {
               "type": "System.Exception",
               "message": "An example exception."
             }
         """);
-#pragma warning restore JSON002 // Probable JSON string detected
 
         Assert.IsInstanceOfType<Exception>(result);
         Assert.AreEqual("An example exception.", result.Message);
@@ -212,10 +212,9 @@ public sealed class ExceptionSerialization
     [TestMethod]
     public void DeserializeExceptionFromJson_ReadsPersistedProperties()
     {
-        var serializer = new DefaultExceptionJsonSerializer();
+        var serializer = CreateDefaultExceptionJsonSerializer();
 
-#pragma warning disable JSON002 // Probable JSON string detected
-        var result = serializer.DeserializeExceptionFromJson("""
+        var result = serializer.DeserializeExceptionFromJson(/*lang=json,strict*/ """
             {
               "type": "Dfe.SignIn.Core.Framework.UnitTests.Fakes.FakeInteractionExceptionWithPeristedProperties",
               "message": "An example exception.",
@@ -223,7 +222,6 @@ public sealed class ExceptionSerialization
               "computedProperty": "Attempting to deserialize to a computed property..."
             }
         """);
-#pragma warning restore JSON002 // Probable JSON string detected
 
         Assert.IsInstanceOfType<FakeInteractionExceptionWithPeristedProperties>(result);
         var exception = (FakeInteractionExceptionWithPeristedProperties)result;

@@ -5,6 +5,7 @@ namespace Dfe.SignIn.Core.InternalModels.Applications;
 /// <summary>
 /// The exception thrown when an application cannot be found.
 /// </summary>
+[Serializable]
 public sealed class ApplicationNotFoundException : InteractionException
 {
     /// <inheritdoc/>
