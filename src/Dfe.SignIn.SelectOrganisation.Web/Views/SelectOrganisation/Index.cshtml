@@ -1,0 +1,29 @@
+﻿@model SelectOrganisationViewModel
+
+@{
+    ViewData["Title"] = Model.Prompt.Heading;
+}
+
+<form method="post" asp-antiforgery=true>
+    <govuk-radios asp-for=SelectedOrganisationId>
+        <govuk-radios-fieldset>
+            <govuk-radios-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">
+                @Model.Prompt.Heading
+            </govuk-radios-fieldset-legend>
+
+            @if (!String.IsNullOrEmpty(Model.Prompt.Hint))
+            {
+                <govuk-radios-hint>
+                    @Model.Prompt.Hint
+                </govuk-radios-hint>
+            }
+
+            @foreach (var option in Model.OrganisationOptions)
+            {
+                <govuk-radios-item value="@option.Id">@option.Name</govuk-radios-item>
+            }
+        </govuk-radios-fieldset>
+    </govuk-radios>
+
+    <govuk-button type="submit">Save and continue</govuk-button>
+</form>

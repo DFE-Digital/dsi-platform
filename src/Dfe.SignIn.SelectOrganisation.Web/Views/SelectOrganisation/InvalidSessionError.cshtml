@@ -1,0 +1,11 @@
+﻿@model InvalidSessionViewModel
+
+@{
+    ViewData["Title"] = "Your session has timed out";
+}
+
+<h1 class="govuk-heading-l">@ViewData["Title"]</h1>
+
+<p class="govuk-body">Your session to select an organisation has timed out.</p>
+
+<govuk-button-link href="@(Model.ReturnUrl)">Return to service</govuk-button-link>
