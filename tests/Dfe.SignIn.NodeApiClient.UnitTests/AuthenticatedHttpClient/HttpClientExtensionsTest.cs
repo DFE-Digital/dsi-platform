@@ -29,9 +29,9 @@ public class HttpClientExtensionsTest
     [TestMethod]
     public async Task GetFromJsonOrDefaultAsync_ReturnsParsedObject_WhenStatusIsSuccess()
     {
-#pragma warning disable JSON002 // Probable JSON string detected
-        var json = "{\"Value\":\"test\"}";
-#pragma warning restore JSON002 // Probable JSON string detected
+        var json = /*lang=json,strict*/ """
+            { "Value": "test" }
+        """;
 
         var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK) {
             Content = new StringContent(json, Encoding.UTF8, "application/json")
