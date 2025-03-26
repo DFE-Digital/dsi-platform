@@ -1,0 +1,32 @@
+using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Core.InternalModels.Users;
+using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.NodeApiClient.AuthenticatedHttpClient;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Dfe.SignIn.NodeApiClient.Access;
+
+/// <summary>
+/// ApiRequester for obtaining applications associated with a user.
+/// </summary>
+[ApiRequester, NodeApi(NodeApiName.Access)]
+public sealed class GetApplicationsAssociatedWithUser_NodeApiRequester(
+    [FromKeyedServices(NodeApiName.Access)] HttpClient httpClient)
+    : IInteractor<GetApplicationsAssociatedWithUserRequest, GetApplicationsAssociatedWithUserResponse>
+{
+
+    /// <inheritdoc/>
+    public async Task<GetApplicationsAssociatedWithUserResponse> InvokeAsync(GetApplicationsAssociatedWithUserRequest request)
+    {
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationDto[]>($"users/{request.UserId}/services");
+
+        return new GetApplicationsAssociatedWithUserResponse {
+            UserApplicationMappings = response?.Select(s => new UserApplicationMappingModel {
+                UserId = s.UserId,
+                AccessGranted = s.AccessGrantedOn,
+                OrganisationId = s.OrganisationId,
+                ApplicationId = s.ServiceId
+            }) ?? []
+        };
+    }
+}

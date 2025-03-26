@@ -1,3 +1,3 @@
-# dsi-core
+# dsi-platform
 
-This repository contains a framework, core models and core use cases for the .NET rewrite of the DfE Sign-in solution.
+This repository contains the .NET version of the DfE Sign-in platform.Sign-in solution.

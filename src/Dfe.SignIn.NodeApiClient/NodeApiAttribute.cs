@@ -1,0 +1,23 @@
+namespace Dfe.SignIn.NodeApiClient;
+
+/// <summary>
+/// An attribute that associates an <see cref="Core.Framework.IInteractor{TRequest,TResponse}"/>
+/// implementation with the corresponding Node.js API.
+/// </summary>
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+public sealed class NodeApiAttribute : Attribute
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NodeApiAttribute"/> class.
+    /// </summary>
+    /// <param name="name">The name of the associated Node.js API.</param>
+    public NodeApiAttribute(NodeApiName name)
+    {
+        this.Name = name;
+    }
+
+    /// <summary>
+    /// Gets the name of the associated Node.js API.
+    /// </summary>
+    public NodeApiName Name { get; init; }
+}
