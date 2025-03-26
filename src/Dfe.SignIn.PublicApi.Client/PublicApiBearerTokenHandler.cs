@@ -11,7 +11,7 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// Delegating handler which adds authorization header for requests to the public API.
 /// </summary>
 internal sealed class PublicApiBearerTokenHandler(
-    IOptions<DfePublicApiOptions> optionsAccessor,
+    IOptions<PublicApiOptions> optionsAccessor,
     IMemoryCache memoryCache
 ) : DelegatingHandler
 {
@@ -66,7 +66,7 @@ internal sealed class PublicApiBearerTokenHandler(
         return token!;
     }
 
-    private DfePublicApiOptions VerifyPublicApiOptions()
+    private PublicApiOptions VerifyPublicApiOptions()
     {
         var options = optionsAccessor.Value;
 
@@ -83,7 +83,7 @@ internal sealed class PublicApiBearerTokenHandler(
         return options;
     }
 
-    private string GenerateAuthorizationToken(DfePublicApiOptions options, DateTime? expirationUtc)
+    private string GenerateAuthorizationToken(PublicApiOptions options, DateTime? expirationUtc)
     {
         byte[] key = Encoding.UTF8.GetBytes(options.ApiSecret);
 

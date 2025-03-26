@@ -1,19 +1,35 @@
+using System.Diagnostics;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
+using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
 [TestClass]
-public sealed class DfePublicApiExtensionsTests
+public sealed class PublicApiExtensionsTests
 {
+    [StackTraceHidden]
+    private static void AssertHasApiRequester<TRequest, TResponse>(IServiceCollection services)
+        where TRequest : class
+        where TResponse : class
+    {
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Transient &&
+                descriptor.ServiceType == typeof(IInteractor<TRequest, TResponse>)
+            )
+        );
+    }
+
     #region SetupDfePublicApiClient(IServiceCollection)
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
     public void SetupDfePublicApiClient_Throws_WhenServicesArgumentIsNull()
     {
-        DfePublicApiExtensions.SetupDfePublicApiClient(null!);
+        PublicApiExtensions.SetupDfePublicApiClient(null!);
     }
 
     [TestMethod]
@@ -25,13 +41,21 @@ public sealed class DfePublicApiExtensionsTests
 
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(PublicApiBearerTokenHandler)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.ServiceType == typeof(IHttpClientFactory)
+                (string?)descriptor.ServiceKey == PublicApiConstants.HttpClientKey &&
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(HttpClient)
+            )
+        );
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IPublicApiClient)
             )
         );
         Assert.IsTrue(
@@ -72,6 +96,19 @@ public sealed class DfePublicApiExtensionsTests
                 descriptor.ServiceType == typeof(IPublicKeyCache)
             )
         );
+    }
+
+    [TestMethod]
+    public void SetupDfePublicApiClient_RegistersSelectOrganisationApiRequesters()
+    {
+        var services = new ServiceCollection();
+
+        services.SetupDfePublicApiClient();
+
+        AssertHasApiRequester<
+            CreateSelectOrganisationSession_PublicApiRequest,
+            CreateSelectOrganisationSession_PublicApiResponse
+        >(services);
     }
 
     #endregion
