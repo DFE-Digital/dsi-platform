@@ -14,20 +14,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dfe.SignIn.Core.Framework" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.ExternalModels" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.InternalModels" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.NodeApiClient" Version="1.0.*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="GovUk.Frontend.AspNetCore" Version="2.8.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dfe.SignIn.Core.ExternalModels\Dfe.SignIn.Core.ExternalModels.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.Framework\Dfe.SignIn.Core.Framework.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.InternalModels\Dfe.SignIn.Core.InternalModels.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.NodeApiClient\Dfe.SignIn.NodeApiClient.csproj" />
   </ItemGroup>
 
 </Project>

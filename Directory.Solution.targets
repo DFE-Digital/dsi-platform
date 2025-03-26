@@ -1,18 +1,14 @@
 <Project>
 
-  <Target Name="CleanupPreviousNupkgFiles" BeforeTargets="Build">
+  <Target Name="CleanupPreviousNupkgFiles" BeforeTargets="Build" Condition="$(IsPipeline) == 'true'">
     <ItemGroup>
       <NupkgFiles Include="**/bin/$(Configuration)/*.nupkg" />
     </ItemGroup>
     <Delete Files="@(NupkgFiles)" />
   </Target>
 
-  <Target Name="BuildNuGetPackages" AfterTargets="Build">
+  <Target Name="BuildNuGetPackages" AfterTargets="Build" Condition="$(IsPipeline) == 'true'">
     <Exec Command="dotnet pack --configuration $(Configuration) /p:Version=$(Version)"></Exec>
-  </Target>
-
-  <Target Name="PushNuGetPackagesToLocalFeed" AfterTargets="Build" Condition="$(IsPipeline) != 'true'">
-    <Exec Command="dotnet nuget push **/$(Configuration)/*.nupkg -s LocalStore"></Exec>
   </Target>
 
 </Project>

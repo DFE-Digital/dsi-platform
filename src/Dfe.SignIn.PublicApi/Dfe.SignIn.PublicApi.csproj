@@ -15,15 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dfe.SignIn.Core.Framework" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.ExternalModels" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.InternalModels" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.UseCases" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.NodeApiClient" Version="1.0.*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.3" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
@@ -32,7 +23,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Dfe.SignIn.PublicApi.Client\Dfe.SignIn.PublicApi.Client.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.ExternalModels\Dfe.SignIn.Core.ExternalModels.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.Framework\Dfe.SignIn.Core.Framework.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.InternalModels\Dfe.SignIn.Core.InternalModels.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.UseCases\Dfe.SignIn.Core.UseCases.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.NodeApiClient\Dfe.SignIn.NodeApiClient.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.PublicApi.Client\Dfe.SignIn.PublicApi.Client.csproj" />
   </ItemGroup>
 
 </Project>

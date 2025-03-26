@@ -16,12 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dfe.SignIn.Core.Framework" Version="1.0.*" />
-    <PackageReference Include="Dfe.SignIn.Core.ExternalModels" Version="1.0.*" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.ExternalModels\Dfe.SignIn.Core.ExternalModels.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.Framework\Dfe.SignIn.Core.Framework.csproj" />
   </ItemGroup>
 
 </Project>
