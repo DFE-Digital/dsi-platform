@@ -119,13 +119,11 @@ public sealed class DfeSignInClaimExtensionsTests
     public void GetDsiOrganisation_ReturnsClaimAsObjectWithId_WhenClaimDoesExist()
     {
         var identity = new ClaimsIdentity([
-#pragma warning disable JSON002 // Probable JSON string detected
-            new(DfeSignInClaimTypes.Organisation, """
+            new(DfeSignInClaimTypes.Organisation, /*lang=json,strict*/ """
                 {
                     "id": "4db99a83-60ac-4e3f-b87f-81d384f673e7"
                 }
             """, JsonClaimValueTypes.Json),
-#pragma warning restore JSON002 // Probable JSON string detected
         ]);
         var user = new ClaimsPrincipal(identity);
 
@@ -141,14 +139,12 @@ public sealed class DfeSignInClaimExtensionsTests
     public void GetDsiOrganisation_ReturnsClaimAsObjectWithMultipleProperties_WhenClaimDoesExist()
     {
         var identity = new ClaimsIdentity([
-#pragma warning disable JSON002 // Probable JSON string detected
-            new(DfeSignInClaimTypes.Organisation, """
+            new(DfeSignInClaimTypes.Organisation, /*lang=json,strict*/ """
                 {
                     "id": "4db99a83-60ac-4e3f-b87f-81d384f673e7",
                     "name": "Example organisation name"
                 }
             """, JsonClaimValueTypes.Json),
-#pragma warning restore JSON002 // Probable JSON string detected
         ]);
         var user = new ClaimsPrincipal(identity);
 

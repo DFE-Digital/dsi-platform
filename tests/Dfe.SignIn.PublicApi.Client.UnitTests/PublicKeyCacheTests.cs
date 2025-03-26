@@ -28,14 +28,13 @@ public sealed class PublicKeyCacheTests
         Ed = 1941364297,
     };
 
-#pragma warning disable JSON002 // Probable JSON string detected
-    private static readonly string FakeEmptyKeysHttpResponse = """
+    private static readonly string FakeEmptyKeysHttpResponse = /*lang=json,strict*/ """
         {
             "keys": []
         }
     """;
 
-    private static readonly string FakeKeyHttpResponse = $$"""
+    private static readonly string FakeKeyHttpResponse = /*lang=json,strict*/ $$"""
         {
             "keys": [
                 {
@@ -51,7 +50,7 @@ public sealed class PublicKeyCacheTests
         }
     """;
 
-    private static readonly string FakeTwoKeysHttpResponse = $$"""
+    private static readonly string FakeTwoKeysHttpResponse = /*lang=json,strict*/ $$"""
         {
             "keys": [
                 {
@@ -75,7 +74,6 @@ public sealed class PublicKeyCacheTests
             ]
         }
     """;
-#pragma warning restore JSON002 // Probable JSON string detected
 
     private static void UseMockedOptions(
         AutoMocker autoMocker,
