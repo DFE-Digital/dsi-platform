@@ -10,11 +10,11 @@ namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 [TestClass]
 public sealed class PublicApiBearerTokenHandlerTests
 {
-    private static void UseMockedOptions(AutoMocker autoMocker, DfePublicApiOptions? options = null)
+    private static void UseMockedOptions(AutoMocker autoMocker, PublicApiOptions? options = null)
     {
-        autoMocker.GetMock<IOptions<DfePublicApiOptions>>()
+        autoMocker.GetMock<IOptions<PublicApiOptions>>()
             .Setup(x => x.Value)
-            .Returns(options ?? new DfePublicApiOptions {
+            .Returns(options ?? new PublicApiOptions {
                 ApiSecret = "fake api secret for unit testing purposes",
                 ClientId = "<client_id>",
                 Audience = "<audience>",
@@ -87,7 +87,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var autoMocker = new AutoMocker();
         UseMemoryCache(autoMocker);
 
-        UseMockedOptions(autoMocker, new DfePublicApiOptions {
+        UseMockedOptions(autoMocker, new PublicApiOptions {
             ApiSecret = fakeApiSecret,
             ClientId = "<client_id>",
         });
@@ -108,7 +108,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var autoMocker = new AutoMocker();
         UseMemoryCache(autoMocker);
 
-        UseMockedOptions(autoMocker, new DfePublicApiOptions {
+        UseMockedOptions(autoMocker, new PublicApiOptions {
             ApiSecret = "fake api secret for unit testing purposes",
             ClientId = fakeClientId,
         });
@@ -129,7 +129,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var autoMocker = new AutoMocker();
         UseMemoryCache(autoMocker);
 
-        UseMockedOptions(autoMocker, new DfePublicApiOptions {
+        UseMockedOptions(autoMocker, new PublicApiOptions {
             ApiSecret = "fake api secret for unit testing purposes",
             ClientId = "<client_id>",
             Audience = fakeAudience,
@@ -198,7 +198,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var autoMocker = new AutoMocker();
         UseMemoryCache(autoMocker);
 
-        UseMockedOptions(autoMocker, new DfePublicApiOptions {
+        UseMockedOptions(autoMocker, new PublicApiOptions {
             ApiSecret = "fake api secret for unit testing purposes",
             ClientId = "<client_id>",
             BearerTokenTtlInMinutes = TimeSpan.FromMilliseconds(100).TotalMinutes,
@@ -220,7 +220,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var autoMocker = new AutoMocker();
         UseMemoryCache(autoMocker);
 
-        UseMockedOptions(autoMocker, new DfePublicApiOptions {
+        UseMockedOptions(autoMocker, new PublicApiOptions {
             ApiSecret = "fake api secret for unit testing purposes",
             ClientId = "<client_id>",
             BearerTokenTtlInMinutes = 0,
@@ -243,7 +243,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var autoMocker = new AutoMocker();
         UseMemoryCache(autoMocker);
 
-        UseMockedOptions(autoMocker, new DfePublicApiOptions {
+        UseMockedOptions(autoMocker, new PublicApiOptions {
             ApiSecret = "fake api secret for unit testing purposes",
             ClientId = "<client_id>",
             BearerTokenTtlInMinutes = 10,

@@ -5,7 +5,7 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <summary>
 /// Options for the DfE Sign-in Public API.
 /// </summary>
-public sealed class DfePublicApiOptions : IOptions<DfePublicApiOptions>
+public sealed class PublicApiOptions : IOptions<PublicApiOptions>
 {
     /// <summary>
     /// Gets or sets the base address of the DfE Sign-in Public API.
@@ -45,5 +45,5 @@ public sealed class DfePublicApiOptions : IOptions<DfePublicApiOptions>
     public double BearerTokenTtlInMinutes { get; set; } = TimeSpan.FromDays(7).TotalMinutes;
 
     /// <inheritdoc/>
-    DfePublicApiOptions IOptions<DfePublicApiOptions>.Value => this;
+    PublicApiOptions IOptions<PublicApiOptions>.Value => this;
 }

@@ -9,7 +9,7 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <summary>
 /// Extension methods for setting up a client to the DfE Sign-in Public API.
 /// </summary>
-public static class DfePublicApiExtensions
+public static class PublicApiExtensions
 {
     /// <summary>
     /// Setup client to the DfE Sign-in Public API.
@@ -44,7 +44,7 @@ public static class DfePublicApiExtensions
         services.AddHttpClient("DsiPublicApi", ConfigureHttpClient)
             .AddHttpMessageHandler<PublicApiBearerTokenHandler>();
 
-        services.AddKeyedSingleton(DfePublicApiConstants.HttpClientKey, (provider, key) => {
+        services.AddKeyedSingleton(PublicApiConstants.HttpClientKey, (provider, key) => {
             var factory = provider.GetRequiredService<IHttpClientFactory>();
             return factory.CreateClient("DsiPublicApi");
         });
@@ -54,7 +54,7 @@ public static class DfePublicApiExtensions
 
     private static void ConfigureHttpClient(IServiceProvider provider, HttpClient client)
     {
-        var optionsAccessor = provider.GetRequiredService<IOptions<DfePublicApiOptions>>();
+        var optionsAccessor = provider.GetRequiredService<IOptions<PublicApiOptions>>();
         var options = optionsAccessor.Value;
 
         if (options.BaseAddress is null) {
@@ -68,7 +68,7 @@ public static class DfePublicApiExtensions
     {
         services.AddInteractors(
             InteractorReflectionHelpers.DiscoverAnnotatedInteractorsInAssembly<PublicApiRequesterAttribute>(
-                typeof(DfePublicApiExtensions).Assembly)
+                typeof(PublicApiExtensions).Assembly)
         );
     }
 

@@ -80,9 +80,9 @@ public sealed class PublicKeyCacheTests
         int ttlMilliseconds = 500,
         int maximumRefreshIntervalMilliseconds = 250)
     {
-        autoMocker.GetMock<IOptions<DfePublicApiOptions>>()
+        autoMocker.GetMock<IOptions<PublicApiOptions>>()
             .Setup(x => x.Value)
-            .Returns(new DfePublicApiOptions {
+            .Returns(new PublicApiOptions {
                 BaseAddress = new Uri("https://unit-tests.localhost"),
                 ApiSecret = "<api_secret>",
                 ClientId = "<client_id>",

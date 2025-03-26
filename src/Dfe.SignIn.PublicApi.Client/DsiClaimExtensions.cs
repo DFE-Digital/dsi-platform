@@ -7,8 +7,8 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <summary>
 /// Extension functionality functionality to assist with DfE Sign-in claims.
 /// </summary>
-/// <seealso cref="DfeSignInClaimTypes"/>
-public static class DfeSignInClaimExtensions
+/// <seealso cref="DsiClaimTypes"/>
+public static class DsiClaimExtensions
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
         PropertyNameCaseInsensitive = true,
@@ -32,7 +32,7 @@ public static class DfeSignInClaimExtensions
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-        var claim = user.Claims.First(claim => claim.Type == DfeSignInClaimTypes.UserId);
+        var claim = user.Claims.First(claim => claim.Type == DsiClaimTypes.UserId);
         return new Guid(claim.Value);
     }
 
@@ -52,7 +52,7 @@ public static class DfeSignInClaimExtensions
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-        var claim = user.Claims.FirstOrDefault(claim => claim.Type == DfeSignInClaimTypes.UserId);
+        var claim = user.Claims.FirstOrDefault(claim => claim.Type == DsiClaimTypes.UserId);
         userId = claim is not null
             ? new Guid(claim.Value)
             : null;
@@ -74,7 +74,7 @@ public static class DfeSignInClaimExtensions
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-        var claim = user.Claims.FirstOrDefault(claim => claim.Type == DfeSignInClaimTypes.Organisation);
+        var claim = user.Claims.FirstOrDefault(claim => claim.Type == DsiClaimTypes.Organisation);
         return claim is not null
             ? JsonSerializer.Deserialize<OrganisationClaim>(claim.Value, JsonSerializerOptions)
             : null;

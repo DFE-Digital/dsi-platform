@@ -4,7 +4,7 @@ using System.Security.Claims;
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
 [TestClass]
-public sealed class DfeSignInClaimExtensionsTests
+public sealed class DsiClaimExtensionsTests
 {
     #region GetDsiUserId(ClaimsPrincipal)
 
@@ -12,7 +12,7 @@ public sealed class DfeSignInClaimExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void GetDsiUserId_Throws_WhenUserArgumentIsNull()
     {
-        DfeSignInClaimExtensions.GetDsiUserId(null!);
+        DsiClaimExtensions.GetDsiUserId(null!);
     }
 
     [TestMethod]
@@ -28,7 +28,7 @@ public sealed class DfeSignInClaimExtensionsTests
     public void GetDsiUserId_ReturnsClaimAsGuid()
     {
         var identity = new ClaimsIdentity([
-            new(DfeSignInClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
+            new(DsiClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
         ]);
         var user = new ClaimsPrincipal(identity);
 
@@ -45,7 +45,7 @@ public sealed class DfeSignInClaimExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void TryGetDsiUserId_Throws_WhenUserArgumentIsNull()
     {
-        DfeSignInClaimExtensions.TryGetDsiUserId(null!, out _);
+        DsiClaimExtensions.TryGetDsiUserId(null!, out _);
     }
 
     [TestMethod]
@@ -72,7 +72,7 @@ public sealed class DfeSignInClaimExtensionsTests
     public void TryGetDsiUserId_ReturnsTrue_WhenClaimDoesExist()
     {
         var identity = new ClaimsIdentity([
-            new(DfeSignInClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
+            new(DsiClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
         ]);
         var user = new ClaimsPrincipal(identity);
 
@@ -85,7 +85,7 @@ public sealed class DfeSignInClaimExtensionsTests
     public void TryGetDsiUserId_OutputsClaim_WhenClaimDoesExist()
     {
         var identity = new ClaimsIdentity([
-            new(DfeSignInClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
+            new(DsiClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
         ]);
         var user = new ClaimsPrincipal(identity);
 
@@ -102,7 +102,7 @@ public sealed class DfeSignInClaimExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void GetDsiOrganisation_Throws_WhenUserArgumentIsNull()
     {
-        DfeSignInClaimExtensions.GetDsiOrganisation(null!);
+        DsiClaimExtensions.GetDsiOrganisation(null!);
     }
 
     [TestMethod]
@@ -119,7 +119,7 @@ public sealed class DfeSignInClaimExtensionsTests
     public void GetDsiOrganisation_ReturnsClaimAsObjectWithId_WhenClaimDoesExist()
     {
         var identity = new ClaimsIdentity([
-            new(DfeSignInClaimTypes.Organisation, /*lang=json,strict*/ """
+            new(DsiClaimTypes.Organisation, /*lang=json,strict*/ """
                 {
                     "id": "4db99a83-60ac-4e3f-b87f-81d384f673e7"
                 }
@@ -139,7 +139,7 @@ public sealed class DfeSignInClaimExtensionsTests
     public void GetDsiOrganisation_ReturnsClaimAsObjectWithMultipleProperties_WhenClaimDoesExist()
     {
         var identity = new ClaimsIdentity([
-            new(DfeSignInClaimTypes.Organisation, /*lang=json,strict*/ """
+            new(DsiClaimTypes.Organisation, /*lang=json,strict*/ """
                 {
                     "id": "4db99a83-60ac-4e3f-b87f-81d384f673e7",
                     "name": "Example organisation name"

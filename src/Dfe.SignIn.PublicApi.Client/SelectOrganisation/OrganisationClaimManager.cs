@@ -28,7 +28,7 @@ internal sealed class OrganisationClaimManager : IOrganisationClaimManager
     private static void RemoveOrganisationClaim(ClaimsIdentity identity)
     {
         var organisationClaims = identity.Claims
-            .Where(claim => claim.Type == DfeSignInClaimTypes.Organisation)
+            .Where(claim => claim.Type == DsiClaimTypes.Organisation)
             .ToArray();
         foreach (var oldClaim in organisationClaims) {
             identity.RemoveClaim(oldClaim);

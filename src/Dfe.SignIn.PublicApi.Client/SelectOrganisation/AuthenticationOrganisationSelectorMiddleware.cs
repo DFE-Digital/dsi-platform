@@ -60,7 +60,7 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
                 context.Request.Path == options.SelectOrganisationRequestPath;
 
             bool hasCheckedSelectOrganisationRequirement = context.User.HasClaim(
-                claim => claim.Type == DfeSignInClaimTypes.Organisation
+                claim => claim.Type == DsiClaimTypes.Organisation
             );
 
             if (userRequestedSelectOrganisation || !hasCheckedSelectOrganisationRequirement) {

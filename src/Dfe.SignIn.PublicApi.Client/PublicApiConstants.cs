@@ -3,7 +3,7 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <summary>
 /// Constant values for the DfE Sign-in public API.
 /// </summary>
-public static class DfePublicApiConstants
+public static class PublicApiConstants
 {
     /// <summary>
     /// Gets the unique key for the DfE Sign-in public API <see cref="HttpClient"/>.

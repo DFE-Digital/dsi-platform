@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 
 internal sealed class PublicKeyCache(
-    IOptions<DfePublicApiOptions> publicApiOptionsAccessor,
+    IOptions<PublicApiOptions> publicApiOptionsAccessor,
     IOptions<PublicKeyCacheOptions> cacheOptionsAccessor,
     IPublicApiClient publicApiClient,
     ILogger<PublicKeyCache> logger

@@ -12,7 +12,7 @@ public static class AuthenticationOrganisationSelectorExtensions
     /// </summary>
     /// <remarks>
     ///   <para>It is also necessary to setup the DfE Sign-in Public API with
-    ///   <see cref="DfePublicApiExtensions.SetupDfePublicApiClient(IServiceCollection)"/>.</para>
+    ///   <see cref="PublicApiExtensions.SetupDfePublicApiClient(IServiceCollection)"/>.</para>
     ///   <para>Enable the "select organisation" middleware with
     ///   <see cref="UseAuthenticationOrganisationSelectorMiddleware(IApplicationBuilder)"/>.</para>
     /// </remarks>
@@ -41,7 +41,7 @@ public static class AuthenticationOrganisationSelectorExtensions
     ///   for more details on how the middleware works.</para>
     ///   <para>Dependencies must be set up with the following:</para>
     ///   <list type="bullet">
-    ///     <item><see cref="DfePublicApiExtensions.SetupDfePublicApiClient(IServiceCollection)"/></item>
+    ///     <item><see cref="PublicApiExtensions.SetupDfePublicApiClient(IServiceCollection)"/></item>
     ///     <item><see cref="SetupSelectOrganisationFeatures(IServiceCollection)"/></item>
     ///   </list>
     /// </remarks>

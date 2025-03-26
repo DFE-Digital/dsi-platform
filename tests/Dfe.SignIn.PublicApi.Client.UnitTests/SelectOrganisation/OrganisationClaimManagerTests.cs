@@ -76,7 +76,7 @@ public sealed class OrganisationClaimManagerTests
         Assert.IsNotNull(capturedPrincipal);
         Assert.AreEqual(1, capturedPrincipal.Claims.Count());
         Assert.IsTrue(
-            capturedPrincipal.HasClaim(DfeSignInClaimTypes.Organisation, "1")
+            capturedPrincipal.HasClaim(DsiClaimTypes.Organisation, "1")
         );
     }
 
@@ -96,8 +96,8 @@ public sealed class OrganisationClaimManagerTests
         };
 
         fakeUser.AddIdentity(new ClaimsIdentity([
-            new Claim(DfeSignInClaimTypes.Organisation, "1", JsonClaimValueTypes.Json),
-            new Claim(DfeSignInClaimTypes.Organisation, "2", JsonClaimValueTypes.Json),
+            new Claim(DsiClaimTypes.Organisation, "1", JsonClaimValueTypes.Json),
+            new Claim(DsiClaimTypes.Organisation, "2", JsonClaimValueTypes.Json),
         ]));
 
         await manager.UpdateOrganisationClaimAsync(mockContext.Object, "3");
@@ -105,7 +105,7 @@ public sealed class OrganisationClaimManagerTests
         Assert.IsNotNull(capturedPrincipal);
         Assert.AreEqual(1, capturedPrincipal.Claims.Count());
         Assert.IsTrue(
-            capturedPrincipal.HasClaim(DfeSignInClaimTypes.Organisation, "3")
+            capturedPrincipal.HasClaim(DsiClaimTypes.Organisation, "3")
         );
     }
 

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
 [TestClass]
-public sealed class DfePublicApiExtensionsTests
+public sealed class PublicApiExtensionsTests
 {
     [StackTraceHidden]
     private static void AssertHasApiRequester<TRequest, TResponse>(IServiceCollection services)
@@ -29,7 +29,7 @@ public sealed class DfePublicApiExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void SetupDfePublicApiClient_Throws_WhenServicesArgumentIsNull()
     {
-        DfePublicApiExtensions.SetupDfePublicApiClient(null!);
+        PublicApiExtensions.SetupDfePublicApiClient(null!);
     }
 
     [TestMethod]
@@ -47,7 +47,7 @@ public sealed class DfePublicApiExtensionsTests
         );
         Assert.IsTrue(
             services.Any(descriptor =>
-                (string?)descriptor.ServiceKey == DfePublicApiConstants.HttpClientKey &&
+                (string?)descriptor.ServiceKey == PublicApiConstants.HttpClientKey &&
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(HttpClient)
             )

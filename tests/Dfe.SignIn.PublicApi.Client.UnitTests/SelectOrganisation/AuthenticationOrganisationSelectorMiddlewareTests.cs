@@ -58,7 +58,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         var mockContext = autoMocker.GetMock<HttpContext>();
 
         var fakeIdentity = new ClaimsIdentity([
-            new Claim(DfeSignInClaimTypes.UserId, FakeUserId.ToString()),
+            new Claim(DsiClaimTypes.UserId, FakeUserId.ToString()),
             ..additionalClaims ?? []
         ], authenticationType: "TestAuth");
 
@@ -153,7 +153,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             EnableSelectOrganisationRequests = false,
         });
         SetupMockAuthenticatedUser(autoMocker, [
-            new Claim(DfeSignInClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
+            new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
         ]);
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
@@ -188,7 +188,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             EnableSelectOrganisationRequests = true,
         });
         SetupMockAuthenticatedUser(autoMocker, [
-            new Claim(DfeSignInClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
+            new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
         ]);
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
@@ -249,7 +249,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             { "id": "1bce763f-cb38-49a8-813c-a786a753f0eb" }
         """;
         SetupMockAuthenticatedUser(autoMocker, [
-            new Claim(DfeSignInClaimTypes.Organisation, organisationClaim, JsonClaimValueTypes.Json)
+            new Claim(DsiClaimTypes.Organisation, organisationClaim, JsonClaimValueTypes.Json)
         ]);
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();

@@ -17,7 +17,7 @@ public interface IPublicApiClient
 /// </summary>
 /// <param name="httpClient">The underlying HTTP client for the DfE Sign-in public API.</param>
 internal sealed class PublicApiClient(
-    [FromKeyedServices(DfePublicApiConstants.HttpClientKey)] HttpClient httpClient
+    [FromKeyedServices(PublicApiConstants.HttpClientKey)] HttpClient httpClient
 ) : IPublicApiClient
 {
     /// <inheritdoc/>

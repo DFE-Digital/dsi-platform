@@ -61,7 +61,7 @@ public sealed class AuthenticationOrganisationSelectorTests
         var mockContext = autoMocker.GetMock<HttpContext>();
 
         var fakeIdentity = new ClaimsIdentity([
-            new Claim(DfeSignInClaimTypes.UserId, FakeUserId.ToString())
+            new Claim(DsiClaimTypes.UserId, FakeUserId.ToString())
         ], authenticationType: "TestAuth");
 
         var fakeUser = new ClaimsPrincipal(fakeIdentity);
