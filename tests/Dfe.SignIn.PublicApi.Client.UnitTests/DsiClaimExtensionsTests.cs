@@ -16,12 +16,14 @@ public sealed class DsiClaimExtensionsTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void GetDsiUserId_Throws_WhenClaimDoesNotExist()
     {
         var user = new ClaimsPrincipal();
 
-        user.GetDsiUserId();
+        var exception = Assert.Throws<MissingClaimException>(
+            () => user.GetDsiUserId()
+        );
+        Assert.AreEqual(DsiClaimTypes.UserId, exception.ClaimType);
     }
 
     [TestMethod]

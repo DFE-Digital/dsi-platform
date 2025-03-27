@@ -25,14 +25,16 @@ public static class DsiClaimExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
-    /// <exception cref="InvalidOperationException">
+    /// <exception cref="MissingClaimException">
     ///   <para>If <paramref name="user"/> does not include the claim.</para>
     /// </exception>
     public static Guid GetDsiUserId(this ClaimsPrincipal user)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-        var claim = user.Claims.First(claim => claim.Type == DsiClaimTypes.UserId);
+        var claim = user.FindFirst(DsiClaimTypes.UserId)
+            ?? throw new MissingClaimException(null, DsiClaimTypes.UserId);
+
         return new Guid(claim.Value);
     }
 
@@ -52,7 +54,7 @@ public static class DsiClaimExtensions
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-        var claim = user.Claims.FirstOrDefault(claim => claim.Type == DsiClaimTypes.UserId);
+        var claim = user.FindFirst(DsiClaimTypes.UserId);
         userId = claim is not null
             ? new Guid(claim.Value)
             : null;
@@ -64,7 +66,7 @@ public static class DsiClaimExtensions
     /// </summary>
     /// <param name="user">Claims principal representing the user.</param>
     /// <returns>
-    ///   <para>The organisation that the user is currently associated with; otherwise,
+    ///   <para>The organisation that the user is associated with; otherwise,
     ///   a value of <c>null</c>.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -74,7 +76,7 @@ public static class DsiClaimExtensions
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-        var claim = user.Claims.FirstOrDefault(claim => claim.Type == DsiClaimTypes.Organisation);
+        var claim = user.FindFirst(DsiClaimTypes.Organisation);
         return claim is not null
             ? JsonSerializer.Deserialize<OrganisationClaim>(claim.Value, JsonSerializerOptions)
             : null;
