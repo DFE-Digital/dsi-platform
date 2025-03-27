@@ -16,5 +16,14 @@
       "request": "launch",
       "projectPath": "${workspaceFolder}/src/Dfe.SignIn.SelectOrganisation.Web/Dfe.SignIn.SelectOrganisation.Web.csproj"
     }
+  ],
+  "compounds": [
+    {
+      "name": "C#: Launch Everything",
+      "configurations": [
+        "C#: Launch Public API",
+        "C#: Launch Select Organisation"
+      ]
+    }
   ]
 }
