@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
 
@@ -10,6 +11,15 @@ namespace Dfe.SignIn.PublicApi.Client.UnitTests.SelectOrganisation;
 [TestClass]
 public sealed class OrganisationClaimManagerTests
 {
+    private static void SetupFakeOptions(
+        AutoMocker autoMocker,
+        AuthenticationOrganisationSelectorOptions? options = null)
+    {
+        autoMocker.GetMock<IOptions<AuthenticationOrganisationSelectorOptions>>()
+            .Setup(mock => mock.Value)
+            .Returns(options ?? new AuthenticationOrganisationSelectorOptions());
+    }
+
     private static Mock<HttpContext> SetupFakeContext(AutoMocker autoMocker)
     {
         var mockContext = autoMocker.GetMock<HttpContext>();
@@ -38,6 +48,7 @@ public sealed class OrganisationClaimManagerTests
     public async Task UpdateOrganisationClaim_Throws_WhenContextArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
+        SetupFakeOptions(autoMocker);
 
         var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
 
@@ -49,6 +60,7 @@ public sealed class OrganisationClaimManagerTests
     public async Task UpdateOrganisationClaim_Throws_WhenOrganisationJsonArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
+        SetupFakeOptions(autoMocker);
         var mockContext = SetupFakeContext(autoMocker);
 
         var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
@@ -60,6 +72,7 @@ public sealed class OrganisationClaimManagerTests
     public async Task UpdateOrganisationClaim_AddsOrganisationClaim()
     {
         var autoMocker = new AutoMocker();
+        SetupFakeOptions(autoMocker);
         var mockContext = SetupFakeContext(autoMocker);
         SetupFakeUser(autoMocker);
 
@@ -81,9 +94,39 @@ public sealed class OrganisationClaimManagerTests
     }
 
     [TestMethod]
+    public async Task UpdateOrganisationClaim_InvokesUpdateClaimsIdentityDelegate()
+    {
+        var autoMocker = new AutoMocker();
+
+        ClaimsIdentity? updateClaimsIdentityInvokedWith = null;
+        SetupFakeOptions(autoMocker, new AuthenticationOrganisationSelectorOptions {
+            UpdateClaimsIdentity = (identity) => {
+                updateClaimsIdentityInvokedWith = identity;
+                return Task.CompletedTask;
+            },
+        });
+
+        var mockContext = SetupFakeContext(autoMocker);
+        var fakeUser = SetupFakeUser(autoMocker);
+
+        var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
+
+        ClaimsPrincipal? capturedPrincipal = null;
+        manager.SignInProxyAsync = (context, principal) => {
+            capturedPrincipal = principal;
+            return Task.CompletedTask;
+        };
+
+        await manager.UpdateOrganisationClaimAsync(mockContext.Object, "1");
+
+        Assert.AreSame(fakeUser.Identity, updateClaimsIdentityInvokedWith);
+    }
+
+    [TestMethod]
     public async Task UpdateOrganisationClaim_ReplacesAnyExistingOrganisationClaims()
     {
         var autoMocker = new AutoMocker();
+        SetupFakeOptions(autoMocker);
         var mockContext = SetupFakeContext(autoMocker);
         var fakeUser = SetupFakeUser(autoMocker);
 

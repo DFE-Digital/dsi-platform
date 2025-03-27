@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
@@ -23,7 +24,9 @@ public interface IOrganisationClaimManager
 /// <summary>
 /// Concrete implementation of <see cref="IOrganisationClaimManager"/>.
 /// </summary>
-internal sealed class OrganisationClaimManager : IOrganisationClaimManager
+internal sealed class OrganisationClaimManager(
+    IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor
+) : IOrganisationClaimManager
 {
     private static void RemoveOrganisationClaim(ClaimsIdentity identity)
     {
@@ -41,19 +44,24 @@ internal sealed class OrganisationClaimManager : IOrganisationClaimManager
         = (context, principal) => context.SignInAsync(principal);
 
     /// <inheritdoc/>
-    public Task UpdateOrganisationClaimAsync(HttpContext context, string organisationJson)
+    public async Task UpdateOrganisationClaimAsync(HttpContext context, string organisationJson)
     {
         ArgumentNullException.ThrowIfNull(context, nameof(context));
         ArgumentNullException.ThrowIfNull(organisationJson, nameof(organisationJson));
 
+        var options = optionsAccessor.Value;
         var identity = (context.User.Identity as ClaimsIdentity)!.Clone();
 
         RemoveOrganisationClaim(identity);
+
+        if (options.UpdateClaimsIdentity is not null) {
+            await options.UpdateClaimsIdentity.Invoke(identity);
+        }
 
         var organisationClaim = new Claim("organisation", organisationJson, JsonClaimValueTypes.Json);
         identity.AddClaim(organisationClaim);
 
         var newPrincipal = new ClaimsPrincipal(identity);
-        return this.SignInProxyAsync(context, newPrincipal);
+        await this.SignInProxyAsync(context, newPrincipal);
     }
 }

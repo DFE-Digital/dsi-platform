@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.Extensions.Options;
 
@@ -14,6 +15,13 @@ namespace Dfe.SignIn.PublicApi.Client;
 public delegate CreateSelectOrganisationSession_PublicApiRequest SelectOrganisationRequestPreparer(
     CreateSelectOrganisationSession_PublicApiRequest request
 );
+
+/// <summary>
+/// Represents a function that can modify parameters of the user claims identity
+/// when the organisation claim is being updated.
+/// </summary>
+/// <param name="identity">The claims identity representing the user.</param>
+public delegate Task ClaimsIdentityUpdater(ClaimsIdentity identity);
 
 /// <summary>
 /// Options for when an organisation is being selected when a user is authenticating.
@@ -80,6 +88,12 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     ///   for other purposes; then those requests can be configured directly.</para>
     /// </remarks>
     public SelectOrganisationRequestPreparer? PrepareSelectOrganisationRequest { get; set; } = null;
+
+    /// <summary>
+    /// Gets or sets a delegate allowing an application to customise claims of the
+    /// user claims identity whenever the organisation claim is updated.
+    /// </summary>
+    public ClaimsIdentityUpdater? UpdateClaimsIdentity { get; set; } = null;
 
     /// <inheritdoc/>
     AuthenticationOrganisationSelectorOptions IOptions<AuthenticationOrganisationSelectorOptions>.Value => this;
