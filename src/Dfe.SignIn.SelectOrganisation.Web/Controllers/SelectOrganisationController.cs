@@ -190,7 +190,7 @@ public sealed class SelectOrganisationController(
 
     private async Task<Uri> GetServiceHomeUrlAsync(string? clientId)
     {
-        var returnUrl = applicationOptionsAccessor.Value.ServicesUrl;
+        var returnUrl = new Uri("https://" + applicationOptionsAccessor.Value.ServicesUrl);
 
         if (!string.IsNullOrEmpty(clientId)) {
             var response = await getApplicationByClientId.InvokeAsync(new GetApplicationByClientIdRequest {

@@ -4,6 +4,7 @@ using Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
 
@@ -31,10 +32,17 @@ public static class SelectOrganisationExtensions
         services.AddKeyedSingleton<IDistributedCache, RedisCache>(
             serviceKey: SelectOrganisationConstants.CacheStoreKey,
             implementationFactory: (provider, key) => {
-                var redisOptions = new RedisCacheOptions {
-                    Configuration = configuration.GetConnectionString("SelectSessionRedis"),
-                    InstanceName = configuration.GetValue<string>("InstanceName")
+
+                // Initialize ConfigurationOptions separately
+                ConfigurationOptions configOptions = ConfigurationOptions.Parse(configuration.GetValue<string>("SelectSessionRedisConn"));
+                configOptions.DefaultDatabase = configuration.GetValue<int>("SelectDbRedis");
+
+                var redisOptions = new RedisCacheOptions
+                {
+                    InstanceName = configuration.GetValue<string>("InstanceName"),
+                    ConfigurationOptions = configOptions
                 };
+
                 return new RedisCache(Options.Create(redisOptions));
             }
         );

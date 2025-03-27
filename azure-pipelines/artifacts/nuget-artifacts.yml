@@ -1,0 +1,43 @@
+name: $(BuildDefinitionName)_tag-$(BuildID)_at-$(Date:yyyyMMdd)$(Rev:.r)
+resources:
+  repositories:
+  # Defult branch is master
+    - repository: devopsTemplates
+      type: github
+      endpoint: DfE-Digital
+      name: DFE-Digital/login.dfe.devops
+      ref: feature/DSI-7357
+
+trigger:
+  branches:
+    include:
+    - feature/*
+  paths:
+    include:
+    - src\Dfe.SignIn.PublicApi.Client/*
+    - src\Dfe.SignIn.Core.ExternalModels/*
+    - src\Dfe.SignIn.Core.Framework/*
+
+variables:
+- group: dsi-global
+
+
+stages:
+
+  - stage: Scanbuild
+    displayName: "Artifact build"
+    jobs:
+
+    - template:  pipeline/components/checks/checksDotNet.yml@devopsTemplates
+      parameters:
+        buildConfiguration: Release
+        testPaths: 
+         - 'tests/Dfe.SignIn.Core.ExternalModels.UnitTests/Dfe.SignIn.Core.ExternalModels.UnitTests.csproj'
+         - 'tests/Dfe.SignIn.Core.Framework.UnitTests/Dfe.SignIn.Core.Framework.UnitTests.csproj'
+         - 'tests/Dfe.SignIn.PublicApi.Client.UnitTests/Dfe.SignIn.PublicApi.Client.UnitTests.csproj'
+        AppDeploy: true
+    
+    - template:  pipeline/components/artifacts/artifactDotNet.yml@devopsTemplates
+      parameters:
+        buildConfiguration: Release
+        projectPath: 'dsi-platform.sln'
