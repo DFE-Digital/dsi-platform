@@ -28,16 +28,6 @@ internal sealed class OrganisationClaimManager(
     IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor
 ) : IOrganisationClaimManager
 {
-    private static void RemoveOrganisationClaim(ClaimsIdentity identity)
-    {
-        var organisationClaims = identity.Claims
-            .Where(claim => claim.Type == DsiClaimTypes.Organisation)
-            .ToArray();
-        foreach (var oldClaim in organisationClaims) {
-            identity.RemoveClaim(oldClaim);
-        }
-    }
-
     // Proxy for 'SignInAsync' function since `HttpContext.SignInAsync` is
     // difficult to mock.
     internal Func<HttpContext, ClaimsPrincipal, Task> SignInProxyAsync { get; set; }
@@ -50,18 +40,21 @@ internal sealed class OrganisationClaimManager(
         ArgumentNullException.ThrowIfNull(organisationJson, nameof(organisationJson));
 
         var options = optionsAccessor.Value;
-        var identity = (context.User.Identity as ClaimsIdentity)!.Clone();
 
-        RemoveOrganisationClaim(identity);
+        var otherIdentities = context.User.Identities
+            .Where(identity => identity.AuthenticationType != PublicApiConstants.AuthenticationType);
+
+        var dsiIdentity = new ClaimsIdentity(PublicApiConstants.AuthenticationType);
 
         if (options.UpdateClaimsIdentity is not null) {
-            await options.UpdateClaimsIdentity.Invoke(identity);
+            await options.UpdateClaimsIdentity.Invoke(dsiIdentity);
         }
 
-        var organisationClaim = new Claim("organisation", organisationJson, JsonClaimValueTypes.Json);
-        identity.AddClaim(organisationClaim);
+        dsiIdentity.AddClaim(
+            new Claim("organisation", organisationJson, JsonClaimValueTypes.Json)
+        );
 
-        var newPrincipal = new ClaimsPrincipal(identity);
+        var newPrincipal = new ClaimsPrincipal([.. otherIdentities, dsiIdentity]);
         await this.SignInProxyAsync(context, newPrincipal);
     }
 }

@@ -111,15 +111,10 @@ public sealed class OrganisationClaimManagerTests
 
         var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
 
-        ClaimsPrincipal? capturedPrincipal = null;
-        manager.SignInProxyAsync = (context, principal) => {
-            capturedPrincipal = principal;
-            return Task.CompletedTask;
-        };
-
         await manager.UpdateOrganisationClaimAsync(mockContext.Object, "1");
 
-        Assert.AreSame(fakeUser.Identity, updateClaimsIdentityInvokedWith);
+        Assert.IsNotNull(updateClaimsIdentityInvokedWith);
+        Assert.AreEqual(PublicApiConstants.AuthenticationType, updateClaimsIdentityInvokedWith.AuthenticationType);
     }
 
     [TestMethod]
@@ -132,24 +127,25 @@ public sealed class OrganisationClaimManagerTests
 
         var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
 
+        fakeUser.AddIdentity(new ClaimsIdentity([
+            new Claim(DsiClaimTypes.Organisation, "1", JsonClaimValueTypes.Json),
+            new Claim(DsiClaimTypes.Organisation, "2", JsonClaimValueTypes.Json),
+        ], PublicApiConstants.AuthenticationType));
+
         ClaimsPrincipal? capturedPrincipal = null;
         manager.SignInProxyAsync = (context, principal) => {
             capturedPrincipal = principal;
             return Task.CompletedTask;
         };
 
-        fakeUser.AddIdentity(new ClaimsIdentity([
-            new Claim(DsiClaimTypes.Organisation, "1", JsonClaimValueTypes.Json),
-            new Claim(DsiClaimTypes.Organisation, "2", JsonClaimValueTypes.Json),
-        ]));
-
         await manager.UpdateOrganisationClaimAsync(mockContext.Object, "3");
 
         Assert.IsNotNull(capturedPrincipal);
-        Assert.AreEqual(1, capturedPrincipal.Claims.Count());
-        Assert.IsTrue(
-            capturedPrincipal.HasClaim(DsiClaimTypes.Organisation, "3")
-        );
+        var dfeSignInIdentities = capturedPrincipal.Identities
+            .Where(identity => identity.AuthenticationType == PublicApiConstants.AuthenticationType);
+        Assert.AreEqual(1, dfeSignInIdentities.Count());
+        Assert.AreEqual(1, capturedPrincipal.FindAll(DsiClaimTypes.Organisation).Count());
+        Assert.AreEqual("3", capturedPrincipal.FindFirstValue(DsiClaimTypes.Organisation));
     }
 
     #endregion
