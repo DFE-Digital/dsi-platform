@@ -27,7 +27,7 @@ public sealed class DsiClaimExtensionsTests
     [TestMethod]
     public void GetDsiUserId_ReturnsClaimAsGuid()
     {
-        var identity = new ClaimsIdentity([
+        var identity = new ClaimsIdentity((IEnumerable<Claim>?)[
             new(DsiClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
         ]);
         var user = new ClaimsPrincipal(identity);
@@ -71,7 +71,7 @@ public sealed class DsiClaimExtensionsTests
     [TestMethod]
     public void TryGetDsiUserId_ReturnsTrue_WhenClaimDoesExist()
     {
-        var identity = new ClaimsIdentity([
+        var identity = new ClaimsIdentity((IEnumerable<Claim>?)[
             new(DsiClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
         ]);
         var user = new ClaimsPrincipal(identity);
@@ -84,7 +84,7 @@ public sealed class DsiClaimExtensionsTests
     [TestMethod]
     public void TryGetDsiUserId_OutputsClaim_WhenClaimDoesExist()
     {
-        var identity = new ClaimsIdentity([
+        var identity = new ClaimsIdentity((IEnumerable<Claim>?)[
             new(DsiClaimTypes.UserId, "58eb2690-5266-4cbb-ab46-1f4a211ce9c0"),
         ]);
         var user = new ClaimsPrincipal(identity);
@@ -118,7 +118,7 @@ public sealed class DsiClaimExtensionsTests
     [TestMethod]
     public void GetDsiOrganisation_ReturnsClaimAsObjectWithId_WhenClaimDoesExist()
     {
-        var identity = new ClaimsIdentity([
+        var identity = new ClaimsIdentity((IEnumerable<Claim>?)[
             new(DsiClaimTypes.Organisation, /*lang=json,strict*/ """
                 {
                     "id": "4db99a83-60ac-4e3f-b87f-81d384f673e7"
@@ -138,7 +138,7 @@ public sealed class DsiClaimExtensionsTests
     [TestMethod]
     public void GetDsiOrganisation_ReturnsClaimAsObjectWithMultipleProperties_WhenClaimDoesExist()
     {
-        var identity = new ClaimsIdentity([
+        var identity = new ClaimsIdentity((IEnumerable<Claim>?)[
             new(DsiClaimTypes.Organisation, /*lang=json,strict*/ """
                 {
                     "id": "4db99a83-60ac-4e3f-b87f-81d384f673e7",
