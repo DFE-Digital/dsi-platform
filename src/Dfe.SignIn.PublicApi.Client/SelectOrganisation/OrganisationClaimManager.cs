@@ -1,5 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Internal;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
@@ -25,7 +27,8 @@ public interface IOrganisationClaimManager
 /// Concrete implementation of <see cref="IOrganisationClaimManager"/>.
 /// </summary>
 internal sealed class OrganisationClaimManager(
-    IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor
+    IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
+    IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse> getUserAccessToService
 ) : IOrganisationClaimManager
 {
     // Proxy for 'SignInAsync' function since `HttpContext.SignInAsync` is
@@ -51,10 +54,53 @@ internal sealed class OrganisationClaimManager(
         }
 
         dsiIdentity.AddClaim(
-            new Claim("organisation", organisationJson, JsonClaimValueTypes.Json)
+            new Claim(DsiClaimTypes.Organisation, organisationJson, JsonClaimValueTypes.Json)
         );
+
+        await this.FetchRolesFromPublicApi(context.User.GetDsiUserId(), dsiIdentity, options.FetchRoleClaimsFlags);
 
         var newPrincipal = new ClaimsPrincipal([.. otherIdentities, dsiIdentity]);
         await this.SignInProxyAsync(context, newPrincipal);
+    }
+
+    private async Task FetchRolesFromPublicApi(Guid userId, ClaimsIdentity identity, FetchRoleClaimsFlag flags)
+    {
+        if (flags == FetchRoleClaimsFlag.None) {
+            return;
+        }
+
+        var organisation = identity.GetDsiOrganisationInternal();
+        if (organisation is not null) {
+            var details = await getUserAccessToService.InvokeAsync(new() {
+                UserId = userId,
+                OrganisationId = organisation.Id,
+            });
+            foreach (var role in details.Roles) {
+                if (role.Status.Id != 1) {
+                    continue;
+                }
+
+                if ((flags & FetchRoleClaimsFlag.RoleId) != 0) {
+                    identity.AddClaim(
+                        new Claim(DsiClaimTypes.RoleId, role.Id.ToString(), ClaimValueTypes.String)
+                    );
+                }
+                if ((flags & FetchRoleClaimsFlag.RoleName) != 0) {
+                    identity.AddClaim(
+                        new Claim(DsiClaimTypes.RoleName, role.Name, ClaimValueTypes.String)
+                    );
+                }
+                if ((flags & FetchRoleClaimsFlag.RoleCode) != 0) {
+                    identity.AddClaim(
+                        new Claim(DsiClaimTypes.RoleCode, role.Code, ClaimValueTypes.String)
+                    );
+                }
+                if ((flags & FetchRoleClaimsFlag.RoleNumericId) != 0) {
+                    identity.AddClaim(
+                        new Claim(DsiClaimTypes.RoleNumericId, role.NumericId, ClaimValueTypes.String)
+                    );
+                }
+            }
+        }
     }
 }

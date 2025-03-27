@@ -81,4 +81,14 @@ public static class DsiClaimExtensions
             ? JsonSerializer.Deserialize<OrganisationClaim>(claim.Value, JsonSerializerOptions)
             : null;
     }
+
+    internal static OrganisationClaim? GetDsiOrganisationInternal(this ClaimsIdentity identity)
+    {
+        ArgumentNullException.ThrowIfNull(identity, nameof(identity));
+
+        var claim = identity.FindFirst(DsiClaimTypes.Organisation);
+        return claim is not null
+            ? JsonSerializer.Deserialize<OrganisationClaim>(claim.Value, JsonSerializerOptions)
+            : null;
+    }
 }

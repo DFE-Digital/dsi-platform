@@ -2,6 +2,7 @@ using System.Text.Json;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Client.Internal;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client;
@@ -78,6 +79,10 @@ public static class PublicApiExtensions
             CreateSelectOrganisationSession_PublicApiRequest,
             CreateSelectOrganisationSession_PublicApiResponse
         >(services, "v2/select-organisation");
+
+        // The following interactor is not exposed for use in applications until the
+        // request/response models have been properly designed.
+        services.AddInteractor<GetUserAccessToService_PublicApiRequester>();
     }
 
 #pragma warning disable IDE0051 // Remove unused private members

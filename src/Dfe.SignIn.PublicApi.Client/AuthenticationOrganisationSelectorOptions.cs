@@ -24,6 +24,48 @@ public delegate CreateSelectOrganisationSession_PublicApiRequest SelectOrganisat
 public delegate Task ClaimsIdentityUpdater(ClaimsIdentity identity);
 
 /// <summary>
+/// A flag that indicates which role claims should be added (if any).
+/// </summary>
+[Flags]
+public enum FetchRoleClaimsFlag
+{
+    /// <summary>
+    /// Indicates that role claims should not be added.
+    /// </summary>
+    None = 0x00,
+
+    /// <summary>
+    /// Indicates that all role claims should be added.
+    /// </summary>
+    Everything = ~0,
+
+    /// <summary>
+    /// Indicates that the default role claim configuration should be added.
+    /// </summary>
+    Default = RoleName,
+
+    /// <summary>
+    /// Indicates that "roleid" claims should be added.
+    /// </summary>
+    RoleId = 0x01,
+
+    /// <summary>
+    /// Indicates that "rolename" claims should be added.
+    /// </summary>
+    RoleName = 0x02,
+
+    /// <summary>
+    /// Indicates that "rolecode" claims should be added.
+    /// </summary>
+    RoleCode = 0x04,
+
+    /// <summary>
+    /// Indicates that "rolenumericid" claims should be added.
+    /// </summary>
+    RoleNumericId = 0x08,
+}
+
+/// <summary>
 /// Options for when an organisation is being selected when a user is authenticating.
 /// </summary>
 /// <remarks>
@@ -68,16 +110,6 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     public string SelectOrganisationCallbackPath { get; set; } = "/callback/select-organisation";
 
     /// <summary>
-    /// Gets or sets the path where the user will be redirected after they have
-    /// completed selecting an organisation.
-    /// </summary>
-    /// <remarks>
-    ///   <para>By default this redirects to the root page of the application.</para>
-    ///   <para>The application must handle requests to this path.</para>
-    /// </remarks>
-    public string CompletedPath { get; set; } = "/";
-
-    /// <summary>
     /// Gets or sets a delegate allowing an application to customise the parameters of
     /// the "select organisation" request during the authentication process.
     /// </summary>
@@ -90,10 +122,32 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     public SelectOrganisationRequestPreparer? PrepareSelectOrganisationRequest { get; set; } = null;
 
     /// <summary>
+    /// Gets or sets whether the user roles should be fetched from the public API
+    /// and then amended to the user claims each time an organisation is selected.
+    /// </summary>
+    /// <remarks>
+    ///   <para>Specifying this will incur an additional call to the DfE Sign-in
+    ///   public API to fetch the roles.</para>
+    ///   <para>Only one call is made to the DfE Sign-in public API regardless of
+    ///   how many role claims are desired.</para>
+    /// </remarks>
+    public FetchRoleClaimsFlag FetchRoleClaimsFlags { get; set; } = FetchRoleClaimsFlag.None;
+
+    /// <summary>
     /// Gets or sets a delegate allowing an application to customise claims of the
     /// user claims identity whenever the organisation claim is updated.
     /// </summary>
     public ClaimsIdentityUpdater? UpdateClaimsIdentity { get; set; } = null;
+
+    /// <summary>
+    /// Gets or sets the path where the user will be redirected after they have
+    /// completed selecting an organisation.
+    /// </summary>
+    /// <remarks>
+    ///   <para>By default this redirects to the root page of the application.</para>
+    ///   <para>The application must handle requests to this path.</para>
+    /// </remarks>
+    public string CompletedPath { get; set; } = "/";
 
     /// <inheritdoc/>
     AuthenticationOrganisationSelectorOptions IOptions<AuthenticationOrganisationSelectorOptions>.Value => this;
