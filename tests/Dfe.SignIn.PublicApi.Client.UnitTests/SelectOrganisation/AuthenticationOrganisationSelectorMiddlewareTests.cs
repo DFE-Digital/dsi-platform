@@ -41,7 +41,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
     {
         var mockContext = autoMocker.GetMock<HttpContext>();
 
-        var fakeIdentity = new ClaimsIdentity([]);
+        var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[]);
         var fakeUser = new ClaimsPrincipal(fakeIdentity);
         mockContext.Setup(mock => mock.User)
             .Returns(fakeUser);
@@ -57,7 +57,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
     {
         var mockContext = autoMocker.GetMock<HttpContext>();
 
-        var fakeIdentity = new ClaimsIdentity([
+        var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[
             new Claim(DsiClaimTypes.UserId, FakeUserId.ToString()),
             ..additionalClaims ?? []
         ], authenticationType: "TestAuth");

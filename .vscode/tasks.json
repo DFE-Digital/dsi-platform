@@ -4,9 +4,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "dfe: update packages from local feed",
+      "label": "dfe: update local feed",
       "type": "shell",
-      "command": "dotnet outdated --upgrade --include Dfe.SignIn",
+      "command": "dotnet build -p:IsPipeline=true && dotnet nuget push \"**/*.nupkg\" --source LocalStore",
       "problemMatcher": []
     }
   ]
