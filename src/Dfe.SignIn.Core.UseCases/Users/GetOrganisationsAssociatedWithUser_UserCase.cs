@@ -11,7 +11,8 @@ public sealed class GetOrganisationsAssociatedWithUser_UseCase
 {
     /// <inheritdoc/>
     public Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(
-        GetOrganisationsAssociatedWithUserRequest request)
+        GetOrganisationsAssociatedWithUserRequest request,
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

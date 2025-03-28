@@ -120,7 +120,8 @@ public sealed class SelectOrganisationCallbackProcessorExtensionsTests
         mockProcessor.Verify(x =>
             x.ProcessCallbackJsonAsync(
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel => viewModel == FakeSelectOrganisationCallbackViewModel),
-                It.Is<bool>(throwOnError => throwOnError)
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
             ),
             Times.Once
         );
@@ -161,7 +162,8 @@ public sealed class SelectOrganisationCallbackProcessorExtensionsTests
             .Setup(mock => mock.ProcessCallbackRawAsync(
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel => viewModel == FakeSelectOrganisationCallbackViewModel),
                 It.Is<Type>(targetType => targetType == typeof(SelectOrganisationCallbackId)),
-                It.Is<bool>(throwOnError => throwOnError)
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(expectedCallbackData);
 
@@ -180,7 +182,8 @@ public sealed class SelectOrganisationCallbackProcessorExtensionsTests
             .Setup(mock => mock.ProcessCallbackRawAsync(
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel => viewModel == FakeSelectOrganisationCallbackViewModel),
                 It.Is<Type>(targetType => targetType == typeof(SelectOrganisationCallbackId)),
-                It.Is<bool>(throwOnError => throwOnError)
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(null!);
 
@@ -229,7 +232,8 @@ public sealed class SelectOrganisationCallbackProcessorExtensionsTests
             .Setup(mock => mock.ProcessCallbackRawAsync(
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel => viewModel == FakeSelectOrganisationCallbackViewModel),
                 It.Is<Type>(targetType => targetType == typeof(SelectOrganisationCallbackId)),
-                It.Is<bool>(throwOnError => throwOnError)
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(expectedCallbackData);
 
@@ -248,7 +252,8 @@ public sealed class SelectOrganisationCallbackProcessorExtensionsTests
             .Setup(mock => mock.ProcessCallbackRawAsync(
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel => viewModel == FakeSelectOrganisationCallbackViewModel),
                 It.Is<Type>(targetType => targetType == typeof(SelectOrganisationCallbackId)),
-                It.Is<bool>(throwOnError => throwOnError)
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(null!);
 

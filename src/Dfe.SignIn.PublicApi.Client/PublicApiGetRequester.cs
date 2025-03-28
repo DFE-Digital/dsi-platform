@@ -22,13 +22,16 @@ internal sealed class PublicApiGetRequester<TRequest, TResponse>(
     // revisit the unit testing of this code module in the future.
 
     /// <inheritdoc/>
-    public async Task<TResponse> InvokeAsync(TRequest request)
+    public async Task<TResponse> InvokeAsync(
+        TRequest request,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request, nameof(request));
 
         var httpClient = client.HttpClient;
 
-        return await httpClient.GetFromJsonAsync<TResponse>(endpoint, jsonOptions)
-            ?? throw new MissingResponseDataException();
+        return await httpClient.GetFromJsonAsync<TResponse>(
+            endpoint, jsonOptions, cancellationToken
+        ) ?? throw new MissingResponseDataException();
     }
 }

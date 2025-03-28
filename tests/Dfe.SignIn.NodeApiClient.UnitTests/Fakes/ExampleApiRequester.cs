@@ -14,12 +14,18 @@ public sealed record ExampleResponse
 public sealed class ExampleApiRequesterUnspecifiedApi
     : IInteractor<ExampleRequest, ExampleResponse>
 {
-    public Task<ExampleResponse> InvokeAsync(ExampleRequest request) => throw new NotImplementedException();
+    public Task<ExampleResponse> InvokeAsync(ExampleRequest request, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 [ApiRequester, NodeApi(NodeApiName.Access)]
 public sealed class ExampleApiRequesterForAccessApi
     : IInteractor<ExampleRequest, ExampleResponse>
 {
-    public Task<ExampleResponse> InvokeAsync(ExampleRequest request) => throw new NotImplementedException();
+    public Task<ExampleResponse> InvokeAsync(ExampleRequest request, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -64,7 +64,8 @@ public sealed class OrganisationClaimManagerTests
     {
         autoMocker.GetMock<IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>>()
             .Setup(mock => mock.InvokeAsync(
-                It.IsAny<GetUserAccessToServiceRequest>()
+                It.IsAny<GetUserAccessToServiceRequest>(),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetUserAccessToServiceResponse {
                 Roles = [
@@ -223,7 +224,8 @@ public sealed class OrganisationClaimManagerTests
 
         autoMocker.Verify<IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>>(
             interactor => interactor.InvokeAsync(
-                It.IsAny<GetUserAccessToServiceRequest>()
+                It.IsAny<GetUserAccessToServiceRequest>(),
+                It.IsAny<CancellationToken>()
             ),
             Times.Never);
     }

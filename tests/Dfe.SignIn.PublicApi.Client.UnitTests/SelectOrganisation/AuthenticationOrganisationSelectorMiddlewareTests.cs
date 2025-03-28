@@ -121,7 +121,8 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackJsonAsync(
                 It.IsAny<SelectOrganisationCallbackViewModel>(),
-                It.Is<bool>(throwOnError => throwOnError)
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(expectedCallbackData);
 
@@ -132,7 +133,8 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         autoMocker.Verify<IOrganisationClaimManager>(
             x => x.UpdateOrganisationClaimAsync(
                 It.IsAny<HttpContext>(),
-                It.Is<string>(organisationJson => organisationJson == expectedCallbackData)
+                It.Is<string>(organisationJson => organisationJson == expectedCallbackData),
+                It.IsAny<CancellationToken>()
             ),
             Times.Once
         );
@@ -168,7 +170,8 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         autoMocker.Verify<IAuthenticationOrganisationSelector>(
             x => x.InitiateSelectionAsync(
-                It.IsAny<HttpContext>()
+                It.IsAny<HttpContext>(),
+                It.IsAny<CancellationToken>()
             ),
             Times.Never
         );
@@ -203,7 +206,8 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         autoMocker.Verify<IAuthenticationOrganisationSelector>(
             x => x.InitiateSelectionAsync(
-                It.Is<HttpContext>(context => context == mockContext.Object)
+                It.Is<HttpContext>(context => context == mockContext.Object),
+                It.IsAny<CancellationToken>()
             ),
             Times.Once
         );
@@ -231,7 +235,8 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         autoMocker.Verify<IAuthenticationOrganisationSelector>(
             x => x.InitiateSelectionAsync(
-                It.Is<HttpContext>(context => context == mockContext.Object)
+                It.Is<HttpContext>(context => context == mockContext.Object),
+                It.IsAny<CancellationToken>()
             ),
             Times.Once
         );
@@ -265,7 +270,8 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         autoMocker.Verify<IAuthenticationOrganisationSelector>(
             x => x.InitiateSelectionAsync(
-                It.IsAny<HttpContext>()
+                It.IsAny<HttpContext>(),
+                It.IsAny<CancellationToken>()
             ),
             Times.Never
         );

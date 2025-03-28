@@ -18,14 +18,18 @@ internal sealed class PublicApiBearerTokenHandler(
     private static readonly object BearerTokenCacheKey = new();
 
     /// <inheritdoc/>
-    protected override HttpResponseMessage Send(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override HttpResponseMessage Send(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken = default)
     {
         request.Headers.Authorization = this.CreateAuthorizationHeader();
         return base.Send(request, cancellationToken);
     }
 
     /// <inheritdoc/>
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken = default)
     {
         request.Headers.Authorization = this.CreateAuthorizationHeader();
 

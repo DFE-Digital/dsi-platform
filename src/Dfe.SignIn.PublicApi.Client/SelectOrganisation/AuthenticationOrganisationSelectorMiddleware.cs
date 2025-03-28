@@ -49,8 +49,8 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
             var options = optionsAccessor.Value;
 
             if (context.Request.Method == HttpMethods.Post && context.Request.Path == options.SelectOrganisationCallbackPath) {
-                string callbackDataJson = await callbackProcessor.ProcessCallbackJsonAsync(context.Request);
-                await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson);
+                string callbackDataJson = await callbackProcessor.ProcessCallbackJsonAsync(context.Request, cancellationToken: default);
+                await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson, cancellationToken: default);
                 context.Response.Redirect(options.CompletedPath);
                 return;
             }
@@ -64,7 +64,7 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
             );
 
             if (userRequestedSelectOrganisation || !hasCheckedSelectOrganisationRequirement) {
-                await organisationSelector.InitiateSelectionAsync(context);
+                await organisationSelector.InitiateSelectionAsync(context, cancellationToken: default);
                 return;
             }
         }

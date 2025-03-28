@@ -17,10 +17,17 @@ public interface IOrganisationClaimManager
     /// </summary>
     /// <param name="context">The context of the current HTTP request.</param>
     /// <param name="organisationJson">The JSON encoded organisation claim value.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <exception cref="InvalidOperationException">
     ///   <para>If the user is not currently authenticated.</para>
     /// </exception>
-    Task UpdateOrganisationClaimAsync(HttpContext context, string organisationJson);
+    /// <exception cref="OperationCanceledException" />
+    Task UpdateOrganisationClaimAsync(
+        HttpContext context,
+        string organisationJson,
+        CancellationToken cancellationToken
+    );
 }
 
 /// <summary>
@@ -37,7 +44,10 @@ internal sealed class OrganisationClaimManager(
         = (context, principal) => context.SignInAsync(principal);
 
     /// <inheritdoc/>
-    public async Task UpdateOrganisationClaimAsync(HttpContext context, string organisationJson)
+    public async Task UpdateOrganisationClaimAsync(
+        HttpContext context,
+        string organisationJson,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context, nameof(context));
         ArgumentNullException.ThrowIfNull(organisationJson, nameof(organisationJson));
@@ -57,13 +67,22 @@ internal sealed class OrganisationClaimManager(
             new Claim(DsiClaimTypes.Organisation, organisationJson, JsonClaimValueTypes.Json)
         );
 
-        await this.FetchRolesFromPublicApi(context.User.GetDsiUserId(), dsiIdentity, options.FetchRoleClaimsFlags);
+        await this.FetchRolesFromPublicApi(
+            context.User.GetDsiUserId(),
+            dsiIdentity,
+            options.FetchRoleClaimsFlags,
+            cancellationToken
+        );
 
         var newPrincipal = new ClaimsPrincipal([.. otherIdentities, dsiIdentity]);
         await this.SignInProxyAsync(context, newPrincipal);
     }
 
-    private async Task FetchRolesFromPublicApi(Guid userId, ClaimsIdentity identity, FetchRoleClaimsFlag flags)
+    private async Task FetchRolesFromPublicApi(
+        Guid userId,
+        ClaimsIdentity identity,
+        FetchRoleClaimsFlag flags,
+        CancellationToken cancellationToken = default)
     {
         if (flags == FetchRoleClaimsFlag.None) {
             return;
@@ -74,7 +93,7 @@ internal sealed class OrganisationClaimManager(
             var details = await getUserAccessToService.InvokeAsync(new() {
                 UserId = userId,
                 OrganisationId = organisation.Id,
-            });
+            }, cancellationToken);
             foreach (var role in details.Roles) {
                 if (role.Status.Id != 1) {
                     continue;

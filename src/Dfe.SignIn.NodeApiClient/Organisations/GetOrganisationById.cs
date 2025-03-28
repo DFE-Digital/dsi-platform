@@ -19,9 +19,14 @@ public sealed class GetOrganisationById_NodeApiRequester(
 {
 
     /// <inheritdoc/>
-    public async Task<GetOrganisationByIdResponse> InvokeAsync(GetOrganisationByIdRequest request)
+    public async Task<GetOrganisationByIdResponse> InvokeAsync(
+        GetOrganisationByIdRequest request,
+        CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationByIdDto>($"/organisations/{request.OrganisationId}");
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationByIdDto>(
+            $"/organisations/{request.OrganisationId}",
+            cancellationToken
+        );
 
         return new GetOrganisationByIdResponse {
             Organisation = response is null ? null : mapper.Map<OrganisationModel>(response)

@@ -17,7 +17,8 @@ public sealed class CreateDigitalSignatureForPayload_UseCase(
 {
     /// <inheritdoc/>
     public Task<CreateDigitalSignatureForPayloadResponse> InvokeAsync(
-        CreateDigitalSignatureForPayloadRequest request)
+        CreateDigitalSignatureForPayloadRequest request,
+        CancellationToken cancellationToken = default)
     {
         var options = optionsAccessor.Value;
 

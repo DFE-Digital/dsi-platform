@@ -14,9 +14,14 @@ public sealed class GetApplicationByClientId_NodeApiRequester(
 ) : IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
 {
     /// <inheritdoc/>
-    public async Task<GetApplicationByClientIdResponse> InvokeAsync(GetApplicationByClientIdRequest request)
+    public async Task<GetApplicationByClientIdResponse> InvokeAsync(
+        GetApplicationByClientIdRequest request,
+        CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationModelDto>($"services/{request.ClientId}");
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationModelDto>(
+            $"services/{request.ClientId}",
+            cancellationToken
+        );
 
         return new GetApplicationByClientIdResponse {
             Application = response is null ? null : new() {
