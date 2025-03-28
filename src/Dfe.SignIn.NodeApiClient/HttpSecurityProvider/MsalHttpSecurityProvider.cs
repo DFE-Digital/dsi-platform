@@ -43,6 +43,8 @@ public sealed class MsalHttpSecurityProvider : IHttpSecurityProvider
             .AcquireTokenForClient(scopes: this.scopes)
             .ExecuteAsync(cancellationToken);
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         return authResult.AccessToken;
     }
 
