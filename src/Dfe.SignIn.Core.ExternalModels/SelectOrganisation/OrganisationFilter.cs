@@ -78,7 +78,7 @@ public enum OrganisationFilterAssociation
 {
     /// <summary>
     /// Behaves as <see cref="AssignedToUser"/> when the service is ID-only; otherwise,
-    /// behaves as <see cref="AssignedToUserForApplication"/> for a role-based aservice.
+    /// behaves as <see cref="AssignedToUserForApplication"/> for a role-based application.
     /// </summary>
     Auto = 0,
 
