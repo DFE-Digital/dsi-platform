@@ -1,3 +1,6 @@
+using System.Text.Json;
+using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Framework;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -33,12 +36,17 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 ///   options in <see cref="AuthenticationOrganisationSelectorOptions"/>.</para>
 /// </remarks>
 public sealed class AuthenticationOrganisationSelectorMiddleware(
+    IJsonSerializerOptionsAccessor jsonSerializerOptionsAccessor,
     IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
     IAuthenticationOrganisationSelector organisationSelector,
     ISelectOrganisationCallbackProcessor callbackProcessor,
     IOrganisationClaimManager organisationClaimManager,
     RequestDelegate next)
 {
+    // Workaround .NET Core bug where [FromKeyedService] does not work in middleware.
+    // See: https://github.com/dotnet/aspnetcore/issues/54500
+    private JsonSerializerOptions JsonOptions => jsonSerializerOptionsAccessor.GetOptions();
+
     /// <summary>
     /// Called when "select organisation" authentication middleware is being used.
     /// </summary>
@@ -49,9 +57,7 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
             var options = optionsAccessor.Value;
 
             if (context.Request.Method == HttpMethods.Post && context.Request.Path == options.SelectOrganisationCallbackPath) {
-                string callbackDataJson = await callbackProcessor.ProcessCallbackJsonAsync(context.Request, cancellationToken: default);
-                await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson, cancellationToken: default);
-                context.Response.Redirect(options.CompletedPath);
+                await this.HandleSelectOrganisationCallbackAsync(context, options);
                 return;
             }
 
@@ -70,5 +76,24 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
         }
 
         await next(context);
+    }
+
+    private async Task HandleSelectOrganisationCallbackAsync(
+        HttpContext context,
+        AuthenticationOrganisationSelectorOptions options)
+    {
+        var callbackViewModel = SelectOrganisationCallbackViewModel.FromRequest(context.Request);
+        var callbackData = await callbackProcessor.ProcessCallbackAsync(callbackViewModel);
+
+        if (callbackData is SelectOrganisationCallbackId) {
+            // An organisation was selected.
+            string callbackDataJson = JsonSerializer.Serialize(callbackData, callbackData.GetType(), this.JsonOptions);
+            await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson);
+        }
+        else {
+            throw new InvalidOperationException($"Encountered unexpected callback payload type '{callbackViewModel.PayloadType}'.");
+        }
+
+        context.Response.Redirect(options.CompletedPath);
     }
 }

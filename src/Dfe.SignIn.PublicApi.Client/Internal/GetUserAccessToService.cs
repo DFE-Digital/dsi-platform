@@ -38,7 +38,7 @@ internal sealed class Status()
 }
 
 internal sealed class GetUserAccessToService_PublicApiRequester(
-    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonSerializerOptions,
+    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonOptions,
     IOptions<PublicApiOptions> optionsAccessor,
     IPublicApiClient client
 ) : IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>
@@ -68,7 +68,7 @@ internal sealed class GetUserAccessToService_PublicApiRequester(
         httpResponse.EnsureSuccessStatusCode();
 
         return await httpResponse.Content.ReadFromJsonAsync<GetUserAccessToServiceResponse>(
-            jsonSerializerOptions, cancellationToken
+            jsonOptions, cancellationToken
         ) ?? throw new InvalidOperationException("Invalid response.");
     }
 }

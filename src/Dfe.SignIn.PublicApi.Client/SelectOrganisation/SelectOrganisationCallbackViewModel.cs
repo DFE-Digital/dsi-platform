@@ -8,6 +8,28 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 public sealed record SelectOrganisationCallbackViewModel()
 {
     /// <summary>
+    /// Create view model from "select organisation" callback form.
+    /// </summary>
+    /// <param name="request">The HTTP request that is handling the callback POST request.</param>
+    /// <returns>
+    ///   <para>The <see cref="SelectOrganisationCallbackViewModel"/> instance.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="request"/> is null.</para>
+    /// </exception>
+    public static SelectOrganisationCallbackViewModel FromRequest(HttpRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request, nameof(request));
+
+        return new SelectOrganisationCallbackViewModel {
+            PayloadType = Convert.ToString(request.Form["payloadType"]),
+            Payload = Convert.ToString(request.Form["payload"]),
+            Sig = Convert.ToString(request.Form["sig"]),
+            Kid = Convert.ToString(request.Form["kid"]),
+        };
+    }
+
+    /// <summary>
     /// Gets the type of payload (eg. "error", "id", "basic", "extended", "legacy").
     /// </summary>
     public required string PayloadType { get; init; }

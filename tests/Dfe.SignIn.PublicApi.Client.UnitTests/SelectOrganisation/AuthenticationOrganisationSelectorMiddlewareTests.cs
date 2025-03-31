@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,8 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             .Returns(options ?? new AuthenticationOrganisationSelectorOptions {
                 CompletedPath = "/completed/path",
             });
+
+        autoMocker.Use(JsonHelperExtensions.CreateStandardOptions());
     }
 
     private static Mock<HttpContext> SetupMockHttpContext(AutoMocker autoMocker)
@@ -99,13 +102,6 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         SetupOptions(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        string expectedCallbackData = /*lang=json,strict*/ """
-            {
-                "type": "id",
-                "id": "1b1df816-923a-4133-9e91-725a52075645"
-            }
-        """;
-
         var mockRequest = autoMocker.GetMock<HttpRequest>();
         mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
         mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
@@ -119,12 +115,20 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         var mockContext = SetupMockHttpContext(autoMocker);
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
-            .Setup(mock => mock.ProcessCallbackJsonAsync(
-                It.IsAny<SelectOrganisationCallbackViewModel>(),
+            .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
+                    viewModel.PayloadType == PayloadTypeConstants.Id &&
+                    viewModel.Payload == "{data}" &&
+                    viewModel.Sig == "{sig}" &&
+                    viewModel.Kid == "1b1df816-923a-4133-9e91-725a52075645"
+                ),
                 It.Is<bool>(throwOnError => throwOnError),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(expectedCallbackData);
+            .ReturnsAsync(new SelectOrganisationCallbackId {
+                Type = PayloadTypeConstants.Id,
+                Id = new Guid("c72bdba2-6793-4118-aeba-cd3def045245"),
+            });
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
@@ -133,7 +137,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         autoMocker.Verify<IOrganisationClaimManager>(
             x => x.UpdateOrganisationClaimAsync(
                 It.IsAny<HttpContext>(),
-                It.Is<string>(organisationJson => organisationJson == expectedCallbackData),
+                It.Is<string>(organisationJson => organisationJson.Contains("c72bdba2-6793-4118-aeba-cd3def045245")),
                 It.IsAny<CancellationToken>()
             ),
             Times.Once

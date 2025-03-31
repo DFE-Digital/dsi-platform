@@ -3,6 +3,8 @@ namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 /// <summary>
 /// Constant values indicating the type of "select organisation" callback payload types.
 /// </summary>
+/// <seealso cref="SelectOrganisationCallback.TryResolveType(string)" />
+/// <seealso cref="SelectOrganisationCallback.ResolveType(string)" />
 public static class PayloadTypeConstants
 {
     /// <summary>

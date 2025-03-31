@@ -7,6 +7,58 @@ namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 /// </summary>
 public abstract record SelectOrganisationCallback()
 {
+    private static readonly Dictionary<string, Type> PayloadTypeMappings = new() {
+        { PayloadTypeConstants.Error, typeof(SelectOrganisationCallbackError) },
+        { PayloadTypeConstants.Id, typeof(SelectOrganisationCallbackId) },
+        { PayloadTypeConstants.Basic, typeof(SelectOrganisationCallbackBasic) },
+        { PayloadTypeConstants.Extended, typeof(SelectOrganisationCallbackExtended) },
+        { PayloadTypeConstants.Legacy, typeof(SelectOrganisationCallbackLegacy) },
+    };
+
+    /// <summary>
+    /// Tries to resolve the specified callback payload type.
+    /// </summary>
+    /// <param name="payloadType">Name of the payload type (see <see cref="PayloadTypeConstants"/>).</param>
+    /// <returns>
+    ///   <para>The resolved type of <see cref="SelectOrganisationCallback"/>; otherwise,
+    ///   a value of <c>null</c>.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="payloadType"/> is null.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="payloadType"/> is an empty string.</para>
+    /// </exception>
+    public static Type? TryResolveType(string payloadType)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(payloadType, nameof(payloadType));
+
+        PayloadTypeMappings.TryGetValue(payloadType, out var result);
+        return result;
+    }
+
+    /// <summary>
+    /// Resolves the specified callback payload type.
+    /// </summary>
+    /// <param name="payloadType">Name of the payload type (see <see cref="PayloadTypeConstants"/>).</param>
+    /// <returns>
+    ///   <para>The resolved type of <see cref="SelectOrganisationCallback"/>.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="payloadType"/> is null.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="payloadType"/> is an empty string.</para>
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///   <para>If type could not be resolved for <paramref name="payloadType"/>.</para>
+    /// </exception>
+    public static Type ResolveType(string payloadType)
+    {
+        return TryResolveType(payloadType)
+            ?? throw new InvalidOperationException($"Cannot resolve unknown payload type '{payloadType}'.");
+    }
+
     /// <summary>
     /// Gets type type of callback payload.
     /// </summary>
