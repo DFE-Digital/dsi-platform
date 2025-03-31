@@ -8,6 +8,11 @@ namespace Dfe.SignIn.SelectOrganisation.Web.Models;
 public sealed class SelectOrganisationViewModel
 {
     /// <summary>
+    /// Gets the "Sign out" URL (if any).
+    /// </summary>
+    public string? SignOutUrl { get; init; }
+
+    /// <summary>
     /// Gets the user prompt content.
     /// </summary>
     public required SelectOrganisationPrompt Prompt { get; init; }
@@ -21,4 +26,9 @@ public sealed class SelectOrganisationViewModel
     /// Gets or sets the unique ID of the selected organisation.
     /// </summary>
     public Guid? SelectedOrganisationId { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating if the user has cancelled.
+    /// </summary>
+    public string? Cancel { get; set; } = null;
 }

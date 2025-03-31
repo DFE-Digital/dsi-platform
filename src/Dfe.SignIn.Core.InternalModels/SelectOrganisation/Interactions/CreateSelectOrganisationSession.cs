@@ -23,8 +23,7 @@ public sealed record CreateSelectOrganisationSessionRequest()
     /// Gets the prompt that will be presented to the user when they are making
     /// their selection using the "select organisation" web frontend.
     /// </summary>
-    public SelectOrganisationPrompt Prompt { get; init; } = new SelectOrganisationPrompt
-    {
+    public SelectOrganisationPrompt Prompt { get; init; } = new SelectOrganisationPrompt {
         Heading = "Which organisation would you like to use?",
         Hint = "You are associated with more than one organisation. Select one option.",
     };

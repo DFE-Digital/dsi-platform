@@ -9,6 +9,8 @@ public abstract record SelectOrganisationCallback()
 {
     private static readonly Dictionary<string, Type> PayloadTypeMappings = new() {
         { PayloadTypeConstants.Error, typeof(SelectOrganisationCallbackError) },
+        { PayloadTypeConstants.SignOut, typeof(SelectOrganisationCallbackSignOut) },
+        { PayloadTypeConstants.Cancel, typeof(SelectOrganisationCallbackCancel) },
         { PayloadTypeConstants.Id, typeof(SelectOrganisationCallbackId) },
         { PayloadTypeConstants.Basic, typeof(SelectOrganisationCallbackBasic) },
         { PayloadTypeConstants.Extended, typeof(SelectOrganisationCallbackExtended) },
@@ -98,6 +100,22 @@ public enum SelectOrganisationErrorCode
     /// Indicates that there were no options for the user to choose from.
     /// </summary>
     NoOptions = 2,
+}
+
+/// <summary>
+/// The type of data payload supplied to the "select organisation" callback when
+/// the user has requested to sign-out.
+/// </summary>
+public record SelectOrganisationCallbackSignOut() : SelectOrganisationCallback
+{
+}
+
+/// <summary>
+/// The type of data payload supplied to the "select organisation" callback when
+/// the user has requested to cancel selection.
+/// </summary>
+public record SelectOrganisationCallbackCancel() : SelectOrganisationCallback
+{
 }
 
 /// <summary>

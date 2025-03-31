@@ -73,6 +73,10 @@ public sealed class SelectOrganisationController(
 
         // Present prompt to the user.
         return this.View(new SelectOrganisationViewModel {
+            SignOutUrl = this.Url.Action(
+                action: "SignOut",
+                values: new { clientId, sessionKey }
+            ),
             Prompt = session.Prompt,
             OrganisationOptions = session.OrganisationOptions,
         });
@@ -91,6 +95,10 @@ public sealed class SelectOrganisationController(
             return sessionResult.RedirectActionResult!;
         }
         var session = sessionResult.Session;
+
+        if (viewModel.Cancel == "1") {
+            return await this.SendCancelCallback(session, cancellationToken);
+        }
 
         if (viewModel.SelectedOrganisationId is null) {
             // Present prompt to the user with error.
@@ -122,18 +130,25 @@ public sealed class SelectOrganisationController(
             return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
         }
 
-        var selectionPayload = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
-        return await this.SendCallback(session, selectionPayload, cancellationToken);
+        var selectionCallbackData = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
+        return await this.SendCallback(session, selectionCallbackData, cancellationToken);
     }
 
-    private Task<IActionResult> SendErrorCallback(
-        SelectOrganisationSessionData session,
-        SelectOrganisationErrorCode errorCode,
+    [HttpGet]
+    [Route("{clientId}/{sessionKey}/sign-out")]
+    public async Task<IActionResult> SignOut(
+        string clientId,
+        string sessionKey,
         CancellationToken cancellationToken = default)
     {
-        return this.SendCallback(session, new SelectOrganisationCallbackError {
-            Type = PayloadTypeConstants.Error,
-            Code = errorCode,
+        var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
+        if (sessionResult.Session is null) {
+            return sessionResult.RedirectActionResult!;
+        }
+        var session = sessionResult.Session;
+
+        return await this.SendCallback(session, new SelectOrganisationCallbackSignOut {
+            Type = PayloadTypeConstants.SignOut,
         }, cancellationToken);
     }
 
@@ -156,6 +171,26 @@ public sealed class SelectOrganisationController(
             DigitalSignature = signingResponse.Signature.Signature,
             PublicKeyId = signingResponse.Signature.KeyId,
         });
+    }
+
+    private Task<IActionResult> SendErrorCallback(
+        SelectOrganisationSessionData session,
+        SelectOrganisationErrorCode errorCode,
+        CancellationToken cancellationToken = default)
+    {
+        return this.SendCallback(session, new SelectOrganisationCallbackError {
+            Type = PayloadTypeConstants.Error,
+            Code = errorCode,
+        }, cancellationToken);
+    }
+
+    private Task<IActionResult> SendCancelCallback(
+        SelectOrganisationSessionData session,
+        CancellationToken cancellationToken = default)
+    {
+        return this.SendCallback(session, new SelectOrganisationCallbackCancel {
+            Type = PayloadTypeConstants.Cancel,
+        }, cancellationToken);
     }
 
     private sealed record GetSessionResult()

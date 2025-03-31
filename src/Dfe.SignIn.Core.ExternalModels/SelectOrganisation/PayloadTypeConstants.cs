@@ -13,6 +13,16 @@ public static class PayloadTypeConstants
     public const string Error = "error";
 
     /// <summary>
+    /// See <see cref="SelectOrganisationCallbackSignOut"/>.
+    /// </summary>
+    public const string SignOut = "signOut";
+
+    /// <summary>
+    /// See <see cref="SelectOrganisationCallbackCancel"/>.
+    /// </summary>
+    public const string Cancel = "cancel";
+
+    /// <summary>
     /// See <see cref="SelectOrganisationCallbackId"/>.
     /// </summary>
     public const string Id = "id";

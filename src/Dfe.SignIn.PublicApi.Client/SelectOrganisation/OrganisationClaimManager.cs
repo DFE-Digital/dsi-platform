@@ -26,7 +26,7 @@ public interface IOrganisationClaimManager
     Task UpdateOrganisationClaimAsync(
         HttpContext context,
         string organisationJson,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     );
 }
 
