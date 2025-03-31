@@ -35,9 +35,12 @@ public sealed class SelectOrganisationController(
 
     [HttpGet]
     [Route("{clientId}/{sessionKey}")]
-    public async Task<IActionResult> Index(string clientId, string sessionKey)
+    public async Task<IActionResult> Index(
+        string clientId,
+        string sessionKey,
+        CancellationToken cancellationToken = default)
     {
-        var sessionResult = await this.GetSessionAsync(clientId, sessionKey);
+        var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
         if (sessionResult.Session is null) {
             return sessionResult.RedirectActionResult!;
         }
@@ -45,7 +48,7 @@ public sealed class SelectOrganisationController(
 
         // If there are no options; invoke the callback right away.
         if (session.OrganisationOptions.Count() == 0) {
-            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.NoOptions);
+            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.NoOptions, cancellationToken);
         }
 
         // If there is only one option; invoke the callback right away.
@@ -53,19 +56,19 @@ public sealed class SelectOrganisationController(
             // Invalidate the session since it is being handled now.
             await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
                 SessionKey = sessionKey,
-            });
+            }, cancellationToken);
 
             var selectedOrganisation = (await getOrganisationById.InvokeAsync(new() {
                 OrganisationId = session.OrganisationOptions.First().Id
-            })).Organisation;
+            }, cancellationToken)).Organisation;
 
             if (selectedOrganisation is null) {
                 // The organisation does not exist; maybe it was deleted.
-                return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
+                return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
             }
 
             var selectionPayload = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
-            return await this.SendCallback(session, selectionPayload);
+            return await this.SendCallback(session, selectionPayload, cancellationToken);
         }
 
         // Present prompt to the user.
@@ -77,9 +80,13 @@ public sealed class SelectOrganisationController(
 
     [HttpPost]
     [Route("{clientId}/{sessionKey}")]
-    public async Task<IActionResult> PostIndex(string clientId, string sessionKey, SelectOrganisationViewModel viewModel)
+    public async Task<IActionResult> PostIndex(
+        string clientId,
+        string sessionKey,
+        SelectOrganisationViewModel viewModel,
+        CancellationToken cancellationToken = default)
     {
-        var sessionResult = await this.GetSessionAsync(clientId, sessionKey);
+        var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
         if (sessionResult.Session is null) {
             return sessionResult.RedirectActionResult!;
         }
@@ -87,42 +94,47 @@ public sealed class SelectOrganisationController(
 
         await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
             SessionKey = sessionKey,
-        });
+        }, cancellationToken);
 
         bool didUserSelectOptionThatWasPresented = session.OrganisationOptions.Any(
             option => option.Id == viewModel.SelectedOrganisationId);
         if (!didUserSelectOptionThatWasPresented) {
-            return await this.HandleInvalidSessionAsync(clientId);
+            return await this.HandleInvalidSessionAsync(clientId, cancellationToken);
         }
 
         var selectedOrganisation = (await getOrganisationById.InvokeAsync(new() {
             OrganisationId = viewModel.SelectedOrganisationId,
-        })).Organisation;
+        }, cancellationToken)).Organisation;
         if (selectedOrganisation is null) {
-            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
+            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
         }
 
         var selectionPayload = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
-        return await this.SendCallback(session, selectionPayload);
+        return await this.SendCallback(session, selectionPayload, cancellationToken);
     }
 
     private Task<IActionResult> SendErrorCallback(
-        SelectOrganisationSessionData session, SelectOrganisationErrorCode errorCode)
+        SelectOrganisationSessionData session,
+        SelectOrganisationErrorCode errorCode,
+        CancellationToken cancellationToken = default)
     {
         return this.SendCallback(session, new SelectOrganisationCallbackError {
             Type = PayloadTypeConstants.Error,
             Code = errorCode,
-        });
+        }, cancellationToken);
     }
 
-    private async Task<IActionResult> SendCallback(SelectOrganisationSessionData session, object payload)
+    private async Task<IActionResult> SendCallback(
+        SelectOrganisationSessionData session,
+        object payload,
+        CancellationToken cancellationToken = default)
     {
         string payloadJson = JsonSerializer.Serialize(payload, jsonSerializerOptions);
         string payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payloadJson));
 
         var signingResponse = await createDigitalSignatureForPayload.InvokeAsync(new() {
             Payload = payloadBase64,
-        });
+        }, cancellationToken);
 
         return this.View("Callback", new CallbackViewModel {
             CallbackUrl = session.CallbackUrl,
@@ -139,16 +151,19 @@ public sealed class SelectOrganisationController(
         public IActionResult? RedirectActionResult { get; init; } = null;
     }
 
-    private async Task<GetSessionResult> GetSessionAsync(string clientId, string sessionKey)
+    private async Task<GetSessionResult> GetSessionAsync(
+        string clientId,
+        string sessionKey,
+        CancellationToken cancellationToken = default)
     {
         var session = (await getSelectOrganisationSessionByKey.InvokeAsync(new() {
             SessionKey = sessionKey,
-        })).SessionData;
+        }, cancellationToken)).SessionData;
 
         if (session is null) {
             // Redirect when session does not exist.
             return new GetSessionResult {
-                RedirectActionResult = await this.HandleInvalidSessionAsync(clientId),
+                RedirectActionResult = await this.HandleInvalidSessionAsync(clientId, cancellationToken),
             };
         }
 
@@ -156,9 +171,9 @@ public sealed class SelectOrganisationController(
             // User has tampered with the clientId parameter of the URL.
             await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
                 SessionKey = sessionKey,
-            });
+            }, cancellationToken);
             return new GetSessionResult {
-                RedirectActionResult = await this.HandleInvalidSessionAsync(session.ClientId),
+                RedirectActionResult = await this.HandleInvalidSessionAsync(session.ClientId, cancellationToken),
             };
         }
 
@@ -166,7 +181,8 @@ public sealed class SelectOrganisationController(
     }
 
     private object RemapSelectedOrganisationToCallbackData(
-        OrganisationModel selectedOrganisation, OrganisationDetailLevel detailLevel)
+        OrganisationModel selectedOrganisation,
+        OrganisationDetailLevel detailLevel)
     {
         return detailLevel switch {
             OrganisationDetailLevel.Basic => mapper.Map<SelectOrganisationCallbackBasic>(selectedOrganisation)
@@ -181,21 +197,25 @@ public sealed class SelectOrganisationController(
         };
     }
 
-    private async Task<IActionResult> HandleInvalidSessionAsync(string? clientId)
+    private async Task<IActionResult> HandleInvalidSessionAsync(
+        string? clientId,
+        CancellationToken cancellationToken = default)
     {
         return this.View("InvalidSessionError", new InvalidSessionViewModel {
-            ReturnUrl = await this.GetServiceHomeUrlAsync(clientId),
+            ReturnUrl = await this.GetServiceHomeUrlAsync(clientId, cancellationToken),
         });
     }
 
-    private async Task<Uri> GetServiceHomeUrlAsync(string? clientId)
+    private async Task<Uri> GetServiceHomeUrlAsync(
+        string? clientId,
+        CancellationToken cancellationToken = default)
     {
         var returnUrl = applicationOptionsAccessor.Value.ServicesUrl;
 
         if (!string.IsNullOrEmpty(clientId)) {
-            var response = await getApplicationByClientId.InvokeAsync(new GetApplicationByClientIdRequest {
+            var response = await getApplicationByClientId.InvokeAsync(new() {
                 ClientId = clientId,
-            });
+            }, cancellationToken);
             if (response.Application is not null) {
                 returnUrl = response.Application.ServiceHomeUrl;
             }

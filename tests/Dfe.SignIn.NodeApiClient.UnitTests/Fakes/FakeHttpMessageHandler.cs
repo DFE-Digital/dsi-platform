@@ -11,7 +11,9 @@ public class FakeHttpMessageHandler : HttpMessageHandler
         this.capturedRequests = [];
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken = default)
     {
         this.capturedRequests.Add(request);
         return this.handlerFunc(request, cancellationToken);

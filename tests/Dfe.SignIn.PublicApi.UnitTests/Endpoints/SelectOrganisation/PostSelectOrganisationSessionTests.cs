@@ -80,14 +80,17 @@ public sealed class PostSelectOrganisationSessionTests
         );
 
         autoMocker.Verify<IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>>(x =>
-            x.InvokeAsync(It.Is<CreateSelectOrganisationSessionRequest>(request =>
-                request.ClientId == "test-client-id" &&
-                request.CallbackUrl == apiRequest.CallbackUrl &&
-                request.UserId == apiRequest.UserId &&
-                request.DetailLevel == apiRequest.DetailLevel &&
-                request.Filter == apiRequest.Filter &&
-                request.Prompt == apiRequest.Prompt
-            ))
+            x.InvokeAsync(
+                It.Is<CreateSelectOrganisationSessionRequest>(request =>
+                    request.ClientId == "test-client-id" &&
+                    request.CallbackUrl == apiRequest.CallbackUrl &&
+                    request.UserId == apiRequest.UserId &&
+                    request.DetailLevel == apiRequest.DetailLevel &&
+                    request.Filter == apiRequest.Filter &&
+                    request.Prompt == apiRequest.Prompt
+                ),
+                It.IsAny<CancellationToken>()
+            )
         );
     }
 
@@ -105,7 +108,10 @@ public sealed class PostSelectOrganisationSessionTests
             Url = new Uri("https://select-organisation.localhost"),
         };
         autoMocker.GetMock<IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>>()
-            .Setup(x => x.InvokeAsync(It.IsAny<CreateSelectOrganisationSessionRequest>()))
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<CreateSelectOrganisationSessionRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(fakeResponse);
 
         var response = await SelectOrganisationEndpoints.PostSelectOrganisationSession(

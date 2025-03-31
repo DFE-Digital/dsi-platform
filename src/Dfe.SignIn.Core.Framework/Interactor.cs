@@ -24,6 +24,8 @@ public interface IInteractor<TRequest, TResponse>
     /// Invokes an interaction request.
     /// </summary>
     /// <param name="request">The interaction request.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The interaction response.</para>
     /// </returns>
@@ -46,9 +48,10 @@ public interface IInteractor<TRequest, TResponse>
     ///   This type of exception is generally thrown automatically when request and/or
     ///   model validation has been enabled (see: <see cref="InteractorModelValidator{TRequest,TResponse}"/>).</para>
     /// </exception>
+    /// <exception cref="OperationCanceledException" />
     /// <seealso cref="IUseCaseHandler{TRequest, TResponse}"/>
     /// <seealso cref="IApiRequester{TRequest, TResponse}"/>
-    Task<TResponse> InvokeAsync(TRequest request);
+    Task<TResponse> InvokeAsync(TRequest request, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

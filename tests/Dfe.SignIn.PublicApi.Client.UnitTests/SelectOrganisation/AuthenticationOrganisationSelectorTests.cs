@@ -90,7 +90,8 @@ public sealed class AuthenticationOrganisationSelectorTests
 
         mockRequester
             .Setup(mock => mock.InvokeAsync(
-                It.IsAny<CreateSelectOrganisationSession_PublicApiRequest>()
+                It.IsAny<CreateSelectOrganisationSession_PublicApiRequest>(),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(response);
 
@@ -144,7 +145,8 @@ public sealed class AuthenticationOrganisationSelectorTests
         await selector.InitiateSelectionAsync(fakeContext.Object);
 
         mockCreateSelectOrganisationSession.Verify(x => x.InvokeAsync(
-            It.IsAny<CreateSelectOrganisationSession_PublicApiRequest>()
+            It.IsAny<CreateSelectOrganisationSession_PublicApiRequest>(),
+                It.IsAny<CancellationToken>()
         ), Times.Once);
     }
 
@@ -167,7 +169,8 @@ public sealed class AuthenticationOrganisationSelectorTests
             It.Is<CreateSelectOrganisationSession_PublicApiRequest>(request =>
                 request.UserId == FakeUserId &&
                 request.CallbackUrl == new Uri("http://localhost/app/callback/select-organisation")
-            )
+            ),
+            It.IsAny<CancellationToken>()
         ), Times.Once);
     }
 
@@ -199,7 +202,8 @@ public sealed class AuthenticationOrganisationSelectorTests
                 request.UserId == FakeUserId &&
                 request.CallbackUrl == new Uri("http://localhost/app/callback/select-organisation") &&
                 request.Prompt.Heading == "Custom prompt heading"
-            )
+            ),
+            It.IsAny<CancellationToken>()
         ), Times.Once);
     }
 
@@ -242,7 +246,8 @@ public sealed class AuthenticationOrganisationSelectorTests
         autoMocker.Verify<IOrganisationClaimManager>(x =>
             x.UpdateOrganisationClaimAsync(
                 It.IsAny<HttpContext>(),
-                It.Is<string>(organisationJson => organisationJson == "null")
+                It.Is<string>(organisationJson => organisationJson == "null"),
+                It.IsAny<CancellationToken>()
             ),
             Times.Once
         );

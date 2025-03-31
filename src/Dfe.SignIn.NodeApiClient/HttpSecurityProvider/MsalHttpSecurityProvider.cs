@@ -1,5 +1,6 @@
 
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
@@ -36,25 +37,25 @@ public sealed class MsalHttpSecurityProvider : IHttpSecurityProvider
     /// Gets the AccessToken
     /// </summary>
     /// <returns></returns>
-    private async Task<string?> GetAuthorizationBearerTokenAsync()
+    private async Task<string?> GetAuthorizationBearerTokenAsync(CancellationToken cancellationToken)
     {
         var authResult = await this.confidentialClientApplication
             .AcquireTokenForClient(scopes: this.scopes)
-            .ExecuteAsync();
+            .ExecuteAsync(cancellationToken);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         return authResult.AccessToken;
     }
 
-    /// <summary>
-    /// Add authorization properties to the provided HttpRequestMessage
-    /// </summary>
-    /// <param name="httpRequestMessage">The HttpRequestMessage instance to add the bearer token to</param>
-    /// <returns></returns>
-    public async Task AddAuthorizationAsync(HttpRequestMessage httpRequestMessage)
+    /// <inheritdoc />
+    public async Task AddAuthorizationAsync(
+        HttpRequestMessage httpRequestMessage,
+        CancellationToken cancellationToken = default)
     {
-        string? bearerToken = await this.GetAuthorizationBearerTokenAsync();
+        string? bearerToken = await this.GetAuthorizationBearerTokenAsync(cancellationToken);
         if (bearerToken is not null) {
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", bearerToken);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
         }
     }
 }

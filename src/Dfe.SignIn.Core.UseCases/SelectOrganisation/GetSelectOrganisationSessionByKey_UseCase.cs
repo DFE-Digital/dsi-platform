@@ -14,7 +14,8 @@ public sealed class GetSelectOrganisationSessionByKey_UseCase(
 {
     /// <inheritdoc/>
     public async Task<GetSelectOrganisationSessionByKeyResponse> InvokeAsync(
-        GetSelectOrganisationSessionByKeyRequest request)
+        GetSelectOrganisationSessionByKeyRequest request,
+        CancellationToken cancellationToken = default)
     {
         return new GetSelectOrganisationSessionByKeyResponse {
             SessionData = await sessionRepository.RetrieveAsync(request.SessionKey),

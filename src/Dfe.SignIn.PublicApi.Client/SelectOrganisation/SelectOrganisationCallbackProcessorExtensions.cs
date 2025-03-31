@@ -63,6 +63,8 @@ public static class SelectOrganisationCallbackProcessorExtensions
     /// </summary>
     /// <param name="processor">The select organisation callback processor instance.</param>
     /// <param name="request">The HTTP request that is handling the callback POST request.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The callback data.</para>
     /// </returns>
@@ -74,13 +76,17 @@ public static class SelectOrganisationCallbackProcessorExtensions
     /// <exception cref="SelectOrganisationCallbackErrorException">
     ///   <para>If a callback error was encountered.</para>
     /// </exception>
-    public static Task<string> ProcessCallbackJsonAsync(this ISelectOrganisationCallbackProcessor processor, HttpRequest request)
+    /// <exception cref="OperationCanceledException" />
+    public static Task<string> ProcessCallbackJsonAsync(
+        this ISelectOrganisationCallbackProcessor processor,
+        HttpRequest request,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(processor, nameof(processor));
         ArgumentNullException.ThrowIfNull(request, nameof(request));
 
         var viewModel = ViewModelFromRequest(request);
-        return processor.ProcessCallbackJsonAsync(viewModel, throwOnError: true);
+        return processor.ProcessCallbackJsonAsync(viewModel, throwOnError: true, cancellationToken);
     }
 
     /// <summary>
@@ -88,6 +94,8 @@ public static class SelectOrganisationCallbackProcessorExtensions
     /// </summary>
     /// <param name="processor">The select organisation callback processor instance.</param>
     /// <param name="request">The HTTP request that is handling the callback POST request.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The callback data.</para>
     /// </returns>
@@ -99,15 +107,20 @@ public static class SelectOrganisationCallbackProcessorExtensions
     /// <exception cref="SelectOrganisationCallbackErrorException">
     ///   <para>If a callback error was encountered.</para>
     /// </exception>
-    public static async Task<SelectOrganisationCallback> ProcessCallbackAsync(this ISelectOrganisationCallbackProcessor processor, HttpRequest request)
+    /// <exception cref="OperationCanceledException" />
+    public static async Task<SelectOrganisationCallback> ProcessCallbackAsync(
+        this ISelectOrganisationCallbackProcessor processor,
+        HttpRequest request,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(processor, nameof(processor));
         ArgumentNullException.ThrowIfNull(request, nameof(request));
 
         var viewModel = ViewModelFromRequest(request);
         var targetType = ResolveCallbackType(viewModel.PayloadType);
-        return (SelectOrganisationCallback?)await processor.ProcessCallbackRawAsync(viewModel, targetType, throwOnError: true)
-            ?? throw new InvalidOperationException("Invalid callback data.");
+        return (SelectOrganisationCallback?)await processor.ProcessCallbackRawAsync(
+            viewModel, targetType, throwOnError: true, cancellationToken
+        ) ?? throw new InvalidOperationException("Invalid callback data.");
     }
 
     /// <summary>
@@ -116,6 +129,8 @@ public static class SelectOrganisationCallbackProcessorExtensions
     /// <typeparam name="TCallback">The type of callback to cast to.</typeparam>
     /// <param name="processor">The select organisation callback processor instance.</param>
     /// <param name="request">The HTTP request that is handling the callback POST request.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The callback data.</para>
     /// </returns>
@@ -127,9 +142,13 @@ public static class SelectOrganisationCallbackProcessorExtensions
     /// <exception cref="SelectOrganisationCallbackErrorException">
     ///   <para>If a callback error was encountered.</para>
     /// </exception>
-    public static async Task<TCallback> ProcessCallbackAsync<TCallback>(this ISelectOrganisationCallbackProcessor processor, HttpRequest request)
+    /// <exception cref="OperationCanceledException" />
+    public static async Task<TCallback> ProcessCallbackAsync<TCallback>(
+        this ISelectOrganisationCallbackProcessor processor,
+        HttpRequest request,
+        CancellationToken cancellationToken = default)
         where TCallback : SelectOrganisationCallback
     {
-        return (TCallback)await processor.ProcessCallbackAsync(request);
+        return (TCallback)await processor.ProcessCallbackAsync(request, cancellationToken);
     }
 }

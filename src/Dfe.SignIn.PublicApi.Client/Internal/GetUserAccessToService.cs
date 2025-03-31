@@ -44,7 +44,9 @@ internal sealed class GetUserAccessToService_PublicApiRequester(
 ) : IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>
 {
     /// <inheritdoc/>
-    public async Task<GetUserAccessToServiceResponse> InvokeAsync(GetUserAccessToServiceRequest request)
+    public async Task<GetUserAccessToServiceResponse> InvokeAsync(
+        GetUserAccessToServiceRequest request,
+        CancellationToken cancellationToken = default)
     {
         var options = optionsAccessor.Value;
         var httpClient = client.HttpClient;
@@ -53,7 +55,10 @@ internal sealed class GetUserAccessToService_PublicApiRequester(
         var organisationId = request.OrganisationId;
         var userId = request.UserId;
 
-        var httpResponse = await httpClient.GetAsync($"services/{serviceId}/organisations/{organisationId}/users/{userId}");
+        var httpResponse = await httpClient.GetAsync(
+            $"services/{serviceId}/organisations/{organisationId}/users/{userId}",
+            cancellationToken
+        );
         if (httpResponse.StatusCode == System.Net.HttpStatusCode.NotFound) {
             return new GetUserAccessToServiceResponse {
                 Roles = [],
@@ -62,7 +67,8 @@ internal sealed class GetUserAccessToService_PublicApiRequester(
 
         httpResponse.EnsureSuccessStatusCode();
 
-        return await httpResponse.Content.ReadFromJsonAsync<GetUserAccessToServiceResponse>(jsonSerializerOptions)
-            ?? throw new InvalidOperationException("Invalid response.");
+        return await httpResponse.Content.ReadFromJsonAsync<GetUserAccessToServiceResponse>(
+            jsonSerializerOptions, cancellationToken
+        ) ?? throw new InvalidOperationException("Invalid response.");
     }
 }

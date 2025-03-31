@@ -117,19 +117,22 @@ public sealed class SelectOrganisationControllerTests
 
         autoMocker.GetMock<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "invalid-client")
+                It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "invalid-client"),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationByClientIdResponse { Application = null });
 
         autoMocker.GetMock<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "mock-client")
+                It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "mock-client"),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationByClientIdResponse { Application = FakeApplication });
 
         autoMocker.GetMock<IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.IsAny<CreateDigitalSignatureForPayloadRequest>()
+                It.IsAny<CreateDigitalSignatureForPayloadRequest>(),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new CreateDigitalSignatureForPayloadResponse {
                 Signature = new() {
@@ -141,7 +144,8 @@ public sealed class SelectOrganisationControllerTests
         foreach (var organisation in new[] { FakeOrganisationA, FakeOrganisationB }) {
             autoMocker.GetMock<IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>>()
                 .Setup(x => x.InvokeAsync(
-                    It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == organisation.Id)
+                    It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == organisation.Id),
+                    It.IsAny<CancellationToken>()
                 ))
                 .ReturnsAsync(new GetOrganisationByIdResponse { Organisation = organisation });
         }
@@ -152,7 +156,10 @@ public sealed class SelectOrganisationControllerTests
     private static void MockSessionNotFound(AutoMocker autoMocker)
     {
         autoMocker.GetMock<IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse>>()
-            .Setup(x => x.InvokeAsync(It.IsAny<GetSelectOrganisationSessionByKeyRequest>()))
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<GetSelectOrganisationSessionByKeyRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetSelectOrganisationSessionByKeyResponse {
                 SessionData = null,
             });
@@ -161,7 +168,10 @@ public sealed class SelectOrganisationControllerTests
     private static void MockSession(AutoMocker autoMocker, SelectOrganisationSessionData sessionData)
     {
         autoMocker.GetMock<IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse>>()
-            .Setup(x => x.InvokeAsync(It.IsAny<GetSelectOrganisationSessionByKeyRequest>()))
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<GetSelectOrganisationSessionByKeyRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetSelectOrganisationSessionByKeyResponse {
                 SessionData = sessionData
             });
@@ -246,7 +256,8 @@ public sealed class SelectOrganisationControllerTests
             x => x.InvokeAsync(
                 It.Is<InvalidateSelectOrganisationSessionRequest>(
                     request => request.SessionKey == "091889d2-1210-4dc0-8cec-be7975598916"
-                )
+                ),
+                It.IsAny<CancellationToken>()
             )
         );
     }
@@ -259,7 +270,8 @@ public sealed class SelectOrganisationControllerTests
 
         autoMocker.GetMock<IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015"))
+                It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015")),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetOrganisationByIdResponse { Organisation = null });
 
@@ -389,7 +401,8 @@ public sealed class SelectOrganisationControllerTests
             x => x.InvokeAsync(
                 It.Is<InvalidateSelectOrganisationSessionRequest>(
                     request => request.SessionKey == "091889d2-1210-4dc0-8cec-be7975598916"
-                )
+                ),
+                It.IsAny<CancellationToken>()
             )
         );
     }
@@ -419,7 +432,8 @@ public sealed class SelectOrganisationControllerTests
 
         autoMocker.GetMock<IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015"))
+                It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015")),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetOrganisationByIdResponse { Organisation = null });
 
@@ -499,7 +513,8 @@ public sealed class SelectOrganisationControllerTests
             x.InvokeAsync(
                 It.Is<CreateDigitalSignatureForPayloadRequest>(
                     request => request.Payload == expectedPayloadBase64
-                )
+                ),
+                It.IsAny<CancellationToken>()
             )
         );
     }

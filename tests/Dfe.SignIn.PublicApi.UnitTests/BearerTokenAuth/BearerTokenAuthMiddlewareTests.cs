@@ -140,7 +140,10 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithInvalidIss}");
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = new ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
@@ -169,7 +172,10 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = null
             });
@@ -188,7 +194,10 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = new ApplicationModel {
                     Id = Guid.Empty,
@@ -217,7 +226,10 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = new ApplicationModel {
                     ApiSecret = "does-not-match-secret",
@@ -246,7 +258,10 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIssButInvalidAudience}");
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = new ApplicationModel {
                     ApiSecret = "does-not-match-secret",
@@ -275,7 +290,10 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithExpExpired}");
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = new ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
@@ -304,7 +322,10 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = new ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
@@ -332,7 +353,10 @@ public class BearerTokenAuthMiddlewareTests
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidExp}");
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = new ApplicationModel {
                     ApiSecret = this.mockValidJwtSecret,
@@ -372,7 +396,10 @@ public class BearerTokenAuthMiddlewareTests
         };
 
         this.mockApplicationByClientId
-            .Setup(b => b.InvokeAsync(It.IsAny<GetApplicationByClientIdRequest>()))
+            .Setup(b => b.InvokeAsync(
+                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = application
             });

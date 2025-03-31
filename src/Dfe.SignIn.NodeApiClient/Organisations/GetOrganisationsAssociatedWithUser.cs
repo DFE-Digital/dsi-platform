@@ -19,9 +19,14 @@ public sealed class GetOrganisationsAssociatedWithUser_NodeApiRequester(
 {
 
     /// <inheritdoc/>
-    public async Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(GetOrganisationsAssociatedWithUserRequest request)
+    public async Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(
+        GetOrganisationsAssociatedWithUserRequest request,
+        CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationsAssociatedWithUserDto[]>($"/organisations/v2/associated-with-user/{request.UserId}");
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationsAssociatedWithUserDto[]>(
+            $"/organisations/v2/associated-with-user/{request.UserId}",
+            cancellationToken
+        );
 
         var organisations = response?.Select(org => mapper.Map<OrganisationModel>(org.Organisation)) ?? [];
 

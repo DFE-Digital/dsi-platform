@@ -17,6 +17,8 @@ public interface ISelectOrganisationCallbackProcessor
     /// </summary>
     /// <param name="viewModel">A view model representing the callback form data.</param>
     /// <param name="throwOnError">Indicates if an exception should be thrown for callback errors.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The raw callback data in JSON format.</para>
     /// </returns>
@@ -26,7 +28,12 @@ public interface ISelectOrganisationCallbackProcessor
     /// <exception cref="SelectOrganisationCallbackErrorException">
     ///   <para>If <paramref name="throwOnError"/> is true and a callback error was encountered.</para>
     /// </exception>
-    Task<string> ProcessCallbackJsonAsync(SelectOrganisationCallbackViewModel viewModel, bool throwOnError);
+    /// <exception cref="OperationCanceledException" />
+    Task<string> ProcessCallbackJsonAsync(
+        SelectOrganisationCallbackViewModel viewModel,
+        bool throwOnError,
+        CancellationToken cancellationToken
+    );
 
     /// <summary>
     /// Verify and process "select organisation" callback data.
@@ -34,6 +41,8 @@ public interface ISelectOrganisationCallbackProcessor
     /// <param name="viewModel">A view model representing the callback form data.</param>
     /// <param name="targetType">The type of object to deserialize.</param>
     /// <param name="throwOnError">Indicates if an exception should be thrown for callback errors.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The deserialized callback data.</para>
     /// </returns>
@@ -48,7 +57,13 @@ public interface ISelectOrganisationCallbackProcessor
     /// <exception cref="SelectOrganisationCallbackErrorException">
     ///   <para>If <paramref name="throwOnError"/> is true and a callback error was encountered.</para>
     /// </exception>
-    Task<object> ProcessCallbackRawAsync(SelectOrganisationCallbackViewModel viewModel, Type targetType, bool throwOnError);
+    /// <exception cref="OperationCanceledException" />
+    Task<object> ProcessCallbackRawAsync(
+        SelectOrganisationCallbackViewModel viewModel,
+        Type targetType,
+        bool throwOnError,
+        CancellationToken cancellationToken
+    );
 }
 
 /// <summary>
@@ -60,7 +75,10 @@ public sealed class SelectOrganisationCallbackProcessor(
 ) : ISelectOrganisationCallbackProcessor
 {
     /// <inheritdoc/>
-    public async Task<string> ProcessCallbackJsonAsync(SelectOrganisationCallbackViewModel viewModel, bool throwOnError)
+    public async Task<string> ProcessCallbackJsonAsync(
+        SelectOrganisationCallbackViewModel viewModel,
+        bool throwOnError,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewModel, nameof(viewModel));
 
@@ -83,11 +101,15 @@ public sealed class SelectOrganisationCallbackProcessor(
     }
 
     /// <inheritdoc/>
-    public async Task<object> ProcessCallbackRawAsync(SelectOrganisationCallbackViewModel viewModel, Type targetType, bool throwOnError)
+    public async Task<object> ProcessCallbackRawAsync(
+        SelectOrganisationCallbackViewModel viewModel,
+        Type targetType,
+        bool throwOnError,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(targetType, nameof(targetType));
 
-        var json = await this.ProcessCallbackJsonAsync(viewModel, throwOnError);
+        var json = await this.ProcessCallbackJsonAsync(viewModel, throwOnError, cancellationToken);
 
         if (viewModel.PayloadType == PayloadTypeConstants.Error && !throwOnError) {
             targetType = typeof(SelectOrganisationCallbackError);

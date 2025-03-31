@@ -70,10 +70,11 @@ public class BearerTokenAuthMiddleware
         }
 
         var serviceProvider = context.RequestServices;
-        IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> service =
-            serviceProvider.GetRequiredService<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>();
+        var service = serviceProvider.GetRequiredService<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>();
 
-        var response = await service.InvokeAsync(new GetApplicationByClientIdRequest { ClientId = jwtToken.Issuer });
+        var response = await service.InvokeAsync(new GetApplicationByClientIdRequest {
+            ClientId = jwtToken.Issuer,
+        });
 
         if (response is null || response.Application is null) {
             await SendErrorResponseAsync("Unknown issuer", context, StatusCodes.Status403Forbidden);

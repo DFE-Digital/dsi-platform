@@ -66,7 +66,10 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         OrganisationModel[]? organisations = null)
     {
         autoMocker.GetMock<IInteractor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>>()
-            .Setup(x => x.InvokeAsync(It.IsAny<GetOrganisationsAssociatedWithUserRequest>()))
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<GetOrganisationsAssociatedWithUserRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetOrganisationsAssociatedWithUserResponse {
                 Organisations = organisations ?? FakeOrganisations,
             });
@@ -80,7 +83,8 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
             .Setup(x => x.InvokeAsync(
                 It.Is<GetApplicationByClientIdRequest>(
                     request => request.ClientId == "fake-client"
-                )
+                ),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = application,
@@ -96,7 +100,8 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
             .Setup(x => x.InvokeAsync(
                 It.Is<GetApplicationsAssociatedWithUserRequest>(
                     request => request.UserId == userId
-                )
+                ),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationsAssociatedWithUserResponse {
                 UserApplicationMappings = mappings ?? [],

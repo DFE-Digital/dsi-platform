@@ -7,9 +7,11 @@ namespace Dfe.SignIn.NodeApiClient.UnitTests.Fakes;
 /// </summary>
 internal class FakeHttpSecurityProvider : IHttpSecurityProvider
 {
-    public Task AddAuthorizationAsync(HttpRequestMessage httpRequestMessage)
+    public Task AddAuthorizationAsync(
+        HttpRequestMessage httpRequestMessage,
+        CancellationToken cancellationToken = default)
     {
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "fake-bearer-token");
+        httpRequestMessage.Headers.Authorization = new("Bearer", "fake-bearer-token");
         return Task.CompletedTask;
     }
 }

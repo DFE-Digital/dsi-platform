@@ -9,6 +9,11 @@ public interface IHttpSecurityProvider
     /// Adds authorization requirements to the provided HttpRequestMessage
     /// </summary>
     /// <param name="httpRequestMessage"></param>
-    /// <returns></returns>
-    Task AddAuthorizationAsync(HttpRequestMessage httpRequestMessage);
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
+    /// <exception cref="OperationCanceledException" />
+    Task AddAuthorizationAsync(
+        HttpRequestMessage httpRequestMessage,
+        CancellationToken cancellationToken = default
+    );
 }
