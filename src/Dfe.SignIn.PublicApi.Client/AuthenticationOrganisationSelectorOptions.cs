@@ -21,7 +21,11 @@ public delegate CreateSelectOrganisationSession_PublicApiRequest SelectOrganisat
 /// when the organisation claim is being updated.
 /// </summary>
 /// <param name="identity">The claims identity representing the user.</param>
-public delegate Task ClaimsIdentityUpdater(ClaimsIdentity identity);
+/// <returns>
+///   <para>Typically the input <see cref="ClaimsIdentity"/> instance; however, this
+///   function can opt to return a new <see cref="ClaimsIdentity"/> instance.</para>
+/// </returns>
+public delegate Task<ClaimsIdentity> ClaimsIdentityUpdater(ClaimsIdentity identity);
 
 /// <summary>
 /// Represents a function that can handle the sign out process.
