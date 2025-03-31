@@ -92,6 +92,19 @@ public sealed class SelectOrganisationController(
         }
         var session = sessionResult.Session;
 
+        if (viewModel.SelectedOrganisationId is null) {
+            // Present prompt to the user with error.
+            this.ModelState.AddModelError(nameof(SelectOrganisationViewModel.SelectedOrganisationId), "Select one organisation.");
+            return this.View("Index", new SelectOrganisationViewModel {
+                SignOutUrl = this.Url.Action(
+                    action: "SignOut",
+                    values: new { clientId, sessionKey }
+                ),
+                Prompt = session.Prompt,
+                OrganisationOptions = session.OrganisationOptions,
+            });
+        }
+
         await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
             SessionKey = sessionKey,
         }, cancellationToken);
@@ -103,7 +116,7 @@ public sealed class SelectOrganisationController(
         }
 
         var selectedOrganisation = (await getOrganisationById.InvokeAsync(new() {
-            OrganisationId = viewModel.SelectedOrganisationId,
+            OrganisationId = (Guid)viewModel.SelectedOrganisationId,
         }, cancellationToken)).Organisation;
         if (selectedOrganisation is null) {
             return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);

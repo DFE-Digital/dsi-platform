@@ -20,5 +20,5 @@ public sealed class SelectOrganisationViewModel
     /// <summary>
     /// Gets or sets the unique ID of the selected organisation.
     /// </summary>
-    public Guid SelectedOrganisationId { get; set; }
+    public Guid? SelectedOrganisationId { get; set; }
 }

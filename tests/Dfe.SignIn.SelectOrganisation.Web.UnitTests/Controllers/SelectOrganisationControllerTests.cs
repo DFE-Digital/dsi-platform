@@ -15,6 +15,8 @@ using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Controllers;
 using Dfe.SignIn.SelectOrganisation.Web.Models;
 using Dfe.SignIn.SelectOrganisation.Web.UnitTests.TestHelpers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
@@ -177,6 +179,15 @@ public sealed class SelectOrganisationControllerTests
             });
     }
 
+    private static IUrlHelper CreateMockUrlHelper()
+    {
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        mockUrlHelper
+            .Setup(mock => mock.Action(It.IsAny<UrlActionContext>()))
+            .Returns("http://localhost/sign-out");
+        return mockUrlHelper.Object;
+    }
+
     #region Index(string, string)
 
     [TestMethod]
@@ -326,6 +337,7 @@ public sealed class SelectOrganisationControllerTests
         var autoMocker = CreateAutoMocker();
         MockSession(autoMocker, FakeSessionWithMultipleOptions);
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+        controller.Url = CreateMockUrlHelper();
 
         var result = await controller.Index("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
 
@@ -387,13 +399,38 @@ public sealed class SelectOrganisationControllerTests
     }
 
     [TestMethod]
+    public async Task PostIndex_PresentsViewWithError_WhenNoOrganisationWasSelected()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSession(autoMocker, FakeSessionWithOneOption);
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+        controller.Url = CreateMockUrlHelper();
+
+        var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.SelectedOrganisationId = null;
+
+        var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
+
+        Assert.AreEqual(1, controller.ModelState.ErrorCount);
+
+        var viewModel = TypeAssert.IsViewModelType<SelectOrganisationViewModel>(result);
+        Assert.AreEqual("Which organisation would you like to contact?", viewModel.Prompt.Heading);
+        Assert.AreEqual("Select one option.", viewModel.Prompt.Hint);
+
+        var expectedOptions = FakeSessionWithOneOption.OrganisationOptions.ToArray();
+        CollectionAssert.AreEqual(expectedOptions, viewModel.OrganisationOptions.ToArray());
+    }
+
+    [TestMethod]
     public async Task PostIndex_InvalidateSession()
     {
         var autoMocker = CreateAutoMocker();
         MockSession(autoMocker, FakeSessionWithOneOption);
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+        controller.Url = CreateMockUrlHelper();
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.SelectedOrganisationId = new Guid("b8f142c3-b853-4a9b-8d79-c53c33f6d7b4");
 
         await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -502,7 +539,7 @@ public sealed class SelectOrganisationControllerTests
 
         var expectedPayload = new SelectOrganisationCallbackId {
             Type = PayloadTypeConstants.Id,
-            Id = inputViewModel.SelectedOrganisationId,
+            Id = (Guid)inputViewModel.SelectedOrganisationId,
         };
         var expectedPayloadJson = JsonSerializer.Serialize(expectedPayload, JsonSerializerOptions);
         string expectedPayloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayloadJson));
