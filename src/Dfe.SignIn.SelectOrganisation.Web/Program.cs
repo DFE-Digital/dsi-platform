@@ -14,6 +14,9 @@ builder.WebHost.ConfigureKestrel(options => {
 builder.Services.AddControllersWithViews();
 
 builder.Services
+    .SetupDfeSignInJsonSerializerOptions();
+
+builder.Services
     .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"));
 builder.Services
     .Configure(PublicApiSigningExtensions.GetConfigurationReader(

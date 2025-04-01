@@ -26,10 +26,6 @@ namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Controllers;
 [TestClass]
 public sealed class SelectOrganisationControllerTests
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
-
     private static readonly Guid FakeUserId = new();
 
     private static readonly OrganisationModel FakeOrganisationA = new() {
@@ -111,6 +107,8 @@ public sealed class SelectOrganisationControllerTests
             .Returns(new ApplicationOptions {
                 ServicesUrl = new Uri("https://services.localhost"),
             });
+
+        autoMocker.Use(JsonHelperExtensions.CreateStandardOptions());
 
         autoMocker.Use(
             new MapperConfiguration(cfg => {
@@ -247,9 +245,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.NoOptions, error.Code);
@@ -299,9 +295,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, error.Code);
@@ -324,9 +318,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackId>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Id, callbackData.Type);
         Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Id);
@@ -442,9 +434,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, callbackData.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, callbackData.Code);
@@ -473,9 +463,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackCancel>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Cancel, callbackData.Type);
     }
@@ -571,9 +559,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, error.Code);
@@ -599,9 +585,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackId>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Id, callbackData.Type);
         Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Id);
@@ -623,7 +607,10 @@ public sealed class SelectOrganisationControllerTests
             Type = PayloadTypeConstants.Id,
             Id = (Guid)inputViewModel.SelectedOrganisationId,
         };
-        var expectedPayloadJson = JsonSerializer.Serialize(expectedPayload, JsonSerializerOptions);
+        var expectedPayloadJson = JsonSerializer.Serialize(
+            expectedPayload,
+            JsonHelperExtensions.CreateStandardOptions()
+        );
         string expectedPayloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayloadJson));
 
         autoMocker.Verify<
@@ -698,9 +685,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackSignOut>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.SignOut, callbackData.Type);
     }
