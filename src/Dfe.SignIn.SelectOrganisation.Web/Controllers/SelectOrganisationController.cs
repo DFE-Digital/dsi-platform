@@ -20,6 +20,7 @@ namespace Dfe.SignIn.SelectOrganisation.Web.Controllers;
 /// The controller for selecting an organisation.
 /// </summary>
 public sealed class SelectOrganisationController(
+    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonSerializerOptions,
     IOptions<ApplicationOptions> applicationOptionsAccessor,
     IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
     IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse> getOrganisationById,
@@ -29,10 +30,6 @@ public sealed class SelectOrganisationController(
     IMapper mapper
 ) : Controller
 {
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new() {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
-
     [HttpGet]
     [Route("{clientId}/{sessionKey}")]
     public async Task<IActionResult> Index(

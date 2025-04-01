@@ -30,6 +30,7 @@ public static class JsonHelperExtensions
         };
 
         options.Converters.Add(new ExceptionJsonConverter());
+        options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 
         return options;
     }
