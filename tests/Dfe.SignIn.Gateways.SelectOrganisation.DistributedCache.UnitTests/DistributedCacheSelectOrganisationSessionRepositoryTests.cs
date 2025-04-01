@@ -20,6 +20,7 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
             Hint = "Select one option.",
         },
         OrganisationOptions = [],
+        AllowCancel = true,
         CallbackUrl = new Uri("https://example.localhost/callback"),
         DetailLevel = OrganisationDetailLevel.Basic,
     };

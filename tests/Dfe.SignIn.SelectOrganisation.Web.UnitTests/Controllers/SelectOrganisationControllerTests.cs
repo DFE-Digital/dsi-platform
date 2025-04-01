@@ -61,6 +61,7 @@ public sealed class SelectOrganisationControllerTests
         Expires = DateTime.UtcNow + new TimeSpan(0, 10, 0),
         ClientId = "mock-client",
         UserId = FakeUserId,
+        AllowCancel = true,
         CallbackUrl = new Uri("http://mock-service.localhost/callback"),
         DetailLevel = OrganisationDetailLevel.Id,
         OrganisationOptions = [],
@@ -347,6 +348,26 @@ public sealed class SelectOrganisationControllerTests
 
         var expectedOptions = FakeSessionWithMultipleOptions.OrganisationOptions.ToArray();
         CollectionAssert.AreEqual(expectedOptions, viewModel.OrganisationOptions.ToArray());
+    }
+
+    [DataRow(true)]
+    [DataRow(false)]
+    [DataTestMethod]
+    public async Task Index_PresentsReflectsSessionAllowCancel(bool allowCancel)
+    {
+        var autoMocker = CreateAutoMocker();
+
+        MockSession(autoMocker, FakeSessionWithMultipleOptions with {
+            AllowCancel = allowCancel,
+        });
+
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+        controller.Url = CreateMockUrlHelper();
+
+        var result = await controller.Index("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
+
+        var viewModel = TypeAssert.IsViewModelType<SelectOrganisationViewModel>(result);
+        Assert.AreEqual(allowCancel, viewModel.AllowCancel);
     }
 
     #endregion

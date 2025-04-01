@@ -29,6 +29,7 @@ public sealed class DeveloperController(
                     Name = organisation.Name,
                 }),
             DetailLevel = OrganisationDetailLevel.Basic,
+            AllowCancel = true,
             CallbackUrl = new Uri("https://example.localhost/callback"),
         };
 

@@ -48,6 +48,7 @@ public sealed class CreateSelectOrganisationSession_UseCase(
             UserId = request.UserId,
             Prompt = request.Prompt,
             OrganisationOptions = filteredOptions,
+            AllowCancel = request.AllowCancel,
             CallbackUrl = request.CallbackUrl,
             DetailLevel = request.DetailLevel,
             Created = createdUtc,

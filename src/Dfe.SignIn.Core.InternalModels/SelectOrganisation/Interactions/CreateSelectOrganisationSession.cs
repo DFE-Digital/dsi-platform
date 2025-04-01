@@ -34,6 +34,11 @@ public sealed record CreateSelectOrganisationSessionRequest()
     public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
 
     /// <summary>
+    /// Gets a value indicating if the user can cancel selection.
+    /// </summary>
+    public bool AllowCancel { get; init; } = true;
+
+    /// <summary>
     /// Gets the callback URL where the selected organisation response will be posted.
     /// </summary>
     public required Uri CallbackUrl { get; init; }

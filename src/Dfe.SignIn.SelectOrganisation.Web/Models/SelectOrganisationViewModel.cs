@@ -23,6 +23,11 @@ public sealed class SelectOrganisationViewModel
     public required IEnumerable<SelectOrganisationOption> OrganisationOptions { get; init; }
 
     /// <summary>
+    /// Gets a value indicating if the user can cancel selection.
+    /// </summary>
+    public required bool AllowCancel { get; init; }
+
+    /// <summary>
     /// Gets or sets the unique ID of the selected organisation.
     /// </summary>
     public Guid? SelectedOrganisationId { get; set; }

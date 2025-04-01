@@ -79,6 +79,7 @@ public sealed class SelectOrganisationController(
             ),
             Prompt = session.Prompt,
             OrganisationOptions = session.OrganisationOptions,
+            AllowCancel = session.AllowCancel,
         });
     }
 
@@ -110,6 +111,7 @@ public sealed class SelectOrganisationController(
                 ),
                 Prompt = session.Prompt,
                 OrganisationOptions = session.OrganisationOptions,
+                AllowCancel = session.AllowCancel,
             });
         }
 
