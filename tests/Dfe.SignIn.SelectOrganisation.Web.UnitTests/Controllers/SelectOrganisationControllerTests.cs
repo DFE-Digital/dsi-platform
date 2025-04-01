@@ -420,11 +420,45 @@ public sealed class SelectOrganisationControllerTests
     }
 
     [TestMethod]
-    public async Task PostIndex_SendsCancelCallback_WhenCancelActionSet()
+    public async Task PostIndex_DoesNotSendCancelCallback_WhenCancelActionSetAndCancelNotAllowed()
     {
         var autoMocker = CreateAutoMocker();
-        MockSession(autoMocker, FakeSessionWithMultipleOptions);
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        MockSession(autoMocker, FakeSessionWithMultipleOptions with {
+            AllowCancel = false,
+        });
+
+        var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.Cancel = "1";
+
+        var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
+
+        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
+        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
+        Assert.AreEqual(PayloadTypeConstants.Error, viewModel.PayloadType);
+        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
+        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+
+        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
+            Convert.FromBase64String(viewModel.PayloadData),
+            new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            }
+        )!;
+        Assert.AreEqual(PayloadTypeConstants.Error, callbackData.Type);
+        Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, callbackData.Code);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_SendsCancelCallback_WhenCancelActionSetAndCancelAllowed()
+    {
+        var autoMocker = CreateAutoMocker();
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        MockSession(autoMocker, FakeSessionWithMultipleOptions with {
+            AllowCancel = true,
+        });
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
         inputViewModel.Cancel = "1";

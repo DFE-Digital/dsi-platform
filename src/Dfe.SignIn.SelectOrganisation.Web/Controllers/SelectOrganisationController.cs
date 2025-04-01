@@ -98,7 +98,12 @@ public sealed class SelectOrganisationController(
         var session = sessionResult.Session;
 
         if (viewModel.Cancel == "1") {
-            return await this.SendCancelCallback(session, cancellationToken);
+            if (session.AllowCancel) {
+                return await this.SendCancelCallback(session, cancellationToken);
+            }
+            else {
+                return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
+            }
         }
 
         if (viewModel.SelectedOrganisationId is null) {
