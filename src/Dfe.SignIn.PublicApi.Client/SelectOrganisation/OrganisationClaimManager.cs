@@ -26,7 +26,7 @@ public interface IOrganisationClaimManager
     Task UpdateOrganisationClaimAsync(
         HttpContext context,
         string organisationJson,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     );
 }
 
@@ -60,7 +60,7 @@ internal sealed class OrganisationClaimManager(
         var dsiIdentity = new ClaimsIdentity(PublicApiConstants.AuthenticationType);
 
         if (options.UpdateClaimsIdentity is not null) {
-            await options.UpdateClaimsIdentity.Invoke(dsiIdentity);
+            dsiIdentity = await options.UpdateClaimsIdentity.Invoke(dsiIdentity);
         }
 
         dsiIdentity.AddClaim(

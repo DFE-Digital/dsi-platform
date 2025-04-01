@@ -21,7 +21,17 @@ public delegate CreateSelectOrganisationSession_PublicApiRequest SelectOrganisat
 /// when the organisation claim is being updated.
 /// </summary>
 /// <param name="identity">The claims identity representing the user.</param>
-public delegate Task ClaimsIdentityUpdater(ClaimsIdentity identity);
+/// <returns>
+///   <para>Typically the input <see cref="ClaimsIdentity"/> instance; however, this
+///   function can opt to return a new <see cref="ClaimsIdentity"/> instance.</para>
+/// </returns>
+public delegate Task<ClaimsIdentity> ClaimsIdentityUpdater(ClaimsIdentity identity);
+
+/// <summary>
+/// Represents a function that can handle the sign out process.
+/// </summary>
+/// <param name="context">The HTTP context.</param>
+public delegate Task SignOutHandler(HttpContext context);
 
 /// <summary>
 /// A flag that indicates which role claims should be added (if any).
@@ -148,6 +158,20 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     ///   <para>The application must handle requests to this path.</para>
     /// </remarks>
     public string CompletedPath { get; set; } = "/";
+
+    /// <summary>
+    /// Gets or sets the path where the user will be redirected to sign out.
+    /// </summary>
+    public string SignOutPath { get; set; } = "/sign-out";
+
+    /// <summary>
+    /// Gets or sets a delegate allowing an application to customise how the
+    /// sign out process is handled.
+    /// </summary>
+    /// <remarks>
+    ///   <para>The default implementation redirects to <see cref="SignOutPath"/>.</para>
+    /// </remarks>
+    public SignOutHandler? HandleSignOut { get; set; } = null;
 
     /// <inheritdoc/>
     AuthenticationOrganisationSelectorOptions IOptions<AuthenticationOrganisationSelectorOptions>.Value => this;

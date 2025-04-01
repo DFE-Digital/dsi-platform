@@ -164,7 +164,7 @@ public sealed class OrganisationClaimManagerTests
         SetupFakeOptions(autoMocker, new AuthenticationOrganisationSelectorOptions {
             UpdateClaimsIdentity = (identity) => {
                 updateClaimsIdentityInvokedWith = identity;
-                return Task.CompletedTask;
+                return Task.FromResult(identity);
             },
         });
 

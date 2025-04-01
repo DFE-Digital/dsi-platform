@@ -1,3 +1,6 @@
+using System.Text.Json;
+using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Framework;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -33,12 +36,17 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 ///   options in <see cref="AuthenticationOrganisationSelectorOptions"/>.</para>
 /// </remarks>
 public sealed class AuthenticationOrganisationSelectorMiddleware(
+    IJsonSerializerOptionsAccessor jsonSerializerOptionsAccessor,
     IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
     IAuthenticationOrganisationSelector organisationSelector,
     ISelectOrganisationCallbackProcessor callbackProcessor,
     IOrganisationClaimManager organisationClaimManager,
     RequestDelegate next)
 {
+    // Workaround .NET Core bug where [FromKeyedService] does not work in middleware.
+    // See: https://github.com/dotnet/aspnetcore/issues/54500
+    private JsonSerializerOptions JsonOptions => jsonSerializerOptionsAccessor.GetOptions();
+
     /// <summary>
     /// Called when "select organisation" authentication middleware is being used.
     /// </summary>
@@ -48,10 +56,14 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
         if (context.User.Identity!.IsAuthenticated) {
             var options = optionsAccessor.Value;
 
+            if (context.Request.Path == options.SignOutPath) {
+                // Do not force user to select an organisation on this route.
+                await next(context);
+                return;
+            }
+
             if (context.Request.Method == HttpMethods.Post && context.Request.Path == options.SelectOrganisationCallbackPath) {
-                string callbackDataJson = await callbackProcessor.ProcessCallbackJsonAsync(context.Request, cancellationToken: default);
-                await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson, cancellationToken: default);
-                context.Response.Redirect(options.CompletedPath);
+                await this.HandleSelectOrganisationCallbackAsync(context, options);
                 return;
             }
 
@@ -70,5 +82,54 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
         }
 
         await next(context);
+    }
+
+    private async Task HandleSelectOrganisationCallbackAsync(
+        HttpContext context,
+        AuthenticationOrganisationSelectorOptions options)
+    {
+        var callbackViewModel = SelectOrganisationCallbackViewModel.FromRequest(context.Request);
+        var callbackData = await callbackProcessor.ProcessCallbackAsync(callbackViewModel);
+
+        if (callbackData is SelectOrganisationCallbackId) {
+            // An organisation was selected.
+            string callbackDataJson = JsonSerializer.Serialize(callbackData, callbackData.GetType(), this.JsonOptions);
+            await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson);
+        }
+        else if (callbackData is SelectOrganisationCallbackCancel) {
+            // Selection was cancelled.
+            if (!context.User.HasClaim(claim => claim.Type == DsiClaimTypes.Organisation)) {
+                // User has not selected an organisation yet; sign them out.
+                await this.HandleSignOut(context, options);
+                return;
+            }
+        }
+        else if (callbackData is SelectOrganisationCallbackSignOut) {
+            // User has requested to sign-out.
+            await this.HandleSignOut(context, options);
+            return;
+        }
+        else {
+            throw new InvalidOperationException($"Encountered unexpected callback payload type '{callbackViewModel.PayloadType}'.");
+        }
+
+        context.Response.Redirect(options.CompletedPath);
+    }
+
+    private Task HandleSignOut(
+        HttpContext context,
+        AuthenticationOrganisationSelectorOptions options)
+    {
+        if (options.HandleSignOut is not null) {
+            return options.HandleSignOut(context);
+        }
+
+        if (options.SignOutPath is null) {
+            throw new InvalidOperationException("Option 'SignOutPath' has not been provided.");
+        }
+
+        context.Response.Redirect(options.SignOutPath);
+
+        return Task.CompletedTask;
     }
 }

@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,8 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             .Returns(options ?? new AuthenticationOrganisationSelectorOptions {
                 CompletedPath = "/completed/path",
             });
+
+        autoMocker.Use(JsonHelperExtensions.CreateStandardOptions());
     }
 
     private static Mock<HttpContext> SetupMockHttpContext(AutoMocker autoMocker)
@@ -93,18 +96,36 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_InterceptsAndHandlesCallback()
+    public async Task InvokeAsync_CallsNextMiddleware_WhenSignOutPathIsRequested()
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        string expectedCallbackData = /*lang=json,strict*/ """
-            {
-                "type": "id",
-                "id": "1b1df816-923a-4133-9e91-725a52075645"
-            }
-        """;
+        var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
+
+        var mockRequest = autoMocker.GetMock<HttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Get);
+        mockRequest.Setup(mock => mock.Path).Returns("/sign-out");
+
+        var mockContext = SetupMockHttpContext(autoMocker);
+
+        await middleware.InvokeAsync(mockContext.Object);
+
+        autoMocker.Verify<RequestDelegate>(
+            x => x.Invoke(
+                It.Is<HttpContext>(context => context == mockContext.Object)
+            ),
+            Times.Once
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_InterceptsAndHandlesCallback()
+    {
+        var autoMocker = new AutoMocker();
+        SetupOptions(autoMocker);
+        SetupMockAuthenticatedUser(autoMocker);
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
         mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
@@ -119,12 +140,20 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         var mockContext = SetupMockHttpContext(autoMocker);
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
-            .Setup(mock => mock.ProcessCallbackJsonAsync(
-                It.IsAny<SelectOrganisationCallbackViewModel>(),
+            .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
+                    viewModel.PayloadType == PayloadTypeConstants.Id &&
+                    viewModel.Payload == "{data}" &&
+                    viewModel.Sig == "{sig}" &&
+                    viewModel.Kid == "1b1df816-923a-4133-9e91-725a52075645"
+                ),
                 It.Is<bool>(throwOnError => throwOnError),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(expectedCallbackData);
+            .ReturnsAsync(new SelectOrganisationCallbackId {
+                Type = PayloadTypeConstants.Id,
+                Id = new Guid("c72bdba2-6793-4118-aeba-cd3def045245"),
+            });
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
@@ -133,7 +162,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         autoMocker.Verify<IOrganisationClaimManager>(
             x => x.UpdateOrganisationClaimAsync(
                 It.IsAny<HttpContext>(),
-                It.Is<string>(organisationJson => organisationJson == expectedCallbackData),
+                It.Is<string>(organisationJson => organisationJson.Contains("c72bdba2-6793-4118-aeba-cd3def045245")),
                 It.IsAny<CancellationToken>()
             ),
             Times.Once
@@ -142,6 +171,147 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         autoMocker.Verify<HttpResponse>(
             x => x.Redirect(
                 It.Is<string>(location => location == "/completed/path")
+            ),
+            Times.Once
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_RedirectsToSignOutPath_WhenHandlingCancelCallback_AndOrganisationHasNotBeenSelectedYet()
+    {
+        var autoMocker = new AutoMocker();
+        SetupOptions(autoMocker);
+        SetupMockAuthenticatedUser(autoMocker);
+
+        var mockRequest = autoMocker.GetMock<HttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
+        mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
+        mockRequest.Setup(mock => mock.Form).Returns(new FormCollection(new() {
+            { "payloadType", PayloadTypeConstants.Cancel },
+            { "payload", "{data}" },
+            { "sig", "{sig}" },
+            { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
+        }));
+
+        var mockContext = SetupMockHttpContext(autoMocker);
+
+        autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
+            .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
+                    viewModel.PayloadType == PayloadTypeConstants.Cancel &&
+                    viewModel.Payload == "{data}" &&
+                    viewModel.Sig == "{sig}" &&
+                    viewModel.Kid == "1b1df816-923a-4133-9e91-725a52075645"
+                ),
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
+            ))
+            .ReturnsAsync(new SelectOrganisationCallbackCancel {
+                Type = PayloadTypeConstants.Cancel,
+            });
+
+        var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
+
+        await middleware.InvokeAsync(mockContext.Object);
+
+        autoMocker.Verify<HttpResponse>(
+            x => x.Redirect(
+                It.Is<string>(location => location == "/sign-out")
+            ),
+            Times.Once
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_DoesNotRedirectToSignOutPath_WhenHandlingCancelCallback_AndOrganisationHasBeenSelected()
+    {
+        var autoMocker = new AutoMocker();
+        SetupOptions(autoMocker);
+
+        SetupMockAuthenticatedUser(autoMocker, [
+            new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
+        ]);
+
+        var mockRequest = autoMocker.GetMock<HttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
+        mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
+        mockRequest.Setup(mock => mock.Form).Returns(new FormCollection(new() {
+            { "payloadType", PayloadTypeConstants.Cancel },
+            { "payload", "{data}" },
+            { "sig", "{sig}" },
+            { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
+        }));
+
+        var mockContext = SetupMockHttpContext(autoMocker);
+
+        autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
+            .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
+                    viewModel.PayloadType == PayloadTypeConstants.Cancel &&
+                    viewModel.Payload == "{data}" &&
+                    viewModel.Sig == "{sig}" &&
+                    viewModel.Kid == "1b1df816-923a-4133-9e91-725a52075645"
+                ),
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
+            ))
+            .ReturnsAsync(new SelectOrganisationCallbackCancel {
+                Type = PayloadTypeConstants.Cancel,
+            });
+
+        var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
+
+        await middleware.InvokeAsync(mockContext.Object);
+
+        autoMocker.Verify<HttpResponse>(
+            x => x.Redirect(
+                It.Is<string>(location => location == "/sign-out")
+            ),
+            Times.Never
+        );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_RedirectsToSignOutPath_WhenHandlingSignOutCallback()
+    {
+        var autoMocker = new AutoMocker();
+        SetupOptions(autoMocker);
+        SetupMockAuthenticatedUser(autoMocker);
+
+        var mockRequest = autoMocker.GetMock<HttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
+        mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
+        mockRequest.Setup(mock => mock.Form).Returns(new FormCollection(new() {
+            { "payloadType", PayloadTypeConstants.SignOut },
+            { "payload", "{data}" },
+            { "sig", "{sig}" },
+            { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
+        }));
+
+        var mockContext = SetupMockHttpContext(autoMocker);
+
+        autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
+            .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
+                    viewModel.PayloadType == PayloadTypeConstants.SignOut &&
+                    viewModel.Payload == "{data}" &&
+                    viewModel.Sig == "{sig}" &&
+                    viewModel.Kid == "1b1df816-923a-4133-9e91-725a52075645"
+                ),
+                It.Is<bool>(throwOnError => throwOnError),
+                It.IsAny<CancellationToken>()
+            ))
+            .ReturnsAsync(new SelectOrganisationCallbackSignOut {
+                Type = PayloadTypeConstants.SignOut,
+            });
+
+        var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
+
+        await middleware.InvokeAsync(mockContext.Object);
+
+        autoMocker.Verify<HttpResponse>(
+            x => x.Redirect(
+                It.Is<string>(location => location == "/sign-out")
             ),
             Times.Once
         );
