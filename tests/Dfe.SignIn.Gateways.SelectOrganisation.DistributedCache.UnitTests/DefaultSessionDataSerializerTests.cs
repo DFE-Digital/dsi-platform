@@ -22,6 +22,7 @@ public sealed class DefaultSessionDataSerializerTests
                 Name = "Example organisation",
             },
         ],
+        AllowCancel = true,
         CallbackUrl = new Uri("https://example.localhost/callback"),
         DetailLevel = OrganisationDetailLevel.Basic,
     };

@@ -46,6 +46,7 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
                 Hint = "Select one option."
             },
             OrganisationOptions = [],
+            AllowCancel = true,
             CallbackUrl = new Uri("https://example.localhost/callback"),
             DetailLevel = OrganisationDetailLevel.Basic,
         };

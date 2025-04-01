@@ -69,9 +69,12 @@ public sealed class AuthenticationOrganisationSelector(
     {
         var options = optionsAccessor.Value;
 
+        bool isUserSelectingForFirstTime = !context.User.HasClaim(claim => claim.Type == DsiClaimTypes.Organisation);
+
         var request = new CreateSelectOrganisationSession_PublicApiRequest {
             UserId = context.User.GetDsiUserId(),
             CallbackUrl = new Uri($"{context.Request.Scheme}://{context.Request.Host}{context.Request.PathBase}{options.SelectOrganisationCallbackPath}"),
+            AllowCancel = !isUserSelectingForFirstTime,
         };
         if (options.PrepareSelectOrganisationRequest is not null) {
             request = options.PrepareSelectOrganisationRequest(request);

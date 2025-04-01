@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
@@ -56,12 +57,15 @@ public sealed class AuthenticationOrganisationSelectorTests
 
     private static readonly Guid FakeUserId = new("8d2799b0-eabe-4a5c-a01f-d52bc1cce63e");
 
-    private static ClaimsPrincipal SetupMockAuthenticatedUser(AutoMocker autoMocker)
+    private static ClaimsPrincipal SetupMockAuthenticatedUser(
+        AutoMocker autoMocker,
+        IEnumerable<Claim>? additionalClaims = null)
     {
         var mockContext = autoMocker.GetMock<HttpContext>();
 
         var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[
-            new Claim(DsiClaimTypes.UserId, FakeUserId.ToString())
+            new Claim(DsiClaimTypes.UserId, FakeUserId.ToString()),
+            ..additionalClaims ?? []
         ], authenticationType: "TestAuth");
 
         var fakeUser = new ClaimsPrincipal(fakeIdentity);
@@ -146,7 +150,7 @@ public sealed class AuthenticationOrganisationSelectorTests
 
         mockCreateSelectOrganisationSession.Verify(x => x.InvokeAsync(
             It.IsAny<CreateSelectOrganisationSession_PublicApiRequest>(),
-                It.IsAny<CancellationToken>()
+            It.IsAny<CancellationToken>()
         ), Times.Once);
     }
 
@@ -273,6 +277,53 @@ public sealed class AuthenticationOrganisationSelectorTests
             ),
             Times.Once
         );
+    }
+
+    [TestMethod]
+    public async Task InitiateSelectionAsync_AllowCancelIsFalse_WhenUserIsSelectingOrganisationForFirstTime()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockOptions(autoMocker);
+        var fakeContext = SetupMockContext(autoMocker);
+        SetupMockAuthenticatedUser(autoMocker);
+
+        var mockCreateSelectOrganisationSession = SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithNoOptions);
+
+        var selector = autoMocker.CreateInstance<AuthenticationOrganisationSelector>();
+
+        await selector.InitiateSelectionAsync(fakeContext.Object);
+
+        mockCreateSelectOrganisationSession.Verify(x => x.InvokeAsync(
+            It.Is<CreateSelectOrganisationSession_PublicApiRequest>(request =>
+                !request.AllowCancel
+            ),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task InitiateSelectionAsync_AllowCancelIsTrue_WhenUserIsSwitchingToAnotherOrganisation()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockOptions(autoMocker);
+        var fakeContext = SetupMockContext(autoMocker);
+
+        SetupMockAuthenticatedUser(autoMocker, [
+            new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
+        ]);
+
+        var mockCreateSelectOrganisationSession = SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithNoOptions);
+
+        var selector = autoMocker.CreateInstance<AuthenticationOrganisationSelector>();
+
+        await selector.InitiateSelectionAsync(fakeContext.Object);
+
+        mockCreateSelectOrganisationSession.Verify(x => x.InvokeAsync(
+            It.Is<CreateSelectOrganisationSession_PublicApiRequest>(request =>
+                request.AllowCancel
+            ),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 
     #endregion
