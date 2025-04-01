@@ -145,7 +145,7 @@ public record SelectOrganisationCallbackBasic()
     /// <summary>
     /// Gets the legal name of the organisation.
     /// </summary>
-    public required string LegalName { get; init; }
+    public string? LegalName { get; init; }
 
     // TODO: Add missing properties...
     //   category - Category of the organisation.
