@@ -23,7 +23,8 @@ public sealed class CreateSelectOrganisationSession_UseCase(
 
     /// <inheritdoc/>
     public async Task<CreateSelectOrganisationSessionResponse> InvokeAsync(
-        CreateSelectOrganisationSessionRequest request)
+        CreateSelectOrganisationSessionRequest request,
+        CancellationToken cancellationToken = default)
     {
         var options = optionsAccessor.Value;
 
@@ -33,7 +34,7 @@ public sealed class CreateSelectOrganisationSession_UseCase(
             ClientId = request.ClientId,
             UserId = request.UserId,
             Filter = request.Filter,
-        });
+        }, cancellationToken);
 
         var filteredOptions = filteredOrganisationsResponse.FilteredOrganisations
             .Select(organisation => new SelectOrganisationOption {
@@ -47,6 +48,7 @@ public sealed class CreateSelectOrganisationSession_UseCase(
             UserId = request.UserId,
             Prompt = request.Prompt,
             OrganisationOptions = filteredOptions,
+            AllowCancel = request.AllowCancel,
             CallbackUrl = request.CallbackUrl,
             DetailLevel = request.DetailLevel,
             Created = createdUtc,

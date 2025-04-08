@@ -30,6 +30,7 @@ public static class JsonHelperExtensions
         };
 
         options.Converters.Add(new ExceptionJsonConverter());
+        options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 
         return options;
     }
@@ -46,5 +47,32 @@ public static class JsonHelperExtensions
         ArgumentNullException.ThrowIfNull(services, nameof(services));
 
         services.AddKeyedSingleton(StandardOptionsKey, CreateStandardOptions());
+        services.AddSingleton<IJsonSerializerOptionsAccessor, JsonSerializerOptionsAccessor>();
     }
+}
+
+/// <summary>
+/// Represents a service that gets the <see cref="JsonHelperExtensions.StandardOptionsKey"/>
+/// <see cref="JsonSerializerOptions"/> instance.
+/// </summary>
+/// <remarks>
+///   <para>This was added to workaround a bug in .NET Core: https://github.com/dotnet/aspnetcore/issues/54500</para>
+/// </remarks>
+public interface IJsonSerializerOptionsAccessor
+{
+    /// <summary>
+    /// Gets the <see cref="JsonSerializerOptions"/> instanced.
+    /// </summary>
+    /// <returns>
+    ///   <para>The <see cref="JsonSerializerOptions"/> instance.
+    /// </returns>
+    JsonSerializerOptions GetOptions();
+}
+
+internal sealed class JsonSerializerOptionsAccessor(
+    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonOptions
+) : IJsonSerializerOptionsAccessor
+{
+    /// <inheritdoc />
+    public JsonSerializerOptions GetOptions() => jsonOptions;
 }

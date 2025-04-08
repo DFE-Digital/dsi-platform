@@ -41,6 +41,11 @@ public sealed record SelectOrganisationSessionData()
     public required IEnumerable<SelectOrganisationOption> OrganisationOptions { get; init; }
 
     /// <summary>
+    /// Gets a value indicating if the user can cancel selection.
+    /// </summary>
+    public required bool AllowCancel { get; init; }
+
+    /// <summary>
     /// Gets the callback URL which is invoked when the user makes a selection;
     /// when there is no selection to be made; or when an error has occurred.
     /// </summary>

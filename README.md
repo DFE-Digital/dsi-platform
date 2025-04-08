@@ -16,6 +16,12 @@ dotnet nuget add source ~/.nuget-local --name LocalStore
 Use the following command to build and push NuGet packages to a local feed:
 
 ```pwsh
-dotnet build
+dotnet build -p:IsPipeline=true
 dotnet nuget push "**/*.nupkg" --source LocalStore
+```
+
+Alternatively the following can be ran from the Visual Studio Code command palette:
+
+```
+task dfe: update local feed
 ```

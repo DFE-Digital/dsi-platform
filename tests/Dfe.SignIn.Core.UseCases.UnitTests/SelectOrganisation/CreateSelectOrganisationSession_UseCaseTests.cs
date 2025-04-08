@@ -32,7 +32,10 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     private static void MockFilteredOrganisations(AutoMocker autoMocker, IEnumerable<OrganisationModel>? filteredOrganisations = null)
     {
         autoMocker.GetMock<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>()
-            .Setup(x => x.InvokeAsync(It.IsAny<FilterOrganisationsForUserRequest>()))
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<FilterOrganisationsForUserRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = filteredOrganisations ?? [],
             });

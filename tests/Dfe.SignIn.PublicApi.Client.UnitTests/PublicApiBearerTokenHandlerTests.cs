@@ -49,7 +49,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var handler = CreatePublicApiBearerTokenHandler(autoMocker);
         var invoker = new HttpMessageInvoker(handler);
 
-        var fakeHttpRequest = new HttpRequestMessage(HttpMethod.Get, "v2/.well-known/keys");
+        var fakeHttpRequest = new HttpRequestMessage(HttpMethod.Get, "/v2/.well-known/keys");
         invoker.Send(fakeHttpRequest, CancellationToken.None);
 
         Assert.IsNotNull(fakeHttpRequest.Headers.Authorization);
@@ -69,7 +69,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var handler = CreatePublicApiBearerTokenHandler(autoMocker);
         var invoker = new HttpMessageInvoker(handler);
 
-        var fakeHttpRequest = new HttpRequestMessage(HttpMethod.Get, "v2/.well-known/keys");
+        var fakeHttpRequest = new HttpRequestMessage(HttpMethod.Get, "/v2/.well-known/keys");
         await invoker.SendAsync(fakeHttpRequest, CancellationToken.None);
 
         Assert.IsNotNull(fakeHttpRequest.Headers.Authorization);

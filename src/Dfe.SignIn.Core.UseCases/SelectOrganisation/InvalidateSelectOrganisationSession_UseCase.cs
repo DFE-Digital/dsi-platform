@@ -14,7 +14,8 @@ public sealed class InvalidateSelectOrganisationSession_UseCase(
 {
     /// <inheritdoc/>
     public async Task<InvalidateSelectOrganisationSessionResponse> InvokeAsync(
-        InvalidateSelectOrganisationSessionRequest request)
+        InvalidateSelectOrganisationSessionRequest request,
+        CancellationToken cancellationToken = default)
     {
         await sessionRepository.InvalidateAsync(request.SessionKey);
 

@@ -20,7 +20,7 @@ public sealed class InteractorModelValidator<TRequest, TResponse>(
     where TResponse : class
 {
     /// <inheritdoc/>
-    public async Task<TResponse> InvokeAsync(TRequest request)
+    public async Task<TResponse> InvokeAsync(TRequest request, CancellationToken cancellationToken = default)
     {
         if (options.Value.ValidateRequestModels) {
             this.Validate(request!);
@@ -29,10 +29,10 @@ public sealed class InteractorModelValidator<TRequest, TResponse>(
         TResponse? response = null;
 
         try {
-            response = await inner.InvokeAsync(request);
+            response = await inner.InvokeAsync(request, cancellationToken);
         }
         catch (Exception ex) {
-            if (ex is not InteractionException) {
+            if (ex is not InteractionException and not OperationCanceledException) {
                 // Inner validation exceptions fall into this category since they
                 // are unexpected from the context of this particular interaction.
                 ex = new UnexpectedException("An unexpected exception occurred whilst processing interaction.", ex);

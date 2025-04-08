@@ -7,6 +7,60 @@ namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 /// </summary>
 public abstract record SelectOrganisationCallback()
 {
+    private static readonly Dictionary<string, Type> PayloadTypeMappings = new() {
+        { PayloadTypeConstants.Error, typeof(SelectOrganisationCallbackError) },
+        { PayloadTypeConstants.SignOut, typeof(SelectOrganisationCallbackSignOut) },
+        { PayloadTypeConstants.Cancel, typeof(SelectOrganisationCallbackCancel) },
+        { PayloadTypeConstants.Id, typeof(SelectOrganisationCallbackId) },
+        { PayloadTypeConstants.Basic, typeof(SelectOrganisationCallbackBasic) },
+        { PayloadTypeConstants.Extended, typeof(SelectOrganisationCallbackExtended) },
+        { PayloadTypeConstants.Legacy, typeof(SelectOrganisationCallbackLegacy) },
+    };
+
+    /// <summary>
+    /// Tries to resolve the specified callback payload type.
+    /// </summary>
+    /// <param name="payloadType">Name of the payload type (see <see cref="PayloadTypeConstants"/>).</param>
+    /// <returns>
+    ///   <para>The resolved type of <see cref="SelectOrganisationCallback"/>; otherwise,
+    ///   a value of <c>null</c>.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="payloadType"/> is null.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="payloadType"/> is an empty string.</para>
+    /// </exception>
+    public static Type? TryResolveType(string payloadType)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(payloadType, nameof(payloadType));
+
+        PayloadTypeMappings.TryGetValue(payloadType, out var result);
+        return result;
+    }
+
+    /// <summary>
+    /// Resolves the specified callback payload type.
+    /// </summary>
+    /// <param name="payloadType">Name of the payload type (see <see cref="PayloadTypeConstants"/>).</param>
+    /// <returns>
+    ///   <para>The resolved type of <see cref="SelectOrganisationCallback"/>.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="payloadType"/> is null.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="payloadType"/> is an empty string.</para>
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///   <para>If type could not be resolved for <paramref name="payloadType"/>.</para>
+    /// </exception>
+    public static Type ResolveType(string payloadType)
+    {
+        return TryResolveType(payloadType)
+            ?? throw new InvalidOperationException($"Cannot resolve unknown payload type '{payloadType}'.");
+    }
+
     /// <summary>
     /// Gets type type of callback payload.
     /// </summary>
@@ -49,6 +103,22 @@ public enum SelectOrganisationErrorCode
 }
 
 /// <summary>
+/// The type of data payload supplied to the "select organisation" callback when
+/// the user has requested to sign-out.
+/// </summary>
+public record SelectOrganisationCallbackSignOut() : SelectOrganisationCallback
+{
+}
+
+/// <summary>
+/// The type of data payload supplied to the "select organisation" callback when
+/// the user has requested to cancel selection.
+/// </summary>
+public record SelectOrganisationCallbackCancel() : SelectOrganisationCallback
+{
+}
+
+/// <summary>
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Id"/> is specified.
 /// </summary>
@@ -75,7 +145,7 @@ public record SelectOrganisationCallbackBasic()
     /// <summary>
     /// Gets the legal name of the organisation.
     /// </summary>
-    public required string LegalName { get; init; }
+    public string? LegalName { get; init; }
 
     // TODO: Add missing properties...
     //   category - Category of the organisation.

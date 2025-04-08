@@ -10,7 +10,9 @@ public sealed class FakeFilterOrganisationsForUser
     : IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>
 {
     /// <inheritdoc/>
-    public Task<FilterOrganisationsForUserResponse> InvokeAsync(FilterOrganisationsForUserRequest request)
+    public Task<FilterOrganisationsForUserResponse> InvokeAsync(
+        FilterOrganisationsForUserRequest request,
+        CancellationToken cancellationToken = default)
     {
         return Task.FromResult<FilterOrganisationsForUserResponse>(new() {
             FilteredOrganisations = [

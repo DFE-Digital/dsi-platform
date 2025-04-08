@@ -66,7 +66,10 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         OrganisationModel[]? organisations = null)
     {
         autoMocker.GetMock<IInteractor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>>()
-            .Setup(x => x.InvokeAsync(It.IsAny<GetOrganisationsAssociatedWithUserRequest>()))
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<GetOrganisationsAssociatedWithUserRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetOrganisationsAssociatedWithUserResponse {
                 Organisations = organisations ?? FakeOrganisations,
             });
@@ -80,7 +83,8 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
             .Setup(x => x.InvokeAsync(
                 It.Is<GetApplicationByClientIdRequest>(
                     request => request.ClientId == "fake-client"
-                )
+                ),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationByClientIdResponse {
                 Application = application,
@@ -96,7 +100,8 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
             .Setup(x => x.InvokeAsync(
                 It.Is<GetApplicationsAssociatedWithUserRequest>(
                     request => request.UserId == userId
-                )
+                ),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationsAssociatedWithUserResponse {
                 UserApplicationMappings = mappings ?? [],
@@ -330,10 +335,10 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
 
     #endregion
 
-    #region Type: OrganisationFilterType.Associated with OrganisationFilterAssociation.AssignedToUserForService
+    #region Type: OrganisationFilterType.Associated with OrganisationFilterAssociation.AssignedToUserForApplication
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAssignedToUserForService_ReturnsNone_WhenNoOrganisationsAreAssociatedWithUser()
+    public async Task InvokeAsync_AssociatedWithAssignedToUserForApplication_ReturnsNone_WhenNoOrganisationsAreAssociatedWithUser()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker, []);
@@ -343,7 +348,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
                 Type = OrganisationFilterType.Associated,
-                Association = OrganisationFilterAssociation.AssignedToUserForService,
+                Association = OrganisationFilterAssociation.AssignedToUserForApplication,
             },
         });
 
@@ -353,7 +358,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
     [DataTestMethod]
     [DataRow(false)]
     [DataRow(true)]
-    public async Task InvokeAsync_AssociatedWithAssignedToUserForService_ReturnsNone_WhenApplicationIsNotAssociatedWithApplication(
+    public async Task InvokeAsync_AssociatedWithAssignedToUserForApplication_ReturnsNone_WhenApplicationIsNotAssociatedWithApplication(
         bool isIdOnlyService)
     {
         var autoMocker = new AutoMocker();
@@ -368,7 +373,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
                 Type = OrganisationFilterType.Associated,
-                Association = OrganisationFilterAssociation.AssignedToUserForService,
+                Association = OrganisationFilterAssociation.AssignedToUserForApplication,
             },
         });
 
@@ -378,7 +383,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
     [DataTestMethod]
     [DataRow(false)]
     [DataRow(true)]
-    public async Task InvokeAsync_AssociatedWithAssignedToUserForServiceReturnsAssociatedApplicationOrganisations_WhenUserAssociatedWithApplication(
+    public async Task InvokeAsync_AssociatedWithAssignedToUserForApplicationReturnsAssociatedApplicationOrganisations_WhenUserAssociatedWithApplication(
         bool isIdOnlyService)
     {
         var autoMocker = new AutoMocker();
@@ -406,7 +411,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
                 Type = OrganisationFilterType.Associated,
-                Association = OrganisationFilterAssociation.AssignedToUserForService,
+                Association = OrganisationFilterAssociation.AssignedToUserForApplication,
             },
         });
 

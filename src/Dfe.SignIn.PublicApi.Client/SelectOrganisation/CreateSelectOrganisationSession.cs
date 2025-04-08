@@ -37,6 +37,11 @@ public sealed record CreateSelectOrganisationSession_PublicApiRequest()
     /// Organisation filtering specification.
     /// </summary>
     public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
+
+    /// <summary>
+    /// A value indicating if the user can cancel selection.
+    /// </summary>
+    public bool AllowCancel { get; init; } = true;
 }
 
 /// <summary>

@@ -22,16 +22,20 @@ internal sealed class PublicApiPostRequester<TRequest, TResponse>(
     // revisit the unit testing of this code module in the future.
 
     /// <inheritdoc/>
-    public async Task<TResponse> InvokeAsync(TRequest request)
+    public async Task<TResponse> InvokeAsync(
+        TRequest request,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request, nameof(request));
 
         var httpClient = client.HttpClient;
 
-        var httpResponse = (await httpClient.PostAsJsonAsync(endpoint, request, jsonOptions))
-            .EnsureSuccessStatusCode();
+        var httpResponse = (await httpClient.PostAsJsonAsync(
+            endpoint, request, jsonOptions, cancellationToken
+        )).EnsureSuccessStatusCode();
 
-        return await httpResponse.Content.ReadFromJsonAsync<TResponse>(jsonOptions)
-            ?? throw new MissingResponseDataException();
+        return await httpResponse.Content.ReadFromJsonAsync<TResponse>(
+            jsonOptions, cancellationToken
+        ) ?? throw new MissingResponseDataException();
     }
 }

@@ -15,6 +15,8 @@ using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Controllers;
 using Dfe.SignIn.SelectOrganisation.Web.Models;
 using Dfe.SignIn.SelectOrganisation.Web.UnitTests.TestHelpers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
@@ -24,10 +26,6 @@ namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Controllers;
 [TestClass]
 public sealed class SelectOrganisationControllerTests
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
-
     private static readonly Guid FakeUserId = new();
 
     private static readonly OrganisationModel FakeOrganisationA = new() {
@@ -59,6 +57,7 @@ public sealed class SelectOrganisationControllerTests
         Expires = DateTime.UtcNow + new TimeSpan(0, 10, 0),
         ClientId = "mock-client",
         UserId = FakeUserId,
+        AllowCancel = true,
         CallbackUrl = new Uri("http://mock-service.localhost/callback"),
         DetailLevel = OrganisationDetailLevel.Id,
         OrganisationOptions = [],
@@ -109,6 +108,8 @@ public sealed class SelectOrganisationControllerTests
                 ServicesUrl = new Uri("https://services.localhost"),
             });
 
+        autoMocker.Use(JsonHelperExtensions.CreateStandardOptions());
+
         autoMocker.Use(
             new MapperConfiguration(cfg => {
                 cfg.AddProfile<SelectedOrganisationCallbackMappingProfile>();
@@ -117,19 +118,22 @@ public sealed class SelectOrganisationControllerTests
 
         autoMocker.GetMock<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "invalid-client")
+                It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "invalid-client"),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationByClientIdResponse { Application = null });
 
         autoMocker.GetMock<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "mock-client")
+                It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "mock-client"),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationByClientIdResponse { Application = FakeApplication });
 
         autoMocker.GetMock<IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.IsAny<CreateDigitalSignatureForPayloadRequest>()
+                It.IsAny<CreateDigitalSignatureForPayloadRequest>(),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new CreateDigitalSignatureForPayloadResponse {
                 Signature = new() {
@@ -141,7 +145,8 @@ public sealed class SelectOrganisationControllerTests
         foreach (var organisation in new[] { FakeOrganisationA, FakeOrganisationB }) {
             autoMocker.GetMock<IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>>()
                 .Setup(x => x.InvokeAsync(
-                    It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == organisation.Id)
+                    It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == organisation.Id),
+                    It.IsAny<CancellationToken>()
                 ))
                 .ReturnsAsync(new GetOrganisationByIdResponse { Organisation = organisation });
         }
@@ -152,7 +157,10 @@ public sealed class SelectOrganisationControllerTests
     private static void MockSessionNotFound(AutoMocker autoMocker)
     {
         autoMocker.GetMock<IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse>>()
-            .Setup(x => x.InvokeAsync(It.IsAny<GetSelectOrganisationSessionByKeyRequest>()))
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<GetSelectOrganisationSessionByKeyRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetSelectOrganisationSessionByKeyResponse {
                 SessionData = null,
             });
@@ -161,13 +169,25 @@ public sealed class SelectOrganisationControllerTests
     private static void MockSession(AutoMocker autoMocker, SelectOrganisationSessionData sessionData)
     {
         autoMocker.GetMock<IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse>>()
-            .Setup(x => x.InvokeAsync(It.IsAny<GetSelectOrganisationSessionByKeyRequest>()))
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<GetSelectOrganisationSessionByKeyRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
             .ReturnsAsync(new GetSelectOrganisationSessionByKeyResponse {
                 SessionData = sessionData
             });
     }
 
-    #region Index(string, string)
+    private static IUrlHelper CreateMockUrlHelper()
+    {
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        mockUrlHelper
+            .Setup(mock => mock.Action(It.IsAny<UrlActionContext>()))
+            .Returns("http://localhost/sign-out");
+        return mockUrlHelper.Object;
+    }
+
+    #region Index(string, string, CancellationToken)
 
     [TestMethod]
     public async Task Index_RedirectsToInvalidSessionHandler_WithApplicationServicesUrl_WhenSessionDoesNotExist()
@@ -225,9 +245,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.NoOptions, error.Code);
@@ -246,7 +264,8 @@ public sealed class SelectOrganisationControllerTests
             x => x.InvokeAsync(
                 It.Is<InvalidateSelectOrganisationSessionRequest>(
                     request => request.SessionKey == "091889d2-1210-4dc0-8cec-be7975598916"
-                )
+                ),
+                It.IsAny<CancellationToken>()
             )
         );
     }
@@ -259,7 +278,8 @@ public sealed class SelectOrganisationControllerTests
 
         autoMocker.GetMock<IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015"))
+                It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015")),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetOrganisationByIdResponse { Organisation = null });
 
@@ -275,9 +295,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, error.Code);
@@ -300,9 +318,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackId>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Id, callbackData.Type);
         Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Id);
@@ -314,6 +330,7 @@ public sealed class SelectOrganisationControllerTests
         var autoMocker = CreateAutoMocker();
         MockSession(autoMocker, FakeSessionWithMultipleOptions);
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+        controller.Url = CreateMockUrlHelper();
 
         var result = await controller.Index("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
 
@@ -325,9 +342,29 @@ public sealed class SelectOrganisationControllerTests
         CollectionAssert.AreEqual(expectedOptions, viewModel.OrganisationOptions.ToArray());
     }
 
+    [DataRow(true)]
+    [DataRow(false)]
+    [DataTestMethod]
+    public async Task Index_PresentsReflectsSessionAllowCancel(bool allowCancel)
+    {
+        var autoMocker = CreateAutoMocker();
+
+        MockSession(autoMocker, FakeSessionWithMultipleOptions with {
+            AllowCancel = allowCancel,
+        });
+
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+        controller.Url = CreateMockUrlHelper();
+
+        var result = await controller.Index("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
+
+        var viewModel = TypeAssert.IsViewModelType<SelectOrganisationViewModel>(result);
+        Assert.AreEqual(allowCancel, viewModel.AllowCancel);
+    }
+
     #endregion
 
-    #region Index(string, string)
+    #region Index(string, string, CancellationToken)
 
     [TestMethod]
     public async Task PostIndex_RedirectsToInvalidSessionHandler_WithApplicationServicesUrl_WhenSessionDoesNotExist()
@@ -375,13 +412,95 @@ public sealed class SelectOrganisationControllerTests
     }
 
     [TestMethod]
+    public async Task PostIndex_DoesNotSendCancelCallback_WhenCancelActionSetAndCancelNotAllowed()
+    {
+        var autoMocker = CreateAutoMocker();
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        MockSession(autoMocker, FakeSessionWithMultipleOptions with {
+            AllowCancel = false,
+        });
+
+        var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.Cancel = "1";
+
+        var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
+
+        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
+        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
+        Assert.AreEqual(PayloadTypeConstants.Error, viewModel.PayloadType);
+        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
+        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+
+        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
+            Convert.FromBase64String(viewModel.PayloadData),
+            JsonHelperExtensions.CreateStandardOptions()
+        )!;
+        Assert.AreEqual(PayloadTypeConstants.Error, callbackData.Type);
+        Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, callbackData.Code);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_SendsCancelCallback_WhenCancelActionSetAndCancelAllowed()
+    {
+        var autoMocker = CreateAutoMocker();
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        MockSession(autoMocker, FakeSessionWithMultipleOptions with {
+            AllowCancel = true,
+        });
+
+        var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.Cancel = "1";
+
+        var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
+
+        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
+        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
+        Assert.AreEqual(PayloadTypeConstants.Cancel, viewModel.PayloadType);
+        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
+        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+
+        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackCancel>(
+            Convert.FromBase64String(viewModel.PayloadData),
+            JsonHelperExtensions.CreateStandardOptions()
+        )!;
+        Assert.AreEqual(PayloadTypeConstants.Cancel, callbackData.Type);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_PresentsViewWithError_WhenNoOrganisationWasSelected()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSession(autoMocker, FakeSessionWithOneOption);
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+        controller.Url = CreateMockUrlHelper();
+
+        var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.SelectedOrganisationId = null;
+
+        var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
+
+        Assert.AreEqual(1, controller.ModelState.ErrorCount);
+
+        var viewModel = TypeAssert.IsViewModelType<SelectOrganisationViewModel>(result);
+        Assert.AreEqual("Which organisation would you like to contact?", viewModel.Prompt.Heading);
+        Assert.AreEqual("Select one option.", viewModel.Prompt.Hint);
+
+        var expectedOptions = FakeSessionWithOneOption.OrganisationOptions.ToArray();
+        CollectionAssert.AreEqual(expectedOptions, viewModel.OrganisationOptions.ToArray());
+    }
+
+    [TestMethod]
     public async Task PostIndex_InvalidateSession()
     {
         var autoMocker = CreateAutoMocker();
         MockSession(autoMocker, FakeSessionWithOneOption);
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+        controller.Url = CreateMockUrlHelper();
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.SelectedOrganisationId = new Guid("b8f142c3-b853-4a9b-8d79-c53c33f6d7b4");
 
         await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -389,7 +508,8 @@ public sealed class SelectOrganisationControllerTests
             x => x.InvokeAsync(
                 It.Is<InvalidateSelectOrganisationSessionRequest>(
                     request => request.SessionKey == "091889d2-1210-4dc0-8cec-be7975598916"
-                )
+                ),
+                It.IsAny<CancellationToken>()
             )
         );
     }
@@ -419,7 +539,8 @@ public sealed class SelectOrganisationControllerTests
 
         autoMocker.GetMock<IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>>()
             .Setup(x => x.InvokeAsync(
-                It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015"))
+                It.Is<GetOrganisationByIdRequest>(param => param.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015")),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetOrganisationByIdResponse { Organisation = null });
 
@@ -438,9 +559,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, error.Code);
@@ -466,9 +585,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackId>(
             Convert.FromBase64String(viewModel.PayloadData),
-            new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            }
+            JsonHelperExtensions.CreateStandardOptions()
         )!;
         Assert.AreEqual(PayloadTypeConstants.Id, callbackData.Type);
         Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Id);
@@ -488,9 +605,12 @@ public sealed class SelectOrganisationControllerTests
 
         var expectedPayload = new SelectOrganisationCallbackId {
             Type = PayloadTypeConstants.Id,
-            Id = inputViewModel.SelectedOrganisationId,
+            Id = (Guid)inputViewModel.SelectedOrganisationId,
         };
-        var expectedPayloadJson = JsonSerializer.Serialize(expectedPayload, JsonSerializerOptions);
+        var expectedPayloadJson = JsonSerializer.Serialize(
+            expectedPayload,
+            JsonHelperExtensions.CreateStandardOptions()
+        );
         string expectedPayloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayloadJson));
 
         autoMocker.Verify<
@@ -499,9 +619,75 @@ public sealed class SelectOrganisationControllerTests
             x.InvokeAsync(
                 It.Is<CreateDigitalSignatureForPayloadRequest>(
                     request => request.Payload == expectedPayloadBase64
-                )
+                ),
+                It.IsAny<CancellationToken>()
             )
         );
+    }
+
+    #endregion
+
+    #region SignOut(string, string, CancellationToken)
+
+    [TestMethod]
+    public async Task SignOut_RedirectsToInvalidSessionHandler_WithApplicationServicesUrl_WhenSessionDoesNotExist()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSessionNotFound(autoMocker);
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        var result = await controller.SignOut("invalid-client", "091889d2-1210-4dc0-8cec-be7975598916");
+
+        var viewModel = TypeAssert.IsViewModelType<InvalidSessionViewModel>(result);
+        Assert.AreEqual(new Uri("https://services.localhost"), viewModel.ReturnUrl);
+    }
+
+    [TestMethod]
+    public async Task SignOut_RedirectsToInvalidSessionHandler_WithServiceHomeUrl_WhenSessionDoesNotExist()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSessionNotFound(autoMocker);
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        var result = await controller.SignOut("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
+
+        var viewModel = TypeAssert.IsViewModelType<InvalidSessionViewModel>(result);
+        Assert.AreEqual(new Uri("https://mock-service.localhost"), viewModel.ReturnUrl);
+    }
+
+    [TestMethod]
+    public async Task SignOut_RedirectsToInvalidSessionHandler_WithServiceHomeUrl_WhenUserHasTamperedWithClientIdParameter()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSession(autoMocker, FakeSessionWithNoOptions);
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        var result = await controller.SignOut("tampered-client-id", "091889d2-1210-4dc0-8cec-be7975598916");
+
+        var viewModel = TypeAssert.IsViewModelType<InvalidSessionViewModel>(result);
+        Assert.AreEqual(new Uri("https://mock-service.localhost"), viewModel.ReturnUrl);
+    }
+
+    [TestMethod]
+    public async Task SignOut_SendsSignOutCallback()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSession(autoMocker, FakeSessionWithMultipleOptions);
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        var result = await controller.SignOut("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
+
+        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
+        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
+        Assert.AreEqual(PayloadTypeConstants.SignOut, viewModel.PayloadType);
+        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
+        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+
+        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackSignOut>(
+            Convert.FromBase64String(viewModel.PayloadData),
+            JsonHelperExtensions.CreateStandardOptions()
+        )!;
+        Assert.AreEqual(PayloadTypeConstants.SignOut, callbackData.Type);
     }
 
     #endregion

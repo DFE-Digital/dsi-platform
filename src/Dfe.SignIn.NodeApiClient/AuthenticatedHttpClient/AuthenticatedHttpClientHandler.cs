@@ -20,9 +20,11 @@ public sealed class AuthenticatedHttpClientHandler : DelegatingHandler
     }
 
     /// <inheritdoc/>
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken = default)
     {
-        await this.httpSecurityProvider.AddAuthorizationAsync(request);
+        await this.httpSecurityProvider.AddAuthorizationAsync(request, cancellationToken);
 
         var response = await base.SendAsync(request, cancellationToken);
 

@@ -23,8 +23,7 @@ public sealed record CreateSelectOrganisationSessionRequest()
     /// Gets the prompt that will be presented to the user when they are making
     /// their selection using the "select organisation" web frontend.
     /// </summary>
-    public SelectOrganisationPrompt Prompt { get; init; } = new SelectOrganisationPrompt
-    {
+    public SelectOrganisationPrompt Prompt { get; init; } = new SelectOrganisationPrompt {
         Heading = "Which organisation would you like to use?",
         Hint = "You are associated with more than one organisation. Select one option.",
     };
@@ -33,6 +32,11 @@ public sealed record CreateSelectOrganisationSessionRequest()
     /// Gets the organisation filtering specification.
     /// </summary>
     public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
+
+    /// <summary>
+    /// Gets a value indicating if the user can cancel selection.
+    /// </summary>
+    public bool AllowCancel { get; init; } = true;
 
     /// <summary>
     /// Gets the callback URL where the selected organisation response will be posted.

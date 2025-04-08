@@ -16,9 +16,14 @@ public sealed class GetApplicationsAssociatedWithUser_NodeApiRequester(
 {
 
     /// <inheritdoc/>
-    public async Task<GetApplicationsAssociatedWithUserResponse> InvokeAsync(GetApplicationsAssociatedWithUserRequest request)
+    public async Task<GetApplicationsAssociatedWithUserResponse> InvokeAsync(
+        GetApplicationsAssociatedWithUserRequest request,
+        CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationDto[]>($"users/{request.UserId}/services");
+        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationDto[]>(
+            $"users/{request.UserId}/services",
+            cancellationToken
+        );
 
         return new GetApplicationsAssociatedWithUserResponse {
             UserApplicationMappings = response?.Select(s => new UserApplicationMappingModel {

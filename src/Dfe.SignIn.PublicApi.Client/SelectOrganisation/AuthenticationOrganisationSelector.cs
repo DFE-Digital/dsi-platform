@@ -18,10 +18,13 @@ public interface IAuthenticationOrganisationSelector
     ///   organisation feature is required for an alternative purpose.</para>
     /// </remarks>
     /// <param name="context">The context of the current HTTP request.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <exception cref="InvalidOperationException">
     ///   <para>If the user is not currently authenticated.</para>
     /// </exception>
-    Task InitiateSelectionAsync(HttpContext context);
+    /// <exception cref="OperationCanceledException" />
+    Task InitiateSelectionAsync(HttpContext context, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -34,7 +37,7 @@ public sealed class AuthenticationOrganisationSelector(
 ) : IAuthenticationOrganisationSelector
 {
     /// <inheritdoc/>
-    public async Task InitiateSelectionAsync(HttpContext context)
+    public async Task InitiateSelectionAsync(HttpContext context, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context, nameof(context));
 
@@ -42,13 +45,13 @@ public sealed class AuthenticationOrganisationSelector(
 
         var request = this.PrepareRequest(context);
 
-        var selectOrganisationResponse = await createSelectOrganisationSession.InvokeAsync(request);
+        var selectOrganisationResponse = await createSelectOrganisationSession.InvokeAsync(request, cancellationToken);
 
         if (selectOrganisationResponse.HasOptions) {
             context.Response.Redirect(selectOrganisationResponse.Url.ToString());
         }
         else {
-            await organisationClaimManager.UpdateOrganisationClaimAsync(context, "null");
+            await organisationClaimManager.UpdateOrganisationClaimAsync(context, "null", cancellationToken);
             var options = optionsAccessor.Value;
             context.Response.Redirect(options.CompletedPath);
         }
@@ -66,9 +69,12 @@ public sealed class AuthenticationOrganisationSelector(
     {
         var options = optionsAccessor.Value;
 
+        bool isUserSelectingForFirstTime = !context.User.HasClaim(claim => claim.Type == DsiClaimTypes.Organisation);
+
         var request = new CreateSelectOrganisationSession_PublicApiRequest {
             UserId = context.User.GetDsiUserId(),
             CallbackUrl = new Uri($"{context.Request.Scheme}://{context.Request.Host}{context.Request.PathBase}{options.SelectOrganisationCallbackPath}"),
+            AllowCancel = !isUserSelectingForFirstTime,
         };
         if (options.PrepareSelectOrganisationRequest is not null) {
             request = options.PrepareSelectOrganisationRequest(request);

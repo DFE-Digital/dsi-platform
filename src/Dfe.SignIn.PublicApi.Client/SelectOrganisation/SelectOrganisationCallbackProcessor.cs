@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
@@ -17,30 +16,13 @@ public interface ISelectOrganisationCallbackProcessor
     /// </summary>
     /// <param name="viewModel">A view model representing the callback form data.</param>
     /// <param name="throwOnError">Indicates if an exception should be thrown for callback errors.</param>
-    /// <returns>
-    ///   <para>The raw callback data in JSON format.</para>
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="viewModel"/> is null.</para>
-    /// </exception>
-    /// <exception cref="SelectOrganisationCallbackErrorException">
-    ///   <para>If <paramref name="throwOnError"/> is true and a callback error was encountered.</para>
-    /// </exception>
-    Task<string> ProcessCallbackJsonAsync(SelectOrganisationCallbackViewModel viewModel, bool throwOnError);
-
-    /// <summary>
-    /// Verify and process "select organisation" callback data.
-    /// </summary>
-    /// <param name="viewModel">A view model representing the callback form data.</param>
-    /// <param name="targetType">The type of object to deserialize.</param>
-    /// <param name="throwOnError">Indicates if an exception should be thrown for callback errors.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other
+    /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The deserialized callback data.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="viewModel"/> is null.</para>
-    ///   <para>- or -</para>
-    ///   <para>If <paramref name="targetType"/> is null.</para>
     /// </exception>
     /// <exception cref="InvalidOperationException">
     ///   <para>If payload data is null.</para>
@@ -48,7 +30,12 @@ public interface ISelectOrganisationCallbackProcessor
     /// <exception cref="SelectOrganisationCallbackErrorException">
     ///   <para>If <paramref name="throwOnError"/> is true and a callback error was encountered.</para>
     /// </exception>
-    Task<object> ProcessCallbackRawAsync(SelectOrganisationCallbackViewModel viewModel, Type targetType, bool throwOnError);
+    /// <exception cref="OperationCanceledException" />
+    Task<SelectOrganisationCallback> ProcessCallbackAsync(
+        SelectOrganisationCallbackViewModel viewModel,
+        bool throwOnError = true,
+        CancellationToken cancellationToken = default
+    );
 }
 
 /// <summary>
@@ -60,7 +47,10 @@ public sealed class SelectOrganisationCallbackProcessor(
 ) : ISelectOrganisationCallbackProcessor
 {
     /// <inheritdoc/>
-    public async Task<string> ProcessCallbackJsonAsync(SelectOrganisationCallbackViewModel viewModel, bool throwOnError)
+    public async Task<SelectOrganisationCallback> ProcessCallbackAsync(
+        SelectOrganisationCallbackViewModel viewModel,
+        bool throwOnError = true,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewModel, nameof(viewModel));
 
@@ -72,28 +62,16 @@ public sealed class SelectOrganisationCallbackProcessor(
             throw new InvalidOperationException("Invalid payload.");
         }
 
-        var payloadJson = Convert.FromBase64String(viewModel.Payload);
+        Type targetType = SelectOrganisationCallback.ResolveType(viewModel.PayloadType);
+        byte[] payloadJson = Convert.FromBase64String(viewModel.Payload);
 
-        if (viewModel.PayloadType == PayloadTypeConstants.Error && throwOnError) {
-            var errorData = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(payloadJson, jsonOptions)!;
+        var data = JsonSerializer.Deserialize(payloadJson, targetType, jsonOptions);
+
+        if (data is SelectOrganisationCallbackError errorData && throwOnError) {
             throw new SelectOrganisationCallbackErrorException(errorData.Code);
         }
 
-        return Encoding.UTF8.GetString(payloadJson);
-    }
-
-    /// <inheritdoc/>
-    public async Task<object> ProcessCallbackRawAsync(SelectOrganisationCallbackViewModel viewModel, Type targetType, bool throwOnError)
-    {
-        ArgumentNullException.ThrowIfNull(targetType, nameof(targetType));
-
-        var json = await this.ProcessCallbackJsonAsync(viewModel, throwOnError);
-
-        if (viewModel.PayloadType == PayloadTypeConstants.Error && !throwOnError) {
-            targetType = typeof(SelectOrganisationCallbackError);
-        }
-
-        return JsonSerializer.Deserialize(json, targetType, jsonOptions)
+        return data as SelectOrganisationCallback
             ?? throw new InvalidOperationException("Callback data was null.");
     }
 }

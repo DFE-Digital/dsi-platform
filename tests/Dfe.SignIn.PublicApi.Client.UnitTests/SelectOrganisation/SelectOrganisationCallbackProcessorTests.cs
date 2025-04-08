@@ -21,24 +21,24 @@ public sealed class SelectOrganisationCallbackProcessorTests
         return autoMocker;
     }
 
-    #region ProcessCallbackJsonAsync(SelectOrganisationCallbackViewModel, bool)
+    #region ProcessCallbackAsync(SelectOrganisationCallbackViewModel, bool, CancellationToken)
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
-    public async Task ProcessCallbackJsonAsync_Throws_WhenViewModelArgumentIsNull()
+    public async Task ProcessCallbackAsync_Throws_WhenViewModelArgumentIsNull()
     {
         var autoMocker = CreateAutoMocker();
 
         var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
 
-        await processor.ProcessCallbackJsonAsync(
+        await processor.ProcessCallbackAsync(
             viewModel: null!,
             throwOnError: false
         );
     }
 
     [TestMethod]
-    public async Task ProcessCallbackJsonAsync_Throws_WhenPayloadIsInvalid()
+    public async Task ProcessCallbackAsync_Throws_WhenPayloadCannotBeVerified()
     {
         var autoMocker = CreateAutoMocker();
 
@@ -62,7 +62,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
         var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
 
         var exception = await Assert.ThrowsExceptionAsync<InvalidOperationException>(
-            () => processor.ProcessCallbackJsonAsync(
+            () => processor.ProcessCallbackAsync(
                 viewModel,
                 throwOnError: false
             )
@@ -71,7 +71,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
     }
 
     [TestMethod]
-    public async Task ProcessCallbackJsonAsync_ReturnsErrorCallbackData_WhenThrowOnErrorFalse()
+    public async Task ProcessCallbackAsync_ReturnsErrorCallbackData_WhenThrowOnErrorFalse()
     {
         var autoMocker = CreateAutoMocker();
 
@@ -98,189 +98,8 @@ public sealed class SelectOrganisationCallbackProcessorTests
 
         var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
 
-        string result = await processor.ProcessCallbackJsonAsync(
+        var result = await processor.ProcessCallbackAsync(
             viewModel,
-            throwOnError: false
-        );
-
-        Assert.AreEqual(expectedPayload, result);
-    }
-
-    [TestMethod]
-    public async Task ProcessCallbackJsonAsync_Throws_WhenThrowOnErrorTrue()
-    {
-        var autoMocker = CreateAutoMocker();
-
-        string expectedPayload = /*lang=json,strict*/ $$"""
-            { "type": "error", "code": 2 }
-        """;
-
-        var viewModel = new SelectOrganisationCallbackViewModel {
-            PayloadType = PayloadTypeConstants.Error,
-            Payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayload)),
-            Sig = "fake signature",
-            Kid = "80d5a7d9-0198-471f-9661-b618e8b9db15",
-        };
-
-        autoMocker.GetMock<IPayloadVerifier>()
-            .Setup(mock => mock.VerifyPayload(
-                It.Is<string>(payload => payload == viewModel.Payload),
-                It.Is<PayloadDigitalSignature>(signature =>
-                    signature.KeyId == viewModel.Kid &&
-                    signature.Signature == viewModel.Sig
-                )
-            ))
-            .ReturnsAsync(true);
-
-        var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
-
-        var exception = await Assert.ThrowsExceptionAsync<SelectOrganisationCallbackErrorException>(
-            () => processor.ProcessCallbackJsonAsync(
-                viewModel,
-                throwOnError: true
-            )
-        );
-        Assert.AreEqual(SelectOrganisationErrorCode.NoOptions, exception.ErrorCode);
-    }
-
-    [TestMethod]
-    public async Task ProcessCallbackJsonAsync_ReturnsPayloadData()
-    {
-        var autoMocker = CreateAutoMocker();
-
-        string expectedPayload = /*lang=json,strict*/ $$"""
-            {
-                "type": "id",
-                "id": "80d5a7d9-0198-471f-9661-b618e8b9db15"
-            }
-        """;
-
-        var viewModel = new SelectOrganisationCallbackViewModel {
-            PayloadType = PayloadTypeConstants.Id,
-            Payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayload)),
-            Sig = "fake signature",
-            Kid = "80d5a7d9-0198-471f-9661-b618e8b9db15",
-        };
-
-        autoMocker.GetMock<IPayloadVerifier>()
-            .Setup(mock => mock.VerifyPayload(
-                It.Is<string>(payload => payload == viewModel.Payload),
-                It.Is<PayloadDigitalSignature>(signature =>
-                    signature.KeyId == viewModel.Kid &&
-                    signature.Signature == viewModel.Sig
-                )
-            ))
-            .ReturnsAsync(true);
-
-        var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
-
-        var result = await processor.ProcessCallbackJsonAsync(
-            viewModel,
-            throwOnError: true
-        );
-
-        Assert.AreEqual(expectedPayload, result);
-    }
-
-    #endregion
-
-    #region ProcessCallbackRawAsync(SelectOrganisationCallbackViewModel, Type, bool)
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task ProcessCallbackRawAsync_Throws_WhenViewModelArgumentIsNull()
-    {
-        var autoMocker = CreateAutoMocker();
-
-        var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
-
-        await processor.ProcessCallbackRawAsync(
-            viewModel: null!,
-            targetType: typeof(SelectOrganisationCallbackBasic),
-            throwOnError: false
-        );
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task ProcessCallbackRawAsync_Throws_WhenTargetTypeArgumentIsNull()
-    {
-        var autoMocker = CreateAutoMocker();
-
-        var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
-
-        await processor.ProcessCallbackRawAsync(
-            viewModel: Activator.CreateInstance<SelectOrganisationCallbackViewModel>(),
-            targetType: null!,
-            throwOnError: false
-        );
-    }
-
-    [TestMethod]
-    public async Task ProcessCallbackRawAsync_Throws_WhenPayloadIsInvalid()
-    {
-        var autoMocker = CreateAutoMocker();
-
-        var viewModel = new SelectOrganisationCallbackViewModel {
-            PayloadType = PayloadTypeConstants.Id,
-            Payload = "fake payload",
-            Sig = "fake signature",
-            Kid = "80d5a7d9-0198-471f-9661-b618e8b9db15",
-        };
-
-        autoMocker.GetMock<IPayloadVerifier>()
-            .Setup(mock => mock.VerifyPayload(
-                It.Is<string>(payload => payload == viewModel.Payload),
-                It.Is<PayloadDigitalSignature>(signature =>
-                    signature.KeyId == viewModel.Kid &&
-                    signature.Signature == viewModel.Sig
-                )
-            ))
-            .ReturnsAsync(false);
-
-        var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
-
-        var exception = await Assert.ThrowsExceptionAsync<InvalidOperationException>(
-            () => processor.ProcessCallbackRawAsync(
-                viewModel,
-                targetType: typeof(SelectOrganisationCallbackId),
-                throwOnError: false
-            )
-        );
-        Assert.AreEqual("Invalid payload.", exception.Message);
-    }
-
-    [TestMethod]
-    public async Task ProcessCallbackRawAsync_ReturnsErrorCallbackData_WhenThrowOnErrorFalse()
-    {
-        var autoMocker = CreateAutoMocker();
-
-        string expectedPayload = /*lang=json,strict*/ $$"""
-            { "type": "error", "code": 2 }
-        """;
-
-        var viewModel = new SelectOrganisationCallbackViewModel {
-            PayloadType = PayloadTypeConstants.Error,
-            Payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayload)),
-            Sig = "fake signature",
-            Kid = "80d5a7d9-0198-471f-9661-b618e8b9db15",
-        };
-
-        autoMocker.GetMock<IPayloadVerifier>()
-            .Setup(mock => mock.VerifyPayload(
-                It.Is<string>(payload => payload == viewModel.Payload),
-                It.Is<PayloadDigitalSignature>(signature =>
-                    signature.KeyId == viewModel.Kid &&
-                    signature.Signature == viewModel.Sig
-                )
-            ))
-            .ReturnsAsync(true);
-
-        var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
-
-        var result = await processor.ProcessCallbackRawAsync(
-            viewModel,
-            targetType: typeof(SelectOrganisationCallbackId),
             throwOnError: false
         );
 
@@ -295,7 +114,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
     }
 
     [TestMethod]
-    public async Task ProcessCallbackRawAsync_Throws_WhenThrowOnErrorTrue()
+    public async Task ProcessCallbackAsync_Throws_WhenThrowOnErrorTrue()
     {
         var autoMocker = CreateAutoMocker();
 
@@ -323,9 +142,8 @@ public sealed class SelectOrganisationCallbackProcessorTests
         var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
 
         var exception = await Assert.ThrowsExceptionAsync<SelectOrganisationCallbackErrorException>(
-            () => processor.ProcessCallbackRawAsync(
+            () => processor.ProcessCallbackAsync(
                 viewModel,
-                targetType: typeof(SelectOrganisationCallbackId),
                 throwOnError: true
             )
         );
@@ -333,7 +151,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
     }
 
     [TestMethod]
-    public async Task ProcessCallbackRawAsync_ReturnsPayloadData()
+    public async Task ProcessCallbackAsync_ReturnsPayloadData()
     {
         var autoMocker = CreateAutoMocker();
 
@@ -363,9 +181,8 @@ public sealed class SelectOrganisationCallbackProcessorTests
 
         var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
 
-        var result = await processor.ProcessCallbackRawAsync(
+        var result = await processor.ProcessCallbackAsync(
             viewModel,
-            targetType: typeof(SelectOrganisationCallbackId),
             throwOnError: true
         );
 
