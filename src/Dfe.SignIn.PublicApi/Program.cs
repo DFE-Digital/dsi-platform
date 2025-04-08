@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.NodeApiClient;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.Configuration;
@@ -28,6 +29,7 @@ builder.Services.SetupScopedSession();
 
 builder.Services
     .SetupRedisSessionStore(builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
+    .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
     .SetupSelectOrganisationInteractions();
 
 var app = builder.Build();
