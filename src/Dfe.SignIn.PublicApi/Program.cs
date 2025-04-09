@@ -26,6 +26,9 @@ builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();
 builder.Services.SetupAutoMapper();
 builder.Services.SetupScopedSession();
+builder.Services.SetupHealthChecks(
+    builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache")
+);
 
 builder.Services
     .SetupRedisSessionStore(builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
@@ -41,6 +44,7 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseHttpsRedirection();
+app.UseHealthChecks();
 app.UseBearerTokenAuthMiddleware();
 
 app.UseDigitalSigningEndpoints();

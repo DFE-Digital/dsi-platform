@@ -61,6 +61,11 @@
     <PackageVersion Include="GovUk.Frontend.AspNetCore" Version="2.8.0" />
   </ItemGroup>
 
+  <!-- Monitoring -->
+  <ItemGroup>
+    <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+  </ItemGroup>
+
   <!-- Unit testing -->
   <ItemGroup>
     <!-- Code coverage -->

@@ -35,6 +35,11 @@ builder.Services
     .SetupPublicApiSigningInteractions();
 
 builder.Services
+    .SetupHealthChecks(
+        builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache")
+    );
+
+builder.Services
     .SetupRedisSessionStore(builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
     .SetupSelectOrganisationInteractions();
 
@@ -55,6 +60,7 @@ if (!app.Environment.IsDevelopment()) {
 app.UseHttpsRedirection();
 
 app.UseRouting();
+app.UseHealthChecks();
 
 app.UseAuthorization();
 
