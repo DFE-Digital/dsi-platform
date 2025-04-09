@@ -1,14 +1,11 @@
 <Project>
-
   <!--
     This file centralises package version numbers.
     When necessary package versions can be overridden on a per project basis.
   -->
-
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <PropertyGroup>
     <!--
       Even though projects currently target .NET 8.0; newer packages are compatible:
@@ -17,63 +14,55 @@
     <MicrosoftFrameworkVersion>9.0.3</MicrosoftFrameworkVersion>
     <MicrosoftTestFrameworkVersion>3.8.3</MicrosoftTestFrameworkVersion>
   </PropertyGroup>
-
   <!-- Application composition -->
   <ItemGroup>
     <!-- Dependency injection -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftFrameworkVersion)" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftFrameworkVersion)" />
-
     <!-- Options -->
     <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MicrosoftFrameworkVersion)" />
-
     <!-- Decorator pattern -->
     <PackageVersion Include="Scrutor" Version="6.0.1" />
-
     <!-- Type mapping -->
     <PackageVersion Include="AutoMapper" Version="14.0.0" />
   </ItemGroup>
-
   <!-- HTTP / API -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="$(MicrosoftFrameworkVersion)" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
-
   <!-- Security -->
   <ItemGroup>
     <!-- Identity -->
     <PackageVersion Include="Microsoft.Identity.Client" Version="4.68.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
   </ItemGroup>
-
   <!-- Persistance -->
   <ItemGroup>
     <!-- Caching -->
     <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="$(MicrosoftFrameworkVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(MicrosoftFrameworkVersion)" />
   </ItemGroup>
-
   <!-- Frontends -->
   <ItemGroup>
     <!-- GOV.UK design system -->
     <PackageVersion Include="GovUk.Frontend.AspNetCore" Version="2.8.0" />
   </ItemGroup>
-
+  <!-- HealthChecks -->
+  <ItemGroup>
+    <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+  </ItemGroup>
   <!-- Unit testing -->
   <ItemGroup>
     <!-- Code coverage -->
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
-
     <!-- Microsoft testing framework -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="MSTest.TestAdapter" Version="$(MicrosoftTestFrameworkVersion)" />
     <PackageVersion Include="MSTest.TestFramework" Version="$(MicrosoftTestFrameworkVersion)" />
-
     <!-- Mocking -->
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Moq.AutoMock" Version="3.5.0" />
   </ItemGroup>
-
 </Project>
