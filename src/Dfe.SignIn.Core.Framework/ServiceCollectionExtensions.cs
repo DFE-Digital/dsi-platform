@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services)
         where TConcreteInteractor : class
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         var contractType = typeof(TConcreteInteractor).GetInterfaces()
             .First(interfaceType => interfaceType.GetGenericTypeDefinition() == typeof(IInteractor<,>));
@@ -49,8 +49,8 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IEnumerable<InteractorTypeDescriptor> descriptors)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(descriptors, nameof(descriptors));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(descriptors, nameof(descriptors));
 
         foreach (var descriptor in descriptors) {
             services.AddTransient(descriptor.ContractType, descriptor.ConcreteType);
@@ -76,8 +76,8 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         Action<InteractorModelValidationOptions> setupAction)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(setupAction, nameof(setupAction));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(setupAction, nameof(setupAction));
 
         services.AddOptions();
         services.Configure(setupAction);

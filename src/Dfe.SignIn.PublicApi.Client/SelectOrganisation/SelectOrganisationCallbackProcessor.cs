@@ -52,7 +52,7 @@ public sealed class SelectOrganisationCallbackProcessor(
         bool throwOnError = true,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(viewModel, nameof(viewModel));
+        ExceptionHelpers.ThrowIfArgumentNull(viewModel, nameof(viewModel));
 
         var signature = new PayloadDigitalSignature {
             KeyId = viewModel.Kid,

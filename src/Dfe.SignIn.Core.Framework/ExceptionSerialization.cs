@@ -50,7 +50,7 @@ public sealed class DefaultExceptionJsonSerializer(
     /// <inheritdoc/>
     public string SerializeExceptionToJson(Exception exception)
     {
-        ArgumentNullException.ThrowIfNull(exception, nameof(exception));
+        ExceptionHelpers.ThrowIfArgumentNull(exception, nameof(exception));
 
         return JsonSerializer.Serialize(exception, options);
     }
@@ -61,7 +61,7 @@ public sealed class DefaultExceptionJsonSerializer(
         if (string.IsNullOrWhiteSpace(json)) {
             return new UnexpectedException("Unknown exception type.");
         }
-        return JsonSerializer.Deserialize<Exception>(json, options)!;
+        return JsonSerializer.Deserialize<Exception>(json!, options)!;
     }
 }
 

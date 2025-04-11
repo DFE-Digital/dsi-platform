@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.PublicApi.Client;
 
@@ -30,7 +31,7 @@ public static class DsiClaimExtensions
     /// </exception>
     public static Guid GetDsiUserId(this ClaimsPrincipal user)
     {
-        ArgumentNullException.ThrowIfNull(user, nameof(user));
+        ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
         var claim = user.FindFirst(DsiClaimTypes.UserId)
             ?? throw new MissingClaimException(null, DsiClaimTypes.UserId);
@@ -52,7 +53,7 @@ public static class DsiClaimExtensions
     /// </exception>
     public static bool TryGetDsiUserId(this ClaimsPrincipal user, out Guid? userId)
     {
-        ArgumentNullException.ThrowIfNull(user, nameof(user));
+        ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
         var claim = user.FindFirst(DsiClaimTypes.UserId);
         userId = claim is not null
@@ -74,7 +75,7 @@ public static class DsiClaimExtensions
     /// </exception>
     public static OrganisationClaim? GetDsiOrganisation(this ClaimsPrincipal user)
     {
-        ArgumentNullException.ThrowIfNull(user, nameof(user));
+        ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
         var claim = user.FindFirst(DsiClaimTypes.Organisation);
         return claim is not null
@@ -84,7 +85,7 @@ public static class DsiClaimExtensions
 
     internal static OrganisationClaim? GetDsiOrganisationInternal(this ClaimsIdentity identity)
     {
-        ArgumentNullException.ThrowIfNull(identity, nameof(identity));
+        ExceptionHelpers.ThrowIfArgumentNull(identity, nameof(identity));
 
         var claim = identity.FindFirst(DsiClaimTypes.Organisation);
         return claim is not null

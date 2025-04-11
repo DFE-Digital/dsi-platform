@@ -39,7 +39,7 @@ public sealed class AuthenticationOrganisationSelector(
     /// <inheritdoc/>
     public async Task InitiateSelectionAsync(HttpContext context, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(context, nameof(context));
+        ExceptionHelpers.ThrowIfArgumentNull(context, nameof(context));
 
         CheckUserIsAuthenticated(context);
 

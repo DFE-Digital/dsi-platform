@@ -1,3 +1,5 @@
+using Dfe.SignIn.Core.Framework;
+
 namespace Dfe.SignIn.PublicApi.Configuration;
 
 /// <exclude/>
@@ -12,7 +14,7 @@ public static class AutoMapperExtensions
     /// </exception>
     public static void SetupAutoMapper(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddAutoMapper(options => {
             options.AddProfile<SelectOrganisationMappingProfile>();

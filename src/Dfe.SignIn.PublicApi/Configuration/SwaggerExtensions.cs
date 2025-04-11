@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.PublicApi.Swagger;
 using Microsoft.OpenApi.Models;
@@ -26,7 +27,7 @@ public static class SwaggerExtensions
     /// </exception>
     public static void SetupSwagger(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();

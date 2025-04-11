@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 
@@ -33,7 +34,7 @@ public abstract record SelectOrganisationCallback()
     /// </exception>
     public static Type? TryResolveType(string payloadType)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(payloadType, nameof(payloadType));
+        ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace(payloadType, nameof(payloadType));
 
         PayloadTypeMappings.TryGetValue(payloadType, out var result);
         return result;

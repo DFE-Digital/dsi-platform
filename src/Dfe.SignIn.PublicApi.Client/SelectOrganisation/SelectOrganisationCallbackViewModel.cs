@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
@@ -19,7 +20,7 @@ public sealed record SelectOrganisationCallbackViewModel()
     /// </exception>
     public static SelectOrganisationCallbackViewModel FromRequest(HttpRequest request)
     {
-        ArgumentNullException.ThrowIfNull(request, nameof(request));
+        ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
 
         return new SelectOrganisationCallbackViewModel {
             PayloadType = Convert.ToString(request.Form["payloadType"]),

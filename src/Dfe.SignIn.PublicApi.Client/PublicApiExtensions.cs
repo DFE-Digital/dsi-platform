@@ -21,7 +21,7 @@ public static class PublicApiExtensions
     /// </exception>
     public static IServiceCollection SetupDfePublicApiClient(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddOptions();
         services.Configure<PublicKeyCacheOptions>(_ => { });

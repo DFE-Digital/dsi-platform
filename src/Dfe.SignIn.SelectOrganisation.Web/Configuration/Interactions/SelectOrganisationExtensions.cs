@@ -25,8 +25,8 @@ public static class SelectOrganisationExtensions
     /// </exception>
     public static IServiceCollection SetupRedisSessionStore(this IServiceCollection services, IConfiguration configuration)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
 
         services.AddKeyedSingleton<IDistributedCache, RedisCache>(
             serviceKey: SelectOrganisationConstants.CacheStoreKey,
@@ -53,7 +53,7 @@ public static class SelectOrganisationExtensions
     /// </exception>
     public static void SetupSelectOrganisationInteractions(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddInteractor<GetSelectOrganisationSessionByKey_UseCase>();
         services.AddInteractor<InvalidateSelectOrganisationSession_UseCase>();

@@ -29,7 +29,7 @@ public static class InteractorReflectionHelpers
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverInteractorTypesInAssembly(Assembly assembly)
     {
-        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+        ExceptionHelpers.ThrowIfArgumentNull(assembly, nameof(assembly));
 
         return assembly.GetTypes()
             .Where(type => type.IsClass && !type.IsAbstract)
@@ -57,7 +57,7 @@ public static class InteractorReflectionHelpers
     public static IEnumerable<InteractorTypeDescriptor> DiscoverAnnotatedInteractorsInAssembly<TAttribute>(Assembly assembly)
         where TAttribute : Attribute
     {
-        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+        ExceptionHelpers.ThrowIfArgumentNull(assembly, nameof(assembly));
 
         return assembly.GetTypes()
             .Where(type => type.IsClass && !type.IsAbstract && type.GetCustomAttribute<TAttribute>() is not null)

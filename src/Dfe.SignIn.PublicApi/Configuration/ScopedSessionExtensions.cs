@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.ScopedSession;
 
 /// <exclude/>
@@ -12,7 +13,7 @@ public static class ScopedSessionExtensions
     /// </exception>
     public static void SetupScopedSession(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddScoped<IScopedSessionReader, ScopedSessionProvider>();
         services.AddScoped<IScopedSessionWriter>(sp => (ScopedSessionProvider)sp.GetRequiredService<IScopedSessionReader>());

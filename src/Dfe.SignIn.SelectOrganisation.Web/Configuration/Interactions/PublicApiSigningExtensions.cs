@@ -24,7 +24,7 @@ public static class PublicApiSigningExtensions
     /// </exception>
     public static Action<PublicApiSigningOptions> GetConfigurationReader(IConfiguration configuration)
     {
-        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
 
         return (options) => {
             string? privateKeyPem = configuration.GetValue<string>("PrivateKeyPem");
@@ -67,7 +67,7 @@ public static class PublicApiSigningExtensions
     /// </exception>
     public static void SetupPublicApiSigningInteractions(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddInteractor<CreateDigitalSignatureForPayload_UseCase>();
     }

@@ -44,7 +44,7 @@ public static class JsonHelperExtensions
     /// </exception>
     public static void SetupDfeSignInJsonSerializerOptions(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddKeyedSingleton(StandardOptionsKey, CreateStandardOptions());
         services.AddSingleton<IJsonSerializerOptionsAccessor, JsonSerializerOptionsAccessor>();

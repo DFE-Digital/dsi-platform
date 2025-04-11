@@ -26,7 +26,7 @@ internal sealed class PublicApiPostRequester<TRequest, TResponse>(
         TRequest request,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request, nameof(request));
+        ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
 
         var httpClient = client.HttpClient;
 

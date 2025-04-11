@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
+using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 
@@ -11,12 +12,11 @@ internal sealed class DefaultPayloadVerifier(
     /// <inheritdoc/>
     public async Task<bool> VerifyPayload(string data, PayloadDigitalSignature signature)
     {
-        ArgumentNullException.ThrowIfNull(data, nameof(data));
-        ArgumentNullException.ThrowIfNull(signature, nameof(signature));
+        ExceptionHelpers.ThrowIfArgumentNull(data, nameof(data));
+        ExceptionHelpers.ThrowIfArgumentNull(signature, nameof(signature));
 
         var cachedKey = await publicKeyCache.GetPublicKeyAsync(signature.KeyId);
-        if (cachedKey is null)
-        {
+        if (cachedKey is null) {
             return false;
         }
 
@@ -35,8 +35,7 @@ internal sealed class DefaultPayloadVerifier(
 
     private static HashAlgorithmName ResolveHashAlgorithmName(string name)
     {
-        return name.ToUpper() switch
-        {
+        return name.ToUpper() switch {
             "RS256" => HashAlgorithmName.SHA256,
             "RS384" => HashAlgorithmName.SHA384,
             "RS512" => HashAlgorithmName.SHA512,

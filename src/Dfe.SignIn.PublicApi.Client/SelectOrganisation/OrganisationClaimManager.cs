@@ -49,8 +49,8 @@ internal sealed class OrganisationClaimManager(
         string organisationJson,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(context, nameof(context));
-        ArgumentNullException.ThrowIfNull(organisationJson, nameof(organisationJson));
+        ExceptionHelpers.ThrowIfArgumentNull(context, nameof(context));
+        ExceptionHelpers.ThrowIfArgumentNull(organisationJson, nameof(organisationJson));
 
         var options = optionsAccessor.Value;
 

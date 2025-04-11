@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
 namespace Dfe.SignIn.PublicApi.Client;
@@ -22,7 +23,7 @@ public static class AuthenticationOrganisationSelectorExtensions
     /// </exception>
     public static void SetupSelectOrganisationFeatures(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         // General "select organisation" features.
         services.AddSingleton<ISelectOrganisationCallbackProcessor, SelectOrganisationCallbackProcessor>();
@@ -51,7 +52,7 @@ public static class AuthenticationOrganisationSelectorExtensions
     /// </exception>
     public static void UseAuthenticationOrganisationSelectorMiddleware(this IApplicationBuilder app)
     {
-        ArgumentNullException.ThrowIfNull(app, nameof(app));
+        ExceptionHelpers.ThrowIfArgumentNull(app, nameof(app));
 
         app.UseMiddleware<AuthenticationOrganisationSelectorMiddleware>();
     }

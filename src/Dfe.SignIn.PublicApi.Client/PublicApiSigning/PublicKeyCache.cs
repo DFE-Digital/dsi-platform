@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Dfe.SignIn.Core.Framework;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -28,7 +29,7 @@ internal sealed class PublicKeyCache(
     /// <inheritdoc/>
     public async Task<PublicKeyCacheEntry?> GetPublicKeyAsync(string keyId)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(keyId, nameof(keyId));
+        ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace(keyId, nameof(keyId));
 
         await this.AutoRefreshAsync(keyId);
 
