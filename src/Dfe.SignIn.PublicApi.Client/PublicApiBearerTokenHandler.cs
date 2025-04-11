@@ -18,6 +18,7 @@ internal sealed class PublicApiBearerTokenHandler(
 {
     private static readonly object BearerTokenCacheKey = new();
 
+#if NET8_0_OR_GREATER
     /// <inheritdoc/>
     protected override HttpResponseMessage Send(
         HttpRequestMessage request,
@@ -26,6 +27,7 @@ internal sealed class PublicApiBearerTokenHandler(
         request.Headers.Authorization = this.CreateAuthorizationHeader();
         return base.Send(request, cancellationToken);
     }
+#endif // NET8_0_OR_GREATER
 
     /// <inheritdoc/>
     protected override Task<HttpResponseMessage> SendAsync(

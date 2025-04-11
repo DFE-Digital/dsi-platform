@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 

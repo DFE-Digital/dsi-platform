@@ -4,6 +4,7 @@ using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Internal;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.Client;
 

@@ -1,5 +1,7 @@
+using System.Net.Http.Json;
 using System.Text.Json;
 using Dfe.SignIn.Core.Framework;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.Internal;

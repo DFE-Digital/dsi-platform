@@ -1,5 +1,7 @@
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using Dfe.SignIn.Core.Framework;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -115,10 +117,18 @@ internal sealed class PublicKeyCache(
 
     private static PublicKeyCacheEntry ReadPublicKey(WellKnownPublicKey publicKey)
     {
-        var rsa = RSA.Create(new RSAParameters {
+        var parameters = new RSAParameters {
             Modulus = Base64UrlEncoder.DecodeBytes(publicKey.N),
             Exponent = Base64UrlEncoder.DecodeBytes(publicKey.E),
-        });
+        };
+
+#if NET8_0_OR_GREATER
+        var rsa = RSA.Create(parameters);
+#else
+        var rsa = new RSACryptoServiceProvider();
+        rsa.ImportParameters(parameters);
+#endif
+
         return new PublicKeyCacheEntry(publicKey, rsa);
     }
 }
