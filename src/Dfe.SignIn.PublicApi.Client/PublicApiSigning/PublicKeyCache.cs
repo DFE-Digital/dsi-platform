@@ -81,7 +81,7 @@ internal sealed class PublicKeyCache(
 
             this.publicKeys = keysListing.Keys
                 // Exclude keys that have expired.
-                .Where(key => DateTime.UtcNow <= DateTime.UnixEpoch.AddSeconds(key.Ed))
+                .Where(key => DateTime.UtcNow <= DateTimeHelpers.UnixEpoch.AddSeconds(key.Ed))
                 .ToDictionary(key => key.Kid, key => {
                     // Retain existing key instance if it already exists.
                     if (this.publicKeys.TryGetValue(key.Kid, out var existingKey)) {
