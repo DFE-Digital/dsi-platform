@@ -24,13 +24,13 @@
     <!-- Dependency injection -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftSdkVersion)" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftSdkVersion)" />
-
+  
     <!-- Options -->
     <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MicrosoftSdkVersion)" />
-
+  
     <!-- Decorator pattern -->
     <PackageVersion Include="Scrutor" Version="6.0.1" />
-
+  
     <!-- Type mapping -->
     <PackageVersion Include="AutoMapper" Version="14.0.0" />
   </ItemGroup>
@@ -49,6 +49,8 @@
     <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="$(MicrosoftSdkVersion)" />
+    <PackageVersion Include="Microsoft.Owin" Version="4.2.2" />
+    <PackageVersion Include="Owin" Version="1.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     <PackageVersion Include="System.Net.Http.Json" Version="$(MicrosoftSdkVersion)" />
   </ItemGroup>

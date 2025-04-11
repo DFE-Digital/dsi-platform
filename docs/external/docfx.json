@@ -9,7 +9,8 @@
             "Dfe.SignIn.Core.ExternalModels/*.csproj",
             "Dfe.SignIn.Core.Framework/*.csproj",
             "Dfe.SignIn.PublicApi.Client/*.csproj",
-            "Dfe.SignIn.PublicApi.Client.AspNetCore/*.csproj"
+            "Dfe.SignIn.PublicApi.Client.AspNetCore/*.csproj",
+            "Dfe.SignIn.PublicApi.Client.Owin/*.csproj"
           ]
         }
       ],
