@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
+using Dfe.SignIn.PublicApi.Client.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -100,7 +101,9 @@ internal sealed class PublicApiBearerTokenHandler(
 
     private string GenerateAuthorizationToken(PublicApiOptions options, DateTime? expirationUtc)
     {
-        byte[] key = Encoding.UTF8.GetBytes(options.ApiSecret);
+        byte[] key = HmacKeyNormalizer.NormalizeHmacSha256Key(
+            Encoding.UTF8.GetBytes(options.ApiSecret)
+        );
 
         var tokenDescriptor = new SecurityTokenDescriptor {
             Audience = options.Audience,
