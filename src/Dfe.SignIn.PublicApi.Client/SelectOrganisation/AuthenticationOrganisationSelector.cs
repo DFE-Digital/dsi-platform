@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -24,7 +25,7 @@ public interface IAuthenticationOrganisationSelector
     ///   <para>If the user is not currently authenticated.</para>
     /// </exception>
     /// <exception cref="OperationCanceledException" />
-    Task InitiateSelectionAsync(HttpContext context, CancellationToken cancellationToken = default);
+    Task InitiateSelectionAsync(IHttpContext context, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -37,7 +38,7 @@ public sealed class AuthenticationOrganisationSelector(
 ) : IAuthenticationOrganisationSelector
 {
     /// <inheritdoc/>
-    public async Task InitiateSelectionAsync(HttpContext context, CancellationToken cancellationToken = default)
+    public async Task InitiateSelectionAsync(IHttpContext context, CancellationToken cancellationToken = default)
     {
         ExceptionHelpers.ThrowIfArgumentNull(context, nameof(context));
 
@@ -57,7 +58,7 @@ public sealed class AuthenticationOrganisationSelector(
         }
     }
 
-    private static void CheckUserIsAuthenticated(HttpContext context)
+    private static void CheckUserIsAuthenticated(IHttpContext context)
     {
         bool isUserAuthenticated = context.User.Identity?.IsAuthenticated ?? false;
         if (!isUserAuthenticated) {
@@ -65,7 +66,7 @@ public sealed class AuthenticationOrganisationSelector(
         }
     }
 
-    private CreateSelectOrganisationSession_PublicApiRequest PrepareRequest(HttpContext context)
+    private CreateSelectOrganisationSession_PublicApiRequest PrepareRequest(IHttpContext context)
     {
         var options = optionsAccessor.Value;
 

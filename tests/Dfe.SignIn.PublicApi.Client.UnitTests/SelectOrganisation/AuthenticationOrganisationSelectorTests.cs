@@ -2,8 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
@@ -22,21 +22,18 @@ public sealed class AuthenticationOrganisationSelectorTests
             });
     }
 
-    private static Mock<HttpContext> SetupMockContext(AutoMocker autoMocker)
+    private static Mock<IHttpContext> SetupMockContext(AutoMocker autoMocker)
     {
-        var mockContext = autoMocker.GetMock<HttpContext>();
+        var mockContext = autoMocker.GetMock<IHttpContext>();
 
-        mockContext.Setup(mock => mock.RequestServices)
-            .Returns(autoMocker);
-
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
         mockRequest.Setup(mock => mock.Scheme).Returns("http");
-        mockRequest.Setup(mock => mock.Host).Returns(new HostString("localhost"));
+        mockRequest.Setup(mock => mock.Host).Returns("localhost");
         mockRequest.Setup(mock => mock.PathBase).Returns("/app");
         mockContext.Setup(mock => mock.Request)
             .Returns(mockRequest.Object);
 
-        var mockResponse = autoMocker.GetMock<HttpResponse>();
+        var mockResponse = autoMocker.GetMock<IHttpResponse>();
         mockContext.Setup(mock => mock.Response)
             .Returns(mockResponse.Object);
 
@@ -45,7 +42,7 @@ public sealed class AuthenticationOrganisationSelectorTests
 
     private static ClaimsPrincipal SetupMockNonAuthenticatedUser(AutoMocker autoMocker)
     {
-        var mockContext = autoMocker.GetMock<HttpContext>();
+        var mockContext = autoMocker.GetMock<IHttpContext>();
 
         var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[]);
         var fakeUser = new ClaimsPrincipal(fakeIdentity);
@@ -61,7 +58,7 @@ public sealed class AuthenticationOrganisationSelectorTests
         AutoMocker autoMocker,
         IEnumerable<Claim>? additionalClaims = null)
     {
-        var mockContext = autoMocker.GetMock<HttpContext>();
+        var mockContext = autoMocker.GetMock<IHttpContext>();
 
         var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[
             new Claim(DsiClaimTypes.UserId, FakeUserId.ToString()),
@@ -225,7 +222,7 @@ public sealed class AuthenticationOrganisationSelectorTests
 
         await selector.InitiateSelectionAsync(fakeContext.Object);
 
-        autoMocker.Verify<HttpResponse>(x =>
+        autoMocker.Verify<IHttpResponse>(x =>
             x.Redirect(
                 It.Is<string>(location => location == "https://select-organisation.localhost/")
             ),
@@ -249,7 +246,7 @@ public sealed class AuthenticationOrganisationSelectorTests
 
         autoMocker.Verify<IOrganisationClaimManager>(x =>
             x.UpdateOrganisationClaimAsync(
-                It.IsAny<HttpContext>(),
+                It.IsAny<IHttpContext>(),
                 It.Is<string>(organisationJson => organisationJson == "null"),
                 It.IsAny<CancellationToken>()
             ),
@@ -271,7 +268,7 @@ public sealed class AuthenticationOrganisationSelectorTests
 
         await selector.InitiateSelectionAsync(fakeContext.Object);
 
-        autoMocker.Verify<HttpResponse>(x =>
+        autoMocker.Verify<IHttpResponse>(x =>
             x.Redirect(
                 It.Is<string>(location => location == "/completed/path")
             ),

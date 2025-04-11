@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
@@ -18,15 +19,17 @@ public sealed record SelectOrganisationCallbackViewModel()
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="request"/> is null.</para>
     /// </exception>
-    public static SelectOrganisationCallbackViewModel FromRequest(HttpRequest request)
+    public static async Task<SelectOrganisationCallbackViewModel> FromRequest(IHttpRequest request)
     {
         ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
 
+        var form = await request.ReadFormAsync();
+
         return new SelectOrganisationCallbackViewModel {
-            PayloadType = Convert.ToString(request.Form["payloadType"]),
-            Payload = Convert.ToString(request.Form["payload"]),
-            Sig = Convert.ToString(request.Form["sig"]),
-            Kid = Convert.ToString(request.Form["kid"]),
+            PayloadType = Convert.ToString(form["payloadType"]),
+            Payload = Convert.ToString(form["payload"]),
+            Sig = Convert.ToString(form["sig"]),
+            Kid = Convert.ToString(form["kid"]),
         };
     }
 

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.Extensions.Options;
 
@@ -31,7 +32,7 @@ public delegate Task<ClaimsIdentity> ClaimsIdentityUpdater(ClaimsIdentity identi
 /// Represents a function that can handle the sign out process.
 /// </summary>
 /// <param name="context">The HTTP context.</param>
-public delegate Task SignOutHandler(HttpContext context);
+public delegate Task SignOutHandler(IHttpContext context);
 
 /// <summary>
 /// A flag that indicates which role claims should be added (if any).

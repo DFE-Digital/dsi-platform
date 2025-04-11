@@ -1,9 +1,5 @@
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
@@ -52,33 +48,6 @@ public sealed class AuthenticationOrganisationSelectorExtensionsTests
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IOrganisationClaimManager)
             )
-        );
-    }
-
-    #endregion
-
-    #region UseAuthenticationOrganisationSelectorMiddleware(IApplicationBuilder)
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public void UseAuthenticationOrganisationSelectorMiddleware_Throws_WhenAppArgumentIsNull()
-    {
-        AuthenticationOrganisationSelectorExtensions.UseAuthenticationOrganisationSelectorMiddleware(null!);
-    }
-
-    [TestMethod]
-    public void UseAuthenticationOrganisationSelectorMiddleware_RegistersMiddleware()
-    {
-        var autoMocker = new AutoMocker();
-        var mockApp = autoMocker.GetMock<IApplicationBuilder>();
-
-        mockApp.Object.UseAuthenticationOrganisationSelectorMiddleware();
-
-        mockApp.Verify(
-            mock => mock.Use(
-                It.IsAny<Func<RequestDelegate, RequestDelegate>>()
-            ),
-            Times.Once
         );
     }
 

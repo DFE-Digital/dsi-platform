@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -36,39 +38,32 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 ///   options in <see cref="AuthenticationOrganisationSelectorOptions"/>.</para>
 /// </remarks>
 public sealed class AuthenticationOrganisationSelectorMiddleware(
-    IJsonSerializerOptionsAccessor jsonSerializerOptionsAccessor,
+    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonOptions,
     IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
     IAuthenticationOrganisationSelector organisationSelector,
     ISelectOrganisationCallbackProcessor callbackProcessor,
-    IOrganisationClaimManager organisationClaimManager,
-    RequestDelegate next)
+    IOrganisationClaimManager organisationClaimManager
+) : IHttpMiddleware
 {
-    // Workaround .NET Core bug where [FromKeyedService] does not work in middleware.
-    // See: https://github.com/dotnet/aspnetcore/issues/54500
-    private JsonSerializerOptions JsonOptions => jsonSerializerOptionsAccessor.GetOptions();
-
-    /// <summary>
-    /// Called when "select organisation" authentication middleware is being used.
-    /// </summary>
-    /// <param name="context">The context of the current HTTP request.</param>
-    public async Task InvokeAsync(HttpContext context)
+    /// <inheritdoc />
+    public async Task InvokeAsync(IHttpContext context, Func<Task> next)
     {
-        if (context.User.Identity!.IsAuthenticated) {
+        if (context.User?.Identity?.IsAuthenticated == true) {
             var options = optionsAccessor.Value;
 
             if (context.Request.Path == options.SignOutPath) {
                 // Do not force user to select an organisation on this route.
-                await next(context);
+                await next();
                 return;
             }
 
-            if (context.Request.Method == HttpMethods.Post && context.Request.Path == options.SelectOrganisationCallbackPath) {
+            if (context.Request.Method == "POST" && context.Request.Path == options.SelectOrganisationCallbackPath) {
                 await this.HandleSelectOrganisationCallbackAsync(context, options);
                 return;
             }
 
             bool userRequestedSelectOrganisation = options.EnableSelectOrganisationRequests &&
-                context.Request.Method == HttpMethods.Get &&
+                context.Request.Method == "GET" &&
                 context.Request.Path == options.SelectOrganisationRequestPath;
 
             bool hasCheckedSelectOrganisationRequirement = context.User.HasClaim(
@@ -81,19 +76,19 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
             }
         }
 
-        await next(context);
+        await next();
     }
 
     private async Task HandleSelectOrganisationCallbackAsync(
-        HttpContext context,
+        IHttpContext context,
         AuthenticationOrganisationSelectorOptions options)
     {
-        var callbackViewModel = SelectOrganisationCallbackViewModel.FromRequest(context.Request);
+        var callbackViewModel = await SelectOrganisationCallbackViewModel.FromRequest(context.Request);
         var callbackData = await callbackProcessor.ProcessCallbackAsync(callbackViewModel);
 
         if (callbackData is SelectOrganisationCallbackId) {
             // An organisation was selected.
-            string callbackDataJson = JsonSerializer.Serialize(callbackData, callbackData.GetType(), this.JsonOptions);
+            string callbackDataJson = JsonSerializer.Serialize(callbackData, callbackData.GetType(), jsonOptions);
             await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson);
         }
         else if (callbackData is SelectOrganisationCallbackCancel) {
@@ -117,7 +112,7 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
     }
 
     private Task HandleSignOut(
-        HttpContext context,
+        IHttpContext context,
         AuthenticationOrganisationSelectorOptions options)
     {
         if (options.HandleSignOut is not null) {

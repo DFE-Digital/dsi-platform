@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.Client;
 
@@ -14,8 +15,6 @@ public static class AuthenticationOrganisationSelectorExtensions
     /// <remarks>
     ///   <para>It is also necessary to setup the DfE Sign-in Public API with
     ///   <see cref="PublicApiExtensions.SetupDfePublicApiClient(IServiceCollection)"/>.</para>
-    ///   <para>Enable the "select organisation" middleware with
-    ///   <see cref="UseAuthenticationOrganisationSelectorMiddleware(IApplicationBuilder)"/>.</para>
     /// </remarks>
     /// <param name="services"></param>
     /// <exception cref="ArgumentNullException">
@@ -32,28 +31,7 @@ public static class AuthenticationOrganisationSelectorExtensions
         // user authentication journey.
         services.AddSingleton<IAuthenticationOrganisationSelector, AuthenticationOrganisationSelector>();
         services.AddSingleton<IOrganisationClaimManager, OrganisationClaimManager>();
-    }
 
-    /// <summary>
-    /// Use the DfE Sign-in organisation selector when authenticated a user.
-    /// </summary>
-    /// <remarks>
-    ///   <para>Refer to <see cref="AuthenticationOrganisationSelectorMiddleware"/>
-    ///   for more details on how the middleware works.</para>
-    ///   <para>Dependencies must be set up with the following:</para>
-    ///   <list type="bullet">
-    ///     <item><see cref="PublicApiExtensions.SetupDfePublicApiClient(IServiceCollection)"/></item>
-    ///     <item><see cref="SetupSelectOrganisationFeatures(IServiceCollection)"/></item>
-    ///   </list>
-    /// </remarks>
-    /// <param name="app">The application builder.</param>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="app"/> is null.</para>
-    /// </exception>
-    public static void UseAuthenticationOrganisationSelectorMiddleware(this IApplicationBuilder app)
-    {
-        ExceptionHelpers.ThrowIfArgumentNull(app, nameof(app));
-
-        app.UseMiddleware<AuthenticationOrganisationSelectorMiddleware>();
+        services.AddTransient<AuthenticationOrganisationSelectorMiddleware>();
     }
 }

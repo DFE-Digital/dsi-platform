@@ -1,8 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.Internal;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -24,7 +24,7 @@ public interface IOrganisationClaimManager
     /// </exception>
     /// <exception cref="OperationCanceledException" />
     Task UpdateOrganisationClaimAsync(
-        HttpContext context,
+        IHttpContext context,
         string organisationJson,
         CancellationToken cancellationToken = default
     );
@@ -38,14 +38,9 @@ internal sealed class OrganisationClaimManager(
     IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse> getUserAccessToService
 ) : IOrganisationClaimManager
 {
-    // Proxy for 'SignInAsync' function since `HttpContext.SignInAsync` is
-    // difficult to mock.
-    internal Func<HttpContext, ClaimsPrincipal, Task> SignInProxyAsync { get; set; }
-        = (context, principal) => context.SignInAsync(principal);
-
     /// <inheritdoc/>
     public async Task UpdateOrganisationClaimAsync(
-        HttpContext context,
+        IHttpContext context,
         string organisationJson,
         CancellationToken cancellationToken = default)
     {
@@ -75,7 +70,7 @@ internal sealed class OrganisationClaimManager(
         );
 
         var newPrincipal = new ClaimsPrincipal([.. otherIdentities, dsiIdentity]);
-        await this.SignInProxyAsync(context, newPrincipal);
+        await context.SignInAsync(newPrincipal);
     }
 
     private async Task FetchRolesFromPublicApi(
