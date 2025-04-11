@@ -31,9 +31,11 @@ internal sealed class PublicApiPostRequester<TRequest, TResponse>(
 
         var httpClient = client.HttpClient;
 
-        var httpResponse = (await httpClient.PostAsJsonAsync(
+        var httpResponse = await httpClient.PostAsJsonAsync(
             endpoint, request, jsonOptions, cancellationToken
-        )).EnsureSuccessStatusCode();
+        );
+
+        httpResponse.EnsureSuccessStatusCode();
 
         return await httpResponse.Content.ReadFromJsonAsync<TResponse>(
             jsonOptions, cancellationToken
