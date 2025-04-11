@@ -262,7 +262,7 @@ public sealed class SelectOrganisationController(
         string? clientId,
         CancellationToken cancellationToken = default)
     {
-        var returnUrl = new Uri("https://" + applicationOptionsAccessor.Value.ServicesUrl);
+        var returnUrl = applicationOptionsAccessor.Value.ServicesUrl;
 
         if (!string.IsNullOrEmpty(clientId)) {
             var response = await getApplicationByClientId.InvokeAsync(new() {

@@ -60,7 +60,7 @@ public static class ServiceCollectionExtensions
         foreach (var apiName in apiNames) {
             services.AddHttpClient(apiName.ToString(), (provider, client) => {
                 var apiOptions = GetNodeApiOptions(provider, apiName);
-                client.BaseAddress = new Uri("https://" + apiOptions.BaseAddress);
+                client.BaseAddress = apiOptions.BaseAddress;
             })
             .ConfigurePrimaryHttpMessageHandler((provider) => {
                 var apiOptions = GetNodeApiOptions(provider, apiName);
