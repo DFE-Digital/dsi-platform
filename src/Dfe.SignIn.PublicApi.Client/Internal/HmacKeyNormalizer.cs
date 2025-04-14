@@ -1,5 +1,6 @@
+using Dfe.SignIn.Core.Framework;
 
-namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
+namespace Dfe.SignIn.PublicApi.Client.Internal;
 
 /// <summary>
 /// Resolves difference between Node and C# hmac
@@ -15,7 +16,7 @@ public sealed class HmacKeyNormalizer
     /// <exception cref="ArgumentNullException">Thrown when the provided keyBytes is null.</exception>
     public static byte[] NormalizeHmacSha256Key(byte[] keyBytes)
     {
-        ArgumentNullException.ThrowIfNull(keyBytes, nameof(keyBytes));
+        ExceptionHelpers.ThrowIfArgumentNull(keyBytes, nameof(keyBytes));
 
         if (keyBytes.Length < 32) {
             var paddedKey = new byte[32];

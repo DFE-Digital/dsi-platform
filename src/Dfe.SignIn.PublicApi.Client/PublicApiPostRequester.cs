@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Dfe.SignIn.Core.Framework;
 
@@ -26,13 +27,15 @@ internal sealed class PublicApiPostRequester<TRequest, TResponse>(
         TRequest request,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request, nameof(request));
+        ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
 
         var httpClient = client.HttpClient;
 
-        var httpResponse = (await httpClient.PostAsJsonAsync(
+        var httpResponse = await httpClient.PostAsJsonAsync(
             endpoint, request, jsonOptions, cancellationToken
-        )).EnsureSuccessStatusCode();
+        );
+
+        httpResponse.EnsureSuccessStatusCode();
 
         return await httpResponse.Content.ReadFromJsonAsync<TResponse>(
             jsonOptions, cancellationToken

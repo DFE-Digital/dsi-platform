@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Dfe.SignIn.Core.Framework;
 
@@ -26,7 +27,7 @@ internal sealed class PublicApiGetRequester<TRequest, TResponse>(
         TRequest request,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request, nameof(request));
+        ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
 
         var httpClient = client.HttpClient;
 

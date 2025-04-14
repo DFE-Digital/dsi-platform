@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
@@ -17,7 +18,7 @@ public static class EndpointExtensions
     /// </exception>
     public static void SetupEndpoints(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         SetupCamelCaseNamingForEnums(services);
     }

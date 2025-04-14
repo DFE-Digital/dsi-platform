@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,7 +23,7 @@ public static class SelectOrganisationSessionCacheExtensions
     /// </exception>
     public static IServiceCollection AddSelectOrganisationSessionCache(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddSingleton<ISessionDataSerializer, DefaultSessionDataSerializer>();
         services.AddSingleton<ISelectOrganisationSessionRepository, DistributedCacheSelectOrganisationSessionRepository>();

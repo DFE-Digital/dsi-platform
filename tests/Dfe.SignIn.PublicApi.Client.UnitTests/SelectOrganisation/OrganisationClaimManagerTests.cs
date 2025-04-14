@@ -1,9 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.Internal;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
@@ -36,19 +36,16 @@ public sealed class OrganisationClaimManagerTests
             .Returns(options ?? new AuthenticationOrganisationSelectorOptions());
     }
 
-    private static Mock<HttpContext> SetupFakeContext(AutoMocker autoMocker)
+    private static Mock<IHttpContext> SetupFakeContext(AutoMocker autoMocker)
     {
-        var mockContext = autoMocker.GetMock<HttpContext>();
-
-        mockContext.Setup(mock => mock.RequestServices)
-            .Returns(autoMocker);
+        var mockContext = autoMocker.GetMock<IHttpContext>();
 
         return mockContext;
     }
 
     private static ClaimsPrincipal SetupFakeUser(AutoMocker autoMocker)
     {
-        var mockContext = autoMocker.GetMock<HttpContext>();
+        var mockContext = autoMocker.GetMock<IHttpContext>();
 
         var fakeUser = new ClaimsPrincipal(new ClaimsIdentity([
             new Claim(DsiClaimTypes.UserId, FakeUserId)
@@ -138,10 +135,9 @@ public sealed class OrganisationClaimManagerTests
         var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
 
         ClaimsPrincipal? capturedPrincipal = null;
-        manager.SignInProxyAsync = (context, principal) => {
-            capturedPrincipal = principal;
-            return Task.CompletedTask;
-        };
+        mockContext
+            .Setup(mock => mock.SignInAsync(It.IsAny<ClaimsPrincipal>()))
+            .Callback<ClaimsPrincipal>(principal => capturedPrincipal = principal);
 
         await manager.UpdateOrganisationClaimAsync(mockContext.Object, FakeOrganisation1ClaimValue);
 
@@ -195,10 +191,9 @@ public sealed class OrganisationClaimManagerTests
         ], PublicApiConstants.AuthenticationType));
 
         ClaimsPrincipal? capturedPrincipal = null;
-        manager.SignInProxyAsync = (context, principal) => {
-            capturedPrincipal = principal;
-            return Task.CompletedTask;
-        };
+        mockContext
+            .Setup(mock => mock.SignInAsync(It.IsAny<ClaimsPrincipal>()))
+            .Callback<ClaimsPrincipal>(principal => capturedPrincipal = principal);
 
         await manager.UpdateOrganisationClaimAsync(mockContext.Object, FakeOrganisation3ClaimValue);
 
@@ -207,7 +202,7 @@ public sealed class OrganisationClaimManagerTests
             .Where(identity => identity.AuthenticationType == PublicApiConstants.AuthenticationType);
         Assert.AreEqual(1, dfeSignInIdentities.Count());
         Assert.AreEqual(1, capturedPrincipal.FindAll(DsiClaimTypes.Organisation).Count());
-        Assert.AreEqual(FakeOrganisation3ClaimValue, capturedPrincipal.FindFirstValue(DsiClaimTypes.Organisation));
+        Assert.AreEqual(FakeOrganisation3ClaimValue, capturedPrincipal.FindFirst(DsiClaimTypes.Organisation)?.Value);
     }
 
     [TestMethod]
@@ -251,10 +246,9 @@ public sealed class OrganisationClaimManagerTests
         var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
 
         ClaimsPrincipal? capturedPrincipal = null;
-        manager.SignInProxyAsync = (context, principal) => {
-            capturedPrincipal = principal;
-            return Task.CompletedTask;
-        };
+        mockContext
+            .Setup(mock => mock.SignInAsync(It.IsAny<ClaimsPrincipal>()))
+            .Callback<ClaimsPrincipal>(principal => capturedPrincipal = principal);
 
         await manager.UpdateOrganisationClaimAsync(mockContext.Object, FakeOrganisation1ClaimValue);
 

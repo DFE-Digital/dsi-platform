@@ -1,3 +1,5 @@
+using Dfe.SignIn.Core.Framework;
+
 namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
 
 /// <summary>
@@ -14,7 +16,7 @@ public static class BearerTokenAuthExtensions
     /// </exception>
     public static void UseBearerTokenAuthMiddleware(this IApplicationBuilder builder)
     {
-        ArgumentNullException.ThrowIfNull(builder, nameof(builder));
+        ExceptionHelpers.ThrowIfArgumentNull(builder, nameof(builder));
 
         builder.UseMiddleware<BearerTokenAuthMiddleware>();
     }

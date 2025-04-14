@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
@@ -52,7 +53,7 @@ public sealed class SelectOrganisationCallbackProcessor(
         bool throwOnError = true,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(viewModel, nameof(viewModel));
+        ExceptionHelpers.ThrowIfArgumentNull(viewModel, nameof(viewModel));
 
         var signature = new PayloadDigitalSignature {
             KeyId = viewModel.Kid,

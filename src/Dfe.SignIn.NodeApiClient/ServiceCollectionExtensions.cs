@@ -50,8 +50,8 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IEnumerable<NodeApiName> apiNames)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(apiNames, nameof(apiNames));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(apiNames, nameof(apiNames));
 
         services.AddAutoMapper(options => {
             options.AddProfile<OrganisationProfile>();

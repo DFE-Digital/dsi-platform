@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Dfe.SignIn.PublicApi.Client;
 
 /// <summary>

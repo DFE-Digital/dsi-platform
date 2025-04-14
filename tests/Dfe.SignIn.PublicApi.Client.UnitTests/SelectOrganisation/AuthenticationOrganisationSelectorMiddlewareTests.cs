@@ -2,9 +2,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using Moq.AutoMock;
 
@@ -26,15 +27,15 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         autoMocker.Use(JsonHelperExtensions.CreateStandardOptions());
     }
 
-    private static Mock<HttpContext> SetupMockHttpContext(AutoMocker autoMocker)
+    private static Mock<IHttpContext> SetupMockHttpContext(AutoMocker autoMocker)
     {
-        var mockContext = autoMocker.GetMock<HttpContext>();
+        var mockContext = autoMocker.GetMock<IHttpContext>();
 
         mockContext.Setup(mock => mock.Request)
-            .Returns(autoMocker.Get<HttpRequest>());
+            .Returns(autoMocker.Get<IHttpRequest>());
 
         mockContext.Setup(mock => mock.Response)
-            .Returns(autoMocker.Get<HttpResponse>());
+            .Returns(autoMocker.Get<IHttpResponse>());
 
         return mockContext;
 
@@ -42,7 +43,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
     private static ClaimsPrincipal SetupMockNonAuthenticatedUser(AutoMocker autoMocker)
     {
-        var mockContext = autoMocker.GetMock<HttpContext>();
+        var mockContext = autoMocker.GetMock<IHttpContext>();
 
         var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[]);
         var fakeUser = new ClaimsPrincipal(fakeIdentity);
@@ -58,7 +59,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         AutoMocker autoMocker,
         IEnumerable<Claim>? additionalClaims = null)
     {
-        var mockContext = autoMocker.GetMock<HttpContext>();
+        var mockContext = autoMocker.GetMock<IHttpContext>();
 
         var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[
             new Claim(DsiClaimTypes.UserId, FakeUserId.ToString()),
@@ -84,15 +85,11 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
         var mockContext = SetupMockHttpContext(autoMocker);
+        var mockNext = new Mock<Func<Task>>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
-        autoMocker.Verify<RequestDelegate>(
-            x => x.Invoke(
-                It.Is<HttpContext>(context => context == mockContext.Object)
-            ),
-            Times.Once
-        );
+        mockNext.Verify(next => next(), Times.Once);
     }
 
     [TestMethod]
@@ -104,20 +101,16 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Get);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("GET");
         mockRequest.Setup(mock => mock.Path).Returns("/sign-out");
 
         var mockContext = SetupMockHttpContext(autoMocker);
+        var mockNext = new Mock<Func<Task>>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
-        autoMocker.Verify<RequestDelegate>(
-            x => x.Invoke(
-                It.Is<HttpContext>(context => context == mockContext.Object)
-            ),
-            Times.Once
-        );
+        mockNext.Verify(next => next(), Times.Once);
     }
 
     [TestMethod]
@@ -127,17 +120,20 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         SetupOptions(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("POST");
         mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
-        mockRequest.Setup(mock => mock.Form).Returns(new FormCollection(new() {
-            { "payloadType", PayloadTypeConstants.Id },
-            { "payload", "{data}" },
-            { "sig", "{sig}" },
-            { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
-        }));
+        mockRequest.Setup(mock => mock.ReadFormAsync()).ReturnsAsync(
+            new Dictionary<string, StringValues> {
+                { "payloadType", PayloadTypeConstants.Id },
+                { "payload", "{data}" },
+                { "sig", "{sig}" },
+                { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
+            }
+        );
 
         var mockContext = SetupMockHttpContext(autoMocker);
+        var mockNext = new Mock<Func<Task>>();
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackAsync(
@@ -157,23 +153,25 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
         autoMocker.Verify<IOrganisationClaimManager>(
             x => x.UpdateOrganisationClaimAsync(
-                It.IsAny<HttpContext>(),
+                It.IsAny<IHttpContext>(),
                 It.Is<string>(organisationJson => organisationJson.Contains("c72bdba2-6793-4118-aeba-cd3def045245")),
                 It.IsAny<CancellationToken>()
             ),
             Times.Once
         );
 
-        autoMocker.Verify<HttpResponse>(
+        autoMocker.Verify<IHttpResponse>(
             x => x.Redirect(
                 It.Is<string>(location => location == "/completed/path")
             ),
             Times.Once
         );
+
+        mockNext.Verify(next => next(), Times.Never);
     }
 
     [TestMethod]
@@ -183,17 +181,20 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         SetupOptions(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("POST");
         mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
-        mockRequest.Setup(mock => mock.Form).Returns(new FormCollection(new() {
-            { "payloadType", PayloadTypeConstants.Cancel },
-            { "payload", "{data}" },
-            { "sig", "{sig}" },
-            { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
-        }));
+        mockRequest.Setup(mock => mock.ReadFormAsync()).ReturnsAsync(
+            new Dictionary<string, StringValues> {
+                { "payloadType", PayloadTypeConstants.Cancel },
+                { "payload", "{data}" },
+                { "sig", "{sig}" },
+                { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
+            }
+        );
 
         var mockContext = SetupMockHttpContext(autoMocker);
+        var mockNext = new Mock<Func<Task>>();
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackAsync(
@@ -212,14 +213,16 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
-        autoMocker.Verify<HttpResponse>(
+        autoMocker.Verify<IHttpResponse>(
             x => x.Redirect(
                 It.Is<string>(location => location == "/sign-out")
             ),
             Times.Once
         );
+
+        mockNext.Verify(next => next(), Times.Never);
     }
 
     [TestMethod]
@@ -232,15 +235,17 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
         ]);
 
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("POST");
         mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
-        mockRequest.Setup(mock => mock.Form).Returns(new FormCollection(new() {
-            { "payloadType", PayloadTypeConstants.Cancel },
-            { "payload", "{data}" },
-            { "sig", "{sig}" },
-            { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
-        }));
+        mockRequest.Setup(mock => mock.ReadFormAsync()).ReturnsAsync(
+            new Dictionary<string, StringValues> {
+                { "payloadType", PayloadTypeConstants.Cancel },
+                { "payload", "{data}" },
+                { "sig", "{sig}" },
+                { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
+            }
+        );
 
         var mockContext = SetupMockHttpContext(autoMocker);
 
@@ -261,9 +266,9 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, () => Task.CompletedTask);
 
-        autoMocker.Verify<HttpResponse>(
+        autoMocker.Verify<IHttpResponse>(
             x => x.Redirect(
                 It.Is<string>(location => location == "/sign-out")
             ),
@@ -278,17 +283,20 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         SetupOptions(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Post);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("POST");
         mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
-        mockRequest.Setup(mock => mock.Form).Returns(new FormCollection(new() {
-            { "payloadType", PayloadTypeConstants.SignOut },
-            { "payload", "{data}" },
-            { "sig", "{sig}" },
-            { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
-        }));
+        mockRequest.Setup(mock => mock.ReadFormAsync()).ReturnsAsync(
+            new Dictionary<string, StringValues> {
+                { "payloadType", PayloadTypeConstants.SignOut },
+                { "payload", "{data}" },
+                { "sig", "{sig}" },
+                { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
+            }
+        );
 
         var mockContext = SetupMockHttpContext(autoMocker);
+        var mockNext = new Mock<Func<Task>>();
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackAsync(
@@ -307,9 +315,9 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
-        autoMocker.Verify<HttpResponse>(
+        autoMocker.Verify<IHttpResponse>(
             x => x.Redirect(
                 It.Is<string>(location => location == "/sign-out")
             ),
@@ -330,27 +338,23 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Get);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("GET");
         mockRequest.Setup(mock => mock.Path).Returns("/select-organisation");
 
         var mockContext = SetupMockHttpContext(autoMocker);
+        var mockNext = new Mock<Func<Task>>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
         autoMocker.Verify<IAuthenticationOrganisationSelector>(
             x => x.InitiateSelectionAsync(
-                It.IsAny<HttpContext>(),
+                It.IsAny<IHttpContext>(),
                 It.IsAny<CancellationToken>()
             ),
             Times.Never
         );
-        autoMocker.Verify<RequestDelegate>(
-            x => x.Invoke(
-                It.Is<HttpContext>(context => context == mockContext.Object)
-            ),
-            Times.Once
-        );
+        mockNext.Verify(next => next(), Times.Once);
     }
 
     [TestMethod]
@@ -366,21 +370,23 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Get);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("GET");
         mockRequest.Setup(mock => mock.Path).Returns("/select-organisation");
 
         var mockContext = SetupMockHttpContext(autoMocker);
+        var mockNext = new Mock<Func<Task>>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
         autoMocker.Verify<IAuthenticationOrganisationSelector>(
             x => x.InitiateSelectionAsync(
-                It.Is<HttpContext>(context => context == mockContext.Object),
+                It.Is<IHttpContext>(context => context == mockContext.Object),
                 It.IsAny<CancellationToken>()
             ),
             Times.Once
         );
+        mockNext.Verify(next => next(), Times.Never);
     }
 
     [TestMethod]
@@ -393,23 +399,25 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         SetupMockAuthenticatedUser(autoMocker);
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
+        var mockNext = new Mock<Func<Task>>();
 
         // Mock a request to some page within the application.
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Get);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("GET");
         mockRequest.Setup(mock => mock.Path).Returns("/profile");
 
         var mockContext = SetupMockHttpContext(autoMocker);
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
         autoMocker.Verify<IAuthenticationOrganisationSelector>(
             x => x.InitiateSelectionAsync(
-                It.Is<HttpContext>(context => context == mockContext.Object),
+                It.Is<IHttpContext>(context => context == mockContext.Object),
                 It.IsAny<CancellationToken>()
             ),
             Times.Once
         );
+        mockNext.Verify(next => next(), Times.Never);
     }
 
     [TestMethod]
@@ -430,27 +438,23 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
         // Mock a request to some page within the application.
-        var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns(HttpMethods.Get);
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("GET");
         mockRequest.Setup(mock => mock.Path).Returns("/profile");
 
         var mockContext = SetupMockHttpContext(autoMocker);
+        var mockNext = new Mock<Func<Task>>();
 
-        await middleware.InvokeAsync(mockContext.Object);
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
         autoMocker.Verify<IAuthenticationOrganisationSelector>(
             x => x.InitiateSelectionAsync(
-                It.IsAny<HttpContext>(),
+                It.IsAny<IHttpContext>(),
                 It.IsAny<CancellationToken>()
             ),
             Times.Never
         );
-        autoMocker.Verify<RequestDelegate>(
-            x => x.Invoke(
-                It.Is<HttpContext>(context => context == mockContext.Object)
-            ),
-            Times.Once
-        );
+        mockNext.Verify(next => next(), Times.Once);
     }
 
     #endregion

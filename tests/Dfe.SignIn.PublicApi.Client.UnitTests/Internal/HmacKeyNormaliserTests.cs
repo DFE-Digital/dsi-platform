@@ -1,6 +1,6 @@
-using Dfe.SignIn.PublicApi.BearerTokenAuth;
+using Dfe.SignIn.PublicApi.Client.Internal;
 
-namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth;
+namespace Dfe.SignIn.PublicApi.Client.UnitTests.Internal;
 
 [TestClass]
 public class HmacKeyPaddingTests

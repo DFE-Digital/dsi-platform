@@ -1,9 +1,11 @@
-using System.IdentityModel.Tokens.Jwt;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
+using Dfe.SignIn.PublicApi.Client.Internal;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
 
@@ -92,10 +94,9 @@ public class BearerTokenAuthMiddleware
         var hasExp = jwtToken.Claims.Any(c => c.Type == "exp");
         var hasNbf = jwtToken.Claims.Any(c => c.Type == "nbf");
 
-        // Convert the string into a byte-array
-        var keyBytes = System.Text.Encoding.UTF8.GetBytes(response.Application.ApiSecret);
-
-        keyBytes = HmacKeyNormalizer.NormalizeHmacSha256Key(keyBytes);
+        byte[] keyBytes = HmacKeyNormalizer.NormalizeHmacSha256Key(
+            Encoding.UTF8.GetBytes(response.Application.ApiSecret)
+        );
 
         var tokenValidationParameters = new TokenValidationParameters {
             ValidateIssuer = true,

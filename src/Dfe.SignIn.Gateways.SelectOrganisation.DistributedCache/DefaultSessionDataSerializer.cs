@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 
 namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
@@ -14,7 +15,7 @@ public sealed class DefaultSessionDataSerializer : ISessionDataSerializer
     /// <inheritdoc/>
     public string Serialize(SelectOrganisationSessionData sessionData)
     {
-        ArgumentNullException.ThrowIfNull(sessionData, nameof(sessionData));
+        ExceptionHelpers.ThrowIfArgumentNull(sessionData, nameof(sessionData));
 
         return JsonSerializer.Serialize(sessionData, JsonSerializerOptions);
     }
@@ -22,7 +23,7 @@ public sealed class DefaultSessionDataSerializer : ISessionDataSerializer
     /// <inheritdoc/>
     public SelectOrganisationSessionData Deserialize(string json)
     {
-        ArgumentException.ThrowIfNullOrEmpty(json, nameof(json));
+        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(json, nameof(json));
 
         var data = JsonSerializer.Deserialize<SelectOrganisationSessionData>(json, JsonSerializerOptions);
         return data

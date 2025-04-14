@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Microsoft.Extensions.Caching.Distributed;
@@ -23,7 +24,7 @@ public sealed class DistributedCacheSelectOrganisationSessionRepository(
     /// <inheritdoc/>
     public async Task<SelectOrganisationSessionData?> RetrieveAsync(string sessionKey)
     {
-        ArgumentException.ThrowIfNullOrEmpty(sessionKey, nameof(sessionKey));
+        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(sessionKey, nameof(sessionKey));
 
         string? sessionDataJson = await cache.GetStringAsync(sessionKey);
         if (sessionDataJson is null) {
@@ -41,8 +42,8 @@ public sealed class DistributedCacheSelectOrganisationSessionRepository(
     /// <inheritdoc/>
     public async Task StoreAsync(string sessionKey, SelectOrganisationSessionData sessionData)
     {
-        ArgumentException.ThrowIfNullOrEmpty(sessionKey, nameof(sessionKey));
-        ArgumentNullException.ThrowIfNull(sessionData, nameof(sessionData));
+        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(sessionKey, nameof(sessionKey));
+        ExceptionHelpers.ThrowIfArgumentNull(sessionData, nameof(sessionData));
 
         string sessionDataJson = serializer.Serialize(sessionData);
         await cache.SetStringAsync(sessionKey, sessionDataJson, new DistributedCacheEntryOptions {
@@ -53,7 +54,7 @@ public sealed class DistributedCacheSelectOrganisationSessionRepository(
     /// <inheritdoc/>
     public async Task InvalidateAsync(string sessionKey)
     {
-        ArgumentException.ThrowIfNullOrEmpty(sessionKey, nameof(sessionKey));
+        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(sessionKey, nameof(sessionKey));
 
         await cache.RemoveAsync(sessionKey);
     }

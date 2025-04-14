@@ -4,6 +4,7 @@ using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Internal;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.Client;
 
@@ -21,7 +22,7 @@ public static class PublicApiExtensions
     /// </exception>
     public static IServiceCollection SetupDfePublicApiClient(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddOptions();
         services.Configure<PublicKeyCacheOptions>(_ => { });

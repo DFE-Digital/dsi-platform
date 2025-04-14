@@ -1,4 +1,7 @@
+using System.Net.Http.Json;
 using System.Security.Cryptography;
+using Dfe.SignIn.Core.Framework;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -28,7 +31,7 @@ internal sealed class PublicKeyCache(
     /// <inheritdoc/>
     public async Task<PublicKeyCacheEntry?> GetPublicKeyAsync(string keyId)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(keyId, nameof(keyId));
+        ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace(keyId, nameof(keyId));
 
         await this.AutoRefreshAsync(keyId);
 
@@ -80,7 +83,7 @@ internal sealed class PublicKeyCache(
 
             this.publicKeys = keysListing.Keys
                 // Exclude keys that have expired.
-                .Where(key => DateTime.UtcNow <= DateTime.UnixEpoch.AddSeconds(key.Ed))
+                .Where(key => DateTime.UtcNow <= DateTimeHelpers.UnixEpoch.AddSeconds(key.Ed))
                 .ToDictionary(key => key.Kid, key => {
                     // Retain existing key instance if it already exists.
                     if (this.publicKeys.TryGetValue(key.Kid, out var existingKey)) {
@@ -114,10 +117,18 @@ internal sealed class PublicKeyCache(
 
     private static PublicKeyCacheEntry ReadPublicKey(WellKnownPublicKey publicKey)
     {
-        var rsa = RSA.Create(new RSAParameters {
+        var parameters = new RSAParameters {
             Modulus = Base64UrlEncoder.DecodeBytes(publicKey.N),
             Exponent = Base64UrlEncoder.DecodeBytes(publicKey.E),
-        });
+        };
+
+#if NET8_0_OR_GREATER
+        var rsa = RSA.Create(parameters);
+#else
+        var rsa = new RSACryptoServiceProvider();
+        rsa.ImportParameters(parameters);
+#endif
+
         return new PublicKeyCacheEntry(publicKey, rsa);
     }
 }

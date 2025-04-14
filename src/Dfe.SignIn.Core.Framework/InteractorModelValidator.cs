@@ -37,7 +37,7 @@ public sealed class InteractorModelValidator<TRequest, TResponse>(
                 // are unexpected from the context of this particular interaction.
                 ex = new UnexpectedException("An unexpected exception occurred whilst processing interaction.", ex);
             }
-            ExceptionDispatchInfo.Throw(ex);
+            ExceptionDispatchInfo.Capture(ex).Throw();
             throw; // Keep compiler happy.
         }
 

@@ -1,6 +1,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using Dfe.SignIn.Core.Framework;
 using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApiClient.HttpSecurityProvider;
@@ -26,8 +27,8 @@ public sealed class MsalHttpSecurityProvider : IHttpSecurityProvider
     /// </exception>
     public MsalHttpSecurityProvider(string[] scopes, IConfidentialClientApplication confidentialClientApplication)
     {
-        ArgumentNullException.ThrowIfNull(scopes, nameof(scopes));
-        ArgumentNullException.ThrowIfNull(confidentialClientApplication, nameof(confidentialClientApplication));
+        ExceptionHelpers.ThrowIfArgumentNull(scopes, nameof(scopes));
+        ExceptionHelpers.ThrowIfArgumentNull(confidentialClientApplication, nameof(confidentialClientApplication));
 
         this.scopes = scopes;
         this.confidentialClientApplication = confidentialClientApplication;

@@ -27,11 +27,11 @@ internal static class ExceptionReflectionHelpers
 
                 exceptionTypesByFullName = AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(assembly => assembly.GetTypes())
-                    .Where(type => type.IsAssignableTo(typeof(Exception)))
-                    .DistinctBy(type => type.FullName)
+                    .Where(type => typeof(Exception).IsAssignableFrom(type))
+                    .GroupBy(type => type.FullName)
                     .ToDictionary(
-                        keySelector: type => type.FullName!,
-                        elementSelector: type => type
+                        keySelector: type => type.First().FullName!,
+                        elementSelector: type => type.First()
                     );
                 return exceptionTypesByFullName;
             }
@@ -53,7 +53,7 @@ internal static class ExceptionReflectionHelpers
     /// </exception>
     public static Type? GetExceptionTypeByFullName(string fullName)
     {
-        ArgumentException.ThrowIfNullOrEmpty(fullName, nameof(fullName));
+        ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace(fullName, nameof(fullName));
 
         ExceptionTypesByFullName.TryGetValue(fullName, out var result);
         return result;
@@ -79,7 +79,7 @@ internal static class ExceptionReflectionHelpers
     /// </exception>
     public static bool IsSerializableProperty(PropertyInfo property)
     {
-        ArgumentNullException.ThrowIfNull(property, nameof(property));
+        ExceptionHelpers.ThrowIfArgumentNull(property, nameof(property));
 
         // Get property from declaring type so that private accessors are found.
         property = property.DeclaringType?.GetProperty(
@@ -112,7 +112,7 @@ internal static class ExceptionReflectionHelpers
     /// </exception>
     public static IEnumerable<PropertyInfo> GetSerializableExceptionProperties(Type exceptionType)
     {
-        ArgumentNullException.ThrowIfNull(exceptionType, nameof(exceptionType));
+        ExceptionHelpers.ThrowIfArgumentNull(exceptionType, nameof(exceptionType));
 
         IEnumerable<PropertyInfo> result;
         lock (@lock) {
