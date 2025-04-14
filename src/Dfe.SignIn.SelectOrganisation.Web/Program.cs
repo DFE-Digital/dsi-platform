@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.NodeApiClient;
+using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
 
