@@ -1,6 +1,8 @@
 // using Dfe.SignIn.Core.Framework;
 // using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
 
+// namespace Dfe.SignIn.SelectOrganisation.Web.Mocks;
+
 // public sealed class MockGetApplicationByClientId
 //     : IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
 // {

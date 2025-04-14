@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.InternalModels.Applications;
+using Dfe.SignIn.PublicApi.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.ScopedSessionProvider;

@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.SelectOrganisation.Web.MappingProfiles;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.Configuration;
 
