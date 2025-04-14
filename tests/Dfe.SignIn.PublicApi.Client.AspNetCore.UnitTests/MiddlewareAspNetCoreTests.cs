@@ -21,7 +21,7 @@ public sealed class MiddlewareAspNetCoreTests
             .Callback<IHttpContext, Func<Task>>((context, next) => next());
 
         var mockNext = new Mock<RequestDelegate>();
-        var adapter = new HttpMiddlewareAspNetCoreAdapter(mockMiddleware.Object, mockNext.Object);
+        var adapter = new HttpMiddlewareAspNetCoreAdapter(() => mockMiddleware.Object, mockNext.Object);
 
         var mockContext = new Mock<HttpContext>();
 
