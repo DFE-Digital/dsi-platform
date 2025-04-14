@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations;
 
+namespace Dfe.SignIn.SelectOrganisation.Web.Mocks;
+
 public static class MockOrganisations
 {
     public static IDictionary<Guid, OrganisationModel> Models { get; } = new Dictionary<Guid, OrganisationModel> {

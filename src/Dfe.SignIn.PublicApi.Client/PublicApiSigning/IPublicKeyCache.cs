@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 
 namespace Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 

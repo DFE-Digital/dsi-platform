@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.InternalModels.Applications;
 using Dfe.SignIn.PublicApi.ScopedSession;
 
+namespace Dfe.SignIn.PublicApi.Fakes;
+
 /// <summary>
 /// ...
 /// </summary>

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Dfe.SignIn.PublicApi.MappingProfiles;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.MappingProfiles;
 

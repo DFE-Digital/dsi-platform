@@ -1,4 +1,5 @@
 using AutoMapper;
+using Dfe.SignIn.SelectOrganisation.Web.MappingProfiles;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.MappingProfiles;
 

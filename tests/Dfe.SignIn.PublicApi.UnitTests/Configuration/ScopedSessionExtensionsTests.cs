@@ -1,3 +1,4 @@
+using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.Extensions.DependencyInjection;
 

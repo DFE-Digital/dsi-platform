@@ -8,6 +8,7 @@ using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq;
 using Moq.AutoMock;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.PublicApi.MappingProfiles;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
 

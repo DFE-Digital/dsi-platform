@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.ScopedSession;
 
+namespace Dfe.SignIn.PublicApi.Configuration;
+
 /// <exclude/>
 public static class ScopedSessionExtensions
 {

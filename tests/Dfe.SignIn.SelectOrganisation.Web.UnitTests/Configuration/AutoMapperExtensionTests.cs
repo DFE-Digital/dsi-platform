@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.Internal;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
+using Dfe.SignIn.SelectOrganisation.Web.MappingProfiles;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.SelectOrganisation.Web.UnitTests.Configuration;
@@ -31,7 +32,7 @@ public sealed class AutoMapperExtensionTests
         var profileNames = mapper.ConfigurationProvider.Internal().Profiles
             .Select(profile => profile.Name)
             .ToArray();
-        CollectionAssert.Contains(profileNames, nameof(SelectedOrganisationCallbackMappingProfile));
+        CollectionAssert.Contains(profileNames, typeof(SelectedOrganisationCallbackMappingProfile).FullName);
     }
 
     #endregion

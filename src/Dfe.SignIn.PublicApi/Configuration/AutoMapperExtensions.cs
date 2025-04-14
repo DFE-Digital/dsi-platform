@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.MappingProfiles;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 

@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 
+namespace Dfe.SignIn.PublicApi.Fakes;
+
 /// <summary>
 /// ...
 /// </summary>
