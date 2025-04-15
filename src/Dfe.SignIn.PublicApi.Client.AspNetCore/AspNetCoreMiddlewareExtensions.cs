@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,9 @@ public static class AspNetCoreMiddlewareExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(app, nameof(app));
 
-        app.UseMiddleware<AuthenticationOrganisationSelectorMiddleware>();
+        Func<IHttpMiddleware> middlewareFactory = app.ApplicationServices.GetRequiredService<
+            AuthenticationOrganisationSelectorMiddleware
+        >;
+        app.UseMiddleware<HttpMiddlewareAspNetCoreAdapter>(middlewareFactory);
     }
 }

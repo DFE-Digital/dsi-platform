@@ -36,16 +36,6 @@ internal sealed class PublicApiBearerTokenHandler(
     {
         request.Headers.Authorization = this.CreateAuthorizationHeader();
 
-#if DEBUG
-        // The assumption here is that all requests are going to the DEV public API instance.
-        // Re-route all v2 endpoints to a local server for debugging.
-        // TODO: In the future there will need to be a better way to manage this.
-        var requestUri = request.RequestUri!;
-        if (requestUri.IsAbsoluteUri && requestUri.AbsolutePath.StartsWith("/v2/")) {
-            request.RequestUri = new Uri($"http://localhost:5086{request.RequestUri!.LocalPath}");
-        }
-#endif
-
         return base.SendAsync(request, cancellationToken);
     }
 
