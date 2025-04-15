@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
-using Dfe.SignIn.NodeApiClient;
+using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Configuration.Interactions;

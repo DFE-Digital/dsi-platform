@@ -29,7 +29,7 @@
     <ProjectReference Include="..\Dfe.SignIn.Core.InternalModels\Dfe.SignIn.Core.InternalModels.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.UseCases\Dfe.SignIn.Core.UseCases.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj" />
-    <ProjectReference Include="..\Dfe.SignIn.NodeApiClient\Dfe.SignIn.NodeApiClient.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.NodeApi.Client\Dfe.SignIn.NodeApi.Client.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.PublicApi.Client\Dfe.SignIn.PublicApi.Client.csproj" />
   </ItemGroup>
 

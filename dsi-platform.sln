@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.UseCases", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache", "src\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj", "{9FDC63C6-46EC-4AF3-9F8B-92BE9CB56A39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.NodeApiClient", "src\Dfe.SignIn.NodeApiClient\Dfe.SignIn.NodeApiClient.csproj", "{7C17879D-1327-45DE-BBF4-66FB609A0A14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.NodeApi.Client", "src\Dfe.SignIn.NodeApi.Client\Dfe.SignIn.NodeApi.Client.csproj", "{7C17879D-1327-45DE-BBF4-66FB609A0A14}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi", "src\Dfe.SignIn.PublicApi\Dfe.SignIn.PublicApi.csproj", "{C62C2D30-569E-476A-B9ED-94C3D8781D5E}"
 EndProject
@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.UseCases.Un
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests", "tests\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests.csproj", "{D5273C2C-42ED-4E1A-A2F1-5C8354D0A658}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.NodeApiClient.UnitTests", "tests\Dfe.SignIn.NodeApiClient.UnitTests\Dfe.SignIn.NodeApiClient.UnitTests.csproj", "{8AD50733-70C8-4772-9EF0-6EE2B1A53C14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.NodeApi.Client.UnitTests", "tests\Dfe.SignIn.NodeApi.Client.UnitTests\Dfe.SignIn.NodeApi.Client.UnitTests.csproj", "{8AD50733-70C8-4772-9EF0-6EE2B1A53C14}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi.Client.UnitTests", "tests\Dfe.SignIn.PublicApi.Client.UnitTests\Dfe.SignIn.PublicApi.Client.UnitTests.csproj", "{11E16680-019C-42ED-B67C-ECFF8C97554F}"
 EndProject
