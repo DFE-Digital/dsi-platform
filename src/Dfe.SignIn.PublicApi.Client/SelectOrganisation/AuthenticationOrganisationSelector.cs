@@ -70,7 +70,7 @@ public sealed class AuthenticationOrganisationSelector(
     {
         var options = optionsAccessor.Value;
 
-        bool isUserSelectingForFirstTime = !context.User.HasClaim(claim => claim.Type == DsiClaimTypes.Organisation);
+        bool isUserSelectingForFirstTime = context.User.GetDsiIdentity() is null;
 
         var request = new CreateSelectOrganisationSession_PublicApiRequest {
             UserId = context.User.GetDsiUserId(),

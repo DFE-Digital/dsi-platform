@@ -14,6 +14,7 @@ namespace Dfe.SignIn.PublicApi.Client.UnitTests.SelectOrganisation;
 public sealed class OrganisationClaimManagerTests
 {
     private const string FakeUserId = "6c2afda0-62ce-4f88-9a23-a252bc647856";
+    private const string FakeSessionId = "92c37f9d-253b-42cd-95eb-ddeb9d1e03b8";
 
     private const string FakeOrganisation1ClaimValue = /*lang=json,strict*/ """
         { "id": "6ab8e6c9-f953-42e4-be0d-4a7ace4b229d" }
@@ -48,7 +49,8 @@ public sealed class OrganisationClaimManagerTests
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
         var fakeUser = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(DsiClaimTypes.UserId, FakeUserId)
+            new Claim(DsiClaimTypes.UserId, FakeUserId),
+            new Claim(DsiClaimTypes.SessionId, FakeSessionId),
         ]));
 
         mockContext.Setup(x => x.User)
@@ -125,6 +127,57 @@ public sealed class OrganisationClaimManagerTests
     }
 
     [TestMethod]
+    public async Task UpdateOrganisationClaim_RetainsPrimaryIdentity()
+    {
+        var autoMocker = new AutoMocker();
+        SetupFakeOptions(autoMocker);
+        var mockContext = SetupFakeContext(autoMocker);
+        SetupFakeUser(autoMocker);
+
+        var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
+
+        ClaimsPrincipal? capturedPrincipal = null;
+        mockContext
+            .Setup(mock => mock.SignInAsync(It.IsAny<ClaimsPrincipal>()))
+            .Callback<ClaimsPrincipal>(principal => capturedPrincipal = principal);
+
+        await manager.UpdateOrganisationClaimAsync(mockContext.Object, FakeOrganisation1ClaimValue);
+
+        var primaryIdentity = capturedPrincipal?.GetPrimaryIdentity();
+        Assert.IsNotNull(primaryIdentity);
+        Assert.IsTrue(
+            primaryIdentity.HasClaim(DsiClaimTypes.SessionId, FakeSessionId)
+        );
+        Assert.IsTrue(
+            primaryIdentity.HasClaim(DsiClaimTypes.UserId, FakeUserId)
+        );
+    }
+
+    [TestMethod]
+    public async Task UpdateOrganisationClaim_AddsSessionIdClaim()
+    {
+        var autoMocker = new AutoMocker();
+        SetupFakeOptions(autoMocker);
+        var mockContext = SetupFakeContext(autoMocker);
+        SetupFakeUser(autoMocker);
+
+        var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
+
+        ClaimsPrincipal? capturedPrincipal = null;
+        mockContext
+            .Setup(mock => mock.SignInAsync(It.IsAny<ClaimsPrincipal>()))
+            .Callback<ClaimsPrincipal>(principal => capturedPrincipal = principal);
+
+        await manager.UpdateOrganisationClaimAsync(mockContext.Object, FakeOrganisation1ClaimValue);
+
+        var dsiIdentity = capturedPrincipal?.GetDsiIdentity();
+        Assert.IsNotNull(dsiIdentity);
+        Assert.IsTrue(
+            dsiIdentity.HasClaim(DsiClaimTypes.SessionId, FakeSessionId)
+        );
+    }
+
+    [TestMethod]
     public async Task UpdateOrganisationClaim_AddsOrganisationClaim()
     {
         var autoMocker = new AutoMocker();
@@ -141,13 +194,10 @@ public sealed class OrganisationClaimManagerTests
 
         await manager.UpdateOrganisationClaimAsync(mockContext.Object, FakeOrganisation1ClaimValue);
 
-        Assert.IsNotNull(capturedPrincipal);
-        Assert.AreEqual(2, capturedPrincipal.Claims.Count());
+        var dsiIdentity = capturedPrincipal?.GetDsiIdentity();
+        Assert.IsNotNull(dsiIdentity);
         Assert.IsTrue(
-            capturedPrincipal.HasClaim(DsiClaimTypes.UserId, FakeUserId)
-        );
-        Assert.IsTrue(
-            capturedPrincipal.HasClaim(DsiClaimTypes.Organisation, FakeOrganisation1ClaimValue)
+            dsiIdentity.HasClaim(DsiClaimTypes.Organisation, FakeOrganisation1ClaimValue)
         );
     }
 
@@ -252,19 +302,16 @@ public sealed class OrganisationClaimManagerTests
 
         await manager.UpdateOrganisationClaimAsync(mockContext.Object, FakeOrganisation1ClaimValue);
 
-        Assert.IsNotNull(capturedPrincipal);
-        Assert.AreEqual(4, capturedPrincipal.Claims.Count());
+        var dsiIdentity = capturedPrincipal?.GetDsiIdentity();
+        Assert.IsNotNull(dsiIdentity);
         Assert.IsTrue(
-            capturedPrincipal.HasClaim(DsiClaimTypes.UserId, FakeUserId)
+            dsiIdentity.HasClaim(DsiClaimTypes.Organisation, FakeOrganisation1ClaimValue)
         );
         Assert.IsTrue(
-            capturedPrincipal.HasClaim(DsiClaimTypes.Organisation, FakeOrganisation1ClaimValue)
+            dsiIdentity.HasClaim(claimType, expectedValue1)
         );
         Assert.IsTrue(
-            capturedPrincipal.HasClaim(claimType, expectedValue1)
-        );
-        Assert.IsTrue(
-            capturedPrincipal.HasClaim(claimType, expectedValue2)
+            dsiIdentity.HasClaim(claimType, expectedValue2)
         );
     }
 

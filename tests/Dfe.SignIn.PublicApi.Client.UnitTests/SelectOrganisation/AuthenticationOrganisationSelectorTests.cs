@@ -53,19 +53,22 @@ public sealed class AuthenticationOrganisationSelectorTests
     }
 
     private static readonly Guid FakeUserId = new("8d2799b0-eabe-4a5c-a01f-d52bc1cce63e");
+    private static readonly string FakeSessionId = "460ebb6a-643e-4f85-bfe0-29351f11bd62";
 
     private static ClaimsPrincipal SetupMockAuthenticatedUser(
         AutoMocker autoMocker,
-        IEnumerable<Claim>? additionalClaims = null)
+        ClaimsIdentity? dsiIdentity = null)
     {
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
-        var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[
-            new Claim(DsiClaimTypes.UserId, FakeUserId.ToString()),
-            ..additionalClaims ?? []
-        ], authenticationType: "TestAuth");
+        var fakePrimaryIdentity = new ClaimsIdentity([
+            new(DsiClaimTypes.SessionId, FakeSessionId),
+            new(DsiClaimTypes.UserId, FakeUserId.ToString()),
+        ], "PrimaryAuthenticationType");
 
-        var fakeUser = new ClaimsPrincipal(fakeIdentity);
+        dsiIdentity ??= new ClaimsIdentity(PublicApiConstants.AuthenticationType);
+
+        var fakeUser = new ClaimsPrincipal([fakePrimaryIdentity, dsiIdentity]);
         mockContext.Setup(mock => mock.User)
             .Returns(fakeUser);
 
@@ -305,9 +308,14 @@ public sealed class AuthenticationOrganisationSelectorTests
         SetupMockOptions(autoMocker);
         var fakeContext = SetupMockContext(autoMocker);
 
-        SetupMockAuthenticatedUser(autoMocker, [
-            new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
-        ]);
+        var fakeDsiIdentity = new ClaimsIdentity(
+            [
+                new(DsiClaimTypes.SessionId, FakeSessionId),
+                new(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json),
+            ],
+            PublicApiConstants.AuthenticationType
+        );
+        SetupMockAuthenticatedUser(autoMocker, fakeDsiIdentity);
 
         var mockCreateSelectOrganisationSession = SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithNoOptions);
 

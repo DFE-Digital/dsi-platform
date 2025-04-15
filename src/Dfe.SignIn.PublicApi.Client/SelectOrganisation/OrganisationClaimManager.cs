@@ -58,12 +58,13 @@ internal sealed class OrganisationClaimManager(
             dsiIdentity = await options.UpdateClaimsIdentity.Invoke(dsiIdentity);
         }
 
-        dsiIdentity.AddClaim(
-            new Claim(DsiClaimTypes.Organisation, organisationJson, JsonClaimValueTypes.Json)
-        );
+        dsiIdentity.AddClaims([
+            new Claim(DsiClaimTypes.SessionId, context.User.GetSessionId()),
+            new Claim(DsiClaimTypes.Organisation, organisationJson, JsonClaimValueTypes.Json),
+        ]);
 
         await this.FetchRolesFromPublicApi(
-            context.User.GetDsiUserId(),
+            context.User,
             dsiIdentity,
             options.FetchRoleClaimsFlags,
             cancellationToken
@@ -74,8 +75,8 @@ internal sealed class OrganisationClaimManager(
     }
 
     private async Task FetchRolesFromPublicApi(
-        Guid userId,
-        ClaimsIdentity identity,
+        ClaimsPrincipal user,
+        ClaimsIdentity dsiIdentity,
         FetchRoleClaimsFlag flags,
         CancellationToken cancellationToken = default)
     {
@@ -83,37 +84,41 @@ internal sealed class OrganisationClaimManager(
             return;
         }
 
-        var organisation = identity.GetDsiOrganisationInternal();
-        if (organisation is not null) {
-            var details = await getUserAccessToService.InvokeAsync(new() {
-                UserId = userId,
-                OrganisationId = organisation.Id,
-            }, cancellationToken);
-            foreach (var role in details.Roles) {
-                if (role.Status.Id != 1) {
-                    continue;
-                }
+        Guid userId = user.GetDsiUserId();
 
-                if ((flags & FetchRoleClaimsFlag.RoleId) != 0) {
-                    identity.AddClaim(
-                        new Claim(DsiClaimTypes.RoleId, role.Id.ToString(), ClaimValueTypes.String)
-                    );
-                }
-                if ((flags & FetchRoleClaimsFlag.RoleName) != 0) {
-                    identity.AddClaim(
-                        new Claim(DsiClaimTypes.RoleName, role.Name, ClaimValueTypes.String)
-                    );
-                }
-                if ((flags & FetchRoleClaimsFlag.RoleCode) != 0) {
-                    identity.AddClaim(
-                        new Claim(DsiClaimTypes.RoleCode, role.Code, ClaimValueTypes.String)
-                    );
-                }
-                if ((flags & FetchRoleClaimsFlag.RoleNumericId) != 0) {
-                    identity.AddClaim(
-                        new Claim(DsiClaimTypes.RoleNumericId, role.NumericId, ClaimValueTypes.String)
-                    );
-                }
+        var organisation = dsiIdentity.DeserializeDsiOrganisation();
+        if (organisation is null) {
+            return;
+        }
+
+        var details = await getUserAccessToService.InvokeAsync(new() {
+            UserId = userId,
+            OrganisationId = organisation.Id,
+        }, cancellationToken);
+        foreach (var role in details.Roles) {
+            if (role.Status.Id != 1) {
+                continue;
+            }
+
+            if ((flags & FetchRoleClaimsFlag.RoleId) != 0) {
+                dsiIdentity.AddClaim(
+                    new Claim(DsiClaimTypes.RoleId, role.Id.ToString(), ClaimValueTypes.String)
+                );
+            }
+            if ((flags & FetchRoleClaimsFlag.RoleName) != 0) {
+                dsiIdentity.AddClaim(
+                    new Claim(DsiClaimTypes.RoleName, role.Name, ClaimValueTypes.String)
+                );
+            }
+            if ((flags & FetchRoleClaimsFlag.RoleCode) != 0) {
+                dsiIdentity.AddClaim(
+                    new Claim(DsiClaimTypes.RoleCode, role.Code, ClaimValueTypes.String)
+                );
+            }
+            if ((flags & FetchRoleClaimsFlag.RoleNumericId) != 0) {
+                dsiIdentity.AddClaim(
+                    new Claim(DsiClaimTypes.RoleNumericId, role.NumericId, ClaimValueTypes.String)
+                );
             }
         }
     }

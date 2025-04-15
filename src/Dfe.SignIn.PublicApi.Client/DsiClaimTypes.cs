@@ -7,6 +7,11 @@ namespace Dfe.SignIn.PublicApi.Client;
 public static class DsiClaimTypes
 {
     /// <summary>
+    /// Gets the name of the session ID claim type.
+    /// </summary>
+    internal const string SessionId = "sid";
+
+    /// <summary>
     /// Gets the name of the DfE Sign-in user ID claim type.
     /// </summary>
     public const string UserId = "dsi_user_id";
