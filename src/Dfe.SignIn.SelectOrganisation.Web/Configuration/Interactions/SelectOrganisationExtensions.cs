@@ -34,8 +34,8 @@ public static class SelectOrganisationExtensions
             implementationFactory: (provider, key) => {
 
                 // Initialize ConfigurationOptions separately
-                ConfigurationOptions configOptions = ConfigurationOptions.Parse(configuration.GetValue<string>("SelectSessionRedisConn"));
-                configOptions.DefaultDatabase = configuration.GetValue<int>("SelectDbRedis");
+                var configOptions = ConfigurationOptions.Parse(configuration.GetValue<string>("ConnectionString"));
+                configOptions.DefaultDatabase = configuration.GetValue<int>("DatabaseNumber");
 
                 var redisOptions = new RedisCacheOptions
                 {
