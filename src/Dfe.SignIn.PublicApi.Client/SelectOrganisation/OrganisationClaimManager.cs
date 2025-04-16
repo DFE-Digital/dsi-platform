@@ -102,22 +102,22 @@ internal sealed class OrganisationClaimManager(
                 continue;
             }
 
-            if ((flags & FetchRoleClaimsFlag.RoleId) != 0) {
+            if (flags.HasFlag(FetchRoleClaimsFlag.RoleId)) {
                 dsiIdentity.AddClaim(
                     new Claim(DsiClaimTypes.RoleId, role.Id.ToString(), ClaimValueTypes.String)
                 );
             }
-            if ((flags & FetchRoleClaimsFlag.RoleName) != 0) {
+            if (flags.HasFlag(FetchRoleClaimsFlag.RoleName)) {
                 dsiIdentity.AddClaim(
                     new Claim(DsiClaimTypes.RoleName, role.Name, ClaimValueTypes.String)
                 );
             }
-            if ((flags & FetchRoleClaimsFlag.RoleCode) != 0) {
+            if (flags.HasFlag(FetchRoleClaimsFlag.RoleCode)) {
                 dsiIdentity.AddClaim(
                     new Claim(DsiClaimTypes.RoleCode, role.Code, ClaimValueTypes.String)
                 );
             }
-            if ((flags & FetchRoleClaimsFlag.RoleNumericId) != 0) {
+            if (flags.HasFlag(FetchRoleClaimsFlag.RoleNumericId)) {
                 dsiIdentity.AddClaim(
                     new Claim(DsiClaimTypes.RoleNumericId, role.NumericId, ClaimValueTypes.String)
                 );
