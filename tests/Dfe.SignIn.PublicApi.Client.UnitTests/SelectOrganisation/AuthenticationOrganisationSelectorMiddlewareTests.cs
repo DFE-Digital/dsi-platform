@@ -131,7 +131,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
         mockRequest.Setup(mock => mock.ReadFormAsync()).ReturnsAsync(
             new Dictionary<string, StringValues> {
-                { "payloadType", PayloadTypeConstants.Id },
+                { "payloadType", PayloadTypeConstants.Selection },
                 { "payload", "{data}" },
                 { "sig", "{sig}" },
                 { "kid", "1b1df816-923a-4133-9e91-725a52075645" },
@@ -144,7 +144,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackAsync(
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
-                    viewModel.PayloadType == PayloadTypeConstants.Id &&
+                    viewModel.PayloadType == PayloadTypeConstants.Selection &&
                     viewModel.Payload == "{data}" &&
                     viewModel.Sig == "{sig}" &&
                     viewModel.Kid == "1b1df816-923a-4133-9e91-725a52075645"
@@ -152,9 +152,13 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
                 It.Is<bool>(throwOnError => throwOnError),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new SelectOrganisationCallbackId {
-                Type = PayloadTypeConstants.Id,
-                Id = new Guid("c72bdba2-6793-4118-aeba-cd3def045245"),
+            .ReturnsAsync(new SelectOrganisationCallbackSelection {
+                Type = PayloadTypeConstants.Selection,
+                UserId = FakeUserId,
+                DetailLevel = OrganisationDetailLevel.Id,
+                Selection = new SelectedOrganisation {
+                    Id = new Guid("c72bdba2-6793-4118-aeba-cd3def045245"),
+                },
             });
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
@@ -215,6 +219,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             ))
             .ReturnsAsync(new SelectOrganisationCallbackCancel {
                 Type = PayloadTypeConstants.Cancel,
+                UserId = FakeUserId,
             });
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
@@ -273,6 +278,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             ))
             .ReturnsAsync(new SelectOrganisationCallbackCancel {
                 Type = PayloadTypeConstants.Cancel,
+                UserId = FakeUserId,
             });
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
@@ -322,6 +328,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
             ))
             .ReturnsAsync(new SelectOrganisationCallbackSignOut {
                 Type = PayloadTypeConstants.SignOut,
+                UserId = FakeUserId,
             });
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();

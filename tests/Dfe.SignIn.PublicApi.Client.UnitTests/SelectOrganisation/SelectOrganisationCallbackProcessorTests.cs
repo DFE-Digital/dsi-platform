@@ -14,6 +14,8 @@ namespace Dfe.SignIn.PublicApi.Client.UnitTests.SelectOrganisation;
 [TestClass]
 public sealed class SelectOrganisationCallbackProcessorTests
 {
+    private static readonly Guid FakeUserId = new("3852c1fa-a57f-492d-96f9-500ba5a9a20e");
+
     private static AutoMocker CreateAutoMocker()
     {
         var autoMocker = new AutoMocker();
@@ -50,7 +52,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
         var autoMocker = CreateAutoMocker();
 
         var viewModel = new SelectOrganisationCallbackViewModel {
-            PayloadType = PayloadTypeConstants.Id,
+            PayloadType = PayloadTypeConstants.Selection,
             Payload = "fake payload",
             Sig = "fake signature",
             Kid = "80d5a7d9-0198-471f-9661-b618e8b9db15",
@@ -83,7 +85,11 @@ public sealed class SelectOrganisationCallbackProcessorTests
         var autoMocker = CreateAutoMocker();
 
         string expectedPayload = /*lang=json,strict*/ $$"""
-            { "type": "error", "code": 2 }
+            {
+              "type": "error",
+              "userId": "{{FakeUserId}}",
+              "code": "noOptions"
+            }
         """;
 
         var viewModel = new SelectOrganisationCallbackViewModel {
@@ -115,6 +121,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
 
         var expectedCallbackData = new SelectOrganisationCallbackError {
             Type = PayloadTypeConstants.Error,
+            UserId = FakeUserId,
             Code = SelectOrganisationErrorCode.NoOptions,
         };
         Assert.AreEqual(expectedCallbackData, result);
@@ -129,7 +136,11 @@ public sealed class SelectOrganisationCallbackProcessorTests
             PayloadType = PayloadTypeConstants.Error,
             Payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(
                 /*lang=json,strict*/ $$"""
-                    { "type": "error", "code": 2 }
+                    {
+                        "type": "error",
+                        "userId": "{{FakeUserId}}",
+                        "code": "noOptions"
+                    }
                 """
             )),
             Sig = "fake signature",
@@ -164,13 +175,19 @@ public sealed class SelectOrganisationCallbackProcessorTests
 
         string expectedPayload = /*lang=json,strict*/ $$"""
             {
-                "type": "id",
-                "id": "80d5a7d9-0198-471f-9661-b618e8b9db15"
+                "type": "selection",
+                "userId": "{{FakeUserId}}",
+                "detailLevel": "basic",
+                "selection": {
+                    "id": "80d5a7d9-0198-471f-9661-b618e8b9db15",
+                    "name": "Example Organisation A",
+                    "legalName": "Legal name of Example Organisation A"
+                }
             }
         """;
 
         var viewModel = new SelectOrganisationCallbackViewModel {
-            PayloadType = PayloadTypeConstants.Id,
+            PayloadType = PayloadTypeConstants.Selection,
             Payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayload)),
             Sig = "fake signature",
             Kid = "80d5a7d9-0198-471f-9661-b618e8b9db15",
@@ -193,9 +210,15 @@ public sealed class SelectOrganisationCallbackProcessorTests
             throwOnError: true
         );
 
-        var expectedCallbackData = new SelectOrganisationCallbackId {
-            Type = PayloadTypeConstants.Id,
-            Id = new Guid("80d5a7d9-0198-471f-9661-b618e8b9db15"),
+        var expectedCallbackData = new SelectOrganisationCallbackSelection {
+            Type = PayloadTypeConstants.Selection,
+            UserId = FakeUserId,
+            DetailLevel = OrganisationDetailLevel.Basic,
+            Selection = new SelectedOrganisationBasic {
+                Id = new Guid("80d5a7d9-0198-471f-9661-b618e8b9db15"),
+                Name = "Example Organisation A",
+                LegalName = "Legal name of Example Organisation A"
+            },
         };
         Assert.AreEqual(expectedCallbackData, result);
     }

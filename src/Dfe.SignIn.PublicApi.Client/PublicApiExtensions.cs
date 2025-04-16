@@ -5,6 +5,7 @@ using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Dfe.SignIn.Core.ExternalModels;
 
 namespace Dfe.SignIn.PublicApi.Client;
 
@@ -28,6 +29,7 @@ public static class PublicApiExtensions
         services.Configure<PublicKeyCacheOptions>(_ => { });
 
         services.ConfigureDfeSignInJsonSerializerOptions();
+        services.ConfigureExternalModelJsonSerialization();
 
         SetupHttpClient(services);
 

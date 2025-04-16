@@ -87,10 +87,11 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
         var callbackViewModel = await SelectOrganisationCallbackViewModel.FromRequest(context.Request);
         var callbackData = await callbackProcessor.ProcessCallbackAsync(callbackViewModel);
 
-        if (callbackData is SelectOrganisationCallbackId) {
+        if (callbackData is SelectOrganisationCallbackSelection callbackSelection) {
             // An organisation was selected.
+            var selection = callbackSelection.Selection;
             var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-            string callbackDataJson = JsonSerializer.Serialize(callbackData, callbackData.GetType(), jsonOptions);
+            string callbackDataJson = JsonSerializer.Serialize(selection, selection.GetType(), jsonOptions);
             await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson);
         }
         else if (callbackData is SelectOrganisationCallbackCancel) {

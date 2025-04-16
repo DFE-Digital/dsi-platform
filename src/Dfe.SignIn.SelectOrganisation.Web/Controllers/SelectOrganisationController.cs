@@ -64,7 +64,7 @@ public sealed class SelectOrganisationController(
                 return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
             }
 
-            var selectionPayload = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
+            var selectionPayload = this.RemapSelectedOrganisationToCallbackData(session, selectedOrganisation);
             return await this.SendCallback(session, selectionPayload, cancellationToken);
         }
 
@@ -134,7 +134,7 @@ public sealed class SelectOrganisationController(
             return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
         }
 
-        var selectionCallbackData = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
+        var selectionCallbackData = this.RemapSelectedOrganisationToCallbackData(session, selectedOrganisation);
         return await this.SendCallback(session, selectionCallbackData, cancellationToken);
     }
 
@@ -153,6 +153,7 @@ public sealed class SelectOrganisationController(
 
         return await this.SendCallback(session, new SelectOrganisationCallbackSignOut {
             Type = PayloadTypeConstants.SignOut,
+            UserId = session.UserId,
         }, cancellationToken);
     }
 
@@ -185,6 +186,7 @@ public sealed class SelectOrganisationController(
     {
         return this.SendCallback(session, new SelectOrganisationCallbackError {
             Type = PayloadTypeConstants.Error,
+            UserId = session.UserId,
             Code = errorCode,
         }, cancellationToken);
     }
@@ -195,6 +197,7 @@ public sealed class SelectOrganisationController(
     {
         return this.SendCallback(session, new SelectOrganisationCallbackCancel {
             Type = PayloadTypeConstants.Cancel,
+            UserId = session.UserId,
         }, cancellationToken);
     }
 
@@ -233,20 +236,19 @@ public sealed class SelectOrganisationController(
         return new GetSessionResult { Session = session };
     }
 
-    private object RemapSelectedOrganisationToCallbackData(
-        OrganisationModel selectedOrganisation,
-        OrganisationDetailLevel detailLevel)
+    private SelectOrganisationCallbackSelection RemapSelectedOrganisationToCallbackData(
+        SelectOrganisationSessionData session,
+        OrganisationModel selectedOrganisation)
     {
-        return detailLevel switch {
-            OrganisationDetailLevel.Basic => mapper.Map<SelectOrganisationCallbackBasic>(selectedOrganisation)
-                with { Type = PayloadTypeConstants.Basic },
-            OrganisationDetailLevel.Id => mapper.Map<SelectOrganisationCallbackId>(selectedOrganisation)
-                with { Type = PayloadTypeConstants.Id },
-            OrganisationDetailLevel.Extended => mapper.Map<SelectOrganisationCallbackExtended>(selectedOrganisation)
-                with { Type = PayloadTypeConstants.Extended },
-            OrganisationDetailLevel.Legacy => mapper.Map<SelectOrganisationCallbackLegacy>(selectedOrganisation)
-                with { Type = PayloadTypeConstants.Legacy },
-            _ => mapper.Map<SelectOrganisationCallbackBasic>(selectedOrganisation),
+        return new() {
+            Type = PayloadTypeConstants.Selection,
+            DetailLevel = session.DetailLevel,
+            UserId = session.UserId,
+            Selection = (SelectedOrganisation)mapper.Map(
+                source: selectedOrganisation,
+                sourceType: selectedOrganisation.GetType(),
+                destinationType: SelectedOrganisation.ResolveType(session.DetailLevel)
+            ),
         };
     }
 

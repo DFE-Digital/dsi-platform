@@ -45,10 +45,9 @@ public sealed record SelectOrganisationCallbackViewModel()
     ///   <para>This data can be deserialized into the appropriate callback model:</para>
     ///   <list type="bullet">
     ///     <item><see cref="SelectOrganisationCallbackError"/></item>
-    ///     <item><see cref="SelectOrganisationCallbackId"/></item>
-    ///     <item><see cref="SelectOrganisationCallbackBasic"/></item>
-    ///     <item><see cref="SelectOrganisationCallbackExtended"/></item>
-    ///     <item><see cref="SelectOrganisationCallbackLegacy"/></item>
+    ///     <item><see cref="SelectOrganisationCallbackSelection"/></item>
+    ///     <item><see cref="SelectOrganisationCallbackCancel"/></item>
+    ///     <item><see cref="SelectOrganisationCallbackSignOut"/></item>
     ///   </list>
     /// </remarks>
     public required string Payload { get; init; }

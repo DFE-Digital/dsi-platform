@@ -24,7 +24,7 @@ public sealed class SelectOrganisationCallbackViewModelTests
         var mockRequest = new Mock<IHttpRequest>();
         mockRequest.Setup(mock => mock.ReadFormAsync())
             .ReturnsAsync(new Dictionary<string, StringValues> {
-                { "payloadType", PayloadTypeConstants.Id },
+                { "payloadType", PayloadTypeConstants.Selection },
                 { "payload", "{data}" },
                 { "sig", "{sig}" },
                 { "kid", "6bb65413-12db-41b9-a606-82103e6d5c0c" },
@@ -33,7 +33,7 @@ public sealed class SelectOrganisationCallbackViewModelTests
         var viewModel = await SelectOrganisationCallbackViewModel.FromRequest(mockRequest.Object);
 
         var expectedViewModel = new SelectOrganisationCallbackViewModel {
-            PayloadType = PayloadTypeConstants.Id,
+            PayloadType = PayloadTypeConstants.Selection,
             Payload = "{data}",
             Sig = "{sig}",
             Kid = "6bb65413-12db-41b9-a606-82103e6d5c0c",

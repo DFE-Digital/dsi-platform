@@ -33,6 +33,16 @@ public sealed class PublicApiExtensionsTests
     }
 
     [TestMethod]
+    public void SetupDfePublicApiClient_ReturnsServices()
+    {
+        var services = new ServiceCollection();
+
+        var result = services.SetupDfePublicApiClient();
+
+        Assert.AreSame(services, result);
+    }
+
+    [TestMethod]
     public void SetupDfePublicApiClient_RegistersPublicApiClientServices()
     {
         var services = new ServiceCollection();
@@ -68,6 +78,23 @@ public sealed class PublicApiExtensionsTests
 
     [TestMethod]
     public void SetupDfePublicApiClient_ConfiguresDefaultCacheOptions()
+    {
+        var services = new ServiceCollection();
+
+        services.SetupDfePublicApiClient();
+
+        var provider = new DefaultServiceProviderFactory().CreateServiceProvider(services);
+        var options = provider.GetRequiredService<IOptions<PublicKeyCacheOptions>>();
+
+        var expectedTtl = new TimeSpan(hours: 24, minutes: 0, seconds: 0);
+        Assert.AreEqual(expectedTtl, options.Value.TTL);
+
+        var expectedMaximumRefreshInterval = new TimeSpan(hours: 0, minutes: 10, seconds: 0);
+        Assert.AreEqual(expectedMaximumRefreshInterval, options.Value.MaximumRefreshInterval);
+    }
+
+    [TestMethod]
+    public void SetupDfePublicApiClient_AddsJsonConverters()
     {
         var services = new ServiceCollection();
 

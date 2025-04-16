@@ -24,10 +24,7 @@ public sealed class SelectOrganisationCallbackViewModelTests
     [DataRow(PayloadTypeConstants.Error, typeof(SelectOrganisationCallbackError))]
     [DataRow(PayloadTypeConstants.SignOut, typeof(SelectOrganisationCallbackSignOut))]
     [DataRow(PayloadTypeConstants.Cancel, typeof(SelectOrganisationCallbackCancel))]
-    [DataRow(PayloadTypeConstants.Id, typeof(SelectOrganisationCallbackId))]
-    [DataRow(PayloadTypeConstants.Basic, typeof(SelectOrganisationCallbackBasic))]
-    [DataRow(PayloadTypeConstants.Extended, typeof(SelectOrganisationCallbackExtended))]
-    [DataRow(PayloadTypeConstants.Legacy, typeof(SelectOrganisationCallbackLegacy))]
+    [DataRow(PayloadTypeConstants.Selection, typeof(SelectOrganisationCallbackSelection))]
     [DataTestMethod]
     public void TryResolveType_ReturnsExpectedType(string payloadType, Type expectedType)
     {
@@ -65,10 +62,7 @@ public sealed class SelectOrganisationCallbackViewModelTests
     [DataRow(PayloadTypeConstants.Error, typeof(SelectOrganisationCallbackError))]
     [DataRow(PayloadTypeConstants.SignOut, typeof(SelectOrganisationCallbackSignOut))]
     [DataRow(PayloadTypeConstants.Cancel, typeof(SelectOrganisationCallbackCancel))]
-    [DataRow(PayloadTypeConstants.Id, typeof(SelectOrganisationCallbackId))]
-    [DataRow(PayloadTypeConstants.Basic, typeof(SelectOrganisationCallbackBasic))]
-    [DataRow(PayloadTypeConstants.Extended, typeof(SelectOrganisationCallbackExtended))]
-    [DataRow(PayloadTypeConstants.Legacy, typeof(SelectOrganisationCallbackLegacy))]
+    [DataRow(PayloadTypeConstants.Selection, typeof(SelectOrganisationCallbackSelection))]
     [DataTestMethod]
     public void ResolveType_ReturnsExpectedType(string payloadType, Type expectedType)
     {
