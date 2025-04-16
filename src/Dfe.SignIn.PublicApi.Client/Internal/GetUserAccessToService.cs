@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Dfe.SignIn.Core.Framework;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.Internal;
@@ -40,7 +39,7 @@ internal sealed class Status()
 }
 
 internal sealed class GetUserAccessToService_PublicApiRequester(
-    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonOptions,
+    IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IOptions<PublicApiOptions> optionsAccessor,
     IPublicApiClient client
 ) : IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>
@@ -69,6 +68,7 @@ internal sealed class GetUserAccessToService_PublicApiRequester(
 
         httpResponse.EnsureSuccessStatusCode();
 
+        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
         return await httpResponse.Content.ReadFromJsonAsync<GetUserAccessToServiceResponse>(
             jsonOptions, cancellationToken
         ) ?? throw new InvalidOperationException("Invalid response.");

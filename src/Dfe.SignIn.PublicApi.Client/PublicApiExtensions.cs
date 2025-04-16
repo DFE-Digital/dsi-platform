@@ -27,7 +27,7 @@ public static class PublicApiExtensions
         services.AddOptions();
         services.Configure<PublicKeyCacheOptions>(_ => { });
 
-        services.SetupDfeSignInJsonSerializerOptions();
+        services.ConfigureDfeSignInJsonSerializerOptions();
 
         SetupHttpClient(services);
 
@@ -94,8 +94,9 @@ public static class PublicApiExtensions
     {
         services.AddTransient<IInteractor<TRequest, TResponse>>(provider => {
             var client = provider.GetRequiredService<IPublicApiClient>();
-            var jsonSerializerOptions = provider.GetRequiredKeyedService<JsonSerializerOptions>(JsonHelperExtensions.StandardOptionsKey);
-            return new PublicApiGetRequester<TRequest, TResponse>(client, jsonSerializerOptions, endpoint);
+            var jsonOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>();
+            var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+            return new PublicApiGetRequester<TRequest, TResponse>(client, jsonOptions, endpoint);
         });
     }
 
@@ -105,8 +106,9 @@ public static class PublicApiExtensions
     {
         services.AddTransient<IInteractor<TRequest, TResponse>>(provider => {
             var client = provider.GetRequiredService<IPublicApiClient>();
-            var jsonSerializerOptions = provider.GetRequiredKeyedService<JsonSerializerOptions>(JsonHelperExtensions.StandardOptionsKey);
-            return new PublicApiPostRequester<TRequest, TResponse>(client, jsonSerializerOptions, endpoint);
+            var jsonOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>();
+            var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+            return new PublicApiPostRequester<TRequest, TResponse>(client, jsonOptions, endpoint);
         });
     }
 }

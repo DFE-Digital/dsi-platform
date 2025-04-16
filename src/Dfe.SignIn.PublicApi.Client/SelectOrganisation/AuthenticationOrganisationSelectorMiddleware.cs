@@ -2,7 +2,6 @@ using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -38,8 +37,8 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 ///   options in <see cref="AuthenticationOrganisationSelectorOptions"/>.</para>
 /// </remarks>
 public sealed class AuthenticationOrganisationSelectorMiddleware(
-    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonOptions,
     IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
+    IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IAuthenticationOrganisationSelector organisationSelector,
     ISelectOrganisationCallbackProcessor callbackProcessor,
     IOrganisationClaimManager organisationClaimManager
@@ -90,6 +89,7 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
 
         if (callbackData is SelectOrganisationCallbackId) {
             // An organisation was selected.
+            var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
             string callbackDataJson = JsonSerializer.Serialize(callbackData, callbackData.GetType(), jsonOptions);
             await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson);
         }

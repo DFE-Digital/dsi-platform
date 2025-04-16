@@ -20,8 +20,8 @@ namespace Dfe.SignIn.SelectOrganisation.Web.Controllers;
 /// The controller for selecting an organisation.
 /// </summary>
 public sealed class SelectOrganisationController(
-    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonSerializerOptions,
     IOptions<ApplicationOptions> applicationOptionsAccessor,
+    IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
     IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse> getOrganisationById,
     IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse> getSelectOrganisationSessionByKey,
@@ -161,7 +161,8 @@ public sealed class SelectOrganisationController(
         object payload,
         CancellationToken cancellationToken = default)
     {
-        string payloadJson = JsonSerializer.Serialize(payload, jsonSerializerOptions);
+        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+        string payloadJson = JsonSerializer.Serialize(payload, jsonOptions);
         string payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payloadJson));
 
         var signingResponse = await createDigitalSignatureForPayload.InvokeAsync(new() {

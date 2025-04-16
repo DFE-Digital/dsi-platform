@@ -3,7 +3,7 @@ using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
@@ -44,7 +44,7 @@ public interface ISelectOrganisationCallbackProcessor
 /// </summary>
 public sealed class SelectOrganisationCallbackProcessor(
     IPayloadVerifier payloadVerifier,
-    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonOptions
+    IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor
 ) : ISelectOrganisationCallbackProcessor
 {
     /// <inheritdoc/>
@@ -66,6 +66,7 @@ public sealed class SelectOrganisationCallbackProcessor(
         Type targetType = SelectOrganisationCallback.ResolveType(viewModel.PayloadType);
         byte[] payloadJson = Convert.FromBase64String(viewModel.Payload);
 
+        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
         var data = JsonSerializer.Deserialize(payloadJson, targetType, jsonOptions);
 
         if (data is SelectOrganisationCallbackError errorData && throwOnError) {
