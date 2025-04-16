@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Dfe.SignIn.Core.Framework.UnitTests.Fakes;
-using Microsoft.Extensions.Options;
-using Moq;
+using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.Framework.UnitTests;
 
@@ -22,12 +21,9 @@ public sealed class ExceptionSerialization
 
     private static DefaultExceptionJsonSerializer CreateDefaultExceptionJsonSerializer()
     {
-        var mockOptionsAccessor = new Mock<IOptionsMonitor<JsonSerializerOptions>>();
-        mockOptionsAccessor
-            .Setup(mock => mock.Get(It.Is<string>(key => key == JsonHelperExtensions.StandardOptionsKey)))
-            .Returns(JsonHelperExtensions.CreateStandardOptionsTestHelper());
-
-        return new DefaultExceptionJsonSerializer(mockOptionsAccessor.Object);
+        var autoMocker = new AutoMocker();
+        autoMocker.UseStandardJsonSerializerOptions();
+        return autoMocker.CreateInstance<DefaultExceptionJsonSerializer>();
     }
 
     #region SerializeExceptionToJson(Exception)

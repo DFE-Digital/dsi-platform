@@ -1,8 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.Extensions.Options;
@@ -25,9 +23,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
                 CompletedPath = "/completed/path",
             });
 
-        autoMocker.GetMock<IOptionsMonitor<JsonSerializerOptions>>()
-            .Setup(mock => mock.Get(It.Is<string>(key => key == JsonHelperExtensions.StandardOptionsKey)))
-            .Returns(JsonHelperExtensions.CreateStandardOptionsTestHelper());
+        autoMocker.UseStandardJsonSerializerOptions();
     }
 
     private static Mock<IHttpContext> SetupMockHttpContext(AutoMocker autoMocker)

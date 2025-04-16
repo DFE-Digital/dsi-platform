@@ -1,11 +1,8 @@
 using System.Text;
-using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
-using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
 
@@ -20,12 +17,8 @@ public sealed class SelectOrganisationCallbackProcessorTests
     {
         var autoMocker = new AutoMocker();
 
-        var jsonSerializerOptions = JsonHelperExtensions.CreateStandardOptionsTestHelper();
+        var jsonSerializerOptions = autoMocker.UseStandardJsonSerializerOptions();
         jsonSerializerOptions.Converters.Add(new SelectOrganisationCallbackSelectionJsonConverter());
-
-        autoMocker.GetMock<IOptionsMonitor<JsonSerializerOptions>>()
-            .Setup(mock => mock.Get(It.Is<string>(key => key == JsonHelperExtensions.StandardOptionsKey)))
-            .Returns(jsonSerializerOptions);
 
         return autoMocker;
     }

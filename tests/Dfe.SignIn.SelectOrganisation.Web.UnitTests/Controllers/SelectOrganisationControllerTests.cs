@@ -108,9 +108,7 @@ public sealed class SelectOrganisationControllerTests
                 ServicesUrl = new Uri("https://services.localhost"),
             });
 
-        autoMocker.GetMock<IOptionsMonitor<JsonSerializerOptions>>()
-            .Setup(mock => mock.Get(It.Is<string>(key => key == JsonHelperExtensions.StandardOptionsKey)))
-            .Returns(JsonHelperExtensions.CreateStandardOptionsTestHelper());
+        autoMocker.UseStandardJsonSerializerOptions();
 
         autoMocker.Use(
             new MapperConfiguration(cfg => {
