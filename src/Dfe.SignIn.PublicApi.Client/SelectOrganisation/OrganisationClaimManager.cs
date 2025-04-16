@@ -96,6 +96,8 @@ internal sealed class OrganisationClaimManager(
             OrganisationId = organisation.Id,
         }, cancellationToken);
         foreach (var role in details.Roles) {
+            // Technically the public API only returns active roles; however, since it
+            // returns the status we verify that the status is active (1).
             if (role.Status.Id != 1) {
                 continue;
             }
