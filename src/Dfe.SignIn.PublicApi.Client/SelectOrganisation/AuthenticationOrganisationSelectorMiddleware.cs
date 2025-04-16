@@ -48,32 +48,34 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
     /// <inheritdoc />
     public async Task InvokeAsync(IHttpContext context, Func<Task> next)
     {
-        if (context.User?.Identity?.IsAuthenticated == true) {
-            var options = optionsAccessor.Value;
+        var options = optionsAccessor.Value;
 
-            if (context.Request.Path == options.SignOutPath) {
-                // Do not force user to select an organisation on this route.
-                await next();
-                return;
-            }
+        var primaryIdentity = context.User?.GetPrimaryIdentity();
+        if (context.User is null || primaryIdentity?.IsAuthenticated != true) {
+            await next();
+            return;
+        }
 
-            if (context.Request.Method == "POST" && context.Request.Path == options.SelectOrganisationCallbackPath) {
-                await this.HandleSelectOrganisationCallbackAsync(context, options);
-                return;
-            }
+        if (context.Request.Path == options.SignOutPath) {
+            // Do not force user to select an organisation on this route.
+            await next();
+            return;
+        }
 
-            bool userRequestedSelectOrganisation = options.EnableSelectOrganisationRequests &&
-                context.Request.Method == "GET" &&
-                context.Request.Path == options.SelectOrganisationRequestPath;
+        if (context.Request.Method == "POST" && context.Request.Path == options.SelectOrganisationCallbackPath) {
+            await this.HandleSelectOrganisationCallbackAsync(context, options);
+            return;
+        }
 
-            bool hasCheckedSelectOrganisationRequirement = context.User.HasClaim(
-                claim => claim.Type == DsiClaimTypes.Organisation
-            );
+        bool hasUserRequestedSelectOrganisation = options.EnableSelectOrganisationRequests &&
+            context.Request.Method == "GET" &&
+            context.Request.Path == options.SelectOrganisationRequestPath;
 
-            if (userRequestedSelectOrganisation || !hasCheckedSelectOrganisationRequirement) {
-                await organisationSelector.InitiateSelectionAsync(context, cancellationToken: default);
-                return;
-            }
+        bool hasAssociatedOrganisation = context.User.GetDsiIdentity() is not null;
+
+        if (hasUserRequestedSelectOrganisation || !hasAssociatedOrganisation) {
+            await organisationSelector.InitiateSelectionAsync(context, cancellationToken: default);
+            return;
         }
 
         await next();
@@ -93,7 +95,7 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
         }
         else if (callbackData is SelectOrganisationCallbackCancel) {
             // Selection was cancelled.
-            if (!context.User.HasClaim(claim => claim.Type == DsiClaimTypes.Organisation)) {
+            if (context.User.GetDsiIdentity() is null) {
                 // User has not selected an organisation yet; sign them out.
                 await this.HandleSignOut(context, options);
                 return;

@@ -54,19 +54,22 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
     }
 
     private static readonly Guid FakeUserId = new("8d2799b0-eabe-4a5c-a01f-d52bc1cce63e");
+    private static readonly string FakeSessionId = "460ebb6a-643e-4f85-bfe0-29351f11bd62";
 
     private static ClaimsPrincipal SetupMockAuthenticatedUser(
         AutoMocker autoMocker,
-        IEnumerable<Claim>? additionalClaims = null)
+        ClaimsIdentity? dsiIdentity = null)
     {
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
-        var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[
-            new Claim(DsiClaimTypes.UserId, FakeUserId.ToString()),
-            ..additionalClaims ?? []
-        ], authenticationType: "TestAuth");
+        var fakePrimaryIdentity = new ClaimsIdentity([
+            new(DsiClaimTypes.SessionId, FakeSessionId),
+            new(DsiClaimTypes.UserId, FakeUserId.ToString()),
+        ], "PrimaryAuthenticationType");
 
-        var fakeUser = new ClaimsPrincipal(fakeIdentity);
+        dsiIdentity ??= new ClaimsIdentity(PublicApiConstants.AuthenticationType);
+
+        var fakeUser = new ClaimsPrincipal([fakePrimaryIdentity, dsiIdentity]);
         mockContext.Setup(mock => mock.User)
             .Returns(fakeUser);
 
@@ -231,9 +234,14 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
 
-        SetupMockAuthenticatedUser(autoMocker, [
-            new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
-        ]);
+        var fakeDsiIdentity = new ClaimsIdentity(
+            [
+                new(DsiClaimTypes.SessionId, FakeSessionId),
+                new(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json),
+            ],
+            PublicApiConstants.AuthenticationType
+        );
+        SetupMockAuthenticatedUser(autoMocker, fakeDsiIdentity);
 
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
         mockRequest.Setup(mock => mock.Method).Returns("POST");
@@ -332,9 +340,15 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         SetupOptions(autoMocker, new() {
             EnableSelectOrganisationRequests = false,
         });
-        SetupMockAuthenticatedUser(autoMocker, [
-            new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
-        ]);
+
+        var fakeDsiIdentity = new ClaimsIdentity(
+            [
+                new(DsiClaimTypes.SessionId, FakeSessionId),
+                new(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json),
+            ],
+            PublicApiConstants.AuthenticationType
+        );
+        SetupMockAuthenticatedUser(autoMocker, fakeDsiIdentity);
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
@@ -364,9 +378,15 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         SetupOptions(autoMocker, new() {
             EnableSelectOrganisationRequests = true,
         });
-        SetupMockAuthenticatedUser(autoMocker, [
-            new Claim(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json)
-        ]);
+
+        var fakeDsiIdentity = new ClaimsIdentity(
+            [
+                new(DsiClaimTypes.SessionId, FakeSessionId),
+                new(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json),
+            ],
+            PublicApiConstants.AuthenticationType
+        );
+        SetupMockAuthenticatedUser(autoMocker, fakeDsiIdentity);
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 
@@ -421,6 +441,45 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
     }
 
     [TestMethod]
+    public async Task InvokeAsync_InitiatesSelectOrganisation_WhenExistingSelectionWasForDifferentUser()
+    {
+        var autoMocker = new AutoMocker();
+        SetupOptions(autoMocker, new() {
+            EnableSelectOrganisationRequests = true,
+        });
+
+        var fakeDsiIdentity = new ClaimsIdentity(
+            [
+                new(DsiClaimTypes.SessionId, "050cb409-55be-430c-9160-f40e875d5b40"),
+                new(DsiClaimTypes.Organisation, "null", JsonClaimValueTypes.Json),
+            ],
+            PublicApiConstants.AuthenticationType
+        );
+        SetupMockAuthenticatedUser(autoMocker, fakeDsiIdentity);
+
+        var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
+        var mockNext = new Mock<Func<Task>>();
+
+        // Mock a request to some page within the application.
+        var mockRequest = autoMocker.GetMock<IHttpRequest>();
+        mockRequest.Setup(mock => mock.Method).Returns("GET");
+        mockRequest.Setup(mock => mock.Path).Returns("/profile");
+
+        var mockContext = SetupMockHttpContext(autoMocker);
+
+        await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
+
+        autoMocker.Verify<IAuthenticationOrganisationSelector>(
+            x => x.InitiateSelectionAsync(
+                It.Is<IHttpContext>(context => context == mockContext.Object),
+                It.IsAny<CancellationToken>()
+            ),
+            Times.Once
+        );
+        mockNext.Verify(next => next(), Times.Never);
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_DoesNotInitiateSelectOrganisation_WhenUserHasAlreadySelectedAnOrganisation()
     {
         var autoMocker = new AutoMocker();
@@ -431,9 +490,14 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
         string organisationClaim = /*lang=json,strict*/ """
             { "id": "1bce763f-cb38-49a8-813c-a786a753f0eb" }
         """;
-        SetupMockAuthenticatedUser(autoMocker, [
-            new Claim(DsiClaimTypes.Organisation, organisationClaim, JsonClaimValueTypes.Json)
-        ]);
+        var fakeDsiIdentity = new ClaimsIdentity(
+            [
+                new(DsiClaimTypes.SessionId, FakeSessionId),
+                new(DsiClaimTypes.Organisation, organisationClaim, JsonClaimValueTypes.Json),
+            ],
+            PublicApiConstants.AuthenticationType
+        );
+        SetupMockAuthenticatedUser(autoMocker, fakeDsiIdentity);
 
         var middleware = autoMocker.CreateInstance<AuthenticationOrganisationSelectorMiddleware>();
 

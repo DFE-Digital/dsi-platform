@@ -17,6 +17,100 @@ public static class DsiClaimExtensions
     };
 
     /// <summary>
+    /// Gets the primary identity from a claims principal.
+    /// </summary>
+    /// <param name="user">Claims principal representing the user.</param>
+    /// <returns>
+    ///   <para>The claims identity representing the primary user identity when found;
+    ///   otherwise, a value of null.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="user"/> is null.</para>
+    /// </exception>
+    public static ClaimsIdentity? GetPrimaryIdentity(this ClaimsPrincipal user)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
+
+        return user.Identities.FirstOrDefault(identity =>
+            identity.HasClaim(claim => claim.Type == DsiClaimTypes.UserId)
+        );
+    }
+
+    /// <summary>
+    /// Gets the DfE Sign-in organisation identity from a claims principal.
+    /// </summary>
+    /// <param name="user">Claims principal representing the user.</param>
+    /// <returns>
+    ///   <para>The claims identity representing the selected organisation when found;
+    ///   otherwise, a value of null.</para>
+    ///   <para>Returns null when session ID does not match that of the primary identity.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="user"/> is null.</para>
+    /// </exception>
+    public static ClaimsIdentity? GetDsiIdentity(this ClaimsPrincipal user)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
+
+        TryGetSessionId(user, out string? sessionId);
+        if (sessionId is null) {
+            return null;
+        }
+
+        return user.Identities.FirstOrDefault(identity =>
+            identity.AuthenticationType == PublicApiConstants.AuthenticationType &&
+            identity.HasClaim(DsiClaimTypes.SessionId, sessionId)
+        );
+    }
+
+    /// <summary>
+    /// Gets a unique value that identifies the primary session from a claims principal.
+    /// </summary>
+    /// <param name="user">Claims principal representing the user.</param>
+    /// <returns>
+    ///   <para>The unique identifier of the primary session.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="user"/> is null.</para>
+    /// </exception>
+    /// <exception cref="MissingClaimException">
+    ///   <para>If <paramref name="user"/> does not include the "sid" claim; or the
+    ///   claim value consists of just whitespace.</para>
+    /// </exception>
+    public static string GetSessionId(this ClaimsPrincipal user)
+    {
+        TryGetSessionId(user, out var sessionId);
+        return sessionId ?? throw new MissingClaimException("Missing primary identity with claim.", DsiClaimTypes.SessionId);
+    }
+
+    /// <summary>
+    /// Tries to get the unique value that identifies the primary session from a
+    /// claims principal.
+    /// </summary>
+    /// <param name="user">Claims principal representing the user.</param>
+    /// <param name="sessionId">Outputs the session ID when present; otherwise, null.</param>
+    /// <returns>
+    ///   <para>A value of <c>true</c> if the "sid" claim exists; otherwise, a
+    ///   value of <c>false</c>.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="user"/> is null.</para>
+    /// </exception>
+    /// <exception cref="MissingClaimException">
+    ///   <para>If <paramref name="user"/> does not include the "sid" claim; or the
+    ///   claim value consists of just whitespace.</para>
+    /// </exception>
+    public static bool TryGetSessionId(this ClaimsPrincipal user, out string? sessionId)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
+
+        var primaryIdentity = user.GetPrimaryIdentity();
+        sessionId = primaryIdentity?.FindFirst(DsiClaimTypes.SessionId)?.Value;
+
+        return sessionId is not null;
+    }
+
+    /// <summary>
     /// Gets the DfE Sign-in user identifier from from a claims principal.
     /// </summary>
     /// <param name="user">Claims principal representing the user.</param>
@@ -27,16 +121,14 @@ public static class DsiClaimExtensions
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
     /// <exception cref="MissingClaimException">
-    ///   <para>If <paramref name="user"/> does not include the claim.</para>
+    ///   <para>If <paramref name="user"/> does not include the "dsi_user_id" claim.</para>
     /// </exception>
     public static Guid GetDsiUserId(this ClaimsPrincipal user)
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
-        var claim = user.FindFirst(DsiClaimTypes.UserId)
-            ?? throw new MissingClaimException(null, DsiClaimTypes.UserId);
-
-        return new Guid(claim.Value);
+        TryGetDsiUserId(user, out var userId);
+        return userId ?? throw new MissingClaimException("Missing identity with claim.", DsiClaimTypes.UserId);
     }
 
     /// <summary>
@@ -45,8 +137,8 @@ public static class DsiClaimExtensions
     /// <param name="user">Claims principal representing the user.</param>
     /// <param name="userId">Outputs the user ID when present; otherwise, null.</param>
     /// <returns>
-    ///   <para>A value of <c>true</c> if the claim exists; otherwise, a value
-    ///   of <c>false</c>.</para>
+    ///   <para>A value of <c>true</c> if the "dsi_user_id" claim exists; otherwise, a
+    ///   value of <c>false</c>.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="user"/> is null.</para>
@@ -55,7 +147,7 @@ public static class DsiClaimExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
-        var claim = user.FindFirst(DsiClaimTypes.UserId);
+        var claim = user?.FindFirst(DsiClaimTypes.UserId);
         userId = claim is not null
             ? new Guid(claim.Value)
             : null;
@@ -69,6 +161,7 @@ public static class DsiClaimExtensions
     /// <returns>
     ///   <para>The organisation that the user is associated with; otherwise,
     ///   a value of <c>null</c>.</para>
+    ///   <para>Returns null when session ID does not match that of the primary identity.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="user"/> is null.</para>
@@ -77,17 +170,15 @@ public static class DsiClaimExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
-        var claim = user.FindFirst(DsiClaimTypes.Organisation);
-        return claim is not null
-            ? JsonSerializer.Deserialize<OrganisationClaim>(claim.Value, JsonSerializerOptions)
-            : null;
+        var dsiIdentity = user.GetDsiIdentity();
+        return dsiIdentity?.DeserializeDsiOrganisation();
     }
 
-    internal static OrganisationClaim? GetDsiOrganisationInternal(this ClaimsIdentity identity)
+    internal static OrganisationClaim? DeserializeDsiOrganisation(this ClaimsIdentity user)
     {
-        ExceptionHelpers.ThrowIfArgumentNull(identity, nameof(identity));
+        ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
-        var claim = identity.FindFirst(DsiClaimTypes.Organisation);
+        var claim = user?.FindFirst(DsiClaimTypes.Organisation);
         return claim is not null
             ? JsonSerializer.Deserialize<OrganisationClaim>(claim.Value, JsonSerializerOptions)
             : null;
