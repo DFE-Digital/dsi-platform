@@ -15,6 +15,7 @@ public interface ISelectOrganisationCallbackProcessor
     /// <summary>
     /// Verify and process "select organisation" callback data.
     /// </summary>
+    /// <param name="currentUserId">The ID of the current user.</param>
     /// <param name="viewModel">A view model representing the callback form data.</param>
     /// <param name="throwOnError">Indicates if an exception should be thrown for callback errors.</param>
     /// <param name="cancellationToken">A cancellation token that can be used by other
@@ -31,8 +32,12 @@ public interface ISelectOrganisationCallbackProcessor
     /// <exception cref="SelectOrganisationCallbackErrorException">
     ///   <para>If <paramref name="throwOnError"/> is true and a callback error was encountered.</para>
     /// </exception>
+    /// <exception cref="MismatchedCallbackUserException">
+    ///   <para>If the callback user ID does not match the user ID from the primary identity.</para>
+    /// </exception>
     /// <exception cref="OperationCanceledException" />
     Task<SelectOrganisationCallback> ProcessCallbackAsync(
+        Guid currentUserId,
         SelectOrganisationCallbackViewModel viewModel,
         bool throwOnError = true,
         CancellationToken cancellationToken = default
@@ -49,6 +54,7 @@ public sealed class SelectOrganisationCallbackProcessor(
 {
     /// <inheritdoc/>
     public async Task<SelectOrganisationCallback> ProcessCallbackAsync(
+        Guid currentUserId,
         SelectOrganisationCallbackViewModel viewModel,
         bool throwOnError = true,
         CancellationToken cancellationToken = default)
@@ -67,13 +73,17 @@ public sealed class SelectOrganisationCallbackProcessor(
         byte[] payloadJson = Convert.FromBase64String(viewModel.Payload);
 
         var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-        var data = JsonSerializer.Deserialize(payloadJson, targetType, jsonOptions);
 
+        if (JsonSerializer.Deserialize(payloadJson, targetType, jsonOptions) is not SelectOrganisationCallback data) {
+            throw new InvalidOperationException("Callback data was null.");
+        }
+        if (data.UserId != currentUserId) {
+            throw new MismatchedCallbackUserException();
+        }
         if (data is SelectOrganisationCallbackError errorData && throwOnError) {
             throw new SelectOrganisationCallbackErrorException(errorData.Code);
         }
 
-        return data as SelectOrganisationCallback
-            ?? throw new InvalidOperationException("Callback data was null.");
+        return data;
     }
 }

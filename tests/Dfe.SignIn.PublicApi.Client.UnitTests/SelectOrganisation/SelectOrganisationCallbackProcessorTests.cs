@@ -41,6 +41,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
         var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
 
         await processor.ProcessCallbackAsync(
+            currentUserId: FakeUserId,
             viewModel: null!,
             throwOnError: false
         );
@@ -72,11 +73,52 @@ public sealed class SelectOrganisationCallbackProcessorTests
 
         var exception = await Assert.ThrowsExceptionAsync<InvalidOperationException>(
             () => processor.ProcessCallbackAsync(
+                currentUserId: FakeUserId,
                 viewModel,
                 throwOnError: false
             )
         );
         Assert.AreEqual("Invalid payload.", exception.Message);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(MismatchedCallbackUserException))]
+    public async Task ProcessCallbackAsync_Throws_WhenDoesNotCorrespondWithCallback()
+    {
+        var autoMocker = CreateAutoMocker();
+
+        string expectedPayload = /*lang=json,strict*/ $$"""
+            {
+              "type": "error",
+              "userId": "{{FakeUserId}}",
+              "code": "noOptions"
+            }
+        """;
+
+        var viewModel = new SelectOrganisationCallbackViewModel {
+            PayloadType = PayloadTypeConstants.Error,
+            Payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayload)),
+            Sig = "fake signature",
+            Kid = "80d5a7d9-0198-471f-9661-b618e8b9db15",
+        };
+
+        autoMocker.GetMock<IPayloadVerifier>()
+            .Setup(mock => mock.VerifyPayload(
+                It.Is<string>(payload => payload == viewModel.Payload),
+                It.Is<PayloadDigitalSignature>(signature =>
+                    signature.KeyId == viewModel.Kid &&
+                    signature.Signature == viewModel.Sig
+                )
+            ))
+            .ReturnsAsync(true);
+
+        var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
+
+        await processor.ProcessCallbackAsync(
+            currentUserId: new Guid("022b25eb-9b4e-4d73-b08d-c501330a3071"),
+            viewModel,
+            throwOnError: false
+        );
     }
 
     [TestMethod]
@@ -112,6 +154,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
         var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
 
         var result = await processor.ProcessCallbackAsync(
+            currentUserId: FakeUserId,
             viewModel,
             throwOnError: false
         );
@@ -161,6 +204,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
 
         var exception = await Assert.ThrowsExceptionAsync<SelectOrganisationCallbackErrorException>(
             () => processor.ProcessCallbackAsync(
+                currentUserId: FakeUserId,
                 viewModel,
                 throwOnError: true
             )
@@ -206,6 +250,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
         var processor = autoMocker.CreateInstance<SelectOrganisationCallbackProcessor>();
 
         var result = await processor.ProcessCallbackAsync(
+            currentUserId: FakeUserId,
             viewModel,
             throwOnError: true
         );

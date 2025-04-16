@@ -143,6 +143,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<Guid>(currentUserId => currentUserId == FakeUserId),
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
                     viewModel.PayloadType == PayloadTypeConstants.Selection &&
                     viewModel.Payload == "{data}" &&
@@ -208,6 +209,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<Guid>(currentUserId => currentUserId == FakeUserId),
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
                     viewModel.PayloadType == PayloadTypeConstants.Cancel &&
                     viewModel.Payload == "{data}" &&
@@ -267,6 +269,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<Guid>(currentUserId => currentUserId == FakeUserId),
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
                     viewModel.PayloadType == PayloadTypeConstants.Cancel &&
                     viewModel.Payload == "{data}" &&
@@ -317,6 +320,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
 
         autoMocker.GetMock<ISelectOrganisationCallbackProcessor>()
             .Setup(mock => mock.ProcessCallbackAsync(
+                It.Is<Guid>(currentUserId => currentUserId == FakeUserId),
                 It.Is<SelectOrganisationCallbackViewModel>(viewModel =>
                     viewModel.PayloadType == PayloadTypeConstants.SignOut &&
                     viewModel.Payload == "{data}" &&
