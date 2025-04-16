@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Dfe.SignIn.PublicApi.Client\Dfe.SignIn.PublicApi.Client.csproj" />
   </ItemGroup>
 

@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Dfe.SignIn.PublicApi.Client.AspNetCore\Dfe.SignIn.PublicApi.Client.AspNetCore.csproj" />
   </ItemGroup>
 

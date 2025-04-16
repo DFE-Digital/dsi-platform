@@ -27,6 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj" />
   </ItemGroup>
 
