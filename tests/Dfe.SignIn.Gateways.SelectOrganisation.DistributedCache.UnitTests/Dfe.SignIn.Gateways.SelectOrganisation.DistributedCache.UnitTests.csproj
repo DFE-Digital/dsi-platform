@@ -28,9 +28,11 @@
 
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <Using Include="Dfe.SignIn.TestHelpers" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dfe.SignIn.TestHelpers\Dfe.SignIn.TestHelpers.csproj" />
     <ProjectReference Include="..\..\src\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj" />
   </ItemGroup>
 

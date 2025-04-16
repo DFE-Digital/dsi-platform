@@ -15,7 +15,6 @@ using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Controllers;
 using Dfe.SignIn.SelectOrganisation.Web.MappingProfiles;
 using Dfe.SignIn.SelectOrganisation.Web.Models;
-using Dfe.SignIn.SelectOrganisation.Web.UnitTests.TestHelpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Options;
