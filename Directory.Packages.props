@@ -37,6 +37,7 @@
 
   <!-- Monitoring -->
   <ItemGroup>
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(MicrosoftSdkVersion)" />
   </ItemGroup>
 

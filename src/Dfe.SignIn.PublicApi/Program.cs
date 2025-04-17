@@ -1,3 +1,4 @@
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.NodeApi.Client;
@@ -15,6 +16,11 @@ builder.Configuration
 builder.WebHost.ConfigureKestrel(options => {
     options.AddServerHeader = false;
 });
+
+// Add OpenTelemetry and configure it to use Azure Monitor.
+if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
+    builder.Services.AddOpenTelemetry().UseAzureMonitor();
+}
 
 // Add services to the container.
 builder.Services
@@ -47,18 +53,15 @@ if (app.Environment.IsDevelopment()) {
 }
 
 if (app.Environment.IsProduction()) {
-    app.UseSwagger(c =>
-    {
+    app.UseSwagger(c => {
         // Override the default route template.
         c.RouteTemplate = "v2/swagger.json";
     });
-    app.UseSwaggerUI(c =>
-    {
+    app.UseSwaggerUI(c => {
         c.SwaggerEndpoint("/v2/swagger.json", "Dfe.SignIn.PublicApi v1");
         c.RoutePrefix = "v2/swagger"; // Updates the Swagger UI path
     });
 }
-
 
 app.UseHttpsRedirection();
 app.UseHealthChecks();
