@@ -20,7 +20,7 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
                 ApiSecret = "<api_secret>",
             });
 
-        autoMocker.Use(JsonHelperExtensions.CreateStandardOptions());
+        autoMocker.Use(JsonHelperExtensions.CreateStandardOptionsTestHelper());
     }
 
     private static void UseHttpClient(AutoMocker autoMocker, HttpClient httpClient)

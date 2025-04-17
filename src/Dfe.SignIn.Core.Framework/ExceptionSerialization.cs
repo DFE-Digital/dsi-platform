@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.Framework;
 
@@ -44,7 +44,7 @@ public interface IExceptionJsonSerializer
 /// encoded strings using <see cref="JsonSerializer"/>.
 /// </summary>
 public sealed class DefaultExceptionJsonSerializer(
-    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions options
+    IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor
 ) : IExceptionJsonSerializer
 {
     /// <inheritdoc/>
@@ -52,7 +52,8 @@ public sealed class DefaultExceptionJsonSerializer(
     {
         ExceptionHelpers.ThrowIfArgumentNull(exception, nameof(exception));
 
-        return JsonSerializer.Serialize(exception, options);
+        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+        return JsonSerializer.Serialize(exception, jsonOptions);
     }
 
     /// <inheritdoc/>
@@ -61,7 +62,9 @@ public sealed class DefaultExceptionJsonSerializer(
         if (string.IsNullOrWhiteSpace(json)) {
             return new UnexpectedException("Unknown exception type.");
         }
-        return JsonSerializer.Deserialize<Exception>(json!, options)!;
+
+        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+        return JsonSerializer.Deserialize<Exception>(json!, jsonOptions)!;
     }
 }
 

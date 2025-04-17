@@ -109,7 +109,9 @@ public sealed class SelectOrganisationControllerTests
                 ServicesUrl = new Uri("https://services.localhost"),
             });
 
-        autoMocker.Use(JsonHelperExtensions.CreateStandardOptions());
+        autoMocker.GetMock<IOptionsMonitor<JsonSerializerOptions>>()
+            .Setup(mock => mock.Get(It.Is<string>(key => key == JsonHelperExtensions.StandardOptionsKey)))
+            .Returns(JsonHelperExtensions.CreateStandardOptionsTestHelper());
 
         autoMocker.Use(
             new MapperConfiguration(cfg => {
@@ -246,7 +248,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.NoOptions, error.Code);
@@ -296,7 +298,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, error.Code);
@@ -313,16 +315,18 @@ public sealed class SelectOrganisationControllerTests
 
         var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
         Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Id, viewModel.PayloadType);
+        Assert.AreEqual(PayloadTypeConstants.Selection, viewModel.PayloadType);
         Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
         Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
 
-        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackId>(
+        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackSelection>(
             Convert.FromBase64String(viewModel.PayloadData),
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         )!;
-        Assert.AreEqual(PayloadTypeConstants.Id, callbackData.Type);
-        Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Id);
+        Assert.AreEqual(PayloadTypeConstants.Selection, callbackData.Type);
+        Assert.AreEqual(FakeUserId, callbackData.UserId);
+        Assert.AreEqual(OrganisationDetailLevel.Id, callbackData.DetailLevel);
+        Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Selection.Id);
     }
 
     [TestMethod]
@@ -435,7 +439,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, callbackData.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, callbackData.Code);
@@ -464,7 +468,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackCancel>(
             Convert.FromBase64String(viewModel.PayloadData),
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         )!;
         Assert.AreEqual(PayloadTypeConstants.Cancel, callbackData.Type);
     }
@@ -560,7 +564,7 @@ public sealed class SelectOrganisationControllerTests
 
         var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
             Convert.FromBase64String(viewModel.PayloadData),
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         )!;
         Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, error.Code);
@@ -580,16 +584,18 @@ public sealed class SelectOrganisationControllerTests
 
         var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
         Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Id, viewModel.PayloadType);
+        Assert.AreEqual(PayloadTypeConstants.Selection, viewModel.PayloadType);
         Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
         Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
 
-        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackId>(
+        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackSelection>(
             Convert.FromBase64String(viewModel.PayloadData),
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         )!;
-        Assert.AreEqual(PayloadTypeConstants.Id, callbackData.Type);
-        Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Id);
+        Assert.AreEqual(PayloadTypeConstants.Selection, callbackData.Type);
+        Assert.AreEqual(FakeUserId, callbackData.UserId);
+        Assert.AreEqual(OrganisationDetailLevel.Id, callbackData.DetailLevel);
+        Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Selection.Id);
     }
 
     [TestMethod]
@@ -604,13 +610,17 @@ public sealed class SelectOrganisationControllerTests
 
         await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
-        var expectedPayload = new SelectOrganisationCallbackId {
-            Type = PayloadTypeConstants.Id,
-            Id = (Guid)inputViewModel.SelectedOrganisationId,
+        var expectedPayload = new SelectOrganisationCallbackSelection {
+            Type = PayloadTypeConstants.Selection,
+            UserId = FakeUserId,
+            DetailLevel = OrganisationDetailLevel.Id,
+            Selection = new SelectedOrganisation {
+                Id = (Guid)inputViewModel.SelectedOrganisationId,
+            },
         };
         var expectedPayloadJson = JsonSerializer.Serialize(
             expectedPayload,
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         );
         string expectedPayloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayloadJson));
 
@@ -686,7 +696,7 @@ public sealed class SelectOrganisationControllerTests
 
         var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackSignOut>(
             Convert.FromBase64String(viewModel.PayloadData),
-            JsonHelperExtensions.CreateStandardOptions()
+            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
         )!;
         Assert.AreEqual(PayloadTypeConstants.SignOut, callbackData.Type);
     }

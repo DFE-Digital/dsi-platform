@@ -20,8 +20,8 @@ namespace Dfe.SignIn.SelectOrganisation.Web.Controllers;
 /// The controller for selecting an organisation.
 /// </summary>
 public sealed class SelectOrganisationController(
-    [FromKeyedServices(JsonHelperExtensions.StandardOptionsKey)] JsonSerializerOptions jsonSerializerOptions,
     IOptions<ApplicationOptions> applicationOptionsAccessor,
+    IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
     IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse> getOrganisationById,
     IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse> getSelectOrganisationSessionByKey,
@@ -64,7 +64,7 @@ public sealed class SelectOrganisationController(
                 return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
             }
 
-            var selectionPayload = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
+            var selectionPayload = this.RemapSelectedOrganisationToCallbackData(session, selectedOrganisation);
             return await this.SendCallback(session, selectionPayload, cancellationToken);
         }
 
@@ -134,7 +134,7 @@ public sealed class SelectOrganisationController(
             return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
         }
 
-        var selectionCallbackData = this.RemapSelectedOrganisationToCallbackData(selectedOrganisation, session.DetailLevel);
+        var selectionCallbackData = this.RemapSelectedOrganisationToCallbackData(session, selectedOrganisation);
         return await this.SendCallback(session, selectionCallbackData, cancellationToken);
     }
 
@@ -153,6 +153,7 @@ public sealed class SelectOrganisationController(
 
         return await this.SendCallback(session, new SelectOrganisationCallbackSignOut {
             Type = PayloadTypeConstants.SignOut,
+            UserId = session.UserId,
         }, cancellationToken);
     }
 
@@ -161,7 +162,8 @@ public sealed class SelectOrganisationController(
         object payload,
         CancellationToken cancellationToken = default)
     {
-        string payloadJson = JsonSerializer.Serialize(payload, jsonSerializerOptions);
+        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+        string payloadJson = JsonSerializer.Serialize(payload, jsonOptions);
         string payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payloadJson));
 
         var signingResponse = await createDigitalSignatureForPayload.InvokeAsync(new() {
@@ -184,6 +186,7 @@ public sealed class SelectOrganisationController(
     {
         return this.SendCallback(session, new SelectOrganisationCallbackError {
             Type = PayloadTypeConstants.Error,
+            UserId = session.UserId,
             Code = errorCode,
         }, cancellationToken);
     }
@@ -194,6 +197,7 @@ public sealed class SelectOrganisationController(
     {
         return this.SendCallback(session, new SelectOrganisationCallbackCancel {
             Type = PayloadTypeConstants.Cancel,
+            UserId = session.UserId,
         }, cancellationToken);
     }
 
@@ -232,20 +236,19 @@ public sealed class SelectOrganisationController(
         return new GetSessionResult { Session = session };
     }
 
-    private object RemapSelectedOrganisationToCallbackData(
-        OrganisationModel selectedOrganisation,
-        OrganisationDetailLevel detailLevel)
+    private SelectOrganisationCallbackSelection RemapSelectedOrganisationToCallbackData(
+        SelectOrganisationSessionData session,
+        OrganisationModel selectedOrganisation)
     {
-        return detailLevel switch {
-            OrganisationDetailLevel.Basic => mapper.Map<SelectOrganisationCallbackBasic>(selectedOrganisation)
-                with { Type = PayloadTypeConstants.Basic },
-            OrganisationDetailLevel.Id => mapper.Map<SelectOrganisationCallbackId>(selectedOrganisation)
-                with { Type = PayloadTypeConstants.Id },
-            OrganisationDetailLevel.Extended => mapper.Map<SelectOrganisationCallbackExtended>(selectedOrganisation)
-                with { Type = PayloadTypeConstants.Extended },
-            OrganisationDetailLevel.Legacy => mapper.Map<SelectOrganisationCallbackLegacy>(selectedOrganisation)
-                with { Type = PayloadTypeConstants.Legacy },
-            _ => mapper.Map<SelectOrganisationCallbackBasic>(selectedOrganisation),
+        return new() {
+            Type = PayloadTypeConstants.Selection,
+            DetailLevel = session.DetailLevel,
+            UserId = session.UserId,
+            Selection = (SelectedOrganisation)mapper.Map(
+                source: selectedOrganisation,
+                sourceType: selectedOrganisation.GetType(),
+                destinationType: SelectedOrganisation.ResolveType(session.DetailLevel)
+            ),
         };
     }
 

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.Core.ExternalModels;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
@@ -14,7 +15,8 @@ builder.WebHost.ConfigureKestrel(options => {
 builder.Services.AddControllersWithViews();
 
 builder.Services
-    .SetupDfeSignInJsonSerializerOptions();
+    .ConfigureDfeSignInJsonSerializerOptions()
+    .ConfigureExternalModelJsonSerialization();
 
 builder.Services
     .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"));

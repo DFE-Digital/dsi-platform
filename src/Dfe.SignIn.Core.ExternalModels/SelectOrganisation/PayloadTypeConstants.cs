@@ -23,22 +23,7 @@ public static class PayloadTypeConstants
     public const string Cancel = "cancel";
 
     /// <summary>
-    /// See <see cref="SelectOrganisationCallbackId"/>.
+    /// See <see cref="SelectOrganisationCallbackSelection"/>.
     /// </summary>
-    public const string Id = "id";
-
-    /// <summary>
-    /// See <see cref="SelectOrganisationCallbackBasic"/>.
-    /// </summary>
-    public const string Basic = "basic";
-
-    /// <summary>
-    /// See <see cref="SelectOrganisationCallbackExtended"/>.
-    /// </summary>
-    public const string Extended = "extended";
-
-    /// <summary>
-    /// See <see cref="SelectOrganisationCallbackLegacy"/>.
-    /// </summary>
-    public const string Legacy = "legacy";
+    public const string Selection = "selection";
 }

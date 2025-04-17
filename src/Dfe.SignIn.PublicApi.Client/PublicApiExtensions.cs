@@ -5,6 +5,7 @@ using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Dfe.SignIn.Core.ExternalModels;
 
 namespace Dfe.SignIn.PublicApi.Client;
 
@@ -27,7 +28,8 @@ public static class PublicApiExtensions
         services.AddOptions();
         services.Configure<PublicKeyCacheOptions>(_ => { });
 
-        services.SetupDfeSignInJsonSerializerOptions();
+        services.ConfigureDfeSignInJsonSerializerOptions();
+        services.ConfigureExternalModelJsonSerialization();
 
         SetupHttpClient(services);
 
@@ -94,8 +96,9 @@ public static class PublicApiExtensions
     {
         services.AddTransient<IInteractor<TRequest, TResponse>>(provider => {
             var client = provider.GetRequiredService<IPublicApiClient>();
-            var jsonSerializerOptions = provider.GetRequiredKeyedService<JsonSerializerOptions>(JsonHelperExtensions.StandardOptionsKey);
-            return new PublicApiGetRequester<TRequest, TResponse>(client, jsonSerializerOptions, endpoint);
+            var jsonOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>();
+            var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+            return new PublicApiGetRequester<TRequest, TResponse>(client, jsonOptions, endpoint);
         });
     }
 
@@ -105,8 +108,9 @@ public static class PublicApiExtensions
     {
         services.AddTransient<IInteractor<TRequest, TResponse>>(provider => {
             var client = provider.GetRequiredService<IPublicApiClient>();
-            var jsonSerializerOptions = provider.GetRequiredKeyedService<JsonSerializerOptions>(JsonHelperExtensions.StandardOptionsKey);
-            return new PublicApiPostRequester<TRequest, TResponse>(client, jsonSerializerOptions, endpoint);
+            var jsonOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>();
+            var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+            return new PublicApiPostRequester<TRequest, TResponse>(client, jsonOptions, endpoint);
         });
     }
 }
