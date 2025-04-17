@@ -9,6 +9,9 @@ using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .AddEnvironmentVariables();
+
 builder.WebHost.ConfigureKestrel(options => {
     options.AddServerHeader = false;
 });
@@ -42,6 +45,20 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+if (app.Environment.IsProduction()) {
+    app.UseSwagger(c =>
+    {
+        // Override the default route template.
+        c.RouteTemplate = "v2/swagger.json";
+    });
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/v2/swagger.json", "Dfe.SignIn.PublicApi v1");
+        c.RoutePrefix = "v2/swagger"; // Updates the Swagger UI path
+    });
+}
+
 
 app.UseHttpsRedirection();
 app.UseHealthChecks();

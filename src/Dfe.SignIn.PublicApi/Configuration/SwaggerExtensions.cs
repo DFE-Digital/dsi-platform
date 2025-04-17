@@ -63,6 +63,13 @@ public static class SwaggerExtensions
             config.IncludeXmlComments(GetXmlFileName(typeof(OrganisationFilter)));
             // Include XML comments for 'SignIn.Core.PublicApi.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(Program)));
+
+            // Register your document as "v2"
+            config.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
+            {
+                Title = "Dfe.SignIn.PublicApi v1",
+                Version = "v2"
+            });
         });
     }
 }
