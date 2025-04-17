@@ -134,7 +134,7 @@ public sealed record SelectOrganisationCallbackSelection() : SelectOrganisationC
     public required OrganisationDetailLevel DetailLevel { get; init; }
 
     /// <summary>
-    /// Gets the use selection.
+    /// Gets the user selection.
     /// </summary>
     public required SelectedOrganisation Selection { get; init; }
 }
