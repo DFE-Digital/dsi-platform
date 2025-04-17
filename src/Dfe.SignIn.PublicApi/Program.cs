@@ -47,21 +47,10 @@ builder.Services
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-if (app.Environment.IsProduction()) {
-    app.UseSwagger(c => {
-        // Override the default route template.
-        c.RouteTemplate = "v2/swagger.json";
-    });
-    app.UseSwaggerUI(c => {
-        c.SwaggerEndpoint("/v2/swagger.json", "Dfe.SignIn.PublicApi v1");
-        c.RoutePrefix = "v2/swagger"; // Updates the Swagger UI path
-    });
-}
+app.UseSwagger();
+app.UseSwaggerUI(options => {
+    options.SwaggerEndpoint("v1/swagger.json", "DfE Sign-in Public API");
+});
 
 app.UseHttpsRedirection();
 app.UseHealthChecks();
