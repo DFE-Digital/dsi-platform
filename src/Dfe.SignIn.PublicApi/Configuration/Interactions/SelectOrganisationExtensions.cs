@@ -32,19 +32,18 @@ public static class SelectOrganisationExtensions
         services.AddKeyedSingleton<IDistributedCache, RedisCache>(
             serviceKey: SelectOrganisationConstants.CacheStoreKey,
             implementationFactory: (provider, key) => {
+                string connectionString = configuration.GetValue<string>("ConnectionString")
+                    ?? throw new InvalidOperationException("Missing connection string for Redis.");
 
-                // Initialize ConfigurationOptions separately
-                var configOptions = ConfigurationOptions.Parse(configuration.GetValue<string>("ConnectionString"));
+                var configOptions = ConfigurationOptions.Parse(connectionString);
                 configOptions.DefaultDatabase = configuration.GetValue<int>("DatabaseNumber");
 
-                var redisOptions = new RedisCacheOptions
-                {
+                var redisOptions = new RedisCacheOptions {
                     InstanceName = configuration.GetValue<string>("InstanceName"),
                     ConfigurationOptions = configOptions
                 };
 
                 return new RedisCache(Options.Create(redisOptions));
-
             }
         );
 
