@@ -1,0 +1,4 @@
+- name: Guide
+  href: guide/
+- name: Public API Client
+  href: reference/Dfe.SignIn.PublicApi.Client.yml

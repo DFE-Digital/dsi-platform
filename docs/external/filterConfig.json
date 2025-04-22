@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/filterconfig.schema.json",
+  "apiRules": [
+    {
+      "exclude": {
+        "uidRegex": ".*\\.Internal\\..*",
+        "type": "Type"
+      }
+    }
+  ]
+}
