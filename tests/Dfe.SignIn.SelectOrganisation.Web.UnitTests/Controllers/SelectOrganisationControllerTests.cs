@@ -15,7 +15,6 @@ using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Controllers;
 using Dfe.SignIn.SelectOrganisation.Web.MappingProfiles;
 using Dfe.SignIn.SelectOrganisation.Web.Models;
-using Dfe.SignIn.SelectOrganisation.Web.UnitTests.TestHelpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Options;
@@ -109,9 +108,7 @@ public sealed class SelectOrganisationControllerTests
                 ServicesUrl = new Uri("https://services.localhost"),
             });
 
-        autoMocker.GetMock<IOptionsMonitor<JsonSerializerOptions>>()
-            .Setup(mock => mock.Get(It.Is<string>(key => key == JsonHelperExtensions.StandardOptionsKey)))
-            .Returns(JsonHelperExtensions.CreateStandardOptionsTestHelper());
+        autoMocker.UseStandardJsonSerializerOptions();
 
         autoMocker.Use(
             new MapperConfiguration(cfg => {
