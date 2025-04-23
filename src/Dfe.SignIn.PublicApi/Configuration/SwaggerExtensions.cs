@@ -64,11 +64,9 @@ public static class SwaggerExtensions
             // Include XML comments for 'SignIn.Core.PublicApi.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(Program)));
 
-            // Register your document as "v2"
-            config.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
-            {
-                Title = "Dfe.SignIn.PublicApi v1",
-                Version = "v2"
+            config.SwaggerDoc("v1", new OpenApiInfo {
+                Title = "DfE Sign-in Public API",
+                Version = "v1"
             });
         });
     }

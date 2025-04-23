@@ -1,3 +1,4 @@
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.ExternalModels;
 using Dfe.SignIn.Core.Framework;
@@ -10,6 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => {
     options.AddServerHeader = false;
 });
+
+// Add OpenTelemetry and configure it to use Azure Monitor.
+if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
+    builder.Services.AddOpenTelemetry().UseAzureMonitor();
+}
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -60,10 +66,8 @@ if (!app.Environment.IsDevelopment()) {
 }
 
 app.UseHttpsRedirection();
-
 app.UseRouting();
 app.UseHealthChecks();
-
 app.UseAuthorization();
 
 if (app.Environment.IsDevelopment()) {
