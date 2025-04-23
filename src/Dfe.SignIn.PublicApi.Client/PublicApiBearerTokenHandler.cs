@@ -11,6 +11,8 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <summary>
 /// Delegating handler which adds authorization header for requests to the public API.
 /// </summary>
+/// <param name="optionsAccessor">Provides access to public API options.</param>
+/// <param name="memoryCache">Service for caching values in memory.</param>
 internal sealed class PublicApiBearerTokenHandler(
     IOptions<PublicApiOptions> optionsAccessor,
     IMemoryCache memoryCache

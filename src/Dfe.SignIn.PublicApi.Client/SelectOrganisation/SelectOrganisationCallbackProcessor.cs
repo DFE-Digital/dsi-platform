@@ -47,6 +47,8 @@ public interface ISelectOrganisationCallbackProcessor
 /// <summary>
 /// The default implementation for <see cref="ISelectOrganisationCallbackProcessor"/>.
 /// </summary>
+/// <param name="payloadVerifier">Service for verifying callback payload data.</param>
+/// <param name="jsonOptionsAccessor">Provides access to JSON serializer options.</param>
 public sealed class SelectOrganisationCallbackProcessor(
     IPayloadVerifier payloadVerifier,
     IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor

@@ -5,7 +5,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.AuthenticatedHttpClient;
 
 [TestClass]
-public class HttpClientExtensionsTest
+public sealed class HttpClientExtensionsTest
 {
 
     private record TestModel()

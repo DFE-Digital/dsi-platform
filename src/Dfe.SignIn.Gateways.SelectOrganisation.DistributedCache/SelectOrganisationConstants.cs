@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 

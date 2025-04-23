@@ -7,7 +7,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Access;
 
 [TestClass]
-public class GetApplicationsAssociatedWithUserTests
+public sealed class GetApplicationsAssociatedWithUserTests
 {
 
     [TestMethod]

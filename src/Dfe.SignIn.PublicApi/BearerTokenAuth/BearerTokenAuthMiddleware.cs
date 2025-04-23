@@ -12,7 +12,7 @@ namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
 /// <summary>
 /// Protects routes by ensuring the presence of a valid bearer token
 /// </summary>
-public class BearerTokenAuthMiddleware
+public sealed class BearerTokenAuthMiddleware
 {
     private readonly RequestDelegate next;
     private readonly BearerTokenOptions options;

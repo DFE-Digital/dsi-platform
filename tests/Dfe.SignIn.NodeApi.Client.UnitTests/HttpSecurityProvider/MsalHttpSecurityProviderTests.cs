@@ -6,7 +6,7 @@ using Moq;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.HttpSecurityProvider;
 
 [TestClass]
-public class MsalHttpSecurityProviderTests
+public sealed class MsalHttpSecurityProviderTests
 {
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]

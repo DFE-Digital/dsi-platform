@@ -11,12 +11,20 @@ namespace Dfe.SignIn.Core.Framework;
 /// </remarks>
 public abstract class InteractionException : Exception
 {
-    /// <inheritdoc/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InteractionException"/> class.
+    /// </summary>
     protected InteractionException() { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InteractionException"/> class.
+    /// </summary>
     /// <inheritdoc/>
     protected InteractionException(string? message) : base(message) { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InteractionException"/> class.
+    /// </summary>
     /// <inheritdoc/>
     protected InteractionException(string? message, Exception? innerException)
         : base(message, innerException) { }

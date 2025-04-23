@@ -2,7 +2,7 @@ namespace Dfe.SignIn.Core.Framework;
 
 /// <summary>
 /// Used to annotate custom exception properties such that they are included when
-/// an exception is serialized by <see cref="ExceptionHelpers.SerializeExceptionToJson(Exception)"/>.
+/// an exception is serialized by <see cref="IExceptionJsonSerializer"/>.
 /// </summary>
 /// <remarks>
 ///   <para>In order for this to work the annotated property must:</para>

@@ -4,7 +4,7 @@ using Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth.Fakes;
 namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth;
 
 [TestClass]
-public class BearerTokenAuthExtensionsTests
+public sealed class BearerTokenAuthExtensionsTests
 {
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]

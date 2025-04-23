@@ -8,18 +8,28 @@ namespace Dfe.SignIn.PublicApi.Client;
 [Serializable]
 public sealed class MissingClaimException : Exception
 {
-    /// <inheritdoc/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MissingClaimException"/> class.
+    /// </summary>
     public MissingClaimException() { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MissingClaimException"/> class.
+    /// </summary>
     /// <inheritdoc/>
     public MissingClaimException(string? message)
         : base(message) { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MissingClaimException"/> class.
+    /// </summary>
     /// <inheritdoc/>
     public MissingClaimException(string? message, Exception? innerException)
         : base(message, innerException) { }
 
-    /// <inheritdoc cref="MissingClaimException(string)"/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MissingClaimException"/> class.
+    /// </summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>
     /// <param name="claimType">The type of claim.</param>
     public MissingClaimException(string? message, string claimType)

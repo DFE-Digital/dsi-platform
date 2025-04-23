@@ -7,7 +7,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Applications;
 
 [TestClass]
-public class GetApplicationByClientId()
+public sealed class GetApplicationByClientId
 {
     [TestMethod]
     public async Task InvokeAsync_ReturnsExpectedOrganisation()

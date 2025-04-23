@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth.Fakes;
 
-public class FakeApplicationBuilder : IApplicationBuilder
+public sealed class FakeApplicationBuilder : IApplicationBuilder
 {
     // List of middleware actions that were added
     private readonly List<Func<RequestDelegate, RequestDelegate>> middlewares = [];
@@ -44,7 +44,7 @@ public class FakeApplicationBuilder : IApplicationBuilder
     }
 }
 
-public class FakeServiceProvider : IServiceProvider
+public sealed class FakeServiceProvider : IServiceProvider
 {
     public object GetService(Type serviceType) => null!;
 }

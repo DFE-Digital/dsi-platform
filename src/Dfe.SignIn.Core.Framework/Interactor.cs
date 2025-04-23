@@ -7,12 +7,12 @@ namespace Dfe.SignIn.Core.Framework;
 /// </summary>
 /// <remarks>
 ///   <para>Interactors should be added to service collections with the transient lifetime:</para>
-///   <code language="csharp"><![CDATA[]]>
+///   <code language="csharp"><![CDATA[
 ///     services.AddTransient<
 ///         IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>,
 ///         GetExampleById_ApiRequester
 ///     >();
-///   </code>
+///   ]]></code>
 /// </remarks>
 /// <typeparam name="TRequest">The type of request.</typeparam>
 /// <typeparam name="TResponse">The type of response.</typeparam>
@@ -49,8 +49,6 @@ public interface IInteractor<TRequest, TResponse>
     ///   model validation has been enabled (see: <see cref="InteractorModelValidator{TRequest,TResponse}"/>).</para>
     /// </exception>
     /// <exception cref="OperationCanceledException" />
-    /// <seealso cref="IUseCaseHandler{TRequest, TResponse}"/>
-    /// <seealso cref="IApiRequester{TRequest, TResponse}"/>
     Task<TResponse> InvokeAsync(TRequest request, CancellationToken cancellationToken = default);
 }
 
