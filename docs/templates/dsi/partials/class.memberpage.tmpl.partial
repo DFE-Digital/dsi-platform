@@ -1,0 +1,91 @@
+{{!Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license.}}
+
+{{>partials/class.header}}
+
+{{#children}}
+
+  {{#overload}}
+    <a id="{{id}}" data-uid="{{uid}}"></a>
+  {{/overload}}
+
+  <h2 class="govuk-heading-m" id="{{id}}">{{>partials/classSubtitle}}</h2>
+
+  {{#children.0}}
+    <ul class="app-cards app-cards--details">
+      {{#children}}
+        <li class="app-cards__card">
+          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+            <xref uid="{{uid}}" altProperty="fullName" displayProperty="name"/>
+          </h3>
+          <div class="app-cards__summary">{{{summary}}}</div>
+        </li>
+      {{/children}}
+    </ul>
+  {{/children.0}}
+
+{{/children}}
+
+{{#extensionMethods.0}}
+  <h2 class="govuk-heading-m" id="extensionmethods">{{__global.extensionMethods}}</h2>
+  {{#extensionMethods}}
+    <div>
+      {{#definition}}
+        <xref uid="{{definition}}" altProperty="fullName" displayProperty="nameWithType"/>
+      {{/definition}}
+      {{^definition}}
+        <xref uid="{{uid}}" altProperty="fullName" displayProperty="nameWithType"/>
+      {{/definition}}
+    </div>
+  {{/extensionMethods}}
+{{/extensionMethods.0}}
+
+{{#inClass}}
+  {{#hasInheritanceSection}}
+    <div class="inheritance">
+      <h2 class="govuk-heading-m">{{__global.inheritance}}</h2>
+      {{#inheritance}}
+        <div class="level{{index}}">{{{specName.0.value}}}</div>
+      {{/inheritance}}
+      <div class="level{{level}}">
+        <span class="xref">{{name.0.value}}</span>
+      </div>
+      {{#derivedClasses}}
+        <div class="level{{index}}">{{{specName.0.value}}}</div>
+      {{/derivedClasses}}
+    </div>
+  {{/hasInheritanceSection}}
+{{/inClass}}
+
+{{#inheritedMembers.0}}
+  <div class="inheritedMembers">
+    <h2 class="govuk-heading-m">{{__global.inheritedMembers}}</h2>
+    <ul class="app-link-blob">
+      {{#inheritedMembers}}
+        <li class="app-link-blob__item">
+          {{#definition}}
+            <xref uid="{{definition}}" text="{{nameWithType.0.value}}" alt="{{fullName.0.value}}"/>
+          {{/definition}}
+          {{^definition}}
+            <xref uid="{{uid}}" text="{{nameWithType.0.value}}" alt="{{fullName.0.value}}"/>
+          {{/definition}}
+        </li>
+      {{/inheritedMembers}}
+    </ul>
+  </div>
+{{/inheritedMembers.0}}
+
+{{#seealso.0}}
+  <h2 class="govuk-heading-m" id="seealso">{{__global.seealso}}</h2>
+  <div class="seealso">
+    {{#seealso}}
+      {{#isCref}}
+        <div>{{{type.specName.0.value}}}</div>
+      {{/isCref}}
+      {{^isCref}}
+        <div>{{{url}}}</div>
+      {{/isCref}}
+    {{/seealso}}
+  /div>
+{{/seealso.0}}
+
+<hr class="app-divider" />

@@ -195,6 +195,9 @@ PublishScripts/
 *.nuget.props
 *.nuget.targets
 
+# Template distribution files.
+docs/templates/dsi/dist/
+
 # Microsoft Azure Build Output
 csx/
 *.build.csdef
@@ -386,5 +389,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-#Devops
+# Devops
 !azure-pipelines/artifacts

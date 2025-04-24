@@ -1,0 +1,350 @@
+.govuk-header__logo {
+  width: inherit;
+}
+
+code {
+  font-size: 1rem;
+  background-color: #f8f8f8 !important;
+  border-radius: 5px;
+}
+
+.app-article-content--Conceptual ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.app-article-content--Conceptual ol {
+  padding-left: 20px;
+  list-style-type: decimal;
+}
+
+.app-width-container {
+  max-width: 1100px;
+  margin-right: 15px;
+  margin-left: 15px;
+}
+
+@media (min-width: 40.0625em) {
+  .app-width-container {
+    margin-right: 30px;
+    margin-left: 30px;
+  }
+}
+
+@media (min-width: 1160px) {
+  .app-width-container {
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
+.govuk-header__content {
+  width: inherit;
+  padding-left: inherit;
+  float: inherit;
+}
+
+.app-service-name {
+  font-weight: normal;
+}
+
+.app-site-search {
+  display: none;
+  position: relative;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  float: left;
+}
+
+.js-enabled .app-site-search {
+  display: block;
+}
+
+.app-site-search__input,
+.app-site-search__option {
+  font-family: "GDS Transport", arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 1.1875rem;
+  line-height: 1.3157894737;
+}
+
+.app-site-search__input {
+  position: relative;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36' width='40' height='40'%3E%3Cpath d='M25.7 24.8L21.9 21c.7-1 1.1-2.2 1.1-3.5 0-3.6-2.9-6.5-6.5-6.5S10 13.9 10 17.5s2.9 6.5 6.5 6.5c1.6 0 3-.6 4.1-1.5l3.7 3.7 1.4-1.4zM12 17.5c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5-2 4.5-4.5 4.5-4.5-2-4.5-4.5z' fill='%23505a5f'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center left -2px;
+  background-size: 40px 40px;
+}
+
+.app-site-search__input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.5rem;
+  margin-bottom: 5px;
+  padding: 5px;
+  padding-left: 35px;
+  border: 2px solid #fff;
+  border-radius: 0;
+}
+
+.app-site-search__input:focus {
+  border-color: #0b0c0c;
+  outline: 3px solid #fd0;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 2px;
+}
+
+.app-site-search__results {
+  position: absolute;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  top: 100%;
+  max-height: 342px;
+  margin: -9px 4px 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-top: #fff solid 5px;
+  box-shadow: rgba(11, 12, 12, .256863) 0 5px 5px;
+  background: white;
+  color: var(--main-text-color);
+}
+
+.app-site-search__results-wrapper {
+  position: relative;
+}
+
+.app-site-search__results-wrapper::before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: 101;
+  top: -7px;
+  left: 14px;
+  right: 14px;
+  height: 1px;
+  background-color: #0b0c0c;
+}
+
+.app-site-search__item {
+  display: block;
+  padding: 10px;
+  font-weight: 400;
+  font-size: 1.1rem;
+  line-height: 1.3157894737;
+  border-bottom: solid 1px #b1b4b6;
+  color: #0b0c0c;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.app-site-search__item--no-results {
+  color: #505a5f;
+  cursor: not-allowed;
+}
+
+.app-site-search__summary {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: #505a5f;
+}
+
+.app-site-search__item--highlight {
+  background-color: #1d70b8;
+  color: #fff;
+}
+
+.app-site-search__item--highlight .app-site-search__summary {
+  color: #fff;
+}
+
+@media (min-width: 40.0625em) {
+  .app-site-search {
+    width: 370px;
+    max-width: 100%;
+    float: none;
+  }
+
+  .app-site-search {
+    margin: 0;
+    margin-top: -5px;
+    float: right;
+  }
+}
+
+.app-page-caption {
+  color: #505a5f;
+  font-family: "GDS Transport", arial, sans-serif;
+  font-size: 1.8rem;
+  line-height: 1.09375;
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 40.0625em) {
+  .app-page-caption {
+    font-size: 2.5rem;
+    line-height: 1.0416666667;
+  }
+}
+
+.app-subnav {
+  margin-top: -10px;
+  margin-bottom: 25px;
+  padding: 0 15px 0 0;
+  font-family: "GDS Transport", arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.25;
+  overflow: hidden;
+}
+
+@media (min-width: 40.0625em) {
+  .app-subnav {
+    margin-bottom: 100px;
+  }
+}
+
+.app-subnav__section {
+  margin: 0 0 20px;
+  padding: 0;
+  list-style-type: none;
+}
+
+.app-subnav__section-item {
+  margin-bottom: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.app-subnav__section-item--current .app-subnav__link {
+  font-weight: bold;
+}
+
+.app-subnav__theme {
+  font-size: 1.1875rem;
+  line-height: 1.3157894737;
+  font-weight: 400;
+  margin: 0;
+  padding: 10px 15px 10px 0;
+  color: #505a5f;
+}
+
+.app-article-content h2,
+.app-article-content h3,
+.app-article-content h4 {
+  margin-top: 15px !important;
+}
+
+@media (min-width: 40.0625em) {
+
+  .app-article-content h2,
+  .app-article-content h3,
+  .app-article-content h4 {
+    margin-top: 25px !important;
+  }
+}
+
+.app-article-content .govuk-table__body {
+  vertical-align: top;
+}
+
+.app-divider {
+  margin: 3rem 0 2.5rem;
+  border: none;
+  border-top: solid 3px #ddd;
+}
+
+.app-divider:last-child {
+  display: none;
+}
+
+.inheritance .level0 {
+  display: none;
+}
+
+.inheritance .level2::before,
+.inheritance .level3::before,
+.inheritance .level4::before,
+.inheritance .level5::before,
+.inheritance .level6::before,
+.inheritance .level7::before,
+.inheritance .level8::before,
+.inheritance .level9::before,
+.inheritance .level10::before,
+.inheritance .level11::before,
+.inheritance .level12::before {
+  content: '└ ';
+}
+
+.inheritance .level2 {
+  margin-left: 1rem;
+}
+
+.inheritance .level3 {
+  margin-left: 2.5rem;
+}
+
+.inheritance .level4 {
+  margin-left: 4rem;
+}
+
+.inheritance .level5 {
+  margin-left: 5.5rem;
+}
+
+.inheritance .level6 {
+  margin-left: 7rem;
+}
+
+.inheritance .level7 {
+  margin-left: 8.5rem;
+}
+
+.inheritance .level8 {
+  margin-left: 10rem;
+}
+
+.inheritance .level9 {
+  margin-left: 11.5rem;
+}
+
+.inheritance .level10 {
+  margin-left: 13rem;
+}
+
+.inheritance .level11 {
+  margin-left: 14.5rem;
+}
+
+.inheritance .level12 {
+  margin-left: 16rem;
+}
+
+.app-cards__type {
+  font-size: 1rem;
+}
+
+.app-cards--details .app-cards__summary {
+  margin-left: 1rem;
+}
+
+.app-link-blob {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.app-link-blob__item {
+  display: inline;
+}
+
+.app-link-blob__item:not(:first-child)::before {
+  content: ', ';
+}

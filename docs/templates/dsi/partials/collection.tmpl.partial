@@ -1,0 +1,175 @@
+{{!Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license.}}
+
+<h1 class="govuk-heading-l" id="{{id}}" data-uid="{{uid}}">{{>partials/title}}</h1>
+<div class="markdown summary">{{{summary}}}</div>
+<div class="markdown conceptual">{{{conceptual}}}</div>
+
+{{#children}}
+  {{#children.1}}
+    <hr class="app-divider" />
+  {{/children.1}}
+
+  {{#children}}
+
+    {{^hideHeading}}
+      <h2 class="govuk-heading-ml" id="{{id}}" data-uid="{{uid}}">{{name.0.value}}</h2>
+    {{/hideHeading}}
+  
+    <div class="markdown summary">{{{summary}}}</div>
+    <div class="markdown conceptual">{{{conceptual}}}</div>
+    <h3 class="govuk-heading-m declaration">{{__global.declaration}}</h3>
+
+    {{#syntax}}
+      <div class="codewrapper">
+        <pre><code class="lang-csharp hljs">{{syntax.content.0.value}}</code></pre>
+      </div>
+
+      {{#parameters.0}}
+        <h3 class="govuk-heading-m parameters">{{__global.parameters}}</h3>
+        <ul class="app-cards app-cards--details">
+          {{#parameters}}
+            <li class="app-cards__card">
+              <h4 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+                <span class="parametername">{{{id}}}</span>
+                <span class="parametertype">: {{{type.specName.0.value}}}</span>
+              </h4>
+              <div class="app-cards__summary">{{{description}}}</div>
+            </li>
+          {{/parameters}}
+        </ul>
+      {{/parameters.0}}
+
+      {{#return}}
+        <h2 class="govuk-heading-m returns">{{__global.returns}}</h2>
+        <p>{{{type.specName.0.value}}}</p>
+        {{{description}}}
+      {{/return}}
+
+      {{#typeParameters.0}}
+        <h2 class="govuk-heading-m typeParameters">{{__global.typeParameters}}</h2>
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">{{__global.name}}</th>
+              <th scope="col" class="govuk-table__header">{{__global.description}}</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {{#typeParameters}}
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell"><span class="parametername">{{{id}}}</span></td>
+                <td class="govuk-table__cell">{{{description}}}</td>
+              </tr>
+            {{/typeParameters}}
+          </tbody>
+        </table>
+      {{/typeParameters.0}}
+
+      {{#fieldValue}}
+        <h2 class="govuk-heading-m">{{__global.fieldValue}}</h2>
+        <p>Type: {{{type.specName.0.value}}}</p>
+        {{{description}}}
+      {{/fieldValue}}
+
+      {{#propertyValue}}
+        <h2 class="govuk-heading-m">{{__global.propertyValue}}</h2>
+        <p>Type: {{{type.specName.0.value}}}</p>
+        {{{description}}}
+      {{/propertyValue}}
+
+      {{#eventType}}
+        <h2 class="govuk-heading-m">{{__global.eventType}}</h2>
+        <p>Type: {{{type.specName.0.value}}}</p>
+        {{{description}}}
+      {{/eventType}}
+    {{/syntax}}
+
+    {{#overridden}}
+      <h2 class="govuk-heading-m">{{__global.overrides}}</h2>
+      <div><xref uid="{{uid}}" altProperty="fullName" displayProperty="nameWithType"/></div>
+    {{/overridden}}
+
+    {{#implements.0}}
+      <h2 class="govuk-heading-m">{{__global.implements}}</h2>
+      {{#implements}}
+        {{#definition}}
+          <div><xref uid="{{definition}}" altProperty="fullName" displayProperty="nameWithType"/></div>
+        {{/definition}}
+        {{^definition}}
+          <div><xref uid="{{uid}}" altProperty="fullName" displayProperty="nameWithType"/></div>
+        {{/definition}}
+      {{/implements}}
+    {{/implements.0}}
+
+    {{#remarks}}
+      <h2 class="govuk-heading-m" id="{{id}}_remarks">{{__global.remarks}}</h2>
+      <div class="markdown remarks">{{{remarks}}}</div>
+    {{/remarks}}
+
+    {{#example.0}}
+      <h2 class="govuk-heading-m" id="{{id}}_examples">{{__global.examples}}</h2>
+      {{#example}}
+        {{{.}}}
+      {{/example}}
+    {{/example.0}}
+
+    {{#exceptions.0}}
+      <h2 class="govuk-heading-m">{{__global.exceptions}}</h2>
+      <ul class="app-cards app-cards--details">
+        {{#exceptions}}
+          <li class="app-cards__card">
+            <h4 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+              <span class="parametertype">{{{type.specName.0.value}}}</span>
+            </h4>
+            <div class="app-cards__summary">{{{description}}}</div>
+          </li>
+        {{/exceptions}}
+      </ul>
+    {{/exceptions.0}}
+
+    {{#seealso.0}}
+      <h2 class="govuk-heading-m" id="{{id}}_seealso">{{__global.seealso}}</h2>
+      <div class="seealso">
+        {{#seealso}}
+          {{#isCref}}
+            <div>{{{type.specName.0.value}}}</div>
+          {{/isCref}}
+          {{^isCref}}
+            <div>{{{url}}}</div>
+          {{/isCref}}
+        {{/seealso}}
+      </div>
+    {{/seealso.0}}
+
+    <hr class="app-divider" />
+
+  {{/children}}
+{{/children}}
+
+{{#extensionMethods.0}}
+  <h2 class="govuk-heading-m" id="extensionmethods">{{__global.extensionMethods}}</h2>
+  {{#extensionMethods}}
+    <div>
+      {{#definition}}
+        <xref uid="{{definition}}" altProperty="fullName" displayProperty="nameWithType"/>
+      {{/definition}}
+      {{^definition}}
+        <xref uid="{{uid}}" altProperty="fullName" displayProperty="nameWithType"/>
+      {{/definition}}
+    </div>
+  {{/extensionMethods}}
+{{/extensionMethods.0}}
+
+{{#seealso.0}}
+  <h2 class="govuk-heading-m" id="seealso">{{__global.seealso}}</h2>
+  <div class="seealso">
+    {{#seealso}}
+      {{#isCref}}
+        <div>{{{type.specName.0.value}}}</div>
+      {{/isCref}}
+      {{^isCref}}
+        <div>{{{url}}}</div>
+      {{/isCref}}
+    {{/seealso}}
+  </div>
+{{/seealso.0}}

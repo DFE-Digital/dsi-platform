@@ -1,0 +1,12 @@
+apiRules:
+  - exclude:
+    uidRegex: .*\.Internal\..*
+    type: Namespace
+
+  - exclude:
+    uidRegex: .*\.Internal\..*
+    type: Type
+
+  - exclude:
+    hasAttribute:
+      uid: System.ObsoleteAttribute

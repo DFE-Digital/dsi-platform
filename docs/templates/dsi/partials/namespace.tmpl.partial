@@ -1,0 +1,24 @@
+{{!Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license.}}
+
+<h1 class="govuk-heading-l" id="{{id}}" data-uid="{{uid}}" class="text-break">{{>partials/title}}</h1>
+
+<div class="markdown summary">{{{summary}}}</div>
+<div class="markdown conceptual">{{{conceptual}}}</div>
+<div class="markdown remarks">{{{remarks}}}</div>
+
+{{#children}}
+
+  <h2 class="govuk-heading-m" id="{{id}}">{{>partials/namespaceSubtitle}}</h2>
+
+  {{#children.0}}
+    <ul class="app-cards">
+      {{#children}}
+        <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+          <xref uid="{{uid}}" altProperty="fullName" displayProperty="name"/>
+        </h3>
+        <div class="app-cards__summary">{{{summary}}}</div>
+      {{/children}}
+    </ul>
+  {{/children.0}}
+
+{{/children}}

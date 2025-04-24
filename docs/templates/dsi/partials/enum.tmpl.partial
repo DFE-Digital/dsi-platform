@@ -1,0 +1,51 @@
+{{!Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license.}}
+
+{{>partials/class.header}}
+
+{{#children}}
+  <h3 id="{{id}}">{{>partials/classSubtitle}}</h3>
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header">{{__global.name}}</th>
+        <th scope="col" class="govuk-table__header">{{__global.description}}</th>
+      </tr>
+    <thead class="govuk-table__head">
+    <tbody class="govuk-table__body">
+      {{#children}}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell" id="{{id}}">{{name.0.value}}</td>
+          <td class="govuk-table__cell">{{{summary}}}</td>
+        </tr>
+      {{/children}}
+    </tbody>
+  </table>
+{{/children}}
+
+{{#seealso.0}}
+  <h5 id="{{id}}_seealso">{{__global.seealso}}</h5>
+  <div class="seealso">
+    {{#seealso}}
+      {{#isCref}}
+        <div>{{{type.specName.0.value}}}</div>
+      {{/isCref}}
+      {{^isCref}}
+        <div>{{{url}}}</div>
+      {{/isCref}}
+    {{/seealso}}
+  </div>
+{{/seealso.0}}
+
+{{#extensionMethods.0}}
+  <h3 id="extensionmethods">{{__global.extensionMethods}}</h3>
+  {{#extensionMethods}}
+  <div>
+    {{#definition}}
+      <xref uid="{{definition}}" fullName="{{fullName.0.value}}" name="{{nameWithType.0.value}}"/>
+    {{/definition}}
+    {{^definition}}
+      <xref uid="{{uid}}" fullName="{{fullName.0.value}}" name="{{nameWithType.0.value}}"/>
+    {{/definition}}
+  </div>
+  {{/extensionMethods}}
+{{/extensionMethods.0}}
