@@ -33,46 +33,81 @@ A custom "dsi" template has been created to give the DfE Sign-in .NET reference 
 Node tooling is required to bundle and minify the scripts and styles:
 
 ```pwsh
+# run from /docs/templates/
 npm i
 ```
 
 With the developer tooling installed:
 
 ```pwsh
+# run from /docs/templates/
 npm run build
 ```
 
 ## Building the Dfe.SignIn.DocfxPlugin project
 
-The following command can be executed from the "templates" directory:
+The following command can be executed from the "docs" directory:
 
-```pswh
-dotnet build
+```pwsh
+# run from /docs/
+dotnet build templates
 ```
 
 Upon running this command the plugin DLL files are copied into the "dsi/plugins" directory.
 
 Plugin DLL files are not committed to this repository.
 
-## Building the internal documentation
+## Building and previewing the internal documentation
 
 To build and serve the internal documentation locally:
 
 ```pwsh
-dotnet docfx docs/internal/docfx.json --serve
+# run from /docs/
+dotnet docfx internal/docfx.json --serve
 ```
 
-By default the documentation can then be viewed on the URL `http://localhost:8080`.
+> By default the documentation can then be viewed on the URL `http://localhost:8080`.
 
-## Building the external documentation
+## Building and previewing the external documentation
 
 To build and serve the external documentation locally:
 
 ```pwsh
-dotnet docfx docs/external/docfx.json --serve
+# run from /docs/
+dotnet docfx external/docfx.json --serve
 ```
 
-By default the documentation can then be viewed on the URL `http://localhost:8080`.
+> By default the documentation can then be viewed on the URL `http://localhost:8080`.
+
+## Building and previewing the snapshot testing sample documentation
+
+To build and serve the sample documentation that is used in snapshot testing locally:
+
+```pwsh
+# run from /docs/
+dotnet docfx templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/docfx.json --serve
+```
+
+> By default the documentation can then be viewed on the URL `http://localhost:8080`.
+
+## Running snapshot tests
+
+```pwsh
+# run from /docs/
+dotnet test templates
+```
+
+## Updating snapshots
+
+Snapshot tests will fail when intentional changes are made to how pages are rendered.
+
+Verify each of the mismatching snapshots manually:
+1. Verify that the HTML output is as expected.
+2. Verify that the rendered pages look as expected in a web browser.
+
+If you are satisfied with the changes then rename the applicable `*.received.txt` files to `*.verified.txt`.
+
+Commit the updated snapshot files to the repository.
 
 ## Building documentation from a pipeline
 
@@ -82,16 +117,25 @@ Pipelines can override global metadata properties using the `-m` command line ar
 
 The build pipeline must execute commands from the working directory `/docs/`.
 
-First a custom plugin must be built using the following command:
+First the custom template styles, scripts and custom plugin must be built using the following command:
 
 ```pwsh
-dotnet build
+# run from /docs/
+./scripts/Build.ps1
+```
+
+Ensure that tests pass by running the following command:
+
+```pwsh
+# run from /docs/
+dotnet test templates
 ```
 
 The build pipeline builds the **internal** version of the documentation when deploying to the development environments:
 
 ```pwsh
-dotnet docx docs/internal/docfx.json /
+# run from /docs/
+dotnet docx internal/docfx.json /
     -m _cdnBaseAddress=CDN_BASE_ADDRESS /
     -m _cdnVersion=CDN_VERSION /
     -m _surveyUrl=SURVEY_URL
@@ -100,15 +144,17 @@ dotnet docx docs/internal/docfx.json /
 The build pipeline builds the **external** version of the documentation when deploying to non-development environments:
 
 ```pwsh
-dotnet docx docs/external/docfx.json /
+# run from /docs/
+dotnet docx external/docfx.json /
     -m _cdnBaseAddress=CDN_BASE_ADDRESS /
     -m _cdnVersion=CDN_VERSION /
     -m _surveyUrl=SURVEY_URL
 ```
 
-Execute the `RemoveUnnecessaryOutputFiles.ps1` script:
+When the documentation is built docfx produces some output files which are not needed. These can be removed:
 
 ```pwsh
+# run from /docs/
 ./scripts/RemoveUnnecessaryOutputFiles.ps1
 ```
 
