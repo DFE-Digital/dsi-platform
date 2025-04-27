@@ -30,19 +30,21 @@ A custom "dsi" template has been created to give the DfE Sign-in .NET reference 
 
 ## Updating scripts and styles
 
-Node tooling is required to bundle and minify the scripts and styles:
+Node tooling is required to bundle and minify the scripts and styles.
 
 ```pwsh
-# run from /docs/templates/
-npm i
+# run from /docs/
+npm --prefix templates i
 ```
 
 With the developer tooling installed:
 
 ```pwsh
-# run from /docs/templates/
-npm run build
+# run from /docs/
+npm --prefix templates run build
 ```
+
+> **Note:** Scripts and styles can also be built by running `./scripts/Build.ps1`.
 
 ## Building the Dfe.SignIn.DocfxPlugin project
 
@@ -57,16 +59,18 @@ Upon running this command the plugin DLL files are copied into the "dsi/plugins"
 
 Plugin DLL files are not committed to this repository.
 
+> **Note:** The plugin can also be built by running `./scripts/Build.ps1`.
+
 ## Building and previewing the internal documentation
 
 To build and serve the internal documentation locally:
 
 ```pwsh
 # run from /docs/
-dotnet docfx internal/docfx.json --serve
+./scripts/PreviewInternal.ps1
 ```
 
-> By default the documentation can then be viewed on the URL `http://localhost:8080`.
+> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
 
 ## Building and previewing the external documentation
 
@@ -74,10 +78,10 @@ To build and serve the external documentation locally:
 
 ```pwsh
 # run from /docs/
-dotnet docfx external/docfx.json --serve
+./scripts/PreviewExternal.ps1
 ```
 
-> By default the documentation can then be viewed on the URL `http://localhost:8080`.
+> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
 
 ## Building and previewing the snapshot testing sample documentation
 
@@ -85,10 +89,10 @@ To build and serve the sample documentation that is used in snapshot testing loc
 
 ```pwsh
 # run from /docs/
-dotnet docfx templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/docfx.json --serve
+./scripts/PreviewSample.ps1
 ```
 
-> By default the documentation can then be viewed on the URL `http://localhost:8080`.
+> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
 
 ## Running snapshot tests
 
