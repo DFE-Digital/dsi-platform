@@ -158,9 +158,14 @@
     </div>
 
 
+  <hr class="app-divider">
 
 
-</article>
+
+                                <p class="govuk-body-s govuk-!-padding-top-3">
+                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxSample/SomeNamespace/AnotherClass.cs/#L6">View source in repository</a>
+                                </p>
+                    </article>
                 </div>
             </div>
         </main>

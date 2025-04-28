@@ -67,7 +67,7 @@
                     <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
                         Menu
                     </button>
-                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.DocfxSample.html">Code Reference</a></li></ul>
+                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item govuk-service-navigation__item--active"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.DocfxSample.html">Code Reference</a></li></ul>
                 </nav>
             </div>
         </div>
@@ -100,7 +100,10 @@
 
 <p>A getting started page.</p>
 
-</article>
+                                <p class="govuk-body-s govuk-!-padding-top-3">
+                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/guide/getting-started.md/#L1">View source in repository</a>
+                                </p>
+                    </article>
                 </div>
             </div>
         </main>

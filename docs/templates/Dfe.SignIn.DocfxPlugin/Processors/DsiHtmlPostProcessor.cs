@@ -80,7 +80,7 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
         if (!tocs.TryGetToc(pathRelativeToRoot, out var toc)) {
             return;
         }
-        var tocEntry = toc!.FindEntry(pathRelativeToRoot);
+        var tocEntry = toc!.FindEntryWithCrumbs(pathRelativeToRoot);
         bool isApiPage = toc.MemberLayout is not null;
 
         // Resolve parent page entry (used for page caption).
@@ -98,11 +98,16 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
             navHtmlBuilder.Append("<ul class=\"govuk-service-navigation__list\" id=\"navigation\">");
             foreach (var item in navToc.Items ?? []) {
                 if (item.Href is not null) {
-                    string itemHref = PathHelpers.ResolveRelativePath(relativeRootPath, item.Href);
                     string itemClass = "govuk-service-navigation__item";
-                    if (item.Href == pathRelativeToRoot || tocEntry?.Crumbs.Any(crumb => crumb.Href == item.Href) == true) {
-                        itemClass += " govuk-service-navigation__item--active";
+                    if (tocEntry is not null && tocEntry.Crumbs?.Length > 0) {
+                        bool isRootNavSection = tocs.TryGetToc(item.TocHref, out var navItemToc) && navItemToc == toc;
+                        if (isRootNavSection || tocEntry.Crumbs.Any(crumb => crumb.Href == item.Href) == true) {
+                            itemClass += " govuk-service-navigation__item--active";
+                        }
                     }
+
+                    string itemHref = PathHelpers.ResolveRelativePath(relativeRootPath, item.Href);
+
                     navHtmlBuilder.Append($"<li class=\"{itemClass}\">");
                     navHtmlBuilder.Append($"<a class=\"govuk-service-navigation__link\" href=\"{itemHref}\">{HttpUtility.HtmlEncode(item.Name)}</a>");
                     navHtmlBuilder.Append("</li>");
@@ -114,8 +119,8 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
 
         // Generate breadcrumbs.
         if (tocEntry is not null) {
-            var filteredCrumbs = tocEntry.Crumbs.Where(crumb => !string.IsNullOrWhiteSpace(crumb.Href));
-            if (filteredCrumbs.Count() > 1) {
+            var filteredCrumbs = tocEntry.Crumbs?.Where(crumb => !string.IsNullOrWhiteSpace(crumb.Href));
+            if (filteredCrumbs?.Count() > 1) {
                 var crumbsHtmlBuilder = new StringBuilder();
                 crumbsHtmlBuilder.Append("<nav class=\"govuk-breadcrumbs\" aria-label=\"Breadcrumb\">");
                 crumbsHtmlBuilder.Append("<ol class=\"govuk-breadcrumbs__list\">");
@@ -148,8 +153,7 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
         );
 
         // Add root page title where applicable.
-        if (parentEntry is not null)
-        {
+        if (parentEntry is not null) {
             string captionText = $"{HttpUtility.HtmlEncode(parentEntry.Type)} {HttpUtility.HtmlEncode(parentEntry.Name)}";
             captionText = AddSymbolBreaks(captionText);
 
@@ -162,7 +166,7 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
         }
 
         // Add side navigation.
-        var sideNavRoot = (isApiPage && tocEntry is not null)
+        var sideNavRoot = (isApiPage && tocEntry is not null && tocEntry.Crumbs?.Length >= 3)
             ? tocEntry.Crumbs[^3]
             : toc;
         var sideNavigationBuilder = new StringBuilder();

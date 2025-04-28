@@ -14,7 +14,7 @@ internal sealed class TocMap
         var matchingFiles = matcher.GetResultsInFullPath(outputPath);
 
         foreach (string file in matchingFiles) {
-            var toc = TocEntry.FromFile(outputPath, file);
+            var toc = Toc.FromFile(outputPath, file);
             string key = Path.GetRelativePath(outputPath, Path.GetDirectoryName(file)!);
             map.mappings.Add(key, toc);
         }
@@ -22,10 +22,14 @@ internal sealed class TocMap
         return map;
     }
 
-    private readonly Dictionary<string, TocEntry> mappings = [];
+    private readonly Dictionary<string, Toc> mappings = [];
 
-    public bool TryGetToc(string path, [MaybeNullWhen(false)] out TocEntry result)
+    public bool TryGetToc(string? path, [MaybeNullWhen(false)] out Toc result)
     {
+        if (path is null) {
+            result = null;
+            return false;
+        }
         string key = Path.GetDirectoryName(path) ?? ".";
         if (this.mappings.TryGetValue(key, out result)) {
             return true;

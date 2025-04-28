@@ -108,14 +108,6 @@
 
 
 
-        <span class="small pull-right mobile-hide">
-          <span class="divider">|</span>
-          <a href="https://github.com/DFE-Digital/dsi-platform/new/feature/docfx/apiSpec/new?filename=Dfe_SignIn_DocfxSample_SomeNamespace_ISomeService_Invoke_System_String_System_String_.md&amp;value=---%0Auid%3A%20Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.Invoke(System.String%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
-        </span>
-        <span class="small pull-right mobile-hide">
-          <a href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxSample/SomeNamespace/SomeService.cs/#L24">View Source</a>
-        </span>
-
         <h2 class="govuk-heading-ml" id="Dfe_SignIn_DocfxSample_SomeNamespace_ISomeService_Invoke_System_String_System_String_" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.Invoke(System.String,System.String)">Invoke(&#8203;string, string)&#8203;</h2>
   
       <div class="markdown summary">Invoke some service.</div>
@@ -180,7 +172,10 @@
 
 
 
-</article>
+                                <p class="govuk-body-s govuk-!-padding-top-3">
+                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxSample/SomeNamespace/SomeService.cs/#L24">View source in repository</a>
+                                </p>
+                    </article>
                 </div>
             </div>
         </main>

@@ -52,7 +52,7 @@ public sealed partial class DsiSearchIndexPostProcessor : IPostProcessor
             if (tocs.TryGetToc(entry.Href, out var toc)) {
                 string? sectionName = toc.Name;
 
-                var tocEntry = toc.FindEntry(entry.Href);
+                var tocEntry = toc.FindEntryWithCrumbs(entry.Href);
                 if (tocEntry is not null) {
                     if (!string.IsNullOrWhiteSpace(tocEntry.Entry.Name)) {
                         entry.Title = tocEntry.Entry.Name;
