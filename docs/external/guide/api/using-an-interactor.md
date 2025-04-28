@@ -27,7 +27,7 @@ public sealed class CustomApplicationClass(
 
 ## Validation exceptions
 
-The [](xref:System.ComponentModel.DataAnnotations.ValidationException) exception is thrown if the request model has one ore more invalid properties.
+The [](xref:System.ComponentModel.DataAnnotations.ValidationException) exception is thrown if the request model has one or more invalid properties.
 
 
 ## Interaction exceptions
