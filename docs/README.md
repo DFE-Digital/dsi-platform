@@ -109,7 +109,12 @@ Verify each of the mismatching snapshots manually:
 1. Verify that the HTML output is as expected.
 2. Verify that the rendered pages look as expected in a web browser.
 
-If you are satisfied with the changes then rename the applicable `*.received.txt` files to `*.verified.txt`.
+If you are satisfied with the changes then rename the applicable `*.received.txt` files to `*.verified.txt`:
+
+```pwsh
+# run from /docs/
+./scripts/VerifySnapshots.ps1
+```
 
 Commit the updated snapshot files to the repository.
 
