@@ -1,11 +1,12 @@
 {
   "editor.formatOnSave": true,
   "files.associations": {
-    "appsettings*.json": "jsonc"
+    "appsettings*.json": "jsonc",
+    "*.tmpl*": "html",
   },
   "files.exclude": {
     "**/bin": true,
     "**/obj": true,
-    "**/TestResults": true
+    "**/TestResults": true,
   },
 }

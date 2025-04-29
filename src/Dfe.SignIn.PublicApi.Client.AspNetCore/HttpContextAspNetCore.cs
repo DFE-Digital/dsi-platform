@@ -9,6 +9,7 @@ namespace Dfe.SignIn.PublicApi.Client.AspNetCore;
 /// <summary>
 /// Wrapper for the .NET Core implementation of <see cref="IHttpContext" />.
 /// </summary>
+/// <param name="inner">The inner <see cref="HttpContext"/> instance.</param>
 public sealed class HttpContextAspNetCoreAdapter(HttpContext inner)
     : IHttpContext, IHttpRequest, IHttpResponse
 {

@@ -5,7 +5,7 @@ namespace Dfe.SignIn.PublicApi.ScopedSession;
 /// <summary>
 /// Scoped session provider implementation 
 /// </summary>
-public class ScopedSessionProvider : IScopedSessionReader, IScopedSessionWriter
+public sealed class ScopedSessionProvider : IScopedSessionReader, IScopedSessionWriter
 {
 
     /// <inheritdoc/>

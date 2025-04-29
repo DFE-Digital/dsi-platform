@@ -13,7 +13,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 
 [TestClass]
-public class GetOrganisationsAssociatedWithUserTests
+public sealed class GetOrganisationsAssociatedWithUserTests
 {
     private IMapper? mapper;
 

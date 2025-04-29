@@ -9,7 +9,7 @@ using Dfe.SignIn.NodeApi.Client.Organisations.Models;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.MappingProfile;
 
 [TestClass]
-public class OrganisationProfileTests
+public sealed class OrganisationProfileTests
 {
     private static MapperConfiguration CreateMapperConfiguration()
     {

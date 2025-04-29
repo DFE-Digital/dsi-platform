@@ -43,6 +43,7 @@ public interface IExceptionJsonSerializer
 /// The default implementation of a service that serializes exceptions to or from JSON
 /// encoded strings using <see cref="JsonSerializer"/>.
 /// </summary>
+/// <param name="jsonOptionsAccessor">Provides access to JSON serializer options.</param>
 public sealed class DefaultExceptionJsonSerializer(
     IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor
 ) : IExceptionJsonSerializer

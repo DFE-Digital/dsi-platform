@@ -32,6 +32,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+_site/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -193,6 +194,9 @@ PublishScripts/
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
+
+# Template distribution files.
+docs/templates/dsi/dist/
 
 # Microsoft Azure Build Output
 csx/
@@ -385,5 +389,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-#Devops
+# Devops
 !azure-pipelines/artifacts

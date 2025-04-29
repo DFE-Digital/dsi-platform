@@ -11,6 +11,9 @@ namespace Dfe.SignIn.Core.Framework;
 /// </summary>
 /// <typeparam name="TRequest">The type of request.</typeparam>
 /// <typeparam name="TResponse">The type of response.</typeparam>
+/// <param name="options">Interactor model validation options.</param>
+/// <param name="inner">The inner interactor that is being decorated.</param>
+/// <param name="services">The service provider.</param>
 public sealed class InteractorModelValidator<TRequest, TResponse>(
     IOptions<InteractorModelValidationOptions> options,
     IInteractor<TRequest, TResponse> inner,

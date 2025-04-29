@@ -4,7 +4,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.AuthenticatedHttpClient;
 
 [TestClass]
-public class AuthenticatedHttpClientHandlerTests
+public sealed class AuthenticatedHttpClientHandlerTests
 {
     #region SendAsync(HttpRequestMessage, CancellationToken)
 

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../../Dfe.SignIn.DocfxSample",
+          "files": [
+            "*.csproj"
+          ]
+        }
+      ],
+      "output": "reference",
+      "shouldSkipMarkup": true,
+      "namespaceLayout": "nested",
+      "memberLayout": "separatePages",
+      "enumSortOrder": "declaringOrder"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "overwrite": [
+      {
+        "src": "..",
+        "files": [
+          "namespaces/**.md"
+        ]
+      }
+    ],
+    "postProcessors": [
+      "ExtractSearchIndex",
+      "DsiHtmlPostProcessor",
+      "DsiSearchIndexPostProcessor"
+    ],
+    "output": "_site",
+    "template": [
+      "../../dsi"
+    ],
+    "globalMetadata": {
+      "_appName": "DfE Sign-in Sample",
+      "_appTitle": "DfE Sign-in Sample",
+      "_disableContribution": false,
+      "_cdnBaseAddress": "https://localhost:3001/",
+      "_cdnVersion": "1.0",
+      "_surveyUrl": "#",
+      "pdf": false
+    }
+  }
+}

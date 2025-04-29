@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../../src",
+          "files": [
+            "Dfe.SignIn.Core.ExternalModels/*.csproj",
+            "Dfe.SignIn.Core.Framework/*.csproj",
+            "Dfe.SignIn.PublicApi.Client/*.csproj",
+            "Dfe.SignIn.PublicApi.Client.AspNetCore/*.csproj"
+          ]
+        }
+      ],
+      "filter": "filterConfig.yml",
+      "output": "reference",
+      "shouldSkipMarkup": true,
+      "namespaceLayout": "nested",
+      "memberLayout": "separatePages",
+      "enumSortOrder": "declaringOrder"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "filterConfig.yml"
+        ]
+      }
+    ],
+    "overwrite": [
+      {
+        "src": "..",
+        "files": [
+          "namespaces/**.md"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "assets/**"
+        ]
+      }
+    ],
+    "postProcessors": [
+      "ExtractSearchIndex",
+      "DsiHtmlPostProcessor",
+      "DsiSearchIndexPostProcessor"
+    ],
+    "output": "../_site",
+    "template": [
+      "../templates/dsi"
+    ],
+    "globalMetadata": {
+      "_appName": "DfE Sign-in .NET Reference",
+      "_appTitle": "DfE Sign-in .NET Reference",
+      "_disableContribution": true,
+      "_cdnBaseAddress": "https://localhost:3001/",
+      "_cdnVersion": "1.0",
+      "_surveyUrl": "#",
+      "pdf": false
+    }
+  }
+}

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Dfe.SignIn.PublicApi.UnitTests.ScopedSessionProvider;
 
 [TestClass]
-public class ScopedSessionExtensionsTests
+public sealed class ScopedSessionExtensionsTests
 {
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]

@@ -12,7 +12,7 @@ using Moq;
 namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth;
 
 [TestClass]
-public class BearerTokenAuthMiddlewareTests
+public sealed class BearerTokenAuthMiddlewareTests
 {
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

@@ -19,24 +19,20 @@ public sealed class CallbackViewModel
     ///   <para>This will be one of the following values:</para>
     ///   <list type="bullet">
     ///     <item>
-    ///       <c>"error"</c> - Indicates that an error has occurred
+    ///       <see cref="PayloadTypeConstants.Error"/> - Indicates that an error has occurred
     ///       (see <see cref="SelectOrganisationCallbackError"/>).
     ///     </item>
     ///     <item>
-    ///       <c>"id"</c> - Payload has unique identifier of the selected organisation
-    ///       (see <see cref="SelectOrganisationCallbackId"/>).
+    ///       <see cref="PayloadTypeConstants.SignOut"/> - Indicates that the user wants to
+    ///       sign out (see <see cref="SelectOrganisationCallbackSignOut"/>).
     ///     </item>
     ///     <item>
-    ///       <c>"basic"</c> - Payload includes basic details for the selected organisation
-    ///       (see <see cref="SelectOrganisationCallbackBasic"/>).
+    ///       <see cref="PayloadTypeConstants.Cancel"/> - Indicates that the user wants to
+    ///       cancel selection (see <see cref="SelectOrganisationCallbackCancel"/>).
     ///     </item>
     ///     <item>
-    ///       <c>"extended"</c> - Payload includes extended details for the selected organisation
-    ///       (see <see cref="SelectOrganisationCallbackExtended"/>).
-    ///     </item>
-    ///     <item>
-    ///       <c>"legacy"</c> - Payload includes additional legacy properties
-    ///       (see <see cref="SelectOrganisationCallbackLegacy"/>).
+    ///       <see cref="PayloadTypeConstants.Selection"/> - Indicates that an organisation
+    ///       selection was made (see <see cref="SelectOrganisationCallbackSelection"/>).
     ///     </item>
     ///   </list>
     /// </remarks>

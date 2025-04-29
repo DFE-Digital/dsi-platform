@@ -1,5 +1,5 @@
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
-public class FakeHttpMessageHandler : HttpMessageHandler
+public sealed class FakeHttpMessageHandler : HttpMessageHandler
 {
     private readonly List<HttpRequestMessage> capturedRequests;
     private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc;

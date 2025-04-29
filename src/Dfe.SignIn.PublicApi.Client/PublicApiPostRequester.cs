@@ -9,6 +9,9 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// General implementation of an interactor that makes POST requests to Dfe Sign-in
 /// public API endpoints.
 /// </summary>
+/// <param name="client">The API client service.</param>
+/// <param name="jsonOptions">JSON serializer options.</param>
+/// <param name="endpoint">The endpoint (eg. "v2/select-organisation").</param>
 [ExcludeFromCodeCoverage]
 internal sealed class PublicApiPostRequester<TRequest, TResponse>(
     IPublicApiClient client,

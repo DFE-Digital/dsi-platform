@@ -3,6 +3,7 @@ namespace Dfe.SignIn.Core.ExternalModels.Metadata;
 /// <summary>
 /// Specifies a tag colour for the annotated item.
 /// </summary>
+/// <param name="colour">The colour of the tag.</param>
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 public sealed class TagColourAttribute(TagColour colour) : Attribute
 {

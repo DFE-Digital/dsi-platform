@@ -10,8 +10,6 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// <summary>
 /// ApiRequester for obtaining an organisation by its unique identifier.
 /// </summary>
-/// <param name="httpClient"></param>
-/// <param name="mapper"></param>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationById_NodeApiRequester(
     [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper)

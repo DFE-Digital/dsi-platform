@@ -9,24 +9,34 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 [Serializable]
 public sealed class SelectOrganisationCallbackErrorException : Exception
 {
-    /// <inheritdoc/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SelectOrganisationCallbackErrorException"/> class.
+    /// </summary>
     public SelectOrganisationCallbackErrorException()
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SelectOrganisationCallbackErrorException"/> class.
+    /// </summary>
     /// <inheritdoc/>
     public SelectOrganisationCallbackErrorException(string? message)
         : base(message)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SelectOrganisationCallbackErrorException"/> class.
+    /// </summary>
     /// <inheritdoc/>
     public SelectOrganisationCallbackErrorException(string? message, Exception? innerException)
         : base(message, innerException)
     {
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SelectOrganisationCallbackErrorException"/> class.
+    /// </summary>
     /// <param name="errorCode">A value indicating the kind of error that has occurred.</param>
     public SelectOrganisationCallbackErrorException(SelectOrganisationErrorCode errorCode)
     {

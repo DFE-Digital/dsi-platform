@@ -1,0 +1,14 @@
+name: Guide
+items:
+  - name: Get started
+    items:
+      - name: Introduction
+        href: introduction.md
+      - name: Getting Started
+        href: getting-started.md
+  - name: Public API
+    items:
+      - name: Making requests with the HttpClient
+        href: api/making-requests-with-the-httpclient.md
+      - name: Using an interactor
+        href: api/using-an-interactor.md

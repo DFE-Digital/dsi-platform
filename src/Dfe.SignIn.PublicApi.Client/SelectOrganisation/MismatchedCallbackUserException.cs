@@ -15,13 +15,21 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// </remarks>
 public sealed class MismatchedCallbackUserException : Exception
 {
-    /// <inheritdoc />
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MismatchedCallbackUserException"/> class.
+    /// </summary>
     public MismatchedCallbackUserException() { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MismatchedCallbackUserException"/> class.
+    /// </summary>
     /// <inheritdoc />
     public MismatchedCallbackUserException(string? message)
         : base(message) { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MismatchedCallbackUserException"/> class.
+    /// </summary>
     /// <inheritdoc />
     public MismatchedCallbackUserException(string? message, Exception? innerException)
         : base(message, innerException) { }

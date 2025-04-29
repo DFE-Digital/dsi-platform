@@ -10,7 +10,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 
 [TestClass]
-public class GetOrganisationByIdTests
+public sealed class GetOrganisationByIdTests
 {
     private IMapper? mapper;
 

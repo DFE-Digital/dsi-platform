@@ -3,7 +3,7 @@ using Dfe.SignIn.PublicApi.Client.Internal;
 namespace Dfe.SignIn.PublicApi.Client.UnitTests.Internal;
 
 [TestClass]
-public class HmacKeyPaddingTests
+public sealed class HmacKeyPaddingTests
 {
     [TestMethod]
     public void Key_Less_Than_32_Bytes_Should_Be_Padded()
