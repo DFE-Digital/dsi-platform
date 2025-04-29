@@ -3,4 +3,12 @@
 
 <h1 class="govuk-heading-l">{{{title}}}</h1>
 
+{{#summary}}
+    <div class="govuk-body-l">{{{summary}}}</div>
+{{/summary}}
+
 {{{conceptual}}}
+
+{{^_disableContribution}}
+    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4" />
+{{/_disableContribution}}

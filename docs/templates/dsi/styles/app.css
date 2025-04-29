@@ -256,16 +256,6 @@ code {
   vertical-align: top;
 }
 
-.app-divider {
-  margin: 3rem 0 2.5rem;
-  border: none;
-  border-top: solid 3px #ddd;
-}
-
-.app-divider:last-child {
-  display: none;
-}
-
 .inheritance .level0 {
   display: none;
 }
@@ -347,4 +337,46 @@ code {
 
 .app-link-blob__item:not(:first-child)::before {
   content: ', ';
+}
+
+/* The following is based on .govuk-inset-text */
+.NOTE {
+  font-family: GDS Transport, arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: #0b0c0c;
+  padding: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  clear: both;
+  border-left: 10px solid #b1b4b6;
+}
+
+.NOTE h5 {
+  display: none;
+}
+
+.NOTE p:nth-child(2) {
+  margin-top: 0;
+}
+
+.NOTE p:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 40.0625em) {
+  .NOTE {
+    font-size: 1.1875rem;
+    line-height: 1.3157894737;
+  }
+}
+
+@media (min-width: 40.0625em) {
+  .NOTE {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
 }

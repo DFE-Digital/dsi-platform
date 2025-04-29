@@ -108,6 +108,8 @@
 
 
 
+      <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
+
         <h2 class="govuk-heading-ml" id="Dfe_SignIn_DocfxSample_SomeNamespace_ISomeService_Invoke_System_String_System_String_" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.Invoke(System.String,System.String)">Invoke(&#8203;string, string)&#8203;</h2>
   
       <div class="markdown summary">Invoke some service.</div>
@@ -167,12 +169,12 @@
         </ul>
 
 
-      <hr class="app-divider">
 
 
 
+    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
 
-                                <p class="govuk-body-s govuk-!-padding-top-3">
+                                <p class="govuk-body-s">
                                     <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxSample/SomeNamespace/SomeService.cs/#L24">View source in repository</a>
                                 </p>
                     </article>

@@ -108,6 +108,8 @@
 
 
 
+      <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
+
         <h2 class="govuk-heading-ml" id="Dfe_SignIn_DocfxSample_ExampleClass_AddNumbers_System_Int32_System_Int32_" data-uid="Dfe.SignIn.DocfxSample.ExampleClass.AddNumbers(System.Int32,System.Int32)">AddNumbers(&#8203;int, int)&#8203;</h2>
   
       <div class="markdown summary">Adds two numbers together.</div>
@@ -150,12 +152,12 @@
 
 
 
-      <hr class="app-divider">
 
 
 
+    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
 
-                                <p class="govuk-body-s govuk-!-padding-top-3">
+                                <p class="govuk-body-s">
                                     <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxSample/ExampleClass.cs/#L16">View source in repository</a>
                                 </p>
                     </article>

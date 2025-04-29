@@ -135,11 +135,11 @@
 
 
 
-  <hr class="app-divider">
+    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
 
 
 
-                                <p class="govuk-body-s govuk-!-padding-top-3">
+                                <p class="govuk-body-s">
                                     <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxSample/SomeNamespace/SomeService.cs/#L6">View source in repository</a>
                                 </p>
                     </article>

@@ -5,11 +5,10 @@
 <div class="markdown conceptual">{{{conceptual}}}</div>
 
 {{#children}}
-  {{#children.1}}
-    <hr class="app-divider" />
-  {{/children.1}}
 
   {{#children}}
+
+    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4" />
 
     {{^hideHeading}}
       <h2 class="govuk-heading-ml" id="{{id}}" data-uid="{{uid}}">{{name.0.value}}</h2>
@@ -141,8 +140,6 @@
       </div>
     {{/seealso.0}}
 
-    <hr class="app-divider" />
-
   {{/children}}
 {{/children}}
 
@@ -173,3 +170,7 @@
     {{/seealso}}
   </div>
 {{/seealso.0}}
+
+{{^_disableContribution}}
+  <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4" />
+{{/_disableContribution}}

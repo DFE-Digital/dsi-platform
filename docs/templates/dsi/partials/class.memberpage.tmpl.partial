@@ -88,4 +88,6 @@
   /div>
 {{/seealso.0}}
 
-<hr class="app-divider" />
+{{^_disableContribution}}
+  <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4" />
+{{/_disableContribution}}
