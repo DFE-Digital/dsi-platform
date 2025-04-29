@@ -24,9 +24,12 @@ public static class HealthCheckExtensions
         ArgumentNullException.ThrowIfNull(services, nameof(services));
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
 
+        string connectionString = configuration.GetValue<string>("ConnectionString")
+            ?? throw new InvalidOperationException("Missing connection string for Redis.");
+
         services.AddHealthChecks()
             .AddRedis(
-                redisConnectionString: configuration?.GetConnectionString("SelectSessionRedis") ?? string.Empty,
+                redisConnectionString: connectionString,
                 name: "redis",
                 failureStatus: HealthStatus.Unhealthy,
                 timeout: TimeSpan.FromSeconds(5)
