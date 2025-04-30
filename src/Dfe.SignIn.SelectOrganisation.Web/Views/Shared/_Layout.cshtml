@@ -30,7 +30,7 @@
 </head>
 
 <body class="govuk-template__body">
-    <script>
+    <script asp-add-nonce>
         document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
     </script>
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
@@ -101,9 +101,9 @@
         </div>
     </footer>
 
-    <script type="text/javascript"
+    <script
         src="@(AssetOptionsAccessor.Value.BaseAddress)gds-upgrade/javascript/vendors/jquery.min.js?version=@(AssetOptionsAccessor.Value.Version)"></script>
-    <script type="text/javascript"
+    <script
         src="@(AssetOptionsAccessor.Value.BaseAddress)gds-upgrade/javascript/vendors/vendors.min.js?version=@(AssetOptionsAccessor.Value.Version)"></script>
     <script
         src="@(AssetOptionsAccessor.Value.BaseAddress)gds-upgrade/javascript/app.min.js?version=@(AssetOptionsAccessor.Value.Version)"></script>

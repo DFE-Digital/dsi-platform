@@ -7,6 +7,7 @@ using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Configuration.Interactions;
 using Dfe.SignIn.PublicApi.Endpoints.DigitalSigning;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
+using Dfe.SignIn.WebFramework.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,8 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 
 // Add services to the container.
 builder.Services
-    .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"));
+    .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"))
+    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
     .Configure<BearerTokenOptions>(builder.Configuration.GetRequiredSection("BearerToken"));
 builder.Services
@@ -51,6 +53,8 @@ builder.Services
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseDsiSecurityHeaderPolicy();
+
 app.UseSwagger();
 app.UseSwaggerUI(options => {
     options.SwaggerEndpoint("v1/swagger.json", "DfE Sign-in Public API");
