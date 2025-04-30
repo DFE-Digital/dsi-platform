@@ -120,6 +120,13 @@ public sealed class PublicApiExtensionsTests
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(TimeProvider)
+            )
+        );
+
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IPublicKeyCache)
             )
         );

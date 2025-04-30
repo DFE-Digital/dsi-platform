@@ -11,12 +11,12 @@ internal sealed class PublicKeyCache(
     IOptions<PublicApiOptions> publicApiOptionsAccessor,
     IOptions<PublicKeyCacheOptions> cacheOptionsAccessor,
     IPublicApiClient publicApiClient,
+    TimeProvider timeProvider,
     ILogger<PublicKeyCache> logger
 ) : IPublicKeyCache
 {
     // Options cannot be changed after initialisation.
     private readonly PublicKeyCacheOptions cacheOptions = cacheOptionsAccessor.Value;
-
     private Dictionary<string, PublicKeyCacheEntry> publicKeys = [];
     private DateTime refreshTime = new(0, DateTimeKind.Utc);
     private DateTime refreshRequestTime = new(0, DateTimeKind.Utc);
@@ -24,8 +24,8 @@ internal sealed class PublicKeyCache(
     private readonly object acquireRefreshLock = new();
     private bool isRefreshing = false;
 
-    private bool IsCacheStale => DateTime.UtcNow - this.refreshTime > this.cacheOptions.TTL;
-    private TimeSpan TimeSinceLastRefreshed => DateTime.UtcNow - this.refreshRequestTime;
+    private bool IsCacheStale => timeProvider.GetUtcNow().UtcDateTime - this.refreshTime > this.cacheOptions.TTL;
+    private TimeSpan TimeSinceLastRefreshed => timeProvider.GetUtcNow().UtcDateTime - this.refreshRequestTime;
     private bool HasRefreshedRecently => this.TimeSinceLastRefreshed <= this.cacheOptions.MaximumRefreshInterval;
 
     /// <inheritdoc/>
@@ -77,13 +77,13 @@ internal sealed class PublicKeyCache(
     private async Task RefreshAsync()
     {
         try {
-            this.refreshRequestTime = DateTime.UtcNow;
+            this.refreshRequestTime = timeProvider.GetUtcNow().UtcDateTime;
 
             var keysListing = await this.FetchPublicKeysAsync();
 
             this.publicKeys = keysListing.Keys
                 // Exclude keys that have expired.
-                .Where(key => DateTime.UtcNow <= DateTimeHelpers.UnixEpoch.AddSeconds(key.Ed))
+                .Where(key => timeProvider.GetUtcNow().UtcDateTime <= DateTimeHelpers.UnixEpoch.AddSeconds(key.Ed))
                 .ToDictionary(key => key.Kid, key => {
                     // Retain existing key instance if it already exists.
                     if (this.publicKeys.TryGetValue(key.Kid, out var existingKey)) {
@@ -93,7 +93,7 @@ internal sealed class PublicKeyCache(
                     return ReadPublicKey(key);
                 });
 
-            this.refreshTime = DateTime.UtcNow;
+            this.refreshTime = timeProvider.GetUtcNow().UtcDateTime;
         }
         catch (Exception ex) {
             // Will continue to use public keys that have already been cached for

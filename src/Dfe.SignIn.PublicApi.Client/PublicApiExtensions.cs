@@ -33,6 +33,7 @@ public static class PublicApiExtensions
 
         SetupHttpClient(services);
 
+        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<IPublicKeyCache, PublicKeyCache>();
         services.AddSingleton<IPayloadVerifier, DefaultPayloadVerifier>();
 
