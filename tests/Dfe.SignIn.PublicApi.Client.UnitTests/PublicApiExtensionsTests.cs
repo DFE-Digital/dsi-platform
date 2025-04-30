@@ -133,6 +133,24 @@ public sealed class PublicApiExtensionsTests
     }
 
     [TestMethod]
+    public void SetupDfePublicApiClient_RegistersSupportingInternalServicesConditionallyAddsTimeProvider()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton(new MockTimeProvider(DateTime.UtcNow));
+
+        services.SetupDfePublicApiClient();
+
+        var timeProviderDescriptors = services.Where(descriptor =>
+            descriptor.Lifetime == ServiceLifetime.Singleton &&
+            (descriptor.ServiceType == typeof(TimeProvider) ||
+            descriptor.ServiceType.IsAssignableTo(typeof(TimeProvider)))
+        ).ToArray();
+
+        Assert.AreEqual(1, timeProviderDescriptors.Length);
+        Assert.AreEqual(typeof(MockTimeProvider), timeProviderDescriptors[0].ServiceType);
+    }
+
+    [TestMethod]
     public void SetupDfePublicApiClient_RegistersSelectOrganisationApiRequesters()
     {
         var services = new ServiceCollection();
