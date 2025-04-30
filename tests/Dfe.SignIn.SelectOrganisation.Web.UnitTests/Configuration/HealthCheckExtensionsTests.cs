@@ -39,7 +39,7 @@ public sealed class HealthCheckExtensionsTests
     public void SetupHealthChecks_AddsHealthChecksService()
     {
         var services = new ServiceCollection();
-        var configuration = new ConfigurationRoot([]);
+        var configuration = GetFakeConfiguration();
 
         services.SetupHealthChecks(configuration);
 
@@ -55,7 +55,7 @@ public sealed class HealthCheckExtensionsTests
     public void SetupHealthChecks_AddsRedisHealthCheckService()
     {
         var services = new ServiceCollection();
-        var configuration = new ConfigurationRoot([]);
+        var configuration = GetFakeConfiguration();
 
         services.SetupHealthChecks(configuration);
 
@@ -65,6 +65,30 @@ public sealed class HealthCheckExtensionsTests
 
         var redisCheck = registrations.FirstOrDefault(r => r.Name == "redis");
         Assert.IsNotNull(redisCheck);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void SetupHealthChecks_Throws_WhenRedisConnectionStringIsMissing()
+    {
+        var services = new ServiceCollection();
+        var configuration = new ConfigurationRoot([]);
+
+        services.SetupHealthChecks(configuration);
+    }
+
+    private static IConfiguration GetFakeConfiguration()
+    {
+        var configurationData = new Dictionary<string, string>
+        {
+            {"ConnectionString", "fakeRedisConnectionString"}
+        };
+
+        var services = new ServiceCollection();
+
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(configurationData!)
+            .Build();
     }
     #endregion
 }

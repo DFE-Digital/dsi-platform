@@ -24,9 +24,12 @@ public static class HealthCheckExtensions
         ArgumentNullException.ThrowIfNull(services, nameof(services));
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
 
+        string connectionString = configuration.GetValue<string>("ConnectionString")
+            ?? throw new InvalidOperationException("Missing connection string for Redis.");
+
         services.AddHealthChecks()
             .AddRedis(
-                redisConnectionString: configuration?.GetConnectionString("SelectSessionRedis") ?? string.Empty,
+                redisConnectionString: connectionString,
                 name: "redis",
                 failureStatus: HealthStatus.Unhealthy,
                 timeout: TimeSpan.FromSeconds(5)
@@ -37,11 +40,11 @@ public static class HealthCheckExtensions
     /// Expose the heathcheck via an endpoint.
     /// </summary>
     /// <param name="builder">The builder to register the healthchecks on.</param>
-    /// <param name="endpoint">The endpoint which healthchecks will be made available, defaulting to '/healthcheck'.</param>
+    /// <param name="endpoint">The endpoint which healthchecks will be made available, defaulting to '/v2/healthcheck'.</param>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="builder"/> is null.</para>
     /// </exception>
-    public static void UseHealthChecks(this IApplicationBuilder builder, string endpoint = "/healthcheck")
+    public static void UseHealthChecks(this IApplicationBuilder builder, string endpoint = "/v2/healthcheck")
     {
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
 
