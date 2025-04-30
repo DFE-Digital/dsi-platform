@@ -161,23 +161,6 @@ public sealed class PublicKeyCacheTests
         UseHttpClient(autoMocker, new HttpClient(mockHttp.Object));
     }
 
-    private class MockTimeProvider : TimeProvider
-    {
-        private DateTimeOffset utcNow;
-
-        public MockTimeProvider(DateTimeOffset startTime)
-        {
-            this.utcNow = startTime;
-        }
-
-        public override DateTimeOffset GetUtcNow() => this.utcNow;
-
-        public void Advance(TimeSpan timeSpan)
-        {
-            this.utcNow = this.utcNow.Add(timeSpan);
-        }
-    }
-
     #region GetPublicKeyAsync(string)
 
     [TestMethod]
