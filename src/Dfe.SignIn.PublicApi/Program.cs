@@ -11,6 +11,10 @@ using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
+#if DEBUG
+    .AddJsonFile("appsettings.Local.json")
+    .AddUserSecrets<Program>()
+#endif
     .AddEnvironmentVariables();
 
 builder.WebHost.ConfigureKestrel(options => {

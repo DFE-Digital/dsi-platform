@@ -8,6 +8,12 @@ using Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#if DEBUG
+builder.Configuration
+    .AddJsonFile("appsettings.Local.json")
+    .AddUserSecrets<Program>();
+#endif
+
 builder.WebHost.ConfigureKestrel(options => {
     options.AddServerHeader = false;
 });
