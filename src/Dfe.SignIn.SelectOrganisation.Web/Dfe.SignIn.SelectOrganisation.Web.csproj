@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Dfe.SignIn.Core.InternalModels\Dfe.SignIn.Core.InternalModels.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.NodeApi.Client\Dfe.SignIn.NodeApi.Client.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.WebFramework\Dfe.SignIn.WebFramework.csproj" />
   </ItemGroup>
 
 </Project>

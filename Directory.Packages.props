@@ -49,12 +49,16 @@
     <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="$(MicrosoftSdkVersion)" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     <PackageVersion Include="System.Net.Http.Json" Version="$(MicrosoftSdkVersion)" />
   </ItemGroup>
 
   <!-- Security -->
   <ItemGroup>
+    <!-- Headers -->
+    <PackageVersion Include="NetEscapades.AspNetCore.SecurityHeaders" Version="1.0.0" />
+    <PackageVersion Include="NetEscapades.AspNetCore.SecurityHeaders.TagHelpers" Version="1.0.0" />
+
     <!-- Identity -->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="$(AspNetCoreVersion)" />
@@ -89,6 +93,7 @@
     <!-- Microsoft testing framework -->
     <PackageVersion Include="MSTest.TestAdapter" Version="$(MicrosoftTestFrameworkVersion)" />
     <PackageVersion Include="MSTest.TestFramework" Version="$(MicrosoftTestFrameworkVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
 
     <!-- Mocking -->

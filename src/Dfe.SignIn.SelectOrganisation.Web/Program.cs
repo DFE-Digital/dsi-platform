@@ -5,8 +5,15 @@ using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration;
 using Dfe.SignIn.SelectOrganisation.Web.Configuration.Interactions;
+using Dfe.SignIn.WebFramework.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+#if DEBUG
+builder.Configuration
+    .AddJsonFile("appsettings.Local.json")
+    .AddUserSecrets<Program>();
+#endif
 
 builder.WebHost.ConfigureKestrel(options => {
     options.AddServerHeader = false;
@@ -25,7 +32,8 @@ builder.Services
     .ConfigureExternalModelJsonSerialization();
 
 builder.Services
-    .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"));
+    .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"))
+    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
     .Configure(PublicApiSigningExtensions.GetConfigurationReader(
         builder.Configuration.GetRequiredSection("PublicApiSigning")
@@ -57,6 +65,8 @@ builder.Services.AddInteractors(
 );
 
 var app = builder.Build();
+
+app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment()) {
