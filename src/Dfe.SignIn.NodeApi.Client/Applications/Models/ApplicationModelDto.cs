@@ -28,16 +28,16 @@ internal sealed record RelyingPartyModelDto()
     public required string ServiceHome { get; init; }
 
     [JsonPropertyName("redirect_uris")]
-    public required string[] RedirectUris { get; init; } = [];
+    public string[] RedirectUris { get; init; } = [];
 
     [JsonPropertyName("post_logout_redirect_uris")]
-    public required string[] PostLogoutRedirectUris { get; init; } = [];
+    public string[] PostLogoutRedirectUris { get; init; } = [];
 
     [JsonPropertyName("grant_types")]
-    public required string[] GrantTypes { get; init; } = [];
+    public string[] GrantTypes { get; init; } = [];
 
     [JsonPropertyName("response_types")]
-    public required string[] ResponseTypes { get; init; } = [];
+    public string[] ResponseTypes { get; init; } = [];
 
     public RelyingPartyParamModelDto? Params { get; init; }
 }

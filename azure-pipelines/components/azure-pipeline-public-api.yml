@@ -11,11 +11,10 @@ resources:
 trigger:
   branches:
     include:
-      - feature/*
-      - main
+      - "*"
   paths:
     include:
-    - src/Dfe.SignIn.PublicApi/*
+      - src/Dfe.SignIn.PublicApi/*
 
 pr:
   branches:

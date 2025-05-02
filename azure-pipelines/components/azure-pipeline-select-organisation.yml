@@ -11,11 +11,10 @@ resources:
 trigger:
   branches:
     include:
-      - feature/*
-      - main
+      - "*"
   paths:
     include:
-    - src/Dfe.SignIn.SelectOrganisation.Web/*
+      - src/Dfe.SignIn.SelectOrganisation.Web/*
 
 pr:
   branches:
