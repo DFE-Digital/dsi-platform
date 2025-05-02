@@ -14,7 +14,7 @@
       "name": "C#: Launch Select Organisation",
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.SelectOrganisation.Web/Dfe.SignIn.SelectOrganisation.Web.csproj"
+      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.SelectOrganisation/Dfe.SignIn.Web.SelectOrganisation.csproj"
     }
   ],
   "compounds": [

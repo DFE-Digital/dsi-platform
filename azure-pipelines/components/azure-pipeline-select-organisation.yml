@@ -14,7 +14,7 @@ trigger:
       - "*"
   paths:
     include:
-      - src/Dfe.SignIn.SelectOrganisation.Web/*
+      - src/Dfe.SignIn.Web.SelectOrganisation/*
 
 pr:
   branches:
@@ -106,7 +106,7 @@ stages:
             parameters:
               buildConfiguration: Release
               testPaths: 
-                - 'test/Dfe.SignIn.SelectOrganisation.Web.UnitTests/Dfe.SignIn.SelectOrganisation.Web.UnitTests.csproj'
+                - 'test/Dfe.SignIn.Web.SelectOrganisation.UnitTests/Dfe.SignIn.Web.SelectOrganisation.UnitTests.csproj'
               AppDeploy: ${{ not(parameters.InfrDeploy) }}
 
           - ${{ if  and(not(parameters.InfrDeploy), eq(variables.buildNotNeeded, 'false')) }}:
@@ -114,7 +114,7 @@ stages:
               parameters:
                 applicationName: ${{variables.applicationFullName}}
                 buildConfiguration: Release
-                dotNetProjName: 'Dfe.SignIn.SelectOrganisation.Web'
+                dotNetProjName: 'Dfe.SignIn.Web.SelectOrganisation'
                 ContRegServers:
                   - ${{ if eq(variables.ContRegServerTran, 'true') }}:
                     - name: '$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io'
