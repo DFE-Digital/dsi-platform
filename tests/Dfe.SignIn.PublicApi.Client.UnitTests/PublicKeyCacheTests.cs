@@ -75,11 +75,10 @@ public sealed class PublicKeyCacheTests
         }
     """;
 
-    private static void UseMockedOptions(
-        AutoMocker autoMocker,
-        int ttlMilliseconds = 500,
-        int maximumRefreshIntervalMilliseconds = 250,
-        TimeProvider? timeProvider = null)
+    private const int TtlInMinutes = 60;
+    private const int MaximumRefreshIntervalInMinutes = 30;
+
+    private static void UseMockedOptions(AutoMocker autoMocker)
     {
         autoMocker.GetMock<IOptions<PublicApiOptions>>()
             .Setup(x => x.Value)
@@ -92,11 +91,13 @@ public sealed class PublicKeyCacheTests
         autoMocker.GetMock<IOptions<PublicKeyCacheOptions>>()
             .Setup(x => x.Value)
             .Returns(new PublicKeyCacheOptions {
-                TTL = new TimeSpan(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: ttlMilliseconds),
-                MaximumRefreshInterval = new TimeSpan(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: maximumRefreshIntervalMilliseconds),
+                TTL = TimeSpan.FromMinutes(TtlInMinutes),
+                MaximumRefreshInterval = TimeSpan.FromMinutes(MaximumRefreshIntervalInMinutes),
             });
 
-        autoMocker.Use(timeProvider ?? TimeProvider.System);
+        var timeProvider = new MockTimeProvider(DateTime.UtcNow);
+        autoMocker.Use<TimeProvider>(timeProvider);
+        autoMocker.Use(timeProvider);
     }
 
     private static void UseHttpClient(AutoMocker autoMocker, HttpClient httpClient)
@@ -221,10 +222,11 @@ public sealed class PublicKeyCacheTests
         UseMockedOptions(autoMocker);
         UseHttpClientWithFakeResponse(autoMocker, FakeKeyHttpResponse);
 
+        var timeProvider = autoMocker.Get<MockTimeProvider>();
         var publicKeyCache = autoMocker.CreateInstance<PublicKeyCache>();
 
         await publicKeyCache.GetPublicKeyAsync("FakePublicKey1");
-        await Task.Delay(millisecondsDelay: 15);
+        timeProvider.Advance(TimeSpan.FromSeconds(5));
         await publicKeyCache.GetPublicKeyAsync("FakePublicKey1");
 
         autoMocker.GetMock<HttpMessageHandler>().Protected()
@@ -243,10 +245,10 @@ public sealed class PublicKeyCacheTests
     public async Task GetPublicKeyAsync_FetchesFreshPublicKeys_WhenTtlHasElapsed()
     {
         var autoMocker = new AutoMocker();
-        var timeProvider = new MockTimeProvider(DateTime.UtcNow);
-        UseMockedOptions(autoMocker, ttlMilliseconds: 10, maximumRefreshIntervalMilliseconds: 0, timeProvider: timeProvider);
+        UseMockedOptions(autoMocker);
         UseHttpClientWithFakeResponse(autoMocker, FakeKeyHttpResponse);
 
+        var timeProvider = autoMocker.Get<MockTimeProvider>();
         var publicKeyCache = autoMocker.CreateInstance<PublicKeyCache>();
 
         await publicKeyCache.GetPublicKeyAsync("FakePublicKey1");
@@ -269,15 +271,16 @@ public sealed class PublicKeyCacheTests
     public async Task GetPublicKeyAsync_FetchesFreshPublicKeys_WhenMaximumRefreshIntervalHasElapsed()
     {
         var autoMocker = new AutoMocker();
-        UseMockedOptions(autoMocker, maximumRefreshIntervalMilliseconds: 12);
+        UseMockedOptions(autoMocker);
 
         var mockHttp = autoMocker.GetMock<HttpMessageHandler>();
         UseHttpClient(autoMocker, new HttpClient(mockHttp.Object));
 
+        var timeProvider = autoMocker.Get<MockTimeProvider>();
         var publicKeyCache = autoMocker.CreateInstance<PublicKeyCache>();
 
         await publicKeyCache.GetPublicKeyAsync("FakePublicKey1");
-        await Task.Delay(millisecondsDelay: 15);
+        timeProvider.Advance(TimeSpan.FromMinutes(MaximumRefreshIntervalInMinutes + 1));
         await publicKeyCache.GetPublicKeyAsync("FakePublicKey2");
         await publicKeyCache.GetPublicKeyAsync("FakePublicKey2");
 
@@ -416,14 +419,14 @@ public sealed class PublicKeyCacheTests
     public async Task GetPublicKeyAsync_RetainsOriginalCacheEntry_WhenNewKeysAreLoaded()
     {
         var autoMocker = new AutoMocker();
-        // Allow new public keys to be loaded immediately so that we can verify
-        // that old keys are retained when new ones are retrieved.
-        UseMockedOptions(autoMocker, maximumRefreshIntervalMilliseconds: 0);
+        UseMockedOptions(autoMocker);
         UseHttpClientWithTwoFakePublicKeysNextTime(autoMocker);
 
+        var timeProvider = autoMocker.Get<MockTimeProvider>();
         var publicKeyCache = autoMocker.CreateInstance<PublicKeyCache>();
 
         var cacheEntry1 = await publicKeyCache.GetPublicKeyAsync("FakePublicKey1");
+        timeProvider.Advance(TimeSpan.FromMinutes(MaximumRefreshIntervalInMinutes + 1));
         var newCacheEntry = await publicKeyCache.GetPublicKeyAsync("FakePublicKeyNew");
         var cacheEntry2 = await publicKeyCache.GetPublicKeyAsync("FakePublicKey1");
 
