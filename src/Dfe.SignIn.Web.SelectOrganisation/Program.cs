@@ -1,5 +1,5 @@
-using Azure.Monitor.OpenTelemetry.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Core.ExternalModels;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.NodeApi.Client;
