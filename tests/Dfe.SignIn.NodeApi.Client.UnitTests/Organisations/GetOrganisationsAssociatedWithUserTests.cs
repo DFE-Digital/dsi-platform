@@ -1,6 +1,6 @@
-using System.Text.Json;
-using System.Text;
 using System.Net;
+using System.Text;
+using System.Text.Json;
 using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations;

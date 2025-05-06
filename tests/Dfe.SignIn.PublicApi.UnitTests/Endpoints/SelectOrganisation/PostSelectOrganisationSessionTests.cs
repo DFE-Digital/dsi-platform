@@ -1,14 +1,14 @@
 using AutoMapper;
-using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Applications;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
+using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
+using Dfe.SignIn.PublicApi.MappingProfiles;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq;
 using Moq.AutoMock;
-using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
-using Dfe.SignIn.PublicApi.MappingProfiles;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
 

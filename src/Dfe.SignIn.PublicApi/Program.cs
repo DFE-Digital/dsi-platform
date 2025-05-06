@@ -1,5 +1,5 @@
-using Azure.Monitor.OpenTelemetry.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;

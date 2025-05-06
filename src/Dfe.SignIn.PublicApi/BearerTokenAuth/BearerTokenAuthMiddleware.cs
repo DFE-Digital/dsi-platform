@@ -1,11 +1,11 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
 using Dfe.SignIn.PublicApi.Client.Internal;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 
 namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
 

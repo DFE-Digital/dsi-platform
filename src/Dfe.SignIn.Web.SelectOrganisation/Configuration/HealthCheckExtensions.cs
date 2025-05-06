@@ -3,7 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Dfe.SignIn.PublicApi.Configuration;
+namespace Dfe.SignIn.Web.SelectOrganisation.Configuration;
 
 /// <exclude/>
 [ExcludeFromCodeCoverage]

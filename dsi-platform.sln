@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi.Client", "src\Dfe.SignIn.PublicApi.Client\Dfe.SignIn.PublicApi.Client.csproj", "{BD34BDB6-0A6D-45F0-AE68-FAB7C9871175}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.Web", "src\Dfe.SignIn.SelectOrganisation.Web\Dfe.SignIn.SelectOrganisation.Web.csproj", "{7E0A6A6B-440B-4387-8829-19196D11798E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Web.SelectOrganisation", "src\Dfe.SignIn.Web.SelectOrganisation\Dfe.SignIn.Web.SelectOrganisation.csproj", "{7E0A6A6B-440B-4387-8829-19196D11798E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{48329459-2176-4ED7-8DE6-01C3F311E48A}"
 EndProject
@@ -39,7 +39,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi.Client
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi.UnitTests", "tests\Dfe.SignIn.PublicApi.UnitTests\Dfe.SignIn.PublicApi.UnitTests.csproj", "{ABB6850B-FD6A-4DCA-8931-2F5781BFF694}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.SelectOrganisation.Web.UnitTests", "tests\Dfe.SignIn.SelectOrganisation.Web.UnitTests\Dfe.SignIn.SelectOrganisation.Web.UnitTests.csproj", "{819D8191-00B6-47E5-8446-E8DD08872671}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Web.SelectOrganisation.UnitTests", "tests\Dfe.SignIn.Web.SelectOrganisation.UnitTests\Dfe.SignIn.Web.SelectOrganisation.UnitTests.csproj", "{819D8191-00B6-47E5-8446-E8DD08872671}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi.Client.AspNetCore", "src\Dfe.SignIn.PublicApi.Client.AspNetCore\Dfe.SignIn.PublicApi.Client.AspNetCore.csproj", "{453B97F8-3E8F-4F84-850B-14F22D91C3DC}"
 EndProject
