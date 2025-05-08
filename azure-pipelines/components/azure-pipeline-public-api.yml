@@ -85,7 +85,7 @@ variables:
   - name: test
     value: ${{ or(parameters.test, contains(variables['Build.SourceBranch'],'feature1')) }}
   - name: pp
-    value: ${{ and(or(parameters.pp, contains(variables['Build.SourceBranch'],'main')), eq(variables.buildNotNeeded, 'false')) }}
+    value: ${{ and(or(parameters.pp, contains(variables['Build.SourceBranch'],'main1')), eq(variables.buildNotNeeded, 'false')) }}
   - name: pr
     value: ${{ or(and(parameters.pr, ne(parameters.existTag, ' ')),eq(variables.pp, 'true')) }}
   - name: ContRegServerTran
