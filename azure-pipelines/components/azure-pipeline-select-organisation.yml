@@ -163,7 +163,7 @@ stages:
                       shaUse: ${{parameters.shaUse}}
                       slotDeploy: ${{parameters.slotDeploy}}
                       appRepoName: ${{variables.applicationFullName}}
-                      healthCheckEndpoint: healthcheck
+                      healthCheckEndpoint: v2/healthcheck
                       existTag: ${{parameters.existTag}}
                       ${{ if eq(env, 'tran') }}:
                         ContRegServerCode: $(tranShaCode)
