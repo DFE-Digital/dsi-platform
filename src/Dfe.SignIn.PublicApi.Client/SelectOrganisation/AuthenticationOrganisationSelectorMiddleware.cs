@@ -119,8 +119,8 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
         IHttpContext context,
         AuthenticationOrganisationSelectorOptions options)
     {
-        if (options.HandleSignOut is not null) {
-            return options.HandleSignOut(context);
+        if (options.OnSignOut is not null) {
+            return options.OnSignOut(context);
         }
 
         if (options.SignOutPath is null) {

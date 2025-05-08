@@ -172,7 +172,7 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     /// <remarks>
     ///   <para>The default implementation redirects to <see cref="SignOutPath"/>.</para>
     /// </remarks>
-    public SignOutHandler? HandleSignOut { get; set; } = null;
+    public SignOutHandler? OnSignOut { get; set; } = null;
 
     /// <inheritdoc/>
     AuthenticationOrganisationSelectorOptions IOptions<AuthenticationOrganisationSelectorOptions>.Value => this;
