@@ -30,7 +30,7 @@ public static class AuthenticationOrganisationSelectorExtensions
         // Features that enable "select organisation" to be integrated into the
         // user authentication journey.
         services.AddSingleton<IAuthenticationOrganisationSelector, AuthenticationOrganisationSelector>();
-        services.AddSingleton<IOrganisationClaimManager, OrganisationClaimManager>();
+        services.AddSingleton<IActiveOrganisationProvider, ActiveOrganisationClaimsProvider>();
 
         services.AddTransient<AuthenticationOrganisationSelectorMiddleware>();
     }

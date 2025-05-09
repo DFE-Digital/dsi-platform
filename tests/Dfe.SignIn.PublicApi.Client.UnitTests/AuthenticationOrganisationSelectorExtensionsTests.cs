@@ -46,7 +46,7 @@ public sealed class AuthenticationOrganisationSelectorExtensionsTests
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(IOrganisationClaimManager)
+                descriptor.ServiceType == typeof(IActiveOrganisationProvider)
             )
         );
     }

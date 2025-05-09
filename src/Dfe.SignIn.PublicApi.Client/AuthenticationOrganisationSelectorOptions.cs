@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.Extensions.Options;
@@ -16,17 +15,6 @@ namespace Dfe.SignIn.PublicApi.Client;
 public delegate CreateSelectOrganisationSession_PublicApiRequest SelectOrganisationRequestPreparer(
     CreateSelectOrganisationSession_PublicApiRequest request
 );
-
-/// <summary>
-/// Represents a function that can modify parameters of the user claims identity
-/// when the organisation claim is being updated.
-/// </summary>
-/// <param name="identity">The claims identity representing the user.</param>
-/// <returns>
-///   <para>Typically the input <see cref="ClaimsIdentity"/> instance; however, this
-///   function can opt to return a new <see cref="ClaimsIdentity"/> instance.</para>
-/// </returns>
-public delegate Task<ClaimsIdentity> ClaimsIdentityUpdater(ClaimsIdentity identity);
 
 /// <summary>
 /// Represents a function that can handle the sign out process.
@@ -89,12 +77,6 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     ///   for other purposes; then those requests can be configured directly.</para>
     /// </remarks>
     public SelectOrganisationRequestPreparer? PrepareSelectOrganisationRequest { get; set; } = null;
-
-    /// <summary>
-    /// Gets or sets a delegate allowing an application to customise claims of the
-    /// user claims identity whenever the organisation claim is updated.
-    /// </summary>
-    public ClaimsIdentityUpdater? UpdateClaimsIdentity { get; set; } = null;
 
     /// <summary>
     /// Gets or sets the path where the user will be redirected after they have

@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
 namespace Dfe.SignIn.PublicApi.Client;
 
@@ -13,7 +15,8 @@ public static class DsiClaimExtensions
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
         PropertyNameCaseInsensitive = true,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
     };
 
     /// <summary>
@@ -27,7 +30,7 @@ public static class DsiClaimExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
-    public static ClaimsIdentity? GetPrimaryIdentity(this ClaimsPrincipal user)
+    internal static ClaimsIdentity? GetPrimaryIdentity(this ClaimsPrincipal user)
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
@@ -48,7 +51,7 @@ public static class DsiClaimExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
-    public static ClaimsIdentity? GetDsiIdentity(this ClaimsPrincipal user)
+    public static ClaimsIdentity? GetDsiOrganisationIdentity(this ClaimsPrincipal user)
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
@@ -77,7 +80,7 @@ public static class DsiClaimExtensions
     ///   <para>If <paramref name="user"/> does not include the "sid" claim; or the
     ///   claim value consists of just whitespace.</para>
     /// </exception>
-    public static string GetSessionId(this ClaimsPrincipal user)
+    internal static string GetSessionId(this ClaimsPrincipal user)
     {
         TryGetSessionId(user, out var sessionId);
         return sessionId ?? throw new MissingClaimException("Missing primary identity with claim.", DsiClaimTypes.SessionId);
@@ -100,7 +103,7 @@ public static class DsiClaimExtensions
     ///   <para>If <paramref name="user"/> does not include the "sid" claim; or the
     ///   claim value consists of just whitespace.</para>
     /// </exception>
-    public static bool TryGetSessionId(this ClaimsPrincipal user, out string? sessionId)
+    internal static bool TryGetSessionId(this ClaimsPrincipal user, out string? sessionId)
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
@@ -157,6 +160,10 @@ public static class DsiClaimExtensions
     /// <summary>
     /// Gets the DfE Sign-in organisation from the claims principal.
     /// </summary>
+    /// <remarks>
+    ///   <para>This method is only applicable when using the <see cref="ActiveOrganisationClaimsProvider"/>
+    ///   implementation of <see cref="IActiveOrganisationProvider"/>.</para>
+    /// </remarks>
     /// <param name="user">Claims principal representing the user.</param>
     /// <returns>
     ///   <para>The organisation that the user is associated with; otherwise,
@@ -166,21 +173,30 @@ public static class DsiClaimExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
-    public static OrganisationClaim? GetDsiOrganisation(this ClaimsPrincipal user)
+    public static TOrganisationDetails? GetDsiOrganisation<TOrganisationDetails>(this ClaimsPrincipal user)
+        where TOrganisationDetails : OrganisationDetails
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
-        var dsiIdentity = user.GetDsiIdentity();
-        return dsiIdentity?.DeserializeDsiOrganisation();
+        var dsiIdentity = user.GetDsiOrganisationIdentity();
+        return dsiIdentity?.DeserializeDsiOrganisation<TOrganisationDetails>();
     }
 
-    internal static OrganisationClaim? DeserializeDsiOrganisation(this ClaimsIdentity user)
+    internal static string SerializeDsiOrganisation(OrganisationDetails? organisation)
+    {
+        return organisation is not null
+            ? JsonSerializer.Serialize(organisation, organisation.GetType(), JsonSerializerOptions)
+            : "null";
+    }
+
+    internal static TOrganisationDetails? DeserializeDsiOrganisation<TOrganisationDetails>(this ClaimsIdentity user)
+        where TOrganisationDetails : OrganisationDetails
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
         var claim = user?.FindFirst(DsiClaimTypes.Organisation);
         return claim is not null
-            ? JsonSerializer.Deserialize<OrganisationClaim>(claim.Value, JsonSerializerOptions)
+            ? JsonSerializer.Deserialize<TOrganisationDetails>(claim.Value, JsonSerializerOptions)
             : null;
     }
 }

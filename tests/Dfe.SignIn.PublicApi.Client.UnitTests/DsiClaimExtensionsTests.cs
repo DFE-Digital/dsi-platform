@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
@@ -44,27 +45,27 @@ public sealed class DsiClaimExtensionsTests
 
     #endregion
 
-    #region GetDsiIdentity(ClaimsPrincipal)
+    #region GetDsiOrganisationIdentity(ClaimsPrincipal)
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
-    public void GetDsiIdentity_Throws_When_UserArgumentIsNull()
+    public void GetDsiOrganisationIdentity_Throws_When_UserArgumentIsNull()
     {
-        DsiClaimExtensions.GetDsiIdentity(null!);
+        DsiClaimExtensions.GetDsiOrganisationIdentity(null!);
     }
 
     [TestMethod]
-    public void GetDsiIdentity_ReturnsNull_WhenIdentityDoesNotExist()
+    public void GetDsiOrganisationIdentity_ReturnsNull_WhenIdentityDoesNotExist()
     {
         var user = new ClaimsPrincipal();
 
-        var identity = user.GetDsiIdentity();
+        var identity = user.GetDsiOrganisationIdentity();
 
         Assert.IsNull(identity);
     }
 
     [TestMethod]
-    public void GetDsiIdentity_ReturnsNull_WhenSessionIdDoesNotMatchPrimaryIdentity()
+    public void GetDsiOrganisationIdentity_ReturnsNull_WhenSessionIdDoesNotMatchPrimaryIdentity()
     {
         var user = new ClaimsPrincipal([
             new ClaimsIdentity([
@@ -76,13 +77,13 @@ public sealed class DsiClaimExtensionsTests
             ], PublicApiConstants.AuthenticationType),
         ]);
 
-        var identity = user.GetDsiIdentity();
+        var identity = user.GetDsiOrganisationIdentity();
 
         Assert.IsNull(identity);
     }
 
     [TestMethod]
-    public void GetDsiIdentity_ReturnsExpectedIdentity()
+    public void GetDsiOrganisationIdentity_ReturnsExpectedIdentity()
     {
         var user = new ClaimsPrincipal([
             new ClaimsIdentity([
@@ -94,7 +95,7 @@ public sealed class DsiClaimExtensionsTests
             ], PublicApiConstants.AuthenticationType),
         ]);
 
-        var identity = user.GetDsiIdentity();
+        var identity = user.GetDsiOrganisationIdentity();
 
         Assert.IsNotNull(identity);
         Assert.AreEqual(PublicApiConstants.AuthenticationType, identity.AuthenticationType);
@@ -299,13 +300,13 @@ public sealed class DsiClaimExtensionsTests
 
     #endregion
 
-    #region GetDsiOrganisation(ClaimsPrincipal)
+    #region GetDsiOrganisation<TOrganisationDetails>(ClaimsPrincipal)
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
     public void GetDsiOrganisation_Throws_WhenUserArgumentIsNull()
     {
-        DsiClaimExtensions.GetDsiOrganisation(null!);
+        DsiClaimExtensions.GetDsiOrganisation<OrganisationDetails>(null!);
     }
 
     [TestMethod]
@@ -313,7 +314,7 @@ public sealed class DsiClaimExtensionsTests
     {
         var user = new ClaimsPrincipal();
 
-        var result = user.GetDsiOrganisation();
+        var result = user.GetDsiOrganisation<OrganisationDetails>();
 
         Assert.IsNull(result);
     }
@@ -337,9 +338,9 @@ public sealed class DsiClaimExtensionsTests
             ], PublicApiConstants.AuthenticationType),
         ]);
 
-        var result = user.GetDsiOrganisation();
+        var result = user.GetDsiOrganisation<OrganisationDetailsBasic>();
 
-        var expectedResult = new OrganisationClaim {
+        var expectedResult = new OrganisationDetailsBasic {
             Id = new Guid("4db99a83-60ac-4e3f-b87f-81d384f673e7"),
             Name = "Example organisation name",
         };
@@ -365,7 +366,7 @@ public sealed class DsiClaimExtensionsTests
             ], PublicApiConstants.AuthenticationType),
         ]);
 
-        var identity = user.GetDsiOrganisation();
+        var identity = user.GetDsiOrganisation<OrganisationDetails>();
 
         Assert.IsNull(identity);
     }

@@ -19,5 +19,5 @@ public static class DsiClaimTypes
     /// <summary>
     /// Gets the name of the DfE Sign-in organisation claim type.
     /// </summary>
-    public const string Organisation = "organisation";
+    public const string Organisation = "dsi_org";
 }
