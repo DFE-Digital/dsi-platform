@@ -59,46 +59,6 @@ public sealed class OrganisationClaimManagerTests
         return fakeUser;
     }
 
-    private static void SetupFakeGetUserAccessToServiceResponse(AutoMocker autoMocker)
-    {
-        autoMocker.GetMock<IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>>()
-            .Setup(mock => mock.InvokeAsync(
-                It.IsAny<GetUserAccessToServiceRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .ReturnsAsync(new GetUserAccessToServiceResponse {
-                Roles = [
-                    new Role {
-                        Id = new Guid("e06ce7a4-f846-4ccc-830a-0a10aed627cf"),
-                        Name = "Example Role 1",
-                        Code = "EX123",
-                        NumericId = "123",
-                        Status = new() {
-                            Id = 1,
-                        },
-                    },
-                    new Role {
-                        Id = new Guid("93a0525a-354c-4dc6-944f-220251271360"),
-                        Name = "Example Role 2",
-                        Code = "EX456",
-                        NumericId = "456",
-                        Status = new() {
-                            Id = 1,
-                        },
-                    },
-                    new Role {
-                        Id = new Guid("c2e23dc4-d4a7-4538-9993-1101c648ab65"),
-                        Name = "Example Role 3",
-                        Code = "EX890",
-                        NumericId = "890",
-                        Status = new() {
-                            Id = 0,
-                        },
-                    },
-                ],
-            });
-    }
-
     #region UpdateOrganisationClaim(HttpContext, string)
 
     [TestMethod]
@@ -273,46 +233,6 @@ public sealed class OrganisationClaimManagerTests
                 It.IsAny<CancellationToken>()
             ),
             Times.Never);
-    }
-
-    [DataRow(FetchRoleClaimsFlag.RoleId, DsiClaimTypes.RoleId, "e06ce7a4-f846-4ccc-830a-0a10aed627cf", "93a0525a-354c-4dc6-944f-220251271360")]
-    [DataRow(FetchRoleClaimsFlag.RoleName, DsiClaimTypes.RoleName, "Example Role 1", "Example Role 2")]
-    [DataRow(FetchRoleClaimsFlag.RoleCode, DsiClaimTypes.RoleCode, "EX123", "EX456")]
-    [DataRow(FetchRoleClaimsFlag.RoleNumericId, DsiClaimTypes.RoleNumericId, "123", "456")]
-    [DataTestMethod]
-    public async Task UpdateOrganisationClaim_AddsRoleIdClaims_WhenFlagSpecified(
-        FetchRoleClaimsFlag flag, string claimType, string expectedValue1, string expectedValue2)
-    {
-        var autoMocker = new AutoMocker();
-        SetupFakeGetUserAccessToServiceResponse(autoMocker);
-
-        SetupFakeOptions(autoMocker, new() {
-            FetchRoleClaimsFlags = flag,
-        });
-
-        var mockContext = SetupFakeContext(autoMocker);
-        SetupFakeUser(autoMocker);
-
-        var manager = autoMocker.CreateInstance<OrganisationClaimManager>();
-
-        ClaimsPrincipal? capturedPrincipal = null;
-        mockContext
-            .Setup(mock => mock.SignInAsync(It.IsAny<ClaimsPrincipal>()))
-            .Callback<ClaimsPrincipal>(principal => capturedPrincipal = principal);
-
-        await manager.UpdateOrganisationClaimAsync(mockContext.Object, FakeOrganisation1ClaimValue);
-
-        var dsiIdentity = capturedPrincipal?.GetDsiIdentity();
-        Assert.IsNotNull(dsiIdentity);
-        Assert.IsTrue(
-            dsiIdentity.HasClaim(DsiClaimTypes.Organisation, FakeOrganisation1ClaimValue)
-        );
-        Assert.IsTrue(
-            dsiIdentity.HasClaim(claimType, expectedValue1)
-        );
-        Assert.IsTrue(
-            dsiIdentity.HasClaim(claimType, expectedValue2)
-        );
     }
 
     #endregion

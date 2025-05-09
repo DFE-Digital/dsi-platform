@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
-using Dfe.SignIn.PublicApi.Client.Internal;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -34,8 +33,7 @@ public interface IOrganisationClaimManager
 /// Concrete implementation of <see cref="IOrganisationClaimManager"/>.
 /// </summary>
 internal sealed class OrganisationClaimManager(
-    IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
-    IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse> getUserAccessToService
+    IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor
 ) : IOrganisationClaimManager
 {
     /// <inheritdoc/>
@@ -63,65 +61,7 @@ internal sealed class OrganisationClaimManager(
             new Claim(DsiClaimTypes.Organisation, organisationJson, JsonClaimValueTypes.Json),
         ]);
 
-        await this.FetchRolesFromPublicApi(
-            context.User,
-            dsiIdentity,
-            options.FetchRoleClaimsFlags,
-            cancellationToken
-        );
-
         var newPrincipal = new ClaimsPrincipal([.. otherIdentities, dsiIdentity]);
         await context.SignInAsync(newPrincipal);
-    }
-
-    private async Task FetchRolesFromPublicApi(
-        ClaimsPrincipal user,
-        ClaimsIdentity dsiIdentity,
-        FetchRoleClaimsFlag flags,
-        CancellationToken cancellationToken = default)
-    {
-        if (flags == FetchRoleClaimsFlag.None) {
-            return;
-        }
-
-        Guid userId = user.GetDsiUserId();
-
-        var organisation = dsiIdentity.DeserializeDsiOrganisation();
-        if (organisation is null) {
-            return;
-        }
-
-        var details = await getUserAccessToService.InvokeAsync(new() {
-            UserId = userId,
-            OrganisationId = organisation.Id,
-        }, cancellationToken);
-        foreach (var role in details.Roles) {
-            // Technically the public API only returns active roles; however, since it
-            // returns the status we verify that the status is active (1).
-            if (role.Status.Id != 1) {
-                continue;
-            }
-
-            if (flags.HasFlag(FetchRoleClaimsFlag.RoleId)) {
-                dsiIdentity.AddClaim(
-                    new Claim(DsiClaimTypes.RoleId, role.Id.ToString(), ClaimValueTypes.String)
-                );
-            }
-            if (flags.HasFlag(FetchRoleClaimsFlag.RoleName)) {
-                dsiIdentity.AddClaim(
-                    new Claim(DsiClaimTypes.RoleName, role.Name, ClaimValueTypes.String)
-                );
-            }
-            if (flags.HasFlag(FetchRoleClaimsFlag.RoleCode)) {
-                dsiIdentity.AddClaim(
-                    new Claim(DsiClaimTypes.RoleCode, role.Code, ClaimValueTypes.String)
-                );
-            }
-            if (flags.HasFlag(FetchRoleClaimsFlag.RoleNumericId)) {
-                dsiIdentity.AddClaim(
-                    new Claim(DsiClaimTypes.RoleNumericId, role.NumericId, ClaimValueTypes.String)
-                );
-            }
-        }
     }
 }
