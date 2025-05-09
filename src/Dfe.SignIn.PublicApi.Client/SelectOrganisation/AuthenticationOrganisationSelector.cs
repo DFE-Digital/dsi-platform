@@ -34,7 +34,7 @@ public interface IAuthenticationOrganisationSelector
 public sealed class AuthenticationOrganisationSelector(
     IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
     IInteractor<CreateSelectOrganisationSession_PublicApiRequest, CreateSelectOrganisationSession_PublicApiResponse> createSelectOrganisationSession,
-    IOrganisationClaimManager organisationClaimManager
+    IActiveOrganisationProvider activeOrganisationProvider
 ) : IAuthenticationOrganisationSelector
 {
     /// <inheritdoc/>
@@ -44,7 +44,7 @@ public sealed class AuthenticationOrganisationSelector(
 
         CheckUserIsAuthenticated(context);
 
-        var request = this.PrepareRequest(context);
+        var request = await this.PrepareRequestAsync(context);
 
         var selectOrganisationResponse = await createSelectOrganisationSession.InvokeAsync(request, cancellationToken);
 
@@ -52,7 +52,7 @@ public sealed class AuthenticationOrganisationSelector(
             context.Response.Redirect(selectOrganisationResponse.Url.ToString());
         }
         else {
-            await organisationClaimManager.UpdateOrganisationClaimAsync(context, "null", cancellationToken);
+            await activeOrganisationProvider.SetActiveOrganisationAsync(context, null);
             var options = optionsAccessor.Value;
             context.Response.Redirect(options.CompletedPath);
         }
@@ -66,11 +66,12 @@ public sealed class AuthenticationOrganisationSelector(
         }
     }
 
-    private CreateSelectOrganisationSession_PublicApiRequest PrepareRequest(IHttpContext context)
+    private async Task<CreateSelectOrganisationSession_PublicApiRequest> PrepareRequestAsync(IHttpContext context)
     {
         var options = optionsAccessor.Value;
 
-        bool isUserSelectingForFirstTime = context.User.GetDsiIdentity() is null;
+        var activeOrganisationState = await activeOrganisationProvider.GetActiveOrganisationStateAsync(context);
+        bool isUserSelectingForFirstTime = activeOrganisationState is null;
 
         var request = new CreateSelectOrganisationSession_PublicApiRequest {
             UserId = context.User.GetDsiUserId(),

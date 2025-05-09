@@ -1,6 +1,4 @@
-using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -38,10 +36,9 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// </remarks>
 public sealed class AuthenticationOrganisationSelectorMiddleware(
     IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
-    IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IAuthenticationOrganisationSelector organisationSelector,
     ISelectOrganisationCallbackProcessor callbackProcessor,
-    IOrganisationClaimManager organisationClaimManager
+    IActiveOrganisationProvider activeOrganisationProvider
 ) : IHttpMiddleware
 {
     /// <inheritdoc />
@@ -70,9 +67,9 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
             context.Request.Method == "GET" &&
             context.Request.Path == options.SelectOrganisationRequestPath;
 
-        bool hasAssociatedOrganisation = context.User.GetDsiIdentity() is not null;
+        var activeOrganisationState = await activeOrganisationProvider.GetActiveOrganisationStateAsync(context);
 
-        if (hasUserRequestedSelectOrganisation || !hasAssociatedOrganisation) {
+        if (hasUserRequestedSelectOrganisation || activeOrganisationState is null) {
             await organisationSelector.InitiateSelectionAsync(context, cancellationToken: default);
             return;
         }
@@ -91,13 +88,12 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
         if (callbackData is SelectOrganisationCallbackSelection callbackSelection) {
             // An organisation was selected.
             var selection = callbackSelection.Selection;
-            var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-            string callbackDataJson = JsonSerializer.Serialize(selection, selection.GetType(), jsonOptions);
-            await organisationClaimManager.UpdateOrganisationClaimAsync(context, callbackDataJson);
+            await activeOrganisationProvider.SetActiveOrganisationAsync(context, selection);
         }
         else if (callbackData is SelectOrganisationCallbackCancel) {
             // Selection was cancelled.
-            if (context.User.GetDsiIdentity() is null) {
+            var activeOrganisationState = await activeOrganisationProvider.GetActiveOrganisationStateAsync(context);
+            if (activeOrganisationState is null) {
                 // User has not selected an organisation yet; sign them out.
                 await this.HandleSignOut(context, options);
                 return;
