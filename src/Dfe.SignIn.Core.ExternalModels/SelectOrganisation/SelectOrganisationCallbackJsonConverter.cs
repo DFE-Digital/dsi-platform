@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 
 namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 
@@ -27,13 +28,13 @@ public sealed class SelectOrganisationCallbackSelectionJsonConverter : JsonConve
             );
 
             OrganisationDetailLevel detailLevel = (OrganisationDetailLevel)detailLevelProperty.Deserialize(typeof(OrganisationDetailLevel), options)!;
-            var selectionType = SelectedOrganisation.ResolveType(detailLevel);
+            var selectionType = OrganisationDetails.ResolveType(detailLevel);
 
             return new SelectOrganisationCallbackSelection {
                 Type = PayloadTypeConstants.Selection,
                 DetailLevel = detailLevel,
                 UserId = (Guid)userIdProperty.Deserialize(typeof(Guid), options)!,
-                Selection = (SelectedOrganisation)selectionProperty.Deserialize(selectionType, options)!,
+                Selection = (OrganisationDetails)selectionProperty.Deserialize(selectionType, options)!,
             };
         }
     }
@@ -54,7 +55,7 @@ public sealed class SelectOrganisationCallbackSelectionJsonConverter : JsonConve
         writer.WritePropertyName(propertyNamingPolicy.ConvertName(nameof(SelectOrganisationCallbackSelection.DetailLevel)));
         detailLevelConverter!.Write(writer, value.DetailLevel, options);
 
-        var selectionConverter = options.GetConverter(typeof(SelectedOrganisation)) as JsonConverter<SelectedOrganisation>;
+        var selectionConverter = options.GetConverter(typeof(OrganisationDetails)) as JsonConverter<OrganisationDetails>;
         writer.WritePropertyName(propertyNamingPolicy.ConvertName(nameof(SelectOrganisationCallbackSelection.Selection)));
         JsonSerializer.Serialize(writer, value.Selection, value.Selection.GetType(), options);
 

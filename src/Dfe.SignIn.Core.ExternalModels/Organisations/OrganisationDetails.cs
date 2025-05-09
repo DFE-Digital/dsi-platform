@@ -1,24 +1,24 @@
-namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+namespace Dfe.SignIn.Core.ExternalModels.Organisations;
 
 /// <summary>
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Id"/> is specified.
 /// </summary>
-public record SelectedOrganisation()
+public record OrganisationDetails()
 {
     private static readonly Dictionary<OrganisationDetailLevel, Type> TypeMappings = new() {
-        { OrganisationDetailLevel.Id, typeof(SelectedOrganisation) },
-        { OrganisationDetailLevel.Basic, typeof(SelectedOrganisationBasic) },
-        { OrganisationDetailLevel.Extended, typeof(SelectedOrganisationExtended) },
-        { OrganisationDetailLevel.Legacy, typeof(SelectedOrganisationLegacy) },
+        { OrganisationDetailLevel.Id, typeof(OrganisationDetails) },
+        { OrganisationDetailLevel.Basic, typeof(OrganisationDetailsBasic) },
+        { OrganisationDetailLevel.Extended, typeof(OrganisationDetailsExtended) },
+        { OrganisationDetailLevel.Legacy, typeof(OrganisationDetailsLegacy) },
     };
 
     /// <summary>
-    /// Tries to resolve the <see cref="SelectedOrganisation"/> type for the given detail level.
+    /// Tries to resolve the <see cref="OrganisationDetails"/> type for the given detail level.
     /// </summary>
     /// <param name="detailLevel">The detail level of the selection.</param>
     /// <returns>
-    ///   <para>The resolved type of <see cref="SelectedOrganisation"/>; otherwise,
+    ///   <para>The resolved type of <see cref="OrganisationDetails"/>; otherwise,
     ///   a value of <c>null</c>.</para>
     /// </returns>
     public static Type? TryResolveType(OrganisationDetailLevel detailLevel)
@@ -28,11 +28,11 @@ public record SelectedOrganisation()
     }
 
     /// <summary>
-    /// Resolves the <see cref="SelectedOrganisation"/> type for the given detail level.
+    /// Resolves the <see cref="OrganisationDetails"/> type for the given detail level.
     /// </summary>
     /// <param name="detailLevel">The detail level of the selection.</param>
     /// <returns>
-    ///   <para>The resolved type of <see cref="SelectedOrganisation"/>.</para>
+    ///   <para>The resolved type of <see cref="OrganisationDetails"/>.</para>
     /// </returns>
     /// <exception cref="InvalidOperationException">
     ///   <para>If type could not be resolved for <paramref name="detailLevel"/>.</para>
@@ -53,8 +53,8 @@ public record SelectedOrganisation()
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Basic"/> is specified.
 /// </summary>
-public record SelectedOrganisationBasic()
-    : SelectedOrganisation
+public record OrganisationDetailsBasic()
+    : OrganisationDetails
 {
     /// <summary>
     /// Gets the name of the organisation.
@@ -83,8 +83,8 @@ public record SelectedOrganisationBasic()
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Extended"/> is specified.
 /// </summary>
-public record SelectedOrganisationExtended()
-    : SelectedOrganisationBasic
+public record OrganisationDetailsExtended()
+    : OrganisationDetailsBasic
 {
     // TODO: Add missing properties...
     //   address - Non-structured address.
@@ -99,8 +99,8 @@ public record SelectedOrganisationExtended()
 /// The type of data payload supplied to the "select organisation" callback when a
 /// detail level of <see cref="OrganisationDetailLevel.Legacy"/> is specified.
 /// </summary>
-public record SelectedOrganisationLegacy()
-    : SelectedOrganisationExtended
+public record OrganisationDetailsLegacy()
+    : OrganisationDetailsExtended
 {
     // TODO: Add missing properties...
     //   legacyId - A unique ID from an older version of the system.

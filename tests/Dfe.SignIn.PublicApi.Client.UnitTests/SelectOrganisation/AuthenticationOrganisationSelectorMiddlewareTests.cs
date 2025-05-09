@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -153,7 +154,7 @@ public sealed class AuthenticationOrganisationSelectorMiddlewareTests
                 Type = PayloadTypeConstants.Selection,
                 UserId = FakeUserId,
                 DetailLevel = OrganisationDetailLevel.Id,
-                Selection = new SelectedOrganisation {
+                Selection = new OrganisationDetails {
                     Id = new Guid("c72bdba2-6793-4118-aeba-cd3def045245"),
                 },
             });

@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+namespace Dfe.SignIn.Core.ExternalModels.Organisations;
 
 /// <summary>
 /// Indicates the level of detail to be included in the organisation response.

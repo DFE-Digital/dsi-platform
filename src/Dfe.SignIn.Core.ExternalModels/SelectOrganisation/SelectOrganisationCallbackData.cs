@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
@@ -136,5 +137,5 @@ public sealed record SelectOrganisationCallbackSelection() : SelectOrganisationC
     /// <summary>
     /// Gets the user selection.
     /// </summary>
-    public required SelectedOrganisation Selection { get; init; }
+    public required OrganisationDetails Selection { get; init; }
 }

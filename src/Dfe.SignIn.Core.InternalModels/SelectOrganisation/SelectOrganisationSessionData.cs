@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 
 namespace Dfe.SignIn.Core.InternalModels.SelectOrganisation;

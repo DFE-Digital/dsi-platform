@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using AutoMapper;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
@@ -244,10 +245,10 @@ public sealed class SelectOrganisationController(
             Type = PayloadTypeConstants.Selection,
             DetailLevel = session.DetailLevel,
             UserId = session.UserId,
-            Selection = (SelectedOrganisation)mapper.Map(
+            Selection = (OrganisationDetails)mapper.Map(
                 source: selectedOrganisation,
                 sourceType: selectedOrganisation.GetType(),
-                destinationType: SelectedOrganisation.ResolveType(session.DetailLevel)
+                destinationType: OrganisationDetails.ResolveType(session.DetailLevel)
             ),
         };
     }

@@ -4,12 +4,12 @@ using Dfe.SignIn.Web.SelectOrganisation.MappingProfiles;
 namespace Dfe.SignIn.Web.SelectOrganisation.UnitTests.MappingProfiles;
 
 [TestClass]
-public sealed class SelectedOrganisationCallbackMappingProfileTests
+public sealed class OrganisationDetailsMappingProfileTests
 {
     [TestMethod]
     public void MappingConfigurationIsValid()
     {
-        var config = new MapperConfiguration(cfg => cfg.AddProfile<SelectedOrganisationCallbackMappingProfile>());
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<OrganisationDetailsMappingProfile>());
         config.AssertConfigurationIsValid();
     }
 }

@@ -1,4 +1,5 @@
 using System.Text;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.PublicApiSigning;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
@@ -252,7 +253,7 @@ public sealed class SelectOrganisationCallbackProcessorTests
             Type = PayloadTypeConstants.Selection,
             UserId = FakeUserId,
             DetailLevel = OrganisationDetailLevel.Basic,
-            Selection = new SelectedOrganisationBasic {
+            Selection = new OrganisationDetailsBasic {
                 Id = new Guid("80d5a7d9-0198-471f-9661-b618e8b9db15"),
                 Name = "Example Organisation A",
                 LegalName = "Legal name of Example Organisation A"

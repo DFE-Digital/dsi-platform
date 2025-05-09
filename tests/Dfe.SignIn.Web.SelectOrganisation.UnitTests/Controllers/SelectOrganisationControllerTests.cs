@@ -112,7 +112,7 @@ public sealed class SelectOrganisationControllerTests
 
         autoMocker.Use(
             new MapperConfiguration(cfg => {
-                cfg.AddProfile<SelectedOrganisationCallbackMappingProfile>();
+                cfg.AddProfile<OrganisationDetailsMappingProfile>();
             }).CreateMapper()
         );
 
@@ -611,7 +611,7 @@ public sealed class SelectOrganisationControllerTests
             Type = PayloadTypeConstants.Selection,
             UserId = FakeUserId,
             DetailLevel = OrganisationDetailLevel.Id,
-            Selection = new SelectedOrganisation {
+            Selection = new OrganisationDetails {
                 Id = (Guid)inputViewModel.SelectedOrganisationId,
             },
         };

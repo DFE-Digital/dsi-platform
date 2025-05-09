@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 
 namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests;

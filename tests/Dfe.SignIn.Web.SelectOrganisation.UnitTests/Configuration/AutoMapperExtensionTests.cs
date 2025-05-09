@@ -32,7 +32,7 @@ public sealed class AutoMapperExtensionTests
         var profileNames = mapper.ConfigurationProvider.Internal().Profiles
             .Select(profile => profile.Name)
             .ToArray();
-        CollectionAssert.Contains(profileNames, typeof(SelectedOrganisationCallbackMappingProfile).FullName);
+        CollectionAssert.Contains(profileNames, typeof(OrganisationDetailsMappingProfile).FullName);
     }
 
     #endregion
