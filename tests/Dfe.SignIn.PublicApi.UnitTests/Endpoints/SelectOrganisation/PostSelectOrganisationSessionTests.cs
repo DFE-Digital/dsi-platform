@@ -106,6 +106,7 @@ public sealed class PostSelectOrganisationSessionTests
             .Returns(FakeApplicationModel);
 
         var fakeResponse = new CreateSelectOrganisationSessionResponse {
+            RequestId = new Guid("fba90ce7-b5d0-4f94-ae00-63a8d21bde93"),
             HasOptions = true,
             Url = new Uri("https://select-organisation.localhost"),
         };
@@ -123,6 +124,8 @@ public sealed class PostSelectOrganisationSessionTests
             autoMocker.Get<IMapper>()
         );
 
+        Assert.AreEqual(fakeResponse.RequestId, response.RequestId);
+        Assert.AreEqual(fakeResponse.HasOptions, response.HasOptions);
         Assert.AreEqual(fakeResponse.Url, response.Url);
     }
 }

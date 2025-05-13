@@ -34,6 +34,7 @@ public interface IAuthenticationOrganisationSelector
 public sealed class AuthenticationOrganisationSelector(
     IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor,
     IInteractor<CreateSelectOrganisationSession_PublicApiRequest, CreateSelectOrganisationSession_PublicApiResponse> createSelectOrganisationSession,
+    ISelectOrganisationRequestTrackingProvider trackingProvider,
     IActiveOrganisationProvider activeOrganisationProvider
 ) : IAuthenticationOrganisationSelector
 {
@@ -49,9 +50,11 @@ public sealed class AuthenticationOrganisationSelector(
         var selectOrganisationResponse = await createSelectOrganisationSession.InvokeAsync(request, cancellationToken);
 
         if (selectOrganisationResponse.HasOptions) {
+            await trackingProvider.SetTrackedRequestAsync(context, selectOrganisationResponse.RequestId);
             context.Response.Redirect(selectOrganisationResponse.Url.ToString());
         }
         else {
+            await trackingProvider.SetTrackedRequestAsync(context, null);
             await activeOrganisationProvider.SetActiveOrganisationAsync(context, null);
             var options = optionsAccessor.Value;
             context.Response.Redirect(options.CompletedPath);

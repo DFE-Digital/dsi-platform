@@ -76,6 +76,15 @@ public interface IHttpRequest
     ///   one or more values.</para>
     /// </returns>
     Task<IReadOnlyDictionary<string, StringValues>> ReadFormAsync();
+
+    /// <summary>
+    /// Gets a named value from the query string.
+    /// </summary>
+    /// <param name="key">Name of the value.</param>
+    /// <returns>
+    ///   <para>The value when present; otherwise, a value of <c>null</c>.</para>
+    /// </returns>
+    string? GetQuery(string key);
 }
 
 /// <summary>

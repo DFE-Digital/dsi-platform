@@ -58,6 +58,16 @@ public sealed record CreateSelectOrganisationSession_PublicApiRequest() : Create
 public sealed record CreateSelectOrganisationSession_PublicApiResponse()
 {
     /// <summary>
+    /// A unique value representing the request.
+    /// </summary>
+    /// <remarks>
+    ///   <para>This value can be used by the client application to verify that the
+    ///   callback matches the initiated request. If the recieved value does not match
+    ///   then it is possible that the callback has been triggered unintentionally.</para>
+    /// </remarks>
+    public required Guid RequestId { get; init; }
+
+    /// <summary>
     /// A value indicating whether there is at least one option for the user
     /// to select from.
     /// </summary>

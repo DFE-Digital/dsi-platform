@@ -13,24 +13,24 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 ///     into a different account.</item>
 ///   </list>
 /// </remarks>
-public sealed class MismatchedCallbackUserException : Exception
+public sealed class MismatchedCallbackException : Exception
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MismatchedCallbackUserException"/> class.
+    /// Initializes a new instance of the <see cref="MismatchedCallbackException"/> class.
     /// </summary>
-    public MismatchedCallbackUserException() { }
+    public MismatchedCallbackException() { }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MismatchedCallbackUserException"/> class.
+    /// Initializes a new instance of the <see cref="MismatchedCallbackException"/> class.
     /// </summary>
     /// <inheritdoc />
-    public MismatchedCallbackUserException(string? message)
+    public MismatchedCallbackException(string? message)
         : base(message) { }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MismatchedCallbackUserException"/> class.
+    /// Initializes a new instance of the <see cref="MismatchedCallbackException"/> class.
     /// </summary>
     /// <inheritdoc />
-    public MismatchedCallbackUserException(string? message, Exception? innerException)
+    public MismatchedCallbackException(string? message, Exception? innerException)
         : base(message, innerException) { }
 }

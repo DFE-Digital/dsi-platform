@@ -59,6 +59,13 @@ public sealed class HttpContextAspNetCoreAdapter(HttpContext inner)
         );
     }
 
+    /// <inheritdoc />
+    string? IHttpRequest.GetQuery(string key)
+    {
+        inner.Request.Query.TryGetValue(key, out var values);
+        return values.FirstOrDefault();
+    }
+
     #endregion
 
     #region IHttpResponse

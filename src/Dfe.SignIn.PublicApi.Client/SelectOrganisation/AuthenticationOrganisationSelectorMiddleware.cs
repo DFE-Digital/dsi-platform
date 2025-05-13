@@ -81,9 +81,8 @@ public sealed class AuthenticationOrganisationSelectorMiddleware(
         IHttpContext context,
         AuthenticationOrganisationSelectorOptions options)
     {
-        var currentUserId = context.User.GetDsiUserId();
         var callbackViewModel = await SelectOrganisationCallbackViewModel.FromRequest(context.Request);
-        var callbackData = await callbackProcessor.ProcessCallbackAsync(currentUserId, callbackViewModel);
+        var callbackData = await callbackProcessor.ProcessCallbackAsync(context, callbackViewModel);
 
         if (callbackData is SelectOrganisationCallbackSelection callbackSelection) {
             // An organisation was selected.

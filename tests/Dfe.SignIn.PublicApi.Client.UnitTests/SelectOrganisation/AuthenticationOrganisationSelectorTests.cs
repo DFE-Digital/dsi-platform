@@ -81,11 +81,13 @@ public sealed class AuthenticationOrganisationSelectorTests
     }
 
     private static readonly CreateSelectOrganisationSession_PublicApiResponse FakeCreateSelectOrganisationResponse_WithOptions = new() {
+        RequestId = new Guid("8c1225d8-65a5-4372-8025-61c0c63a323a"),
         HasOptions = true,
         Url = new Uri("https://select-organisation.localhost"),
     };
 
     private static readonly CreateSelectOrganisationSession_PublicApiResponse FakeCreateSelectOrganisationResponse_WithNoOptions = new() {
+        RequestId = new Guid("78f29d5a-ca9d-4605-96ea-b3ef789131d2"),
         HasOptions = false,
         Url = new Uri("https://select-organisation.localhost"),
     };
@@ -217,6 +219,29 @@ public sealed class AuthenticationOrganisationSelectorTests
     }
 
     [TestMethod]
+    public async Task InitiateSelectionAsync_StartsTrackingSelectOrganisationRequest_WhenHasOptions()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockOptions(autoMocker);
+        var fakeContext = SetupMockContext(autoMocker);
+        SetupMockAuthenticatedUser(autoMocker);
+
+        SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithOptions);
+
+        var selector = autoMocker.CreateInstance<AuthenticationOrganisationSelector>();
+
+        await selector.InitiateSelectionAsync(fakeContext.Object);
+
+        autoMocker.Verify<ISelectOrganisationRequestTrackingProvider>(x =>
+            x.SetTrackedRequestAsync(
+                It.Is<IHttpContext>(context => context == fakeContext.Object),
+                It.Is<Guid?>(requestId => requestId == FakeCreateSelectOrganisationResponse_WithOptions.RequestId)
+            ),
+            Times.Once
+        );
+    }
+
+    [TestMethod]
     public async Task InitiateSelectionAsync_RedirectsToSelectOrganisationUrl_WhenHasOptions()
     {
         var autoMocker = new AutoMocker();
@@ -233,6 +258,29 @@ public sealed class AuthenticationOrganisationSelectorTests
         autoMocker.Verify<IHttpResponse>(x =>
             x.Redirect(
                 It.Is<string>(location => location == "https://select-organisation.localhost/")
+            ),
+            Times.Once
+        );
+    }
+
+    [TestMethod]
+    public async Task InitiateSelectionAsync_ClearsTrackingSelectOrganisationRequest_WhenHasNoOptions()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockOptions(autoMocker);
+        var fakeContext = SetupMockContext(autoMocker);
+        SetupMockAuthenticatedUser(autoMocker);
+
+        SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithNoOptions);
+
+        var selector = autoMocker.CreateInstance<AuthenticationOrganisationSelector>();
+
+        await selector.InitiateSelectionAsync(fakeContext.Object);
+
+        autoMocker.Verify<ISelectOrganisationRequestTrackingProvider>(x =>
+            x.SetTrackedRequestAsync(
+                It.Is<IHttpContext>(context => context == fakeContext.Object),
+                It.Is<Guid?>(requestId => requestId == null)
             ),
             Times.Once
         );
