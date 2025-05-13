@@ -33,6 +33,7 @@ public sealed class AutoMapperExtensionTests
             .Select(profile => profile.Name)
             .ToArray();
         CollectionAssert.Contains(profileNames, typeof(SelectOrganisationMappingProfile).FullName);
+        CollectionAssert.Contains(profileNames, typeof(OrganisationDetailsMappingProfile).FullName);
     }
 
     #endregion
