@@ -173,13 +173,12 @@ public static class DsiClaimExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
-    public static TOrganisationDetails? GetDsiOrganisation<TOrganisationDetails>(this ClaimsPrincipal user)
-        where TOrganisationDetails : OrganisationDetails
+    public static OrganisationDetails? GetDsiOrganisation(this ClaimsPrincipal user)
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
         var dsiIdentity = user.GetDsiOrganisationIdentity();
-        return dsiIdentity?.DeserializeDsiOrganisation<TOrganisationDetails>();
+        return dsiIdentity?.DeserializeDsiOrganisation();
     }
 
     internal static string SerializeDsiOrganisation(OrganisationDetails? organisation)
@@ -189,14 +188,13 @@ public static class DsiClaimExtensions
             : "null";
     }
 
-    internal static TOrganisationDetails? DeserializeDsiOrganisation<TOrganisationDetails>(this ClaimsIdentity user)
-        where TOrganisationDetails : OrganisationDetails
+    internal static OrganisationDetails? DeserializeDsiOrganisation(this ClaimsIdentity user)
     {
         ExceptionHelpers.ThrowIfArgumentNull(user, nameof(user));
 
         var claim = user?.FindFirst(DsiClaimTypes.Organisation);
         return claim is not null
-            ? JsonSerializer.Deserialize<TOrganisationDetails>(claim.Value, JsonSerializerOptions)
+            ? JsonSerializer.Deserialize<OrganisationDetails>(claim.Value, JsonSerializerOptions)
             : null;
     }
 }

@@ -11,11 +11,5 @@ public sealed class OrganisationDetailsMappingProfile : Profile
     public OrganisationDetailsMappingProfile()
     {
         this.CreateMap<OrganisationModel, OrganisationDetails>();
-
-        this.CreateMap<OrganisationModel, OrganisationDetailsBasic>();
-
-        this.CreateMap<OrganisationModel, OrganisationDetailsExtended>();
-
-        this.CreateMap<OrganisationModel, OrganisationDetailsLegacy>();
     }
 }

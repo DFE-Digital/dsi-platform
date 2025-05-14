@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -62,6 +63,9 @@ public sealed class HttpContextAspNetCoreAdapter(HttpContext inner)
     /// <inheritdoc />
     string? IHttpRequest.GetQuery(string key)
     {
+        ExceptionHelpers.ThrowIfArgumentNull(key, nameof(key));
+        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(key, nameof(key));
+
         inner.Request.Query.TryGetValue(key, out var values);
         return values.FirstOrDefault();
     }

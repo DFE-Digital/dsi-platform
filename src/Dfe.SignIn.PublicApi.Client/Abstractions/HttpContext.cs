@@ -84,6 +84,12 @@ public interface IHttpRequest
     /// <returns>
     ///   <para>The value when present; otherwise, a value of <c>null</c>.</para>
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="key"/> is null.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    /// </exception>
     string? GetQuery(string key);
 }
 

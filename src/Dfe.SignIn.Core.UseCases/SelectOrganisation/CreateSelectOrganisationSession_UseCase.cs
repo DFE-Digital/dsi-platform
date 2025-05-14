@@ -51,8 +51,7 @@ public sealed class CreateSelectOrganisationSession_UseCase(
             Prompt = request.Prompt,
             OrganisationOptions = filteredOptions,
             AllowCancel = request.AllowCancel,
-            CallbackUrl = new Uri(request.CallbackUrl, $"?rid={requestId}"),
-            DetailLevel = request.DetailLevel,
+            CallbackUrl = new Uri(request.CallbackUrl.GetLeftPart(UriPartial.Path) + $"?{CallbackParamNames.RequestId}={requestId}"),
             Created = createdUtc,
             Expires = createdUtc + new TimeSpan(0, options.SessionTimeoutInMinutes, 0),
         };

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 
 namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests;
@@ -24,7 +23,6 @@ public sealed class DefaultSessionDataSerializerTests
         ],
         AllowCancel = true,
         CallbackUrl = new Uri("https://example.localhost/callback"),
-        DetailLevel = OrganisationDetailLevel.Basic,
     };
 
     #region Serialize(SelectOrganisationSessionData)

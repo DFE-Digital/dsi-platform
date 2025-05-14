@@ -5,7 +5,7 @@ using Moq;
 namespace Dfe.SignIn.PublicApi.Client.AspNetCore.UnitTests;
 
 [TestClass]
-public sealed class MiddlewareAspNetCoreTests
+public sealed class AdaptedSelectOrganisationMiddlewareTests
 {
     #region InvokeAsync(HttpContext)
 
@@ -21,11 +21,11 @@ public sealed class MiddlewareAspNetCoreTests
             .Callback<IHttpContext, Func<Task>>((context, next) => next());
 
         var mockNext = new Mock<RequestDelegate>();
-        var adapter = new HttpMiddlewareAspNetCoreAdapter(() => mockMiddleware.Object, mockNext.Object);
+        var adapter = new AdaptedSelectOrganisationMiddleware(mockMiddleware.Object);
 
         var mockContext = new Mock<HttpContext>();
 
-        await adapter.InvokeAsync(mockContext.Object);
+        await adapter.InvokeAsync(mockContext.Object, mockNext.Object);
 
         mockMiddleware.Verify(mock =>
             mock.InvokeAsync(

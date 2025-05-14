@@ -1,5 +1,4 @@
 using AutoMapper;
-using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Applications;
@@ -23,7 +22,6 @@ public sealed class PostSelectOrganisationSessionTests
     private static readonly CreateSelectOrganisationSession_PublicApiRequest FakePublicApiRequest = new() {
         CallbackUrl = new Uri("https://example.localhost/callback"),
         UserId = new Guid("6c843439-4633-4369-af49-f8b04b2529bc"),
-        DetailLevel = OrganisationDetailLevel.Basic,
         Filter = new OrganisationFilter {
             Association = OrganisationFilterAssociation.AssignedToUser,
             OrganisationIds = [],
@@ -87,7 +85,6 @@ public sealed class PostSelectOrganisationSessionTests
                     request.ClientId == "test-client-id" &&
                     request.CallbackUrl == apiRequest.CallbackUrl &&
                     request.UserId == apiRequest.UserId &&
-                    request.DetailLevel == apiRequest.DetailLevel &&
                     request.Filter == apiRequest.Filter &&
                     request.Prompt == apiRequest.Prompt
                 ),

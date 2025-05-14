@@ -206,15 +206,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.CallbackUrl.AbsolutePath == FakeRequest.CallbackUrl.AbsolutePath &&
-            session.CallbackUrl.Query.Contains("?rid=")
-        );
-    }
-
-    [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedDetailLevel()
-    {
-        await VerifyInvokeAsyncSession(FakeRequest, session =>
-            session.DetailLevel == FakeRequest.DetailLevel
+            session.CallbackUrl.Query.Contains($"?{CallbackParamNames.RequestId}=")
         );
     }
 

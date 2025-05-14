@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
@@ -14,12 +13,6 @@ public record QueryUserOrganisation_PublicApiRequestBody()
     /// Specifies the organisation filtering requirements.
     /// </summary>
     public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
-
-    /// <summary>
-    /// Specifies the level of organisation detail required in the callback response.
-    /// </summary>
-    [EnumDataType(typeof(OrganisationDetailLevel))]
-    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
 }
 
 /// <summary>
@@ -47,12 +40,6 @@ public sealed record QueryUserOrganisation_PublicApiResponse()
     /// Gets the unique DfE Sign-in ID of the user.
     /// </summary>
     public required Guid UserId { get; init; }
-
-    /// <summary>
-    /// Gets the detail level of the organisation.
-    /// </summary>
-    [EnumDataType(typeof(OrganisationDetailLevel))]
-    public required OrganisationDetailLevel DetailLevel { get; init; }
 
     /// <summary>
     /// Gets organisation details when query criteria was met; otherwise, a value of

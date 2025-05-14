@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
 [TestClass]
-public sealed class AuthenticationOrganisationSelectorExtensionsTests
+public sealed class SelectOrganisationExtensionsTests
 {
     #region SetupSelectOrganisationFeatures(IServiceCollection)
 
@@ -12,7 +12,17 @@ public sealed class AuthenticationOrganisationSelectorExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void SetupSelectOrganisationFeatures_Throws_WhenServicesArgumentIsNull()
     {
-        AuthenticationOrganisationSelectorExtensions.SetupSelectOrganisationFeatures(null!);
+        SelectOrganisationExtensions.SetupSelectOrganisationFeatures(null!);
+    }
+
+    [TestMethod]
+    public void SetupSelectOrganisationFeatures_ReturnsServices()
+    {
+        var services = new ServiceCollection();
+
+        var result = services.SetupSelectOrganisationFeatures();
+
+        Assert.AreSame(services, result);
     }
 
     [TestMethod]
@@ -24,8 +34,8 @@ public sealed class AuthenticationOrganisationSelectorExtensionsTests
 
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(ISelectOrganisationCallbackProcessor)
+                descriptor.Lifetime == ServiceLifetime.Scoped &&
+                descriptor.ServiceType == typeof(ISelectOrganisationUserFlow)
             )
         );
     }
@@ -39,14 +49,20 @@ public sealed class AuthenticationOrganisationSelectorExtensionsTests
 
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(IAuthenticationOrganisationSelector)
+                descriptor.Lifetime == ServiceLifetime.Scoped &&
+                descriptor.ServiceType == typeof(ISelectOrganisationEvents)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.Lifetime == ServiceLifetime.Scoped &&
                 descriptor.ServiceType == typeof(IActiveOrganisationProvider)
+            )
+        );
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Scoped &&
+                descriptor.ServiceType == typeof(StandardSelectOrganisationMiddleware)
             )
         );
     }

@@ -1,4 +1,3 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
@@ -49,7 +48,6 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
             OrganisationOptions = [],
             AllowCancel = true,
             CallbackUrl = new Uri("https://example.localhost/callback"),
-            DetailLevel = OrganisationDetailLevel.Basic,
         };
 
         autoMocker.GetMock<ISelectOrganisationSessionRepository>()

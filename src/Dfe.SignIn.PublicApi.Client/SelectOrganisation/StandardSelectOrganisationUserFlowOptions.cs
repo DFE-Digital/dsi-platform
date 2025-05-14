@@ -1,8 +1,7 @@
-using Dfe.SignIn.PublicApi.Client.Abstractions;
-using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.PublicApi.Client;
+namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
 /// <summary>
 /// Represents a function that can modify the parameters of a "select organisation"
@@ -17,19 +16,9 @@ public delegate CreateSelectOrganisationSession_PublicApiRequest SelectOrganisat
 );
 
 /// <summary>
-/// Represents a function that can handle the sign out process.
+/// Options for the <see cref="StandardSelectOrganisationUserFlow"/> service.
 /// </summary>
-/// <param name="context">The HTTP context.</param>
-public delegate Task SignOutHandler(IHttpContext context);
-
-/// <summary>
-/// Options for when an organisation is being selected when a user is authenticating.
-/// </summary>
-/// <remarks>
-///   <para>These options do not apply when using the "select organisation" feature
-///   of DfE Sign-in for alternative purposes.</para>
-/// </remarks>
-public sealed class AuthenticationOrganisationSelectorOptions : IOptions<AuthenticationOrganisationSelectorOptions>
+public sealed class StandardSelectOrganisationUserFlowOptions : IOptions<StandardSelectOrganisationUserFlowOptions>
 {
     /// <summary>
     /// Gets or sets whether the user can switch organisation once they have already
@@ -50,7 +39,7 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     /// <remarks>
     ///   <para>This is only applicable when <see cref="EnableSelectOrganisationRequests"/>
     ///   is configured as <c>true</c>.</para>
-    ///   <para>This path is handled automatically by the <see cref="AuthenticationOrganisationSelectorMiddleware"/>
+    ///   <para>This path is handled automatically by the <see cref="StandardSelectOrganisationMiddleware"/>
     ///   middleware; no custom logic is required for this route.</para>
     /// </remarks>
     /// <seealso cref="EnableSelectOrganisationRequests"/>
@@ -61,18 +50,23 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     /// will callback to.
     /// </summary>
     /// <remarks>
-    ///   <para>This path is handled automatically by the <see cref="AuthenticationOrganisationSelectorMiddleware"/>
+    ///   <para>This path is handled automatically by the <see cref="StandardSelectOrganisationMiddleware"/>
     ///   middleware; no custom logic is required for this route.</para>
     /// </remarks>
-    public string SelectOrganisationCallbackPath { get; set; } = "/callback/select-organisation";
+    public string CallbackPath { get; set; } = "/callback/select-organisation";
 
     /// <summary>
-    /// Gets or sets a delegate allowing an application to customise the parameters of
-    /// the "select organisation" request during the authentication process.
+    /// Gets or sets the organisation filtering specification.
+    /// </summary>
+    public OrganisationFilter Filter { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets a delegate allowing an application to customise the parameters upon
+    /// initiating a "select organisation" request in a user flow.
     /// </summary>
     /// <remarks>
     ///   <para>This only applies to "select organisation" requests that are initiated
-    ///   by the <see cref="AuthenticationOrganisationSelectorMiddleware"/>. If the
+    ///   by the <see cref="StandardSelectOrganisationMiddleware"/>. If the
     ///   application is making use of the DfE Sign-in "select organisation" feature
     ///   for other purposes; then those requests can be configured directly.</para>
     /// </remarks>
@@ -93,15 +87,6 @@ public sealed class AuthenticationOrganisationSelectorOptions : IOptions<Authent
     /// </summary>
     public string SignOutPath { get; set; } = "/sign-out";
 
-    /// <summary>
-    /// Gets or sets a delegate allowing an application to customise how the
-    /// sign out process is handled.
-    /// </summary>
-    /// <remarks>
-    ///   <para>The default implementation redirects to <see cref="SignOutPath"/>.</para>
-    /// </remarks>
-    public SignOutHandler? OnSignOut { get; set; } = null;
-
     /// <inheritdoc/>
-    AuthenticationOrganisationSelectorOptions IOptions<AuthenticationOrganisationSelectorOptions>.Value => this;
+    StandardSelectOrganisationUserFlowOptions IOptions<StandardSelectOrganisationUserFlowOptions>.Value => this;
 }

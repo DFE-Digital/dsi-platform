@@ -3,7 +3,6 @@ using System.Security.Claims;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
-using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
@@ -11,16 +10,12 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// A service that gets or sets the active organisation of a user by adding an
 /// organisation identity to the <see cref="ClaimsPrincipal"/>.
 /// </summary>
-public class ActiveOrganisationClaimsProvider(
-    IOptions<AuthenticationOrganisationSelectorOptions> optionsAccessor
-) : IActiveOrganisationProvider
+public class ActiveOrganisationClaimsProvider : IActiveOrganisationProvider
 {
     /// <inheritdoc/>
     public virtual async Task SetActiveOrganisationAsync(IHttpContext context, OrganisationDetails? organisation)
     {
         ExceptionHelpers.ThrowIfArgumentNull(context, nameof(context));
-
-        var options = optionsAccessor.Value;
 
         var otherIdentities = context.User.Identities
             .Where(identity => identity.AuthenticationType != PublicApiConstants.AuthenticationType);
@@ -51,9 +46,7 @@ public class ActiveOrganisationClaimsProvider(
 
         return Task.FromResult<ActiveOrganisationState?>(
             new ActiveOrganisationState {
-                // The default implementation returns minimal organisation details.
-                // Applications can customise implementation as needed.
-                Organisation = identity?.DeserializeDsiOrganisation<OrganisationDetails>(),
+                Organisation = identity?.DeserializeDsiOrganisation(),
             }
         );
     }

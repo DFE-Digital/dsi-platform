@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 
 namespace Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
@@ -43,12 +42,6 @@ public sealed record CreateSelectOrganisationSessionRequest()
     /// Gets the callback URL where the selected organisation response will be posted.
     /// </summary>
     public required Uri CallbackUrl { get; init; }
-
-    /// <summary>
-    /// Gets the level of organisation detail required in the callback response.
-    /// </summary>
-    [EnumDataType(typeof(OrganisationDetailLevel))]
-    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
 }
 
 /// <summary>

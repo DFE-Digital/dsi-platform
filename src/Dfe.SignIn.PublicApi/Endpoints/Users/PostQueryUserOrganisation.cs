@@ -1,7 +1,6 @@
 using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.PublicApi.Client.Users;
 using Dfe.SignIn.PublicApi.ScopedSession;
@@ -37,12 +36,7 @@ public static partial class UserEndpoints
 
         return new() {
             UserId = userId,
-            DetailLevel = request.DetailLevel,
-            Organisation = (OrganisationDetails)mapper.Map(
-                source: organisation,
-                sourceType: typeof(OrganisationModel),
-                destinationType: OrganisationDetails.ResolveType(request.DetailLevel)
-            ),
+            Organisation = mapper.Map<OrganisationDetails>(organisation),
         };
     }
 }

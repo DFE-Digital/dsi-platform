@@ -306,7 +306,7 @@ public sealed class DsiClaimExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void GetDsiOrganisation_Throws_WhenUserArgumentIsNull()
     {
-        DsiClaimExtensions.GetDsiOrganisation<OrganisationDetails>(null!);
+        DsiClaimExtensions.GetDsiOrganisation(null!);
     }
 
     [TestMethod]
@@ -314,7 +314,7 @@ public sealed class DsiClaimExtensionsTests
     {
         var user = new ClaimsPrincipal();
 
-        var result = user.GetDsiOrganisation<OrganisationDetails>();
+        var result = user.GetDsiOrganisation();
 
         Assert.IsNull(result);
     }
@@ -338,9 +338,9 @@ public sealed class DsiClaimExtensionsTests
             ], PublicApiConstants.AuthenticationType),
         ]);
 
-        var result = user.GetDsiOrganisation<OrganisationDetailsBasic>();
+        var result = user.GetDsiOrganisation();
 
-        var expectedResult = new OrganisationDetailsBasic {
+        var expectedResult = new OrganisationDetails {
             Id = new Guid("4db99a83-60ac-4e3f-b87f-81d384f673e7"),
             Name = "Example organisation name",
         };
@@ -366,7 +366,7 @@ public sealed class DsiClaimExtensionsTests
             ], PublicApiConstants.AuthenticationType),
         ]);
 
-        var identity = user.GetDsiOrganisation<OrganisationDetails>();
+        var identity = user.GetDsiOrganisation();
 
         Assert.IsNull(identity);
     }

@@ -1,4 +1,3 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 
 namespace Dfe.SignIn.Core.InternalModels.SelectOrganisation;
@@ -51,9 +50,4 @@ public sealed record SelectOrganisationSessionData()
     /// when there is no selection to be made; or when an error has occurred.
     /// </summary>
     public required Uri CallbackUrl { get; init; }
-
-    /// <summary>
-    /// Gets the level of detail to include in callback for selected organisation.
-    /// </summary>
-    public required OrganisationDetailLevel DetailLevel { get; init; }
 }

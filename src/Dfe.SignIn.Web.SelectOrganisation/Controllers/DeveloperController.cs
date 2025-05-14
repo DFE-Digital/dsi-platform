@@ -1,4 +1,3 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
@@ -30,9 +29,8 @@ public sealed class DeveloperController(
                     Id = organisation.Id,
                     Name = organisation.Name,
                 }),
-            DetailLevel = OrganisationDetailLevel.Basic,
             AllowCancel = true,
-            CallbackUrl = new Uri("https://example.localhost/callback"),
+            CallbackUrl = new Uri($"https://example.localhost/callback?{CallbackParamNames.RequestId}=00000000-0000-0000-0000-000000000000"),
         };
 
         await sessionRepository.StoreAsync("test", session);

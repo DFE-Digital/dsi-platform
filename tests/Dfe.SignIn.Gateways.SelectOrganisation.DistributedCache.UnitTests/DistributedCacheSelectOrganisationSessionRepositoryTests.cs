@@ -1,5 +1,4 @@
 using System.Text;
-using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Microsoft.Extensions.Caching.Distributed;
 using Moq;
@@ -22,7 +21,6 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
         OrganisationOptions = [],
         AllowCancel = true,
         CallbackUrl = new Uri("https://example.localhost/callback"),
-        DetailLevel = OrganisationDetailLevel.Basic,
     };
 
     #region RetrieveAsync(string)

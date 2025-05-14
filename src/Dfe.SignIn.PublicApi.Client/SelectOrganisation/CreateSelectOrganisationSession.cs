@@ -1,4 +1,3 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 
@@ -28,11 +27,6 @@ public record CreateSelectOrganisationSession_PublicApiRequestBody()
         Heading = "Which organisation would you like to use?",
         Hint = "You are associated with more than one organisation. Select one option.",
     };
-
-    /// <summary>
-    /// Specifies the level of organisation detail required in the callback response.
-    /// </summary>
-    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
 
     /// <summary>
     /// Specifies the organisation filtering requirements.

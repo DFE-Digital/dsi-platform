@@ -34,7 +34,6 @@ public sealed class QueryUserOrganisationTests
     private static readonly QueryUserOrganisation_PublicApiRequestBody FakeMinimalRequest = new();
 
     private static readonly QueryUserOrganisation_PublicApiRequestBody FakeDetailedRequest = new() {
-        DetailLevel = OrganisationDetailLevel.Basic,
         Filter = new OrganisationFilter {
             Association = OrganisationFilterAssociation.AssignedToUser,
             OrganisationIds = [],
@@ -140,7 +139,6 @@ public sealed class QueryUserOrganisationTests
         );
 
         Assert.AreEqual(FakeUserId, response.UserId);
-        Assert.AreEqual(FakeMinimalRequest.DetailLevel, response.DetailLevel);
         Assert.IsNull(response.Organisation);
     }
 
@@ -172,10 +170,9 @@ public sealed class QueryUserOrganisationTests
         );
 
         Assert.AreEqual(FakeUserId, response.UserId);
-        Assert.AreEqual(FakeMinimalRequest.DetailLevel, response.DetailLevel);
 
-        var organisationDetails = TypeAssert.IsType<OrganisationDetailsBasic>(response.Organisation);
-        Assert.AreEqual(FakeOrganisation1.Id, organisationDetails.Id);
-        Assert.AreEqual(FakeOrganisation1.Name, organisationDetails.Name);
+        Assert.IsNotNull(response.Organisation);
+        Assert.AreEqual(FakeOrganisation1.Id, response.Organisation.Id);
+        Assert.AreEqual(FakeOrganisation1.Name, response.Organisation.Name);
     }
 }
