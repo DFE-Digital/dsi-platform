@@ -56,12 +56,6 @@ public sealed class SelectOrganisationExtensionsTests
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Scoped &&
-                descriptor.ServiceType == typeof(IActiveOrganisationProvider)
-            )
-        );
-        Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Scoped &&
                 descriptor.ServiceType == typeof(StandardSelectOrganisationMiddleware)
             )
         );

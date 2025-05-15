@@ -6,13 +6,6 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// <summary>
 /// Represents a service to get or set the active organisation of a user.
 /// </summary>
-/// <remarks>
-///   <para>By default the <see cref="ActiveOrganisationClaimsProvider"/> implementation
-///   of this service is used.</para>
-///   <para>The default implementation can be overridden with a custom implementation
-///   which persists the active organisation in a different way; for example, in a Redis
-///   entry that is associated with the user session.</para>
-/// </remarks>
 public interface IActiveOrganisationProvider
 {
     /// <summary>

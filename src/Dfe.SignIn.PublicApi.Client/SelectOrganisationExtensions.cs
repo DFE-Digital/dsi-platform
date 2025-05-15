@@ -33,7 +33,6 @@ public static class SelectOrganisationExtensions
         // Features that enable "select organisation" to be integrated into the
         // user authentication journey.
         services.AddScoped<ISelectOrganisationEvents, StandardSelectOrganisationEvents>();
-        services.AddScoped<IActiveOrganisationProvider, ActiveOrganisationClaimsProvider>();
         services.AddScoped<StandardSelectOrganisationMiddleware>();
 
         return services;
