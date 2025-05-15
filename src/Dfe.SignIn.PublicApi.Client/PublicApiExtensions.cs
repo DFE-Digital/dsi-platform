@@ -2,7 +2,6 @@ using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Internal;
-using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Users;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +26,6 @@ public static class PublicApiExtensions
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddOptions();
-        services.Configure<PublicKeyCacheOptions>(_ => { });
 
         services.ConfigureDfeSignInJsonSerializerOptions();
         services.ConfigureExternalModelJsonSerialization();
@@ -39,9 +37,6 @@ public static class PublicApiExtensions
             typeof(TimeProvider).IsAssignableFrom(serviceDescriptor.ServiceType))) {
             services.AddSingleton(TimeProvider.System);
         }
-
-        services.AddSingleton<IPublicKeyCache, PublicKeyCache>();
-        services.AddSingleton<IPayloadVerifier, DefaultPayloadVerifier>();
 
         DiscoverCustomApiRequesters(services);
         AddSelectOrganisationApiRequesters(services);
