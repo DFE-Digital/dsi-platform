@@ -5,7 +5,7 @@ namespace Dfe.SignIn.PublicApi.Client.Internal;
 /// <summary>
 /// Resolves difference between Node and C# hmac
 /// </summary>
-public sealed class HmacKeyNormalizer
+internal sealed class HmacKeyNormalizer
 {
     /// <summary>
     /// Ensures that the provided key meets the minimum length requirement for HMAC-SHA256 (32 bytes).
