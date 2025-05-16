@@ -54,12 +54,12 @@ public class ActiveOrganisationSessionProvider : IActiveOrganisationProvider
         try {
             string sid = GetSidValue(httpContext);
             if (httpContext.Session.GetString(AssociatedSidKey) != sid) {
-                throw new Exception("Mismatch with authenticated user session.");
+                throw new MismatchedCallbackException("Mismatch with authenticated user session.");
             }
 
             string json = httpContext.Session.GetString(OrganisationKey);
             if (string.IsNullOrEmpty(json)) {
-                throw new Exception("Missing active organisation details.");
+                throw new MismatchedCallbackException("Missing active organisation details.");
             }
 
             var organisation = JsonSerializer.Deserialize<OrganisationDetails>(json);
