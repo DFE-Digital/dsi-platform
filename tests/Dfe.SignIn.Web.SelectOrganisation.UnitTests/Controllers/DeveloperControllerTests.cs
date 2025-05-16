@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Dfe.SignIn.Web.SelectOrganisation.Controllers;
@@ -24,7 +25,7 @@ public sealed class DeveloperControllerTests
             x => x.StoreAsync(
                 It.Is<string>(param => param == "test"),
                 It.Is<SelectOrganisationSessionData>(param =>
-                    param.CallbackUrl == new Uri("https://example.localhost/callback") &&
+                    param.CallbackUrl == new Uri($"https://example.localhost/callback?{CallbackParamNames.RequestId}=00000000-0000-0000-0000-000000000000") &&
                     param.ClientId == "test-client" &&
                     param.UserId != Guid.Empty &&
                     !string.IsNullOrEmpty(param.Prompt.Heading) &&

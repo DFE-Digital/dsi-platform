@@ -1,5 +1,3 @@
-using System.Text.Json;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,15 +22,15 @@ public static class ExternalModelsJsonExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
-        ConfigureSelectOrganisationJsonSerialization(services);
+        // ConfigureExampleJsonSerialization(services);
 
         return services;
     }
 
-    private static void ConfigureSelectOrganisationJsonSerialization(IServiceCollection services)
-    {
-        services.Configure<JsonSerializerOptions>(JsonHelperExtensions.StandardOptionsKey, options => {
-            options.Converters.Add(new SelectOrganisationCallbackSelectionJsonConverter());
-        });
-    }
+    // private static void ConfigureExampleJsonSerialization(IServiceCollection services)
+    // {
+    //     services.Configure<JsonSerializerOptions>(JsonHelperExtensions.StandardOptionsKey, options => {
+    //         options.Converters.Add(new ExampleJsonConverter());
+    //     });
+    // }
 }

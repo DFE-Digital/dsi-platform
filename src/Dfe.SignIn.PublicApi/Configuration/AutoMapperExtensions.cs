@@ -20,5 +20,8 @@ public static class AutoMapperExtensions
         services.AddAutoMapper(options => {
             options.AddProfile<SelectOrganisationMappingProfile>();
         });
+        services.AddAutoMapper(options => {
+            options.AddProfile<OrganisationDetailsMappingProfile>();
+        });
     }
 }

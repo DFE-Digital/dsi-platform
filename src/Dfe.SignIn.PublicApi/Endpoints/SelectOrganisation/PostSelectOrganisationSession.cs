@@ -13,14 +13,16 @@ public static partial class SelectOrganisationEndpoints
     /// Create a URL which the end-user can use to select an organisation.
     /// </summary>
     public static async Task<CreateSelectOrganisationSession_PublicApiResponse> PostSelectOrganisationSession(
-        [FromBody] CreateSelectOrganisationSession_PublicApiRequest apiRequest,
+        [FromBody] CreateSelectOrganisationSession_PublicApiRequestBody request,
+        // ---
         IScopedSessionReader scopedSession,
         IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse> createSelectOrganisationSession,
         IMapper mapper,
+        // ---
         CancellationToken cancellationToken = default)
     {
         var response = await createSelectOrganisationSession.InvokeAsync(
-            mapper.Map<CreateSelectOrganisationSessionRequest>(apiRequest) with {
+            mapper.Map<CreateSelectOrganisationSessionRequest>(request) with {
                 ClientId = scopedSession.Application.ClientId,
             },
             cancellationToken

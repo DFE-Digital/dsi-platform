@@ -1,6 +1,3 @@
-using System.Text;
-using System.Text.Json;
-using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
@@ -8,16 +5,16 @@ using Dfe.SignIn.Core.InternalModels.Applications;
 using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
 using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
-using Dfe.SignIn.Core.InternalModels.PublicApiSigning.Interactions;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Web.SelectOrganisation.Configuration;
 using Dfe.SignIn.Web.SelectOrganisation.Controllers;
-using Dfe.SignIn.Web.SelectOrganisation.MappingProfiles;
 using Dfe.SignIn.Web.SelectOrganisation.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using Moq.AutoMock;
 
@@ -58,8 +55,7 @@ public sealed class SelectOrganisationControllerTests
         ClientId = "mock-client",
         UserId = FakeUserId,
         AllowCancel = true,
-        CallbackUrl = new Uri("http://mock-service.localhost/callback"),
-        DetailLevel = OrganisationDetailLevel.Id,
+        CallbackUrl = new Uri($"http://mock-service.localhost/callback?{CallbackParamNames.RequestId}=491127e6-6a02-4abe-9479-a38508482727"),
         OrganisationOptions = [],
         Prompt = new() {
             Heading = "Which organisation would you like to contact?",
@@ -108,14 +104,6 @@ public sealed class SelectOrganisationControllerTests
                 ServicesUrl = new Uri("https://services.localhost"),
             });
 
-        autoMocker.UseStandardJsonSerializerOptions();
-
-        autoMocker.Use(
-            new MapperConfiguration(cfg => {
-                cfg.AddProfile<SelectedOrganisationCallbackMappingProfile>();
-            }).CreateMapper()
-        );
-
         autoMocker.GetMock<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>()
             .Setup(x => x.InvokeAsync(
                 It.Is<GetApplicationByClientIdRequest>(param => param.ClientId == "invalid-client"),
@@ -129,18 +117,6 @@ public sealed class SelectOrganisationControllerTests
                 It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(new GetApplicationByClientIdResponse { Application = FakeApplication });
-
-        autoMocker.GetMock<IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse>>()
-            .Setup(x => x.InvokeAsync(
-                It.IsAny<CreateDigitalSignatureForPayloadRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .ReturnsAsync(new CreateDigitalSignatureForPayloadResponse {
-                Signature = new() {
-                    KeyId = "FakePublicKey1",
-                    Signature = "FakeSignatureXyz",
-                }
-            });
 
         foreach (var organisation in new[] { FakeOrganisationA, FakeOrganisationB }) {
             autoMocker.GetMock<IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>>()
@@ -185,6 +161,12 @@ public sealed class SelectOrganisationControllerTests
             .Setup(mock => mock.Action(It.IsAny<UrlActionContext>()))
             .Returns("http://localhost/sign-out");
         return mockUrlHelper.Object;
+    }
+
+    private static void AssertQueryParameter(Dictionary<string, StringValues> query, string key, object expectedValue)
+    {
+        Assert.IsTrue(query.ContainsKey(key), $"'{key}' parameter is missing");
+        Assert.AreEqual(expectedValue.ToString(), query[key]);
     }
 
     #region Index(string, string, CancellationToken)
@@ -237,18 +219,15 @@ public sealed class SelectOrganisationControllerTests
 
         var result = await controller.Index("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
 
-        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
-        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Error, viewModel.PayloadType);
-        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
-        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
 
-        var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
-            Convert.FromBase64String(viewModel.PayloadData),
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        )!;
-        Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
-        Assert.AreEqual(SelectOrganisationErrorCode.NoOptions, error.Code);
+        var callbackUrl = new Uri(redirectResult.Url);
+        Assert.AreEqual("http://mock-service.localhost/callback", callbackUrl.GetLeftPart(UriPartial.Path));
+
+        var callbackParams = QueryHelpers.ParseQuery(callbackUrl.Query);
+        AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
+        AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.Error);
+        AssertQueryParameter(callbackParams, CallbackParamNames.ErrorCode, SelectOrganisationErrorCode.NoOptions);
     }
 
     [TestMethod]
@@ -287,18 +266,15 @@ public sealed class SelectOrganisationControllerTests
 
         var result = await controller.Index("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
 
-        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
-        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Error, viewModel.PayloadType);
-        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
-        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
 
-        var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
-            Convert.FromBase64String(viewModel.PayloadData),
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        )!;
-        Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
-        Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, error.Code);
+        var callbackUrl = new Uri(redirectResult.Url);
+        Assert.AreEqual("http://mock-service.localhost/callback", callbackUrl.GetLeftPart(UriPartial.Path));
+
+        var callbackParams = QueryHelpers.ParseQuery(callbackUrl.Query);
+        AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
+        AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.Error);
+        AssertQueryParameter(callbackParams, CallbackParamNames.ErrorCode, SelectOrganisationErrorCode.InvalidSelection);
     }
 
     [TestMethod]
@@ -310,20 +286,15 @@ public sealed class SelectOrganisationControllerTests
 
         var result = await controller.Index("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
 
-        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
-        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Selection, viewModel.PayloadType);
-        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
-        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
 
-        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackSelection>(
-            Convert.FromBase64String(viewModel.PayloadData),
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        )!;
-        Assert.AreEqual(PayloadTypeConstants.Selection, callbackData.Type);
-        Assert.AreEqual(FakeUserId, callbackData.UserId);
-        Assert.AreEqual(OrganisationDetailLevel.Id, callbackData.DetailLevel);
-        Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Selection.Id);
+        var callbackUrl = new Uri(redirectResult.Url);
+        Assert.AreEqual("http://mock-service.localhost/callback", callbackUrl.GetLeftPart(UriPartial.Path));
+
+        var callbackParams = QueryHelpers.ParseQuery(callbackUrl.Query);
+        AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
+        AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.Selection);
+        AssertQueryParameter(callbackParams, CallbackParamNames.Selection, "3c44b79a-991f-4068-b8d9-a761d651146f");
     }
 
     [TestMethod]
@@ -428,18 +399,15 @@ public sealed class SelectOrganisationControllerTests
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
-        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
-        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Error, viewModel.PayloadType);
-        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
-        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
 
-        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
-            Convert.FromBase64String(viewModel.PayloadData),
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        )!;
-        Assert.AreEqual(PayloadTypeConstants.Error, callbackData.Type);
-        Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, callbackData.Code);
+        var callbackUrl = new Uri(redirectResult.Url);
+        Assert.AreEqual("http://mock-service.localhost/callback", callbackUrl.GetLeftPart(UriPartial.Path));
+
+        var callbackParams = QueryHelpers.ParseQuery(callbackUrl.Query);
+        AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
+        AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.Error);
+        AssertQueryParameter(callbackParams, CallbackParamNames.ErrorCode, SelectOrganisationErrorCode.InvalidSelection);
     }
 
     [TestMethod]
@@ -457,17 +425,14 @@ public sealed class SelectOrganisationControllerTests
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
-        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
-        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Cancel, viewModel.PayloadType);
-        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
-        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
 
-        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackCancel>(
-            Convert.FromBase64String(viewModel.PayloadData),
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        )!;
-        Assert.AreEqual(PayloadTypeConstants.Cancel, callbackData.Type);
+        var callbackUrl = new Uri(redirectResult.Url);
+        Assert.AreEqual("http://mock-service.localhost/callback", callbackUrl.GetLeftPart(UriPartial.Path));
+
+        var callbackParams = QueryHelpers.ParseQuery(callbackUrl.Query);
+        AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
+        AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.Cancel);
     }
 
     [TestMethod]
@@ -553,18 +518,15 @@ public sealed class SelectOrganisationControllerTests
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
-        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
-        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Error, viewModel.PayloadType);
-        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
-        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
 
-        var error = JsonSerializer.Deserialize<SelectOrganisationCallbackError>(
-            Convert.FromBase64String(viewModel.PayloadData),
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        )!;
-        Assert.AreEqual(PayloadTypeConstants.Error, error.Type);
-        Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, error.Code);
+        var callbackUrl = new Uri(redirectResult.Url);
+        Assert.AreEqual("http://mock-service.localhost/callback", callbackUrl.GetLeftPart(UriPartial.Path));
+
+        var callbackParams = QueryHelpers.ParseQuery(callbackUrl.Query);
+        AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
+        AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.Error);
+        AssertQueryParameter(callbackParams, CallbackParamNames.ErrorCode, SelectOrganisationErrorCode.InvalidSelection);
     }
 
     [TestMethod]
@@ -579,58 +541,15 @@ public sealed class SelectOrganisationControllerTests
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
-        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
-        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.Selection, viewModel.PayloadType);
-        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
-        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
 
-        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackSelection>(
-            Convert.FromBase64String(viewModel.PayloadData),
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        )!;
-        Assert.AreEqual(PayloadTypeConstants.Selection, callbackData.Type);
-        Assert.AreEqual(FakeUserId, callbackData.UserId);
-        Assert.AreEqual(OrganisationDetailLevel.Id, callbackData.DetailLevel);
-        Assert.AreEqual(new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"), callbackData.Selection.Id);
-    }
+        var callbackUrl = new Uri(redirectResult.Url);
+        Assert.AreEqual("http://mock-service.localhost/callback", callbackUrl.GetLeftPart(UriPartial.Path));
 
-    [TestMethod]
-    public async Task PostIndex_SignsExpectedPayload()
-    {
-        var autoMocker = CreateAutoMocker();
-        MockSession(autoMocker, FakeSessionWithMultipleOptions);
-        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
-
-        var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.SelectedOrganisationId = new Guid("3c44b79a-991f-4068-b8d9-a761d651146f");
-
-        await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
-
-        var expectedPayload = new SelectOrganisationCallbackSelection {
-            Type = PayloadTypeConstants.Selection,
-            UserId = FakeUserId,
-            DetailLevel = OrganisationDetailLevel.Id,
-            Selection = new SelectedOrganisation {
-                Id = (Guid)inputViewModel.SelectedOrganisationId,
-            },
-        };
-        var expectedPayloadJson = JsonSerializer.Serialize(
-            expectedPayload,
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        );
-        string expectedPayloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedPayloadJson));
-
-        autoMocker.Verify<
-            IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse>
-        >(x =>
-            x.InvokeAsync(
-                It.Is<CreateDigitalSignatureForPayloadRequest>(
-                    request => request.Payload == expectedPayloadBase64
-                ),
-                It.IsAny<CancellationToken>()
-            )
-        );
+        var callbackParams = QueryHelpers.ParseQuery(callbackUrl.Query);
+        AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
+        AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.Selection);
+        AssertQueryParameter(callbackParams, CallbackParamNames.Selection, "3c44b79a-991f-4068-b8d9-a761d651146f");
     }
 
     #endregion
@@ -685,17 +604,14 @@ public sealed class SelectOrganisationControllerTests
 
         var result = await controller.SignOut("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
 
-        var viewModel = TypeAssert.IsViewModelType<CallbackViewModel>(result);
-        Assert.AreEqual(new Uri("http://mock-service.localhost/callback"), viewModel.CallbackUrl);
-        Assert.AreEqual(PayloadTypeConstants.SignOut, viewModel.PayloadType);
-        Assert.AreEqual("FakeSignatureXyz", viewModel.DigitalSignature);
-        Assert.AreEqual("FakePublicKey1", viewModel.PublicKeyId);
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
 
-        var callbackData = JsonSerializer.Deserialize<SelectOrganisationCallbackSignOut>(
-            Convert.FromBase64String(viewModel.PayloadData),
-            autoMocker.Get<IOptionsMonitor<JsonSerializerOptions>>().Get(JsonHelperExtensions.StandardOptionsKey)
-        )!;
-        Assert.AreEqual(PayloadTypeConstants.SignOut, callbackData.Type);
+        var callbackUrl = new Uri(redirectResult.Url);
+        Assert.AreEqual("http://mock-service.localhost/callback", callbackUrl.GetLeftPart(UriPartial.Path));
+
+        var callbackParams = QueryHelpers.ParseQuery(callbackUrl.Query);
+        AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
+        AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.SignOut);
     }
 
     #endregion

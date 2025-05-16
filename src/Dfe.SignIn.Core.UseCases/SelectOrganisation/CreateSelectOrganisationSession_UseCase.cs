@@ -43,14 +43,15 @@ public sealed class CreateSelectOrganisationSession_UseCase(
             })
             .ToArray();
 
+        Guid requestId = Guid.NewGuid();
+
         var sessionData = new SelectOrganisationSessionData {
             ClientId = request.ClientId,
             UserId = request.UserId,
             Prompt = request.Prompt,
             OrganisationOptions = filteredOptions,
             AllowCancel = request.AllowCancel,
-            CallbackUrl = request.CallbackUrl,
-            DetailLevel = request.DetailLevel,
+            CallbackUrl = new Uri(request.CallbackUrl.GetLeftPart(UriPartial.Path) + $"?{CallbackParamNames.RequestId}={requestId}"),
             Created = createdUtc,
             Expires = createdUtc + new TimeSpan(0, options.SessionTimeoutInMinutes, 0),
         };
@@ -59,6 +60,7 @@ public sealed class CreateSelectOrganisationSession_UseCase(
         await sessionRepository.StoreAsync(sessionKey, sessionData);
 
         return new CreateSelectOrganisationSessionResponse {
+            RequestId = requestId,
             HasOptions = filteredOptions.Length > 0,
             Url = new Uri(options.SelectOrganisationBaseAddress, $"{request.ClientId}/{sessionKey}"),
         };

@@ -13,7 +13,7 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <param name="jsonOptions">JSON serializer options.</param>
 /// <param name="endpoint">The endpoint (eg. "v2/select-organisation").</param>
 [ExcludeFromCodeCoverage]
-internal sealed class PublicApiGetRequester<TRequest, TResponse>(
+internal class PublicApiGetRequester<TRequest, TResponse>(
     IPublicApiClient client,
     JsonSerializerOptions jsonOptions,
     string endpoint
@@ -35,7 +35,22 @@ internal sealed class PublicApiGetRequester<TRequest, TResponse>(
         var httpClient = client.HttpClient;
 
         return await httpClient.GetFromJsonAsync<TResponse>(
-            endpoint, jsonOptions, cancellationToken
+            this.TransformEndpoint(request, endpoint),
+            jsonOptions,
+            cancellationToken
         ) ?? throw new MissingResponseDataException();
+    }
+
+    /// <summary>
+    /// Transforms endpoint from request parameters.
+    /// </summary>
+    /// <param name="request">The interaction request.</param>
+    /// <param name="endpoint">The endpoint (eg. "v2/select-organisation").</param>
+    /// <returns>
+    ///   <para>The transformed endpoint.</para>
+    /// </returns>
+    protected virtual string TransformEndpoint(TRequest request, string endpoint)
+    {
+        return endpoint;
     }
 }
