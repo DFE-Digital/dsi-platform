@@ -2,29 +2,32 @@
 .SYNOPSIS
 Writes project names to output.
 
-.PARAMETER projectNames
+.PARAMETER projects
 The name project names information.
 
 .EXAMPLE
 $changedFiles = Discover-ChangedFilesInBranch
-$changes = Get-ProjectNames ".." $changedFiles
-Write-ProjectNamesToOutput $changes
+$projects = Get-ProjectNames ".." $changedFiles
+Write-ProjectNamesToOutput $projects
 #>
-function Write-ProjectNamesToOutput([PSCustomObject]$changes) {
-    Write-Output ""
-    Write-Output "Source projects:"
-    Write-Output "-------------------------"
-    Write-Output $changes.SourceProjects
-    Write-Output ""
-    Write-Output "Run test projects:"
-    Write-Output "-------------------------"
-    Write-Output $changes.TestProjects
-    Write-Output ""
-    Write-Output "Could be deployed:"
-    Write-Output "-------------------------"
-    Write-Output $changes.DeployableProjects
-    Write-Output ""
-    Write-Output "Should publish NuGet?"
-    Write-Output "-------------------------"
-    Write-Output $changes.PublishPackages
+function Write-ProjectNamesToOutput {
+    param(
+        [PSCustomObject]$projects
+    )
+
+    Write-Output "`nSource projects:"
+    Write-Output "-----------------------------"
+    Write-Output $projects.SourceProjects
+
+    Write-Output "`nTest projects:"
+    Write-Output "-----------------------------"
+    Write-Output $projects.TestProjects
+
+    Write-Output "`nDeployable projects:"
+    Write-Output "-----------------------------"
+    Write-Output $projects.DeployableProjects
+
+    Write-Output "`nHas publishable packages?"
+    Write-Output "-----------------------------"
+    Write-Output $projects.PublishPackages
 }

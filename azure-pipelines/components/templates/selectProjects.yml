@@ -1,0 +1,16 @@
+steps:
+  - task: PowerShell@2
+    displayName: Determine changed projects
+    condition: |
+      not(eq(variables['Build.Reason'], 'Manual'))
+    inputs:
+      filePath: '$(System.DefaultWorkingDirectory)/self/scripts/pipelines/Discover-Changes.ps1'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/self'
+
+  - task: PowerShell@2
+    displayName: Select all projects
+    condition: |
+      eq(variables['Build.Reason'], 'Manual')
+    inputs:
+      filePath: '$(System.DefaultWorkingDirectory)/self/scripts/pipelines/SelectAll-Projects.ps1'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/self'

@@ -9,4 +9,8 @@
     "**/obj": true,
     "**/TestResults": true,
   },
+  "sonarlint.connectedMode.project": {
+    "connectionId": "dfe-digital",
+    "projectKey": "DFE-Digital_dsi-platform"
+  },
 }

@@ -8,7 +8,7 @@
   </Target>
 
   <Target Name="BuildNuGetPackages" AfterTargets="Build" Condition="$(IsPipeline) == 'true'">
-    <Exec Command="dotnet pack --configuration $(Configuration) /p:Version=$(Version)"></Exec>
+    <Exec Command="dotnet pack $(SolutionPath) --configuration $(Configuration) /p:Version=$(Version)"></Exec>
   </Target>
 
 </Project>
