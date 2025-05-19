@@ -21,6 +21,7 @@ public interface ISelectOrganisationSessionRepository
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="sessionKey"/> is an empty string.</para>
     /// </exception>
+    /// </exception>
     Task<SelectOrganisationSessionData?> RetrieveAsync(string sessionKey);
 
     /// <summary>
