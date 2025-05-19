@@ -1,8 +1,4 @@
-using System.Text.Json;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.ExternalModels.UnitTests.SelectOrganisation;
 
@@ -28,21 +24,21 @@ public sealed class ExternalModelsJsonExtensionsTests
         Assert.AreSame(services, result);
     }
 
-    [TestMethod]
-    public void ConfigureExternalModelJsonSerialization_RegistersSelectOrganisationExtensions()
-    {
-        var services = new ServiceCollection();
+    // [TestMethod]
+    // public void ConfigureExternalModelJsonSerialization_RegistersExampleExtensions()
+    // {
+    //     var services = new ServiceCollection();
 
-        services.ConfigureExternalModelJsonSerialization();
+    //     services.ConfigureExternalModelJsonSerialization();
 
-        var provider = services.BuildServiceProvider();
-        var optionsAccessor = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>();
-        var options = optionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+    //     var provider = services.BuildServiceProvider();
+    //     var optionsAccessor = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>();
+    //     var options = optionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
 
-        Assert.IsTrue(
-            options.Converters.Any(converter => converter.Type == typeof(SelectOrganisationCallbackSelection))
-        );
-    }
+    //     Assert.IsTrue(
+    //         options.Converters.Any(converter => converter.Type == typeof(ExampleJsonConverter))
+    //     );
+    // }
 
     #endregion
 }

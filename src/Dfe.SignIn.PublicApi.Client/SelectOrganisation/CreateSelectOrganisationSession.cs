@@ -6,22 +6,22 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// <summary>
 /// Represents a request to create a URL where the end-user can select an organisation.
 /// </summary>
-public sealed record CreateSelectOrganisationSession_PublicApiRequest()
+public record CreateSelectOrganisationSession_PublicApiRequestBody()
 {
     /// <summary>
-    /// Callback URL where the selected organisation response will be posted.
+    /// Specifies the callback URL where the selected organisation response will be sent.
     /// </summary>
     [ExampleValue("https://example-service.localhost")]
     public required Uri CallbackUrl { get; init; }
 
     /// <summary>
-    /// Unique DfE Sign-in ID of the user.
+    /// Specifies the unique DfE Sign-in ID of the user.
     /// </summary>
     public required Guid UserId { get; init; }
 
     /// <summary>
-    /// Prompt that will be presented to the user when they are making their selection
-    /// using the "select organisation" web frontend.
+    /// Specifies the prompt that will be presented to the user when they are making their
+    /// selection using the "select organisation" web frontend.
     /// </summary>
     public SelectOrganisationPrompt Prompt { get; init; } = new SelectOrganisationPrompt {
         Heading = "Which organisation would you like to use?",
@@ -29,26 +29,38 @@ public sealed record CreateSelectOrganisationSession_PublicApiRequest()
     };
 
     /// <summary>
-    /// Level of organisation detail required in the callback response.
-    /// </summary>
-    public OrganisationDetailLevel DetailLevel { get; init; } = OrganisationDetailLevel.Basic;
-
-    /// <summary>
-    /// Organisation filtering specification.
+    /// Specifies the organisation filtering requirements.
     /// </summary>
     public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
 
     /// <summary>
-    /// A value indicating if the user can cancel selection.
+    /// Specifies if the user can cancel selection.
     /// </summary>
     public bool AllowCancel { get; init; } = true;
 }
 
 /// <summary>
-/// Response from creating a URL where the end-user can select an organisation..
+/// Represents a request to create a URL where the end-user can select an organisation.
+/// </summary>
+public sealed record CreateSelectOrganisationSession_PublicApiRequest() : CreateSelectOrganisationSession_PublicApiRequestBody
+{
+}
+
+/// <summary>
+/// Response to <see cref="CreateSelectOrganisationSession_PublicApiRequest"/>.
 /// </summary>
 public sealed record CreateSelectOrganisationSession_PublicApiResponse()
 {
+    /// <summary>
+    /// A unique value representing the request.
+    /// </summary>
+    /// <remarks>
+    ///   <para>This value can be used by the client application to verify that the
+    ///   callback matches the initiated request. If the recieved value does not match
+    ///   then it is possible that the callback has been triggered unintentionally.</para>
+    /// </remarks>
+    public required Guid RequestId { get; init; }
+
     /// <summary>
     /// A value indicating whether there is at least one option for the user
     /// to select from.

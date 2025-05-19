@@ -5,8 +5,8 @@ using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Configuration.Interactions;
-using Dfe.SignIn.PublicApi.Endpoints.DigitalSigning;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Endpoints.Users;
 using Dfe.SignIn.WebFramework.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,8 +64,8 @@ app.UseHttpsRedirection();
 app.UseHealthChecks();
 app.UseBearerTokenAuthMiddleware();
 
-app.UseDigitalSigningEndpoints();
 app.UseSelectOrganisationEndpoints();
+app.UseUserEndpoints();
 
 app.Run();
 

@@ -2,8 +2,8 @@ using System.Text.Json;
 using Dfe.SignIn.Core.ExternalModels;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Internal;
-using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Client.Users;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -26,7 +26,6 @@ public static class PublicApiExtensions
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddOptions();
-        services.Configure<PublicKeyCacheOptions>(_ => { });
 
         services.ConfigureDfeSignInJsonSerializerOptions();
         services.ConfigureExternalModelJsonSerialization();
@@ -39,11 +38,9 @@ public static class PublicApiExtensions
             services.AddSingleton(TimeProvider.System);
         }
 
-        services.AddSingleton<IPublicKeyCache, PublicKeyCache>();
-        services.AddSingleton<IPayloadVerifier, DefaultPayloadVerifier>();
-
         DiscoverCustomApiRequesters(services);
         AddSelectOrganisationApiRequesters(services);
+        AddUsersApiRequesters(services);
 
         return services;
     }
@@ -84,39 +81,37 @@ public static class PublicApiExtensions
 
     private static void AddSelectOrganisationApiRequesters(IServiceCollection services)
     {
-        AddPostRequester<
-            CreateSelectOrganisationSession_PublicApiRequest,
-            CreateSelectOrganisationSession_PublicApiResponse
-        >(services, "v2/select-organisation");
+        AddApiRequester(services, "v2/select-organisation", (client, jsonOptions, endpoint) =>
+            new PublicApiPostRequester<
+                CreateSelectOrganisationSession_PublicApiRequest,
+                CreateSelectOrganisationSession_PublicApiResponse
+            >(client, jsonOptions, endpoint)
+        );
 
         // The following interactor is not exposed for use in applications until the
         // request/response models have been properly designed.
         services.AddInteractor<GetUserAccessToService_PublicApiRequester>();
     }
 
-#pragma warning disable IDE0051 // Remove unused private members
-    private static void AddGetRequester<TRequest, TResponse>(IServiceCollection services, string endpoint)
-#pragma warning restore IDE0051 // Remove unused private members
-        where TRequest : class
-        where TResponse : class
+    private static void AddUsersApiRequesters(IServiceCollection services)
     {
-        services.AddTransient<IInteractor<TRequest, TResponse>>(provider => {
-            var client = provider.GetRequiredService<IPublicApiClient>();
-            var jsonOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>();
-            var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-            return new PublicApiGetRequester<TRequest, TResponse>(client, jsonOptions, endpoint);
-        });
+        AddApiRequester(services, "v2/users/{userId}/organisations/{organisationId}/query", (client, jsonOptions, endpoint) =>
+            new QueryUserOrganisation_PublicApiRequester(client, jsonOptions, endpoint)
+        );
     }
 
-    private static void AddPostRequester<TRequest, TResponse>(IServiceCollection services, string endpoint)
+    private static void AddApiRequester<TRequest, TResponse>(
+        IServiceCollection services,
+        string endpoint,
+        Func<IPublicApiClient, JsonSerializerOptions, string, IInteractor<TRequest, TResponse>> factoryMethod)
         where TRequest : class
         where TResponse : class
     {
-        services.AddTransient<IInteractor<TRequest, TResponse>>(provider => {
+        services.AddTransient(provider => {
             var client = provider.GetRequiredService<IPublicApiClient>();
             var jsonOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>();
             var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-            return new PublicApiPostRequester<TRequest, TResponse>(client, jsonOptions, endpoint);
+            return factoryMethod(client, jsonOptions, endpoint);
         });
     }
 }

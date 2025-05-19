@@ -22,7 +22,6 @@ public sealed class PostSelectOrganisationSessionTests
     private static readonly CreateSelectOrganisationSession_PublicApiRequest FakePublicApiRequest = new() {
         CallbackUrl = new Uri("https://example.localhost/callback"),
         UserId = new Guid("6c843439-4633-4369-af49-f8b04b2529bc"),
-        DetailLevel = OrganisationDetailLevel.Basic,
         Filter = new OrganisationFilter {
             Association = OrganisationFilterAssociation.AssignedToUser,
             OrganisationIds = [],
@@ -86,7 +85,6 @@ public sealed class PostSelectOrganisationSessionTests
                     request.ClientId == "test-client-id" &&
                     request.CallbackUrl == apiRequest.CallbackUrl &&
                     request.UserId == apiRequest.UserId &&
-                    request.DetailLevel == apiRequest.DetailLevel &&
                     request.Filter == apiRequest.Filter &&
                     request.Prompt == apiRequest.Prompt
                 ),
@@ -105,6 +103,7 @@ public sealed class PostSelectOrganisationSessionTests
             .Returns(FakeApplicationModel);
 
         var fakeResponse = new CreateSelectOrganisationSessionResponse {
+            RequestId = new Guid("fba90ce7-b5d0-4f94-ae00-63a8d21bde93"),
             HasOptions = true,
             Url = new Uri("https://select-organisation.localhost"),
         };
@@ -122,6 +121,8 @@ public sealed class PostSelectOrganisationSessionTests
             autoMocker.Get<IMapper>()
         );
 
+        Assert.AreEqual(fakeResponse.RequestId, response.RequestId);
+        Assert.AreEqual(fakeResponse.HasOptions, response.HasOptions);
         Assert.AreEqual(fakeResponse.Url, response.Url);
     }
 }

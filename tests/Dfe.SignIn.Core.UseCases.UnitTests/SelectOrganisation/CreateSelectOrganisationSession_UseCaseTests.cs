@@ -205,15 +205,8 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     public async Task InvokeAsync_SessionHasExpectedCallbackUrl()
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
-            session.CallbackUrl == FakeRequest.CallbackUrl
-        );
-    }
-
-    [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedDetailLevel()
-    {
-        await VerifyInvokeAsyncSession(FakeRequest, session =>
-            session.DetailLevel == FakeRequest.DetailLevel
+            session.CallbackUrl.AbsolutePath == FakeRequest.CallbackUrl.AbsolutePath &&
+            session.CallbackUrl.Query.Contains($"?{CallbackParamNames.RequestId}=")
         );
     }
 
@@ -240,6 +233,22 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
             (session.Expires - session.Created) == new TimeSpan(0, 10, 0),
             autoMocker
         );
+    }
+
+    [TestMethod]
+    public async Task InvokeAsync_ReturnsUniqueRequestId()
+    {
+        var autoMocker = new AutoMocker();
+        MockDefaultOptions(autoMocker);
+        MockFilteredOrganisations(autoMocker);
+
+        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
+
+        var response1 = await useCase.InvokeAsync(FakeRequest);
+        var response2 = await useCase.InvokeAsync(FakeRequest);
+
+        Assert.AreNotEqual(Guid.Empty, response1.RequestId);
+        Assert.AreNotEqual(response1.RequestId, response2.RequestId);
     }
 
     [TestMethod]

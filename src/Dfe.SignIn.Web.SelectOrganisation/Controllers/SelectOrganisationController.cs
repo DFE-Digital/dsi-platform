@@ -1,12 +1,7 @@
-using System.Text;
-using System.Text.Json;
-using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
-using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
-using Dfe.SignIn.Core.InternalModels.PublicApiSigning.Interactions;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Web.SelectOrganisation.Configuration;
@@ -21,13 +16,10 @@ namespace Dfe.SignIn.Web.SelectOrganisation.Controllers;
 /// </summary>
 public sealed class SelectOrganisationController(
     IOptions<ApplicationOptions> applicationOptionsAccessor,
-    IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
     IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse> getOrganisationById,
     IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse> getSelectOrganisationSessionByKey,
-    IInteractor<InvalidateSelectOrganisationSessionRequest, InvalidateSelectOrganisationSessionResponse> invalidateSelectOrganisationSessionRequest,
-    IInteractor<CreateDigitalSignatureForPayloadRequest, CreateDigitalSignatureForPayloadResponse> createDigitalSignatureForPayload,
-    IMapper mapper
+    IInteractor<InvalidateSelectOrganisationSessionRequest, InvalidateSelectOrganisationSessionResponse> invalidateSelectOrganisationSessionRequest
 ) : Controller
 {
     [HttpGet]
@@ -45,7 +37,7 @@ public sealed class SelectOrganisationController(
 
         // If there are no options; invoke the callback right away.
         if (session.OrganisationOptions.Count() == 0) {
-            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.NoOptions, cancellationToken);
+            return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.NoOptions);
         }
 
         // If there is only one option; invoke the callback right away.
@@ -61,11 +53,10 @@ public sealed class SelectOrganisationController(
 
             if (selectedOrganisation is null) {
                 // The organisation does not exist; maybe it was deleted.
-                return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
+                return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
             }
 
-            var selectionPayload = this.RemapSelectedOrganisationToCallbackData(session, selectedOrganisation);
-            return await this.SendCallback(session, selectionPayload, cancellationToken);
+            return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
         }
 
         // Present prompt to the user.
@@ -96,10 +87,10 @@ public sealed class SelectOrganisationController(
 
         if (viewModel.Cancel == "1") {
             if (session.AllowCancel) {
-                return await this.SendCancelCallback(session, cancellationToken);
+                return this.RedirectToCancelCallback(session);
             }
             else {
-                return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
+                return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
             }
         }
 
@@ -131,11 +122,10 @@ public sealed class SelectOrganisationController(
             OrganisationId = (Guid)viewModel.SelectedOrganisationId,
         }, cancellationToken)).Organisation;
         if (selectedOrganisation is null) {
-            return await this.SendErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection, cancellationToken);
+            return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
         }
 
-        var selectionCallbackData = this.RemapSelectedOrganisationToCallbackData(session, selectedOrganisation);
-        return await this.SendCallback(session, selectionCallbackData, cancellationToken);
+        return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
     }
 
     [HttpGet]
@@ -151,54 +141,29 @@ public sealed class SelectOrganisationController(
         }
         var session = sessionResult.Session;
 
-        return await this.SendCallback(session, new SelectOrganisationCallbackSignOut {
-            Type = PayloadTypeConstants.SignOut,
-            UserId = session.UserId,
-        }, cancellationToken);
+        return this.RedirectToSignOutCallback(session);
     }
 
-    private async Task<IActionResult> SendCallback(
-        SelectOrganisationSessionData session,
-        object payload,
-        CancellationToken cancellationToken = default)
+    private IActionResult RedirectToSelectionCallback(
+        SelectOrganisationSessionData session, Guid selection)
     {
-        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-        string payloadJson = JsonSerializer.Serialize(payload, jsonOptions);
-        string payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payloadJson));
-
-        var signingResponse = await createDigitalSignatureForPayload.InvokeAsync(new() {
-            Payload = payloadBase64,
-        }, cancellationToken);
-
-        return this.View("Callback", new CallbackViewModel {
-            CallbackUrl = session.CallbackUrl,
-            PayloadType = ((SelectOrganisationCallback)payload).Type,
-            PayloadData = payloadBase64,
-            DigitalSignature = signingResponse.Signature.Signature,
-            PublicKeyId = signingResponse.Signature.KeyId,
-        });
+        return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.Selection}&{CallbackParamNames.Selection}={selection}");
     }
 
-    private Task<IActionResult> SendErrorCallback(
-        SelectOrganisationSessionData session,
-        SelectOrganisationErrorCode errorCode,
-        CancellationToken cancellationToken = default)
+    private IActionResult RedirectToErrorCallback(
+        SelectOrganisationSessionData session, SelectOrganisationErrorCode errorCode)
     {
-        return this.SendCallback(session, new SelectOrganisationCallbackError {
-            Type = PayloadTypeConstants.Error,
-            UserId = session.UserId,
-            Code = errorCode,
-        }, cancellationToken);
+        return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.Error}&{CallbackParamNames.ErrorCode}={errorCode}");
     }
 
-    private Task<IActionResult> SendCancelCallback(
-        SelectOrganisationSessionData session,
-        CancellationToken cancellationToken = default)
+    private IActionResult RedirectToCancelCallback(SelectOrganisationSessionData session)
     {
-        return this.SendCallback(session, new SelectOrganisationCallbackCancel {
-            Type = PayloadTypeConstants.Cancel,
-            UserId = session.UserId,
-        }, cancellationToken);
+        return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.Cancel}");
+    }
+
+    private IActionResult RedirectToSignOutCallback(SelectOrganisationSessionData session)
+    {
+        return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.SignOut}");
     }
 
     private sealed record GetSessionResult()
@@ -234,22 +199,6 @@ public sealed class SelectOrganisationController(
         }
 
         return new GetSessionResult { Session = session };
-    }
-
-    private SelectOrganisationCallbackSelection RemapSelectedOrganisationToCallbackData(
-        SelectOrganisationSessionData session,
-        OrganisationModel selectedOrganisation)
-    {
-        return new() {
-            Type = PayloadTypeConstants.Selection,
-            DetailLevel = session.DetailLevel,
-            UserId = session.UserId,
-            Selection = (SelectedOrganisation)mapper.Map(
-                source: selectedOrganisation,
-                sourceType: selectedOrganisation.GetType(),
-                destinationType: SelectedOrganisation.ResolveType(session.DetailLevel)
-            ),
-        };
     }
 
     private async Task<IActionResult> HandleInvalidSessionAsync(

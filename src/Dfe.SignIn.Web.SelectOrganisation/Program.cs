@@ -35,10 +35,6 @@ builder.Services
     .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
-    .Configure(PublicApiSigningExtensions.GetConfigurationReader(
-        builder.Configuration.GetRequiredSection("PublicApiSigning")
-    ));
-builder.Services
     .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
     .SetupFrontendAssets();
 builder.Services
@@ -46,9 +42,6 @@ builder.Services
     .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
 
 builder.Services.SetupAutoMapper();
-
-builder.Services
-    .SetupPublicApiSigningInteractions();
 
 builder.Services
     .SetupHealthChecks(

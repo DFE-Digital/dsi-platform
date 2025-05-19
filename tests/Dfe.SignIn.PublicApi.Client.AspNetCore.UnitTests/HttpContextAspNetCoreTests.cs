@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.AutoMock;
@@ -161,6 +163,45 @@ public sealed class HttpContextAspNetCoreTests
         mockRequest.Setup(mock => mock.Path).Returns(new PathString("/entra/callback"));
 
         Assert.AreSame("/entra/callback", adapter.Request.Path);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void IHttpRequest_GetQuery_Throws_WhenKeyArgumentIsNull()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockHttpContext(autoMocker);
+        var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
+
+        adapter.Request.GetQuery(null!);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void IHttpRequest_GetQuery_Throws_WhenKeyArgumentIsEmptyString()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockHttpContext(autoMocker);
+        var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
+
+        adapter.Request.GetQuery("");
+    }
+
+    [TestMethod]
+    public void IHttpRequest_GetQuery_RetrievesExpectedValues()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockHttpContext(autoMocker);
+        var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
+
+        var mockRequest = autoMocker.GetMock<HttpRequest>();
+        mockRequest.Setup(mock => mock.Query).Returns(
+            new QueryCollection(QueryHelpers.ParseQuery("?first=1&second=2"))
+        );
+
+        Assert.AreEqual("1", adapter.Request.GetQuery("first"));
+        Assert.AreEqual("2", adapter.Request.GetQuery("second"));
+        Assert.IsNull(adapter.Request.GetQuery("unknown"));
     }
 
     [TestMethod]

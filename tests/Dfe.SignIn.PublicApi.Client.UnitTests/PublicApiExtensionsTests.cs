@@ -1,9 +1,7 @@
 using System.Diagnostics;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.PublicApi.Client.PublicApiSigning;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 
@@ -68,46 +66,6 @@ public sealed class PublicApiExtensionsTests
                 descriptor.ServiceType == typeof(IPublicApiClient)
             )
         );
-        Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(IPayloadVerifier)
-            )
-        );
-    }
-
-    [TestMethod]
-    public void SetupDfePublicApiClient_ConfiguresDefaultCacheOptions()
-    {
-        var services = new ServiceCollection();
-
-        services.SetupDfePublicApiClient();
-
-        var provider = new DefaultServiceProviderFactory().CreateServiceProvider(services);
-        var options = provider.GetRequiredService<IOptions<PublicKeyCacheOptions>>();
-
-        var expectedTtl = new TimeSpan(hours: 24, minutes: 0, seconds: 0);
-        Assert.AreEqual(expectedTtl, options.Value.TTL);
-
-        var expectedMaximumRefreshInterval = new TimeSpan(hours: 0, minutes: 10, seconds: 0);
-        Assert.AreEqual(expectedMaximumRefreshInterval, options.Value.MaximumRefreshInterval);
-    }
-
-    [TestMethod]
-    public void SetupDfePublicApiClient_AddsJsonConverters()
-    {
-        var services = new ServiceCollection();
-
-        services.SetupDfePublicApiClient();
-
-        var provider = new DefaultServiceProviderFactory().CreateServiceProvider(services);
-        var options = provider.GetRequiredService<IOptions<PublicKeyCacheOptions>>();
-
-        var expectedTtl = new TimeSpan(hours: 24, minutes: 0, seconds: 0);
-        Assert.AreEqual(expectedTtl, options.Value.TTL);
-
-        var expectedMaximumRefreshInterval = new TimeSpan(hours: 0, minutes: 10, seconds: 0);
-        Assert.AreEqual(expectedMaximumRefreshInterval, options.Value.MaximumRefreshInterval);
     }
 
     [TestMethod]
@@ -121,13 +79,6 @@ public sealed class PublicApiExtensionsTests
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(TimeProvider)
-            )
-        );
-
-        Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(IPublicKeyCache)
             )
         );
     }

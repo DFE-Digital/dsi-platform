@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Dfe.SignIn.PublicApi" />
     <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
     <!-- Expose internals to Moq for mocking internal interfaces. -->
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />

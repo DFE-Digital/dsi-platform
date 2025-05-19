@@ -1,5 +1,4 @@
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Web.SelectOrganisation.MappingProfiles;
 
 namespace Dfe.SignIn.Web.SelectOrganisation.Configuration;
 
@@ -18,7 +17,7 @@ public static class AutoMapperExtensions
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddAutoMapper(options => {
-            options.AddProfile<SelectedOrganisationCallbackMappingProfile>();
+            // options.AddProfile<ExampleMappingProfile>();
         });
     }
 }

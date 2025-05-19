@@ -12,7 +12,7 @@ public sealed class SelectOrganisationMappingProfile : Profile
     {
         this.CreateMap<CreateSelectOrganisationSessionResponse, CreateSelectOrganisationSession_PublicApiResponse>();
 
-        this.CreateMap<CreateSelectOrganisationSession_PublicApiRequest, CreateSelectOrganisationSessionRequest>()
+        this.CreateMap<CreateSelectOrganisationSession_PublicApiRequestBody, CreateSelectOrganisationSessionRequest>()
             .ForMember(destination => destination.ClientId, options => options.Ignore());
     }
 }
