@@ -1,0 +1,19 @@
+name: Run Pester Tests
+
+on:
+  push:
+    paths:
+      - '**/*.ps1'
+
+jobs:
+  run-pester-tests:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Run Pester Tests
+      run: |
+        Invoke-Pester scripts/**/*.Tests.ps1
+      shell: pwsh
