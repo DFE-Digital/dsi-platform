@@ -1,7 +1,7 @@
 name: $(BuildDefinitionName)_tag-$(BuildID)_at-$(Date:yyyyMMdd)$(Rev:.r)
+
 resources:
   repositories:
-    # Defult branch is master
     - repository: devopsTemplates
       type: github
       endpoint: DfE-Digital
@@ -14,159 +14,229 @@ trigger:
       - "*"
   paths:
     include:
-      - src/Dfe.SignIn.PublicApi/*
-
-pr:
-  branches:
-    include:
-      - main
+      - src/*
+      - tests/*
 
 parameters:
-  - name: location
-    type: object
-    displayName: "Deployment locations (- westeurope & - northeurope)"
-    default:
-      - westeurope
-      - northeurope
-  - name: shaUse
+  - name: buildSelectOrganisation
     type: boolean
-    displayName: "Use Self Host agent"
-    default: true
-  - name: existTag
+    displayName: "Build 'Select Organisation'"
+    default: false
+  - name: buildPublicApi
+    type: boolean
+    displayName: "Build 'Public API'"
+    default: false
+  - name: publishAllPackages
+    type: boolean
+    displayName: "Publish all packages"
+    default: false
+
+  - name: target
     type: string
-    displayName: "Deploy existing tag"
-    default: " "
-  - name: slotDeploy
+    displayName: Target
+    default: Development
+    values:
+      - Development
+      - Release
+  - name: forTranEnvironment
     type: boolean
-    displayName: "Slot Deployment"
+    displayName: "For TRAN environment"
     default: true
-  - name: InfrDeploy
-    type: boolean
-    displayName: "Infrastrucure Deployment only"
-    default: false
-  - name: tran
-    type: boolean
-    displayName: "Transformation Deployment"
-    default: false
-  - name: dev
-    type: boolean
-    displayName: "Dev Deployment"
-    default: false
-  - name: test
-    type: boolean
-    displayName: "Test Deployment"
-    default: false
-  - name: pp
-    type: boolean
-    displayName: "Pre-Prod Deployment"
-    default: false
-  - name: pr
-    type: boolean
-    displayName: "Prod Deployment"
-    default: false
-  - name: gitCheck
-    type: boolean
-    displayName: "Bypass Git Check in Test"
-    default: false
+
+  - name: applications
+    type: object
+    default:
+      - displayName: Select Organisation
+        name: select-organisation
+        shortName: sltOrg
+        projectName: Dfe.SignIn.Web.SelectOrganisation
+        triggerVariable: buildSelectOrganisation
+
+      - displayName: Public API
+        name: public-api-v2
+        shortName: papiV2
+        projectName: Dfe.SignIn.PublicApi
+        triggerVariable: buildPublicApi
 
 variables:
   - group: dsi-global
   - group: dsi-envs-list
-  - name: applicationShortName
-    value: "papiV2"
-  - name: applicationFullName
-    value: "public-api-v2"
-  - name: buildNotNeeded
-    value: ${{ contains(variables['Build.SourceVersionMessage'],'Upgrade to version') }}
-  - name: tran
-    value: ${{ parameters.tran }}
-  - name: dev
-    value: ${{ or(parameters.dev, contains(variables['Build.SourceBranch'],'feature1')) }}
-  - name: test
-    value: ${{ or(parameters.test, contains(variables['Build.SourceBranch'],'feature1')) }}
-  - name: pp
-    value: ${{ and(or(parameters.pp, contains(variables['Build.SourceBranch'],'main1')), eq(variables.buildNotNeeded, 'false')) }}
-  - name: pr
-    value: ${{ or(and(parameters.pr, ne(parameters.existTag, ' ')),eq(variables.pp, 'true')) }}
-  - name: ContRegServerTran
-    value: ${{ eq(variables.tran, 'true') }}
-  - name: northeurope
-    value: "tran,pp,pr"
-  - name: westeurope
-    value: "tran,dev,test,pp,pr"
 
-stages:
+jobs:
+  - job: checks
+    displayName: Checks
+    pool:
+      vmImage: windows-latest
+    steps:
+      - checkout: self
+        persistCredentials: true
+        path: s/self
+      - checkout: devopsTemplates
+        path: s/devopsTemplates
 
-  - ${{ if eq(parameters.existTag, ' ') }}:
-      # Code Scans & Build the artifact for deployment
-      - stage: scanBuildApp
-        displayName: "Pre Deploy jobs"
-        jobs:
-          - template: pipeline/components/checks/checksDotNet.yml@devopsTemplates
-            parameters:
-              buildConfiguration: Release
-              testPaths: 
-                - 'test/Dfe.SignIn.PublicApi.UnitTests/Dfe.SignIn.PublicApi.UnitTests.csproj'
-              AppDeploy: ${{ not(parameters.InfrDeploy) }}
+      - template: ./templates/selectProjects.yml
 
-          - ${{ if  and(not(parameters.InfrDeploy), eq(variables.buildNotNeeded, 'false')) }}:
-            - template:  pipeline/components/build/buildAppServicesDotNet.yml@devopsTemplates
-              parameters:
-                applicationName: ${{variables.applicationFullName}}
-                buildConfiguration: Release
-                dotNetProjName: 'Dfe.SignIn.PublicApi'
-                ContRegServers:
-                  - ${{ if eq(variables.ContRegServerTran, 'true') }}:
-                    - name: '$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io'
-                      servCon: $(devServiceConnection)
-                  - name: '$(platformGlobalIdentifier)$(prShaCode)$(platformGlobalName)shdcr.azurecr.io'
-                    servCon: $(prodServiceConnection)
-                DotNetVersionSpec: "8.x"
+      - task: UseDotNet@2
+        displayName: Use version 8.x of .NET
+        inputs:
+          packageType: 'runtime'
+          version: '8.x'
 
-  - ${{ each location in parameters.location }}:
-      - ${{each env in split(variables[location],',') }}:
-          - ${{ if eq(variables[env], 'true') }}:
-              - stage: Deployment_${{env}}_${{location}}
-                displayName: "Deployment [${{env}}] ${{location}}"
-                ${{ if eq(env, 'pr') }}:
-                  dependsOn: 
-                  - Deployment_pp_westeurope
-                  condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
-                ${{ elseif eq(parameters.existTag, ' ') }}:
-                  dependsOn: 
-                  - scanBuildApp
-                  condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
-                variables:
-                  - name: secRegionId
-                    value: $(${{ format('{0}{1}', location, 'Id') }})
-                  - name: environmentId
-                    value: $[variables['${{env}}EnvId']]
-                  - name: ServConName
-                    value: ${{ format('{0}{1}', env, 'ServCon') }}
-                  - name: ShaCodeName
-                    value: ${{ format('{0}{1}', env, 'ShaCode') }}
-                jobs:
-                  - template: pipeline/components/deploy/deployAppServicesNodeJs.yml@devopsTemplates
-                    parameters:
-                      serviceConnection: $(${{variables.ServConName}})
-                      shaPool: $[variables['${{env}}ShaPool']]
-                      shaCode: $(${{variables.ShaCodeName}})
-                      devOpsEnv: ${{variables.secRegionId}}${{env}}
-                      environmentName: ${{env}}
-                      applicationShortName: ${{variables.applicationShortName}}
-                      applicationFullName: ${{variables.applicationFullName}}
-                      InfrDeploy: ${{parameters.InfrDeploy}}
-                      deploymentLocation: ${{location}}
-                      gitCheck: ${{parameters.gitCheck}}
-                      tier: presentation
-                      tierPlan: prestier-g5
-                      shaUse: ${{parameters.shaUse}}
-                      slotDeploy: ${{parameters.slotDeploy}}
-                      appRepoName: ${{variables.applicationFullName}}
-                      healthCheckEndpoint: v2/healthcheck
-                      existTag: ${{parameters.existTag}}
-                      ${{ if eq(env, 'tran') }}:
-                        ContRegServerCode: $(tranShaCode)
-                      ${{ else }}:
-                        ContRegServerCode: $(prShaCode)
-                      skipHealthCheck: true
+      - task: PowerShell@2
+        displayName: Start sonar scanner
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)/self
+          script: |
+            $branchName = "$(Build.SourceBranch)" -replace 'refs/heads/', ''
+            dotnet tool install --global dotnet-sonarscanner
+            dotnet sonarscanner begin `
+              /o:"dfe-digital" `
+              /k:"DFE-Digital_dsi-platform" `
+              /d:sonar.host.url="https://sonarcloud.io" `
+              /d:sonar.token="$(sonarToken)" `
+              /d:sonar.branch.name=$branchName `
+              /d:sonar.projectBaseDir="$(System.DefaultWorkingDirectory)/self"
+            Write-Host "##vso[task.setvariable variable=sonarScannerStarted]true"
+
+      - task: PowerShell@2
+        displayName: Build projects
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)/self
+          script: |
+            dotnet build ./build.sln `
+              /p:Configuration=Release `
+              /p:IsPipeline=true
+
+      - task: PowerShell@2
+        displayName: Run unit tests
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)/self
+          script: |
+            # dotnet test ./build.sln `
+            #   --collect "Code Coverage" `
+            #   /p:Configuration=Release
+            Write-Host "##vso[task.setvariable variable=unitTestsSucceeded]true"
+
+      - task: PowerShell@2
+        displayName: Stop sonar scanner
+        condition: eq(variables['sonarScannerStarted'], 'true')
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)/self
+          script: |
+            dotnet sonarscanner end `
+              /d:sonar.token="$(sonarToken)"
+
+      - task: NuGetCommand@2
+        displayName: 'Publish packages'
+        condition: |
+          and(
+            succeeded(), eq(variables['unitTestsSucceeded'], 'true'),
+            or(
+              eq(variables['publishPackages'], 'True'),
+              ${{ parameters.publishAllPackages }}
+            )
+          )
+        inputs:
+          command: 'push'
+          packagesToPush: '$(System.DefaultWorkingDirectory)/self/src/**/*.nupkg;!$(System.DefaultWorkingDirectory)/self/src/**/*.symbols.nupkg'
+          nuGetFeedType: 'internal'
+          publishVstsFeed: S141-Dfe-Signin/DfeSignIn-DotNet
+          allowPackageConflicts: true
+
+
+  - ${{ each application in parameters.applications }}:
+    - job: buildImages_${{ application.shortName }}
+      displayName: Build image for '${{ application.displayName }}'
+      dependsOn: checks
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+        - checkout: self
+          persistCredentials: true
+          path: s/self
+        - checkout: devopsTemplates
+          path: s/devopsTemplates
+
+        - template: ./templates/selectProjects.yml
+
+        - task: PowerShell@2
+          displayName: Check needs building
+          inputs:
+            targetType: inline
+            script: |
+              if (
+                '$(deployProjectNames)' -like '**${{ application.projectName }};**' -or
+                '${{ parameters[application.triggerVariable] }}' -eq 'true'
+              ) {
+                Write-Host "##vso[task.setvariable variable=buildImage]true"
+              }
+
+        - task: CopyFiles@2
+          displayName: "Copy Docker files"
+          condition: and(succeeded(), eq(variables.buildImage, 'true'))
+          inputs:
+            SourceFolder: $(System.DefaultWorkingDirectory)/devopsTemplates
+            Contents: |
+              docker/Linux-app-service/**
+            TargetFolder: $(System.DefaultWorkingDirectory)/Publish
+            CleanTargetFolder: true
+        
+        - task: CopyFiles@2
+          displayName: "Copy Docker files"
+          condition: and(succeeded(), eq(variables.buildImage, 'true'))
+          inputs:
+            SourceFolder: $(System.DefaultWorkingDirectory)/self
+            Contents: |
+              **
+            TargetFolder: $(System.DefaultWorkingDirectory)/Publish
+            CleanTargetFolder: false
+
+        # # - ${{ each ContRegServer in parameters.ContRegServers }}:
+        # - task: AzureCLI@2
+        #   displayName: Build image for '${{ application.displayName }}'
+        #   condition: and(succeeded(), eq(variables.buildImage, 'true'))
+        #   inputs:
+        #     azureSubscription: $(devServiceConnection)
+        #     scriptType: pscore
+        #     scriptLocation: scriptPath
+        #     scriptPath: $(System.DefaultWorkingDirectory)/devopsTemplates/scripts/appServiceBuild.ps1
+        #     arguments: >
+        #       -regServer "$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io"
+        #       -appName ${{ application.name }} 
+        #       -branch $(Build.SourceBranch)
+        #       -buildId $(Build.BuildId)
+        #       -dockerFileName "appSvcDotNet"
+        #       -dotNetProjName "${{ application.projectName }}"
+        #     workingDirectory: $(System.DefaultWorkingDirectory)/Publish
+
+        # - ${{ each ContRegServer in parameters.ContRegServers }}:
+        - task: AzureCLI@2
+          displayName: Build image for '${{ application.displayName }}'
+          condition: and(succeeded(), eq(variables.buildImage, 'true'))
+          inputs:
+            azureSubscription: $(devServiceConnection)
+            scriptType: pscore
+            scriptLocation: scriptPath
+            scriptPath: $(System.DefaultWorkingDirectory)/self/scripts/pipelines/Build-Image.ps1
+            arguments: >
+              -regServer "$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io"
+              -appName "${{ application.name }}"
+              -target "${{ parameters.target }}"
+              -buildId $(Build.BuildId)
+              -dockerFileName "appSvcDotNet"
+              -dotNetProjName "${{ application.projectName }}"
+            workingDirectory: $(System.DefaultWorkingDirectory)/Publish
+
+        - task: PowerShell@2
+          displayName: Finished building image
+          name: finished
+          condition: and(succeeded(), eq(variables.buildImage, 'true'))
+          inputs:
+            targetType: inline
+            script: |
+              Write-Host "##vso[task.setvariable variable=imageBuilt;isOutput=true]true"
+              Write-Host "##vso[task.setvariable variable=imageBuildId;isOutput=true]$(Build.BuildId)"

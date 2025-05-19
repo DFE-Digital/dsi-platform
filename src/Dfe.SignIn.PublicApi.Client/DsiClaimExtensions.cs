@@ -9,6 +9,7 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <seealso cref="DsiClaimTypes"/>
 public static class DsiClaimExtensions
 {
+
     /// <summary>
     /// Gets the primary identity from a claims principal.
     /// </summary>
