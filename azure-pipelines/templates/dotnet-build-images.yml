@@ -1,0 +1,134 @@
+parameters:
+  - name: buildSelectOrganisation
+    type: boolean
+    displayName: "Build 'Select Organisation'"
+    default: false
+  - name: buildPublicApi
+    type: boolean
+    displayName: "Build 'Public API'"
+    default: false
+
+  - name: targetWorkflow
+    type: string
+    displayName: Target workflow
+    default: Development
+    values:
+      - Development
+      - Release
+
+  - name: containerRegistry
+    type: string
+    displayName: Container registry
+    default: D03
+    values:
+      - Standard
+      - D03
+
+  - name: applications
+    type: object
+    default:
+      - displayName: Select Organisation
+        name: select-organisation
+        shortName: sltOrg
+        projectName: Dfe.SignIn.Web.SelectOrganisation
+        triggerVariable: buildSelectOrganisation
+
+      - displayName: Public API
+        name: public-api-v2
+        shortName: papiV2
+        projectName: Dfe.SignIn.PublicApi
+        triggerVariable: buildPublicApi
+
+jobs:
+  - ${{ each application in parameters.applications }}:
+    - job: buildImages_${{ application.shortName }}
+      displayName: Build image for '${{ application.displayName }}'
+      dependsOn: dotnetChecks
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+        - checkout: self
+          persistCredentials: true
+          path: s/self
+        - checkout: devopsTemplates
+          path: s/devopsTemplates
+
+        - template: ./dotnet-select-projects.yml
+
+        - task: PowerShell@2
+          displayName: Check needs building
+          inputs:
+            targetType: inline
+            script: |
+              if (
+                '$(deployProjectNames)' -like '**${{ application.projectName }};**' -or
+                '${{ parameters[application.triggerVariable] }}' -eq 'true'
+              ) {
+                Write-Host "##vso[task.setvariable variable=buildImage]true"
+              }
+
+        - task: CopyFiles@2
+          displayName: "Copy Docker files"
+          condition: and(succeeded(), eq(variables.buildImage, 'true'))
+          inputs:
+            SourceFolder: $(System.DefaultWorkingDirectory)/devopsTemplates
+            Contents: |
+              docker/Linux-app-service/**
+            TargetFolder: $(System.DefaultWorkingDirectory)/Publish
+            CleanTargetFolder: true
+        
+        - task: CopyFiles@2
+          displayName: "Copy Docker files"
+          condition: and(succeeded(), eq(variables.buildImage, 'true'))
+          inputs:
+            SourceFolder: $(System.DefaultWorkingDirectory)/self
+            Contents: |
+              **
+            TargetFolder: $(System.DefaultWorkingDirectory)/Publish
+            CleanTargetFolder: false
+
+        # # - ${{ each ContRegServer in parameters.ContRegServers }}:
+        # - task: AzureCLI@2
+        #   displayName: Build image for '${{ application.displayName }}'
+        #   condition: and(succeeded(), eq(variables.buildImage, 'true'))
+        #   inputs:
+        #     azureSubscription: $(devServiceConnection)
+        #     scriptType: pscore
+        #     scriptLocation: scriptPath
+        #     scriptPath: $(System.DefaultWorkingDirectory)/devopsTemplates/scripts/appServiceBuild.ps1
+        #     arguments: >
+        #       -regServer "$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io"
+        #       -appName ${{ application.name }} 
+        #       -branch $(Build.SourceBranch)
+        #       -buildId $(Build.BuildId)
+        #       -dockerFileName "appSvcDotNet"
+        #       -dotNetProjName "${{ application.projectName }}"
+        #     workingDirectory: $(System.DefaultWorkingDirectory)/Publish
+
+        # - ${{ each ContRegServer in parameters.ContRegServers }}:
+        - task: AzureCLI@2
+          displayName: Build image for '${{ application.displayName }}'
+          condition: and(succeeded(), eq(variables.buildImage, 'true'))
+          inputs:
+            azureSubscription: $(devServiceConnection)
+            scriptType: pscore
+            scriptLocation: scriptPath
+            scriptPath: $(System.DefaultWorkingDirectory)/self/scripts/pipelines/Build-Image.ps1
+            arguments: >
+              -regServer "$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io"
+              -appName "${{ application.name }}"
+              -targetWorkflow "${{ parameters.targetWorkflow }}"
+              -buildId $(Build.BuildId)
+              -dockerFileName "appSvcDotNet"
+              -dotNetProjName "${{ application.projectName }}"
+            workingDirectory: $(System.DefaultWorkingDirectory)/Publish
+
+        - task: PowerShell@2
+          displayName: Finished building image
+          name: finished
+          condition: and(succeeded(), eq(variables.buildImage, 'true'))
+          inputs:
+            targetType: inline
+            script: |
+              Write-Host "##vso[task.setvariable variable=imageBuilt;isOutput=true]true"
+              Write-Host "##vso[task.setvariable variable=imageBuildId;isOutput=true]$(Build.BuildId)"

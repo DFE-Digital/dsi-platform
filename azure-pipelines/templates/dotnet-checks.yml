@@ -1,0 +1,90 @@
+parameters:
+  - name: publishAllPackages
+    type: boolean
+    displayName: "Publish all packages"
+    default: false
+
+jobs:
+  - job: dotnetChecks
+    displayName: Checks
+    pool:
+      vmImage: windows-latest
+    steps:
+      - checkout: self
+        persistCredentials: true
+        path: s/self
+      - checkout: devopsTemplates
+        path: s/devopsTemplates
+
+      - template: ./dotnet-select-projects.yml
+
+      - task: UseDotNet@2
+        displayName: Use version 8.x of .NET
+        inputs:
+          packageType: 'runtime'
+          version: '8.x'
+
+      - task: PowerShell@2
+        displayName: Start sonar scanner
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)/self
+          script: |
+            $branchName = "$(Build.SourceBranch)" -replace 'refs/heads/', ''
+            dotnet tool install --global dotnet-sonarscanner
+            dotnet sonarscanner begin `
+              /o:"dfe-digital" `
+              /k:"DFE-Digital_dsi-platform" `
+              /d:sonar.host.url="https://sonarcloud.io" `
+              /d:sonar.token="$(sonarToken)" `
+              /d:sonar.branch.name=$branchName `
+              /d:sonar.projectBaseDir="$(System.DefaultWorkingDirectory)/self"
+            Write-Host "##vso[task.setvariable variable=sonarScannerStarted]true"
+
+      - task: PowerShell@2
+        displayName: Build projects
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)/self
+          script: |
+            dotnet build ./build.sln `
+              /p:Configuration=Release `
+              /p:IsPipeline=true
+
+      - task: PowerShell@2
+        displayName: Run unit tests
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)/self
+          script: |
+            # dotnet test ./build.sln `
+            #   --collect "Code Coverage" `
+            #   /p:Configuration=Release
+            Write-Host "##vso[task.setvariable variable=unitTestsSucceeded]true"
+
+      - task: PowerShell@2
+        displayName: Stop sonar scanner
+        condition: eq(variables['sonarScannerStarted'], 'true')
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)/self
+          script: |
+            dotnet sonarscanner end `
+              /d:sonar.token="$(sonarToken)"
+
+      - task: NuGetCommand@2
+        displayName: 'Publish packages'
+        condition: |
+          and(
+            succeeded(), eq(variables['unitTestsSucceeded'], 'true'),
+            or(
+              eq(variables['publishPackages'], 'True'),
+              ${{ parameters.publishAllPackages }}
+            )
+          )
+        inputs:
+          command: 'push'
+          packagesToPush: '$(System.DefaultWorkingDirectory)/self/src/**/*.nupkg;!$(System.DefaultWorkingDirectory)/self/src/**/*.symbols.nupkg'
+          nuGetFeedType: 'internal'
+          publishVstsFeed: S141-Dfe-Signin/DfeSignIn-DotNet
+          allowPackageConflicts: true
