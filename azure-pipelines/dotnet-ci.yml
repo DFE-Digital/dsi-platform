@@ -31,34 +31,30 @@ parameters:
     displayName: "Publish all packages"
     default: false
 
-  - name: targetWorkflow
+  - name: target
     type: string
-    displayName: Target workflow
+    displayName: Target
     default: Development
     values:
       - Development
       - Release
-
-  - name: containerRegistry
-    type: string
-    displayName: Container registry
-    default: D03
-    values:
-      - Standard
-      - D03
+  - name: forTranEnvironment
+    type: boolean
+    displayName: "For TRAN environment"
+    default: true
 
 variables:
   - group: dsi-global
   - group: dsi-envs-list
 
 jobs:
-  - template: ../templates/dotnet-checks.yml
+  - template: ./templates/dotnet-checks.yml
     parameters:
       publishAllPackages: ${{ parameters.publishAllPackages }}
 
-  - template: ../templates/dotnet-build-images.yml
+  - template: ./templates/dotnet-build-images.yml
     parameters:
       buildSelectOrganisation: ${{ parameters.buildSelectOrganisation }}
       buildPublicApi: ${{ parameters.buildPublicApi }}
-      targetWorkflow: ${{ parameters.targetWorkflow }}
-      containerRegistry: ${{ parameters.containerRegistry }}
+      target: ${{ parameters.target }}
+      forTranEnvironment: ${{ parameters.forTranEnvironment }}

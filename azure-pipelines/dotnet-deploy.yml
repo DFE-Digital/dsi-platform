@@ -1,0 +1,199 @@
+name: $(BuildDefinitionName)_tag-$(BuildID)_at-$(Date:yyyyMMdd)$(Rev:.r)
+
+variables:
+  - group: dsi-global
+  - group: dsi-envs-list
+
+parameters:
+  - name: applications
+    type: object
+    default:
+      - displayName: Select Organisation
+        name: select-organisation
+        shortName: sltOrg
+        projectName: Dfe.SignIn.Web.SelectOrganisation
+        triggerVariable: buildSelectOrganisation
+
+      - displayName: Public API
+        name: public-api-v2
+        shortName: papiV2
+        projectName: Dfe.SignIn.PublicApi
+        triggerVariable: buildPublicApi
+
+trigger: none
+
+resources:
+  containers:
+    - container: images
+      type: ACR
+      azureSubscription: $(devServiceConnection)
+      resourceGroup: $(platformGlobalIdentifier)$(tranShaCode)-cr
+      registry: $(platformGlobalIdentifier)$(tranShaCode)signinshdcr
+      repository: select-organisation
+      trigger:
+        tags:
+          include:
+            - 'development-*'
+
+# variables:
+#   ${{ each application in parameters.applications }}:
+#     imageBuilt_${{ application.shortName }}: $[ resources.pipeline.ci.outputs['buildImages_${{ application.shotName }}.finished.imageBuilt'] ]
+#     imageBuildId_${{ application.shortName }}: $[ resources.pipeline.ci.outputs['buildImages_${{ application.shotName }}.finished.imageBuildId'] ]
+
+steps:
+  - script: |
+      echo "Pretending to deploy..."
+    displayName: 'Pretend to deploy'
+
+  - script: |
+      echo "Pipeline Name: $(Build.DefinitionName)_$(Build.SourceBranchName)_$(Build.BuildId)"
+      echo "Image Name: $(resources.containers.images.repository)"
+      echo "Image Tag: $(resources.containers.images.tag)"
+      echo "Registry: $(resources.containers.images.registry)"
+    displayName: 'Output Image Details'
+
+# name: $(BuildDefinitionName)_tag-$(BuildID)_at-$(Date:yyyyMMdd)$(Rev:.r)
+# resources:
+#   pipelines:
+#     # Defult branch is master
+#     - repository: devopsTemplates
+#       type: github
+#       endpoint: DfE-Digital
+#       name: DFE-Digital/login.dfe.devops
+#       ref: feature/DSI-7357
+
+# trigger:
+#   branches:
+#     include:
+#       - "*"
+#   paths:
+#     include:
+#       - src/Dfe.SignIn.Web.SelectOrganisation/*
+
+# pr:
+#   branches:
+#     include:
+#       - main
+
+# parameters:
+#   - name: location
+#     type: object
+#     displayName: "Deployment locations (- westeurope & - northeurope)"
+#     default:
+#       - westeurope
+#       - northeurope
+#   - name: shaUse
+#     type: boolean
+#     displayName: "Use Self Host agent"
+#     default: true
+#   - name: existTag
+#     type: string
+#     displayName: "Deploy existing tag"
+#     default: " "
+#   - name: slotDeploy
+#     type: boolean
+#     displayName: "Slot Deployment"
+#     default: true
+#   - name: InfrDeploy
+#     type: boolean
+#     displayName: "Infrastrucure Deployment only"
+#     default: false
+#   - name: tran
+#     type: boolean
+#     displayName: "Transformation Deployment"
+#     default: false
+#   - name: dev
+#     type: boolean
+#     displayName: "Dev Deployment"
+#     default: false
+#   - name: test
+#     type: boolean
+#     displayName: "Test Deployment"
+#     default: false
+#   - name: pp
+#     type: boolean
+#     displayName: "Pre-Prod Deployment"
+#     default: false
+#   - name: pr
+#     type: boolean
+#     displayName: "Prod Deployment"
+#     default: false
+#   - name: gitCheck
+#     type: boolean
+#     displayName: "Bypass Git Check in Test"
+#     default: false
+
+# variables:
+#   - group: dsi-global
+#   - group: dsi-envs-list
+#   - name: applicationShortName
+#     value: "sltOrg"
+#   - name: applicationFullName
+#     value: "select-organisation"
+#   - name: buildNotNeeded
+#     value: ${{ contains(variables['Build.SourceVersionMessage'],'Upgrade to version') }}
+#   - name: tran
+#     value: ${{ parameters.tran }}
+#   - name: dev
+#     value: ${{ or(parameters.dev, contains(variables['Build.SourceBranch'],'feature1')) }}
+#   - name: test
+#     value: ${{ or(parameters.test, contains(variables['Build.SourceBranch'],'feature1')) }}
+#   - name: pp
+#     value: ${{ and(or(parameters.pp, contains(variables['Build.SourceBranch'],'main1')), eq(variables.buildNotNeeded, 'false')) }}
+#   - name: pr
+#     value: ${{ or(and(parameters.pr, ne(parameters.existTag, ' ')),eq(variables.pp, 'true')) }}
+#   - name: ContRegServerTran
+#     value: ${{ eq(variables.tran, 'true') }}
+#   - name: northeurope
+#     value: "tran,pp,pr"
+#   - name: westeurope
+#     value: "tran,dev,test,pp,pr"
+
+# stages:
+#   - ${{ each location in parameters.location }}:
+#       - ${{each env in split(variables[location],',') }}:
+#           - ${{ if eq(variables[env], 'true') }}:
+#               - stage: Deployment_${{env}}_${{location}}
+#                 displayName: "Deployment [${{env}}] ${{location}}"
+#                 ${{ if eq(env, 'pr') }}:
+#                   dependsOn: 
+#                   - Deployment_pp_westeurope
+#                   condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+#                 ${{ elseif eq(parameters.existTag, ' ') }}:
+#                   dependsOn: 
+#                   - scanBuildApp
+#                   condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+#                 variables:
+#                   - name: secRegionId
+#                     value: $(${{ format('{0}{1}', location, 'Id') }})
+#                   - name: environmentId
+#                     value: $[variables['${{env}}EnvId']]
+#                   - name: ServConName
+#                     value: ${{ format('{0}{1}', env, 'ServCon') }}
+#                   - name: ShaCodeName
+#                     value: ${{ format('{0}{1}', env, 'ShaCode') }}
+#                 jobs:
+#                   - template: pipeline/components/deploy/deployAppServicesNodeJs.yml@devopsTemplates
+#                     parameters:
+#                       serviceConnection: $(${{variables.ServConName}})
+#                       shaPool: $[variables['${{env}}ShaPool']]
+#                       shaCode: $(${{variables.ShaCodeName}})
+#                       devOpsEnv: ${{variables.secRegionId}}${{env}}
+#                       environmentName: ${{env}}
+#                       applicationShortName: ${{variables.applicationShortName}}
+#                       applicationFullName: ${{variables.applicationFullName}}
+#                       InfrDeploy: ${{parameters.InfrDeploy}}
+#                       deploymentLocation: ${{location}}
+#                       gitCheck: ${{parameters.gitCheck}}
+#                       tier: presentation
+#                       tierPlan: prestier-g3
+#                       shaUse: ${{parameters.shaUse}}
+#                       slotDeploy: ${{parameters.slotDeploy}}
+#                       appRepoName: ${{variables.applicationFullName}}
+#                       healthCheckEndpoint: v2/healthcheck
+#                       existTag: ${{parameters.existTag}}
+#                       ${{ if eq(env, 'tran') }}:
+#                         ContRegServerCode: $(tranShaCode)
+#                       ${{ else }}:
+#                         ContRegServerCode: $(prShaCode)
+#                       skipHealthCheck: true
