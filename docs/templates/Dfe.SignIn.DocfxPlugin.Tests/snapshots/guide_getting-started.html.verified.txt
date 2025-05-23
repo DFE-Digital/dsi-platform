@@ -100,11 +100,33 @@
 
 
 <p>A getting started page.</p>
+<p>An example of a grid table:</p>
+<table class="govuk-table">
+<col style="width:21.05%">
+<col style="width:78.95%">
+<thead class="govuk-table__head">
+<tr class="govuk-table__row">
+<th class="govuk-table__header">Item</th>
+<th class="govuk-table__header">Summary</th>
+</tr>
+</thead>
+<tbody class="govuk-table__body">
+<tr class="govuk-table__row">
+<td class="govuk-table__cell">A</td>
+<td class="govuk-table__cell">An example item.</td>
+</tr>
+<tr class="govuk-table__row">
+<td class="govuk-table__cell">B</td>
+<td class="govuk-table__cell">Another example item.</td>
+</tr>
+</tbody>
+</table>
+<p>A paragraph following a grid table.</p>
 
 
     <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
                                 <p class="govuk-body-s">
-                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/guide/getting-started.md/#L1">View source in repository</a>
+                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/public-api-docs/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/guide/getting-started.md/#L1">View source in repository</a>
                                 </p>
                     </article>
                 </div>

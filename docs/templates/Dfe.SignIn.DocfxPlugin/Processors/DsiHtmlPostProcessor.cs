@@ -55,6 +55,9 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
     [GeneratedRegex("(<pre><code class=\"lang-csharp\">)(.+?)(</pre>)", RegexOptions.Singleline)]
     private static partial Regex SampleCodePattern();
 
+    [GeneratedRegex("<(table|thead|tr|th|tbody|td)>", RegexOptions.Singleline)]
+    private static partial Regex TablePattern();
+
     [GeneratedRegex("^ +", RegexOptions.Multiline)]
     private static partial Regex StartLinePattern();
 
@@ -64,7 +67,13 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
     [GeneratedRegex("(<a[^>]+?>)([^<]+?)(</a>)", RegexOptions.Singleline)]
     private static partial Regex LinkPattern();
 
-    [GeneratedRegex("[_]", RegexOptions.Singleline)]
+    [GeneratedRegex("<([ou]l)>", RegexOptions.Singleline)]
+    private static partial Regex ListPattern();
+
+    [GeneratedRegex("(<main)(.+)(</main>)", RegexOptions.Singleline)]
+    private static partial Regex MainBodyPattern();
+
+    [GeneratedRegex("[_/]", RegexOptions.Singleline)]
     private static partial Regex BreakableBeforeSymbolPattern();
 
     [GeneratedRegex("&(l|g)t;|[().]", RegexOptions.Singleline)]
@@ -161,7 +170,7 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
                 matches.Groups[1].Value + $"<span class=\"govuk-caption-l govuk-visually-hidden\">{captionText}</span>"
             );
 
-            string pageCaption = $"<div class=\"app-page-caption\" aria-hidden=\"hidden\">{captionText}</div>";
+            string pageCaption = $"<div class=\"app-page-caption\" aria-hidden=\"true\">{captionText}</div>";
             html = html.Replace("<!--PLACEHOLDER:CAPTION-->", pageCaption);
         }
 
@@ -178,7 +187,18 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
         }
 
         // Use 'govuk-link' classes on all hyperlinks.
-        html = html.Replace("<a class=\"xref", "<a class=\"govuk-link govuk-link--no-visited-state");
+        html = MainBodyPattern().Replace(html, matches =>
+            matches.Value
+                .Replace("<a class=\"xref", "<a class=\"govuk-link govuk-link--no-visited-state")
+                .Replace("<a href=", "<a class=\"govuk-link govuk-link--no-visited-state\" href=")
+        );
+
+        // Add GOV.UK design system classes to lists.
+        html = ListPattern().Replace(html, matches => matches.Groups[1].Value switch {
+            "ol" => "<ol class=\"govuk-list govuk-list--number\">",
+            "ul" => "<ul class=\"govuk-list govuk-list--bullet\">",
+            _ => matches.Value,
+        });
 
         // Fix alignment of example code.
         html = SampleCodePattern().Replace(html, matches =>
@@ -190,6 +210,17 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
             ) +
             matches.Groups[3].Value
         );
+
+        // Add GOV.UK design system classes to tables.
+        html = TablePattern().Replace(html, matches => matches.Groups[1].Value switch {
+            "table" => "<table class=\"govuk-table\">",
+            "thead" => "<thead class=\"govuk-table__head\">",
+            "tr" => "<tr class=\"govuk-table__row\">",
+            "th" => "<th class=\"govuk-table__header\">",
+            "tbody" => "<tbody class=\"govuk-table__body\">",
+            "td" => "<td class=\"govuk-table__cell\">",
+            _ => matches.Value,
+        });
 
         await File.WriteAllTextAsync(filePath, html, Encoding.UTF8, cancellationToken);
     }

@@ -101,23 +101,23 @@
 
 <p>This documentation is built using the custom template and then compared with a prior snapshot to indicate if the content is rendered as expected.</p>
 <p>This project includes various example scenarios such as:</p>
-<ul>
+<ul class="govuk-list govuk-list--bullet">
 <li>guide pages written in markdown</li>
 <li>namespace pages</li>
 <li>class pages</li>
 <li>class member pages</li>
 </ul>
-<a href="guide/introduction.html" role="button" draggable="false" class="govuk-button govuk-button--start" data-module="govuk-button">
-  Start now
-  <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewbox="0 0 33 40" aria-hidden="true" focusable="false">
-    <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z"></path>
-  </svg>
-</a>
+<p>&lt;a class=&quot;govuk-button govuk-button--start&quot;  href=&quot;guide/introduction.md&quot; role=&quot;button&quot; draggable=&quot;false&quot;data-module=&quot;govuk-button&quot;&gt;
+Start now
+<svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewbox="0 0 33 40" aria-hidden="true" focusable="false">
+<path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z"></path>
+</svg>
+</p>
 
 
     <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
                                 <p class="govuk-body-s">
-                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/index.md/#L1">View source in repository</a>
+                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/public-api-docs/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/index.md/#L1">View source in repository</a>
                                 </p>
                     </article>
                 </div>

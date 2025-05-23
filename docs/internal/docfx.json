@@ -40,6 +40,12 @@
         ]
       }
     ],
+    "markdownEngineProperties": {
+      "markdigExtensions": [
+        "DefinitionLists",
+        "GridTables"
+      ]
+    },
     "postProcessors": [
       "ExtractSearchIndex",
       "DsiHtmlPostProcessor",

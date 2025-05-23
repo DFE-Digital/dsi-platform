@@ -104,7 +104,7 @@
 
     <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
                                 <p class="govuk-body-s">
-                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/docfx/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/guide/introduction.md/#L1">View source in repository</a>
+                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/public-api-docs/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/guide/introduction.md/#L1">View source in repository</a>
                                 </p>
                     </article>
                 </div>
