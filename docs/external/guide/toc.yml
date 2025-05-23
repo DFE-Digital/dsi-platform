@@ -4,11 +4,30 @@ items:
     items:
       - name: Introduction
         href: introduction.md
-      - name: Getting Started
-        href: getting-started.md
-  - name: Public API
+      - name: Packages for .NET
+        href: dotnet-packages.md
+      - name: Sample applications
+        href: sample-applications.md
+
+  - name: Using the API
     items:
       - name: Making requests with the HttpClient
         href: api/making-requests-with-the-httpclient.md
       - name: Using an interactor
         href: api/using-an-interactor.md
+
+  - name: Select organisation
+    items:
+      - name: What is select organisation?
+        href: select-organisation/overview.md
+      - name: Overview of user flow
+        href: select-organisation/user-flow.md
+      - name: Middleware for .NET applications
+        href: select-organisation/dotnet-middleware.md
+      - name: Example requests
+        href: select-organisation/example-requests.md
+
+  - name: Other
+    items:
+      - name: Useful resources
+        href: useful-resources.md

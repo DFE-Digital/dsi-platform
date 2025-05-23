@@ -1,6 +1,6 @@
 # Custom templates for docfx
 
-A custom "dsi" template has been created to give the DfE Sign-in .NET reference documentation the GOV.UK design system look and feel.
+A custom "dsi" template has been created to give the DfE Sign-in Developer Reference documentation the GOV.UK design system look and feel.
 
 ## Directory structure
 
