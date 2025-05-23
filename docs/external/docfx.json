@@ -28,6 +28,7 @@
           "**/*.{md,yml}"
         ],
         "exclude": [
+          "_site/**",
           "filterConfig.yml"
         ]
       }
@@ -58,7 +59,7 @@
       "DsiHtmlPostProcessor",
       "DsiSearchIndexPostProcessor"
     ],
-    "output": "../_site",
+    "output": "_site",
     "template": [
       "../templates/dsi"
     ],
