@@ -19,16 +19,33 @@ public sealed class TagColourAttribute(TagColour colour) : Attribute
 /// <seealso cref="TagColourAttribute"/>
 public enum TagColour
 {
-    /// <exclude/>
+    /// <summary>
+    /// Represents a tag colour of grey.
+    /// </summary>
     Grey,
-    /// <exclude/>
+
+    /// <summary>
+    /// Represents a tag colour of green.
+    /// </summary>
     Green,
-    /// <exclude/>
+
+    /// <summary>
+    /// Represents a tag colour of red.
+    /// </summary>
     Red,
-    /// <exclude/>
+
+    /// <summary>
+    /// Represents a tag colour of orange.
+    /// </summary>
     Orange,
-    /// <exclude/>
+
+    /// <summary>
+    /// Represents a tag colour of blue.
+    /// </summary>
     Blue,
-    /// <exclude/>
+
+    /// <summary>
+    /// Represents a tag colour of purple.
+    /// </summary>
     Purple,
 }

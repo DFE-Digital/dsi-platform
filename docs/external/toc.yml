@@ -1,6 +1,8 @@
 - name: Guide
   href: guide/
+- name: API
+  href: api/
 - name: Framework
   href: reference/Dfe.SignIn.Core.Framework.yml
-- name: Public API Client
+- name: API Client
   href: reference/Dfe.SignIn.PublicApi.Client.yml

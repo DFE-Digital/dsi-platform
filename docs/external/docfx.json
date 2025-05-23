@@ -28,6 +28,7 @@
           "**/*.{md,yml}"
         ],
         "exclude": [
+          "_site/**",
           "filterConfig.yml"
         ]
       }
@@ -47,18 +48,24 @@
         ]
       }
     ],
+    "markdownEngineProperties": {
+      "markdigExtensions": [
+        "DefinitionLists",
+        "GridTables"
+      ]
+    },
     "postProcessors": [
       "ExtractSearchIndex",
       "DsiHtmlPostProcessor",
       "DsiSearchIndexPostProcessor"
     ],
-    "output": "../_site",
+    "output": "_site",
     "template": [
       "../templates/dsi"
     ],
     "globalMetadata": {
-      "_appName": "DfE Sign-in .NET Reference",
-      "_appTitle": "DfE Sign-in .NET Reference",
+      "_appName": "DfE Sign-in Developer Reference",
+      "_appTitle": "DfE Sign-in Developer Reference",
       "_disableContribution": true,
       "_cdnBaseAddress": "https://localhost:3001/",
       "_cdnVersion": "1.0",

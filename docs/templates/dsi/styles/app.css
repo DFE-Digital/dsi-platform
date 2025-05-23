@@ -3,9 +3,58 @@
 }
 
 code {
+  padding: 0.2rem;
   font-size: 1rem;
   background-color: #f8f8f8 !important;
   border-radius: 5px;
+}
+
+pre>code,
+.dotnet-type-summary>div {
+  display: block;
+  padding: 1em;
+  overflow-x: auto;
+  background-color: #f8f8f8 !important;
+  border-radius: 5px;
+}
+
+.dotnet-type-summary>div,
+.dotnet-type-summary>div a {
+  font-family: monospace;
+  font-size: 1rem;
+  color: #24292e;
+}
+
+img {
+  max-width: 100%;
+}
+
+table {
+  border: solid 2px gray;
+}
+
+table,
+th,
+td {
+  vertical-align: top !important;
+}
+
+th,
+td {
+  padding: 1rem !important;
+}
+
+td>:first-child {
+  margin-top: 0;
+}
+
+td>:last-child {
+  margin-bottom: 0;
+}
+
+dt {
+  margin-top: 1rem;
+  font-weight: bold;
 }
 
 .app-article-content--Conceptual ul {
