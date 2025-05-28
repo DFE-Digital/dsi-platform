@@ -1,6 +1,6 @@
 # Custom templates for docfx
 
-A custom "dsi" template has been created to give the DfE Sign-in .NET reference documentation the GOV.UK design system look and feel.
+A custom "dsi" template has been created to give the DfE Sign-in Developer Reference documentation the GOV.UK design system look and feel.
 
 ## Directory structure
 
@@ -33,72 +33,72 @@ A custom "dsi" template has been created to give the DfE Sign-in .NET reference 
 Node tooling is required to bundle and minify the scripts and styles.
 
 ```pwsh
-# run from /docs/
-npm --prefix templates i
+# run from root of repository /
+npm --prefix docs/templates i
 ```
 
 With the developer tooling installed:
 
 ```pwsh
-# run from /docs/
-npm --prefix templates run build
+# run from root of repository /
+npm --prefix docs/templates run build
 ```
 
-> **Note:** Scripts and styles can also be built by running `./scripts/Build.ps1`.
+> **Note:** Scripts and styles can also be built by running `./scripts/docs/Build-CustomTemplate.ps1`.
 
 ## Building the Dfe.SignIn.DocfxPlugin project
 
 The following command can be executed from the "docs" directory:
 
 ```pwsh
-# run from /docs/
-dotnet build templates
+# run from root of repository /
+dotnet build docs/templates
 ```
 
 Upon running this command the plugin DLL files are copied into the "dsi/plugins" directory.
 
 Plugin DLL files are not committed to this repository.
 
-> **Note:** The plugin can also be built by running `./scripts/Build.ps1`.
-
-## Building and previewing the internal documentation
-
-To build and serve the internal documentation locally:
-
-```pwsh
-# run from /docs/
-./scripts/PreviewInternal.ps1
-```
-
-> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
+> **Note:** The plugin can also be built by running `./scripts/docs/Build-CustomTemplate.ps1`.
 
 ## Building and previewing the external documentation
 
 To build and serve the external documentation locally:
 
 ```pwsh
-# run from /docs/
-./scripts/PreviewExternal.ps1
+# run from root of repository /
+./scripts/docs/Preview-ExternalSite.ps1
 ```
 
-> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
+> **Note:** By default the documentation can be viewed on `http://localhost:8085`.
+
+## Building and previewing the internal documentation
+
+To build and serve the internal documentation locally:
+
+```pwsh
+# run from root of repository /
+./scripts/docs/Preview-InternalSite.ps1
+```
+
+> **Note:** By default the documentation can be viewed on `http://localhost:8086`.
 
 ## Building and previewing the snapshot testing sample documentation
 
 To build and serve the sample documentation that is used in snapshot testing locally:
 
 ```pwsh
-# run from /docs/
-./scripts/PreviewSample.ps1
+# run from root of repository /
+./scripts/docs/Preview-TestSite.ps1
 ```
 
-> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
+> **Note:** By default the documentation can be viewed on `http://localhost:8087`.
 
 ## Running snapshot tests
 
 ```pwsh
-# run from /docs/
-dotnet test templates
+# run from root of repository /
+dotnet test docs/templates
 ```
 
 ## Updating snapshots
@@ -112,8 +112,8 @@ Verify each of the mismatching snapshots manually:
 If you are satisfied with the changes then rename the applicable `*.received.txt` files to `*.verified.txt`:
 
 ```pwsh
-# run from /docs/
-./scripts/VerifySnapshots.ps1
+# run from root of repository /
+./scripts/docs/Verify-TestSnapshots.ps1
 ```
 
 Commit the updated snapshot files to the repository.
@@ -129,22 +129,24 @@ The build pipeline must execute commands from the working directory `/docs/`.
 First the custom template styles, scripts and custom plugin must be built using the following command:
 
 ```pwsh
-# run from /docs/
-./scripts/Build.ps1
+# run from root of repository /
+./scripts/docs/Build-CustomTemplate.ps1
 ```
 
 Ensure that tests pass by running the following command:
 
 ```pwsh
-# run from /docs/
-dotnet test templates
+# run from root of repository /
+dotnet test docs/templates
 ```
 
 The build pipeline builds the **internal** version of the documentation when deploying to the development environments:
 
 ```pwsh
-# run from /docs/
-dotnet docx internal/docfx.json /
+# run from root of repository /
+./scripts/docs/Prepare-InternalSite.ps1
+
+dotnet docx docs/internal/docfx.json /
     -m _cdnBaseAddress=CDN_BASE_ADDRESS /
     -m _cdnVersion=CDN_VERSION /
     -m _surveyUrl=SURVEY_URL
@@ -153,8 +155,10 @@ dotnet docx internal/docfx.json /
 The build pipeline builds the **external** version of the documentation when deploying to non-development environments:
 
 ```pwsh
-# run from /docs/
-dotnet docx external/docfx.json /
+# run from root of repository /
+./scripts/docs/Prepare-ExternalSite.ps1
+
+dotnet docx docs/external/docfx.json /
     -m _cdnBaseAddress=CDN_BASE_ADDRESS /
     -m _cdnVersion=CDN_VERSION /
     -m _surveyUrl=SURVEY_URL
@@ -163,8 +167,8 @@ dotnet docx external/docfx.json /
 When the documentation is built docfx produces some output files which are not needed. These can be removed:
 
 ```pwsh
-# run from /docs/
-./scripts/RemoveUnnecessaryOutputFiles.ps1
+# run from root of repository /
+./scripts/docs/Remove-UnnecessaryOutputFiles.ps1
 ```
 
 The `/docs/_site/` directory is then ready to be deployed.

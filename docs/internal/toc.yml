@@ -1,4 +1,6 @@
 - name: Guide
   href: guide/
+- name: API
+  href: api/
 - name: Code Reference
   href: reference/
