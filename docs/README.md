@@ -61,17 +61,6 @@ Plugin DLL files are not committed to this repository.
 
 > **Note:** The plugin can also be built by running `./scripts/docs/Build-CustomTemplate.ps1`.
 
-## Building and previewing the internal documentation
-
-To build and serve the internal documentation locally:
-
-```pwsh
-# run from root of repository /
-./scripts/docs/Preview-InternalSite.ps1
-```
-
-> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
-
 ## Building and previewing the external documentation
 
 To build and serve the external documentation locally:
@@ -81,7 +70,18 @@ To build and serve the external documentation locally:
 ./scripts/docs/Preview-ExternalSite.ps1
 ```
 
-> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
+> **Note:** By default the documentation can be viewed on `http://localhost:8085`.
+
+## Building and previewing the internal documentation
+
+To build and serve the internal documentation locally:
+
+```pwsh
+# run from root of repository /
+./scripts/docs/Preview-InternalSite.ps1
+```
+
+> **Note:** By default the documentation can be viewed on `http://localhost:8086`.
 
 ## Building and previewing the snapshot testing sample documentation
 
@@ -92,7 +92,7 @@ To build and serve the sample documentation that is used in snapshot testing loc
 ./scripts/docs/Preview-TestSite.ps1
 ```
 
-> **Note:** By default the documentation can be viewed on `http://localhost:8080`.
+> **Note:** By default the documentation can be viewed on `http://localhost:8087`.
 
 ## Running snapshot tests
 
