@@ -1,5 +1,8 @@
 $docsPath = Resolve-Path "${PSScriptRoot}/../../docs"
 
-npm --prefix "$docsPath/templates" install
-npm --prefix "$docsPath/templates" run build
+pwsh -WorkingDirectory "$docsPath/templates" -Command {
+    npm install
+    npm run build
+}
+
 dotnet build "$docsPath/templates"
