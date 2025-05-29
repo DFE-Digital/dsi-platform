@@ -41,7 +41,7 @@ public sealed class HttpContextAspNetCoreTests
     public void IHttpContext_Request_HasExpectedValue()
     {
         var autoMocker = new AutoMocker();
-        var mockContext = SetupMockHttpContext(autoMocker);
+        SetupMockHttpContext(autoMocker);
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
         Assert.AreSame(adapter, adapter.Request);
@@ -51,10 +51,10 @@ public sealed class HttpContextAspNetCoreTests
     public void IHttpContext_Response_HasExpectedValue()
     {
         var autoMocker = new AutoMocker();
-        var mockContext = SetupMockHttpContext(autoMocker);
+        SetupMockHttpContext(autoMocker);
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
-        Assert.AreSame(adapter, adapter.Request);
+        Assert.AreSame(adapter, adapter.Response);
     }
 
     [TestMethod]
