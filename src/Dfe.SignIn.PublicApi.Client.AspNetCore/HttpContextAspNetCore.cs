@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
@@ -27,9 +26,6 @@ public sealed class HttpContextAspNetCoreAdapter(HttpContext inner)
 
     /// <inheritdoc />
     public ClaimsPrincipal User => inner.User;
-
-    /// <inheritdoc />
-    public Task SignInAsync(ClaimsPrincipal newPrincipal) => inner.SignInAsync(newPrincipal);
 
     #endregion
 

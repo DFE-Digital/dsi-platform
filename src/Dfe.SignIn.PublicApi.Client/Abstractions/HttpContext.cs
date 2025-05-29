@@ -27,15 +27,6 @@ public interface IHttpContext
     /// Gets the current user.
     /// </summary>
     ClaimsPrincipal User { get; }
-
-    /// <summary>
-    /// Signs in with the new <see cref="ClaimsPrincipal"/> instance.
-    /// </summary>
-    /// <param name="newPrincipal">New claims principal representing the user.</param>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="newPrincipal"/> is null.</para>
-    /// </exception>
-    Task SignInAsync(ClaimsPrincipal newPrincipal);
 }
 
 /// <summary>
