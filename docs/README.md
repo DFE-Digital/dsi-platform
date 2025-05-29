@@ -33,15 +33,15 @@ A custom "dsi" template has been created to give the DfE Sign-in Developer Refer
 Node tooling is required to bundle and minify the scripts and styles.
 
 ```pwsh
-# run from root of repository /
-npm --prefix docs/templates i
+# run from root of repository /docs/templates/
+npm i
 ```
 
 With the developer tooling installed:
 
 ```pwsh
-# run from root of repository /
-npm --prefix docs/templates run build
+# run from root of repository /docs/templates/
+npm run build
 ```
 
 > **Note:** Scripts and styles can also be built by running `./scripts/docs/Build-CustomTemplate.ps1`.
@@ -51,8 +51,8 @@ npm --prefix docs/templates run build
 The following command can be executed from the "docs" directory:
 
 ```pwsh
-# run from root of repository /
-dotnet build docs/templates
+# run from root of repository /docs/templates/
+dotnet build .
 ```
 
 Upon running this command the plugin DLL files are copied into the "dsi/plugins" directory.
