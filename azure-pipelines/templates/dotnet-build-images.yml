@@ -8,9 +8,9 @@ parameters:
     displayName: "Build 'Public API'"
     default: false
 
-  - name: targetWorkflow
+  - name: lifecycle
     type: string
-    displayName: Target workflow
+    displayName: Lifecycle
     default: Development
     values:
       - Development
@@ -43,15 +43,37 @@ jobs:
   - ${{ each application in parameters.applications }}:
     - job: buildImages_${{ application.shortName }}
       displayName: Build image for '${{ application.displayName }}'
-      dependsOn: dotnetChecks
+
+      # For development lifecycle allow images to be deployed to the TRAN/DEV/TEST
+      # environments with failing checks. Do not permit this for release lifecycles.
+      ${{ if not(eq(parameters.lifecycle, 'Development')) }}:
+        dependsOn: dotnetChecks
+
       pool:
         vmImage: ubuntu-latest
+
+      variables:
+        - name: containerRegistryServer
+          ${{ if eq( parameters.containerRegistry, 'Standard') }}:
+            value: "$(platformGlobalIdentifier)$(prShaCode)$(platformGlobalName)shdcr.azurecr.io"
+          ${{ if eq( parameters.containerRegistry, 'D03') }}:
+            value: "$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io"
+
       steps:
         - checkout: self
           persistCredentials: true
           path: s/self
         - checkout: devopsTemplates
           path: s/devopsTemplates
+
+        - task: PowerShell@2
+          displayName: Verify container registry for lifecycle
+          inputs:
+            filePath: '$(System.DefaultWorkingDirectory)/self/scripts/pipelines/Test-LifecycleContainerRegistry.ps1'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/self'
+            arguments: >
+              -Lifecycle "${{ parameters.lifecycle }}"
+              -ContainerRegistry "${{ parameters.containerRegistry }}"
 
         - template: ./dotnet-select-projects.yml
 
@@ -87,25 +109,6 @@ jobs:
             TargetFolder: $(System.DefaultWorkingDirectory)/Publish
             CleanTargetFolder: false
 
-        # # - ${{ each ContRegServer in parameters.ContRegServers }}:
-        # - task: AzureCLI@2
-        #   displayName: Build image for '${{ application.displayName }}'
-        #   condition: and(succeeded(), eq(variables.buildImage, 'true'))
-        #   inputs:
-        #     azureSubscription: $(devServiceConnection)
-        #     scriptType: pscore
-        #     scriptLocation: scriptPath
-        #     scriptPath: $(System.DefaultWorkingDirectory)/devopsTemplates/scripts/appServiceBuild.ps1
-        #     arguments: >
-        #       -regServer "$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io"
-        #       -appName ${{ application.name }} 
-        #       -branch $(Build.SourceBranch)
-        #       -buildId $(Build.BuildId)
-        #       -dockerFileName "appSvcDotNet"
-        #       -dotNetProjName "${{ application.projectName }}"
-        #     workingDirectory: $(System.DefaultWorkingDirectory)/Publish
-
-        # - ${{ each ContRegServer in parameters.ContRegServers }}:
         - task: AzureCLI@2
           displayName: Build image for '${{ application.displayName }}'
           condition: and(succeeded(), eq(variables.buildImage, 'true'))
@@ -115,20 +118,10 @@ jobs:
             scriptLocation: scriptPath
             scriptPath: $(System.DefaultWorkingDirectory)/self/scripts/pipelines/Build-Image.ps1
             arguments: >
-              -regServer "$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io"
-              -appName "${{ application.name }}"
-              -targetWorkflow "${{ parameters.targetWorkflow }}"
-              -buildId $(Build.BuildId)
-              -dockerFileName "appSvcDotNet"
-              -dotNetProjName "${{ application.projectName }}"
+              -RegServer "$(containerRegistryServer)"
+              -AppName "${{ application.name }}"
+              -Lifecycle "${{ parameters.lifecycle }}"
+              -BuildId $(Build.BuildId)
+              -DockerFileName "appSvcDotNet"
+              -DotNetProjName "${{ application.projectName }}"
             workingDirectory: $(System.DefaultWorkingDirectory)/Publish
-
-        - task: PowerShell@2
-          displayName: Finished building image
-          name: finished
-          condition: and(succeeded(), eq(variables.buildImage, 'true'))
-          inputs:
-            targetType: inline
-            script: |
-              Write-Host "##vso[task.setvariable variable=imageBuilt;isOutput=true]true"
-              Write-Host "##vso[task.setvariable variable=imageBuildId;isOutput=true]$(Build.BuildId)"

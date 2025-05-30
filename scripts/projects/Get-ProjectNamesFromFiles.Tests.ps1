@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Get-ProjectNamesFromFiles" {
     BeforeEach {
-        Mock Get-ChildItem {
+        Mock Get-ChildItem -ParameterFilter { $args[0] -eq "./src" } {
             return @(
                 @{ Name = "Dfe.SignIn.Core.Framework" }
                 @{ Name = "Dfe.SignIn.Core.UseCases" }
@@ -12,6 +12,18 @@ Describe "Get-ProjectNamesFromFiles" {
                 @{ Name = "Dfe.SignIn.PublicApi.Client" }
                 @{ Name = "Dfe.SignIn.Web.SelectOrganisation" }
                 @{ Name = "Dfe.SignIn.WebFramework" }
+            )
+        }
+        Mock Get-ChildItem -ParameterFilter { $args[0] -eq "./tests" } {
+            return @(
+                @{ Name = "Dfe.SignIn.Core.Framework.UnitTests" }
+                @{ Name = "Dfe.SignIn.Core.UseCases.UnitTests" }
+                @{ Name = "Dfe.SignIn.PublicApi.UnitTests" }
+                @{ Name = "Dfe.SignIn.PublicApi.Client.UnitTests" }
+                @{ Name = "Dfe.SignIn.Web.SelectOrganisation.UnitTests" }
+                @{ Name = "Dfe.SignIn.WebFramework.UnitTests" }
+                @{ Name = "Dfe.SignIn.TestHelpers" }
+                @{ Name = "Dfe.SignIn.TestHelpers.UnitTests" }
             )
         }
         Mock Resolve-Path {
@@ -36,7 +48,7 @@ Describe "Get-ProjectNamesFromFiles" {
         }
 
         It "should set 'SourceProjects' to the list of associated source projects" {
-            $result = Get-ProjectNamesFromFiles . $changedFiles
+            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
             $result.SourceProjects | Should -Be @(
                 "Dfe.SignIn.Core.Framework"
                 "Dfe.SignIn.WebFramework"
@@ -44,9 +56,11 @@ Describe "Get-ProjectNamesFromFiles" {
         }
 
         It "should set 'TestProjects' to the list of all associated test projects" {
-            $result = Get-ProjectNamesFromFiles . $changedFiles
+            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
             $result.TestProjects | Should -Be @(
                 "Dfe.SignIn.Core.Framework.UnitTests"
+                "Dfe.SignIn.TestHelpers"
+                "Dfe.SignIn.TestHelpers.UnitTests"
                 "Dfe.SignIn.WebFramework.UnitTests"
             )
         }
@@ -72,7 +86,7 @@ Describe "Get-ProjectNamesFromFiles" {
         }
 
         It "should set 'SourceProjects' to the list of directly and indirectly associated source projects" {
-            $result = Get-ProjectNamesFromFiles . $changedFiles
+            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
             $result.SourceProjects | Should -Be @(
                 "Dfe.SignIn.Core.UseCases"
                 "Dfe.SignIn.PublicApi"
@@ -92,17 +106,19 @@ Describe "Get-ProjectNamesFromFiles" {
         }
 
         It "should set 'TestProjects' to the list of associated source projects" {
-            $result = Get-ProjectNamesFromFiles . $changedFiles
+            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
             $result.SourceProjects | Should -Be @(
                 "Dfe.SignIn.Core.Framework"
             )
         }
 
         It "should set 'TestProjects' to the list of all associated test projects" {
-            $result = Get-ProjectNamesFromFiles . $changedFiles
+            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
             $result.TestProjects | Should -Be @(
                 "Dfe.SignIn.Core.Framework.UnitTests"
                 "Dfe.SignIn.PublicApi.UnitTests"
+                "Dfe.SignIn.TestHelpers"
+                "Dfe.SignIn.TestHelpers.UnitTests"
             )
         }
     }
@@ -120,7 +136,7 @@ Describe "Get-ProjectNamesFromFiles" {
         }
 
         It "should set 'DeployableProjects' to the list of deployable source projects" {
-            $result = Get-ProjectNamesFromFiles . $changedFiles
+            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
             $result.DeployableProjects | Should -Be @(
                 "Dfe.SignIn.PublicApi"
                 "Dfe.SignIn.Web.SelectOrganisation"
@@ -148,7 +164,7 @@ Describe "Get-ProjectNamesFromFiles" {
         }
 
         It "should set 'PublishPackages' to true" {
-            $result = Get-ProjectNamesFromFiles . $changedFiles
+            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
             $result.PublishPackages | Should -Be $true
         }
     }
@@ -163,7 +179,7 @@ Describe "Get-ProjectNamesFromFiles" {
         }
 
         It "should set 'PublishPackages' to false" {
-            $result = Get-ProjectNamesFromFiles . $changedFiles
+            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
             $result.PublishPackages | Should -Be $false
         }
     }

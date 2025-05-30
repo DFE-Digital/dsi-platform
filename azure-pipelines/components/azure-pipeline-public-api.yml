@@ -1,13 +1,5 @@
 name: $(BuildDefinitionName)_tag-$(BuildID)_at-$(Date:yyyyMMdd)$(Rev:.r)
 
-resources:
-  repositories:
-    - repository: devopsTemplates
-      type: github
-      endpoint: DfE-Digital
-      name: DFE-Digital/login.dfe.devops
-      ref: feature/DSI-7357
-
 trigger:
   branches:
     include:
@@ -16,6 +8,14 @@ trigger:
     include:
       - src/*
       - tests/*
+
+resources:
+  repositories:
+    - repository: devopsTemplates
+      type: github
+      endpoint: DfE-Digital
+      name: DFE-Digital/login.dfe.devops
+      ref: feature/DSI-7357
 
 parameters:
   - name: buildSelectOrganisation
@@ -31,9 +31,9 @@ parameters:
     displayName: "Publish all packages"
     default: false
 
-  - name: targetWorkflow
+  - name: lifecycle
     type: string
-    displayName: Target workflow
+    displayName: Lifecycle
     default: Development
     values:
       - Development
@@ -60,5 +60,5 @@ jobs:
     parameters:
       buildSelectOrganisation: ${{ parameters.buildSelectOrganisation }}
       buildPublicApi: ${{ parameters.buildPublicApi }}
-      targetWorkflow: ${{ parameters.targetWorkflow }}
+      lifecycle: ${{ parameters.lifecycle }}
       containerRegistry: ${{ parameters.containerRegistry }}

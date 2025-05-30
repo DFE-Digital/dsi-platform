@@ -1,15 +1,27 @@
 [CmdletBinding()]
-param(
-    [string]$regServer,
-    [string]$appName,
-    [string]$targetWorkflow,
-    [string]$buildId,
-    [string]$dockerFileName,
-    [string]$dotNetProjName = ""
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$RegServer,
+
+    [Parameter(Mandatory=$true)]
+    [string]$AppName,
+
+    [Parameter(Mandatory=$true)]
+    [string]$Lifecycle,
+
+    [Parameter(Mandatory=$true)]
+    [string]$BuildId,
+
+    [Parameter(Mandatory=$true)]
+    [string]$DockerFileName,
+
+    [string]$DotNetProjName = ""
 )
 
-$tag = "{0}/{1}:{2}-{3}" -f $regServer,$($appName.ToLower()),$($targetWorkflow.ToLower()),$buildId
+$ErrorActionPreference = "Stop"
 
-az acr login --name $regServer
-docker build -t $tag --file "./docker/Linux-app-service/$dockerFileName.dockerfile" --build-arg PROC_FILE_NAME=$dotNetProjName . 
-docker push "$regServer/$($appName.ToLower())" --all-tags
+$tag = "{0}/{1}:{2}-{3}" -f $RegServer,$($AppName.ToLower()),$($Lifecycle.ToLower()),$BuildId
+
+az acr login --name $RegServer
+docker build -t $tag --file "./docker/Linux-app-service/$DockerFileName.dockerfile" --build-arg PROC_FILE_NAME=$DotNetProjName . 
+docker push "$RegServer/$($AppName.ToLower())" --all-tags

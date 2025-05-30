@@ -84,7 +84,9 @@ jobs:
           )
         inputs:
           command: 'push'
-          packagesToPush: '$(System.DefaultWorkingDirectory)/self/src/**/*.nupkg;!$(System.DefaultWorkingDirectory)/self/src/**/*.symbols.nupkg'
+          packagesToPush: >
+            $(System.DefaultWorkingDirectory)/self/src/**/*.nupkg;
+            $(System.DefaultWorkingDirectory)/self/src/**/*.symbols.nupkg
           nuGetFeedType: 'internal'
           publishVstsFeed: S141-Dfe-Signin/DfeSignIn-DotNet
           allowPackageConflicts: true
