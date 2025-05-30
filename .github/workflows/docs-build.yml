@@ -1,0 +1,56 @@
+name: Build developer reference
+
+on:
+  workflow_dispatch:
+    inputs:
+      override_lifecycle:
+        description: 'Lifecycle (override)'
+        required: false
+        type: string
+
+  push:
+    paths:
+      - 'docs/**'
+      - 'src/Dfe.SignIn.Core.Framework/**'
+      - 'src/Dfe.SignIn.Core.ExternalModels/**'
+      - 'src/Dfe.SignIn.PublicApi.Client/**'
+      - 'src/Dfe.SignIn.PublicApi.Client.AspNetCore/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore .NET tools
+        shell: pwsh
+        run: dotnet tool restore
+
+      - name: Build custom template
+        shell: pwsh
+        run: ./scripts/docs/Build-CustomTemplate
+
+      - name: Build documentation
+        shell: pwsh
+        run: ./scripts/workflows/Build-Docs -Audience 'External''
+
+      - name: Build image
+        shell: pwsh
+        run: |
+          $lifecycle = ./scripts/workflows/Resolve-LifecycleParameter `
+            -Implied '${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}' `
+            -Override '${{ inputs.override_lifecycle }}'
+
+          ./scripts/workflows/Build-StaticSiteImage `
+            -RegistryServer 'fake' `
+            -RepositoryName 'developer' `
+            -Lifecycle $lifecycle `
+            -RunId '${{ github.run_id }}' `
+            -RunNumber '${{ github.run_number }}' `
+            -HtmlPath 'docs/_site'

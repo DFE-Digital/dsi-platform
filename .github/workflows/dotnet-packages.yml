@@ -1,0 +1,26 @@
+name: Publish development .NET packages
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - 'src/Dfe.SignIn.Core.Framework/**'
+      - 'src/Dfe.SignIn.Core.ExternalModels/**'
+      - 'src/Dfe.SignIn.PublicApi.Client/**'
+      - 'src/Dfe.SignIn.PublicApi.Client.AspNetCore/**'
+
+jobs:
+  select-projects:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build project
+        run: dotnet build ./dsi-packages.sln /p:Configuration=Release /p:BuildPackages=true

@@ -1,0 +1,69 @@
+name: Build .NET development images
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_select_organisation:
+        description: 'Build "Select Organisation"'
+        required: true
+        default: false
+        type: boolean
+
+      build_public_api:
+        description: 'Build "Public API"'
+        required: true
+        default: false
+        type: boolean
+
+      lifecycle:
+        description: 'Lifecycle'
+        required: true
+        default: Development
+        type: choice
+        options:
+          - Development
+          - Release
+
+  push:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+
+jobs:
+  select-projects:
+    runs-on: ubuntu-latest
+    outputs:
+      project_names: ${{ steps.select-projects.outputs.project_names }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Select deployable projects
+        id: select-projects
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+            $projectNames = @(./scripts/workflows/Select-ProjectNamesFromParameters `
+              -SelectOrganisation ${{ github.event.inputs.build_select_organisation }} `
+              -PublicApi ${{ github.event.inputs.build_public_api }} `
+            )
+          }
+          else {
+            $projectNames = @(./scripts/workflows/Select-ProjectNamesFromChanges)
+          }
+          $jsonNames = ConvertTo-Json $projectNames -Compress
+          Write-Output "Project names: $jsonNames"
+          echo "project_names=$jsonNames" >> $env:GITHUB_OUTPUT
+
+  build-images:
+    uses: ./.github/workflows/dotnet-build-image.yml
+    needs: select-projects
+    strategy:
+      matrix:
+        project_name: ${{ fromJson(needs.select-projects.outputs.project_names) }}
+    with:
+      project_name: ${{ matrix.project_name }}
+      implied_lifecycle: ${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}
+      override_lifecycle: ${{ github.event.inputs.lifecycle || '' }}
