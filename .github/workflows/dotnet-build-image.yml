@@ -1,4 +1,4 @@
-name: Build image for deployable .NET project
+name: Build image for .NET project
 
 on:
   workflow_call:

@@ -1,4 +1,4 @@
-name: .NET publish packages for development
+name: Publish development .NET packages
 
 on:
   workflow_dispatch:
