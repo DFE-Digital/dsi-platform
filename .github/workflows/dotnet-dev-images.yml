@@ -22,6 +22,7 @@ on:
 
 jobs:
   select-projects:
+    name: Select projects
     runs-on: ubuntu-latest
     outputs:
       project_names: ${{ steps.select-projects.outputs.project_names }}
