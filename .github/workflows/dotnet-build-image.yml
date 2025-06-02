@@ -8,11 +8,28 @@ on:
         required: true
         type: string
 
+      lifecycle:
+        description: 'Lifecycle'
+        required: true
+        type: string
+
 jobs:
   build-image:
     runs-on: ubuntu-latest
-    name: Build image for '${{ inputs.project_name }}'
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
       - name: Build image for '${{ inputs.project_name }}'
         run: |
-          echo "Building image..."
+          ./scripts/actions/Build-DotNetImage `
+            -RegistryServer 'fake' `
+            -Lifecycle '${{ inputs.lifecycle }}' `
+            -RunId '${{ github.run_id }}' `
+            -RunNumber '${{ github.run_number }}' `
+            -DotNetProjectName '${{ inputs.project_name }}'

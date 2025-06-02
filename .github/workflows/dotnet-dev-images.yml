@@ -22,7 +22,6 @@ on:
 
 jobs:
   select-projects:
-    name: Select projects
     runs-on: ubuntu-latest
     outputs:
       project_names: ${{ steps.select-projects.outputs.project_names }}
@@ -56,3 +55,4 @@ jobs:
         project_name: ${{ fromJson(needs.select-projects.outputs.project_names) }}
     with:
       project_name: ${{ matrix.project_name }}
+      lifecycle: dev

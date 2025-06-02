@@ -1,4 +1,4 @@
-name: .NET source checks
+name: Check .NET sources
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 
 jobs:
   run-tests:
-    name: Run tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
