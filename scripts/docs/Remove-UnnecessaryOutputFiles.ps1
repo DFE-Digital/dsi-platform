@@ -6,5 +6,6 @@ Remove-Item `
     "$docsPath/_site/toc.json", `
     "$docsPath/_site/xrefmap.yml", `
     "$docsPath/_site/styles" `
-    -Force -Recurse `
+    -Force `
+    -Recurse `
     -ErrorAction SilentlyContinue

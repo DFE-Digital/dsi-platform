@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Composition;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -79,6 +79,9 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
     [GeneratedRegex("&(l|g)t;|[().]", RegexOptions.Singleline)]
     private static partial Regex BreakableAfterSymbolPattern();
 
+    [GeneratedRegex("<!--#echo var=([^-]+)-->", RegexOptions.Singleline)]
+    private static partial Regex SsiPattern();
+
     private static async Task PostProcessHtmlFile(
         TocMap tocs, string outputFolder, string filePath, CancellationToken cancellationToken)
     {
@@ -110,7 +113,7 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
                     string itemClass = "govuk-service-navigation__item";
                     if (tocEntry is not null && tocEntry.Crumbs?.Length > 0) {
                         bool isRootNavSection = tocs.TryGetToc(item.TocHref, out var navItemToc) && navItemToc == toc;
-                        if (isRootNavSection || tocEntry.Crumbs.Any(crumb => crumb.Href == item.Href) == true) {
+                        if (isRootNavSection || tocEntry.Crumbs.Any(crumb => crumb.Href == item.Href)) {
                             itemClass += " govuk-service-navigation__item--active";
                         }
                     }
@@ -221,6 +224,10 @@ public sealed partial class DsiHtmlPostProcessor : IPostProcessor
             "td" => "<td class=\"govuk-table__cell\">",
             _ => matches.Value,
         });
+
+        // Fix SSI syntax to workaround issue where nested quote characters
+        // lead to an extra space character.
+        html = SsiPattern().Replace(html, "<!--#echo var=\"$1\"-->");
 
         await File.WriteAllTextAsync(filePath, html, Encoding.UTF8, cancellationToken);
     }

@@ -1,0 +1,69 @@
+name: Build documentation for '${{ github.event.inputs.target_audience || 'External' }}'
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_audience:
+        description: 'Target audience'
+        required: true
+        default: External
+        type: choice
+        options:
+          - External
+          - Internal
+
+      implied_lifecycle:
+        description: 'Lifecycle (implied)'
+        required: true
+        type: string
+
+      override_lifecycle:
+        description: 'Lifecycle (override)'
+        required: false
+        type: string
+
+  push:
+    paths:
+      - 'docs/**'
+      - 'src/Dfe.SignIn.Core.Framework/**'
+      - 'src/Dfe.SignIn.Core.ExternalModels/**'
+      - 'src/Dfe.SignIn.PublicApi.Client/**'
+      - 'src/Dfe.SignIn.PublicApi.Client.AspNetCore/**'
+
+jobs:
+  select-projects:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build custom template
+        shell: pwsh
+        run: ./scripts/docs/Build-CustomTemplate
+
+      - name: Test custom template
+        shell: pwsh
+        run: dotnet test docs/templates
+
+      - name: Build documentation
+        shell: pwsh
+        run: ./scripts/actions/Build-Docs -Audience '${{ github.event.inputs.target_audience || 'External' }}'
+
+      - name: Build image for '${{ github.event.inputs.target_audience || 'External' }}'
+        shell: pwsh
+        run: |
+          $lifecycle = ./scripts/actions/Resolve-LifecycleParameter `
+            -Implied '${{ inputs.implied_lifecycle }}' `
+            -Override '${{ inputs.override_lifecycle }}'
+
+          ./scripts/actions/Build-StaticSiteImage `
+            -RegistryServer 'fake' `
+            -Lifecycle $lifecycle `
+            -RunId '${{ github.run_id }}' `
+            -RunNumber '${{ github.run_number }}' `
+            -HtmlPath 'docs/_site'
