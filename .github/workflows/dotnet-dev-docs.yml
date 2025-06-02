@@ -12,11 +12,6 @@ on:
           - External
           - Internal
 
-      implied_lifecycle:
-        description: 'Lifecycle (implied)'
-        required: true
-        type: string
-
       override_lifecycle:
         description: 'Lifecycle (override)'
         required: false
@@ -42,7 +37,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dotnet tools
+      - name: Restore .NET tools
         shell: pwsh
         run: dotnet tool restore
 
@@ -62,7 +57,7 @@ jobs:
         shell: pwsh
         run: |
           $lifecycle = ./scripts/actions/Resolve-LifecycleParameter `
-            -Implied '${{ inputs.implied_lifecycle }}' `
+            -Implied '${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}' `
             -Override '${{ inputs.override_lifecycle }}'
 
           ./scripts/actions/Build-StaticSiteImage `
