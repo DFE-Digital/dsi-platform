@@ -45,7 +45,6 @@ jobs:
 
   build-images:
     needs: select-projects
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         project_name: ${{ fromJson(needs.select-projects.outputs.project_names) }}
