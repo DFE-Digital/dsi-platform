@@ -4,6 +4,9 @@ param (
     [string]$RegistryServer,
 
     [Parameter(Mandatory=$true)]
+    [string]$RepositoryName,
+
+    [Parameter(Mandatory=$true)]
     [string]$Lifecycle,
 
     [Parameter(Mandatory=$true)]
@@ -18,7 +21,7 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-$tag = "{0}/{1}:{2}-{3}-{4}" -f $RegistryServer, $($repositoryName.ToLower()), $Lifecycle, $RunId, $RunNumber
+$tag = "{0}/{1}:{2}-{3}-{4}" -f $RegistryServer, $RepositoryName, $Lifecycle, $RunId, $RunNumber
 
 # az acr login --name $RegistryServer
 docker build -t $tag --file ./docker/static-site/Dockerfile --build-arg HTML_PATH=$HtmlPath .

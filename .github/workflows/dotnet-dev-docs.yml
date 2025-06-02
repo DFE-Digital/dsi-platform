@@ -62,6 +62,7 @@ jobs:
 
           ./scripts/actions/Build-StaticSiteImage `
             -RegistryServer 'fake' `
+            -RepositoryName 'developer' `
             -Lifecycle $lifecycle `
             -RunId '${{ github.run_id }}' `
             -RunNumber '${{ github.run_number }}' `
