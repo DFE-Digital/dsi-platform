@@ -28,17 +28,9 @@ jobs:
       - name: Build image for '${{ inputs.project_name }}'
         shell: pwsh
         run: |
-          Write-Host "Implied lifecycle '${{ inputs.implied_lifecycle }}'..."
-          Write-Host "Override lifecycle '${{ inputs.override_lifecycle }}'..."
-
-          if ('${{ inputs.override_lifecycle }}'.Length -ge 3) {
-            $lifecycle = '${{ inputs.override_lifecycle }}'.ToLower().Substring(0, 3)
-          }
-          else {
-            $lifecycle = '${{ inputs.implied_lifecycle }}'
-          }
-
-          Write-Host "Using lifecycle '$lifecycle'..."
+          $lifecycle = ./scripts/actions/Resolve-LifecycleParameter `
+            -Implied '${{ inputs.implied_lifecycle }}' `
+            -Override '${{ inputs.override_lifecycle }}'
 
           ./scripts/actions/Build-DotNetImage `
             -RegistryServer 'fake' `
