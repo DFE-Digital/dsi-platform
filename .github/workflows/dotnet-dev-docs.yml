@@ -42,6 +42,10 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Restore dotnet tools
+        shell: pwsh
+        run: dotnet tool restore
+
       - name: Build custom template
         shell: pwsh
         run: ./scripts/docs/Build-CustomTemplate
