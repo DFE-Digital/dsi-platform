@@ -24,13 +24,13 @@ jobs:
   select-projects:
     runs-on: ubuntu-latest
     outputs:
-      project_names: ${{ steps.select-deployable-projects.outputs.project_names }}
+      project_names: ${{ steps.select-projects.outputs.project_names }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Select deployable projects
-        id: select-deployable-projects
+        id: select-projects
         shell: pwsh
         run: |
           if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
@@ -41,7 +41,8 @@ jobs:
           else {
             $projectNames = ./scripts/actions/Select-ProjectNamesFromChanges
           }
-          "project_names=" + ($projectNames | ConvertTo-Json -AsArray -Compress) >> $Env.GITHUB_OUTPUT
+          $jsonNames = $projectNames | ConvertTo-Json -AsArray -Compress
+          echo "project_names=$jsonNames" >> $env:GITHUB_OUTPUT
 
   build-images:
     uses: ./.github/workflows/dotnet-build-image.yml
