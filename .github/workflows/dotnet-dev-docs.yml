@@ -1,4 +1,4 @@
-name: Build documentation for '${{ github.event.inputs.target_audience || 'External' }}'
+name: Build developer reference
 
 on:
   workflow_dispatch:
