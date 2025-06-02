@@ -44,7 +44,9 @@ jobs:
           else {
             $projectNames = ./scripts/actions/Select-ProjectNamesFromChanges
           }
-          echo "project_names=$( ConvertTo-Json $projectNames -Compress )" >> $env:GITHUB_OUTPUT
+          $jsonNames = ConvertTo-Json $projectNames -Compress
+          Write-Output "Project names: $jsonNames"
+          echo "project_names=$jsonNames" >> $env:GITHUB_OUTPUT
 
   build-images:
     uses: ./.github/workflows/dotnet-build-image.yml

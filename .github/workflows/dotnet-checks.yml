@@ -37,10 +37,10 @@ jobs:
       #       /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Build project
-        run: dotnet build ./build.sln /p:Configuration=Release
+        run: dotnet build ./build.sln --no-incremental
 
       - name: Run unit tests
-        run: dotnet test ./build.sln --no-build --collect "Code Coverage"
+        run: dotnet test ./build.sln --collect "Code Coverage"
 
       # - name: Stop sonar scanner
       #   shell: pwsh
