@@ -4,9 +4,6 @@ param (
     [string]$RegistryServer,
 
     [Parameter(Mandatory=$true)]
-    [string]$repositoryName,
-
-    [Parameter(Mandatory=$true)]
     [string]$Lifecycle,
 
     [Parameter(Mandatory=$true)]
