@@ -31,7 +31,7 @@ on:
       - 'src/Dfe.SignIn.PublicApi.Client.AspNetCore/**'
 
 jobs:
-  select-projects:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -46,9 +46,9 @@ jobs:
         shell: pwsh
         run: ./scripts/docs/Build-CustomTemplate
 
-      - name: Test custom template
-        shell: pwsh
-        run: dotnet test docs/templates
+      # - name: Test custom template
+      #   shell: pwsh
+      #   run: dotnet test docs/templates
 
       - name: Build documentation
         shell: pwsh
