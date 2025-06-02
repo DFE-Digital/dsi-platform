@@ -158,13 +158,9 @@
     </div>
 
 
-    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
 
 
 
-                        <p class="govuk-body-s">
-                            <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/pipelines3/docs/templates/Dfe.SignIn.DocfxSample/SomeNamespace/AnotherClass.cs/#L6">View source in repository</a>
-                        </p>
                     </article>
                 </div>
             </div>

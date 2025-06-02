@@ -115,10 +115,6 @@ Start now
 </p>
 
 
-    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
-                        <p class="govuk-body-s">
-                            <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/pipelines3/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/index.md/#L1">View source in repository</a>
-                        </p>
                     </article>
                 </div>
             </div>
