@@ -31,7 +31,7 @@ jobs:
           Write-Host "Implied lifecycle '${{ inputs.implied_lifecycle }}'..."
           Write-Host "Override lifecycle '${{ inputs.override_lifecycle }}'..."
 
-          if (-not '${{ inputs.override_lifecycle }}') {
+          if ('${{ inputs.override_lifecycle }}'.Length -ge 3) {
             $lifecycle = '${{ inputs.override_lifecycle }}'.ToLower().Substring(0, 3)
           }
           else {
