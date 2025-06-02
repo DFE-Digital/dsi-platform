@@ -4,7 +4,6 @@ using Dfe.SignIn.PublicApi.Client.Abstractions;
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
 
-
 /// <summary>
 /// Represents a service to get or set the active organisation of a user.
 /// </summary>
