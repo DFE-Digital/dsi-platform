@@ -11,6 +11,7 @@ on:
 jobs:
   build-image:
     runs-on: ubuntu-latest
+    name: Build image for '${{ inputs.project_name }}'
     steps:
       - name: Build image for '${{ inputs.project_name }}'
         run: |
