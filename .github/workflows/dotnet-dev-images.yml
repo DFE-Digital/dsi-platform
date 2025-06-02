@@ -45,12 +45,13 @@ jobs:
         shell: pwsh
         run: |
           if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
-            [String[]]$projectNames = ./scripts/actions/Initialize-BuildSolutionForChangedProjects `
+            $projectNames = @(./scripts/actions/Select-ProjectNamesFromInputs `
               -SelectOrganisation ${{ github.event.inputs.build_select_organisation }} `
-              -PublicApi ${{ github.event.inputs.build_public_api }}
+              -PublicApi ${{ github.event.inputs.build_public_api }} `
+            )
           }
           else {
-            [String[]]$projectNames = ./scripts/actions/Select-ProjectNamesFromChanges
+            $projectNames = @(./scripts/actions/Select-ProjectNamesFromChanges)
           }
           $jsonNames = ConvertTo-Json $projectNames -Compress
           Write-Output "Project names: $jsonNames"

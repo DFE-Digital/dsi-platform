@@ -15,7 +15,6 @@
         - SourceProjects: The list of affected source project names.
         - TestProjects: The list of associated test project names.
         - DeployableProjects: The list of project names that can be deployed.
-        - PublishPackages: A value of true indicates that project(s) could be published.
 #>
 param (
     [Parameter(Mandatory=$true)]
@@ -62,16 +61,6 @@ if ($testProjects.Count -ne 0) {
     $testProjects = $testProjects + @( "Dfe.SignIn.TestHelpers" )
 }
 
-# Are any of the source projects NuGet packages?
-$publishPackages = $false
-foreach ($projectName in $sourceProjects) {
-    $csprojContent = Get-Content -Path "$Path/src/$projectName/$projectName.csproj"
-    if ($csprojContent -match "<IsPackable>true</IsPackable>") {
-        $publishPackages = $true
-        break
-    }
-}
-
 # Extract the list of deployable project names.
 [String[]]$deployableProjects = $sourceProjects | ForEach-Object {
     if (Is-DeployableProject($_)) { $_ }
@@ -81,5 +70,4 @@ return @{
     SourceProjects = $sourceProjects
     TestProjects = $testProjects
     DeployableProjects = $deployableProjects
-    PublishPackages = $publishPackages
 }

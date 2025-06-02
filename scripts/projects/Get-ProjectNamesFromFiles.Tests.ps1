@@ -143,44 +143,4 @@ Describe "Get-ProjectNamesFromFiles" {
             )
         }
     }
-
-    Context "when source projects are publishable packages" {
-        BeforeEach {
-            $changedFiles = @(
-                "src/Dfe.SignIn.Core.Framework/AnotherFile.cs"
-                "src/Dfe.SignIn.Core.Framework/SomeFile.cs"
-                "src/Dfe.SignIn.PublicApi/AnotherFile.cs"
-                "src/Dfe.SignIn.PublicApi.Client/AnotherFile.cs"
-                "tests/Dfe.SignIn.InternalApi.UnitTests/XyzTests.cs"
-                "README.md"
-            )
-
-            Mock Get-Content -ParameterFilter { $Path -eq "./src/Dfe.SignIn.Core.Framework/Dfe.SignIn.Core.Framework.csproj" } {
-                return "<Project><IsPackable>true</IsPackable></Project>"
-            }
-            Mock Get-Content -ParameterFilter { $Path -eq "./src/Dfe.SignIn.PublicApi.Client/Dfe.SignIn.PublicApi.Client.csproj" } {
-                return "<Project><IsPackable>true</IsPackable></Project>"
-            }
-        }
-
-        It "should set 'PublishPackages' to true" {
-            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
-            $result.PublishPackages | Should -Be $true
-        }
-    }
-
-    Context "when no source projects are publishable packages" {
-        BeforeEach {
-            $changedFiles = @(
-                "src/Dfe.SignIn.PublicApi/AnotherFile.cs"
-                "src/Dfe.SignIn.Web.SelectOrganisation/AnotherFile.cs"
-                "README.md"
-            )
-        }
-
-        It "should set 'PublishPackages' to false" {
-            $result = Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
-            $result.PublishPackages | Should -Be $false
-        }
-    }
 }
