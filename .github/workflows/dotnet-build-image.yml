@@ -8,9 +8,14 @@ on:
         required: true
         type: string
 
-      lifecycle:
-        description: 'Lifecycle'
+      implied_lifecycle:
+        description: 'Lifecycle (implied)'
         required: true
+        type: string
+
+      override_lifecycle:
+        description: 'Lifecycle (override)'
+        required: false
         type: string
 
 jobs:
@@ -23,9 +28,18 @@ jobs:
       - name: Build image for '${{ inputs.project_name }}'
         shell: pwsh
         run: |
+          if (-not '${{ inputs.override_lifecycle }}') {
+            $lifecycle = '${{ inputs.override_lifecycle }}'.ToLower().Substring(0, 3)
+          }
+          else {
+            $lifecycle = '${{ inputs.implied_lifecycle }}'
+          }
+
+          Write-Host "Using lifecycle '$lifecycle'..."
+
           ./scripts/actions/Build-DotNetImage `
             -RegistryServer 'fake' `
-            -Lifecycle '${{ inputs.lifecycle }}' `
+            -Lifecycle $lifecycle `
             -RunId '${{ github.run_id }}' `
             -RunNumber '${{ github.run_number }}' `
             -DotNetProjectName '${{ inputs.project_name }}'

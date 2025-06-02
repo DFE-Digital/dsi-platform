@@ -15,6 +15,15 @@ on:
         default: false
         type: boolean
 
+      lifecycle:
+        description: 'Lifecycle'
+        required: true
+        default: Development
+        type: choice
+        options:
+          - Development
+          - Release
+
   push:
     paths:
       - 'src/**'
@@ -55,4 +64,5 @@ jobs:
         project_name: ${{ fromJson(needs.select-projects.outputs.project_names) }}
     with:
       project_name: ${{ matrix.project_name }}
-      lifecycle: dev
+      implied_lifecycle: ${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}
+      override_lifecycle: ${{ github.event.inputs.lifecycle || '' }}
