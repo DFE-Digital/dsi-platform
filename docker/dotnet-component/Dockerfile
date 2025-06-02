@@ -9,6 +9,8 @@ WORKDIR /home/site/wwwroot
 ARG PROC_FILE_NAME
 
 COPY src ./src
+COPY *.props ./
+COPY *.targets ./
 RUN dotnet publish -c Release -o /app src/$PROC_FILE_NAME/$PROC_FILE_NAME.csproj
 
 # Use the official ASP.NET runtime image for the Azure Linux-based container
