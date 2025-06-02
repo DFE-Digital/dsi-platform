@@ -12,6 +12,6 @@ jobs:
   build-image:
     runs-on: ubuntu-latest
     steps:
-      - name: Build image for '${{ input.project_name }}'
+      - name: Build image for '${{ inputs.project_name }}'
         run: |
           echo "Building image..."
