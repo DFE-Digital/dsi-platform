@@ -1,0 +1,17 @@
+name: Build image for deployable .NET project
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: 'Project name'
+        required: true
+        type: string
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build image for '${{ input.project_name }}'
+        run: |
+          echo "Building image..."

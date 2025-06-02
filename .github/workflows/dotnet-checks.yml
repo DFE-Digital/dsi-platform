@@ -1,0 +1,46 @@
+name: .NET source checks
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+
+jobs:
+  run-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Initialize solution for affected projects
+        shell: pwsh
+        run: ./scripts/actions/Initialize-BuildSolutionForChangedProjects
+
+      # - name: Start sonar scanner
+      #   shell: pwsh
+      #   run: |
+      #     dotnet tool install --global dotnet-sonarscanner
+      #     dotnet sonarscanner begin `
+      #       /o:"dfe-digital" `
+      #       /k:"DFE-Digital_dsi-platform" `
+      #       /d:sonar.host.url="https://sonarcloud.io" `
+      #       /d:sonar.branch.name=${GITHUB_REF_NAME} `
+      #       /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Build project
+        run: dotnet build ./build.sln /p:Configuration=Release
+
+      - name: Run unit tests
+        run: dotnet test ./build.sln --no-build --collect "Code Coverage"
+
+      # - name: Stop sonar scanner
+      #   shell: pwsh
+      #   run: |
+      #     dotnet sonarscanner end `
+      #       /d:sonar.token="${{ secrets.SONAR_TOKEN }}"

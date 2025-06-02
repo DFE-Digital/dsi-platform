@@ -1,0 +1,54 @@
+name: Build development images for deployable .NET projects
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_select_organisation:
+        description: 'Build "Select Organisation"'
+        required: true
+        default: false
+        type: boolean
+
+      build_public_api:
+        description: 'Build "Public API"'
+        required: true
+        default: false
+        type: boolean
+
+  push:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+
+jobs:
+  select-projects:
+    runs-on: ubuntu-latest
+    outputs:
+      project_names: ${{ steps.select-deployable-projects.outputs.project_names }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Select deployable projects
+        id: select-deployable-projects
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+            $projectNames = ./scripts/actions/Initialize-BuildSolutionForChangedProjects `
+              -SelectOrganisation ${{ github.event.inputs.build_select_organisation }} `
+              -PublicApi ${{ github.event.inputs.build_public_api }}
+          }
+          else {
+            $projectNames = ./scripts/actions/Select-ProjectNamesFromChanges
+          }
+          "project_names=" + ($projectNames | ConvertTo-Json -Compress) >> $Env.GITHUB_OUTPUT
+
+  build-images:
+    needs: select-projects
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project_name: ${{ fromJson(needs.select-projects.outputs.project_names) }}
+    uses: ./.github/workflows/dotnet-build-image.yml
+    with:
+      project_name: ${{ matrix.project_name }}

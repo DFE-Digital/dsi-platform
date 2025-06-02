@@ -8,6 +8,8 @@
 [CmdletBinding()]
 param ()
 
+$ErrorActionPreference = "Stop"
+
 $changedFiles = ./scripts/actions/Discover-ChangedFilesInBranch
 $projects = ./scripts/projects/Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
 ./scripts/projects/Write-ProjectNamesToOutput -Projects $projects
