@@ -26,6 +26,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Build image for '${{ inputs.project_name }}'
+        shell: pwsh
         run: |
           ./scripts/actions/Build-DotNetImage `
             -RegistryServer 'fake' `
