@@ -1,4 +1,4 @@
-# Packages for .NET
+# Packages for .NET applications
 
 We have made NuGet packages available which services can use in .NET applications.
 
@@ -17,7 +17,7 @@ The client library for interacting with the DfE Sign-in API:
 
   - Provides a [](xref:System.Net.Http.HttpClient) which can be accessed from [](xref:Dfe.SignIn.PublicApi.Client.IPublicApiClient).
 
-  - Provides [middleware](~/guide/select-organisation/dotnet-middleware.md) to simplify integration with the DfE Sign-in "select organisation" service.
+  - Provides [middleware](~/guide/dotnet/middleware.md) to simplify integration with the DfE Sign-in "select organisation" service.
 
 The following contract types need to be implemented and configured for your service:
 
