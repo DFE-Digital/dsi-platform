@@ -4,6 +4,8 @@ items:
     items:
       - name: Create select organisation session
         href: select-organisation/create.md
+      - name: Select organisation callback
+        href: select-organisation/callback.md
 
   - name: Users
     items:
