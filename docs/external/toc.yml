@@ -6,3 +6,5 @@
   href: reference/Dfe.SignIn.Core.Framework.yml
 - name: API Client
   href: reference/Dfe.SignIn.PublicApi.Client.yml
+- name: Ruby
+  href: ruby/
