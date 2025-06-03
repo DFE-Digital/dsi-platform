@@ -445,7 +445,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
         autoMocker.Verify<ISelectOrganisationEvents>(mock =>
             mock.OnError(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
-                It.Is<SelectOrganisationErrorCode>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
+                It.Is<string>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
             ),
             Times.Once
         );
@@ -524,7 +524,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
         autoMocker.Verify<ISelectOrganisationEvents>(mock =>
             mock.OnError(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
-                It.Is<SelectOrganisationErrorCode>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
+                It.Is<string>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
             ),
             Times.Once
         );
@@ -562,7 +562,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
         autoMocker.Verify<ISelectOrganisationEvents>(mock =>
             mock.OnError(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
-                It.Is<SelectOrganisationErrorCode>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
+                It.Is<string>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
             ),
             Times.Once
         );

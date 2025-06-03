@@ -50,9 +50,9 @@ public class StandardSelectOrganisationEvents(
     }
 
     /// <inheritdoc/>
-    public virtual Task OnError(IHttpContext context, SelectOrganisationErrorCode code)
+    public virtual Task OnError(IHttpContext context, string code)
     {
-        throw new SelectOrganisationCallbackErrorException(code);
+        throw new SelectOrganisationCallbackErrorException(null, code);
     }
 
     /// <inheritdoc/>

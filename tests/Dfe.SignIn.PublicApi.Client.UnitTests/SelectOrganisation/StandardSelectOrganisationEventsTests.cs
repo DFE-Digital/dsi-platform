@@ -159,13 +159,13 @@ public sealed class StandardSelectOrganisationEventsTests
 
     #endregion
 
-    #region OnError(IHttpContext, SelectOrganisationErrorCode)
+    #region OnError(IHttpContext, string)
 
     [TestMethod]
     public async Task OnError_Throws()
     {
         var autoMocker = new AutoMocker();
-        var options = SetupMockOptions(autoMocker);
+        SetupMockOptions(autoMocker);
         var mockContext = SetupMockHttpContext(autoMocker);
         var events = autoMocker.CreateInstance<StandardSelectOrganisationEvents>();
 

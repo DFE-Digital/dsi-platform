@@ -108,13 +108,10 @@ public sealed class StandardSelectOrganisationUserFlow(
         }
     }
 
-    private static SelectOrganisationErrorCode ParseErrorCode(IHttpContext context)
+    private static string ParseErrorCode(IHttpContext context)
     {
-        string errorCodeRaw = context.Request.GetRequiredQuery(CallbackParamNames.ErrorCode)!;
-        if (!Enum.TryParse<SelectOrganisationErrorCode>(errorCodeRaw, out var errorCode)) {
-            errorCode = SelectOrganisationErrorCode.InternalError;
-        }
-        return errorCode;
+        return context.Request.GetRequiredQuery(CallbackParamNames.ErrorCode)
+            ?? SelectOrganisationErrorCode.InternalError;
     }
 
     private static Guid ParseSelectedOrganisationId(IHttpContext context)

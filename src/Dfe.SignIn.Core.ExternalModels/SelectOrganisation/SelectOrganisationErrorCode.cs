@@ -1,22 +1,23 @@
 namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 
 /// <summary>
-/// Indicates the type of error that has occurred.
+/// Constant values representing the different error codes resulting for a failed
+/// "select organisation" callback.
 /// </summary>
-public enum SelectOrganisationErrorCode
+public static class SelectOrganisationErrorCode
 {
     /// <summary>
     /// Indicates that an internal error has occurred.
     /// </summary>
-    InternalError = 0,
+    public const string InternalError = "internalError";
 
     /// <summary>
     /// Indicates that an invalid selection was made.
     /// </summary>
-    InvalidSelection = 1,
+    public const string InvalidSelection = "invalidSelection";
 
     /// <summary>
     /// Indicates that there were no options for the user to choose from.
     /// </summary>
-    NoOptions = 2,
+    public const string NoOptions = "noOptions";
 }
