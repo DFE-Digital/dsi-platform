@@ -1,6 +1,6 @@
 # Middleware for .NET applications
 
-The [.NET packages](~/guide/dotnet-packages.md) that we provide include middleware which is compatible with .NET Core and .NET Framework using OWIN. The middleware aims to handle the [select organisation user flow](~/guide/select-organisation/user-flow.md) automatically.
+The [.NET packages](~/guide/dotnet/packages.md) that we provide include middleware which is compatible with .NET Core and .NET Framework using OWIN. The middleware aims to handle the [select organisation user flow](~/guide/select-organisation/user-flow.md) automatically.
 
 > For information on the middleware implementation, see: [](xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.StandardSelectOrganisationMiddleware)
 

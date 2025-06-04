@@ -162,3 +162,8 @@ In the case where the user would have no options; the relying party can choose:
   - not to redirect the user to the url (more efficient).
 
   - or, to redirect the user to the url which will immediate invoke the callback (easier to integrate).
+
+
+## Related content
+
+- [Select organisation callback](~/api/select-organisation/callback.md)
