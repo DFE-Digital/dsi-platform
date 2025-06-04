@@ -4,17 +4,8 @@ items:
     items:
       - name: Introduction
         href: introduction.md
-      - name: Packages for .NET
-        href: dotnet-packages.md
       - name: Sample applications
         href: sample-applications.md
-
-  - name: Using the API
-    items:
-      - name: Making requests with the HttpClient
-        href: api/making-requests-with-the-httpclient.md
-      - name: Using an interactor
-        href: api/using-an-interactor.md
 
   - name: Select organisation
     items:
@@ -22,10 +13,19 @@ items:
         href: select-organisation/overview.md
       - name: Overview of user flow
         href: select-organisation/user-flow.md
-      - name: Middleware for .NET applications
-        href: select-organisation/dotnet-middleware.md
       - name: Example requests
         href: select-organisation/example-requests.md
+
+  - name: .NET guidance
+    items:
+      - name: Packages for .NET
+        href: dotnet/packages.md
+      - name: Middleware for .NET
+        href: dotnet/middleware.md
+      - name: Making requests with the HttpClient
+        href: dotnet/making-requests-with-the-httpclient.md
+      - name: Using an interactor
+        href: dotnet/using-an-interactor.md
 
   - name: Other
     items:

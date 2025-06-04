@@ -36,7 +36,7 @@ If a problem has occurred then the user may be presented with an error:
 
 ## 4. Redirect user to service callback handler
 
-The callback handler can respond to the following user interactions:
+The [select organisation callback](~/api/select-organisation/callback.md) of the relying party application can respond to the following user interactions:
 
   - The user has selected an organisation.
 
