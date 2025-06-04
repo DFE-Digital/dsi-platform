@@ -144,8 +144,6 @@ The build pipeline builds the **internal** version of the documentation when dep
 
 ```pwsh
 # run from root of repository /
-./scripts/docs/Prepare-InternalSite.ps1
-
 dotnet docx docs/internal/docfx.json /
     -m _cdnBaseAddress=CDN_BASE_ADDRESS /
     -m _cdnVersion=CDN_VERSION /
@@ -156,8 +154,6 @@ The build pipeline builds the **external** version of the documentation when dep
 
 ```pwsh
 # run from root of repository /
-./scripts/docs/Prepare-ExternalSite.ps1
-
 dotnet docx docs/external/docfx.json /
     -m _cdnBaseAddress=CDN_BASE_ADDRESS /
     -m _cdnVersion=CDN_VERSION /
