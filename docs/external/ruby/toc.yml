@@ -1,0 +1,15 @@
+name: Ruby
+href: index.md
+items:
+  - name: Api Client
+    items:
+      - name: What is API client?
+        href: api-client/index.md
+  - name: Select Organisation
+    items:
+      - name: What is select organisation?
+        href: select-organisation/index.md
+      - name: Pluggable architecture
+        href: select-organisation/pluggable-architecture.md
+      - name: Plugins
+        href: select-organisation/plugins.md

@@ -1,6 +1,6 @@
-# Introduction
+# What is API client?
 
-The `DfeSignIn::ApiClient` is a Ruby library designed to simplify interaction with the DfE public API. It provides a wrapped HTTP client `DfeSignIn::ApiClient::HttpClient`, authentication management, and endpoint helpers.
+`DfeSignIn::ApiClient` is a Ruby library designed to simplify interaction with the DfE public API. It provides a wrapped HTTP client `DfeSignIn::ApiClient::HttpClient`, authentication management, and endpoint helpers.
 
 > **Note:** To use the DfE Sign-in public API and its endpoints you must provide an Authorization header with a Bearer token formatted as a JSON Web Token (JWT). The JWT must be signed using a secret known by both DfE Sign-in and the service, otherwise requests will fail with a status code of 403.
 
