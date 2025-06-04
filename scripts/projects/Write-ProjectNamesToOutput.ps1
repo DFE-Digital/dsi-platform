@@ -6,10 +6,10 @@
     The name project names information.
 
 .EXAMPLE
-    $changedFiles = Discover-ChangedFilesInBranch
-    $projects = Get-ProjectNames ".." $changedFiles
-    Write-ProjectNamesToOutput -Projects $projects
+    $projects = ./scripts/projects/Get-ProjectNames -Path "."
+    ./scripts/projects/Write-ProjectNamesToOutput -Projects $projects
 #>
+[CmdletBinding()]
 param (
     [Parameter(Mandatory=$true)]
     [PSCustomObject]$Projects
@@ -17,16 +17,12 @@ param (
 
 Write-Output "`nSource projects:"
 Write-Output "-----------------------------"
-Write-Output $Projects.SourceProjects
+Write-Output $Projects.SourceProjects | Sort-Object
 
 Write-Output "`nTest projects:"
 Write-Output "-----------------------------"
-Write-Output $Projects.TestProjects
+Write-Output $Projects.TestProjects | Sort-Object
 
 Write-Output "`nDeployable projects:"
 Write-Output "-----------------------------"
-Write-Output $Projects.DeployableProjects
-
-Write-Output "`nHas publishable packages?"
-Write-Output "-----------------------------"
-Write-Output $Projects.PublishPackages
+Write-Output $Projects.DeployableProjects | Sort-Object

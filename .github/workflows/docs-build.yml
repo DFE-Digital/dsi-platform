@@ -3,15 +3,6 @@ name: Build developer reference
 on:
   workflow_dispatch:
     inputs:
-      target_audience:
-        description: 'Target audience'
-        required: true
-        default: External
-        type: choice
-        options:
-          - External
-          - Internal
-
       override_lifecycle:
         description: 'Lifecycle (override)'
         required: false
@@ -45,15 +36,11 @@ jobs:
         shell: pwsh
         run: ./scripts/docs/Build-CustomTemplate
 
-      # - name: Test custom template
-      #   shell: pwsh
-      #   run: dotnet test docs/templates
-
       - name: Build documentation
         shell: pwsh
-        run: ./scripts/actions/Build-Docs -Audience '${{ github.event.inputs.target_audience || 'External' }}'
+        run: ./scripts/actions/Build-Docs -Audience 'External''
 
-      - name: Build image for '${{ github.event.inputs.target_audience || 'External' }}'
+      - name: Build image
         shell: pwsh
         run: |
           $lifecycle = ./scripts/actions/Resolve-LifecycleParameter `

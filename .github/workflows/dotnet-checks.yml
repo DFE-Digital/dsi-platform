@@ -1,6 +1,8 @@
 name: Check .NET sources
 
 on:
+  workflow_dispatch:
+
   push:
     paths:
       - 'src/**'
@@ -20,20 +22,26 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Initialize solution for all projects
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: pwsh
+        run: Copy-Item -Path ./dsi-platform.sln -Destination ./build.sln
+
       - name: Initialize solution for affected projects
+        if: ${{ github.event_name == 'push' }}
         shell: pwsh
         run: ./scripts/actions/Initialize-BuildSolutionForChangedProjects
 
-      # - name: Start sonar scanner
-      #   shell: pwsh
-      #   run: |
-      #     dotnet tool install --global dotnet-sonarscanner
-      #     dotnet sonarscanner begin `
-      #       /o:"dfe-digital" `
-      #       /k:"DFE-Digital_dsi-platform" `
-      #       /d:sonar.host.url="https://sonarcloud.io" `
-      #       /d:sonar.branch.name=${GITHUB_REF_NAME} `
-      #       /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      - name: Start sonar scanner
+        shell: pwsh
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin `
+            /o:"dfe-digital" `
+            /k:"DFE-Digital_dsi-platform" `
+            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.branch.name=${GITHUB_REF_NAME} `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Build project
         run: dotnet build ./build.sln --no-incremental
@@ -41,8 +49,8 @@ jobs:
       - name: Run unit tests
         run: dotnet test ./build.sln --collect "Code Coverage"
 
-      # - name: Stop sonar scanner
-      #   shell: pwsh
-      #   run: |
-      #     dotnet sonarscanner end `
-      #       /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      - name: Stop sonar scanner
+        shell: pwsh
+        run: |
+          dotnet sonarscanner end `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}"

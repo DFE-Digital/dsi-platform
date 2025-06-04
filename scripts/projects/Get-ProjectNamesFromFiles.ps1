@@ -15,7 +15,13 @@
         - SourceProjects: The list of affected source project names.
         - TestProjects: The list of associated test project names.
         - DeployableProjects: The list of project names that can be deployed.
+
+.EXAMPLE
+    $changedFiles = ./scripts/actions/Discover-ChangedFilesInBranch
+    $projects = ./scripts/projects/Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
+    ./scripts/projects/Write-ProjectNamesToOutput -Projects $projects
 #>
+[CmdletBinding()]
 param (
     [Parameter(Mandatory=$true)]
     [String]$Path,
@@ -28,43 +34,64 @@ $ErrorActionPreference = "Stop"
 
 $Path = Resolve-Path $Path
 
-. "${PSScriptRoot}/Is-DeployableProject.ps1"
+
+#----- SourceProjects -------------------------------------------------------------------
 
 # Extract the list of source project names where changes have been made.
-[String[]]$sourceProjects = $Files | ForEach-Object {
+$sourceProjects = $Files | ForEach-Object {
     if ($_ -match "^src/([^\\/]+)") { $matches[1] }
 }
 
-[String[]]$allSourceProjects = Get-ChildItem -Directory "$Path/src" | Select-Object -ExpandProperty Name | Sort-Object
+# Find projects that are dependant on the changed projects.
+$allSourceProjects = Get-ChildItem -Directory "$Path/src" | Select-Object -ExpandProperty Name | Sort-Object
 foreach ($projectName in $allSourceProjects) {
     $referencedProjects = dotnet list "$Path/src/$projectName/$projectName.csproj" reference | ForEach-Object {
         if ($_ -match "([^\\/]+)\.csproj") { $matches[1] }
     }
     foreach ($reference in $referencedProjects) {
         if ($sourceProjects -contains $reference) {
-            $sourceProjects += $projectName
+            $sourceProjects = @($sourceProjects) + $projectName
         }
     }
 }
 
-[String[]]$sourceProjects = $sourceProjects | Sort-Object -Unique
+$sourceProjects = $sourceProjects | Sort-Object -Unique
 
-# Extract the list of relevant test project names.
-[String[]]$associatedTestProjects = $sourceProjects | ForEach-Object {
-    "${_}.UnitTests"
+
+#----- TestProjects ---------------------------------------------------------------------
+
+# Get test projects that are associated with source projects.
+$testProjects = $sourceProjects | ForEach-Object { "$_.UnitTests" }
+
+# Include test projects that were directly changed.
+foreach ($file in $Files) {
+    if ($file -match "^tests/([^\\/]+)") {
+        $projectName = $matches[1]
+        $testProjects = @($testProjects) + $projectName
+        if ($projectName -notmatch "\.UnitTests$") {
+            $testProjects = @($testProjects) + "$projectName.UnitTests"
+        }
+    }
 }
-[String[]]$changedTestProjects = $Files | ForEach-Object {
-    if ($_ -match "^tests/") { $matches[1] }
-}
-[String[]]$testProjects = ($associatedTestProjects + $changedTestProjects) | Sort-Object -Unique
+
+# If there is at least one test project, ensure that test helpers are included.
 if ($testProjects.Count -ne 0) {
-    $testProjects = $testProjects + @( "Dfe.SignIn.TestHelpers" )
+    $testProjects = @($testProjects) + "Dfe.SignIn.TestHelpers"
 }
+
+$testProjects = $testProjects | Sort-Object -Unique
+
+
+#----- DeployableProjects ---------------------------------------------------------------
 
 # Extract the list of deployable project names.
-[String[]]$deployableProjects = $sourceProjects | ForEach-Object {
-    if (Is-DeployableProject($_)) { $_ }
+$deployableProjects = $sourceProjects | ForEach-Object {
+    $isDeployable = & "$PSScriptRoot/Test-DeployableProject.ps1" -ProjectName $_
+    if ($isDeployable) { $_ }
 }
+
+
+#----- Result ---------------------------------------------------------------------------
 
 return @{
     SourceProjects = $sourceProjects

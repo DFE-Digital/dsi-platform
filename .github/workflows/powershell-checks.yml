@@ -1,0 +1,19 @@
+name: Check PowerShell scripts
+
+on:
+  push:
+    paths:
+      - '**/*.ps1'
+
+jobs:
+  run-pester-tests:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run unit tests
+        run: |
+          Invoke-Pester scripts/**/*.Tests.ps1
+        shell: pwsh

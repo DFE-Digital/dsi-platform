@@ -6,8 +6,6 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-. "./scripts/docs/Prepare-$($Audience)Site"
-
 dotnet docfx ./docs/$($Audience.ToLower())/docfx.json `
     -m _cdnBaseAddress='<!--#echo var="CDN_BASE_ADDRESS"-->' `
     -m _cdnVersion='<!--#echo var="CDN_VERSION"-->' `
