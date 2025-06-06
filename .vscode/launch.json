@@ -5,25 +5,31 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C#: Launch Public API",
+      "name": "C#: Application - Help",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj"
+    },
+    {
+      "name": "C#: Application - Public API",
       "type": "dotnet",
       "request": "launch",
       "projectPath": "${workspaceFolder}/src/Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj"
     },
     {
-      "name": "C#: Launch Select Organisation",
+      "name": "C#: Application - Select Organisation",
       "type": "dotnet",
       "request": "launch",
       "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.SelectOrganisation/Dfe.SignIn.Web.SelectOrganisation.csproj"
-    }
+    },
   ],
   "compounds": [
     {
-      "name": "C#: Launch Everything",
+      "name": "C#: Select Organisation",
       "configurations": [
-        "C#: Launch Public API",
-        "C#: Launch Select Organisation"
+        "C#: Application - Public API",
+        "C#: Application - Select Organisation"
       ]
-    }
+    },
   ]
 }
