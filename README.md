@@ -1,5 +1,7 @@
 # dsi-platform
 
+[![Check PowerShell scripts](https://github.com/DFE-Digital/dsi-platform/actions/workflows/powershell-checks.yml/badge.svg)](https://github.com/DFE-Digital/dsi-platform/actions/workflows/powershell-checks.yml)
+
 This repository contains the .NET version of the DfE Sign-in platform.Sign-in solution.
 
 ## Pushing NuGet packages to your local feed

@@ -1,0 +1,39 @@
+name: Check PowerShell scripts
+
+on:
+  push:
+    paths:
+      - 'scripts/**/*.ps1'
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+  merge_group:
+    types: [ checks_requested ]
+
+concurrency:
+  group: powershell-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run-pester-tests:
+    name: Powershell unit tests
+    runs-on: ubuntu-latest
+
+    # The following permissions are needed by 'dorny/test-reporter'.
+    permissions:
+      checks: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run unit tests
+        shell: pwsh
+        run: Invoke-Pester ./scripts/**/*.Tests.ps1 -Passthru | Export-JUnitReport -Path ./scripts/TestResults.xml
+
+      - name: Report unit test results
+        uses: dorny/test-reporter@v1.9.1
+        if: ${{ !cancelled() }}
+        with:
+          name: Powershell unit test results
+          path: ./scripts/TestResults.xml
+          reporter: jest-junit
