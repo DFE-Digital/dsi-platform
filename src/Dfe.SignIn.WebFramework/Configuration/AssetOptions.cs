@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.Web.SelectOrganisation.Configuration;
+namespace Dfe.SignIn.WebFramework.Configuration;
 
 /// <summary>
 /// Options for referencing frontend assets; for example, the design system .css and .js files.

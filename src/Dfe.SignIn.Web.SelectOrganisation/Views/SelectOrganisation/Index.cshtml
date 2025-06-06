@@ -1,8 +1,8 @@
 ﻿@model SelectOrganisationViewModel
 
 @{
-    ViewData["Title"] = Model.Prompt.Heading;
-    ViewData["SignOutUrl"] = Model.SignOutUrl;
+    ViewData[DsiLayoutConstants.Title] = Model.Prompt.Heading;
+    ViewData[DsiLayoutConstants.SignOutUrl] = Model.SignOutUrl;
 }
 
 <form method="post" asp-antiforgery=true>

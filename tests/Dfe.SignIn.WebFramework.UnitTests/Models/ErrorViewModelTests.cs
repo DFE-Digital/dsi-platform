@@ -1,6 +1,6 @@
-using Dfe.SignIn.Web.SelectOrganisation.Models;
+using Dfe.SignIn.WebFramework.Models;
 
-namespace Dfe.SignIn.Web.SelectOrganisation.UnitTests.Models;
+namespace Dfe.SignIn.WebFramework.UnitTests.Models;
 
 [TestClass]
 public sealed class ErrorViewModelTests

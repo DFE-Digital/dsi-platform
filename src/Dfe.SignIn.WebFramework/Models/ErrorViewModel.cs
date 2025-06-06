@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.Web.SelectOrganisation.Models;
+namespace Dfe.SignIn.WebFramework.Models;
 
 /// <summary>
 /// View model for a general purpose error page.
