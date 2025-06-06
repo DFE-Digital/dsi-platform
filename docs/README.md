@@ -113,7 +113,7 @@ If you are satisfied with the changes then rename the applicable `*.received.txt
 
 ```pwsh
 # run from root of repository /
-./scripts/docs/Verify-TestSnapshots.ps1
+./scripts/docs/Confirm-TestSnapshots.ps1
 ```
 
 Commit the updated snapshot files to the repository.
