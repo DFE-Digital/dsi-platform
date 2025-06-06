@@ -29,7 +29,7 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 
 // Add services to the container.
 builder.Services
-    .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"))
+    .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
     .Configure<BearerTokenOptions>(builder.Configuration.GetRequiredSection("BearerToken"));

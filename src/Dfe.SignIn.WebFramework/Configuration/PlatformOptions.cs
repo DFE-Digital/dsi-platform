@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.Web.SelectOrganisation.Configuration;
+namespace Dfe.SignIn.WebFramework.Configuration;
 
 /// <summary>
 /// Options for the application.
 /// </summary>
-public sealed class ApplicationOptions : IOptions<ApplicationOptions>
+public sealed class PlatformOptions : IOptions<PlatformOptions>
 {
     /// <summary>
     /// Gets URL of the survey that the user can use to provide feedback.
@@ -18,5 +18,5 @@ public sealed class ApplicationOptions : IOptions<ApplicationOptions>
     public Uri ServicesUrl { get; set; } = new Uri("https://services.localhost");
 
     /// <inheritdoc/>
-    ApplicationOptions IOptions<ApplicationOptions>.Value => this;
+    PlatformOptions IOptions<PlatformOptions>.Value => this;
 }
