@@ -86,7 +86,8 @@ public interface ISelectOrganisationEvents
     /// <exception cref="SelectOrganisationCallbackErrorException">
     ///   <para>If the handler implementation chooses to throw as exception.</para>
     /// </exception>
-    Task OnError(IHttpContext context, SelectOrganisationErrorCode code);
+    /// <seealso cref="SelectOrganisationErrorCode"/>
+    Task OnError(IHttpContext context, string code);
 
     /// <summary>
     /// The event occurs when the user has selected an organisation and the selection

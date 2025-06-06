@@ -11,7 +11,7 @@ public sealed class SelectOrganisationCallbackErrorExceptionTests
     [TestMethod]
     public void ErrorCode_HasInitializedValue()
     {
-        var exception = new SelectOrganisationCallbackErrorException(SelectOrganisationErrorCode.InvalidSelection);
+        var exception = new SelectOrganisationCallbackErrorException(null, SelectOrganisationErrorCode.InvalidSelection);
 
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, exception.ErrorCode);
     }

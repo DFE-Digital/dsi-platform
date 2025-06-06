@@ -37,8 +37,10 @@ public sealed class SelectOrganisationCallbackErrorException : Exception
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectOrganisationCallbackErrorException"/> class.
     /// </summary>
+    /// <param name="message">The error message that explains the reason for the exception.</param>
     /// <param name="errorCode">A value indicating the kind of error that has occurred.</param>
-    public SelectOrganisationCallbackErrorException(SelectOrganisationErrorCode errorCode)
+    public SelectOrganisationCallbackErrorException(string? message, string errorCode)
+        : base(message)
     {
         this.ErrorCode = errorCode;
     }
@@ -46,6 +48,7 @@ public sealed class SelectOrganisationCallbackErrorException : Exception
     /// <summary>
     /// Gets a value indicating the kind of error that has occurred.
     /// </summary>
+    /// <seealso cref="SelectOrganisationErrorCode"/>
     [Persist]
-    public SelectOrganisationErrorCode ErrorCode { get; }
+    public string ErrorCode { get; } = SelectOrganisationErrorCode.InternalError;
 }

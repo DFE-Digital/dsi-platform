@@ -150,8 +150,7 @@ public sealed class SelectOrganisationController(
         return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.Selection}&{CallbackParamNames.Selection}={selection}");
     }
 
-    private IActionResult RedirectToErrorCallback(
-        SelectOrganisationSessionData session, SelectOrganisationErrorCode errorCode)
+    private IActionResult RedirectToErrorCallback(SelectOrganisationSessionData session, string errorCode)
     {
         return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.Error}&{CallbackParamNames.ErrorCode}={errorCode}");
     }

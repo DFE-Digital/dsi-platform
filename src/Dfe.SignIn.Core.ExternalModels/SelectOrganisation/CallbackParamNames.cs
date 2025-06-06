@@ -25,7 +25,7 @@ public static class CallbackParamNames
     /// Name of the parameter that specifies the error code.
     /// </summary>
     /// <remarks>
-    ///   <para>Parameter value type: <see cref="SelectOrganisationErrorCode"/>.</para>
+    ///   <para>Parameter value type: <see cref="string"/> (see <see cref="SelectOrganisationErrorCode"/>).</para>
     /// </remarks>
     public const string ErrorCode = "code";
 
