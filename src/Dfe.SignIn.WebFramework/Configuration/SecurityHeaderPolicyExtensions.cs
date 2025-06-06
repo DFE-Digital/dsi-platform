@@ -6,7 +6,9 @@ using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.WebFramework.Configuration;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up security header policy.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public static class SecurityHeaderPolicyExtensions
 {

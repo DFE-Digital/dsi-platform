@@ -5,7 +5,9 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up health checks.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public static class HealthCheckExtensions
 {
