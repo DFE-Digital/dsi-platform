@@ -1,7 +1,7 @@
-using Dfe.SignIn.Web.SelectOrganisation.Configuration;
+using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.Web.SelectOrganisation.UnitTests.Configuration;
+namespace Dfe.SignIn.WebFramework.UnitTests.Configuration;
 
 [TestClass]
 public sealed class AssetConfigurationExtensionsTests

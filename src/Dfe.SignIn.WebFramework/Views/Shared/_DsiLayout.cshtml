@@ -1,7 +1,9 @@
-﻿@using Dfe.SignIn.Web.SelectOrganisation.Configuration
+﻿@using Dfe.SignIn.WebFramework.Configuration
 @using Microsoft.Extensions.Options
-@inject IOptions<ApplicationOptions> ApplicationOptionsAccessor
+
+@inject IOptions<PlatformOptions> platformOptionsAccessor
 @inject IOptions<AssetOptions> AssetOptionsAccessor
+
 <!DOCTYPE html>
 <html lang="en" class="govuk-template">
 
@@ -67,7 +69,7 @@
     <div class="govuk-width-container">
         <govuk-phase-banner>
             <govuk-phase-banner-tag>Beta</govuk-phase-banner-tag>
-            This is a new service – your <a class="govuk-link" href=@ApplicationOptionsAccessor.Value.SurveyUrl
+            This is a new service – your <a class="govuk-link" href=@platformOptionsAccessor.Value.SurveyUrl
                 target="_blank">feedback</a> will help us to improve it.
         </govuk-phase-banner>
 

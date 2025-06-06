@@ -1,7 +1,7 @@
 using Dfe.SignIn.Core.Framework;
 using GovUk.Frontend.AspNetCore;
 
-namespace Dfe.SignIn.Web.SelectOrganisation.Configuration;
+namespace Dfe.SignIn.WebFramework.Configuration;
 
 /// <summary>
 /// Extension methods for setting up frontend assets.

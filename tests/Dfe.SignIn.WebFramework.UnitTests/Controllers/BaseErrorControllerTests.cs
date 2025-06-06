@@ -1,13 +1,13 @@
-using Dfe.SignIn.Web.SelectOrganisation.Controllers;
-using Dfe.SignIn.Web.SelectOrganisation.Models;
+using Dfe.SignIn.WebFramework.Controllers;
+using Dfe.SignIn.WebFramework.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.Web.SelectOrganisation.UnitTests.Controllers;
+namespace Dfe.SignIn.WebFramework.UnitTests.Controllers;
 
 [TestClass]
-public sealed class ErrorControllerTests
+public sealed class BaseErrorControllerTests
 {
     #region Index()
 
@@ -15,7 +15,7 @@ public sealed class ErrorControllerTests
     public void Index_UsesTraceIdentifierAsRequestId()
     {
         var mocker = new AutoMocker();
-        var controller = mocker.CreateInstance<ErrorController>();
+        var controller = mocker.CreateInstance<BaseErrorController>();
         controller.ControllerContext = new ControllerContext {
             HttpContext = new DefaultHttpContext {
                 TraceIdentifier = "a492f33c-a859-4098-8c01-b8b2f09a6090"
