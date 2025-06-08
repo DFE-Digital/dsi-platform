@@ -1,5 +1,4 @@
 ﻿@using Dfe.SignIn.WebFramework.Configuration
-@using Dfe.SignIn.WebFramework.Models
 @using Microsoft.Extensions.Options
 
 @inject IOptions<PlatformOptions> platformOptionsAccessor
@@ -37,7 +36,7 @@
         document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
     </script>
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
-    <header class="govuk-header" data-module="govuk-header">
+    <header class="govuk-header govuk-header--full-width-border" data-module="govuk-header">
         <div class="govuk-header__container govuk-width-container">
             <div class="govuk-header__logo">
                 <a href="/" class="govuk-header__link govuk-header__link--homepage">
@@ -77,23 +76,55 @@
             </div>
         </div>
     </header>
+
+    <div class="govuk-phase-banner">
+        <div class="govuk-width-container">
+            <p class="govuk-phase-banner__content">
+                <strong class="govuk-tag govuk-phase-banner__content__tag">
+                    Beta
+                </strong>
+                <span class="govuk-phase-banner__text">
+                    This is a new service – your <a class="govuk-link" href=@platformOptionsAccessor.Value.SurveyUrl
+                        target="_blank">feedback</a> will help us to improve it.
+                </span>
+            </p>
+        </div>
+    </div>
+
+    @if (ViewData[DsiLayoutConstants.Hero] is HeroViewModel hero)
+    {
+        <div id="home-top" class="home-top">
+            <div class="govuk-width-container home-top__inner">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <partial name="~/Views/Shared/Partials/_Crumbs.cshtml" />
+                    </div>
+
+                    <div class="govuk-grid-column-two-thirds">
+                        <h1 class="govuk-heading-xl govuk-!-margin-top-5 govuk-!-margin-bottom-5">@hero.Heading</h1>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(hero.Text))
+                    {
+                        <div class="govuk-grid-column-two-thirds">
+                            <h2 class="govuk-heading-m">@hero.Text</h2>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="govuk-width-container">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <partial name="~/Views/Shared/Partials/_Crumbs.cshtml" />
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="govuk-width-container">
-        <govuk-phase-banner>
-            <govuk-phase-banner-tag>Beta</govuk-phase-banner-tag>
-            This is a new service – your <a class="govuk-link" href=@platformOptionsAccessor.Value.SurveyUrl
-                target="_blank">feedback</a> will help us to improve it.
-        </govuk-phase-banner>
-
-        @if (ViewData[DsiLayoutConstants.Crumbs] is IEnumerable<CrumbViewModel> crumbs && crumbs.Any())
-        {
-            <govuk-breadcrumbs>
-                @foreach (var crumb in crumbs)
-                {
-                    <govuk-breadcrumbs-item href="@crumb.Href">@crumb.Text</govuk-breadcrumbs-item>
-                }
-            </govuk-breadcrumbs>
-        }
-
         <main class="govuk-main-wrapper" id="main-content">
             @RenderBody()
         </main>

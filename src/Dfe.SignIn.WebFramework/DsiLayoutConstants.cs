@@ -28,6 +28,14 @@ public static class DsiLayoutConstants
     /// <remarks>
     ///   <para>The associated value must be assignable to <see cref="IEnumerable{CrumbViewModel}"/>.</para>
     /// </remarks>
+    public const string Hero = $"_DsiLayout.{nameof(Hero)}";
+
+    /// <summary>
+    /// View data key for breadcrumbs.
+    /// </summary>
+    /// <remarks>
+    ///   <para>The associated value must be assignable to <see cref="IEnumerable{CrumbViewModel}"/>.</para>
+    /// </remarks>
     public const string Crumbs = $"_DsiLayout.{nameof(Crumbs)}";
 
     /// <summary>
