@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.Web.Help.Configuration;
 
@@ -17,7 +18,7 @@ public static class HealthCheckExtensions
     /// </exception>
     public static void SetupHealthChecks(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddHealthChecks();
     }

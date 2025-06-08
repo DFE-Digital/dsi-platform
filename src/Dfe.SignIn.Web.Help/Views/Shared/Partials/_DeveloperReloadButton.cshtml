@@ -1,0 +1,17 @@
+<script asp-add-nonce>
+    window.addEventListener("load", (event) => {
+        $('<a href="#">Reload</a>')
+            .addClass("govuk-button")
+            .css({
+                position: "fixed",
+                top: "7px",
+                right: "7px",
+                margin: "0px",
+            })
+            .click(async () => {
+                await fetch("/reload");
+                window.location.reload();
+            })
+            .appendTo(document.body);
+    });
+</script>

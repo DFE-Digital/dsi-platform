@@ -32,6 +32,7 @@ builder.Services
 
 builder.Services.SetupAutoMapper();
 builder.Services.SetupHealthChecks();
+builder.Services.SetupContentProcessing();
 
 var app = builder.Build();
 
@@ -54,7 +55,22 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller}/{action=Index}"
+);
+
+#if DEBUG
+app.MapControllerRoute(
+    name: "reloadTopics",
+    pattern: "reload",
+    defaults: new { controller = "Topic", action = "Reload" }
+);
+#endif
+
+app.MapControllerRoute(
+    name: "topic",
+    pattern: "{*url}",
+    defaults: new { controller = "Topic", action = "Index" }
+);
 
 app.Run();
 
