@@ -64,6 +64,7 @@ if (!app.Environment.IsDevelopment()) {
     app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseHealthChecks();

@@ -15,11 +15,14 @@ public abstract class BaseErrorController : Controller
     /// <summary>
     /// Presents the error page.
     /// </summary>
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Index()
+    /// <param name="code">HTTP status code.</param>
+    public IActionResult Index(int code = 500)
     {
-        return this.View(new ErrorViewModel {
-            RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier,
-        });
+        return code switch {
+            404 => this.View("NotFound"),
+            _ => this.View(new ErrorViewModel {
+                RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier,
+            }),
+        };
     }
 }
