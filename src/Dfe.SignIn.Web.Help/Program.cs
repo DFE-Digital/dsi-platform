@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Web.Help.Configuration;
+using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.WebFramework.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -72,6 +73,10 @@ app.MapControllerRoute(
     pattern: "{*url}",
     defaults: new { controller = "Topic", action = "Index" }
 );
+
+// Force content to be rendered before starting up the server.
+await app.Services.GetRequiredService<ITopicIndexAccessor>()
+    .GetIndexAsync();
 
 app.Run();
 
