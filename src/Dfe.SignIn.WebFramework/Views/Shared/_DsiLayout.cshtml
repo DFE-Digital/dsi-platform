@@ -13,6 +13,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b0c0c">
 
+    @if (@ViewData[DsiLayoutConstants.MetaDescription] is string metaDescription &&
+        !string.IsNullOrEmpty(metaDescription))
+    {
+        <meta name="description" content="@metaDescription">
+    }
+
     <link rel="stylesheet"
         href="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/css/screen.css?version=@(assetOptionsAccessor.Value.Version)">
 

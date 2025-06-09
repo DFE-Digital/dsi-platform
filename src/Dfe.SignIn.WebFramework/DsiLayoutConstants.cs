@@ -14,6 +14,15 @@ public static class DsiLayoutConstants
     public const string Title = $"_DsiLayout.{nameof(Title)}";
 
     /// <summary>
+    /// View data key for description meta tag text.
+    /// </summary>
+    /// <remarks>
+    ///   <para>Meta tag is only presented when non-empty.</para>
+    ///   <para>The associated value must be a string.</para>
+    /// </remarks>
+    public const string MetaDescription = $"_DsiLayout.{nameof(MetaDescription)}";
+
+    /// <summary>
     /// View data key for service name text.
     /// </summary>
     /// <remarks>
