@@ -1,27 +1,16 @@
 name: Check PowerShell scripts
 
 on:
-  push:
-    paths:
-      - 'scripts/**/*.ps1'
-  pull_request:
-    types: [ opened, reopened, synchronize ]
-  merge_group:
-    types: [ checks_requested ]
+  workflow_call:
+  workflow_dispatch:
 
 concurrency:
   group: powershell-checks-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  run-pester-tests:
-    name: Powershell unit tests
+  run:
     runs-on: ubuntu-latest
-
-    # The following permissions are needed by 'dorny/test-reporter'.
-    permissions:
-      checks: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

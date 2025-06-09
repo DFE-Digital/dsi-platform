@@ -1,12 +1,11 @@
 name: Check docs template
 
 on:
-  push:
-    paths:
-      - 'docs/templates/**'
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

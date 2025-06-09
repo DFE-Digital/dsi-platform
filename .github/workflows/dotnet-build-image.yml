@@ -19,7 +19,7 @@ on:
         type: string
 
 jobs:
-  build-image:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

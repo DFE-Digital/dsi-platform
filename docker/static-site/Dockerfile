@@ -12,3 +12,5 @@ RUN mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig && { \
 COPY docker/static-site/default.conf /etc/nginx/conf.d/default.conf
 
 COPY $HTML_PATH /usr/share/nginx/html
+
+USER nonroot

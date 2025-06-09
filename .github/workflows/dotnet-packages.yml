@@ -1,7 +1,7 @@
 name: Publish development .NET packages
 
 on:
-  workflow_dispatch:
+  workflow_call:
 
   push:
     paths:
@@ -11,7 +11,7 @@ on:
       - 'src/Dfe.SignIn.PublicApi.Client.AspNetCore/**'
 
 jobs:
-  select-projects:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

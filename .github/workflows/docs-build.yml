@@ -1,23 +1,17 @@
 name: Build developer reference
 
 on:
-  workflow_dispatch:
-    inputs:
-      override_lifecycle:
-        description: 'Lifecycle (override)'
-        required: false
-        type: string
+  workflow_call:
 
-  push:
-    paths:
-      - 'docs/**'
-      - 'src/Dfe.SignIn.Core.Framework/**'
-      - 'src/Dfe.SignIn.Core.ExternalModels/**'
-      - 'src/Dfe.SignIn.PublicApi.Client/**'
-      - 'src/Dfe.SignIn.PublicApi.Client.AspNetCore/**'
+  # workflow_dispatch:
+  #   inputs:
+  #     override_lifecycle:
+  #       description: 'Lifecycle (override)'
+  #       required: false
+  #       type: string
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -38,7 +32,7 @@ jobs:
 
       - name: Build documentation
         shell: pwsh
-        run: ./scripts/workflows/Build-Docs -Audience 'External''
+        run: ./scripts/workflows/Build-Docs -Audience 'External'
 
       - name: Build image
         shell: pwsh
