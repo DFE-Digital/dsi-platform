@@ -26,6 +26,11 @@ public sealed class TopicViewModel
     public IEnumerable<CrumbViewModel> Crumbs { get; set; } = [];
 
     /// <summary>
+    /// Gets or sets the optional caption of the topic.
+    /// </summary>
+    public required string? Caption { get; set; }
+
+    /// <summary>
     /// Gets or sets the title of the topic.
     /// </summary>
     public required string Title { get; set; }

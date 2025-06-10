@@ -7,6 +7,11 @@ namespace Dfe.SignIn.Web.Help.Content;
 public sealed record TopicMetadata()
 {
     /// <summary>
+    /// Gets the optional caption of the topic.
+    /// </summary>
+    public string? Caption { get; init; }
+
+    /// <summary>
     /// Gets the title of the topic.
     /// </summary>
     public required string Title { get; init; }

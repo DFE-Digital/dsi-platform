@@ -17,6 +17,10 @@
 }
 else
 {
+    if (!string.IsNullOrWhiteSpace(Model.Caption))
+    {
+        <span class="govuk-caption-xl">@Model.Caption</span>
+    }
     <h1 class="govuk-heading-l">@Model.Title</h1>
 }
 

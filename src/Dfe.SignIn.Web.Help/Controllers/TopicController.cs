@@ -42,6 +42,7 @@ public class TopicController(
         return this.View(new TopicViewModel {
             AllowDeveloperReloadAction = AllowDeveloperReloadAction,
             Crumbs = crumbs,
+            Caption = topic.Metadata.Caption,
             Title = topic.Metadata.Title,
             Summary = topic.Metadata.Summary,
             ContentHtml = topic.ContentHtml,

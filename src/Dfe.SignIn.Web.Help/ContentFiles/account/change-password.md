@@ -1,4 +1,5 @@
 ---
+caption: Understanding my account
 title: How do I change my password?
 
 summary: |
