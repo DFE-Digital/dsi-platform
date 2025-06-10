@@ -11,16 +11,8 @@
 .PARAMETER DotNetProjectName
     The name of the .NET project.
 
-.PARAMETER Lifecycle
-    Intended lifecycle of image:
-        - 'dev' to indicate the development lifecycle.
-        - 'rel' to indicate the release lifecycle.
-
-.PARAMETER RunId
-    Identifies the unique run of the GitHub workflow.
-
-.PARAMETER RunNumber
-    Identifies the unique run number of the GitHub workflow.
+.PARAMETER ImageName
+    Identifies the name of the image that is to be built.
 
 .OUTPUTS
     Feedback from docker image creation.
@@ -29,9 +21,7 @@
     ./scripts/workflows/Build-DotNetImage `
         -RegistryServer ... `
         -DotNetProjectName 'Dfe.SignIn.PublicApi' `
-        -Lifecycle 'dev' `
-        -RunId 12345 `
-        -RunNumber 1
+        -ImageName 'dev-12345-1'
 #>
 [CmdletBinding()]
 param (
@@ -42,13 +32,7 @@ param (
     [string]$DotNetProjectName,
 
     [Parameter(Mandatory=$true)]
-    [string]$Lifecycle,
-
-    [Parameter(Mandatory=$true)]
-    [string]$RunId,
-
-    [Parameter(Mandatory=$true)]
-    [string]$RunNumber
+    [string]$ImageName
 )
 
 $ErrorActionPreference = "Stop"
@@ -63,7 +47,7 @@ if (-not $repositoryName) {
     throw "Repository mapping not specified for '$DotNetProjectName'."
 }
 
-$tag = "{0}/{1}:{2}-{3}-{4}" -f $RegistryServer, $($repositoryName.ToLower()), $Lifecycle, $RunId, $RunNumber
+$tag = "{0}/{1}:{2}" -f $RegistryServer, $($repositoryName.ToLower()), $ImageName
 
 # az acr login --name $RegistryServer
 docker build -t $tag --file ./docker/dotnet-component/Dockerfile --build-arg PROC_FILE_NAME=$DotnetProjectName .

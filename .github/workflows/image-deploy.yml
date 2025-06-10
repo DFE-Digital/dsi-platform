@@ -1,0 +1,46 @@
+name: Deploy image
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: Project name
+        required: true
+        type: string
+
+      lifecycle_name:
+        description: Lifecycle name
+        required: true
+        type: string
+        # options:
+        #   - dev
+        #   - rel
+
+      image_name:
+        description: Image name
+        required: true
+        type: string
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Deploy image for '${{ inputs.project_name }}'
+        run: |
+          Write-Host "Lifecycle name: ${{ inputs.lifecycle_name }}"
+          Write-Host "Image name: ${{ inputs.image_name }}"
+
+      # - uses: Azure/pipelines@v1
+      #   with:
+      #     azure-devops-project-url: 'https://dev.azure.com/organization/project-name'
+      #     azure-pipeline-name: 'pipeline-name'
+      #     azure-devops-token: '${{ secrets.AZURE_DEVOPS_TOKEN }}'
+      #     azure-pipeline-variables: |
+      #       {
+      #         "projectName": "${{ inputs.project_name }}",
+      #         "lifecycleName": "${{ inputs.lifecycle_name }}",
+      #         "imageName": "${{ inputs.image_name }}"
+      #       }

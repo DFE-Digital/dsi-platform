@@ -8,16 +8,8 @@
 .PARAMETER RepositoryName
     The container repository name.
 
-.PARAMETER Lifecycle
-    Intended lifecycle of image:
-        - 'dev' to indicate the development lifecycle.
-        - 'rel' to indicate the release lifecycle.
-
-.PARAMETER RunId
-    Identifies the unique run of the GitHub workflow.
-
-.PARAMETER RunNumber
-    Identifies the unique run number of the GitHub workflow.
+.PARAMETER ImageName
+    Identifies the name of the image that is to be built.
 
 .PARAMETER HtmlPath
     Path of the static site content. This is where the static .html files reside.
@@ -29,9 +21,7 @@
     ./scripts/workflows/Build-StaticSiteImage `
         -RegistryServer ... `
         -RepositoryName 'select-organisation' `
-        -Lifecycle 'dev' `
-        -RunId 12345 `
-        -RunNumber 1 `
+        -ImageName 'dev-12345-1' `
         -HtmlPath './docs/_site'
 #>
 [CmdletBinding()]
@@ -43,13 +33,7 @@ param (
     [string]$RepositoryName,
 
     [Parameter(Mandatory=$true)]
-    [string]$Lifecycle,
-
-    [Parameter(Mandatory=$true)]
-    [string]$RunId,
-
-    [Parameter(Mandatory=$true)]
-    [string]$RunNumber,
+    [string]$ImageName,
 
     [Parameter(Mandatory=$true)]
     [string]$HtmlPath
@@ -57,7 +41,7 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-$tag = "{0}/{1}:{2}-{3}-{4}" -f $RegistryServer, $RepositoryName, $Lifecycle, $RunId, $RunNumber
+$tag = "{0}/{1}:{2}" -f $RegistryServer, $RepositoryName, $ImageName
 
 # az acr login --name $RegistryServer
 docker build -t $tag --file ./docker/static-site/Dockerfile --build-arg HTML_PATH=$HtmlPath .

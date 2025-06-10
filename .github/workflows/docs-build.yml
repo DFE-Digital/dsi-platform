@@ -2,17 +2,18 @@ name: Build developer reference
 
 on:
   workflow_call:
-
-  # workflow_dispatch:
-  #   inputs:
-  #     override_lifecycle:
-  #       description: 'Lifecycle (override)'
-  #       required: false
-  #       type: string
+    inputs:
+      image_name:
+        description: Image name
+        required: true
+        type: string
 
 jobs:
   run:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -23,28 +24,18 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore .NET tools
-        shell: pwsh
         run: dotnet tool restore
 
       - name: Build custom template
-        shell: pwsh
         run: ./scripts/docs/Build-CustomTemplate
 
       - name: Build documentation
-        shell: pwsh
         run: ./scripts/workflows/Build-Docs -Audience 'External'
 
       - name: Build image
-        shell: pwsh
         run: |
-          $lifecycle = ./scripts/workflows/Resolve-LifecycleParameter `
-            -Implied '${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}' `
-            -Override '${{ inputs.override_lifecycle }}'
-
           ./scripts/workflows/Build-StaticSiteImage `
             -RegistryServer 'fake' `
             -RepositoryName 'developer' `
-            -Lifecycle $lifecycle `
-            -RunId '${{ github.run_id }}' `
-            -RunNumber '${{ github.run_number }}' `
+            -ImageName '${{ inputs.image_name }}' `
             -HtmlPath 'docs/_site'

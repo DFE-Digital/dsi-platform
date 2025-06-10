@@ -9,20 +9,43 @@ on:
 
   workflow_dispatch:
     inputs:
+      check_powershell:
+        description: Run PowerShell checks
+        default: false
+        type: boolean
+
+      check_dotnet:
+        description: Run .NET checks
+        default: false
+        type: boolean
+
+      check_docs:
+        description: Run external docs checks
+        default: false
+        type: boolean
+
       build_select_organisation:
-        description: 'Build "Select Organisation"'
-        required: true
+        description: Build "Select Organisation"
         default: false
         type: boolean
 
       build_public_api:
-        description: 'Build "Public API"'
-        required: true
+        description: Build "Public API"
+        default: false
+        type: boolean
+
+      build_external_docs:
+        description: Build external docs
+        default: false
+        type: boolean
+
+      publish_dotnet_packages:
+        description: Publish .NET packages
         default: false
         type: boolean
 
       lifecycle:
-        description: 'Lifecycle'
+        description: Lifecycle
         required: true
         default: Development
         type: choice
@@ -37,16 +60,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  determine-checks:
-    name: Determine checks
+  prepare:
+    name: Prepare
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
     outputs:
-      check_powershell: ${{ steps.determine-checks.outputs.check_powershell }}
-      check_dotnet: ${{ steps.determine-checks.outputs.check_dotnet }}
-      check_docs_templates: ${{ steps.determine-checks.outputs.check_docs_templates }}
+      lifecycle_name: ${{ steps.prepare.outputs.lifecycle_name }}
+      check_powershell: ${{ steps.prepare.outputs.check_powershell }}
+      check_dotnet: ${{ steps.prepare.outputs.check_dotnet }}
+      check_docs_templates: ${{ steps.prepare.outputs.check_docs_templates }}
       publish_dotnet_image_names: ${{ steps.select-projects.outputs.project_names }}
-      publish_dotnet_packages: ${{ steps.determine-checks.outputs.publish_dotnet_packages }}
-      publish_docs: ${{ steps.determine-checks.outputs.publish_docs }}
+      publish_dotnet_packages: ${{ steps.prepare.outputs.publish_dotnet_packages }}
+      build_external_docs: ${{ steps.prepare.outputs.build_external_docs }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -54,16 +81,30 @@ jobs:
           fetch-depth: 0
 
       - name: Determine which checks need to run
-        id: determine-checks
-        shell: pwsh
+        id: prepare
         run: |
+          $lifecycleName = ./scripts/workflows/Resolve-LifecycleParameter `
+            -Implied '${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}' `
+            -Override '${{ github.event.inputs.lifecycle || '' }}'
+          echo "lifecycle_name=$lifecycleName" >> $env:GITHUB_OUTPUT
+
           $changedFiles = ./scripts/workflows/Discover-ChangedFilesInBranch
 
-          $checkPowershell = $changedFiles.Where({ $_ -match "^scripts/" }, 'First').Count -gt 0
+          $checkPowershell = '${{ github.event.inputs.check_powershell }}' -eq 'true' `
+            -or $changedFiles.Where({ $_ -match "^scripts/" }, 'First').Count -gt 0
           echo "check_powershell=$checkPowershell" >> $env:GITHUB_OUTPUT
 
-          $checkDotnet = $changedFiles.Where({ $_ -match "^(src|tests)/" }, 'First').Count -gt 0
+          $checkDotnet = '${{ github.event.inputs.check_dotnet }}' -eq 'true' `
+            -or $changedFiles.Where({ $_ -match "^(src|tests)/" }, 'First').Count -gt 0
           echo "check_dotnet=$checkDotnet" >> $env:GITHUB_OUTPUT
+
+          $checkDocsTemplates = '${{ github.event.inputs.check_docs }}' -eq 'true' `
+            -or $changedFiles.Where({ $_ -match "^docs/templates/" }, 'First').Count -gt 0
+          echo "check_docs_templates=$checkDocsTemplates" >> $env:GITHUB_OUTPUT
+
+          $buildExternalDocs = '${{ github.event.inputs.build_external_docs }}' -eq 'true' `
+            -or $changedFiles.Where({ $_ -match "^docs/(external|templates)/" }, 'First').Count -gt 0
+          echo "build_external_docs=$buildExternalDocs" >> $env:GITHUB_OUTPUT
 
           $dotnetPackageProjectNames = @(
             'Dfe.SignIn.Core.Framework'
@@ -71,18 +112,12 @@ jobs:
             'Dfe.SignIn.PublicApi.Client'
             'Dfe.SignIn.PublicApi.Client.AspNetCore'
           ) -join '|'
-          $publishDotnetPackages = $changedFiles.Where({ $_ -match "^src/($packageProjectNames)/" }, 'First').Count -gt 0
+          $publishDotnetPackages = '${{ github.event.inputs.publish_dotnet_packages }}' -eq 'true' `
+            -or $changedFiles.Where({ $_ -match "^src/($packageProjectNames)/" }, 'First').Count -gt 0
           echo "publish_dotnet_packages=$publishDotnetPackages" >> $env:GITHUB_OUTPUT
-
-          $checkDocsTemplates = $changedFiles.Where({ $_ -match "^docs/templates/" }, 'First').Count -gt 0
-          echo "check_docs_templates=$checkDocsTemplates" >> $env:GITHUB_OUTPUT
-
-          $publishDocs = $changedFiles.Where({ $_ -match "^docs/(external|templates)/" }, 'First').Count -gt 0
-          echo "publish_docs=$publishDocs" >> $env:GITHUB_OUTPUT
 
       - name: Select deployable projects
         id: select-projects
-        shell: pwsh
         run: |
           if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
             $projectNames = @(./scripts/workflows/Select-ProjectNamesFromParameters `
@@ -105,49 +140,53 @@ jobs:
   powershell-checks:
     name: Powershell checks
     uses: ./.github/workflows/powershell-checks.yml
-    needs: determine-checks
-    if: "${{ needs.determine-checks.outputs.check_powershell == 'true' }}"
-    # The following permissions are needed by 'dorny/test-reporter'.
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_powershell == 'true' }}"
     permissions:
-      checks: write
+      checks: write # Needed by 'dorny/test-reporter'.
 
   dotnet-checks:
     name: .NET checks
     uses: ./.github/workflows/dotnet-checks.yml
-    needs: determine-checks
-    if: "${{ needs.determine-checks.outputs.check_dotnet == 'true' }}"
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_dotnet == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   dotnet-build:
     name: .NET build images
     uses: ./.github/workflows/dotnet-build-image.yml
-    needs: determine-checks
+    needs: prepare
     strategy:
       matrix:
-        project_name: ${{ fromJson(needs.determine-checks.outputs.publish_dotnet_image_names) }}
+        project_name: ${{ fromJson(needs.prepare.outputs.publish_dotnet_image_names) }}
     with:
       project_name: ${{ matrix.project_name }}
-      implied_lifecycle: ${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}
-      override_lifecycle: ${{ github.event.inputs.lifecycle || '' }}
+      image_name: '${{ needs.prepare.outputs.lifecycle_name }}-${{ github.run_id }}-${{ github.run_number }}'
 
   dotnet-packages:
     name: .NET publish packages
     uses: ./.github/workflows/dotnet-packages.yml
-    needs: determine-checks
-    if: "${{ needs.determine-checks.outputs.publish_dotnet_packages == 'true' }}"
+    needs: prepare
+    if: "${{ needs.prepare.outputs.publish_dotnet_packages == 'true' }}"
 
   docs-templates-checks:
     name: Docs templates checks
     uses: ./.github/workflows/docs-templates-checks.yml
-    needs: determine-checks
-    if: "${{ needs.determine-checks.outputs.check_docs_templates == 'true' }}"
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_docs_templates == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
 
   docs-build:
     name: Build documentation
     uses: ./.github/workflows/docs-build.yml
-    needs: determine-checks
-    if: "${{ needs.determine-checks.outputs.publish_docs == 'true' }}"
+    needs: prepare
+    if: "${{ needs.prepare.outputs.build_external_docs == 'true' }}"
+    with:
+      image_name: '${{ needs.prepare.outputs.lifecycle_name }}-${{ github.run_id }}-${{ github.run_number }}'
 
 
   # -------------------------------------------------------------------------------------
@@ -158,14 +197,14 @@ jobs:
     name: Wait to trigger
     runs-on: ubuntu-latest
     needs:
-      - determine-checks
+      - prepare
       - powershell-checks
       - dotnet-checks
       - dotnet-build
       - dotnet-packages
       - docs-templates-checks
       - docs-build
-    if: ${{ always() && !failure() }}
+    if: ${{ !cancelled() && !failure() }}
     steps:
       - name: Triggering deployments
         shell: pwsh
@@ -173,21 +212,23 @@ jobs:
 
   dotnet-trigger-cd:
     name: .NET deploy
-    uses: ./.github/workflows/dotnet-deploy-image.yml
-    needs:
-      - determine-checks
-      - wait-trigger-cd
-    if: ${{ always() && !failure() }}
+    uses: ./.github/workflows/image-deploy.yml
+    needs: [ prepare, wait-trigger-cd ]
+    if: ${{ !cancelled() && !failure() }}
     strategy:
       matrix:
-        project_name: ${{ fromJson(needs.determine-checks.outputs.publish_dotnet_image_names) }}
+        project_name: ${{ fromJson(needs.prepare.outputs.publish_dotnet_image_names) }}
     with:
       project_name: ${{ matrix.project_name }}
-      implied_lifecycle: ${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}
-      override_lifecycle: ${{ github.event.inputs.lifecycle || '' }}
+      lifecycle_name: ${{ needs.prepare.outputs.lifecycle_name }}
+      image_name: '${{ needs.prepare.outputs.lifecycle_name }}-${{ github.run_id }}-${{ github.run_number }}'
 
   docs-trigger-cd:
     name: Docs deploy
-    uses: ./.github/workflows/docs-deploy.yml
-    needs: wait-trigger-cd
-    if: "${{ always() && !failure() && needs.determine-checks.outputs.check_docs_templates == 'true' }}"
+    uses: ./.github/workflows/image-deploy.yml
+    needs: [ prepare, wait-trigger-cd ]
+    if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
+    with:
+      project_name: docs/external
+      lifecycle_name: ${{ needs.prepare.outputs.lifecycle_name }}
+      image_name: '${{ needs.prepare.outputs.lifecycle_name }}-${{ github.run_id }}-${{ github.run_number }}'

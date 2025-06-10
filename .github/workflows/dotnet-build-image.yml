@@ -4,37 +4,28 @@ on:
   workflow_call:
     inputs:
       project_name:
-        description: 'Project name'
+        description: Project name
         required: true
         type: string
 
-      implied_lifecycle:
-        description: 'Lifecycle (implied)'
+      image_name:
+        description: Image name
         required: true
-        type: string
-
-      override_lifecycle:
-        description: 'Lifecycle (override)'
-        required: false
         type: string
 
 jobs:
   run:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Build image for '${{ inputs.project_name }}'
-        shell: pwsh
         run: |
-          $lifecycle = ./scripts/workflows/Resolve-LifecycleParameter `
-            -Implied '${{ inputs.implied_lifecycle }}' `
-            -Override '${{ inputs.override_lifecycle }}'
-
           ./scripts/workflows/Build-DotNetImage `
             -RegistryServer 'fake' `
             -DotNetProjectName '${{ inputs.project_name }}' `
-            -Lifecycle $lifecycle `
-            -RunId '${{ github.run_id }}' `
-            -RunNumber '${{ github.run_number }}'
+            -ImageName '${{ inputs.image_name }}'

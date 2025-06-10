@@ -2,25 +2,22 @@ name: Check PowerShell scripts
 
 on:
   workflow_call:
-  workflow_dispatch:
-
-concurrency:
-  group: powershell-checks-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   run:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Run unit tests
-        shell: pwsh
         run: Invoke-Pester ./scripts/**/*.Tests.ps1 -Passthru | Export-JUnitReport -Path ./scripts/TestResults.xml
 
       - name: Report unit test results
-        uses: dorny/test-reporter@v1.9.1
+        uses: dorny/test-reporter@v2.1.0
         if: ${{ !cancelled() }}
         with:
           name: Powershell unit test results
