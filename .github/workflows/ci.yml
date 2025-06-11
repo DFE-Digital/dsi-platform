@@ -88,7 +88,7 @@ jobs:
             -Override '${{ github.event.inputs.lifecycle || '' }}'
           echo "lifecycle_name=$lifecycleName" >> $env:GITHUB_OUTPUT
 
-          $changedFiles = ./scripts/workflows/Discover-ChangedFilesInBranch
+          $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
 
           ./scripts/workflows/Set-OutputFlags -ChangedFiles $changedFiles -Flags @{
             check_powershell = @{
@@ -122,12 +122,12 @@ jobs:
         id: select-projects
         run: |
           if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
-            $projectNames = ./scripts/workflows/Select-ProjectNamesFromParameters `
+            $projectNames = ./scripts/workflows/Get-ProjectNamesFromParameters `
               -SelectOrganisation ${{ github.event.inputs.build_select_organisation }} `
               -PublicApi ${{ github.event.inputs.build_public_api }}
           }
           else {
-            $projectNames = ./scripts/workflows/Select-ProjectNamesFromChanges
+            $projectNames = ./scripts/workflows/Get-ProjectNamesFromChanges
           }
           $jsonNames = ConvertTo-Json @($projectNames) -Compress
           Write-Output "Project names: $jsonNames"

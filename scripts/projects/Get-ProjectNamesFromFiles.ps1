@@ -16,7 +16,7 @@
         - DeployableProjects: The list of project names that can be deployed.
 
 .EXAMPLE
-    $changedFiles = ./scripts/workflows/Discover-ChangedFilesInBranch
+    $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
     $projects = ./scripts/projects/Get-ProjectNamesFromFiles -Path "." -Files $changedFiles
     ./scripts/projects/Write-ProjectNamesToOutput -Projects $projects
 #>
@@ -85,7 +85,7 @@ $testProjects = $testProjects | Sort-Object -Unique
 
 # Extract the list of deployable project names.
 $deployableProjects = $sourceProjects | ForEach-Object {
-    $isDeployable = & "$PSScriptRoot/Test-DeployableProject.ps1" -ProjectName $_
+    $isDeployable = & "$PSScriptRoot/Test-IsDeployableProject.ps1" -ProjectName $_
     if ($isDeployable) { $_ }
 }
 

@@ -17,11 +17,15 @@
     of 'rel' indicating that the release lifecycle is intended.
 
 .EXAMPLE
-    ./scripts/workflows/Resolve-LifecycleParameter -Implied 'rel' -Override ''
+    ./scripts/workflows/Resolve-LifecycleParameter `
+        -Implied 'rel' `
+        -Override ''
     # rel
 
 .EXAMPLE
-    ./scripts/workflows/Resolve-LifecycleParameter -Implied 'rel' -Override 'Development'
+    ./scripts/workflows/Resolve-LifecycleParameter `
+        -Implied 'rel' `
+        -Override 'Development'
     # dev
 #>
 [CmdletBinding()]

@@ -6,7 +6,7 @@
     String[]. The list of deployable .NET project names.
 
 .EXAMPLE
-    $projectNames = ./scripts/workflows/Select-ProjectNamesFromParameters `
+    $projectNames = ./scripts/workflows/Get-ProjectNamesFromParameters `
         -SelectOrganisation true `
         -BuildPublicApi false
 

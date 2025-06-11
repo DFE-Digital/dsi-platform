@@ -7,7 +7,7 @@
     root directory of the git repository.
 
 .EXAMPLE
-    $changedFiles = ./scripts/workflows/Discover-ChangedFilesInBranch
+    $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
 #>
 [CmdletBinding()]
 param ()

@@ -40,7 +40,7 @@ $testProjects = Get-ChildItem -Directory "$Path/tests" | Select-Object -ExpandPr
 
 # Extract the list of deployable project names.
 $deployableProjects = $sourceProjects | ForEach-Object {
-    $isDeployable = & "$PSScriptRoot/Test-DeployableProject.ps1" -ProjectName $_
+    $isDeployable = & "$PSScriptRoot/Test-IsDeployableProject.ps1" -ProjectName $_
     if ($isDeployable) { $_ }
 }
 

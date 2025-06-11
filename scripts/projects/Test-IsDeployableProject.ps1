@@ -14,7 +14,7 @@
     Boolean. The function returns $true if the project is deployable, otherwise false.
 
 .EXAMPLE
-    $isDeployable = ./scripts/projects/Test-DeployableProject `
+    $isDeployable = ./scripts/projects/Test-IsDeployableProject `
         -ProjectName "Dfe.SignIn.PublicApi"
 
     if ($isDeployable) {

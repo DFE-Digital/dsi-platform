@@ -9,7 +9,9 @@
     Solution creation feedback.
 
 .EXAMPLE
-    ./scripts/workflows/Initialize-BuildSolution -Path "." -Projects $projects
+    ./scripts/workflows/Initialize-BuildSolution `
+        -Path "." `
+        -Projects $projects
 #>
 [CmdletBinding()]
 param (

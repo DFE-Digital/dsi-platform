@@ -2,7 +2,7 @@ BeforeAll {
     $Cmdlet = $PSCommandPath.Replace('.Tests.ps1','.ps1')
 }
 
-Describe "Test-DeployableProject" {
+Describe "Test-IsDeployableProject" {
     Context "when the project is a web-based project" {
         It "should return true for Dfe.SignIn.Web.Project" {
             $result = & $Cmdlet -ProjectName "Dfe.SignIn.Web.Project"
