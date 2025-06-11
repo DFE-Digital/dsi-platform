@@ -1,4 +1,4 @@
-name: Continous integration
+name: CI
 
 on:
   pull_request:
@@ -84,37 +84,39 @@ jobs:
         id: prepare
         run: |
           $lifecycleName = ./scripts/workflows/Resolve-LifecycleParameter `
-            -Implied '${{ github.ref == 'refs/head/main' && 'rel' || 'dev' }}' `
+            -Implied '${{ github.event_name == 'merge_group' && 'rel' || 'dev' }}' `
             -Override '${{ github.event.inputs.lifecycle || '' }}'
           echo "lifecycle_name=$lifecycleName" >> $env:GITHUB_OUTPUT
 
           $changedFiles = ./scripts/workflows/Discover-ChangedFilesInBranch
 
-          $checkPowershell = '${{ github.event.inputs.check_powershell }}' -eq 'true' `
-            -or $changedFiles.Where({ $_ -match "^scripts/" }, 'First').Count -gt 0
-          echo "check_powershell=$checkPowershell" >> $env:GITHUB_OUTPUT
-
-          $checkDotnet = '${{ github.event.inputs.check_dotnet }}' -eq 'true' `
-            -or $changedFiles.Where({ $_ -match "^(src|tests)/" }, 'First').Count -gt 0
-          echo "check_dotnet=$checkDotnet" >> $env:GITHUB_OUTPUT
-
-          $checkDocsTemplates = '${{ github.event.inputs.check_docs }}' -eq 'true' `
-            -or $changedFiles.Where({ $_ -match "^docs/templates/" }, 'First').Count -gt 0
-          echo "check_docs_templates=$checkDocsTemplates" >> $env:GITHUB_OUTPUT
-
-          $buildExternalDocs = '${{ github.event.inputs.build_external_docs }}' -eq 'true' `
-            -or $changedFiles.Where({ $_ -match "^docs/(external|templates)/" }, 'First').Count -gt 0
-          echo "build_external_docs=$buildExternalDocs" >> $env:GITHUB_OUTPUT
-
-          $dotnetPackageProjectNames = @(
-            'Dfe.SignIn.Core.Framework'
-            'Dfe.SignIn.Core.ExternalModels'
-            'Dfe.SignIn.PublicApi.Client'
-            'Dfe.SignIn.PublicApi.Client.AspNetCore'
-          ) -join '|'
-          $publishDotnetPackages = '${{ github.event.inputs.publish_dotnet_packages }}' -eq 'true' `
-            -or $changedFiles.Where({ $_ -match "^src/($packageProjectNames)/" }, 'First').Count -gt 0
-          echo "publish_dotnet_packages=$publishDotnetPackages" >> $env:GITHUB_OUTPUT
+          ./scripts/workflows/Set-OutputFlags -ChangedFiles $changedFiles -Flags @{
+            check_powershell = @{
+              Input = '${{ github.event.inputs.check_powershell }}'
+              Patterns = "^scripts/"
+            }
+            check_dotnet = @{
+              Input = '${{ github.event.inputs.check_dotnet }}'
+              Patterns = "^(src|tests)/"
+            }
+            check_docs_templates = @{
+              Input = '${{ github.event.inputs.check_docs }}'
+              Patterns = "^docs/templates/"
+            }
+            build_external_docs = @{
+              Input = '${{ github.event.inputs.build_external_docs }}'
+              Patterns = "^docs/(external|templates)/"
+            }
+            publish_dotnet_packages = @{
+              Input = '${{ github.event.inputs.publish_dotnet_packages }}'
+              Patterns = @(
+                "^src/Dfe.SignIn.Core.Framework/"
+                "^src/Dfe.SignIn.Core.ExternalModels/"
+                "^src/Dfe.SignIn.PublicApi.Client/"
+                "^src/Dfe.SignIn.PublicApi.Client.AspNetCore/"
+              )
+            }
+          }
 
       - name: Select deployable projects
         id: select-projects
@@ -224,7 +226,7 @@ jobs:
       image_name: '${{ needs.prepare.outputs.lifecycle_name }}-${{ github.run_id }}-${{ github.run_number }}'
 
   docs-trigger-cd:
-    name: Docs deploy
+    name: Deploy documentation
     uses: ./.github/workflows/image-deploy.yml
     needs: [ prepare, wait-trigger-cd ]
     if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
