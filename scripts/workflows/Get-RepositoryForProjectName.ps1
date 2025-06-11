@@ -29,6 +29,10 @@ param (
 
 $ErrorActionPreference = "Stop"
 
+if ($LifecycleName -notmatch "^(dev|rel)$") {
+    throw "Invalid lifecycle '$LifecycleName'."
+}
+
 $imageMappings = @{
     'docs/external' = 'developer'
     'Dfe.SignIn.Web.SelectOrganisation' = 'select-organisation'
@@ -37,7 +41,7 @@ $imageMappings = @{
 
 $repositoryName = $imageMappings[$ProjectName]
 if (-not $repositoryName) {
-    throw "Repository mapping not specified for '$ProjectName'."
+    throw "Repository mapping not defined for '$ProjectName'."
 }
 
 if ($LifecycleName -eq 'rel') {

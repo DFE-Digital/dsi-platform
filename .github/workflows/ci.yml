@@ -130,7 +130,7 @@ jobs:
             $projectNames = ./scripts/workflows/Get-ProjectNamesFromChanges
           }
           $jsonNames = ConvertTo-Json @($projectNames) -Compress
-          Write-Output "Project names: $jsonNames"
+          Write-Host "Project names: $( ConvertTo-Json @($projectNames) )"
           echo "project_names=$jsonNames" >> $env:GITHUB_OUTPUT
 
 

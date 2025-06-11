@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Get-ProjectNames" {
     BeforeAll {
-        Mock Get-ChildItem -ParameterFilter { $Path -eq "./src" } {
+        Mock Get-ChildItem -ParameterFilter { $Path -ceq "./src" } {
             return @(
                 @{ Name = "Dfe.SignIn.Core.Framework" }
                 @{ Name = "Dfe.SignIn.Core.UseCases" }
@@ -14,7 +14,7 @@ Describe "Get-ProjectNames" {
                 @{ Name = "Dfe.SignIn.WebFramework" }
             )
         }
-        Mock Get-ChildItem -ParameterFilter { $Path -eq "./tests" } {
+        Mock Get-ChildItem -ParameterFilter { $Path -ceq "./tests" } {
             return @(
                 @{ Name = "Dfe.SignIn.Core.Framework.UnitTests" }
                 @{ Name = "Dfe.SignIn.Core.UseCases.UnitTests" }

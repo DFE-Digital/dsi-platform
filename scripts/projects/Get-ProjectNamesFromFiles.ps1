@@ -26,6 +26,7 @@ param (
     [String]$Path,
 
     [Parameter(Mandatory=$true)]
+    [AllowEmptyCollection()]
     [String[]]$Files
 )
 
@@ -60,7 +61,12 @@ $sourceProjects = $sourceProjects | Sort-Object -Unique
 #----- TestProjects ---------------------------------------------------------------------
 
 # Get test projects that are associated with source projects.
-$testProjects = $sourceProjects | ForEach-Object { "$_.UnitTests" }
+$testProjects = $sourceProjects | ForEach-Object {
+    $testProjectPath = Join-Path -Path $Path -ChildPath "tests/$_.UnitTests/$_.UnitTests.csproj"
+    if (Test-Path $testProjectPath) {
+        "$_.UnitTests"
+    }
+}
 
 # Include test projects that were directly changed.
 foreach ($file in $Files) {

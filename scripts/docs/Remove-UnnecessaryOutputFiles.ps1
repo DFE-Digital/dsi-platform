@@ -28,8 +28,6 @@ $ErrorActionPreference = "Stop"
 
 $docsPath = Resolve-Path $OutputPath
 
-Write-Host $docsPath
-
 Remove-Item `
     "$docsPath/index.json", `
     "$docsPath/manifest.json", `

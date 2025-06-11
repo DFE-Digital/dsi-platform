@@ -25,8 +25,8 @@ Describe "Preview-InternalSite" {
         & $Cmdlet
 
         Should -Invoke dotnet -Times 1 -ParameterFilter {
-            $args[0] -eq "docfx" -and `
-            $args[1] -eq "./docs/internal/docfx.json"
+            $args[0] -ceq "docfx" -and `
+            $args[1] -ceq "./docs/internal/docfx.json"
         }
     }
 

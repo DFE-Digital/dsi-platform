@@ -13,7 +13,7 @@
         - Patterns - String[]. An array of file patterns.
 
 .OUTPUTS
-    Writes flags to GitHub output.
+    Writes flags to GitHub output and outputs a summary to the host.
 
 .EXAMPLE
     ./scripts/workflows/Set-OutputFlags -ChangedFiles $changedFiles -Flags @{
@@ -32,16 +32,27 @@
 #>
 [CmdletBinding()]
 param (
+    [Parameter(Mandatory=$true)]
+    [AllowEmptyCollection()]
     [String[]]$ChangedFiles,
+
+    [Parameter(Mandatory=$true)]
     [PSCustomObject]$Flags
 )
 
 $ErrorActionPreference = "Stop"
 
 foreach ($flag in $Flags.GetEnumerator()) {
-    $pattern = $flag.Value.Patterns -join '|'
-    $value = $flag.Value.Input -eq 'true' `
-        -or $ChangedFiles.Where({ $_ -match $pattern }, 'First').Count -gt 0
-    Write-Output "Set flag '$($flag.Key)=$value'"
+    $value = $flag.Value.Input -eq 'true'
+
+    if ($flag.Value.Patterns) {
+        $pattern = $flag.Value.Patterns -join '|'
+        $value = $value -or $ChangedFiles.Where({ $_ -match $pattern }, 'First').Count -gt 0
+    }
+
+    $value = "$value".ToLower()
+
+    Write-Host "Set flag '$($flag.Key)=$value'"
+
     Add-Content -Path $env:GITHUB_OUTPUT -Value "$($flag.Key)=$value"
 }

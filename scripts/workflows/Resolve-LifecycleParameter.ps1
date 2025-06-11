@@ -39,16 +39,16 @@ param (
 $ErrorActionPreference = "Stop"
 
 if ($Override.Length -ge 3) {
-    $lifecycle = $Override.ToLower().Substring(0, 3)
+    $lifecycleName = $Override.ToLower().Substring(0, 3)
 }
 else {
-    $lifecycle = $Implied
+    $lifecycleName = $Implied
 }
 
-if ($lifecycle -notmatch "^(dev|rel)$") {
-    throw "Invalid lifecycle '$lifecycle'."
+if ($lifecycleName -notmatch "^(dev|rel)$") {
+    throw "Invalid lifecycle '$lifecycleName'."
 }
 
-Write-Host "Resolved lifecycle (implied: '$Implied', override: '$Override') -> $lifecycle"
+Write-Host "Resolved lifecycle (implied: '$Implied', override: '$Override') -> $lifecycleName"
 
-return $lifecycle
+return $lifecycleName
