@@ -7,37 +7,35 @@
 
     Any tooling must be setup before this script is ran.
 
-.PARAMETER Audience
-    The target audience of the generated documentation:
-    - 'External' - Intended for use by relying parties to help with integration.
-    - 'Internal' - Intended for use by DfE Sign-in team members.
+.PARAMETER ProjectName
+    The documentation project name:
+    - 'docs/external' - Intended for use by relying parties to help with integration.
+    - 'docs/internal' - Intended for use by DfE Sign-in team members.
 
 .OUTPUTS
     Feedback from docker image creation.
 
 .EXAMPLE
     dotnet tool restore
-    ./scripts/workflows/Build-Docs -Audience 'External'
+    ./scripts/workflows/Build-Docs -ProjectName docs/external
 #>
 [CmdletBinding()]
 param (
     [Parameter(Mandatory=$true)]
-    [string]$Audience
+    [string]$ProjectName
 )
 
 $ErrorActionPreference = "Stop"
 
-if (@('External', 'Internal') -notcontains $Audience) {
-    throw "Invalid audience '$Audience'."
+if (@('docs/external', 'docs/internal') -notcontains $ProjectName) {
+    throw "Invalid documentation project name '$ProjectName'."
 }
 
-$Audience = $Audience.ToLower()
-
 # Specify environment placeholders for use with Server Side Includes (SSI).
-dotnet docfx ./docs/$Audience/docfx.json `
+dotnet docfx ./$ProjectName/docfx.json `
     -m _cdnBaseAddress='<!--#echo var="CDN_BASE_ADDRESS"-->' `
     -m _cdnVersion='<!--#echo var="CDN_VERSION"-->' `
     -m _surveyUrl='<!--#echo var="SURVEY_URL"-->'
 
-Move-Item ./docs/$Audience/_site ./docs/_site
+Move-Item ./$ProjectName/_site ./docs/_site
 ./scripts/docs/Remove-UnnecessaryOutputFiles -OutputPath ./docs/_site

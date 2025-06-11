@@ -53,7 +53,7 @@ on:
           - Development
           - Release
 
-  push:
+  push: # Useful for debugging; please comment out again before PR.
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -122,15 +122,14 @@ jobs:
         id: select-projects
         run: |
           if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
-            $projectNames = @(./scripts/workflows/Select-ProjectNamesFromParameters `
+            $projectNames = ./scripts/workflows/Select-ProjectNamesFromParameters `
               -SelectOrganisation ${{ github.event.inputs.build_select_organisation }} `
-              -PublicApi ${{ github.event.inputs.build_public_api }} `
-            )
+              -PublicApi ${{ github.event.inputs.build_public_api }}
           }
           else {
-            $projectNames = @(./scripts/workflows/Select-ProjectNamesFromChanges)
+            $projectNames = ./scripts/workflows/Select-ProjectNamesFromChanges
           }
-          $jsonNames = ConvertTo-Json $projectNames -Compress
+          $jsonNames = ConvertTo-Json @($projectNames) -Compress
           Write-Output "Project names: $jsonNames"
           echo "project_names=$jsonNames" >> $env:GITHUB_OUTPUT
 
@@ -166,6 +165,7 @@ jobs:
         project_name: ${{ fromJson(needs.prepare.outputs.publish_dotnet_image_names) }}
     with:
       project_name: ${{ matrix.project_name }}
+      lifecycle_name: ${{ needs.prepare.outputs.lifecycle_name }}
       image_name: '${{ needs.prepare.outputs.lifecycle_name }}-${{ github.run_id }}-${{ github.run_number }}'
 
   dotnet-packages:
@@ -183,11 +183,13 @@ jobs:
       checks: write # Needed by 'dorny/test-reporter'.
 
   docs-build:
-    name: Build documentation
+    name: Build external documentation
     uses: ./.github/workflows/docs-build.yml
     needs: prepare
     if: "${{ needs.prepare.outputs.build_external_docs == 'true' }}"
     with:
+      project_name: docs/external
+      lifecycle_name: ${{ needs.prepare.outputs.lifecycle_name }}
       image_name: '${{ needs.prepare.outputs.lifecycle_name }}-${{ github.run_id }}-${{ github.run_number }}'
 
 
@@ -226,7 +228,7 @@ jobs:
       image_name: '${{ needs.prepare.outputs.lifecycle_name }}-${{ github.run_id }}-${{ github.run_number }}'
 
   docs-trigger-cd:
-    name: Deploy documentation
+    name: Deploy external documentation
     uses: ./.github/workflows/image-deploy.yml
     needs: [ prepare, wait-trigger-cd ]
     if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"

@@ -6,18 +6,18 @@ ENV PATH=${PATH}:/home/site/wwwroot
 
 WORKDIR /home/site/wwwroot
 
-ARG PROC_FILE_NAME
+ARG PROJECT_NAME
 
 COPY src ./src
 COPY *.props ./
 COPY *.targets ./
-RUN dotnet publish -c Release -o /app "src/$PROC_FILE_NAME/$PROC_FILE_NAME.csproj"
+RUN dotnet publish -c Release -o /app "src/$PROJECT_NAME/$PROJECT_NAME.csproj"
 
 # Use the official ASP.NET runtime image for the Azure Linux-based container
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0 AS runtime
 
-ARG PROC_FILE_NAME
-ENV FILE_NAME=$PROC_FILE_NAME
+ARG PROJECT_NAME
+ENV FILE_NAME=$PROJECT_NAME
 
 WORKDIR /home/site/wwwroot
 

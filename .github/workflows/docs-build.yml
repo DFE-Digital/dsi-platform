@@ -3,6 +3,22 @@ name: Build developer reference
 on:
   workflow_call:
     inputs:
+      project_name:
+        description: Project name
+        required: true
+        type: string
+        # options:
+        #   - docs/external
+        #   - docs/internal
+
+      lifecycle_name:
+        description: Lifecycle name
+        required: true
+        type: string
+        # options:
+        #   - dev
+        #   - rel
+
       image_name:
         description: Image name
         required: true
@@ -18,6 +34,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Prepare
+        id: prepare
+        run: |
+          $repositoryName = ./scripts/workflows/Get-RepositoryForProjectName `
+            -ProjectName '${{ inputs.project_name }}' `
+            -LifecycleName '${{ inputs.lifecycle_name }}'
+          Write-Host "Repository name: $repositoryName"
+          echo "repository_name=$repositoryName" >> $env:GITHUB_OUTPUT
+
       - name: Setup .NET Core 8.x
         uses: actions/setup-dotnet@v3
         with:
@@ -30,12 +55,24 @@ jobs:
         run: ./scripts/docs/Build-CustomTemplate
 
       - name: Build documentation
-        run: ./scripts/workflows/Build-Docs -Audience 'External'
+        run: ./scripts/workflows/Build-Docs -ProjectName '${{ inputs.project_name }}'
 
-      - name: Build image
-        run: |
-          ./scripts/workflows/Build-StaticSiteImage `
-            -RegistryServer 'fake' `
-            -RepositoryName 'developer' `
-            -ImageName '${{ inputs.image_name }}' `
-            -HtmlPath 'docs/_site'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # - name: Log in to Azure Container Registry
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: <registry-name>.azurecr.io
+      #     username: ${{ secrets.AZ_SP_CLIENT_ID }}
+      #     password: ${{ secrets.AZ_SP_CLIENT_SECRET }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          file: ./docker/static-site/Dockerfile
+          context: .
+          build-args: |
+            HTML_PATH=docs/_site
+          tags: 'fake/${{ steps.prepare.outputs.repository_name }}:${{ inputs.image_name }}'
+          push: false
