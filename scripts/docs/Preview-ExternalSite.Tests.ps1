@@ -25,8 +25,8 @@ Describe "Preview-ExternalSite" {
         & $Cmdlet
 
         Should -Invoke dotnet -Times 1 -ParameterFilter {
-            $args[0] -eq "docfx" -and `
-            $args[1] -eq "./docs/external/docfx.json"
+            $args[0] -ceq "docfx" -and `
+            $args[1] -ceq "./docs/external/docfx.json"
         }
     }
 

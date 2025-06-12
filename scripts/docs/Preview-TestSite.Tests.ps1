@@ -25,8 +25,8 @@ Describe "Preview-TestSite" {
         & $Cmdlet
 
         Should -Invoke dotnet -Times 1 -ParameterFilter {
-            $args[0] -eq "docfx" -and `
-            $args[1] -eq "./docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/docfx.json"
+            $args[0] -ceq "docfx" -and `
+            $args[1] -ceq "./docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/docfx.json"
         }
     }
 
