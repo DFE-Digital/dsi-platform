@@ -16,25 +16,25 @@ Describe "Remove-UnnecessaryOutputFiles" {
     It "should remove unused files" {
         & $Cmdlet -OutputPath "./docs/_site"
 
-        Should -Invoke Remove-Item -Times 1 -ParameterFilter {
+        Should -Invoke Remove-Item -ParameterFilter {
             $Path -contains "./docs/_site/manifest.json" -and `
             $Path -contains "./docs/_site/xrefmap.yml"
-        }
+        } -Times 1 -Exactly
     }
 
     It "should remove intermediate search index" {
         & $Cmdlet -OutputPath "./docs/_site"
 
-        Should -Invoke Remove-Item -Times 1 -ParameterFilter {
+        Should -Invoke Remove-Item -ParameterFilter {
             $Path -contains "./docs/_site/index.json"
-        }
+        } -Times 1 -Exactly
     }
 
     It "should remove intermediate toc.json files" {
         & $Cmdlet -OutputPath "./docs/_site"
 
-        Should -Invoke Remove-Item -Times 1 -ParameterFilter {
+        Should -Invoke Remove-Item -ParameterFilter {
             $Path -contains "./docs/_site/**/toc.json"
-        }
+        } -Times 1 -Exactly
     }
 }
