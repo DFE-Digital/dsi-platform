@@ -50,7 +50,7 @@ Describe "Get-ProjectNamesFromFiles" {
         }
 
         It "should not fail" {
-            $result = & $Cmdlet -Path "." -Files $changedFiles
+            & $Cmdlet -Path "." -Files $changedFiles
         }
     }
 
