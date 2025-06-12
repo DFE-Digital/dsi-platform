@@ -1,14 +1,14 @@
 <Project>
 
-  <Target Name="CleanupPreviousNupkgFiles" BeforeTargets="Build" Condition="$(IsPipeline) == 'true'">
+  <Target Name="CleanupPreviousNupkgFiles" BeforeTargets="Build" Condition="$(BuildPackages) == 'true'">
     <ItemGroup>
       <NupkgFiles Include="**/bin/$(Configuration)/*.nupkg" />
     </ItemGroup>
     <Delete Files="@(NupkgFiles)" />
   </Target>
 
-  <Target Name="BuildNuGetPackages" AfterTargets="Build" Condition="$(IsPipeline) == 'true'">
-    <Exec Command="dotnet pack --configuration $(Configuration) /p:Version=$(Version)"></Exec>
+  <Target Name="BuildNuGetPackages" AfterTargets="Build" Condition="$(BuildPackages) == 'true'">
+    <Exec Command="dotnet pack $(SolutionDir)$(SolutionFileName) --configuration $(Configuration) /p:Version=$(Version)"></Exec>
   </Target>
 
 </Project>
