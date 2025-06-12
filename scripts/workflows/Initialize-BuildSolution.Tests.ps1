@@ -19,20 +19,20 @@ Describe "Initialize-BuildSolution" {
         It "should create solution" {
             & $Cmdlet -Projects @{}
 
-            Should -Invoke dotnet -Times 1 -ParameterFilter {
+            Should -Invoke dotnet -ParameterFilter {
                 $args[0] -ceq 'new' -and `
                 $args[1] -ceq 'sln'
-            }
+            } -Times 1 -Exactly
         }
 
         It "should not attempt to add projects to solution" {
             & $Cmdlet -Projects @{}
 
-            Should -Invoke dotnet -Times 0 -ParameterFilter {
+            Should -Invoke dotnet -ParameterFilter {
                 $args[0] -ceq 'sln' -and `
                 $args[1] -ceq './build.sln' -and `
                 $args[2] -ceq 'add'
-            }
+            } -Times 0 -Exactly
         }
     }
 
@@ -43,10 +43,10 @@ Describe "Initialize-BuildSolution" {
                 TestProjects = @( 'Dfe.SignIn.PublicApi.UnitTests' )
             }
 
-            Should -Invoke dotnet -Times 1 -ParameterFilter {
+            Should -Invoke dotnet -ParameterFilter {
                 $args[0] -ceq 'new' -and `
                 $args[1] -ceq 'sln'
-            }
+            } -Times 1 -Exactly
         }
 
         It "should add source project to solution" {
@@ -54,12 +54,12 @@ Describe "Initialize-BuildSolution" {
                 SourceProjects = @( 'Dfe.SignIn.PublicApi' )
             }
 
-            Should -Invoke dotnet -Times 1 -ParameterFilter {
+            Should -Invoke dotnet -ParameterFilter {
                 $args[0] -ceq 'sln' -and `
                 $args[1] -ceq './build.sln' -and `
                 $args[2] -ceq 'add' -and `
                 $args[3] -ceq './src/Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj'
-            }
+            } -Times 1 -Exactly
         }
 
         It "should exclude source projects that do not exist" {
@@ -84,12 +84,12 @@ Describe "Initialize-BuildSolution" {
                 TestProjects = @( 'Dfe.SignIn.PublicApi.UnitTests' )
             }
 
-            Should -Invoke dotnet -Times 1 -ParameterFilter {
+            Should -Invoke dotnet -ParameterFilter {
                 $args[0] -ceq 'sln' -and `
                 $args[1] -ceq './build.sln' -and `
                 $args[2] -ceq 'add' -and `
                 $args[3] -ceq './tests/Dfe.SignIn.PublicApi.UnitTests/Dfe.SignIn.PublicApi.UnitTests.csproj'
-            }
+            } -Times 1 -Exactly
         }
 
         It "should exclude test projects that do not exist" {
