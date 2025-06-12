@@ -1,0 +1,49 @@
+name: Deploy image
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: Project name
+        required: true
+        type: string
+
+      repository_name:
+        description: Container repository name
+        required: true
+        type: string
+
+      tag_name:
+        description: Image name
+        required: true
+        type: string
+
+      transformation_environment:
+        description: For transformation environment
+        required: true
+        type: boolean
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Deploy image for '${{ inputs.project_name }}'
+        run: |
+          Write-Host "Container repository name: ${{ inputs.repository_name }}"
+          Write-Host "Tag name: ${{ inputs.tag_name }}"
+
+      # - uses: Azure/pipelines@v1
+      #   with:
+      #     azure-devops-project-url: 'https://dev.azure.com/organization/project-name'
+      #     azure-pipeline-name: 'pipeline-name'
+      #     azure-devops-token: '${{ secrets.AZURE_DEVOPS_TOKEN }}'
+      #     azure-pipeline-variables: |
+      #       {
+      #         "projectName": "${{ inputs.project_name }}",
+      #         "repositoryName": "${{ inputs.repository_name }}",
+      #         "tagName": "${{ inputs.tag_name }}",
+      #         "tran": "${{ inputs.transformation_environment }}"
+      #       }
