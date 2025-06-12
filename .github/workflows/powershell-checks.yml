@@ -13,6 +13,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Run code quality tests
+        run: |
+          Invoke-ScriptAnalyzer `
+            -Path ./scripts/**/*.ps1 `
+            -Settings ./.config/PSScriptAnalyzerSettings.psd1
+
       - name: Run unit tests
         run: |
           Invoke-Pester -Configuration $(New-PesterConfiguration -Hashtable $(
@@ -40,7 +46,7 @@ jobs:
           output: both
           thresholds: '80 80'
 
-      - name: Output code coverage
+      - name: Report code coverage
         run: |
           $content = Get-Content code-coverage-results.md
           Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value $content
