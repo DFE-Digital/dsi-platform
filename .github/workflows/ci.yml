@@ -1,0 +1,239 @@
+name: CI
+
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+  merge_group:
+    types: [ checks_requested ]
+
+  workflow_dispatch:
+    inputs:
+      check_powershell:
+        description: Run PowerShell checks
+        default: false
+        type: boolean
+
+      check_dotnet:
+        description: Run .NET checks
+        default: false
+        type: boolean
+
+      check_docs:
+        description: Run external docs checks
+        default: false
+        type: boolean
+
+      build_select_organisation:
+        description: Build "Select Organisation"
+        default: false
+        type: boolean
+
+      build_public_api:
+        description: Build "Public API"
+        default: false
+        type: boolean
+
+      build_external_docs:
+        description: Build external docs
+        default: false
+        type: boolean
+
+      publish_dotnet_packages:
+        description: Publish .NET packages
+        default: false
+        type: boolean
+
+      lifecycle:
+        description: Lifecycle
+        required: true
+        default: Development
+        type: choice
+        options:
+          - Development
+          - Release
+
+      transformation_environment:
+        description: For transformation environment
+        default: false
+        type: boolean
+
+  #push: # Useful for debugging; please comment out again before PR.
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    outputs:
+      lifecycle_name: ${{ steps.prepare.outputs.lifecycle_name }}
+      registry_key: ${{ steps.prepare.outputs.registry_key }}
+      registry: ${{ steps.prepare.outputs.registry }}
+      acr_secret_prefix: ${{ steps.prepare.outputs.acr_secret_prefix }}
+      check_powershell: ${{ steps.prepare.outputs.check_powershell }}
+      check_dotnet: ${{ steps.prepare.outputs.check_dotnet }}
+      check_docs_templates: ${{ steps.prepare.outputs.check_docs_templates }}
+      build_dotnet_images: ${{ steps.prepare.outputs.dotnet_images }}
+      publish_dotnet_packages: ${{ steps.prepare.outputs.publish_dotnet_packages }}
+      build_external_docs: ${{ steps.prepare.outputs.build_external_docs }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Determine which checks need to run
+        id: prepare
+        run: |
+          $lifecycleName = ./scripts/workflows/Resolve-LifecycleParameter `
+              -Implied '${{ github.event_name == 'merge_group' && 'rel' || 'dev' }}' `
+              -Override '${{ github.event.inputs.lifecycle }}'
+          echo "lifecycle_name=$lifecycleName" >> $env:GITHUB_OUTPUT
+
+          # Determine which registry to use 'MAIN' or 'TRAN'?
+          $registryKey = '${{ env.TARGET_REGISTRY_KEY }}'
+          echo "registry_key=$registryKey" >> $env:GITHUB_OUTPUT
+          $registry = '${{ vars[format('ACR_REGISTRY_{0}', env.TARGET_REGISTRY_KEY)] }}'
+          echo "registry=$registry" >> $env:GITHUB_OUTPUT
+
+          # Determine secret prefix 'ACR_(TRAN|MAIN)_(DEV|REL)'.
+          $acrSecretPrefix = "ACR_${{ env.TARGET_REGISTRY_KEY }}_$($lifecycleName.ToUpper())"
+          echo "acr_secret_prefix=$acrSecretPrefix" >> $env:GITHUB_OUTPUT
+
+          $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
+
+          ./scripts/workflows/Set-RequiredChecksOutput `
+            -ChangedFiles $changedFiles `
+            -ForceCheckPowershell '${{ github.event.inputs.check_powershell || false }}' `
+            -ForceCheckDotnet '${{ github.event.inputs.check_dotnet || false }}' `
+            -ForceCheckDocs '${{ github.event.inputs.check_docs || false }}' `
+            -ForceBuildExternalDocs '${{ github.event.inputs.build_external_docs || false }}' `
+            -ForcePublishDotnetPackages '${{ github.event.inputs.publish_dotnet_packages || false }}'
+
+          ./scripts/workflows/Set-RequiredDotnetProjectsOutput `
+            -LifecycleName $lifecycleName `
+            -ChangedFiles $changedFiles `
+            -IncludeChangedProjects $($env:GITHUB_EVENT_NAME -ne 'workflow_dispatch') `
+            -ForceBuildSelectOrganisation ${{ github.event.inputs.build_select_organisation || false }} `
+            -ForceBuildPublicApi ${{ github.event.inputs.build_public_api || false }}
+
+
+  # -------------------------------------------------------------------------------------
+  # Run checks, build and then publish any Docker images to the container registry.
+  # -------------------------------------------------------------------------------------
+
+  powershell-checks:
+    name: Powershell checks
+    uses: ./.github/workflows/powershell-checks.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_powershell == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
+
+  dotnet-checks:
+    name: .NET checks
+    uses: ./.github/workflows/dotnet-checks.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_dotnet == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  dotnet-build:
+    name: .NET build images
+    uses: ./.github/workflows/dotnet-build-image.yml
+    needs: prepare
+    if: ${{ needs.prepare.outputs.build_dotnet_images != '[]' }}
+    strategy:
+      matrix:
+        image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
+    secrets:
+      ACR_CLIENT_ID: ${{ secrets[format('{0}_CLIENT_ID', needs.prepare.outputs.acr_secret_prefix)] }}
+      ACR_CLIENT_SECRET: ${{ secrets[format('{0}_CLIENT_SECRET', needs.prepare.outputs.acr_secret_prefix)] }}
+    with:
+      project_name: ${{ matrix.image.project }}
+      registry: ${{ needs.prepare.outputs.registry }}
+      repository_name: ${{ matrix.image.repository }}
+      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+
+  dotnet-packages:
+    name: .NET publish packages
+    uses: ./.github/workflows/dotnet-packages.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.publish_dotnet_packages == 'true' }}"
+
+  docs-templates-checks:
+    name: Docs templates checks
+    uses: ./.github/workflows/docs-templates-checks.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_docs_templates == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
+
+  docs-build:
+    name: Build external documentation
+    uses: ./.github/workflows/docs-build.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.build_external_docs == 'true' }}"
+    secrets:
+      ACR_CLIENT_ID: ${{ secrets[format('{0}_CLIENT_ID', needs.prepare.outputs.acr_secret_prefix)] }}
+      ACR_CLIENT_SECRET: ${{ secrets[format('{0}_CLIENT_SECRET', needs.prepare.outputs.acr_secret_prefix)] }}
+    with:
+      project_name: docs/external
+      registry: ${{ needs.prepare.outputs.registry }}
+      repository_name: '${{ needs.prepare.outputs.lifecycle_name }}/developer'
+      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+
+
+  # -------------------------------------------------------------------------------------
+  # Publish any packages and trigger any CD pipelines.
+  # -------------------------------------------------------------------------------------
+
+  checks-passed:
+    name: Checks passed
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - powershell-checks
+      - dotnet-checks
+      - dotnet-build
+      - dotnet-packages
+      - docs-templates-checks
+      - docs-build
+    if: ${{ !cancelled() && !failure() }}
+    steps:
+      - name: Triggering deployments
+        shell: pwsh
+        run: Write-Host Triggering deployments...
+
+  dotnet-trigger-cd:
+    name: .NET deploy
+    uses: ./.github/workflows/image-deploy.yml
+    needs: [ prepare, checks-passed ]
+    if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_dotnet_images != '[]' }}
+    strategy:
+      matrix:
+        image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
+    with:
+      project_name: ${{ matrix.image.project }}
+      repository_name: ${{ matrix.image.repository }}
+      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
+
+  docs-trigger-cd:
+    name: Deploy external documentation
+    uses: ./.github/workflows/image-deploy.yml
+    needs: [ prepare, checks-passed ]
+    if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
+    with:
+      project_name: docs/external
+      repository_name: ${{ needs.prepare.outputs.lifecycle_name }}/developer
+      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
