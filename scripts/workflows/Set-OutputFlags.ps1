@@ -32,11 +32,11 @@
 #>
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [AllowEmptyCollection()]
     [String[]]$ChangedFiles,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [PSCustomObject]$Flags
 )
 

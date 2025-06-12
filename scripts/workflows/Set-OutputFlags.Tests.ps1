@@ -1,5 +1,5 @@
 BeforeAll {
-    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1','.ps1')
+    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1', '.ps1')
 }
 
 Describe "Set-OutputFlags" {
@@ -39,7 +39,7 @@ Describe "Set-OutputFlags" {
 
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
-                $Value -ceq 'flag1=false'
+                    $Value -ceq 'flag1=false'
             } -Times 1 -Exactly
         }
 
@@ -54,7 +54,7 @@ Describe "Set-OutputFlags" {
 
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
-                $Value -ceq 'flag1=true'
+                    $Value -ceq 'flag1=true'
             } -Times 1 -Exactly
         }
 
@@ -69,7 +69,7 @@ Describe "Set-OutputFlags" {
 
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
-                $Value -ceq 'flag1=false'
+                    $Value -ceq 'flag1=false'
             } -Times 1 -Exactly
         }
 
@@ -84,7 +84,7 @@ Describe "Set-OutputFlags" {
 
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
-                $Value -ceq 'flag1=true'
+                    $Value -ceq 'flag1=true'
             } -Times 1 -Exactly
         }
 
@@ -102,7 +102,7 @@ Describe "Set-OutputFlags" {
 
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
-                $Value -ceq 'flag1=true'
+                    $Value -ceq 'flag1=true'
             } -Times 1 -Exactly
         }
     }
@@ -116,7 +116,7 @@ Describe "Set-OutputFlags" {
                     Input = 'true'
                 }
                 flag2 = @{
-                    Input = 'false'
+                    Input    = 'false'
                     Patterns = "^src/"
                 }
                 flag3 = @{
@@ -126,15 +126,15 @@ Describe "Set-OutputFlags" {
 
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
-                $Value -ceq 'flag1=true'
+                    $Value -ceq 'flag1=true'
             } -Times 1 -Exactly
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
-                $Value -ceq 'flag2=true'
+                    $Value -ceq 'flag2=true'
             } -Times 1 -Exactly
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
-                $Value -ceq 'flag3=false'
+                    $Value -ceq 'flag3=false'
             } -Times 1 -Exactly
         }
     }

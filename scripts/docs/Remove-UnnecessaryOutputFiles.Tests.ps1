@@ -1,5 +1,5 @@
 BeforeAll {
-    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1','.ps1')
+    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1', '.ps1')
 }
 
 Describe "Remove-UnnecessaryOutputFiles" {
@@ -18,7 +18,7 @@ Describe "Remove-UnnecessaryOutputFiles" {
 
         Should -Invoke Remove-Item -ParameterFilter {
             $Path -contains "./docs/_site/manifest.json" -and `
-            $Path -contains "./docs/_site/xrefmap.yml"
+                $Path -contains "./docs/_site/xrefmap.yml"
         } -Times 1 -Exactly
     }
 

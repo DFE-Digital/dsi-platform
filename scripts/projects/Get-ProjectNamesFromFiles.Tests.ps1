@@ -1,5 +1,5 @@
 BeforeAll {
-    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1','.ps1')
+    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1', '.ps1')
 }
 
 Describe "Get-ProjectNamesFromFiles" {
@@ -30,7 +30,7 @@ Describe "Get-ProjectNamesFromFiles" {
         Mock Get-ChildItem -ParameterFilter { $Path -ceq "./tests" } {
             return $testProjectPaths
         }
-        Mock Resolve-Path  {
+        Mock Resolve-Path {
             return "."
         }
         Mock Get-Content {
@@ -91,12 +91,12 @@ Describe "Get-ProjectNamesFromFiles" {
                 "README.md"
             )
 
-            Mock dotnet -ParameterFilter { $args[0] -ceq "list" -and $args[1] -ceq "./src/Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj"} {
+            Mock dotnet -ParameterFilter { $args[0] -ceq "list" -and $args[1] -ceq "./src/Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj" } {
                 return @(
                     "../Dfe.SignIn.Core.UseCases/Dfe.SignIn.Core.UseCases.csproj"
                 )
             }
-            Mock dotnet -ParameterFilter { $args[0] -ceq "list" -and $args[1] -ceq "./src/Dfe.SignIn.Web.SelectOrganisation/Dfe.SignIn.Web.SelectOrganisation.csproj"} {
+            Mock dotnet -ParameterFilter { $args[0] -ceq "list" -and $args[1] -ceq "./src/Dfe.SignIn.Web.SelectOrganisation/Dfe.SignIn.Web.SelectOrganisation.csproj" } {
                 return @(
                     "../Dfe.SignIn.Core.UseCases/Dfe.SignIn.Core.UseCases.csproj"
                 )

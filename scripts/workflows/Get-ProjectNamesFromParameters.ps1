@@ -25,11 +25,11 @@ $ErrorActionPreference = "Stop"
 $mappings = @(
     @{
         ManualTrigger = $SelectOrganisation -eq 'true'
-        ProjectName = 'Dfe.SignIn.Web.SelectOrganisation'
+        ProjectName   = 'Dfe.SignIn.Web.SelectOrganisation'
     }
     @{
         ManualTrigger = $PublicApi -eq 'true'
-        ProjectName = 'Dfe.SignIn.PublicApi'
+        ProjectName   = 'Dfe.SignIn.PublicApi'
     }
 )
 

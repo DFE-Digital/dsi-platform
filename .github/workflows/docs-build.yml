@@ -54,7 +54,7 @@ jobs:
         run: ./scripts/docs/Build-CustomTemplate
 
       - name: Build documentation
-        run: ./scripts/workflows/Build-Docs -ProjectName '${{ inputs.project_name }}'
+        run: ./scripts/workflows/Build-Documentation -ProjectName '${{ inputs.project_name }}'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
