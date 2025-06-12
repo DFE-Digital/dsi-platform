@@ -8,15 +8,12 @@ on:
         required: true
         type: string
 
-      lifecycle_name:
-        description: Lifecycle name
+      repository_name:
+        description: Container repository name
         required: true
         type: string
-        # options:
-        #   - dev
-        #   - rel
 
-      image_name:
+      tag_name:
         description: Image name
         required: true
         type: string
@@ -30,15 +27,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Prepare
-        id: prepare
-        run: |
-          $repositoryName = ./scripts/workflows/Get-RepositoryForProjectName `
-            -ProjectName '${{ inputs.project_name }}' `
-            -LifecycleName '${{ inputs.lifecycle_name }}'
-          Write-Host "Repository name: $repositoryName"
-          echo "repository_name=$repositoryName" >> $env:GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -56,5 +44,5 @@ jobs:
           file: ./docker/dotnet-component/Dockerfile
           build-args: |
             PROJECT_NAME=${{ inputs.project_name }}
-          tags: 'fake/${{ steps.prepare.outputs.repository_name }}:${{ inputs.image_name }}'
+          tags: 'fake/${{ inputs.repository_name }}:${{ inputs.tag_name }}'
           push: false
