@@ -4,7 +4,12 @@
 
 This repository contains the .NET version of the DfE Sign-in platform.Sign-in solution.
 
-# Running PowerShell tests locally
+
+## Working on PowerShell scripts locally
+
+The official Microsoft PowerShell extension can be used to ensure automatic formatting and code analysis when using Visual Studio Code.
+
+### Running PowerShell tests locally
 
 1. Install the [Pester](https://pester.dev/) tooling.
 
@@ -21,8 +26,7 @@ This repository contains the .NET version of the DfE Sign-in platform.Sign-in so
     Invoke-Pester -Configuration $config
     ```
 
-
-# PowerShell code quality checks
+### PowerShell code quality checks
 
 Code quality checks are provided in real-time by installing the official Microsoft PowerShell extension for Visual Studio Code.
 
@@ -35,6 +39,7 @@ They can also be ran from the command line:
     ```pwsh
     Invoke-ScriptAnalyzer -Path ./scripts/**/*.ps1 -Settings ./.config/PSScriptAnalyzerSettings.psd1
     ```
+
 
 ## Pushing NuGet packages to your local feed
 

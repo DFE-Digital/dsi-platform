@@ -1,0 +1,7 @@
+@{
+    ExcludeRules = @(
+        'PSAvoidGlobalVars'
+        'PSAvoidUsingWriteHost'
+        'PSUseDeclaredVarsMoreThanAssignments'
+    )
+}
