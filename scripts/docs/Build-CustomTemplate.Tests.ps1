@@ -27,8 +27,8 @@ Describe "Build-CustomTemplate" {
         & $Cmdlet
 
         Should -Invoke dotnet -Times 1 -ParameterFilter {
-            $args[0] -eq "build" -and `
-            $args[1] -eq "./docs/templates"
+            $args[0] -ceq "build" -and `
+            $args[1] -ceq "./docs/templates"
         }
     }
 }
