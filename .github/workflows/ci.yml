@@ -1,0 +1,273 @@
+name: CI
+
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+  merge_group:
+    types: [ checks_requested ]
+
+  workflow_dispatch:
+    inputs:
+      check_powershell:
+        description: Run PowerShell checks
+        default: false
+        type: boolean
+
+      check_dotnet:
+        description: Run .NET checks
+        default: false
+        type: boolean
+
+      check_docs:
+        description: Run external docs checks
+        default: false
+        type: boolean
+
+      build_select_organisation:
+        description: Build "Select Organisation"
+        default: false
+        type: boolean
+
+      build_public_api:
+        description: Build "Public API"
+        default: false
+        type: boolean
+
+      build_external_docs:
+        description: Build external docs
+        default: false
+        type: boolean
+
+      publish_dotnet_packages:
+        description: Publish .NET packages
+        default: false
+        type: boolean
+
+      lifecycle:
+        description: Lifecycle
+        required: true
+        default: Development
+        type: choice
+        options:
+          - Development
+          - Release
+
+      transformation_environment:
+        description: For transformation environment
+        default: false
+        type: boolean
+
+  push: # Useful for debugging; please comment out again before PR.
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    outputs:
+      lifecycle_name: ${{ steps.prepare.outputs.lifecycle_name }}
+      check_powershell: ${{ steps.prepare.outputs.check_powershell }}
+      check_dotnet: ${{ steps.prepare.outputs.check_dotnet }}
+      check_docs_templates: ${{ steps.prepare.outputs.check_docs_templates }}
+      build_dotnet_images: ${{ steps.select-projects.outputs.dotnet_images }}
+      publish_dotnet_packages: ${{ steps.prepare.outputs.publish_dotnet_packages }}
+      build_external_docs: ${{ steps.prepare.outputs.build_external_docs }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Determine which checks need to run
+        id: prepare
+        run: |
+          $lifecycleName = ./scripts/workflows/Resolve-LifecycleParameter `
+            -Implied '${{ github.event_name == 'merge_group' && 'rel' || 'dev' }}' `
+            -Override '${{ github.event.inputs.lifecycle }}'
+          echo "lifecycle_name=$lifecycleName" >> $env:GITHUB_OUTPUT
+
+          $registry = '${{ github.event.inputs.transformation_environment }}' -eq 'true' `
+            ? '${{ vars.ACR_REGISTRY }}' `
+            : '${{ vars.ACR_REGISTRY_TRAN }}'
+          echo "registry=$registry" >> $env:GITHUB_OUTPUT
+
+          $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
+
+          ./scripts/workflows/Set-OutputFlags -ChangedFiles $changedFiles -Flags @{
+            check_powershell = @{
+              Input = '${{ github.event.inputs.check_powershell }}'
+              Patterns = "^scripts/"
+            }
+            check_dotnet = @{
+              Input = '${{ github.event.inputs.check_dotnet }}'
+              Patterns = "^(src|tests)/"
+            }
+            check_docs_templates = @{
+              Input = '${{ github.event.inputs.check_docs }}'
+              Patterns = "^docs/templates/"
+            }
+            build_external_docs = @{
+              Input = '${{ github.event.inputs.build_external_docs }}'
+              Patterns = "^docs/(external|templates)/"
+            }
+            publish_dotnet_packages = @{
+              Input = '${{ github.event.inputs.publish_dotnet_packages }}'
+              Patterns = @(
+                "^src/Dfe.SignIn.Core.Framework/"
+                "^src/Dfe.SignIn.Core.ExternalModels/"
+                "^src/Dfe.SignIn.PublicApi.Client/"
+                "^src/Dfe.SignIn.PublicApi.Client.AspNetCore/"
+              )
+            }
+          }
+
+      - name: Select deployable projects
+        id: select-projects
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+            $projectNames = ./scripts/workflows/Get-ProjectNamesFromParameters `
+              -SelectOrganisation ${{ github.event.inputs.build_select_organisation }} `
+              -PublicApi ${{ github.event.inputs.build_public_api }}
+          }
+          else {
+            $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
+            $projects = ./scripts/projects/Get-ProjectNamesFromFiles -Path . -Files $changedFiles
+            $projectNames = $projects.DeployableProjects
+          }
+
+          $dotnetImages = $projectNames | ForEach-Object {
+            $repository =  ./scripts/workflows/Get-RepositoryForProjectName `
+                -ProjectName $_ `
+                -LifecycleName '${{ steps.prepare.outputs.lifecycle_name }}'
+            if ($repository) {
+              @{
+                project = $_
+                repository = $repository
+              }
+            }
+          }
+
+          $json = ConvertTo-Json @($dotnetImages) -Compress
+          Write-Host "Projects: $( ConvertTo-Json @($dotnetImages) )"
+          echo "dotnet_images=$json" >> $env:GITHUB_OUTPUT
+
+
+  # -------------------------------------------------------------------------------------
+  # Run checks, build and then publish any Docker images to the container registry.
+  # -------------------------------------------------------------------------------------
+
+  powershell-checks:
+    name: Powershell checks
+    uses: ./.github/workflows/powershell-checks.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_powershell == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
+
+  dotnet-checks:
+    name: .NET checks
+    uses: ./.github/workflows/dotnet-checks.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_dotnet == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  dotnet-build:
+    name: .NET build images
+    uses: ./.github/workflows/dotnet-build-image.yml
+    needs: prepare
+    strategy:
+      matrix:
+        image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+    with:
+      project_name: ${{ matrix.image.project }}
+      registry: ${{ needs.prepare.outputs.registry }}
+      repository_name: ${{ matrix.image.repository }}
+      tag_name: '${{ github.run_id }}-${{ github.run_number }}'
+
+  dotnet-packages:
+    name: .NET publish packages
+    uses: ./.github/workflows/dotnet-packages.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.publish_dotnet_packages == 'true' }}"
+
+  docs-templates-checks:
+    name: Docs templates checks
+    uses: ./.github/workflows/docs-templates-checks.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.check_docs_templates == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
+
+  docs-build:
+    name: Build external documentation
+    uses: ./.github/workflows/docs-build.yml
+    needs: prepare
+    if: "${{ needs.prepare.outputs.build_external_docs == 'true' }}"
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+    with:
+      project_name: docs/external
+      registry: ${{ needs.prepare.outputs.registry }}
+      repository_name: 'developer-${{ needs.prepare.outputs.lifecycle_name }}'
+      tag_name: '${{ github.run_id }}-${{ github.run_number }}'
+
+
+  # -------------------------------------------------------------------------------------
+  # Publish any packages and trigger any CD pipelines.
+  # -------------------------------------------------------------------------------------
+
+  wait-trigger-cd:
+    name: Wait to trigger
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - powershell-checks
+      - dotnet-checks
+      - dotnet-build
+      - dotnet-packages
+      - docs-templates-checks
+      - docs-build
+    if: ${{ !cancelled() && !failure() }}
+    steps:
+      - name: Triggering deployments
+        shell: pwsh
+        run: Write-Host Triggering deployments...
+
+  dotnet-trigger-cd:
+    name: .NET deploy
+    uses: ./.github/workflows/image-deploy.yml
+    needs: [ prepare, wait-trigger-cd ]
+    if: ${{ !cancelled() && !failure() }}
+    strategy:
+      matrix:
+        image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
+    with:
+      project_name: ${{ matrix.image.project }}
+      repository_name: ${{ matrix.image.repository }}
+      tag_name: '${{ github.run_id }}-${{ github.run_number }}'
+      transformation_environment: ${{ github.event.inputs.transformation_environment || 'false' }}
+
+  docs-trigger-cd:
+    name: Deploy external documentation
+    uses: ./.github/workflows/image-deploy.yml
+    needs: [ prepare, wait-trigger-cd ]
+    if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
+    with:
+      project_name: docs/external
+      repository_name: developer-${{ needs.prepare.outputs.lifecycle_name }}
+      tag_name: '${{ github.run_id }}-${{ github.run_number }}'
+      transformation_environment: ${{ github.event.inputs.transformation_environment || 'false' }}
