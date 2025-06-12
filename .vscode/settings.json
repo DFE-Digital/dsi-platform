@@ -9,4 +9,5 @@
     "**/obj": true,
     "**/TestResults": true,
   },
+  "powershell.scriptAnalysis.settingsPath": ".config/PSScriptAnalyzerSettings.psd1",
 }
