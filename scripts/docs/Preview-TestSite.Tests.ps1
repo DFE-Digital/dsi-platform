@@ -1,5 +1,5 @@
 BeforeAll {
-    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1','.ps1')
+    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1', '.ps1')
 }
 
 Describe "Preview-TestSite" {
@@ -26,7 +26,7 @@ Describe "Preview-TestSite" {
 
         Should -Invoke dotnet -ParameterFilter {
             $args[0] -ceq "docfx" -and `
-            $args[1] -ceq "./docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/docfx.json"
+                $args[1] -ceq "./docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/docfx.json"
         } -Times 1 -Exactly
     }
 
@@ -37,7 +37,7 @@ Describe "Preview-TestSite" {
 
         Should -Invoke dotnet -ParameterFilter {
             $args -contains "--serve" -and `
-            $args -join " " -match "\s--port $expectedPort\b"
+                $args -join " " -match "\s--port $expectedPort\b"
         } -Times 1 -Exactly
     }
 }

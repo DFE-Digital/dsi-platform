@@ -20,10 +20,10 @@
 #>
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$ProjectName,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$LifecycleName
 )
 
@@ -35,7 +35,7 @@ if ($LifecycleName -notmatch "^(dev|rel)$") {
 
 $imageMappings = @{
     'Dfe.SignIn.Web.SelectOrganisation' = 'select-organisation'
-    'Dfe.SignIn.PublicApi' = 'public-api-v2'
+    'Dfe.SignIn.PublicApi'              = 'public-api-v2'
 }
 
 $repositoryName = $imageMappings[$ProjectName]

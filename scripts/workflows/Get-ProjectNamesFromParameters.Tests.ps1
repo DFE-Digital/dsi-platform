@@ -1,5 +1,5 @@
 BeforeAll {
-    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1','.ps1')
+    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1', '.ps1')
 }
 
 Describe "Get-ProjectNamesFromParameters" {
@@ -13,7 +13,7 @@ Describe "Get-ProjectNamesFromParameters" {
 
     Context "when '<InputName>' input is given" -ForEach @(
         @{
-            InputName = 'SelectOrganisation'
+            InputName           = 'SelectOrganisation'
             ExpectedProjectName = 'Dfe.SignIn.Web.SelectOrganisation'
         }
     ) {

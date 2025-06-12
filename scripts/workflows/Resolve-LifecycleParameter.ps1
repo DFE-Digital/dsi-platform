@@ -30,7 +30,7 @@
 #>
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [String]$Implied,
 
     [String]$Override

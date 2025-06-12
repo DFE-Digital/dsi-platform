@@ -17,11 +17,11 @@
 
 .EXAMPLE
     dotnet tool install docfx --local
-    ./scripts/workflows/Build-Docs -ProjectName docs/external
+    ./scripts/workflows/Build-Documentation -ProjectName docs/external
 #>
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$ProjectName
 )
 
