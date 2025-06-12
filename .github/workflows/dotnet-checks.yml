@@ -7,7 +7,28 @@ on:
         required: true
 
 jobs:
-  run:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Run code quality checks
+        run: |
+          $changedFiles = (& ./scripts/workflows/Get-ChangedFilesInBranch) -match "\.(cs|cshtml)$"
+          dotnet format `
+            --verify-no-changes `
+            --include $changedFiles
+
+  tests:
     runs-on: ubuntu-latest
     defaults:
       run:
