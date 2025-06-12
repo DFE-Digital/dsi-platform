@@ -21,7 +21,7 @@ $ErrorActionPreference = "Stop"
 $docsPath = Resolve-Path "${PSScriptRoot}/../../docs"
 
 pwsh -WorkingDirectory "$docsPath/templates" -Command {
-    npm install
+    npm install --ignore-scripts
     npm run build
 }
 
