@@ -6,28 +6,28 @@
 
 
 
-      <title>Getting Started | DfE Sign-in Sample </title>
-      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-      <meta name="theme-color" content="#0b0c0c">
-      <meta name="title" content="Getting Started | DfE Sign-in Sample ">
-      
-      
-      <meta property="docfx:navrel" content="../toc.json">
-      <meta property="docfx:tocrel" content="toc.json">
-      <meta property="docfx:rel" content="../">
-      
+    <title>Getting Started | DfE Sign-in Sample</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0c0c">
+    <meta name="title" content="Getting Started | DfE Sign-in Sample ">
 
-      <link rel="stylesheet" href="https://localhost:3001/gds-upgrade/css/screen.css?version=1.0">
-      <link rel="stylesheet" href="../dist/app.min.css">
 
-      <link rel="shortcut icon" href="https://localhost:3001/gds-upgrade/images/favicon.ico" type="image/x-icon">
+    <meta property="docfx:navrel" content="../toc.json">
+    <meta property="docfx:tocrel" content="toc.json">
+    <meta property="docfx:rel" content="../">
 
-      <link rel="apple-touch-icon" sizes="180x180" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-180x180.png">
-      <link rel="apple-touch-icon" sizes="167x167" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-167x167.png">
-      <link rel="apple-touch-icon" sizes="152x152" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-152x152.png">
-      <link rel="apple-touch-icon" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon.png">
 
-      <meta property="og:image" content="https://localhost:3001/gds-upgrade/images/opengraph-image.png">
+    <link rel="stylesheet" href="https://localhost:3001/gds-upgrade/css/screen.css?version=1.0">
+    <link rel="stylesheet" href="../dist/app.min.css">
+
+    <link rel="shortcut icon" href="https://localhost:3001/gds-upgrade/images/favicon.ico" type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon.png">
+
+    <meta property="og:image" content="https://localhost:3001/gds-upgrade/images/opengraph-image.png">
 </head>
 
 <body class="govuk-template__body">
@@ -124,10 +124,6 @@
 <p>A paragraph following a grid table.</p>
 
 
-    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
-                                <p class="govuk-body-s">
-                                    <a class="govuk-link" href="https://github.com/DFE-Digital/dsi-platform/blob/feature/public-api-docs/docs/templates/Dfe.SignIn.DocfxPlugin.Tests/sample-docs/guide/getting-started.md/#L1">View source in repository</a>
-                                </p>
                     </article>
                 </div>
             </div>

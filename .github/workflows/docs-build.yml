@@ -1,0 +1,77 @@
+name: Build developer reference
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: Project name
+        required: true
+        type: string
+        # options:
+        #   - docs/external
+        #   - docs/internal
+
+      registry:
+        description: Container registry
+        required: true
+        type: string
+
+      repository_name:
+        description: Container repository name
+        required: true
+        type: string
+
+      tag_name:
+        description: Image name
+        required: true
+        type: string
+
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install docfx tooling
+        run: dotnet tool install docfx --local
+
+      - name: Build custom template
+        run: ./scripts/docs/Build-CustomTemplate
+
+      - name: Build documentation
+        run: ./scripts/workflows/Build-Docs -ProjectName '${{ inputs.project_name }}'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # - name: Log in to Azure Container Registry
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ${{ inputs.registry }}
+      #     username: ${{ secrets.AZURE_CLIENT_ID }}
+      #     password: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          file: ./docker/static-site/Dockerfile
+          context: .
+          build-args: |
+            HTML_PATH=docs/_site
+          tags: 'fake/${{ inputs.repository_name }}:${{ inputs.tag_name }}'
+          push: false
