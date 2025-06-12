@@ -53,7 +53,7 @@ on:
           - Development
           - Release
 
-  #push: # Useful for debugging; please comment out again before PR.
+  push: # Useful for debugging; please comment out again before PR.
 
 concurrency:
   group: ci-${{ github.ref }}

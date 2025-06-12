@@ -8,18 +8,20 @@ resources:
       name: DFE-Digital/login.dfe.devops
       ref: feature/DSI-7357
 
-trigger:
-  branches:
-    include:
-      - "*"
-  paths:
-    include:
-      - src/Dfe.SignIn.Web.SelectOrganisation/*
+trigger: none
 
-pr:
-  branches:
-    include:
-      - main
+# trigger:
+#   branches:
+#     include:
+#       - "*"
+#   paths:
+#     include:
+#       - src/Dfe.SignIn.Web.SelectOrganisation/*
+
+# pr:
+#   branches:
+#     include:
+#       - main
 
 parameters:
   - name: location
@@ -105,7 +107,7 @@ stages:
           - template: pipeline/components/checks/checksDotNet.yml@devopsTemplates
             parameters:
               buildConfiguration: Release
-              testPaths: 
+              testPaths:
                 - 'test/Dfe.SignIn.Web.SelectOrganisation.UnitTests/Dfe.SignIn.Web.SelectOrganisation.UnitTests.csproj'
               AppDeploy: ${{ not(parameters.InfrDeploy) }}
 
@@ -129,11 +131,11 @@ stages:
               - stage: Deployment_${{env}}_${{location}}
                 displayName: "Deployment [${{env}}] ${{location}}"
                 ${{ if eq(env, 'pr') }}:
-                  dependsOn: 
+                  dependsOn:
                   - Deployment_pp_westeurope
                   condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
                 ${{ elseif eq(parameters.existTag, ' ') }}:
-                  dependsOn: 
+                  dependsOn:
                   - scanBuildApp
                   condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
                 variables:
