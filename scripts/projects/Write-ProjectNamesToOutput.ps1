@@ -14,7 +14,7 @@
 #>
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [PSCustomObject]$Projects
 )
 

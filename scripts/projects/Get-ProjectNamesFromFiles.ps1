@@ -22,10 +22,10 @@
 #>
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [String]$Path,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [AllowEmptyCollection()]
     [String[]]$Files
 )
@@ -99,7 +99,7 @@ $deployableProjects = $sourceProjects | ForEach-Object {
 #----- Result ---------------------------------------------------------------------------
 
 return @{
-    SourceProjects = $sourceProjects
-    TestProjects = $testProjects
+    SourceProjects     = $sourceProjects
+    TestProjects       = $testProjects
     DeployableProjects = $deployableProjects
 }
