@@ -1,5 +1,5 @@
 BeforeAll {
-    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1','.ps1')
+    $Cmdlet = $PSCommandPath.Replace('.Tests.ps1', '.ps1')
 }
 
 Describe "Resolve-LifecycleParameter" {
