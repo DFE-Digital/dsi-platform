@@ -19,7 +19,7 @@ on:
         type: string
 
 jobs:
-  run:
+  trigger-deploy:
     runs-on: ubuntu-latest
     defaults:
       run:
