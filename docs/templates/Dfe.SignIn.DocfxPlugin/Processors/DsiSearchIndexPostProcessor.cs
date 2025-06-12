@@ -1,10 +1,10 @@
-﻿using System.Text;
-using System.Text.Json;
-using Dfe.SignIn.DocfxPlugin.Models;
-using Docfx.Plugins;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using Dfe.SignIn.DocfxPlugin.Models;
+using Docfx.Plugins;
 
 namespace Dfe.SignIn.DocfxPlugin.Processors;
 
@@ -43,7 +43,7 @@ public sealed partial class DsiSearchIndexPostProcessor : IPostProcessor
 
         var values = index.Values.ToArray();
 
-        for (int i = 0; i < values.Length; ++i) {
+        for (int i = 0 ; i < values.Length ; ++i) {
             var entry = values[i];
 
             entry.Id = i;

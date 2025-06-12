@@ -1,4 +1,4 @@
-﻿namespace Dfe.SignIn.DocfxSample;
+namespace Dfe.SignIn.DocfxSample;
 
 /// <summary>
 /// An example class.

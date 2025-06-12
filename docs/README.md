@@ -28,46 +28,13 @@ A custom "dsi" template has been created to give the DfE Sign-in Developer Refer
 
 - `templates/dsi/` - The custom docfx template files.
 
-## Updating scripts and styles
-
-Node tooling is required to bundle and minify the scripts and styles.
-
-```pwsh
-# run from root of repository /docs/templates/
-npm i
-```
-
-With the developer tooling installed:
-
-```pwsh
-# run from root of repository /docs/templates/
-npm run build
-```
-
-> **Note:** Scripts and styles can also be built by running `./scripts/docs/Build-CustomTemplate.ps1`.
-
-## Building the Dfe.SignIn.DocfxPlugin project
-
-The following command can be executed from the "docs" directory:
-
-```pwsh
-# run from root of repository /docs/templates/
-dotnet build .
-```
-
-Upon running this command the plugin DLL files are copied into the "dsi/plugins" directory.
-
-Plugin DLL files are not committed to this repository.
-
-> **Note:** The plugin can also be built by running `./scripts/docs/Build-CustomTemplate.ps1`.
-
 ## Building and previewing the external documentation
 
 To build and serve the external documentation locally:
 
 ```pwsh
 # run from root of repository /
-./scripts/docs/Preview-ExternalSite.ps1
+./scripts/docs/Preview-Site external
 ```
 
 > **Note:** By default the documentation can be viewed on `http://localhost:8085`.
@@ -78,7 +45,7 @@ To build and serve the internal documentation locally:
 
 ```pwsh
 # run from root of repository /
-./scripts/docs/Preview-InternalSite.ps1
+./scripts/docs/Preview-Site internal
 ```
 
 > **Note:** By default the documentation can be viewed on `http://localhost:8086`.
@@ -89,7 +56,7 @@ To build and serve the sample documentation that is used in snapshot testing loc
 
 ```pwsh
 # run from root of repository /
-./scripts/docs/Preview-TestSite.ps1
+./scripts/docs/Preview-Site test
 ```
 
 > **Note:** By default the documentation can be viewed on `http://localhost:8087`.
@@ -113,58 +80,44 @@ If you are satisfied with the changes then rename the applicable `*.received.txt
 
 ```pwsh
 # run from root of repository /
-./scripts/docs/Confirm-TestSnapshots.ps1
+./scripts/docs/Confirm-TestSnapshots
 ```
 
 Commit the updated snapshot files to the repository.
 
-## Building documentation from a pipeline
+## Updating scripts and styles
 
-Pipelines can override global metadata properties using the `-m` command line argument.
+> **Tip:** Changes can be previewed more easily with the previous steps!
 
-> See [docfx build](https://dotnet.github.io/docfx/reference/docfx-cli-reference/docfx-build.html) for further information on CLI arguments.
-
-The build pipeline must execute commands from the working directory `/docs/`.
-
-First the custom template styles, scripts and custom plugin must be built using the following command:
+Node tooling is required to bundle and minify the scripts and styles.
 
 ```pwsh
-# run from root of repository /
-./scripts/docs/Build-CustomTemplate.ps1
+# run from root of repository /docs/templates/
+npm i
 ```
 
-Ensure that tests pass by running the following command:
+With the developer tooling installed:
 
 ```pwsh
-# run from root of repository /
-dotnet test docs/templates
+# run from root of repository /docs/templates/
+npm run build
 ```
 
-The build pipeline builds the **internal** version of the documentation when deploying to the development environments:
+> **Note:** Scripts and styles can also be built by running `./scripts/docs/Build-CustomTemplate`.
+
+## Building the Dfe.SignIn.DocfxPlugin project
+
+> **Tip:** Changes can be previewed more easily with the previous steps!
+
+The following command can be executed from the "docs" directory:
 
 ```pwsh
-# run from root of repository /
-dotnet docx docs/internal/docfx.json /
-    -m _cdnBaseAddress=CDN_BASE_ADDRESS /
-    -m _cdnVersion=CDN_VERSION /
-    -m _surveyUrl=SURVEY_URL
+# run from root of repository /docs/templates/
+dotnet build .
 ```
 
-The build pipeline builds the **external** version of the documentation when deploying to non-development environments:
+Upon running this command the plugin DLL files are copied into the "dsi/plugins" directory.
 
-```pwsh
-# run from root of repository /
-dotnet docx docs/external/docfx.json /
-    -m _cdnBaseAddress=CDN_BASE_ADDRESS /
-    -m _cdnVersion=CDN_VERSION /
-    -m _surveyUrl=SURVEY_URL
-```
+Plugin DLL files are not committed to this repository.
 
-When the documentation is built docfx produces some output files which are not needed. These can be removed:
-
-```pwsh
-# run from root of repository /
-./scripts/docs/Remove-UnnecessaryOutputFiles.ps1
-```
-
-The `/docs/_site/` directory is then ready to be deployed.
+> **Note:** The plugin can also be built by running `./scripts/docs/Build-CustomTemplate`.

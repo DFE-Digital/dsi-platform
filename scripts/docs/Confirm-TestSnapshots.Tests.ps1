@@ -8,7 +8,7 @@ Describe "Confirm-TestSnapshots" {
             return "."
         }
 
-        Mock Get-ChildItem -ParameterFilter { $Path -eq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/*.received.txt" } {
+        Mock Get-ChildItem -ParameterFilter { $Path -ceq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/*.received.txt" } {
             return @(
                 @{
                     Name = "snapshot_page1.html.verified.txt"
@@ -36,8 +36,8 @@ Describe "Confirm-TestSnapshots" {
         & $Cmdlet
 
         Should -Invoke Move-Item -Times 1 -ParameterFilter {
-            $Path -eq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page1.html.received.txt" -and `
-            $Destination -eq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page1.html.verified.txt" -and `
+            $Path -ceq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page1.html.received.txt" -and `
+            $Destination -ceq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page1.html.verified.txt" -and `
             $Force
         }
     }
@@ -46,8 +46,8 @@ Describe "Confirm-TestSnapshots" {
         & $Cmdlet
 
         Should -Invoke Move-Item -Times 0 -ParameterFilter {
-            $Path -eq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page2.html.received.txt" -and `
-            $Destination -eq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page2.html.verified.txt"
+            $Path -ceq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page2.html.received.txt" -and `
+            $Destination -ceq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page2.html.verified.txt"
         }
     }
 
@@ -55,8 +55,8 @@ Describe "Confirm-TestSnapshots" {
         & $Cmdlet
 
         Should -Invoke Move-Item -Times 1 -ParameterFilter {
-            $Path -eq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page3.html.received.txt" -and `
-            $Destination -eq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page3.html.verified.txt"
+            $Path -ceq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page3.html.received.txt" -and `
+            $Destination -ceq "./templates/Dfe.SignIn.DocfxPlugin.Tests/snapshots/snapshot_page3.html.verified.txt"
         }
     }
 }
