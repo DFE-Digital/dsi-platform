@@ -13,7 +13,7 @@ Describe "Set-OutputFlags" {
         It "should set no flags" {
             & $Cmdlet -ChangedFiles @() -Flags @{}
 
-            Should -Invoke Add-Content -Times 0
+            Should -Invoke Add-Content -Times 0 -Exactly
         }
     }
 
@@ -23,7 +23,7 @@ Describe "Set-OutputFlags" {
 
             & $Cmdlet -ChangedFiles $changedFiles -Flags @{}
 
-            Should -Invoke Add-Content -Times 0
+            Should -Invoke Add-Content -Times 0 -Exactly
         }
     }
 
@@ -40,7 +40,7 @@ Describe "Set-OutputFlags" {
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
                 $Value -ceq 'flag1=false'
-            } -Times 1
+            } -Times 1 -Exactly
         }
 
         It "should set flag when input is 'true'" {
@@ -55,7 +55,7 @@ Describe "Set-OutputFlags" {
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
                 $Value -ceq 'flag1=true'
-            } -Times 1
+            } -Times 1 -Exactly
         }
 
         It "should not set flag when a pattern specified but not matched" {
@@ -70,7 +70,7 @@ Describe "Set-OutputFlags" {
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
                 $Value -ceq 'flag1=false'
-            } -Times 1
+            } -Times 1 -Exactly
         }
 
         It "should set flag when a single pattern specified and matched" {
@@ -85,7 +85,7 @@ Describe "Set-OutputFlags" {
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
                 $Value -ceq 'flag1=true'
-            } -Times 1
+            } -Times 1 -Exactly
         }
 
         It "should set flag when multiple patterns are specified and matched" {
@@ -103,7 +103,7 @@ Describe "Set-OutputFlags" {
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
                 $Value -ceq 'flag1=true'
-            } -Times 1
+            } -Times 1 -Exactly
         }
     }
 
@@ -127,15 +127,15 @@ Describe "Set-OutputFlags" {
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
                 $Value -ceq 'flag1=true'
-            } -Times 1
+            } -Times 1 -Exactly
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
                 $Value -ceq 'flag2=true'
-            } -Times 1
+            } -Times 1 -Exactly
             Should -Invoke Add-Content -ParameterFilter {
                 $Path -ceq 'GITHUB_OUTPUT.txt' -and `
                 $Value -ceq 'flag3=false'
-            } -Times 1
+            } -Times 1 -Exactly
         }
     }
 }
