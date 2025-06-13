@@ -3,7 +3,9 @@ using Dfe.SignIn.PublicApi.ScopedSession;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up scoped sessions.
+/// </summary>
 public static class ScopedSessionExtensions
 {
     /// <summary>

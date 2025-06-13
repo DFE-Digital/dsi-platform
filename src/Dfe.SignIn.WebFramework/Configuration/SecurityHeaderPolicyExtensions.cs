@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Framework;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.WebFramework.Configuration;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up security header policy.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public static class SecurityHeaderPolicyExtensions
 {

@@ -7,7 +7,9 @@ using Microsoft.OpenApi.Models;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up Swagger.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public static class SwaggerExtensions
 {

@@ -18,10 +18,6 @@ builder.Configuration
 #endif
     .AddEnvironmentVariables();
 
-builder.WebHost.ConfigureKestrel(options => {
-    options.AddServerHeader = false;
-});
-
 // Add OpenTelemetry and configure it to use Azure Monitor.
 if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
@@ -29,7 +25,7 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 
 // Add services to the container.
 builder.Services
-    .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"))
+    .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
     .Configure<BearerTokenOptions>(builder.Configuration.GetRequiredSection("BearerToken"));

@@ -1,0 +1,34 @@
+﻿@model TopicViewModel
+
+@{
+    ViewData[DsiLayoutConstants.ServiceName] = "DfE Sign-in Help";
+    ViewData[DsiLayoutConstants.Title] = Model.Title;
+    ViewData[DsiLayoutConstants.MetaDescription] = Model.Summary;
+    ViewData[DsiLayoutConstants.Crumbs] = Model.Crumbs;
+}
+
+@if (Model.CardSections.Any())
+{
+    ViewData[DsiLayoutConstants.Hero] = new HeroViewModel
+    {
+        Heading = Model.Title,
+        Text = Model.Summary,
+    };
+}
+else
+{
+    if (!string.IsNullOrWhiteSpace(Model.Caption))
+    {
+        <span class="govuk-caption-xl">@Model.Caption</span>
+    }
+    <h1 class="govuk-heading-l">@Model.Title</h1>
+}
+
+@Html.Raw(@Model.ContentHtml)
+
+@await Html.PartialAsync("Components/_CardSections", Model.CardSections)
+
+@if (Model.AllowDeveloperReloadAction)
+{
+    @await Html.PartialAsync("Partials/_DeveloperReloadButton")
+}

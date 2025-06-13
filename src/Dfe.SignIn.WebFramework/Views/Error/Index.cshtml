@@ -1,0 +1,22 @@
+﻿@model Dfe.SignIn.WebFramework.Models.ErrorViewModel
+
+@using Dfe.SignIn.WebFramework.Configuration
+@using Microsoft.Extensions.Options
+
+@inject IOptions<PlatformOptions> platformOptionsAccessor
+
+@{
+    ViewData[DsiLayoutConstants.Title] = "There has been an error";
+}
+
+<h1 class="govuk-heading-xl govuk-!-margin-top-3">There has been an error</h1>
+
+<p class="govuk-body">If the problem continues, follow the link to <a class="govuk-link-bold"
+        href="@(platformOptionsAccessor.Value.HelpUrl)/contact-us">submit a support request</a>.
+
+@if (Model.ShowRequestId)
+{
+    <p class="govuk-body">
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}

@@ -3,7 +3,9 @@ using Dfe.SignIn.PublicApi.MappingProfiles;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up AutoMapper.
+/// </summary>
 public static class AutoMapperExtensions
 {
     /// <summary>

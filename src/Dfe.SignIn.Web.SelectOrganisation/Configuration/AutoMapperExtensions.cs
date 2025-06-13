@@ -2,7 +2,9 @@ using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.Web.SelectOrganisation.Configuration;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up AutoMapper.
+/// </summary>
 public static class AutoMapperExtensions
 {
     /// <summary>
