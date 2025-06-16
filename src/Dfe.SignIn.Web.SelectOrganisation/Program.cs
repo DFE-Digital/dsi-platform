@@ -15,10 +15,6 @@ builder.Configuration
     .AddUserSecrets<Program>();
 #endif
 
-builder.WebHost.ConfigureKestrel(options => {
-    options.AddServerHeader = false;
-});
-
 // Add OpenTelemetry and configure it to use Azure Monitor.
 if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
@@ -32,7 +28,7 @@ builder.Services
     .ConfigureExternalModelJsonSerialization();
 
 builder.Services
-    .Configure<ApplicationOptions>(builder.Configuration.GetRequiredSection("Application"))
+    .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
     .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
@@ -68,6 +64,7 @@ if (!app.Environment.IsDevelopment()) {
     app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseHealthChecks();

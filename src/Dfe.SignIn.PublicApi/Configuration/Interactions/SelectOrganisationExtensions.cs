@@ -8,7 +8,9 @@ using StackExchange.Redis;
 
 namespace Dfe.SignIn.PublicApi.Configuration.Interactions;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up "select organisation" features.
+/// </summary>
 public static class SelectOrganisationExtensions
 {
     /// <summary>

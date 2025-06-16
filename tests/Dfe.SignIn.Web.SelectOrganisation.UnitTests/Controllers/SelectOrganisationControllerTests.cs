@@ -7,9 +7,9 @@ using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.Web.SelectOrganisation.Configuration;
 using Dfe.SignIn.Web.SelectOrganisation.Controllers;
 using Dfe.SignIn.Web.SelectOrganisation.Models;
+using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.WebUtilities;
@@ -98,9 +98,9 @@ public sealed class SelectOrganisationControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.GetMock<IOptions<ApplicationOptions>>()
+        autoMocker.GetMock<IOptions<PlatformOptions>>()
             .Setup(x => x.Value)
-            .Returns(new ApplicationOptions {
+            .Returns(new PlatformOptions {
                 ServicesUrl = new Uri("https://services.localhost"),
             });
 

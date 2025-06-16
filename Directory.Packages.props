@@ -80,6 +80,13 @@
     <PackageVersion Include="GovUk.Frontend.AspNetCore" Version="2.8.0" />
   </ItemGroup>
 
+  <!-- Content -->
+  <ItemGroup>
+    <PackageVersion Include="HtmlAgilityPack" Version="1.12.1" />
+    <PackageVersion Include="Markdig" Version="0.41.2" />
+    <PackageVersion Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
+
   <!-- Monitoring -->
   <ItemGroup>
     <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />

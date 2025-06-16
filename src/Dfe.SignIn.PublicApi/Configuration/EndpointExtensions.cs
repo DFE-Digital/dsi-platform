@@ -5,7 +5,9 @@ using Dfe.SignIn.Core.Framework;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
-/// <exclude/>
+/// <summary>
+/// Extension methods for setting up endpoints.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public static class EndpointExtensions
 {

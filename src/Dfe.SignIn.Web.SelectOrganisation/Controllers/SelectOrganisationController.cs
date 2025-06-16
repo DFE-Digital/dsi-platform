@@ -4,8 +4,8 @@ using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
 using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.Web.SelectOrganisation.Configuration;
 using Dfe.SignIn.Web.SelectOrganisation.Models;
+using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -15,7 +15,7 @@ namespace Dfe.SignIn.Web.SelectOrganisation.Controllers;
 /// The controller for selecting an organisation.
 /// </summary>
 public sealed class SelectOrganisationController(
-    IOptions<ApplicationOptions> applicationOptionsAccessor,
+    IOptions<PlatformOptions> platformOptionsAccessor,
     IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
     IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse> getOrganisationById,
     IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse> getSelectOrganisationSessionByKey,
@@ -213,7 +213,7 @@ public sealed class SelectOrganisationController(
         string? clientId,
         CancellationToken cancellationToken = default)
     {
-        var returnUrl = applicationOptionsAccessor.Value.ServicesUrl;
+        var returnUrl = platformOptionsAccessor.Value.ServicesUrl;
 
         if (!string.IsNullOrEmpty(clientId)) {
             var response = await getApplicationByClientId.InvokeAsync(new() {

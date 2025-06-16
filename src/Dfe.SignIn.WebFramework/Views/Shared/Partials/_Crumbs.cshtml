@@ -1,0 +1,9 @@
+@if (ViewData[DsiLayoutConstants.Crumbs] is IEnumerable<CrumbViewModel> crumbs && crumbs.Any())
+{
+    <govuk-breadcrumbs>
+        @foreach (var crumb in crumbs)
+        {
+            <govuk-breadcrumbs-item href="@crumb.Href">@crumb.Text</govuk-breadcrumbs-item>
+        }
+    </govuk-breadcrumbs>
+}
