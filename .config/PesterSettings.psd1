@@ -13,7 +13,6 @@
     ExcludePath  = @(
       "./scripts/workflows/Build-Documentation.ps1"
       "./scripts/workflows/Get-ChangedFilesInBranch.ps1"
-      "./scripts/workflows/Get-ProjectNamesFromChanges.ps1"
       "./scripts/workflows/Initialize-BuildSolutionForChangedProjects.ps1"
     )
     OutputFormat = 'Cobertura'
