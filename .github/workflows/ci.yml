@@ -259,7 +259,7 @@ jobs:
       project_name: ${{ matrix.image.project }}
       repository_name: ${{ matrix.image.repository }}
       tag_name: '${{ github.run_id }}-${{ github.run_number }}'
-      transformation_environment: ${{ github.event.inputs.transformation_environment || 'false' }}
+      transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
 
   docs-trigger-cd:
     name: Deploy external documentation
@@ -270,4 +270,4 @@ jobs:
       project_name: docs/external
       repository_name: developer-${{ needs.prepare.outputs.lifecycle_name }}
       tag_name: '${{ github.run_id }}-${{ github.run_number }}'
-      transformation_environment: ${{ github.event.inputs.transformation_environment || 'false' }}
+      transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
