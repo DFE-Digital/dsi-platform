@@ -11,7 +11,7 @@ public sealed class HeroViewModel
     public required string Heading { get; set; }
 
     /// <summary>
-    /// Optiona, additional text to show within the hero banner.
+    /// Optional, additional text to show within the hero banner.
     /// </summary>
     public string? Text { get; set; }
 }

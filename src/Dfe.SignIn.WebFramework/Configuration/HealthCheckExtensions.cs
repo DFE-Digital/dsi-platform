@@ -14,7 +14,7 @@ namespace Dfe.SignIn.WebFramework.Configuration;
 public static class HealthCheckExtensions
 {
     /// <summary>
-    /// Expose the heathcheck via an endpoint.
+    /// Expose the healthcheck via an endpoint.
     /// </summary>
     /// <param name="builder">The builder to register the healthchecks on.</param>
     /// <param name="endpoint">The endpoint which healthchecks will be made available, defaulting to '/v2/healthcheck'.</param>

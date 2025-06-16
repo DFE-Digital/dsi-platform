@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Web.Help.Controllers;
 /// <summary>
 /// The controller for a help topic page.
 /// </summary>
-public class TopicController(
+public sealed class TopicController(
     ITopicIndexAccessor topicIndexAccessor
 ) : Controller
 {

@@ -10,7 +10,7 @@ namespace Dfe.SignIn.Web.SelectOrganisation.Configuration;
 public static class HealthCheckExtensions
 {
     /// <summary>
-    /// Setup and register the heathcheck service.
+    /// Setup and register the healthcheck service.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
     /// <param name="configuration">The configuration section.</param>
