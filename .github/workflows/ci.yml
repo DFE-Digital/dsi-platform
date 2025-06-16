@@ -135,6 +135,7 @@ jobs:
     if: "${{ needs.prepare.outputs.check_powershell == 'true' }}"
     permissions:
       checks: write # Needed by 'dorny/test-reporter'.
+      security-events: write # Needed by 'github/codeql-action/upload-sarif'.
 
   dotnet-checks:
     name: .NET checks
