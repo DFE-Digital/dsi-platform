@@ -42,20 +42,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup .NET Core 8.x
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Install docfx tooling
-        run: dotnet tool install docfx --local
-
-      - name: Build custom template
-        run: ./scripts/docs/Build-CustomTemplate
-
-      - name: Build documentation
-        run: ./scripts/workflows/Build-Documentation -ProjectName '${{ inputs.project_name }}'
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -69,9 +55,9 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          file: ./docker/static-site/Dockerfile
+          file: ./docker/docs/Dockerfile
           context: .
           build-args: |
-            HTML_PATH=docs/_site
+            PROJECT_NAME=${{ inputs.project_name }}
           tags: 'fake/${{ inputs.repository_name }}:${{ inputs.tag_name }}'
           push: false
