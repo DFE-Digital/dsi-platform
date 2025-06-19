@@ -2,7 +2,7 @@
 .SYNOPSIS
     Verifies that the test snapshots meet expectations.
 
-.NOTES
+.DESCRIPTION
     Accepts the unverified snapshot files as the new snapshots.
 
     This replaces the previous snapshot files.

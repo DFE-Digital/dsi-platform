@@ -2,7 +2,7 @@
 .SYNOPSIS
     Create 'build.sln' for projects that affected by the current changes.
 
-.NOTES
+.DESCRIPTION
     The changeset is determine by the 'Get-ChangedFilesInBranch' script.
 
 .OUTPUTS

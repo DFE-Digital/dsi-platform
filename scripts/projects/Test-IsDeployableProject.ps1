@@ -2,7 +2,7 @@
 .SYNOPSIS
     Identifies whether the specified project can be deployed.
 
-.NOTES
+.DESCRIPTION
     Projects can only be deployed if they fit one of the following criteria:
         - The project is a web-based project; eg. Dfe.SignIn.Web.*
         - The project is an API; eg. Dfe.SignIn.*Api

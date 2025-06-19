@@ -11,7 +11,7 @@ jobs:
         shell: pwsh
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Run code quality tests
         uses: microsoft/psscriptanalyzer-action@v1.1
