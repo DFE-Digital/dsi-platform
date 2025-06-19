@@ -67,7 +67,7 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-function Set-OutputFlag([String]$Name, [Boolean]$Value) {
+function private:Set-OutputFlag([String]$Name, [Boolean]$Value) {
     Add-Content -Path $env:GITHUB_OUTPUT -Value "$Name=$Value"
 }
 
@@ -89,9 +89,9 @@ Set-OutputFlag -Name 'build_external_docs' -Value $(
 
 Set-OutputFlag -Name 'publish_dotnet_packages' -Value $(
     $ForcePublishDotnetPackages -eq $true -or $ChangedFiles -match $(@(
-        "^src/Dfe.SignIn.Core.Framework/"
-        "^src/Dfe.SignIn.Core.ExternalModels/"
-        "^src/Dfe.SignIn.PublicApi.Client/"
-        "^src/Dfe.SignIn.PublicApi.Client.AspNetCore/"
-    ) -join '|')
+            "^src/Dfe.SignIn.Core.Framework/"
+            "^src/Dfe.SignIn.Core.ExternalModels/"
+            "^src/Dfe.SignIn.PublicApi.Client/"
+            "^src/Dfe.SignIn.PublicApi.Client.AspNetCore/"
+        ) -join '|')
 )
