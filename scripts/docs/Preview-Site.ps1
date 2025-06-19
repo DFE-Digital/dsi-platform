@@ -2,7 +2,7 @@
 .SYNOPSIS
     Build and start localhost server to preview developer reference documentation site.
 
-.NOTES
+.DESCRIPTION
     The developer reference documentation site includes content that is automatically
     generated from XML comments throughout the .NET projects.
 
