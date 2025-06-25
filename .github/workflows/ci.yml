@@ -58,7 +58,11 @@ on:
         default: false
         type: boolean
 
-  #push: # Useful for debugging; please comment out again before PR.
+  push: # Useful for debugging; please comment out again before PR.
+
+env:
+  # TARGET_REGISTRY_KEY: ${{ github.event.inputs.transformation_environment == 'true' && 'TRAN' || 'MAIN' }}
+  TARGET_REGISTRY_KEY: TRAN
 
 concurrency:
   group: ci-${{ github.ref }}
