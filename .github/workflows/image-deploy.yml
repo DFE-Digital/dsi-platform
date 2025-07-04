@@ -23,6 +23,11 @@ on:
         required: true
         type: boolean
 
+      git_hub_username:
+        description: The github username
+        required: true
+        type: string
+
 jobs:
   trigger-deploy:
     runs-on: ubuntu-latest
@@ -30,6 +35,10 @@ jobs:
       run:
         shell: pwsh
     steps:
+      - name: Show triggering GitHub username
+        run: |
+          Write-Host "GitHub user who triggered this deployment: ${{ inputs.git_hub_username }}"
+
       - name: Deploy image for '${{ inputs.project_name }}'
         run: |
           Write-Host "Container repository name: ${{ inputs.repository_name }}"
@@ -37,13 +46,18 @@ jobs:
 
       # - uses: Azure/pipelines@v1
       #   with:
-      #     azure-devops-project-url: 'https://dev.azure.com/organization/project-name'
-      #     azure-pipeline-name: 'pipeline-name'
-      #     azure-devops-token: '${{ secrets.AZURE_DEVOPS_TOKEN }}'
+      #     azure-devops-project-url: "${{ secrets.AZURE_DEVOPS_PROJECT| }}"
+      #     azure-pipeline-name: "test/Standalone Deployment"
+      #     azure-devops-token: "${{ secrets.AZURE_DEVOPS_TOKEN }}"
       #     azure-pipeline-variables: |
       #       {
       #         "projectName": "${{ inputs.project_name }}",
       #         "repositoryName": "${{ inputs.repository_name }}",
-      #         "tagName": "${{ inputs.tag_name }}",
-      #         "tran": "${{ inputs.transformation_environment }}"
+      #         "tag": "${{ inputs.tag_name }}",
+      #         "tran": "${{ inputs.transformation_environment }}",
+      #         "applicationShortName": "",
+      #         "healthCheckEndpoint": "v2/healthcheck",
+      #         "PrTitle": "",
+      #         "GitHubUser": "",
+      #         "GitHubWrkfl": ""
       #       }
