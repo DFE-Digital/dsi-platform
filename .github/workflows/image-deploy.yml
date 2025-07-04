@@ -33,6 +33,11 @@ on:
         required: true
         type: string
 
+      github_workflow_url:
+        description: The url for accessing the github workflow
+        required: true
+        type: string
+
 jobs:
   trigger-deploy:
     runs-on: ubuntu-latest
@@ -46,6 +51,7 @@ jobs:
           Write-Host "Tag name: ${{ inputs.tag_name }}"
           Write-Host "GitHub user: ${{ inputs.github_username }}"
           Write-Host "GitHub title: ${{ inputs.github_title }}"
+          Write-Host "GitHub workflow url: ${{ inputs.github_workflow_url }}"
 
       # - uses: Azure/pipelines@v1
       #   with:
@@ -60,7 +66,7 @@ jobs:
       #         "tran": "${{ inputs.transformation_environment }}",
       #         "applicationShortName": "",
       #         "healthCheckEndpoint": "v2/healthcheck",
-      #         "PrTitle": "",
-      #         "GitHubUser": "${{ inputs.git_hub_username }}",
-      #         "GitHubWrkfl": ""
+      #         "prTitle": "${{ inputs.github_title }}",
+      #         "gitHubUser": "${{ inputs.github_username }}",
+      #         "gitHubWrkfl": "${{ inputs.github_workflow_url }}"
       #       }

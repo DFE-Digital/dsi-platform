@@ -228,6 +228,7 @@ jobs:
       transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
       github_username: ${{ github.actor }}
       github_title: ${{ github.event.pull_request && github.event.pull_request.title || github.ref_name }}
+      github_workflow_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
   docs-trigger-cd:
     name: Deploy external documentation
@@ -241,3 +242,4 @@ jobs:
       transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
       github_username: ${{ github.actor }}
       github_title: ${{ github.event.pull_request && github.event.pull_request.title || github.ref_name }}
+      github_workflow_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
