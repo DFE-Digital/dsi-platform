@@ -226,6 +226,7 @@ jobs:
       repository_name: ${{ matrix.image.repository }}
       tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
+      git_hub_username: ${{ github.actor }}
 
   docs-trigger-cd:
     name: Deploy external documentation
