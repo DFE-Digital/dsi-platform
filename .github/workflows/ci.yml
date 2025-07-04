@@ -2,10 +2,10 @@ name: CI
 
 on:
   pull_request:
-    types: [ opened, reopened, synchronize ]
+    types: [opened, reopened, synchronize]
 
   merge_group:
-    types: [ checks_requested ]
+    types: [checks_requested]
 
   workflow_dispatch:
     inputs:
@@ -124,7 +124,6 @@ jobs:
             -ForceBuildSelectOrganisation ${{ github.event.inputs.build_select_organisation || false }} `
             -ForceBuildPublicApi ${{ github.event.inputs.build_public_api || false }}
 
-
   # -------------------------------------------------------------------------------------
   # Run checks, build and then publish any Docker images to the container registry.
   # -------------------------------------------------------------------------------------
@@ -163,7 +162,7 @@ jobs:
       project_name: ${{ matrix.image.project }}
       registry: ${{ needs.prepare.outputs.registry }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
 
   dotnet-packages:
     name: .NET publish packages
@@ -190,9 +189,8 @@ jobs:
     with:
       project_name: docs/external
       registry: ${{ needs.prepare.outputs.registry }}
-      repository_name: '${{ needs.prepare.outputs.lifecycle_name }}/developer'
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
-
+      repository_name: "${{ needs.prepare.outputs.lifecycle_name }}/developer"
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
 
   # -------------------------------------------------------------------------------------
   # Publish any packages and trigger any CD pipelines.
@@ -218,7 +216,7 @@ jobs:
   dotnet-trigger-cd:
     name: .NET deploy
     uses: ./.github/workflows/image-deploy.yml
-    needs: [ prepare, checks-passed ]
+    needs: [prepare, checks-passed]
     if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_dotnet_images != '[]' }}
     strategy:
       matrix:
@@ -226,16 +224,18 @@ jobs:
     with:
       project_name: ${{ matrix.image.project }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
+      github_branch: ${{ github.head_ref || github.ref_name }}
 
   docs-trigger-cd:
     name: Deploy external documentation
     uses: ./.github/workflows/image-deploy.yml
-    needs: [ prepare, checks-passed ]
+    needs: [prepare, checks-passed]
     if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
     with:
       project_name: docs/external
       repository_name: ${{ needs.prepare.outputs.lifecycle_name }}/developer
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
+      github_branch: ${{ github.head_ref || github.ref_name }}

@@ -23,6 +23,11 @@ on:
         required: true
         type: boolean
 
+      github_branch:
+        description: Github branch reference
+        required: true
+        type: string
+
 jobs:
   trigger-deploy:
     runs-on: ubuntu-latest
@@ -32,18 +37,47 @@ jobs:
     steps:
       - name: Deploy image for '${{ inputs.project_name }}'
         run: |
-          Write-Host "Container repository name: ${{ inputs.repository_name }}"
-          Write-Host "Tag name: ${{ inputs.tag_name }}"
+          $azurePipelineUrl = ./scripts/Initialize-AzurePipeline.ps1 `
+            -Pat "${{ secrets.AZURE_DEVOPS_TOKEN }}" `
+            -OrgProjectUrl "${{ secrets.AZURE_DEVOPS_PROJECT }}" `
+            -PipelineId "${{ secrets.AZURE_PIPELINE_ID }}" `
+            -BranchRef "${{ inputs.github_branch }}" `
+            -ProjectName "${{ inputs.project_name }}" `
+            -RepositoryName "${{ inputs.repository_name }}" `
+            -Tag "${{ inputs.tag_name }}" `
+            -TransformationEnv ${{ inputs.transformation_environment }} `
+            -ApplicationShortName "Bob" `
+          echo "azure_pipeline_url=$azurePipelineUrl" >> $env:GITHUB_OUTPUT
+          Write-Host "Azure pipeline : ${{ azure_pipeline_url }}"
 
-      # - uses: Azure/pipelines@v1
-      #   with:
-      #     azure-devops-project-url: 'https://dev.azure.com/organization/project-name'
-      #     azure-pipeline-name: 'pipeline-name'
-      #     azure-devops-token: '${{ secrets.AZURE_DEVOPS_TOKEN }}'
-      #     azure-pipeline-variables: |
-      #       {
-      #         "projectName": "${{ inputs.project_name }}",
-      #         "repositoryName": "${{ inputs.repository_name }}",
-      #         "tagName": "${{ inputs.tag_name }}",
-      #         "tran": "${{ inputs.transformation_environment }}"
-      #       }
+  # trigger-deploy:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: pwsh
+  #   steps:
+  #     - name: Deploy image for '${{ inputs.project_name }}'
+  #       run: |
+  #         Write-Host "Container repository name: ${{ inputs.repository_name }}"
+  #         Write-Host "Tag name: ${{ inputs.tag_name }}"
+  #         Write-Host "GitHub user: ${{ inputs.github_username }}"
+  #         Write-Host "GitHub title: ${{ inputs.github_title }}"
+  #         Write-Host "GitHub workflow url: ${{ inputs.github_workflow_url }}"
+
+  #     # - uses: Azure/pipelines@v1
+  #     #   with:
+  #     #     azure-devops-project-url: "${{ secrets.AZURE_DEVOPS_PROJECT| }}"
+  #     #     azure-pipeline-name: "test/Standalone Deployment"
+  #     #     azure-devops-token: "${{ secrets.AZURE_DEVOPS_TOKEN }}"
+  #     #     azure-pipeline-variables: |
+  #     #       {
+  #     #         "projectName": "${{ inputs.project_name }}",
+  #     #         "repositoryName": "${{ inputs.repository_name }}",
+  #     #         "tag": "${{ inputs.tag_name }}",
+  #     #         "tran": "${{ inputs.transformation_environment }}",
+  #     #         "applicationShortName": "",
+  #     #         "healthCheckEndpoint": "v2/healthcheck",
+  #     #         "prTitle": "${{ inputs.github_title }}",
+  #     #         "gitHubUser": "${{ inputs.github_username }}",
+  #     #         "gitHubWrkfl": "${{ inputs.github_workflow_url }}"
+  #     #       }
