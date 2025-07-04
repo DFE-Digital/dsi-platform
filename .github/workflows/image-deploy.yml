@@ -23,8 +23,13 @@ on:
         required: true
         type: boolean
 
-      git_hub_username:
-        description: The github username
+      github_username:
+        description: The github username that triggered the deployment
+        required: true
+        type: string
+
+      github_title:
+        description: The github pr or title
         required: true
         type: string
 
@@ -35,14 +40,12 @@ jobs:
       run:
         shell: pwsh
     steps:
-      - name: Show triggering GitHub username
-        run: |
-          Write-Host "GitHub user who triggered this deployment: ${{ inputs.git_hub_username }}"
-
       - name: Deploy image for '${{ inputs.project_name }}'
         run: |
           Write-Host "Container repository name: ${{ inputs.repository_name }}"
           Write-Host "Tag name: ${{ inputs.tag_name }}"
+          Write-Host "GitHub user: ${{ inputs.github_username }}"
+          Write-Host "GitHub title: ${{ inputs.github_title }}"
 
       # - uses: Azure/pipelines@v1
       #   with:
@@ -58,6 +61,6 @@ jobs:
       #         "applicationShortName": "",
       #         "healthCheckEndpoint": "v2/healthcheck",
       #         "PrTitle": "",
-      #         "GitHubUser": "",
+      #         "GitHubUser": "${{ inputs.git_hub_username }}",
       #         "GitHubWrkfl": ""
       #       }
