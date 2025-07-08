@@ -3,67 +3,34 @@ BeforeAll {
 }
 
 Describe "Initialize-AzurePipeline.ps1" {
-    Context "when building the request header" {
-        It "should generate a valid Basic Auth header" {
-            $token = 'fake-token'
-            $expected = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$token"))
+    Context "when called with valid parameters" {
+        It "returns the expected pipeline run URL" {
 
-            $authBytes  = [Text.Encoding]::ASCII.GetBytes(":$token")
-            $base64Auth = [Convert]::ToBase64String($authBytes)
-            $headers = @{
-                "Authorization" = "Basic $base64Auth"
-                "Content-Type"  = "application/json"
+            Mock Invoke-RestMethod {
+                @{ url = 'https://dev.azure.com/fakeOrg/_apis/pipelines/999/runs?api-version=7.1-preview.1' }
             }
 
-            $headers["Authorization"] | Should -BeExactly "Basic $expected"
-            $headers["Content-Type"] | Should -BeExactly "application/json"
-        }
-    }
+            $pat = 'fake-pat-token'
+            $orgProjectUrl = 'https://dev.azure.com/fakeOrg'
+            $pipelineId = '999'
+            $branchRef = 'refs/heads/main'
+            $projectName = 'FakeProject'
+            $repositoryName = 'fake/repo'
+            $tag = 'build-001'
+            $transformationEnv = $true
+            $appShortName = 'FApp'
 
-    Context "when building the body" {
-        It "should build a valid JSON payload" {
-            $branch = "refs/heads/test-branch"
-            $projectName = "MyFakeApp"
-            $repoName = "repo/container"
-            $tag = "build-001"
-            $TransformationEnv = $true
-            $shortName = "App"
+            $result = & $Cmdlet `
+                -Pat $pat `
+                -OrgProjectUrl $orgProjectUrl `
+                -PipelineId $pipelineId `
+                -BranchRef $branchRef `
+                -ProjectName $projectName `
+                -RepositoryName $repositoryName `
+                -Tag $tag `
+                -TransformationEnv $transformationEnv
 
-            $body = @{
-                resources = @{
-                    repositories = @{
-                        self = @{
-                            refName = $branch
-                        }
-                    }
-                }
-                templateParameters = @{
-                    projectName = $projectName
-                    repositoryName = $repoName
-                    tag = $tag
-                    tran = $TransformationEnv
-                    applicationShortName = $shortName
-                }
-            } | ConvertTo-Json -Depth 5
-
-            $parsed = $body | ConvertFrom-Json
-
-            $parsed.resources.repositories.self.refName        | Should -Be $branch
-            $parsed.templateParameters.projectName             | Should -Be $projectName
-            $parsed.templateParameters.repositoryName          | Should -Be $repoName
-            $parsed.templateParameters.tag                     | Should -Be $tag
-            $parsed.templateParameters.tran                    | Should -Be $TransformationEnv
-            $parsed.templateParameters.applicationShortName    | Should -Be $shortName
-        }
-    }
-
-    Context "when building the url" {
-        It "should create the correct Azure DevOps pipeline URL" {
-            $orgProjectUrl = "https://dev.azure.com/example/project"
-            $pipelineId = 123
-            $url = "$orgProjectUrl/_apis/pipelines/$pipelineId/runs?api-version=7.1-preview.1"
-
-            $url | Should -Be "https://dev.azure.com/example/project/_apis/pipelines/123/runs?api-version=7.1-preview.1"
+            $result | Should -Be 'https://dev.azure.com/fakeOrg/_apis/pipelines/999/runs?api-version=7.1-preview.1'
         }
     }
 }

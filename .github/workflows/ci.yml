@@ -226,7 +226,10 @@ jobs:
       repository_name: ${{ matrix.image.repository }}
       tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
-      github_branch: ${{ github.head_ref || github.ref_name }}
+    secrets:
+      AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+      AZURE_DEVOPS_PROJECT: ${{ secrets.AZURE_DEVOPS_PROJECT }}
+      AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
 
   docs-trigger-cd:
     name: Deploy external documentation
@@ -238,4 +241,7 @@ jobs:
       repository_name: ${{ needs.prepare.outputs.lifecycle_name }}/developer
       tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ github.event.inputs.transformation_environment || false }}
-      github_branch: ${{ github.head_ref || github.ref_name }}
+    secrets:
+      AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+      AZURE_DEVOPS_PROJECT: ${{ secrets.AZURE_DEVOPS_PROJECT }}
+      AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}

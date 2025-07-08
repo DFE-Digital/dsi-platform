@@ -30,9 +30,6 @@
 .PARAMETER TransformationEnv
     A boolean flag to indicate whether this is a transformation environment.
 
-.PARAMETER ApplicationShortName
-    A short name for the application.
-
 .OUTPUTS
     Writes the pipeline run URL to the GitHub Actions output via `GITHUB_OUTPUT`.
 
@@ -45,8 +42,7 @@
         -ProjectName "MyApp" `
         -RepositoryName "myapp/repo" `
         -Tag "build-123" `
-        -TransformationEnv $true `
-        -ApplicationShortName "Hlp"
+        -TransformationEnv $True
 #>
 [CmdletBinding()]
 param (
@@ -72,13 +68,11 @@ param (
     [string] $Tag,
 
     [Parameter(Mandatory = $true)]
-    [bool] $TransformationEnv,
-
-    [Parameter(Mandatory = $true)]
-    [string] $ApplicationShortName
+    [bool] $TransformationEnv
 )
 
-# Prepare Basic auth header (username can be empty)
+$ErrorActionPreference = "Stop"
+
 $authBytes  = [Text.Encoding]::ASCII.GetBytes(":$Pat")
 $base64Auth = [Convert]::ToBase64String($authBytes)
 $headers = @{
@@ -86,7 +80,6 @@ $headers = @{
     "Content-Type"  = "application/json"
 }
 
-# Build the JSON body
 $body = @{
   resources = @{
     repositories = @{
@@ -100,21 +93,12 @@ $body = @{
       repositoryName = $RepositoryName
       tag = $Tag
       tran = $TransformationEnv
-      applicationShortName = $ApplicationShortName
   }
 } | ConvertTo-Json -Depth 5
 
-# Invoke REST API
 $url = "$OrgProjectUrl/_apis/pipelines/$PipelineId/runs?api-version=7.1-preview.1"
-Write-Host "`nPOST $url"
-Write-Host "Payload: $body`n"
 
 $response = Invoke-RestMethod -Method Post -Uri $url -Headers $headers -Body $body
 
-# Output results
-Write-Host "Azure DevOps response:`n$($response | ConvertTo-Json -Depth 5)"
-$azurePipelineUrl = $response.url
-Write-Host "`nAzure DevOps Run URL: $runUrl"
-
-return $azurePipelineUrl
+return $response.url
 
