@@ -28,19 +28,23 @@ param (
     [Parameter(Mandatory = $true)]
     [string] $SlackMainMessage,
 
-    [string] $SlackSubMessage = ""
+    [string] $SlackSubMessage = "",
+
+    [string] $SlackIconEmoji = ":tada:"
 )
 
 $attachment = @{
     text    = $SlackMainMessage
     color   = "#142954"
 }
+
 if ($slackSubMessage) {
     $attachment.pretext = $SlackSubMessage
 }
 
 $payload = @{
     username     = $SlackMessageHeading
+    icon_emoji   = $SlackIconEmoji
     attachments  = @($attachment)
 } | ConvertTo-Json -Depth 4
 
