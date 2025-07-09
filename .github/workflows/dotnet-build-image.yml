@@ -57,3 +57,4 @@ jobs:
             PROJECT_NAME=${{ inputs.project_name }}
           tags: '${{ inputs.registry }}/${{ inputs.repository_name }}:${{ inputs.tag_name }}'
           push: true
+          platforms: linux/amd64
