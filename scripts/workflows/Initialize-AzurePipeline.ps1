@@ -96,9 +96,8 @@ $body = @{
   }
 } | ConvertTo-Json -Depth 5
 
-$url = "$OrgProjectUrl/_apis/pipelines/$PipelineId/runs?api-version=7.1-preview.1"
+$url = "$OrgProjectUrl/_apis/pipelines/$PipelineId/runs?api-version=7.1"
 
 $response = Invoke-RestMethod -Method Post -Uri $url -Headers $headers -Body $body
 
-return $response.url
-
+return $response

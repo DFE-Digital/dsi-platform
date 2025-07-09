@@ -7,7 +7,13 @@ Describe "Initialize-AzurePipeline.ps1" {
         It "returns the expected pipeline run URL" {
 
             Mock Invoke-RestMethod {
-                @{ url = 'https://dev.azure.com/fakeOrg/_apis/pipelines/999/runs?api-version=7.1-preview.1' }
+                @{
+                    _links = @{
+                        web = @{
+                            href = "https://dev.azure.com/fakeOrg/FakeProject/_build/results?buildId=123"
+                        }
+                    }
+                }
             }
 
             $pat = 'fake-pat-token'
@@ -30,7 +36,7 @@ Describe "Initialize-AzurePipeline.ps1" {
                 -Tag $tag `
                 -TransformationEnv $transformationEnv
 
-            $result | Should -Be 'https://dev.azure.com/fakeOrg/_apis/pipelines/999/runs?api-version=7.1-preview.1'
+            $result._links.web.href | Should -Be 'https://dev.azure.com/fakeOrg/FakeProject/_build/results?buildId=123'
         }
     }
 }

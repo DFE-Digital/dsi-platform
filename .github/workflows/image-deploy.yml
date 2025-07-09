@@ -61,7 +61,7 @@ jobs:
       - name: Deploy image for '${{ inputs.project_name }}'
         id: prepare
         run: |
-          $azurePipelineUrl = ./scripts/workflows/Initialize-AzurePipeline `
+          $azurePipelineResponse = ./scripts/workflows/Initialize-AzurePipeline `
               -Pat "${{ secrets.AZURE_DEVOPS_TOKEN }}" `
               -OrgProjectUrl "${{ secrets.AZURE_DEVOPS_PROJECT }}" `
               -PipelineId "${{ secrets.AZURE_PIPELINE_ID }}" `
@@ -70,16 +70,17 @@ jobs:
               -RepositoryName "${{ inputs.repository_name }}" `
               -Tag "${{ inputs.tag_name }}" `
               -TransformationEnv $True
-          echo "AZURE_PIPELINE_URL=$azurePipelineUrl" >> $env:GITHUB_ENV
+          $pipelineUrl = $azurePipelineResponse._links.web.href
+          echo "AZURE_PIPELINE_URL=$pipelineUrl" >> $env:GITHUB_ENV
 
       # slack notification is part of image-deploy because image-deploy runs a matrix which won't return
       # an output that can be collected and used by a downstream job.  Therefore, for each run of image
-      # capture the required properties and issue the notification
+      # capture the required properties and issue the notification.
       - name: Generate slack notification
         run: |
           $targetEnv = "${{ startsWith(inputs.repository_name, 'dev/') && 'DEV' || 'PREPROD' }}"
-          $subMessage = "*${{ inputs.project_name }}* is ready to be deployed to $targetEnv for ${{ inputs.github_title }} by ${{ inputs.github_username }}"
-          $mainMessage = "<${{ inputs.github_workflow_url }}|Github workflow>\n<$env:AZURE_PIPELINE_URL|Azure pipeline>" `
+          $subMessage = "*${{ inputs.project_name }}* is ready to be deployed to $targetEnv by ${{ inputs.github_username }}"
+          $mainMessage = "Branch: ${{ inputs.github_title }}`n<${{ inputs.github_workflow_url }}|Github workflow>`n<$env:AZURE_PIPELINE_URL|Azure pipeline>" `
 
           ./scripts/workflows/Send-SlackNotification `
               -SlackUri "${{ secrets.SLACK_WEBHOOK_URL }}" `
