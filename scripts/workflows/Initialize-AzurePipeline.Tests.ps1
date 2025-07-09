@@ -2,41 +2,79 @@ BeforeAll {
     $Cmdlet = $PSCommandPath.Replace('.Tests.ps1', '.ps1')
 }
 
-Describe "Initialize-AzurePipeline.ps1" {
-    Context "when called with valid parameters" {
-        It "returns the expected pipeline run URL" {
+Describe "Initialize-AzurePipeline" {
 
-            Mock Invoke-RestMethod {
-                @{
-                    _links = @{
-                        web = @{
-                            href = "https://dev.azure.com/fakeOrg/FakeProject/_build/results?buildId=123"
+    $testCases = @(
+        @{
+            Pat               = '7456383-1'
+            OrgProjectUrl     = 'https://dev.azure.com/fakeOrg1'
+            PipelineId        = '101'
+            BranchRef         = 'refs/heads/main'
+            ProjectName       = 'ProjectOne'
+            RepositoryName    = 'repo/one'
+            Tag               = 'build-001'
+            TransformationEnv = $true
+        },
+        @{
+            Pat               = '762345873-2'
+            OrgProjectUrl     = 'https://dev.azure.com/fakeOrg2'
+            PipelineId        = '202'
+            BranchRef         = 'refs/heads/develop'
+            ProjectName       = 'ProjectTwo'
+            RepositoryName    = 'repo/two'
+            Tag               = 'build-999'
+            TransformationEnv = $false
+        }
+    )
+
+    Context "when called" {
+        It "constructs the correct HTTP request" -TestCases $testCases {
+            param (
+                $Pat, $OrgProjectUrl, $PipelineId, $BranchRef,
+                $ProjectName, $RepositoryName, $Tag, $TransformationEnv
+            )
+
+            $global:capturedParams = $null
+
+            Mock -CommandName Invoke-RestMethod -MockWith {
+                $global:capturedParams = $PesterBoundParameters
+            }
+
+            & $Cmdlet `
+                -Pat $Pat `
+                -OrgProjectUrl $OrgProjectUrl `
+                -PipelineId $PipelineId `
+                -BranchRef $BranchRef `
+                -ProjectName $ProjectName `
+                -RepositoryName $RepositoryName `
+                -Tag $Tag `
+                -TransformationEnv $TransformationEnv
+
+            Assert-MockCalled -CommandName Invoke-RestMethod -Times 1
+
+            $expectedBody = @{
+                resources          = @{
+                    repositories = @{
+                        self = @{
+                            refName = $BranchRef
                         }
                     }
                 }
-            }
+                templateParameters = @{
+                    projectName    = $ProjectName
+                    repositoryName = $RepositoryName
+                    tag            = $Tag
+                    tran           = $TransformationEnv
+                }
+            } | ConvertTo-Json -Depth 5
 
-            $pat = 'fake-pat-token'
-            $orgProjectUrl = 'https://dev.azure.com/fakeOrg'
-            $pipelineId = '999'
-            $branchRef = 'refs/heads/main'
-            $projectName = 'FakeProject'
-            $repositoryName = 'fake/repo'
-            $tag = 'build-001'
-            $transformationEnv = $true
-            $appShortName = 'FApp'
+            $captured = $global:capturedParams
 
-            $result = & $Cmdlet `
-                -Pat $pat `
-                -OrgProjectUrl $orgProjectUrl `
-                -PipelineId $pipelineId `
-                -BranchRef $branchRef `
-                -ProjectName $projectName `
-                -RepositoryName $repositoryName `
-                -Tag $tag `
-                -TransformationEnv $transformationEnv
-
-            $result._links.web.href | Should -Be 'https://dev.azure.com/fakeOrg/FakeProject/_build/results?buildId=123'
+            $captured['Method'] | Should -Be 'Post'
+            $captured.Headers["Content-Type"]  | Should -Be "application/json"
+            $captured.Headers["Authorization"] | Should -Be "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$pat")))"
+            $captured['Uri'] | Should -Be "$orgProjectUrl/_apis/pipelines/$pipelineId/runs?api-version=7.1"
+            $captured['Body'] | Should -BeExactly $expectedBody
         }
     }
 }
