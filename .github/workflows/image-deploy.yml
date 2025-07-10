@@ -38,6 +38,11 @@ on:
         required: true
         type: string
 
+      lifecycle_stage:
+        description: The lifecycle_stage either 'dev' or 'rel'
+        required: true
+        type: string
+
     secrets:
       AZURE_DEVOPS_TOKEN:
         required: true
@@ -73,13 +78,14 @@ jobs:
           $pipelineUrl = $azurePipelineResponse._links.web.href
           echo "AZURE_PIPELINE_URL=$pipelineUrl" >> $env:GITHUB_ENV
 
-      # slack notification is part of image-deploy because image-deploy runs a matrix which won't return
-      # an output that can be collected and used by a downstream job.  Therefore, for each run of image
-      # capture the required properties and issue the notification.
+      # slack notification is part of image-deploy, because image-deploy runs as matrix job, which doesn't
+      # return an output that can be collected, iterated and used by a downstream job.  Therefore, for each
+      # run of image-deploy send the slack-notification directly. Alternatively the code could run from its
+      # own yml file and interact with the github api using input.tag_name, for example.
       - name: Generate slack notification
         run: |
-          $targetEnv = "${{ startsWith(inputs.repository_name, 'dev/') && 'DEV' || 'PREPROD' }}"
-          $subMessage = "*${{ inputs.project_name }}* is ready to be deployed to $targetEnv by ${{ inputs.github_username }}"
+          $upperLifecycle = '${{ inputs.lifecycle_stage }}'.ToUpper()
+          $subMessage = "*${{ inputs.project_name }}* is ready to be deployed to $upperLifecycle by ${{ inputs.github_username }}"
           $mainMessage = "Branch: ${{ inputs.github_title }}`n<${{ inputs.github_workflow_url }}|Github workflow>`n<$env:AZURE_PIPELINE_URL|Azure pipeline>" `
 
           ./scripts/workflows/Send-SlackNotification `
