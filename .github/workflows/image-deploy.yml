@@ -74,7 +74,7 @@ jobs:
               -ProjectName "${{ inputs.project_name }}" `
               -RepositoryName "${{ inputs.repository_name }}" `
               -Tag "${{ inputs.tag_name }}" `
-              -TransformationEnv $True
+              -TransformationEnv ([bool]'${{ inputs.transformation_environment }}')
           $pipelineUrl = $azurePipelineResponse._links.web.href
           echo "AZURE_PIPELINE_URL=$pipelineUrl" >> $env:GITHUB_ENV
 
