@@ -178,6 +178,7 @@ jobs:
     secrets:
       AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
       AZURE_NUGET_SOURCE: ${{ secrets.AZURE_NUGET_SOURCE }}
+      AZURE_NUGET_PROMOTION_SOURCE: ${{ secrets.AZURE_NUGET_PROMOTION_SOURCE }}
 
   docs-templates-checks:
     name: Docs templates checks
