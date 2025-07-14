@@ -48,7 +48,7 @@ jobs:
             ForEach-Object { Write-Host "Found package: $($_.FullName)" }
         shell: pwsh
 
-      - name: Push NuGet packages to Azure Artifacts
+      - name: Push NuGet packages to Azure Artifactss
         run: |
           # Loop through each .nupkg file and push it
           Get-ChildItem -Path "$env:GITHUB_WORKSPACE/src" -Recurse -Filter "*.nupkg" |
