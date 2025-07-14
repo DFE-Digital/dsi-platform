@@ -34,6 +34,24 @@ jobs:
             /p:Configuration=Release `
             /p:BuildPackages=true
 
+      - name: Push NuGet packages to Azure Artifacts
+        shell: pwsh
+        run: |
+          dotnet nuget add source "${{ secrets.AZURE_NUGET_SOURCE }}" `
+            --name AzureArtifacts `
+            --username "any" `
+            --password "${{ secrets.AZURE_DEVOPS_TOKEN }}" `
+            --store-password-in-clear-text
+
+          Get-ChildItem -Path "$env:GITHUB_WORKSPACE/src" -Recurse -Filter "*.nupkg" |
+            ForEach-Object {
+              Write-Host "Uploading package: $($_.Name)"
+              dotnet nuget push $_.FullName `
+                --source AzureArtifacts `
+                --api-key "${{ secrets.AZURE_DEVOPS_TOKEN }}" `
+                --skip-duplicate
+            }
+
       # - name: Authenticate to Azure
       #   uses: azure/login@v1
       #   with:
@@ -42,21 +60,19 @@ jobs:
       #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       #     client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-      - name: Locate .nupkg files
-        run: |
-          Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse -Filter "*.nupkg" |
-            ForEach-Object { Write-Host "Found package: $($_.FullName)" }
-        shell: pwsh
+      # - name: Locate .nupkg files
+      #   run: |
+      #     Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse -Filter "*.nupkg" |
+      #       ForEach-Object { Write-Host "Found package: $($_.FullName)" }
 
-      - name: Push NuGet packages to Azure Artifactss
-        run: |
-          # Loop through each .nupkg file and push it
-          Get-ChildItem -Path "$env:GITHUB_WORKSPACE/src" -Recurse -Filter "*.nupkg" |
-            ForEach-Object {
-              Write-Host "Uploading package: $($_.Name)"
-              dotnet nuget push $_.FullName `
-                --source "${{ secrets.AZURE_NUGET_SOURCE }}" `
-                --api-key "${{ secrets.AZURE_DEVOPS_TOKEN }}" `
-                --skip-duplicate
-            }
-        shell: pwsh
+      # - name: Push NuGet packages to Azure Artifactss
+      #   run: |
+      #     # Loop through each .nupkg file and push it
+      #     Get-ChildItem -Path "$env:GITHUB_WORKSPACE/src" -Recurse -Filter "*.nupkg" |
+      #       ForEach-Object {
+      #         Write-Host "Uploading package: $($_.Name)"
+      #         dotnet nuget push $_.FullName `
+      #           --source "${{ secrets.AZURE_NUGET_SOURCE }}" `
+      #           --api-key "${{ secrets.AZURE_DEVOPS_TOKEN }}" `
+      #           --skip-duplicate
+      #       }
