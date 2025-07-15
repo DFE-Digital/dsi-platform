@@ -9,21 +9,23 @@ Describe "Promote-NuGetPackage" {
             LifecycleStage = "dev"
             Pat            = "fake-personal-access-token"
             BaseFeedUrl    = "https://feeds.dev.azure.com/myOrg/myProj/_apis/packaging/feeds/myFeed/nuget/packages/"
-            ExpectedUrl    = "https://feeds.dev.azure.com/myOrg/myProj/_apis/packaging/feeds/myFeed/nuget/packages/Dfe.SignIn.PublicApi.Client.AspNetCore/versions/1.0.9326.23534/views/Prerelease?api-version=7.1-preview.1"
+            ExpectedUrl    = "https://feeds.dev.azure.com/myOrg/myProj/_apis/packaging/feeds/myFeed/nuget/packages/Dfe.SignIn.PublicApi.Client.AspNetCore/versions/1.0.9326.23534?api-version=7.1"
+            ExpectedView   = "Prerelease"
         },
         @{
             PackagePath    = "/home/runner/work/dsi-platform/dsi-platform/src/Dfe.SignIn.PublicApi.Client/bin/Release/Dfe.SignIn.PublicApi.Client.1.4.9326.23537.nupkg"
             LifecycleStage = "rel"
             Pat            = "fake-personal-access-token"
             BaseFeedUrl    = "https://feeds.dev.azure.com/myOrg/myProj/_apis/packaging/feeds/myFeed/nuget/packages"
-            ExpectedUrl    = "https://feeds.dev.azure.com/myOrg/myProj/_apis/packaging/feeds/myFeed/nuget/packages/Dfe.SignIn.PublicApi.Client/versions/1.4.9326.23537/views/Release?api-version=7.1-preview.1"
+            ExpectedUrl    = "https://feeds.dev.azure.com/myOrg/myProj/_apis/packaging/feeds/myFeed/nuget/packages/Dfe.SignIn.PublicApi.Client/versions/1.4.9326.23537?api-version=7.1"
+            ExpectedView   = "Release"
         }
     )
 
     Context "when called" {
         It "constructs the correct HTTP request" -TestCases $testCases {
             param (
-                $PackagePath, $LifecycleStage, $Pat, $BaseFeedUrl, $ExpectedUrl
+                $PackagePath, $LifecycleStage, $Pat, $BaseFeedUrl, $ExpectedUrl, $ExpectedView
             )
 
             $global:capturedParams = $null
@@ -42,12 +44,19 @@ Describe "Promote-NuGetPackage" {
 
             $captured = $global:capturedParams
 
+            $expectedBody = @{
+                views = @{
+                    op    = "add"
+                    path  = "/views/-"
+                    value = "${ExpectedView}"
+                }
+            }  | ConvertTo-Json -Depth 3
 
-            $captured['Method'] | Should -Be 'Put'
+            $captured['Method'] | Should -Be 'Patch'
             $captured.Headers["Content-Type"]  | Should -Be "application/json"
             $captured.Headers["Authorization"] | Should -Be "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$pat")))"
             $captured['Uri'] | Should -Be $ExpectedUrl
-            $captured['Body'] | Should -BeExactly $null
+            $captured['Body'] | Should -BeExactly $expectedBody
         }
     }
 }

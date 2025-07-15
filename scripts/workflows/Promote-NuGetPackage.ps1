@@ -58,25 +58,29 @@ $versionParts = $parts[-4..-1]
 $version = $versionParts -join '.'
 $packageId = $parts[0..($parts.Length - 5)] -join '.'
 
-Write-Host "PackageId: $packageId"
-Write-Host "Version: $version"
-
 $view = if ($LifecycleStage -eq 'rel') { 'Release' } else { 'Prerelease' }
 
 if ($baseFeedUrl.EndsWith('/')) {
     $baseFeedUrl = $baseFeedUrl.Substring(0, $baseFeedUrl.Length - 1)
 }
 
-$promotionUrl = "${baseFeedUrl}/${packageId}/versions/${version}/views/${view}?api-version=7.1-preview.1"
+$promotionUrl = "${baseFeedUrl}/${packageId}/versions/${version}?api-version=7.1"
 
 $authHeader = @{
     Authorization  = ("Basic {0}" -f [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$Pat")))
     "Content-Type" = "application/json"
 }
 
-# Do HTTP PUT request to promote package
-$response = Invoke-RestMethod -Uri $promotionUrl -Method Put -Headers $authHeader
+$body = @{
+    views = @{
+        op    = "add"
+        path  = "/views/-"
+        value = "${view}"
+    }
+} | ConvertTo-Json -Depth 3
+
+# Do HTTP Patch request to promote package
+$response = Invoke-RestMethod -Uri $promotionUrl -Method Patch -Headers $authHeader -Body $body
 Write-Host "Package '$PackageId' version '$Version' promoted to view '$view'."
 
 return $response
-

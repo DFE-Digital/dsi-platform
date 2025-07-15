@@ -46,7 +46,6 @@ jobs:
 
           Get-ChildItem -Path "$env:GITHUB_WORKSPACE/src" -Recurse -Filter "*.nupkg" |
             ForEach-Object {
-              Write-Host "Uploading package: $($_.Name)"
               dotnet nuget push $_.FullName `
                 --source AzureArtifacts `
                 --api-key "${{ secrets.AZURE_DEVOPS_TOKEN }}" `
@@ -57,7 +56,6 @@ jobs:
         run: |
           Get-ChildItem -Path "$env:GITHUB_WORKSPACE/src" -Recurse -Filter "*.nupkg" |
             ForEach-Object {
-              Write-Host "Promoting package: $($_.Name)"
               ./scripts/workflows/Promote-NuGetPackage.ps1 `
                   -PackagePath $_.FullName `
                   -LifecycleStage "${{ inputs.lifecycle_stage }}" `
