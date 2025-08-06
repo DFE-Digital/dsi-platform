@@ -173,6 +173,10 @@ jobs:
     uses: ./.github/workflows/dotnet-packages.yml
     needs: prepare
     if: "${{ needs.prepare.outputs.publish_dotnet_packages == 'true' }}"
+    secrets:
+      AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+    with:
+      nuget_source: ${{ vars.AZURE_DEVOPS_NUGET_SOURCE }}
 
   docs-templates-checks:
     name: Docs templates checks
