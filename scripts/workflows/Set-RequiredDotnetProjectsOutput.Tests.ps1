@@ -14,7 +14,7 @@ Describe "Set-RequiredDotnetProjectsOutput" {
         Mock Add-Content -ParameterFilter { $Path -ceq 'GITHUB_OUTPUT' } {
             $deserialized = $Value -replace 'dotnet_images=', '' | ConvertFrom-Json
             $global:capturedValue = $deserialized | ForEach-Object {
-                @{ Project = $_.Project; Repository = $_.Repository }
+                @{ project = $_.project; repository = $_.repository }
             }
         }
     }
@@ -38,8 +38,8 @@ Describe "Set-RequiredDotnetProjectsOutput" {
 
             Should -Invoke Add-Content -Times 1 -Exactly
 
-            $global:capturedValue.Project | Should -Be 'Dfe.SignIn.PublicApi'
-            $global:capturedValue.Repository | Should -Be 'dev/public-api'
+            $global:capturedValue.project | Should -Be 'Dfe.SignIn.PublicApi'
+            $global:capturedValue.repository | Should -Be 'dev/public-api'
         }
     }
 
@@ -73,8 +73,8 @@ Describe "Set-RequiredDotnetProjectsOutput" {
 
             Should -Invoke Add-Content -Times 1 -Exactly
 
-            $global:capturedValue.Project | Should -Be 'Dfe.SignIn.PublicApi'
-            $global:capturedValue.Repository | Should -Be 'dev/public-api'
+            $global:capturedValue.project | Should -Be 'Dfe.SignIn.PublicApi'
+            $global:capturedValue.repository | Should -Be 'dev/public-api'
         }
 
         It "uses container repository for release lifecycle" {
@@ -84,8 +84,8 @@ Describe "Set-RequiredDotnetProjectsOutput" {
 
             Should -Invoke Add-Content -Times 1 -Exactly
 
-            $global:capturedValue.Project | Should -Be 'Dfe.SignIn.PublicApi'
-            $global:capturedValue.Repository | Should -Be 'rel/public-api'
+            $global:capturedValue.project | Should -Be 'Dfe.SignIn.PublicApi'
+            $global:capturedValue.repository | Should -Be 'rel/public-api'
         }
     }
 
@@ -97,8 +97,8 @@ Describe "Set-RequiredDotnetProjectsOutput" {
 
             Should -Invoke Add-Content -Times 1 -Exactly
 
-            $global:capturedValue.Project | Should -Be 'Dfe.SignIn.PublicApi'
-            $global:capturedValue.Repository | Should -Be 'dev/public-api'
+            $global:capturedValue.project | Should -Be 'Dfe.SignIn.PublicApi'
+            $global:capturedValue.repository | Should -Be 'dev/public-api'
         }
 
         It "includes project 'Dfe.SignIn.Web.SelectOrganisation'" {
@@ -108,8 +108,8 @@ Describe "Set-RequiredDotnetProjectsOutput" {
 
             Should -Invoke Add-Content -Times 1 -Exactly
 
-            $global:capturedValue.Project | Should -Be 'Dfe.SignIn.Web.SelectOrganisation'
-            $global:capturedValue.Repository | Should -Be 'dev/select-organisation'
+            $global:capturedValue.project | Should -Be 'Dfe.SignIn.Web.SelectOrganisation'
+            $global:capturedValue.repository | Should -Be 'dev/select-organisation'
         }
     }
 }

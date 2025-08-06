@@ -83,15 +83,19 @@ if ($IncludeChangedProjects -eq $true) {
 }
 
 $repositoryMappings = @{
-    'Dfe.SignIn.Web.SelectOrganisation' = 'select-organisation'
-    'Dfe.SignIn.PublicApi'              = 'public-api'
+    'Dfe.SignIn.Web.SelectOrganisation' = @{
+        Repository = 'select-organisation'
+    }
+    'Dfe.SignIn.PublicApi'              = @{
+        Repository = 'public-api'
+    }
 }
 
 $dotnetImages = $projectNames | Sort-Object | ForEach-Object {
-    if ($repositoryMappings[$_]) {
+    if ($mapping = $repositoryMappings[$_]) {
         @{
-            Project    = $_
-            Repository = "$LifecycleName/$($repositoryMappings[$_])".ToLower()
+            project    = $_
+            repository = "$LifecycleName/$($mapping.Repository)".ToLower()
         }
     }
 }
