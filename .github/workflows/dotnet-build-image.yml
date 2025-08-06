@@ -60,4 +60,12 @@ jobs:
           build-args: |
             PROJECT_NAME=${{ inputs.project_name }}
           tags: '${{ inputs.registry }}/${{ inputs.repository_name }}:${{ inputs.tag_name }}'
+          labels: |
+            org.opencontainers.image.title=${{ inputs.project_name }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.vendor=${{ github.repository_owner }}
+            org.opencontainers.image.url=https://github.com/${{ github.repository }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            uk.gov.education.signin.run_id=${{ github.run_id }}
+            uk.gov.education.signin.run_attempt=${{ github.run_attempt }}
           push: true
