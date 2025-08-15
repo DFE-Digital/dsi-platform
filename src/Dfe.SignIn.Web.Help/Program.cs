@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Web.Help.Configuration;
 using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.WebFramework.Configuration;
+using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,10 @@ app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseHealthChecks();
+
+var rewriteOptions = new RewriteOptions();
+rewriteOptions.AddRedirect("(.*)/$", "$1", statusCode: 301);
+app.UseRewriter(rewriteOptions);
 
 app.UseRouting();
 
