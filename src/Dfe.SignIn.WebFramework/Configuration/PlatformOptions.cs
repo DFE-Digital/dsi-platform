@@ -15,7 +15,7 @@ public sealed class PlatformOptions : IOptions<PlatformOptions>
     /// <summary>
     /// Gets URL of the "Help" frontend component.
     /// </summary>
-    public Uri HelpUrl { get; set; } = new Uri("https://help.localhost");
+    public Uri HelpUrl { get; set; } = new Uri("http://localhost:5012");
 
     /// <summary>
     /// Gets URL of the "Manage" frontend component.
@@ -36,6 +36,31 @@ public sealed class PlatformOptions : IOptions<PlatformOptions>
     /// Gets URL of the "Support" frontend component.
     /// </summary>
     public Uri SupportUrl { get; set; } = new Uri("https://support.localhost");
+
+    /// <summary>
+    /// Gets URL of the "Cookies" page.
+    /// </summary>
+    public Uri CookiesUrl { get; set; } = new Uri("http://localhost:5012/cookies");
+
+    /// <summary>
+    /// Gets URL of the "Terms and conditions" page.
+    /// </summary>
+    public Uri TermsUrl { get; set; } = new Uri("http://localhost:5012/terms");
+
+    /// <summary>
+    /// Gets URL of the "Privacy notice" page.
+    /// </summary>
+    public Uri PrivacyUrl { get; set; } = new Uri("http://localhost:5012/privacy");
+
+    /// <summary>
+    /// Gets URL of the "Accessibility statement" page.
+    /// </summary>
+    public Uri AccessibilityUrl { get; set; } = new Uri("https://help.localhost/accessibility-statement");
+
+    /// <summary>
+    /// Gets URL of the "Contact us" page.
+    /// </summary>
+    public Uri ContactUrl { get; set; } = new Uri("http://localhost:5012/contact-us");
 
     /// <inheritdoc/>
     PlatformOptions IOptions<PlatformOptions>.Value => this;

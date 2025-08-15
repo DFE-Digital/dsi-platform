@@ -32,10 +32,18 @@ public static class DsiLayoutConstants
     public const string ServiceName = $"_DsiLayout.{nameof(ServiceName)}";
 
     /// <summary>
+    /// View data key for service navigation items.
+    /// </summary>
+    /// <remarks>
+    ///   <para>The associated value must be assignable to an enumerable collection of <see cref="IEnumerable{ServiceNavigationItemViewModel}"/>.</para>
+    /// </remarks>
+    public const string ServiceNavigationItems = $"_DsiLayout.{nameof(ServiceNavigationItems)}";
+
+    /// <summary>
     /// View data key for breadcrumbs.
     /// </summary>
     /// <remarks>
-    ///   <para>The associated value must be assignable to <see cref="IEnumerable{CrumbViewModel}"/>.</para>
+    ///   <para>The associated value must be assignable to <see cref="IEnumerable{HeroViewModel}"/>.</para>
     /// </remarks>
     public const string Hero = $"_DsiLayout.{nameof(Hero)}";
 
@@ -43,7 +51,7 @@ public static class DsiLayoutConstants
     /// View data key for breadcrumbs.
     /// </summary>
     /// <remarks>
-    ///   <para>The associated value must be assignable to <see cref="IEnumerable{CrumbViewModel}"/>.</para>
+    ///   <para>The associated value must be assignable to an enumerable collection of <see cref="IEnumerable{CrumbViewModel}"/>.</para>
     /// </remarks>
     public const string Crumbs = $"_DsiLayout.{nameof(Crumbs)}";
 
