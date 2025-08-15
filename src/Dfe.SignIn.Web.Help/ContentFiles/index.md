@@ -5,6 +5,10 @@ summary: |
   Guidance, tips and articles to help you use DfE Sign-in
 
 topics:
-  - paths:
-      - /account
+  - heading: Help sections
+    paths:
+      - /setup-your-account
+      - /your-account
+      - /managing-users
+      - /troubleshooting
 ---
