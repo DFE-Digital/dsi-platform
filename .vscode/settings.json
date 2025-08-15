@@ -1,5 +1,9 @@
 {
   "editor.formatOnSave": true,
+  "[aspnetcorerazor]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false
+  },
   "files.associations": {
     "appsettings*.json": "jsonc",
     "*.tmpl*": "html",

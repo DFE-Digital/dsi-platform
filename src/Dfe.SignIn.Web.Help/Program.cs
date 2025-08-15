@@ -3,6 +3,7 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Web.Help.Configuration;
 using Dfe.SignIn.Web.Help.Content;
+using Dfe.SignIn.Web.Help.Services;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Rewrite;
 
@@ -35,6 +36,8 @@ builder.Services
 builder.Services.SetupAutoMapper();
 builder.Services.SetupHealthChecks();
 builder.Services.SetupContentProcessing();
+
+builder.Services.AddSingleton<IServiceNavigationBuilder, ServiceNavigationBuilder>();
 
 var app = builder.Build();
 

@@ -1,3 +1,8 @@
-﻿@{
+﻿@inject IServiceNavigationBuilder serviceNavigationBuilder
+
+@{
     Layout = "_DsiLayout";
+
+    ViewData[DsiLayoutConstants.ServiceName] = "DfE Sign-in Help";
+    ViewData[DsiLayoutConstants.ServiceNavigationItems] = await serviceNavigationBuilder.BuildAsync(ViewContext.HttpContext.Request.Path);
 }
