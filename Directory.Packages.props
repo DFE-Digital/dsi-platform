@@ -77,7 +77,7 @@
   <!-- Frontends -->
   <ItemGroup>
     <!-- GOV.UK design system -->
-    <PackageVersion Include="GovUk.Frontend.AspNetCore" Version="2.8.0" />
+    <PackageVersion Include="GovUk.Frontend.AspNetCore" Version="3.2.3" />
   </ItemGroup>
 
   <!-- Content -->
