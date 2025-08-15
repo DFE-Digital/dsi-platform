@@ -61,6 +61,25 @@ public sealed class MarkdigTopicMarkdownProcessorTests
     }
 
     [TestMethod]
+    public async Task ProcessMarkdownAsync_CanRenderPipeTables()
+    {
+        string markdown = """
+        | A   | B   |
+        | --- | --- |
+        | 1   | 2   |
+        """;
+
+        var topic = await this.processor.ProcessMarkdownAsync("/", markdown);
+
+        var doc = new HtmlDocument();
+        doc.LoadHtml(topic.ContentHtml);
+
+        var table = doc.DocumentNode.Descendants("table").FirstOrDefault();
+        Assert.IsNotNull(table);
+        Assert.IsTrue(table.HasClass("govuk-table"));
+    }
+
+    [TestMethod]
     public async Task ProcessMarkdownAsync_SetsTitleAsSpecified()
     {
         string markdown = """

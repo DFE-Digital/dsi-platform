@@ -13,6 +13,7 @@ public sealed class MarkdigGovUkExtensionTests
     public void Initialize()
     {
         this.markdownPipeline = new MarkdownPipelineBuilder()
+            .UsePipeTables()
             .Use<MarkdigGovUkExtension>()
             .Build();
     }
@@ -73,6 +74,40 @@ public sealed class MarkdigGovUkExtensionTests
         Assert.IsNotNull(element);
         Assert.IsTrue(element.HasClass("govuk-list"));
         Assert.IsTrue(element.HasClass(expectedClass));
+    }
+
+    [TestMethod]
+    public void DocumentProcessed_PipeTable_HasExpectedClasses()
+    {
+        string markdown = """
+        | A   | B   |
+        | --- | --- |
+        | 1   | 2   |
+        | 3   | 4   |
+        """;
+
+        var doc = this.ParseMarkdown(markdown);
+
+        var tableElement = doc.DocumentNode.Descendants("table").FirstOrDefault();
+        Assert.IsNotNull(tableElement);
+        Assert.IsTrue(tableElement.HasClass("govuk-table"));
+
+        var rowElements = tableElement.Descendants("tr");
+        Assert.HasCount(3, rowElements);
+
+        var headerRowElement = rowElements.ElementAt(0);
+        Assert.IsTrue(headerRowElement.HasClass("govuk-table__row"));
+        var headerCellElements = headerRowElement.Descendants("th");
+        Assert.HasCount(2, headerCellElements);
+        Assert.IsTrue(headerCellElements.ElementAt(0).HasClass("govuk-table__header"));
+        Assert.IsTrue(headerCellElements.ElementAt(1).HasClass("govuk-table__header"));
+
+        var row1Element = rowElements.ElementAt(1);
+        Assert.IsTrue(row1Element.HasClass("govuk-table__row"));
+        var row1CellElements = row1Element.Descendants("td");
+        Assert.HasCount(2, row1CellElements);
+        Assert.IsTrue(row1CellElements.ElementAt(0).HasClass("govuk-table__cell"));
+        Assert.IsTrue(row1CellElements.ElementAt(1).HasClass("govuk-table__cell"));
     }
 
     [TestMethod]

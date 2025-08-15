@@ -22,6 +22,7 @@ public partial class MarkdigTopicMarkdownProcessor : ITopicMarkdownProcessor
     {
         this.pipeline = new MarkdownPipelineBuilder()
             .UseYamlFrontMatter()
+            .UsePipeTables()
             .Use<MarkdigGovUkExtension>()
             .Build();
 
