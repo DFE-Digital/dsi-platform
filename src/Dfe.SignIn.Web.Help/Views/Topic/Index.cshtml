@@ -4,6 +4,7 @@
     ViewData[DsiLayoutConstants.ServiceName] = "DfE Sign-in Help";
     ViewData[DsiLayoutConstants.Title] = Model.Title;
     ViewData[DsiLayoutConstants.MetaDescription] = Model.Summary;
+    ViewData[DsiLayoutConstants.ServiceNavigationItems] = Model.ServiceNavigationItems;
     ViewData[DsiLayoutConstants.Crumbs] = Model.Crumbs;
 }
 
@@ -24,9 +25,17 @@ else
     <h1 class="govuk-heading-l">@Model.Title</h1>
 }
 
-@Html.Raw(@Model.ContentHtml)
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        @Html.Raw(@Model.ContentHtml)
+    </div>
+</div>
 
-@await Html.PartialAsync("Components/_CardSections", Model.CardSections)
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        @await Html.PartialAsync("Components/_CardSections", Model.CardSections)
+    </div>
+</div>
 
 @if (Model.AllowDeveloperReloadAction)
 {
