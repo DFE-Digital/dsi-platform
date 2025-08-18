@@ -1,0 +1,18 @@
+@model TopicListingViewModel
+
+<nav>
+    <h2 class="govuk-heading-m">@Model.Heading</h2>
+    <ul class="app-topic-cards">
+        @foreach (var card in Model.Topics)
+        {
+            <li class="app-topic-card">
+                <h2 class="app-topic-card__heading">
+                    <a class="govuk-link-bold" href="@card.Href">@card.Title</a>
+                </h2>
+                <p class="app-topic-card__summary">
+                    @card.Summary
+                </p>
+            </li>
+        }
+    </ul>
+</nav>

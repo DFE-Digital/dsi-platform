@@ -55,10 +55,21 @@ public sealed class TopicViewModel
     public required string ContentHtml { get; set; }
 
     /// <summary>
-    /// Gets or sets any card sections.
+    /// Gets or sets a value indicating whether the topic is a global topic.
+    /// </summary>
+    /// <remarks>
+    ///   <para>Global "non-help" topics such as the "Cookies" page are presented within
+    ///   the "DfE Sign-in" space and do not include service navigation links.</para>
+    ///   <para>Help topics are presented within the "DfE Sign-in Help" space and include
+    ///   the related service navigation links.</para>
+    /// </remarks>
+    public bool IsGlobal { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets any topic listing sections.
     /// </summary>
     /// <remarks>
     ///   <para>This is a ordered collection of zero-or-more card sections.</para>
     /// </remarks>
-    public IEnumerable<CardSectionViewModel> CardSections { get; set; } = [];
+    public IEnumerable<TopicListingViewModel> TopicListingSections { get; set; } = [];
 }

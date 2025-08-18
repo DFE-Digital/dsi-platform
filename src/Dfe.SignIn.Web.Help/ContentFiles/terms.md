@@ -1,5 +1,6 @@
 ---
 title: Terms and Conditions
+isGlobal: true
 ---
 
 Welcome to DfE Sign-in, the Department for Education's secure single sign-in system for access to DfE online services.

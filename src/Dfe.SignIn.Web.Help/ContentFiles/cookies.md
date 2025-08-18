@@ -1,5 +1,7 @@
 ---
 title: Details about cookies on DfE Sign-in
+navigationTitle: Cookies
+isGlobal: true
 ---
 
 Cookies are small files saved on your phone, tablet or computer when you visit a website.

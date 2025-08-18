@@ -1,5 +1,7 @@
 ---
 title: Using your data when you use DfE Sign-in
+navigationTitle: Privacy notice
+isGlobal: true
 ---
 
 DfE Sign-in is how schools and other education organisations access DfE online services. See the [DfE Sign-in landing page](https://services.signin.education.gov.uk/) for details of the DfE services that use DfE Sign-in.

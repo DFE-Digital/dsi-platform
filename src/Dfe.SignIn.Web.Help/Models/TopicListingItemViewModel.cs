@@ -1,9 +1,9 @@
-namespace Dfe.SignIn.WebFramework.Models;
+namespace Dfe.SignIn.Web.Help.Models;
 
 /// <summary>
-/// The view model of a navigation card.
+/// The view model of a topic listing item.
 /// </summary>
-public sealed class CardViewModel
+public sealed class TopicListingItemViewModel
 {
     /// <summary>
     /// Title text of card.

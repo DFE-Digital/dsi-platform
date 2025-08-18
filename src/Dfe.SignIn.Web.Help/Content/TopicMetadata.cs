@@ -30,6 +30,17 @@ public sealed record TopicMetadata()
     public string? Summary { get; init; }
 
     /// <summary>
+    /// Gets a value indicating if the topic is a global topic.
+    /// </summary>
+    /// <remarks>
+    ///   <para>Global "non-help" topics such as the "Cookies" page are presented within
+    ///   the "DfE Sign-in" space and do not include service navigation links.</para>
+    ///   <para>Help topics are presented within the "DfE Sign-in Help" space and include
+    ///   the related service navigation links.</para>
+    /// </remarks>
+    public bool IsGlobal { get; init; } = false;
+
+    /// <summary>
     /// Gets the ordered enumerable collection of topic listings.
     /// </summary>
     public IEnumerable<TopicListing> Topics { get; init; } = [];
