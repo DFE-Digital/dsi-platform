@@ -1,0 +1,24 @@
+﻿@model TopicViewModel
+
+@inject IOptions<PlatformOptions> platformOptionsAccessor
+
+@{
+    ViewData[DsiLayoutConstants.Title] = "Contact us";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <govuk-panel>
+            <govuk-panel-title>Form submission successful</govuk-panel-title>
+            <govuk-panel-body>
+                Thank you for submitting your request for assistance. We will attempt to respond within the next 5 working days.
+            </govuk-panel-body>
+        </govuk-panel>
+    </div>
+
+    <div class="govuk-grid-column-full">
+        <div class="govuk-button-group">
+            <govuk-button-link href=@(platformOptionsAccessor.Value.HelpUrl)>Return to help</govuk-button-link>
+        </div>
+    </div>
+</div>

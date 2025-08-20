@@ -113,7 +113,7 @@ public sealed class SelectOrganisationController(
             new InvalidateSelectOrganisationSessionRequest {
                 SessionKey = sessionKey,
             }, cancellationToken
-        ).To<InvalidateSelectOrganisationSessionResponse>();
+        );
 
         bool didUserSelectOptionThatWasPresented = session.OrganisationOptions.Any(
             option => option.Id == viewModel.SelectedOrganisationId);
@@ -200,7 +200,7 @@ public sealed class SelectOrganisationController(
                 new InvalidateSelectOrganisationSessionRequest {
                     SessionKey = sessionKey,
                 }, cancellationToken
-            ).To<InvalidateSelectOrganisationSessionResponse>();
+            );
             return new GetSessionResult {
                 RedirectActionResult = await this.HandleInvalidSessionAsync(session.ClientId, cancellationToken),
             };

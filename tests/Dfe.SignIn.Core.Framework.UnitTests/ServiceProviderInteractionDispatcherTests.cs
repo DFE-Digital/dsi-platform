@@ -50,8 +50,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         async Task Act()
         {
-            await interaction.DispatchAsync(FakeRequest)
-                .To<ExampleInteractorWithValidationResponse>();
+            await interaction.DispatchAsync(FakeRequest);
         }
 
         var exception = await Assert.ThrowsAsync<MissingInteractorException>(Act);
@@ -72,8 +71,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
 
-        await interaction.DispatchAsync(FakeRequest)
-            .To<ExampleInteractorWithValidationResponse>();
+        await interaction.DispatchAsync(FakeRequest);
 
         autoMocker.Verify<IInteractionValidator, bool>(
             x => x.TryValidateRequest(
@@ -98,8 +96,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
 
-        await interaction.DispatchAsync(FakeRequest)
-            .To<ExampleInteractorWithValidationResponse>();
+        await interaction.DispatchAsync(FakeRequest);
     }
 
     [TestMethod]
@@ -116,8 +113,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
 
-        await interaction.DispatchAsync(FakeRequest)
-            .To<ExampleInteractorWithValidationResponse>();
+        await interaction.DispatchAsync(FakeRequest);
 
         autoMocker.Verify<IInteractor<ExampleInteractorWithValidationRequest>>(
             x => x.InvokeAsync(
@@ -154,8 +150,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         async Task Act()
         {
-            await interaction.DispatchAsync(FakeRequest)
-                .To<ExampleInteractorWithValidationResponse>();
+            await interaction.DispatchAsync(FakeRequest);
         }
 
         var exception = await Assert.ThrowsAsync<Exception>(Act);
@@ -184,8 +179,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         async Task Act()
         {
-            await interaction.DispatchAsync(FakeRequest)
-                .To<ExampleInteractorWithValidationResponse>();
+            await interaction.DispatchAsync(FakeRequest);
         }
 
         var exception = await Assert.ThrowsAsync<Exception>(Act);

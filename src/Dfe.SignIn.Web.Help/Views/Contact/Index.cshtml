@@ -1,0 +1,90 @@
+﻿@model ContactViewModel
+
+@inject IOptions<PlatformOptions> platformOptionsAccessor
+
+@{
+    ViewData[DsiLayoutConstants.Title] = "Contact us";
+}
+
+<h1 class="govuk-heading-l">Contact us for further help</h1>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <p class="govuk-body">
+            Need a helping hand? Fill in your details and include any information you think
+            would be helpful for our service desk team.
+        </p>
+        <p class="govuk-body">
+            We will attempt to respond within the next 5 working days.
+        </p>
+
+        <form method="post" asp-antiforgery=true>
+            <govuk-fieldset>
+                <govuk-fieldset-legend class="govuk-visually-hidden">Contact DfE Sign-in service desk</govuk-fieldset-legend>
+
+                <govuk-input for=FullName input-class="govuk-!-width-three-quarters" autocomplete="name" spellcheck="false">
+                    <govuk-input-label class="govuk-label--s">
+                        Full name
+                    </govuk-input-label>
+                </govuk-input>
+
+                <govuk-input for=EmailAddress input-class="govuk-!-width-three-quarters" type="email" autocomplete="email">
+                    <govuk-input-label class="govuk-label--s">
+                        Email address
+                    </govuk-input-label>
+                </govuk-input>
+
+                <govuk-input for=OrganisationName input-class="govuk-!-width-three-quarters" autocomplete="organization" spellcheck="false">
+                    <govuk-input-label class="govuk-label--s">
+                        Organisation name
+                    </govuk-input-label>
+                </govuk-input>
+
+                <govuk-input for=OrganisationURN input-class="govuk-!-width-three-quarters" spellcheck="false">
+                    <govuk-input-label class="govuk-label--s">
+                        Organisation URN or UKPRN (optional)
+                    </govuk-input-label>
+                </govuk-input>
+
+                <govuk-select for=SelectedSubject select-class="govuk-!-width-three-quarters" data-target="typeOtherMessageGroup" select-data-option="other" select-data-clear="true">
+                    <govuk-select-label class="govuk-label--s">
+                        What do you need help with?
+                    </govuk-select-label>
+                    <govuk-select-item disabled=true selected=true value="">Tell us what you need help with</govuk-select-item>
+                    @foreach (var subjectOption in Model.SubjectOptions) {
+                        <govuk-select-item value=@subjectOption.Value>@subjectOption.Text</govuk-select-item>
+                    }
+                </govuk-select>
+
+                <div id="typeOtherMessageGroup" class="show-when-js-disabled js-hidden">
+                    <govuk-character-count for=CustomSummary textarea-class="govuk-!-width-three-quarters" rows=3 max-length=200>
+                        <govuk-character-count-label class="govuk-label--s">
+                            Give us a short summary of your issue
+                        </govuk-character-count-label>
+                    </govuk-character-count>
+                </div>
+
+                <govuk-select for=SelectedService select-class="govuk-!-width-three-quarters">
+                    <govuk-select-label class="govuk-label--s">
+                        Which service are you using?
+                    </govuk-select-label>
+                    <govuk-select-item disabled=true selected=true value="">Tell us which service you are using</govuk-select-item>
+                    @foreach (string serviceOption in Model.ServiceOptions) {
+                        <govuk-select-item value=@serviceOption>@serviceOption</govuk-select-item>
+                    }
+                </govuk-select>
+
+                <govuk-character-count for=Message textarea-class="govuk-!-width-three-quarters" rows=6 max-length=1000>
+                    <govuk-character-count-label class="govuk-label--s">
+                        Tell us more about your problem
+                    </govuk-character-count-label>
+                </govuk-character-count>
+            </govuk-fieldset>
+
+            <div class="govuk-button-group">
+                <govuk-button type="submit">Submit</govuk-button>
+                <govuk-button-link class="govuk-button--secondary" href=@(platformOptionsAccessor.Value.HelpUrl)>Cancel</govuk-button-link>
+            </div>
+        </form>
+    </div>
+</div>

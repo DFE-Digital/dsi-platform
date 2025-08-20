@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -97,6 +98,14 @@ public struct InteractionTask(Task<object> task)
     ///   <para>If the specified response model cannot be cast into the expected type.</para>
     /// </exception>
     public readonly async Task<TResponse> To<TResponse>() => (TResponse)await task;
+
+    /// <summary>
+    /// Gets awaiter for interaction task.
+    /// </summary>
+    /// <returns>
+    ///   <para>Awaiter for interaction task.</para>
+    /// </returns>
+    public readonly TaskAwaiter<object> GetAwaiter() => task.GetAwaiter();
 }
 
 /// <summary>
