@@ -30,6 +30,7 @@ public sealed class TopicController(
 
         return this.View(new TopicViewModel {
             AllowDeveloperReloadAction = AllowDeveloperReloadAction,
+            Updated = topic.Metadata.Updated,
             Crumbs = BuildCrumbViewModels(crumbs),
             Caption = topic.Metadata.Caption,
             Title = topic.Metadata.Title,

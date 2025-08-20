@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Managing user requests
 title: How to reject a request
-
 summary: |
   If you reject an organisation access request the person who raised it will be declined access to your organisation.
 ---

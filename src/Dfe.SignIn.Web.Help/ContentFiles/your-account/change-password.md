@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Account security
 title: How do I change my password?
-
 summary: |
   You can change your password in the 'profile' section of DfE Sign-in. Find out more in our guide.
 ---

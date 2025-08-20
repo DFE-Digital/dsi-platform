@@ -1,8 +1,8 @@
 ---
+updated: 2025-08-20
+caption: Getting started
 title: Setting up your DfE Sign-in account
 navigationTitle: Setting up your account
-caption: Getting started
-
 summary: |
   Started making your DfE Sign-in account? You'll need access to an organisation. Here's what to do.
 ---

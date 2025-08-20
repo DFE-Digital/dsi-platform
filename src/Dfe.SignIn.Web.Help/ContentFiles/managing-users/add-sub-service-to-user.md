@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Managing user service access
 title: How to add a sub-service to an end user’s account
-
 summary: |
   A sub-service is also known as a role or a form. Find out how to add a sub-service to an end user’s account with this guide.
 ---

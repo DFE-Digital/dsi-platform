@@ -18,6 +18,14 @@ public sealed class TopicViewModel
     public bool AllowDeveloperReloadAction { get; set; } = false;
 
     /// <summary>
+    /// Gets or sets the date that the topic was last updated.
+    /// </summary>
+    /// <remarks>
+    ///   <para>A value of <c>null</c> indicates that no date has been given.</para>
+    /// </remarks>
+    public DateTime? Updated { get; set; } = null;
+
+    /// <summary>
     /// Gets or sets the breadcrumbs of topics leading to the current one.
     /// </summary>
     /// <remarks>

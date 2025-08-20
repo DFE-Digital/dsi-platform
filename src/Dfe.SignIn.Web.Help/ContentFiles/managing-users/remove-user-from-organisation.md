@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: User organisation management
 title: Removing a user from your organisation
-
 summary: |
   ...
 ---

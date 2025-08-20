@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: User organisation management
 title: What happens when a user is granted organisation access
-
 summary: |
   Organisation access, when given to a user, simply adds them to the list of users registered under that organisation.
 ---

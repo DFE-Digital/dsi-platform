@@ -7,6 +7,14 @@ namespace Dfe.SignIn.Web.Help.Content;
 public sealed record TopicMetadata()
 {
     /// <summary>
+    /// Gets or the date that the topic was last updated.
+    /// </summary>
+    /// <remarks>
+    ///   <para>A value of <c>null</c> indicates that no date has been given.</para>
+    /// </remarks>
+    public DateTime? Updated { get; set; } = null;
+
+    /// <summary>
     /// Gets the optional caption of the topic.
     /// </summary>
     public string? Caption { get; init; }

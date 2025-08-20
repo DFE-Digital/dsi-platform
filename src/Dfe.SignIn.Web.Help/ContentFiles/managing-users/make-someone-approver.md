@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Managing user approval status
 title: How do I make someone an approver?
-
 summary: |
   There are two main ways to make someone an approver at your organisation.
 ---

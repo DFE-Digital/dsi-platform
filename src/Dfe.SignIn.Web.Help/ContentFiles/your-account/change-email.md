@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Account security
 title: How do I change the email address on my account?
-
 summary: |
   If you need to change or update the email address associated with your account, follow our guide.
 ---

@@ -1,4 +1,5 @@
 ---
+updated: 2024-01-05
 title: Using your data when you use DfE Sign-in
 navigationTitle: Privacy notice
 isGlobal: true

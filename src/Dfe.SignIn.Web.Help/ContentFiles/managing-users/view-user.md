@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: General user management
 title: Viewing user details
-
 summary: |
   Tbc
 ---

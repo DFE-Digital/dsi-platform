@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Guidance for approvers
 title: How to add a service or sub-service as an approver
-
 summary: |
   Find out how to add a service or a sub-service as an approver.
 ---

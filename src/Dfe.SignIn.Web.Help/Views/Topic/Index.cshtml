@@ -42,6 +42,16 @@ else {
     </div>
 </div>
 
+@if (@Model.Updated is not null) {
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <p class="govuk-body end-of-section">
+                Last updated: @Model.Updated.Value.ToString("dd MMMM yyyy")
+            </p>
+        </div>
+    </div>
+}
+
 @if (Model.AllowDeveloperReloadAction) {
     @await Html.PartialAsync("Partials/_DeveloperReloadButton")
 }

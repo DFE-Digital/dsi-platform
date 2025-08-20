@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Managing user service access
 title: How to change sub-service access on an end user’s account
-
 summary: |
   Find out how to add or remove a sub-service on an end user's account.
 ---

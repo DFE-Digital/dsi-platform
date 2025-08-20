@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Managing user service access
 title: Granting service access
-
 summary: |
   ...
 ---

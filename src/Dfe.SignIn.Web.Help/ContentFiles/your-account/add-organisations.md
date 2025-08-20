@@ -1,7 +1,7 @@
 ---
+updated: 2025-08-20
 caption: Account access and permissions
 title: Adding organisations to your account
-
 summary: |
   You can. One account is all you need to manage every organisation.
 ---
