@@ -3,7 +3,7 @@ updated: 2025-08-20
 caption: Managing user service access
 title: Granting service access
 summary: |
-  ...
+  Granting users access to a service will enable them to perform actions and carry out tasks within the service.
 ---
 
 You can add access to a user's account by following the steps below:

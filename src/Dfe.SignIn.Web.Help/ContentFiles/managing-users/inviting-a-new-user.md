@@ -3,7 +3,7 @@ updated: 2025-08-20
 caption: General user management
 title: Inviting a new user
 summary: |
-  ...
+  View the simple steps you can follow to invite new users to DfE Sign-in.
 ---
 
 You can add someone to your list of users by following the steps below:

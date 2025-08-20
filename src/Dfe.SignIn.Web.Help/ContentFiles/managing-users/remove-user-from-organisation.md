@@ -3,7 +3,7 @@ updated: 2025-08-20
 caption: User organisation management
 title: Removing a user from your organisation
 summary: |
-  ...
+  Maintain security and control of your organisation by removing users that no longer require access.
 ---
 
 If you want to remove a user's account, so they can no longer access your organisation through DfE Sign-in, follow these steps:

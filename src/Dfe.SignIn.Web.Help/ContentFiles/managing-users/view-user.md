@@ -3,7 +3,7 @@ updated: 2025-08-20
 caption: General user management
 title: Viewing user details
 summary: |
-  Tbc
+  Accessing user details will allow you to view their current permissions and allow you to make any changes.
 ---
 
 ## Searching for users

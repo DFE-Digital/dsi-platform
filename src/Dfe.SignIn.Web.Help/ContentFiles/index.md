@@ -1,8 +1,8 @@
 ---
-title: Help using DfE Sign-in
-navigationTitle: Help overview
+title: A guide to using DfE Sign-in
+navigationTitle: Help centre
 summary: |
-  Guidance, tips and articles to help you use DfE Sign-in
+  Practical support and guidance in one place.
 
 topics:
   - heading: Help sections
