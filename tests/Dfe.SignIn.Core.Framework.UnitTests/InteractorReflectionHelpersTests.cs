@@ -27,19 +27,19 @@ public sealed class InteractorReflectionHelpersTests
             .ToArray();
 
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
+            ContractType = typeof(IInteractor<ExampleRequest>),
             ConcreteType = typeof(Example_UseCaseHandler),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
+            ContractType = typeof(IInteractor<AnotherExampleRequest>),
             ConcreteType = typeof(AnotherExample_UseCaseHandler),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
+            ContractType = typeof(IInteractor<ExampleRequest>),
             ConcreteType = typeof(Example_ApiRequester),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
+            ContractType = typeof(IInteractor<AnotherExampleRequest>),
             ConcreteType = typeof(AnotherExample_ApiRequester),
         });
     }
@@ -64,11 +64,11 @@ public sealed class InteractorReflectionHelpersTests
             .ToArray();
 
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
+            ContractType = typeof(IInteractor<ExampleRequest>),
             ConcreteType = typeof(Example_UseCaseHandler),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
+            ContractType = typeof(IInteractor<AnotherExampleRequest>),
             ConcreteType = typeof(AnotherExample_UseCaseHandler),
         });
     }
@@ -93,11 +93,11 @@ public sealed class InteractorReflectionHelpersTests
             .ToArray();
 
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
+            ContractType = typeof(IInteractor<ExampleRequest>),
             ConcreteType = typeof(Example_ApiRequester),
         });
         CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>),
+            ContractType = typeof(IInteractor<AnotherExampleRequest>),
             ConcreteType = typeof(AnotherExample_ApiRequester),
         });
     }

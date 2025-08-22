@@ -24,8 +24,8 @@ items:
         href: dotnet/middleware.md
       - name: Making requests with the HttpClient
         href: dotnet/making-requests-with-the-httpclient.md
-      - name: Using an interactor
-        href: dotnet/using-an-interactor.md
+      - name: Using interactions
+        href: dotnet/using-interactions.md
 
   - name: Other
     items:

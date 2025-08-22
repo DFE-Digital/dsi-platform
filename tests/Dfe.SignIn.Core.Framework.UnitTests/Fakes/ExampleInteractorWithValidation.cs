@@ -27,10 +27,10 @@ public sealed record ExampleInteractorWithValidationResponse
 }
 
 public sealed class ExampleInteractorWithValidation_ApiRequester
-    : IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
+    : Interactor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
 {
-    public Task<ExampleInteractorWithValidationResponse> InvokeAsync(
-        ExampleInteractorWithValidationRequest request,
+    public override Task<ExampleInteractorWithValidationResponse> InvokeAsync(
+        InteractionContext<ExampleInteractorWithValidationRequest> context,
         CancellationToken cancellationToken = default)
     {
         return Task.FromResult(new ExampleInteractorWithValidationResponse {

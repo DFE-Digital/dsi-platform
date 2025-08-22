@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Dfe.SignIn.Core.Framework;
 
 /// <summary>
@@ -8,48 +6,51 @@ namespace Dfe.SignIn.Core.Framework;
 /// <remarks>
 ///   <para>Interactors should be added to service collections with the transient lifetime:</para>
 ///   <code language="csharp"><![CDATA[
-///     services.AddTransient<
-///         IInteractor<GetExampleByIdRequest, GetExampleByIdResponse>,
-///         GetExampleById_ApiRequester
-///     >();
+///     services.AddInteractor<GetExampleById_ApiRequester>();
+///   ]]></code>
+///   <para>Or manually with:</para>
+///   <code language="csharp"><![CDATA[
+///     services.AddTransient<IInteractor<GetExampleByIdRequest>, GetExampleById_ApiRequester>();
 ///   ]]></code>
 /// </remarks>
 /// <typeparam name="TRequest">The type of request.</typeparam>
-/// <typeparam name="TResponse">The type of response.</typeparam>
-public interface IInteractor<TRequest, TResponse>
+/// <seealso cref="Interactor{TRequest, TResponse}"/>
+public interface IInteractor<TRequest>
     where TRequest : class
-    where TResponse : class
 {
     /// <summary>
     /// Invokes an interaction request.
     /// </summary>
-    /// <param name="request">The interaction request.</param>
+    /// <param name="context">Context of the interaction.</param>
     /// <param name="cancellationToken">A cancellation token that can be used by other
     /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The interaction response.</para>
     /// </returns>
-    /// <exception cref="ValidationException">
-    ///   <para>Whilst interactions can explicitly throw such exceptions if applicable;
-    ///   this type of exception is generally thrown automatically when request and/or
-    ///   response model validation has been enabled (see: <see cref="InteractorModelValidator{TRequest,TResponse}"/>).</para>
+    /// <exception cref="InvalidRequestException">
     ///   <para>If the <paramref name="request"/> model is invalid.</para>
-    ///   <para>- or -</para>
-    ///   <para>If the response model is invalid.</para>
     /// </exception>
     /// <exception cref="InteractionException">
-    ///   <para>If a business domain exception occurs. This should be a custom exception
-    ///   type residing in either the "Dfe.SignIn.Core.InternalModels" or
-    ///   "Dfe.SignIn.Core.ExternalModels"
-    ///   projects.</para>
-    /// </exception>
-    /// <exception cref="UnexpectedException">
-    ///   <para>If an unexpected exception occurs whilst processing the interaction.
-    ///   This type of exception is generally thrown automatically when request and/or
-    ///   model validation has been enabled (see: <see cref="InteractorModelValidator{TRequest,TResponse}"/>).</para>
+    ///   <para>If a business domain exception occurs. This should be a custom exception.</para>
     /// </exception>
     /// <exception cref="OperationCanceledException" />
-    Task<TResponse> InvokeAsync(TRequest request, CancellationToken cancellationToken = default);
+    Task<object> InvokeAsync(InteractionContext<TRequest> context, CancellationToken cancellationToken = default);
+}
+
+/// <inheritdoc cref="IInteractor{TRequest}"/>
+/// <typeparam name="TResponse">The type of response.</typeparam>
+public abstract class Interactor<TRequest, TResponse> : IInteractor<TRequest>
+    where TRequest : class
+    where TResponse : class
+{
+    /// <inheritdoc cref="IInteractor{TRequest}.InvokeAsync(InteractionContext{TRequest}, CancellationToken)"/>
+    public abstract Task<TResponse> InvokeAsync(InteractionContext<TRequest> context, CancellationToken cancellationToken = default);
+
+    /// <inheritdoc/>
+    async Task<object> IInteractor<TRequest>.InvokeAsync(InteractionContext<TRequest> context, CancellationToken cancellationToken)
+    {
+        return await this.InvokeAsync(context, cancellationToken);
+    }
 }
 
 /// <summary>
@@ -63,10 +64,15 @@ public interface IInteractor<TRequest, TResponse>
 ///     <para>An example implementation:</para>
 ///     <code language="csharp"><![CDATA[
 ///       [UseCaseHandler]
-///       public sealed class GetExampleById_UseCaseHandler : IGetExampleById
+///       public sealed class GetExampleById_UseCaseHandler
+///           : Interactor<GetExampleByIdRequest, GetExampleByIdResponse>
 ///       {
-///           public Task<GetExampleByIdResponse> InvokeAsync(GetExampleByIdRequest request)
+///           public override Task<GetExampleByIdResponse> InvokeAsync(
+///               InteractionContext<GetExampleByIdRequest> context,
+///               CancellationToken cancellationToken = default)
 ///           {
+///               context.ThrowIfHasValidationErrors();
+///
 ///               return Task.FromResult(
 ///                   new GetExampleByIdResponse {
 ///                       Name = "Example response value",
@@ -92,10 +98,15 @@ public sealed class UseCaseHandlerAttribute : Attribute
 ///     <para>An example implementation:</para>
 ///     <code language="csharp"><![CDATA[
 ///       [ApiRequester]
-///       public sealed class GetExampleById_ApiRequester : IGetExampleById
+///       public sealed class GetExampleById_ApiRequester
+///           : Interactor<GetExampleByIdRequest, GetExampleByIdResponse>
 ///       {
-///           public Task<GetExampleByIdResponse> InvokeAsync(GetExampleByIdRequest request)
+///           public override Task<GetExampleByIdResponse> InvokeAsync(
+///               InteractionContext<GetExampleByIdRequest> context,
+///               CancellationToken cancellationToken = default)
 ///           {
+///               context.ThrowIfHasValidationErrors();
+///
 ///               return Task.FromResult(
 ///                   new GetExampleByIdResponse {
 ///                       Name = "Example response value",
