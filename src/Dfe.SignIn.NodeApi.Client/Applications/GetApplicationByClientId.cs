@@ -21,7 +21,7 @@ public sealed class GetApplicationByClientId_NodeApiRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var response = await httpClient.GetFromJsonOrDefaultAsync<ApplicationModelDto>(
+        var response = await httpClient.GetFromJsonOrDefaultAsync<ApplicationDto>(
             $"services/{context.Request.ClientId}",
             cancellationToken
         );

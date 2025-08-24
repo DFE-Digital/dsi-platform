@@ -3,7 +3,7 @@ namespace Dfe.SignIn.Core.InternalModels.Applications.Interactions;
 /// <summary>
 /// Request to get an application by its unique client identifier.
 /// </summary>
-public record GetApplicationByClientIdRequest()
+public sealed record GetApplicationByClientIdRequest()
 {
     /// <summary>
     /// Gets the unique client identifier of the application.
@@ -14,11 +14,10 @@ public record GetApplicationByClientIdRequest()
 /// <summary>
 /// Response model for interactor <see cref="GetApplicationByClientIdRequest"/>.
 /// </summary>
-public record GetApplicationByClientIdResponse()
+public sealed record GetApplicationByClientIdResponse()
 {
     /// <summary>
-    /// Gets the application model
-    /// otherwise, a value of <c>null</c>.
+    /// Gets the application model otherwise, a value of <c>null</c>.
     /// </summary>
     public required ApplicationModel? Application { get; init; }
 }

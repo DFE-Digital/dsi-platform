@@ -35,6 +35,11 @@
     <PackageVersion Include="AutoMapper" Version="14.0.0" />
   </ItemGroup>
 
+  <!-- Communication -->
+  <ItemGroup>
+    <PackageVersion Include="GovukNotify" Version="7.2.0" />
+  </ItemGroup>
+
   <!-- Monitoring -->
   <ItemGroup>
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />

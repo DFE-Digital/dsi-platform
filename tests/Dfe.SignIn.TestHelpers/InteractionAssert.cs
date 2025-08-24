@@ -14,11 +14,13 @@ public static class InteractionAssert
     /// </summary>
     /// <typeparam name="TRequest">The type of interaction request.</typeparam>
     /// <typeparam name="TInteractor">The type of interactor that is under test.</typeparam>
-    public static async Task ThrowsWhenRequestIsInvalid<TRequest, TInteractor>()
+    /// <param name="autoMocker">Automocker instance.</param>
+    public static async Task ThrowsWhenRequestIsInvalid<TRequest, TInteractor>(
+        AutoMocker? autoMocker = null)
         where TRequest : class
         where TInteractor : class, IInteractor<TRequest>
     {
-        var autoMocker = new AutoMocker();
+        autoMocker ??= new AutoMocker();
         var useCase = autoMocker.CreateInstance<TInteractor>();
 
         var context = new InteractionContext<TRequest>(

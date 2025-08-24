@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.NodeApi.Client.Applications.Models;
 
-internal sealed record ApplicationModelDto()
+internal sealed record ApplicationDto()
 {
     public required Guid Id { get; init; }
     public required string Name { get; init; }
@@ -10,10 +10,10 @@ internal sealed record ApplicationModelDto()
     public bool IsExternalService { get; init; }
     public bool IsIdOnlyService { get; init; }
     public bool IsHiddenService { get; init; }
-    public required RelyingPartyModelDto RelyingParty { get; init; }
+    public required RelyingPartyDto RelyingParty { get; init; }
 }
 
-internal sealed record RelyingPartyModelDto()
+internal sealed record RelyingPartyDto()
 {
     [JsonPropertyName("client_id")]
     public required string ClientId { get; init; }
@@ -39,11 +39,13 @@ internal sealed record RelyingPartyModelDto()
     [JsonPropertyName("response_types")]
     public string[] ResponseTypes { get; init; } = [];
 
-    public RelyingPartyParamModelDto? Params { get; init; }
+    public RelyingPartyParamDto? Params { get; init; }
 }
-internal sealed record RelyingPartyParamModelDto()
+
+internal sealed record RelyingPartyParamDto()
 {
     public string? Header { get; init; }
     public string? HeaderMessage { get; init; }
     public Guid? ServiceId { get; init; }
+    public string? HelpHidden { get; init; }
 }

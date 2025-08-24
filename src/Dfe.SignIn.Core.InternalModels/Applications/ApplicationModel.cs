@@ -16,7 +16,7 @@ public sealed record ApplicationModel
     public required string ClientId { get; init; }
 
     /// <summary>
-    /// Gets the name of the service.
+    /// Gets the name of the service application.
     /// </summary>
     public required string Name { get; init; }
 
