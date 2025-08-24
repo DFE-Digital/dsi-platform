@@ -85,7 +85,7 @@
         <div>{{{url}}}</div>
       {{/isCref}}
     {{/seealso}}
-  /div>
+  </div>
 {{/seealso.0}}
 
 {{^_disableContribution}}
