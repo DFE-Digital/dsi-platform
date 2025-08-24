@@ -16,18 +16,16 @@ public static partial class SelectOrganisationEndpoints
         [FromBody] CreateSelectOrganisationSession_PublicApiRequestBody request,
         // ---
         IScopedSessionReader scopedSession,
-        IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse> createSelectOrganisationSession,
+        IInteractionDispatcher interaction,
         IMapper mapper,
         // ---
         CancellationToken cancellationToken = default)
     {
-        var response = await createSelectOrganisationSession.InvokeAsync(
+        var response = await interaction.DispatchAsync(
             mapper.Map<CreateSelectOrganisationSessionRequest>(request) with {
                 ClientId = scopedSession.Application.ClientId,
-            },
-            cancellationToken
-        );
-
+            }, cancellationToken
+        ).To<CreateSelectOrganisationSessionResponse>();
         return mapper.Map<CreateSelectOrganisationSession_PublicApiResponse>(response);
     }
 }

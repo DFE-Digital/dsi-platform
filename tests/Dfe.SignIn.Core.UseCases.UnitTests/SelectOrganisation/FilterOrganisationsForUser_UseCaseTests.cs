@@ -7,6 +7,7 @@ using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Core.InternalModels.Users;
 using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Moq;
 using Moq.AutoMock;
 
@@ -65,30 +66,30 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         AutoMocker autoMocker,
         OrganisationModel[]? organisations = null)
     {
-        autoMocker.GetMock<IInteractor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>>()
-            .Setup(x => x.InvokeAsync(
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(mock => mock.DispatchAsync(
                 It.IsAny<GetOrganisationsAssociatedWithUserRequest>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new GetOrganisationsAssociatedWithUserResponse {
+            .Returns(InteractionTask.FromResult(new GetOrganisationsAssociatedWithUserResponse {
                 Organisations = organisations ?? FakeOrganisations,
-            });
+            }));
     }
 
     private static void MockClientApplication(
         AutoMocker autoMocker,
         ApplicationModel? application)
     {
-        autoMocker.GetMock<IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>>()
-            .Setup(x => x.InvokeAsync(
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(mock => mock.DispatchAsync(
                 It.Is<GetApplicationByClientIdRequest>(
                     request => request.ClientId == "fake-client"
                 ),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new GetApplicationByClientIdResponse {
+            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
                 Application = application,
-            });
+            }));
     }
 
     private static void MockApplicationsAssociatedWithUser(
@@ -96,16 +97,25 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         Guid userId,
         UserApplicationMappingModel[]? mappings = null)
     {
-        autoMocker.GetMock<IInteractor<GetApplicationsAssociatedWithUserRequest, GetApplicationsAssociatedWithUserResponse>>()
-            .Setup(x => x.InvokeAsync(
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(mock => mock.DispatchAsync(
                 It.Is<GetApplicationsAssociatedWithUserRequest>(
                     request => request.UserId == userId
                 ),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new GetApplicationsAssociatedWithUserResponse {
+            .Returns(InteractionTask.FromResult(new GetApplicationsAssociatedWithUserResponse {
                 UserApplicationMappings = mappings ?? [],
-            });
+            }));
+    }
+
+    [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            FilterOrganisationsForUserRequest,
+            FilterOrganisationsForUser_UseCase
+        >();
     }
 
     [TestMethod]

@@ -61,6 +61,12 @@ public sealed class PostSelectOrganisationSessionTests
         [FakePublicApiRequest],
     ];
 
+    private static readonly CreateSelectOrganisationSessionResponse FakeResponse = new() {
+        RequestId = new Guid("fba90ce7-b5d0-4f94-ae00-63a8d21bde93"),
+        HasOptions = true,
+        Url = new Uri("https://select-organisation.localhost"),
+    };
+
     [DataTestMethod]
     [DynamicData(nameof(SelectOrganisationEndpoints_InvokesExpectedInteractionRequest_Parameters), DynamicDataSourceType.Property)]
     public async Task SelectOrganisationEndpoints_InvokesExpectedInteractionRequest(
@@ -72,15 +78,22 @@ public sealed class PostSelectOrganisationSessionTests
             .Setup(x => x.Application)
             .Returns(FakeApplicationModel);
 
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
+                It.IsAny<CreateSelectOrganisationSessionRequest>(),
+                It.IsAny<CancellationToken>()
+            ))
+            .Returns(InteractionTask.FromResult(FakeResponse));
+
         await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             apiRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>>(),
+            autoMocker.Get<IInteractionDispatcher>(),
             autoMocker.Get<IMapper>()
         );
 
-        autoMocker.Verify<IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>>(x =>
-            x.InvokeAsync(
+        autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
+            x.DispatchAsync(
                 It.Is<CreateSelectOrganisationSessionRequest>(request =>
                     request.ClientId == "test-client-id" &&
                     request.CallbackUrl == apiRequest.CallbackUrl &&
@@ -102,27 +115,22 @@ public sealed class PostSelectOrganisationSessionTests
             .Setup(x => x.Application)
             .Returns(FakeApplicationModel);
 
-        var fakeResponse = new CreateSelectOrganisationSessionResponse {
-            RequestId = new Guid("fba90ce7-b5d0-4f94-ae00-63a8d21bde93"),
-            HasOptions = true,
-            Url = new Uri("https://select-organisation.localhost"),
-        };
-        autoMocker.GetMock<IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>>()
-            .Setup(x => x.InvokeAsync(
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
                 It.IsAny<CreateSelectOrganisationSessionRequest>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(fakeResponse);
+            .Returns(InteractionTask.FromResult(FakeResponse));
 
         var response = await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             FakePublicApiRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>>(),
+            autoMocker.Get<IInteractionDispatcher>(),
             autoMocker.Get<IMapper>()
         );
 
-        Assert.AreEqual(fakeResponse.RequestId, response.RequestId);
-        Assert.AreEqual(fakeResponse.HasOptions, response.HasOptions);
-        Assert.AreEqual(fakeResponse.Url, response.Url);
+        Assert.AreEqual(FakeResponse.RequestId, response.RequestId);
+        Assert.AreEqual(FakeResponse.HasOptions, response.HasOptions);
+        Assert.AreEqual(FakeResponse.Url, response.Url);
     }
 }

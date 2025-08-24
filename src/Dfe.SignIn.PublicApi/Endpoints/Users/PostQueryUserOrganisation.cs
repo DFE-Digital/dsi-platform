@@ -20,16 +20,18 @@ public static partial class UserEndpoints
         [FromBody] QueryUserOrganisation_PublicApiRequestBody request,
         // ---
         IScopedSessionReader scopedSession,
-        IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse> filterOrganisationsForUser,
+        IInteractionDispatcher interaction,
         IMapper mapper,
         // ---
         CancellationToken cancellationToken = default)
     {
-        var filteredOrganisationsResponse = await filterOrganisationsForUser.InvokeAsync(new() {
-            ClientId = scopedSession.Application.ClientId,
-            UserId = userId,
-            Filter = request.Filter,
-        }, cancellationToken);
+        var filteredOrganisationsResponse = await interaction.DispatchAsync(
+            new FilterOrganisationsForUserRequest {
+                ClientId = scopedSession.Application.ClientId,
+                UserId = userId,
+                Filter = request.Filter,
+            }, cancellationToken
+        ).To<FilterOrganisationsForUserResponse>();
 
         var organisation = filteredOrganisationsResponse.FilteredOrganisations
             .FirstOrDefault(organisation => organisation.Id == organisationId);

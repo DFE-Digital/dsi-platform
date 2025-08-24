@@ -10,14 +10,16 @@ namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 /// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
 public sealed class InvalidateSelectOrganisationSession_UseCase(
     ISelectOrganisationSessionRepository sessionRepository
-) : IInteractor<InvalidateSelectOrganisationSessionRequest, InvalidateSelectOrganisationSessionResponse>
+) : Interactor<InvalidateSelectOrganisationSessionRequest, InvalidateSelectOrganisationSessionResponse>
 {
     /// <inheritdoc/>
-    public async Task<InvalidateSelectOrganisationSessionResponse> InvokeAsync(
-        InvalidateSelectOrganisationSessionRequest request,
+    public override async Task<InvalidateSelectOrganisationSessionResponse> InvokeAsync(
+        InteractionContext<InvalidateSelectOrganisationSessionRequest> context,
         CancellationToken cancellationToken = default)
     {
-        await sessionRepository.InvalidateAsync(request.SessionKey);
+        context.ThrowIfHasValidationErrors();
+
+        await sessionRepository.InvalidateAsync(context.Request.SessionKey);
 
         return new InvalidateSelectOrganisationSessionResponse();
     }

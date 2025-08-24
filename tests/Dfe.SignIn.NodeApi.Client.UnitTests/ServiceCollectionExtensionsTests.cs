@@ -13,7 +13,7 @@ public sealed class ServiceCollectionExtensionsTests
     public void IsFor_ReturnsTrue_WhenAssociatedWithApi()
     {
         var descriptor = new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
+            ContractType = typeof(IInteractor<ExampleRequest>),
             ConcreteType = typeof(ExampleApiRequesterForAccessApi)
         };
 
@@ -28,7 +28,7 @@ public sealed class ServiceCollectionExtensionsTests
     public void IsFor_ReturnsFalse_WhenNotAssociatedWithApi(Type requesterType)
     {
         var descriptor = new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<ExampleRequest, ExampleResponse>),
+            ContractType = typeof(IInteractor<ExampleRequest>),
             ConcreteType = requesterType,
         };
 

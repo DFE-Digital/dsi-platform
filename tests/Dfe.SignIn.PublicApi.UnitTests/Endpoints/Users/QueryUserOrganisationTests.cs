@@ -70,14 +70,14 @@ public sealed class QueryUserOrganisationTests
         AutoMocker autoMocker,
         params OrganisationModel[] filteredOrganisations)
     {
-        autoMocker.GetMock<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>()
-            .Setup(x => x.InvokeAsync(
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
                 It.IsAny<FilterOrganisationsForUserRequest>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new FilterOrganisationsForUserResponse {
+            .Returns(InteractionTask.FromResult(new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = filteredOrganisations,
-            });
+            }));
     }
 
     private static IEnumerable<object[]> PostQueryUserOrganisation_InvokesExpectedInteractionRequest_Parameters => [
@@ -98,12 +98,12 @@ public sealed class QueryUserOrganisationTests
             FakeOrganisation1.Id,
             apiRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>(),
+            autoMocker.Get<IInteractionDispatcher>(),
             autoMocker.Get<IMapper>()
         );
 
-        autoMocker.Verify<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>(x =>
-            x.InvokeAsync(
+        autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
+            x.DispatchAsync(
                 It.Is<FilterOrganisationsForUserRequest>(request =>
                     request.ClientId == "test-client-id" &&
                     request.UserId == FakeUserId &&
@@ -120,21 +120,21 @@ public sealed class QueryUserOrganisationTests
         var autoMocker = CreateAutoMocker();
         SetupFakeFilteredOrganisationsResponse(autoMocker);
 
-        autoMocker.GetMock<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>()
-            .Setup(x => x.InvokeAsync(
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
                 It.IsAny<FilterOrganisationsForUserRequest>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new FilterOrganisationsForUserResponse {
+            .Returns(InteractionTask.FromResult(new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = [],
-            });
+            }));
 
         var response = await UserEndpoints.PostQueryUserOrganisation(
             FakeUserId,
             FakeOrganisation1.Id,
             FakeMinimalRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>(),
+            autoMocker.Get<IInteractionDispatcher>(),
             autoMocker.Get<IMapper>()
         );
 
@@ -148,24 +148,24 @@ public sealed class QueryUserOrganisationTests
         var autoMocker = CreateAutoMocker();
         SetupFakeFilteredOrganisationsResponse(autoMocker);
 
-        autoMocker.GetMock<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>()
-            .Setup(x => x.InvokeAsync(
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
                 It.IsAny<FilterOrganisationsForUserRequest>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new FilterOrganisationsForUserResponse {
+            .Returns(InteractionTask.FromResult(new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = [
                     FakeOrganisation1,
                     FakeOrganisation2,
                 ],
-            });
+            }));
 
         var response = await UserEndpoints.PostQueryUserOrganisation(
             FakeUserId,
             FakeOrganisation1.Id,
             FakeMinimalRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>(),
+            autoMocker.Get<IInteractionDispatcher>(),
             autoMocker.Get<IMapper>()
         );
 

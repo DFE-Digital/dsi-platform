@@ -12,17 +12,19 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationById_NodeApiRequester(
-    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper)
-    : IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>
+    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper
+) : Interactor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>
 {
 
     /// <inheritdoc/>
-    public async Task<GetOrganisationByIdResponse> InvokeAsync(
-        GetOrganisationByIdRequest request,
+    public override async Task<GetOrganisationByIdResponse> InvokeAsync(
+        InteractionContext<GetOrganisationByIdRequest> context,
         CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationByIdDto>(
-            $"/organisations/{request.OrganisationId}",
+            $"/organisations/{context.Request.OrganisationId}",
             cancellationToken
         );
 

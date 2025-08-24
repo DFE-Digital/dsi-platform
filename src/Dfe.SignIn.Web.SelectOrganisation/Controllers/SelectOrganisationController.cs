@@ -16,10 +16,7 @@ namespace Dfe.SignIn.Web.SelectOrganisation.Controllers;
 /// </summary>
 public sealed class SelectOrganisationController(
     IOptions<PlatformOptions> platformOptionsAccessor,
-    IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
-    IInteractor<GetOrganisationByIdRequest, GetOrganisationByIdResponse> getOrganisationById,
-    IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse> getSelectOrganisationSessionByKey,
-    IInteractor<InvalidateSelectOrganisationSessionRequest, InvalidateSelectOrganisationSessionResponse> invalidateSelectOrganisationSessionRequest
+    IInteractionDispatcher interaction
 ) : Controller
 {
     [HttpGet]
@@ -43,13 +40,17 @@ public sealed class SelectOrganisationController(
         // If there is only one option; invoke the callback right away.
         if (session.OrganisationOptions.Count() == 1) {
             // Invalidate the session since it is being handled now.
-            await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
-                SessionKey = sessionKey,
-            }, cancellationToken);
+            await interaction.DispatchAsync(
+                new InvalidateSelectOrganisationSessionRequest {
+                    SessionKey = sessionKey,
+                }, cancellationToken
+            ).To<InvalidateSelectOrganisationSessionResponse>();
 
-            var selectedOrganisation = (await getOrganisationById.InvokeAsync(new() {
-                OrganisationId = session.OrganisationOptions.First().Id
-            }, cancellationToken)).Organisation;
+            var selectedOrganisation = (await interaction.DispatchAsync(
+                new GetOrganisationByIdRequest {
+                    OrganisationId = session.OrganisationOptions.First().Id
+                }, cancellationToken
+            ).To<GetOrganisationByIdResponse>()).Organisation;
 
             if (selectedOrganisation is null) {
                 // The organisation does not exist; maybe it was deleted.
@@ -108,9 +109,11 @@ public sealed class SelectOrganisationController(
             });
         }
 
-        await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
-            SessionKey = sessionKey,
-        }, cancellationToken);
+        await interaction.DispatchAsync(
+            new InvalidateSelectOrganisationSessionRequest {
+                SessionKey = sessionKey,
+            }, cancellationToken
+        ).To<InvalidateSelectOrganisationSessionResponse>();
 
         bool didUserSelectOptionThatWasPresented = session.OrganisationOptions.Any(
             option => option.Id == viewModel.SelectedOrganisationId);
@@ -118,9 +121,11 @@ public sealed class SelectOrganisationController(
             return await this.HandleInvalidSessionAsync(clientId, cancellationToken);
         }
 
-        var selectedOrganisation = (await getOrganisationById.InvokeAsync(new() {
-            OrganisationId = (Guid)viewModel.SelectedOrganisationId,
-        }, cancellationToken)).Organisation;
+        var selectedOrganisation = (await interaction.DispatchAsync(
+            new GetOrganisationByIdRequest {
+                OrganisationId = (Guid)viewModel.SelectedOrganisationId,
+            }, cancellationToken
+        ).To<GetOrganisationByIdResponse>()).Organisation;
         if (selectedOrganisation is null) {
             return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
         }
@@ -176,9 +181,11 @@ public sealed class SelectOrganisationController(
         string sessionKey,
         CancellationToken cancellationToken = default)
     {
-        var session = (await getSelectOrganisationSessionByKey.InvokeAsync(new() {
-            SessionKey = sessionKey,
-        }, cancellationToken)).SessionData;
+        var session = (await interaction.DispatchAsync(
+            new GetSelectOrganisationSessionByKeyRequest {
+                SessionKey = sessionKey,
+            }, cancellationToken
+        ).To<GetSelectOrganisationSessionByKeyResponse>()).SessionData;
 
         if (session is null) {
             // Redirect when session does not exist.
@@ -189,9 +196,11 @@ public sealed class SelectOrganisationController(
 
         if (clientId != session.ClientId) {
             // User has tampered with the clientId parameter of the URL.
-            await invalidateSelectOrganisationSessionRequest.InvokeAsync(new() {
-                SessionKey = sessionKey,
-            }, cancellationToken);
+            await interaction.DispatchAsync(
+                new InvalidateSelectOrganisationSessionRequest {
+                    SessionKey = sessionKey,
+                }, cancellationToken
+            ).To<InvalidateSelectOrganisationSessionResponse>();
             return new GetSessionResult {
                 RedirectActionResult = await this.HandleInvalidSessionAsync(session.ClientId, cancellationToken),
             };
@@ -216,9 +225,11 @@ public sealed class SelectOrganisationController(
         var returnUrl = platformOptionsAccessor.Value.ServicesUrl;
 
         if (!string.IsNullOrEmpty(clientId)) {
-            var response = await getApplicationByClientId.InvokeAsync(new() {
-                ClientId = clientId,
-            }, cancellationToken);
+            var response = await interaction.DispatchAsync(
+                new GetApplicationByClientIdRequest {
+                    ClientId = clientId,
+                }, cancellationToken
+            ).To<GetApplicationByClientIdResponse>();
             if (response.Application is not null) {
                 returnUrl = response.Application.ServiceHomeUrl;
             }

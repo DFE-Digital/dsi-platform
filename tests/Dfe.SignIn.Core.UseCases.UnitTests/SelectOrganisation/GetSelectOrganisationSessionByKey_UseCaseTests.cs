@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Moq;
@@ -13,12 +14,21 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
     #region InvokeAsync(GetSelectOrganisationSessionByKeyRequest)
 
     [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            GetSelectOrganisationSessionByKeyRequest,
+            GetSelectOrganisationSessionByKey_UseCase
+        >();
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_FetchesSessionWithCorrectSessionKey()
     {
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKey_UseCase>();
 
-        var response = await useCase.InvokeAsync(new() {
+        await useCase.InvokeAsync(new GetSelectOrganisationSessionByKeyRequest {
             SessionKey = "cd66b69c-144c-4365-96f6-4302b754c18b",
         });
 
@@ -58,7 +68,7 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
 
         var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKey_UseCase>();
 
-        var response = await useCase.InvokeAsync(new() {
+        var response = await useCase.InvokeAsync(new GetSelectOrganisationSessionByKeyRequest {
             SessionKey = "cd66b69c-144c-4365-96f6-4302b754c18b",
         });
 

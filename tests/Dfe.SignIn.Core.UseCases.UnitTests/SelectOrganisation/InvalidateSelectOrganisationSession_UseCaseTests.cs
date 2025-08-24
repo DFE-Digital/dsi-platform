@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Moq;
@@ -11,12 +12,21 @@ public sealed class InvalidateSelectOrganisationSession_UseCaseTests
     #region InvokeAsync(InvalidateSelectOrganisationSessionRequest)
 
     [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            InvalidateSelectOrganisationSessionRequest,
+            InvalidateSelectOrganisationSession_UseCase
+        >();
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_InvalidatesSessionWithCorrectSessionKey()
     {
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<InvalidateSelectOrganisationSession_UseCase>();
 
-        var response = await useCase.InvokeAsync(new() {
+        await useCase.InvokeAsync(new InvalidateSelectOrganisationSessionRequest {
             SessionKey = "cd66b69c-144c-4365-96f6-4302b754c18b",
         });
 

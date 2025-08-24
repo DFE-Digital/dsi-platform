@@ -68,21 +68,19 @@ public sealed class StandardSelectOrganisationUserFlowTests
         Url = new Uri("https://select-organisation.localhost"),
     };
 
-    private static Mock<
-        IInteractor<CreateSelectOrganisationSession_PublicApiRequest, CreateSelectOrganisationSession_PublicApiResponse>
-    > SetupMockCreateSelectOrganisationSession(AutoMocker autoMocker, CreateSelectOrganisationSession_PublicApiResponse response)
+    private static Mock<IInteractionDispatcher> SetupMockCreateSelectOrganisationSession(
+        AutoMocker autoMocker,
+        CreateSelectOrganisationSession_PublicApiResponse response)
     {
-        var mockRequester = autoMocker.GetMock<
-            IInteractor<CreateSelectOrganisationSession_PublicApiRequest, CreateSelectOrganisationSession_PublicApiResponse>>();
+        var mockDispatcher = autoMocker.GetMock<IInteractionDispatcher>();
 
-        mockRequester
-            .Setup(mock => mock.InvokeAsync(
-                It.IsAny<CreateSelectOrganisationSession_PublicApiRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .ReturnsAsync(response);
+        mockDispatcher.Setup(mock => mock.DispatchAsync(
+            It.IsAny<CreateSelectOrganisationSession_PublicApiRequest>(),
+            It.IsAny<CancellationToken>()
+        ))
+        .Returns(InteractionTask.FromResult(response));
 
-        return mockRequester;
+        return mockDispatcher;
     }
 
     private static ClaimsPrincipal SetupMockAuthenticatedUser(AutoMocker autoMocker)
@@ -146,7 +144,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.InitiateSelectionAsync(fakeContext.Object, allowCancel, default);
 
-        mockCreateSelectOrganisationSession.Verify(mock => mock.InvokeAsync(
+        mockCreateSelectOrganisationSession.Verify(mock => mock.DispatchAsync(
             It.Is<CreateSelectOrganisationSession_PublicApiRequest>(request =>
                 request.UserId == FakeUserId &&
                 request.CallbackUrl == new Uri("http://localhost/app/callback/select-organisation") &&
@@ -179,7 +177,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.InitiateSelectionAsync(fakeContext.Object, false, default);
 
-        mockCreateSelectOrganisationSession.Verify(mock => mock.InvokeAsync(
+        mockCreateSelectOrganisationSession.Verify(mock => mock.DispatchAsync(
             It.Is<CreateSelectOrganisationSession_PublicApiRequest>(request =>
                 request.UserId == FakeUserId &&
                 request.CallbackUrl == new Uri("http://localhost/app/callback/select-organisation") &&
@@ -464,9 +462,9 @@ public sealed class StandardSelectOrganisationUserFlowTests
         MockQueryParam(autoMocker, CallbackParamNames.Type, CallbackTypes.Selection);
         MockQueryParam(autoMocker, CallbackParamNames.Selection, FakeOrganisationId);
 
-        autoMocker.GetMock<IInteractor<QueryUserOrganisation_PublicApiRequest, QueryUserOrganisation_PublicApiResponse>>()
+        autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock =>
-                mock.InvokeAsync(
+                mock.DispatchAsync(
                     It.Is<QueryUserOrganisation_PublicApiRequest>(request =>
                         request.OrganisationId == new Guid(FakeOrganisationId) &&
                         request.UserId == FakeUserId
@@ -474,10 +472,10 @@ public sealed class StandardSelectOrganisationUserFlowTests
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(new QueryUserOrganisation_PublicApiResponse {
+            .Returns(InteractionTask.FromResult(new QueryUserOrganisation_PublicApiResponse {
                 Organisation = FakeOrganisation,
                 UserId = FakeUserId,
-            });
+            }));
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
@@ -505,17 +503,17 @@ public sealed class StandardSelectOrganisationUserFlowTests
         MockQueryParam(autoMocker, CallbackParamNames.Type, CallbackTypes.Selection);
         MockQueryParam(autoMocker, CallbackParamNames.Selection, FakeOrganisationId);
 
-        autoMocker.GetMock<IInteractor<QueryUserOrganisation_PublicApiRequest, QueryUserOrganisation_PublicApiResponse>>()
+        autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock =>
-                mock.InvokeAsync(
+                mock.DispatchAsync(
                     It.IsAny<QueryUserOrganisation_PublicApiRequest>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(new QueryUserOrganisation_PublicApiResponse {
+            .Returns(InteractionTask.FromResult(new QueryUserOrganisation_PublicApiResponse {
                 Organisation = null,
                 UserId = FakeUserId,
-            });
+            }));
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
@@ -543,17 +541,17 @@ public sealed class StandardSelectOrganisationUserFlowTests
         MockQueryParam(autoMocker, CallbackParamNames.Type, CallbackTypes.Selection);
         MockQueryParam(autoMocker, CallbackParamNames.Selection, FakeOrganisationId);
 
-        autoMocker.GetMock<IInteractor<QueryUserOrganisation_PublicApiRequest, QueryUserOrganisation_PublicApiResponse>>()
+        autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock =>
-                mock.InvokeAsync(
+                mock.DispatchAsync(
                     It.IsAny<QueryUserOrganisation_PublicApiRequest>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(new QueryUserOrganisation_PublicApiResponse {
+            .Returns(InteractionTask.FromResult(new QueryUserOrganisation_PublicApiResponse {
                 Organisation = FakeOrganisation,
                 UserId = new Guid("ac62be99-b4fe-4b19-9a3b-884a3c15b860"),
-            });
+            }));
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 

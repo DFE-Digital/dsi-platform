@@ -22,6 +22,15 @@ public sealed class GetOrganisationByIdTests
     }
 
     [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            GetOrganisationByIdRequest,
+            GetOrganisationById_NodeApiRequester
+        >();
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
         var mockDto = new OrganisationByIdDto() {

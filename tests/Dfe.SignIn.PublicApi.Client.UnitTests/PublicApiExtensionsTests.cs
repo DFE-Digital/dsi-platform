@@ -16,7 +16,7 @@ public sealed class PublicApiExtensionsTests
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<TRequest, TResponse>)
+                descriptor.ServiceType == typeof(IInteractor<TRequest>)
             )
         );
     }

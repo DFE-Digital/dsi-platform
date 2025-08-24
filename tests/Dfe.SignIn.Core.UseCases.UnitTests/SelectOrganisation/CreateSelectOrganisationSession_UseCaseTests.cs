@@ -31,14 +31,14 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
 
     private static void MockFilteredOrganisations(AutoMocker autoMocker, IEnumerable<OrganisationModel>? filteredOrganisations = null)
     {
-        autoMocker.GetMock<IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>>()
-            .Setup(x => x.InvokeAsync(
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
                 It.IsAny<FilterOrganisationsForUserRequest>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new FilterOrganisationsForUserResponse {
+            .Returns(InteractionTask.FromResult(new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = filteredOrganisations ?? [],
-            });
+            }));
     }
 
     private static async Task<(CreateSelectOrganisationSessionResponse, string?)> InvokeCaptureSessionKey(
@@ -89,6 +89,15 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
             ),
             Times.Once
         );
+    }
+
+    [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            CreateSelectOrganisationSessionRequest,
+            CreateSelectOrganisationSession_UseCase
+        >();
     }
 
     [TestMethod]

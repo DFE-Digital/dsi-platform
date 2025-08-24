@@ -12,9 +12,11 @@ public sealed record ExampleResponse
 
 [ApiRequester]
 public sealed class ExampleApiRequesterUnspecifiedApi
-    : IInteractor<ExampleRequest, ExampleResponse>
+    : Interactor<ExampleRequest, ExampleResponse>
 {
-    public Task<ExampleResponse> InvokeAsync(ExampleRequest request, CancellationToken cancellationToken = default)
+    public override Task<ExampleResponse> InvokeAsync(
+        InteractionContext<ExampleRequest> context,
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -22,9 +24,11 @@ public sealed class ExampleApiRequesterUnspecifiedApi
 
 [ApiRequester, NodeApi(NodeApiName.Access)]
 public sealed class ExampleApiRequesterForAccessApi
-    : IInteractor<ExampleRequest, ExampleResponse>
+    : Interactor<ExampleRequest, ExampleResponse>
 {
-    public Task<ExampleResponse> InvokeAsync(ExampleRequest request, CancellationToken cancellationToken = default)
+    public override Task<ExampleResponse> InvokeAsync(
+        InteractionContext<ExampleRequest> context,
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
