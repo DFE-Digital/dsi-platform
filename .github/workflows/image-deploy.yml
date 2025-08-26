@@ -43,11 +43,14 @@ jobs:
             scripts/workflows
 
       - name: Deploy image for '${{ inputs.project_name }}'
+        env:
+          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+          AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
         run: |
           $response = ./scripts/workflows/Start-AzurePipeline `
-            -Token "${{ secrets.AZURE_DEVOPS_TOKEN }}" `
+            -Token "$env:AZURE_DEVOPS_TOKEN" `
             -ProjectUrl "${{ vars.AZURE_DEVOPS_PROJECT_URL }}" `
-            -PipelineId "${{ secrets.AZURE_PIPELINE_ID }}" `
+            -PipelineId "$env:AZURE_PIPELINE_ID" `
             -TemplateParameters @{
               projectName = "${{ inputs.project_name }}"
               repositoryName = "${{ inputs.repository_name }}"
