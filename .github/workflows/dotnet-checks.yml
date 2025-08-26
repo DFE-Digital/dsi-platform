@@ -19,7 +19,7 @@ jobs:
       - name: Setup .NET Core 8.x
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
 
       - name: Run code quality checks
         run: |
@@ -42,7 +42,7 @@ jobs:
       - name: Setup .NET Core 8.x
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
 
       - name: Initialize solution for all projects
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -71,11 +71,11 @@ jobs:
             --logger "trx;LogFileName=TestResults.trx"
 
       - name: Report unit test results
-        uses: dorny/test-reporter@v2.1.0
+        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3
         if: ${{ !cancelled() }}
         with:
           name: .NET unit test results
-          path: '**/*.trx'
+          path: "**/*.trx"
           reporter: dotnet-trx
 
       - name: Stop sonar scanner

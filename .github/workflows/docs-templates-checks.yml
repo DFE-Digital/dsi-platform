@@ -16,7 +16,7 @@ jobs:
       - name: Setup .NET Core 8.x
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
 
       - name: Install docfx tooling
         run: dotnet tool install docfx --local
@@ -30,9 +30,9 @@ jobs:
             --logger "trx;LogFileName=TestResults.trx"
 
       - name: Report unit test results
-        uses: dorny/test-reporter@v2.1.0
+        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3
         if: ${{ !cancelled() }}
         with:
           name: Docs templates unit test results
-          path: '**/*.trx'
+          path: "**/*.trx"
           reporter: dotnet-trx
