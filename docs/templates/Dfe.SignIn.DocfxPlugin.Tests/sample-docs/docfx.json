@@ -54,7 +54,7 @@
     "globalMetadata": {
       "_appName": "DfE Sign-in Sample",
       "_appTitle": "DfE Sign-in Sample",
-      "_disableContribution": false,
+      "_disableContribution": true,
       "_cdnBaseAddress": "https://localhost:3001/",
       "_cdnVersion": "1.0",
       "_surveyUrl": "#",

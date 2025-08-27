@@ -1,39 +1,66 @@
 name: Check PowerShell scripts
 
 on:
-  push:
-    paths:
-      - 'scripts/**/*.ps1'
-  pull_request:
-    types: [ opened, reopened, synchronize ]
-  merge_group:
-    types: [ checks_requested ]
-
-concurrency:
-  group: powershell-checks-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_call:
 
 jobs:
-  run-pester-tests:
-    name: Powershell unit tests
+  check:
     runs-on: ubuntu-latest
-
-    # The following permissions are needed by 'dorny/test-reporter'.
-    permissions:
-      checks: write
-
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      - name: Run code quality tests
+        uses: microsoft/psscriptanalyzer-action@6b2948b1944407914a58661c49941824d149734f
+        with:
+          path: ./scripts
+          recurse: true
+          enableExit: true
+          severity: '"Error", "Warning"'
+          settings: ./.config/PSScriptAnalyzerSettings.psd1
+          output: powershell-checks.sarif
+
+      - name: Upload code quality results
+        uses: github/codeql-action/upload-sarif@v3
+        if: ${{ !cancelled() }}
+        with:
+          sarif_file: powershell-checks.sarif
+          category: powershell-checks
 
       - name: Run unit tests
-        shell: pwsh
-        run: Invoke-Pester ./scripts/**/*.Tests.ps1 -Passthru | Export-JUnitReport -Path ./scripts/TestResults.xml
+        if: ${{ !cancelled() }}
+        run: |
+          Invoke-Pester -Configuration $(New-PesterConfiguration -Hashtable $(
+            Import-PowerShellDataFile ./.config/PesterSettings.psd1
+          ))
 
       - name: Report unit test results
-        uses: dorny/test-reporter@v1.9.1
+        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3
         if: ${{ !cancelled() }}
         with:
           name: Powershell unit test results
           path: ./scripts/TestResults.xml
           reporter: jest-junit
+
+      - name: Summarise code coverage
+        uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95
+        if: ${{ !cancelled() }}
+        with:
+          filename: ./scripts/Coverage.xml
+          badge: true
+          fail_below_min: true
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+          thresholds: "80 80"
+
+      - name: Report code coverage
+        if: ${{ !cancelled() }}
+        run: |
+          $content = Get-Content code-coverage-results.md
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value $content

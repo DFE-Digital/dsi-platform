@@ -1,0 +1,51 @@
+name: Publish development .NET packages
+
+on:
+  workflow_call:
+    inputs:
+      nuget_source:
+        description: Nuget source URL
+        required: true
+        type: string
+
+    secrets:
+      AZURE_DEVOPS_TOKEN:
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build project
+        run: |
+          dotnet build ./solutions/dsi-packages.sln `
+            /p:Configuration=Release `
+            /p:BuildPackages=true
+
+      - name: Push NuGet package to Azure Artifacts
+        env:
+          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+        run: |
+          dotnet nuget add source "${{ inputs.nuget_source }}" `
+            --name AzureArtifacts `
+            --username "any" `
+            --password "$env:AZURE_DEVOPS_TOKEN" `
+            --store-password-in-clear-text
+
+          Get-ChildItem -Path ./src -Recurse -Filter *.nupkg | ForEach-Object {
+            dotnet nuget push $_.FullName `
+              --source AzureArtifacts `
+              --api-key null `
+              --skip-duplicate
+          }

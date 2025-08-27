@@ -1,0 +1,61 @@
+name: Deploy image
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: Project name
+        required: true
+        type: string
+
+      repository_name:
+        description: Container repository name
+        required: true
+        type: string
+
+      tag_name:
+        description: Image name
+        required: true
+        type: string
+
+      transformation_environment:
+        description: For transformation environment
+        required: true
+        type: boolean
+
+    secrets:
+      AZURE_DEVOPS_TOKEN:
+        required: true
+      AZURE_PIPELINE_ID:
+        required: true
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/workflows
+
+      - name: Deploy image for '${{ inputs.project_name }}'
+        env:
+          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+          AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
+        run: |
+          $response = ./scripts/workflows/Start-AzurePipeline `
+            -Token "$env:AZURE_DEVOPS_TOKEN" `
+            -ProjectUrl "${{ vars.AZURE_DEVOPS_PROJECT_URL }}" `
+            -PipelineId "$env:AZURE_PIPELINE_ID" `
+            -TemplateParameters @{
+              projectName = "${{ inputs.project_name }}"
+              repositoryName = "${{ inputs.repository_name }}"
+              tag = "${{ inputs.tag_name }}"
+              tran = ([bool]'${{ inputs.transformation_environment }}')
+            }
+
+          Write-Host "`nLink to pipeline: $($response._links.web.href)"

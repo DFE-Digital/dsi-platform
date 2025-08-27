@@ -9,4 +9,9 @@
     "**/obj": true,
     "**/TestResults": true,
   },
+  "powershell.scriptAnalysis.settingsPath": ".config/PSScriptAnalyzerSettings.psd1",
+  "sonarlint.connectedMode.project": {
+    "connectionId": "dfe-digital",
+    "projectKey": "DFE-Digital_dsi-platform",
+  },
 }

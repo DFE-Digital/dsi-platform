@@ -6,49 +6,49 @@
     <meta charset="utf-8">
 
     {{#_googleAnalyticsTagId}}
-      <script async src="https://www.googletagmanager.com/gtag/js?id={{_googleAnalyticsTagId}}"></script>
-      <script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{_googleAnalyticsTagId}}"></script>
+    <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', '{{_googleAnalyticsTagId}}');
-      </script>
+    </script>
     {{/_googleAnalyticsTagId}}
 
     {{#redirect_url}}
-      <meta http-equiv="refresh" content="0;URL='{{redirect_url}}'">
+    <meta http-equiv="refresh" content="0;URL='{{redirect_url}}'">
     {{/redirect_url}}
 
     {{^redirect_url}}
-      <title>{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-      <meta name="theme-color" content="#0b0c0c">
-      <meta name="title" content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}">
-      {{#_description}}<meta name="description" content="{{_description}}">{{/_description}}
-      {{#description}}<meta name="description" content="{{description}}">{{/description}}
-      <meta property="docfx:navrel" content="{{_navRel}}">
-      <meta property="docfx:tocrel" content="{{_tocRel}}">
-      <meta property="docfx:rel" content="{{_rel}}">
-      {{#_enableNewTab}}<meta property="docfx:newtab" content="true">{{/_enableNewTab}}
+    <title>{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}}{{/_appTitle}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0c0c">
+    <meta name="title"
+        content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}">
+    {{#_description}}
+    <meta name="description" content="{{_description}}">{{/_description}}
+    {{#description}}
+    <meta name="description" content="{{description}}">{{/description}}
+    <meta property="docfx:navrel" content="{{_navRel}}">
+    <meta property="docfx:tocrel" content="{{_tocRel}}">
+    <meta property="docfx:rel" content="{{_rel}}">
+    {{#_enableNewTab}}
+    <meta property="docfx:newtab" content="true">{{/_enableNewTab}}
 
-      <link rel="stylesheet"
-          href="{{_cdnBaseAddress}}gds-upgrade/css/screen.css?version={{_cdnVersion}}">
-      <link rel="stylesheet"
-          href="{{_rel}}dist/app.min.css">
+    <link rel="stylesheet" href="{{{_cdnBaseAddress}}}gds-upgrade/css/screen.css?version={{{_cdnVersion}}}">
+    <link rel="stylesheet" href="{{_rel}}dist/app.min.css">
 
-      <link rel="shortcut icon" href="{{_cdnBaseAddress}}gds-upgrade/images/favicon.ico"
-          type="image/x-icon" />
+    <link rel="shortcut icon" href="{{{_cdnBaseAddress}}}gds-upgrade/images/favicon.ico" type="image/x-icon" />
 
-      <link rel="apple-touch-icon" sizes="180x180"
-          href="{{_cdnBaseAddress}}gds-upgrade/images/govuk-apple-touch-icon-180x180.png">
-      <link rel="apple-touch-icon" sizes="167x167"
-          href="{{_cdnBaseAddress}}gds-upgrade/images/govuk-apple-touch-icon-167x167.png">
-      <link rel="apple-touch-icon" sizes="152x152"
-          href="{{_cdnBaseAddress}}gds-upgrade/images/govuk-apple-touch-icon-152x152.png">
-      <link rel="apple-touch-icon"
-          href="{{_cdnBaseAddress}}gds-upgrade/images/govuk-apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="{{{_cdnBaseAddress}}}gds-upgrade/images/govuk-apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167"
+        href="{{{_cdnBaseAddress}}}gds-upgrade/images/govuk-apple-touch-icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="152x152"
+        href="{{{_cdnBaseAddress}}}gds-upgrade/images/govuk-apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" href="{{{_cdnBaseAddress}}}gds-upgrade/images/govuk-apple-touch-icon.png">
 
-      <meta property="og:image" content="{{_cdnBaseAddress}}gds-upgrade/images/opengraph-image.png">
+    <meta property="og:image" content="{{{_cdnBaseAddress}}}gds-upgrade/images/opengraph-image.png">
     {{/redirect_url}}
 </head>
 
@@ -75,7 +75,8 @@
                 <a href="{{_rel}}" class="govuk-header__link govuk-header__service-name app-service-name">
                     {{_appName}}
                 </a>
-                <div class="app-site-search" id="app-search" data-hint="{{__global.searchHint}}" data-focused-hint="{{__global.searchFocusedHint}}" data-no-results="{{__global.searchNoResults}}">
+                <div class="app-site-search" id="app-search" data-hint="{{__global.searchHint}}"
+                    data-focused-hint="{{__global.searchFocusedHint}}" data-no-results="{{__global.searchNoResults}}">
                     <input type="text" class="app-site-search__input" autocomplete="off" aria-autocomplete="none">
                     <div class="app-site-search__results-wrapper">
                         <div class="app-site-search__results"></div>
@@ -88,7 +89,8 @@
         <div class="govuk-width-container app-width-container">
             <div class="govuk-service-navigation__container">
                 <nav class="govuk-service-navigation__wrapper" aria-label="Menu">
-                    <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
+                    <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle"
+                        aria-controls="navigation" hidden>
                         Menu
                     </button>
                     <!--PLACEHOLDER:NAV-->
@@ -103,7 +105,7 @@
                     Beta
                 </strong>
                 <span class="govuk-phase-banner__text">
-                    This is a new service – your <a class="govuk-link" href="{{_surveyUrl}}"
+                    This is a new service – your <a class="govuk-link" href="{{{_surveyUrl}}}"
                         target="_blank">feedback</a> will help us to improve it.
                 </span>
             </p>
@@ -123,11 +125,11 @@
                         {{!body}}
 
                         {{^_disableContribution}}
-                            {{#sourceurl}}
-                                <p class="govuk-body-s">
-                                    <a class="govuk-link" href="{{sourceurl}}">{{__global.viewSource}}</a>
-                                </p>
-                            {{/sourceurl}}
+                        {{#sourceurl}}
+                        <p class="govuk-body-s">
+                            <a class="govuk-link" href="{{sourceurl}}">{{__global.viewSource}}</a>
+                        </p>
+                        {{/sourceurl}}
                         {{/_disableContribution}}
                     </article>
                 </div>
@@ -161,9 +163,9 @@
         </div>
     </footer>
 
-    <script src="{{_cdnBaseAddress}}gds-upgrade/javascript/vendors/jquery.min.js?version={{_cdnVersion}}"></script>
-    <script src="{{_cdnBaseAddress}}gds-upgrade/javascript/vendors/vendors.min.js?version={{_cdnVersion}}"></script>
-    <script src="{{_cdnBaseAddress}}gds-upgrade/javascript/app.min.js?version={{_cdnVersion}}"></script>
+    <script src="{{{_cdnBaseAddress}}}gds-upgrade/javascript/vendors/jquery.min.js?version={{{_cdnVersion}}}"></script>
+    <script src="{{{_cdnBaseAddress}}}gds-upgrade/javascript/vendors/vendors.min.js?version={{{_cdnVersion}}}"></script>
+    <script src="{{{_cdnBaseAddress}}}gds-upgrade/javascript/app.min.js?version={{{_cdnVersion}}}"></script>
 
     <script src="{{_rel}}dist/app.min.js"></script>
 </body>

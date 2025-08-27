@@ -53,8 +53,7 @@ internal class TocEntry
 
 internal sealed class Toc : TocEntry
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
+    private static readonly JsonSerializerOptions JsonOptions = new() {
         PropertyNameCaseInsensitive = true,
     };
 
