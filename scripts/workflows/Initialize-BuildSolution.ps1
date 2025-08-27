@@ -47,8 +47,10 @@ $testProjectPaths = $Projects.TestProjects | ForEach-Object {
         Join-Path -Path $path -ChildPath "tests/${_}/${_}.csproj"
     }
 }
-$projectPaths = $sourceProjectPaths + $testProjectPaths
+
+$projectPaths = @() + $sourceProjectPaths + $testProjectPaths
+$projectPaths = $projectPaths.Where({ Test-Path $_ })
+
 if ($projectPaths.Count -gt 0) {
-    $projectPaths = $projectPaths.Where({ Test-Path $_ })
     dotnet sln $path/build.sln add $projectPaths
 }
