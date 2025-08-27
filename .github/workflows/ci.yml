@@ -77,6 +77,7 @@ jobs:
         shell: pwsh
     outputs:
       lifecycle_name: ${{ steps.prepare.outputs.lifecycle_name }}
+      environment: ${{ steps.prepare.outputs.environment }}
       registry_key: ${{ steps.prepare.outputs.registry_key }}
       registry: ${{ steps.prepare.outputs.registry }}
       acr_secret_prefix: ${{ steps.prepare.outputs.acr_secret_prefix }}
@@ -100,6 +101,11 @@ jobs:
               -Override '${{ github.event.inputs.lifecycle }}'
           echo "lifecycle_name=$lifecycleName" >> $env:GITHUB_OUTPUT
 
+          $environment = $lifecycleName -ceq 'rel' ? 'Release Lifecycle' : 'Development Lifecycle'
+          echo "environment=$environment" >> $env:GITHUB_OUTPUT
+
+          Write-Host "Using environment '$environment'."
+
           # Determine which registry to use 'MAIN' or 'TRAN'?
           $registryKey = '${{ env.TARGET_REGISTRY_KEY }}'
           echo "registry_key=$registryKey" >> $env:GITHUB_OUTPUT
@@ -107,7 +113,7 @@ jobs:
           echo "registry=$registry" >> $env:GITHUB_OUTPUT
 
           # Determine secret prefix 'ACR_(TRAN|MAIN)_(DEV|REL)'.
-          $acrSecretPrefix = "ACR_${{ env.TARGET_REGISTRY_KEY }}_$($lifecycleName.ToUpper())"
+          $acrSecretPrefix = "ACR_${{ env.TARGET_REGISTRY_KEY }}"
           echo "acr_secret_prefix=$acrSecretPrefix" >> $env:GITHUB_OUTPUT
 
           $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
@@ -159,10 +165,14 @@ jobs:
       matrix:
         image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
     secrets:
-      ACR_CLIENT_ID: ${{ secrets[format('{0}_CLIENT_ID', needs.prepare.outputs.acr_secret_prefix)] }}
-      ACR_CLIENT_SECRET: ${{ secrets[format('{0}_CLIENT_SECRET', needs.prepare.outputs.acr_secret_prefix)] }}
+      ACR_MAIN_CLIENT_ID: ${{ secrets.ACR_MAIN_CLIENT_ID }}
+      ACR_MAIN_CLIENT_SECRET: ${{ secrets.ACR_MAIN_CLIENT_SECRET }}
+      ACR_TRAN_CLIENT_ID: ${{ secrets.ACR_TRAN_CLIENT_ID }}
+      ACR_TRAN_CLIENT_SECRET: ${{ secrets.ACR_TRAN_CLIENT_SECRET }}
     with:
+      environment: ${{ needs.prepare.outputs.environment }}
       project_name: ${{ matrix.image.project }}
+      registry_key: ${{ needs.prepare.outputs.registry_key }}
       registry: ${{ needs.prepare.outputs.registry }}
       repository_name: ${{ matrix.image.repository }}
       tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
@@ -191,10 +201,14 @@ jobs:
     needs: prepare
     if: "${{ needs.prepare.outputs.build_external_docs == 'true' }}"
     secrets:
-      ACR_CLIENT_ID: ${{ secrets[format('{0}_CLIENT_ID', needs.prepare.outputs.acr_secret_prefix)] }}
-      ACR_CLIENT_SECRET: ${{ secrets[format('{0}_CLIENT_SECRET', needs.prepare.outputs.acr_secret_prefix)] }}
+      ACR_MAIN_CLIENT_ID: ${{ secrets.ACR_MAIN_CLIENT_ID }}
+      ACR_MAIN_CLIENT_SECRET: ${{ secrets.ACR_MAIN_CLIENT_SECRET }}
+      ACR_TRAN_CLIENT_ID: ${{ secrets.ACR_TRAN_CLIENT_ID }}
+      ACR_TRAN_CLIENT_SECRET: ${{ secrets.ACR_TRAN_CLIENT_SECRET }}
     with:
+      environment: ${{ needs.prepare.outputs.environment }}
       project_name: docs/external
+      registry_key: ${{ needs.prepare.outputs.registry_key }}
       registry: ${{ needs.prepare.outputs.registry }}
       repository_name: "${{ needs.prepare.outputs.lifecycle_name }}/developer"
       tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
