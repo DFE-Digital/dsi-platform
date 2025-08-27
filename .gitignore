@@ -141,6 +141,7 @@ _ReSharper*/
 _TeamCity*
 
 # dotnet-coverage results
+CoverageReport/
 coverage.xml
 
 # NCrunch
