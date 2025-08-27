@@ -1,5 +1,6 @@
 ---
-title: Contact us
+title: Contact us for further help
+navigationTitle: Contact us
 summary: |
   If you've explored the Help Centre and still need further assistance, you can reach out to our support team.
 
@@ -7,3 +8,9 @@ summary: |
 # card in the "Troubleshooting" section. The 'Contact us' page is handled by
 # the `ContactController`.
 ---
+
+If you've already explored the Help Centre and haven’t found the information you need, please reach out to us for further assistance.
+
+We're unable to assist with service-specific queries. If your issue relates to a service, you should contact the service directly.
+
+We will attempt to respond within the next 5 working days.

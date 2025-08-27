@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.SupportTickets;
+using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Models;
 using Dfe.SignIn.WebFramework;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace Dfe.SignIn.Web.Help.Controllers;
 /// The controller for the 'Contact us' page.
 /// </summary>
 public sealed class ContactController(
+    ITopicIndexAccessor topicIndexAccessor,
     IInteractionDispatcher interaction
 ) : Controller
 {
@@ -26,28 +28,28 @@ public sealed class ContactController(
     {
         try {
             await interaction.DispatchAsync(new RaiseSupportTicketRequest {
-                FullName = viewModel.FullName!,
-                EmailAddress = viewModel.EmailAddress!,
-                SubjectCode = viewModel.SubjectCode!,
-                CustomSummary = viewModel.CustomSummary,
-                OrganisationName = viewModel.OrganisationName!,
-                OrganisationURN = viewModel.OrganisationURN,
-                ApplicationName = viewModel.ApplicationName!,
-                Message = viewModel.Message!,
+                FullName = viewModel.FullNameInput!,
+                EmailAddress = viewModel.EmailAddressInput!,
+                SubjectCode = viewModel.SubjectCodeInput!,
+                CustomSummary = viewModel.CustomSummaryInput,
+                OrganisationName = viewModel.OrganisationNameInput!,
+                OrganisationURN = viewModel.OrganisationUrnInput,
+                ApplicationName = viewModel.ApplicationNameInput!,
+                Message = viewModel.MessageInput!,
             }).To<RaiseSupportTicketResponse>();
 
             return this.View("Success");
         }
         catch (InvalidRequestException ex) {
             this.ModelState.AddFrom(ex.ValidationResults, new() {
-                [nameof(RaiseSupportTicketRequest.FullName)] = nameof(ContactViewModel.FullName),
-                [nameof(RaiseSupportTicketRequest.EmailAddress)] = nameof(ContactViewModel.EmailAddress),
-                [nameof(RaiseSupportTicketRequest.SubjectCode)] = nameof(ContactViewModel.SubjectCode),
-                [nameof(RaiseSupportTicketRequest.CustomSummary)] = nameof(ContactViewModel.CustomSummary),
-                [nameof(RaiseSupportTicketRequest.OrganisationName)] = nameof(ContactViewModel.OrganisationName),
-                [nameof(RaiseSupportTicketRequest.OrganisationURN)] = nameof(ContactViewModel.OrganisationURN),
-                [nameof(RaiseSupportTicketRequest.ApplicationName)] = nameof(ContactViewModel.ApplicationName),
-                [nameof(RaiseSupportTicketRequest.Message)] = nameof(ContactViewModel.Message),
+                [nameof(RaiseSupportTicketRequest.FullName)] = nameof(ContactViewModel.FullNameInput),
+                [nameof(RaiseSupportTicketRequest.EmailAddress)] = nameof(ContactViewModel.EmailAddressInput),
+                [nameof(RaiseSupportTicketRequest.SubjectCode)] = nameof(ContactViewModel.SubjectCodeInput),
+                [nameof(RaiseSupportTicketRequest.CustomSummary)] = nameof(ContactViewModel.CustomSummaryInput),
+                [nameof(RaiseSupportTicketRequest.OrganisationName)] = nameof(ContactViewModel.OrganisationNameInput),
+                [nameof(RaiseSupportTicketRequest.OrganisationURN)] = nameof(ContactViewModel.OrganisationUrnInput),
+                [nameof(RaiseSupportTicketRequest.ApplicationName)] = nameof(ContactViewModel.ApplicationNameInput),
+                [nameof(RaiseSupportTicketRequest.Message)] = nameof(ContactViewModel.MessageInput),
             });
             return this.View("Index", await this.PrepareViewModel(viewModel));
         }
@@ -56,6 +58,12 @@ public sealed class ContactController(
     private async Task<ContactViewModel> PrepareViewModel(ContactViewModel? viewModel = null)
     {
         viewModel ??= Activator.CreateInstance<ContactViewModel>();
+
+        var topicIndex = await topicIndexAccessor.GetIndexAsync();
+        var topic = topicIndex.GetRequiredTopic("/contact-us");
+        viewModel.Title = topic.Metadata.Title;
+        viewModel.Summary = topic.Metadata.Summary;
+        viewModel.ContentHtml = topic.ContentHtml;
 
         var subjectOptionsResponse = await interaction.DispatchAsync(
             new GetSubjectOptionsForSupportTicketRequest()

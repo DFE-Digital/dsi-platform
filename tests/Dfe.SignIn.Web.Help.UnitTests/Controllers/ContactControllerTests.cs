@@ -1,8 +1,10 @@
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.SupportTickets;
+using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Controllers;
 using Dfe.SignIn.Web.Help.Models;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Web.Help.UnitTests.Controllers;
@@ -10,9 +12,49 @@ namespace Dfe.SignIn.Web.Help.UnitTests.Controllers;
 [TestClass]
 public sealed class ContactControllerTests
 {
+    private static readonly TopicModel FakeContactUsTopic = new() {
+        Path = "/contact-us",
+        Metadata = new() {
+            Title = "Longer contact us title",
+            NavigationTitle = "Contact us",
+        },
+        ContentHtml = "<p>Leading paragraph...</p>",
+    };
+
+    private static void SetupMockContactUsTopic(AutoMocker autoMocker)
+    {
+        var mockTopicIndex = autoMocker.GetMock<ITopicIndex>();
+        mockTopicIndex
+            .Setup(x => x.GetTopic(It.Is<string>(topicPath => topicPath == "/contact-us")))
+            .Returns(FakeContactUsTopic);
+
+        autoMocker.GetMock<ITopicIndexAccessor>()
+            .Setup(x => x.GetIndexAsync(It.IsAny<bool>()))
+            .ReturnsAsync(mockTopicIndex.Object);
+    }
+
+    private static async Task AssertPresentsViewWithTopicContent(Func<AutoMocker, ContactController, Task<IActionResult>> invokeAction)
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockContactUsTopic(autoMocker);
+
+        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetSubjectOptionsForSupportTicketResponse>();
+        autoMocker.MockResponse<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
+
+        var controller = autoMocker.CreateInstance<ContactController>();
+
+        var result = await invokeAction(autoMocker, controller);
+
+        var viewModel = TypeAssert.IsViewModelType<ContactViewModel>(result);
+        Assert.AreEqual(FakeContactUsTopic.Metadata.Title, viewModel.Title);
+        Assert.AreEqual(FakeContactUsTopic.Metadata.Summary, viewModel.Summary);
+        Assert.AreEqual(FakeContactUsTopic.ContentHtml, viewModel.ContentHtml);
+    }
+
     private static async Task AssertPresentsViewWithSubjectOptions(Func<AutoMocker, ContactController, Task<IActionResult>> invokeAction)
     {
         var autoMocker = new AutoMocker();
+        SetupMockContactUsTopic(autoMocker);
 
         autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest>(new GetSubjectOptionsForSupportTicketResponse {
             SubjectOptions = [
@@ -35,6 +77,7 @@ public sealed class ContactControllerTests
     private static async Task AssertPresentsViewWithApplicationOptions(Func<AutoMocker, ContactController, Task<IActionResult>> invokeAction)
     {
         var autoMocker = new AutoMocker();
+        SetupMockContactUsTopic(autoMocker);
 
         autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetSubjectOptionsForSupportTicketResponse>();
 
@@ -59,6 +102,12 @@ public sealed class ContactControllerTests
     #region Index()
 
     [TestMethod]
+    public Task Index_PresentsViewWithTopicContent()
+    {
+        return AssertPresentsViewWithTopicContent((autoMocker, controller) => controller.Index());
+    }
+
+    [TestMethod]
     public Task Index_PresentsViewWithSubjectOptions()
     {
         return AssertPresentsViewWithSubjectOptions((autoMocker, controller) => controller.Index());
@@ -78,6 +127,7 @@ public sealed class ContactControllerTests
     public async Task PostIndex_RaisesSupportTicketWithUserInputs()
     {
         var autoMocker = new AutoMocker();
+        SetupMockContactUsTopic(autoMocker);
 
         autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetSubjectOptionsForSupportTicketResponse>();
         autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
@@ -88,14 +138,21 @@ public sealed class ContactControllerTests
         var controller = autoMocker.CreateInstance<ContactController>();
 
         await controller.PostIndex(new ContactViewModel {
-            FullName = "Alex Johnson",
-            EmailAddress = "alex.johnson@example.com",
-            SubjectCode = "other",
-            CustomSummary = "Example custom summary.",
-            OrganisationName = "Example Organisation",
-            OrganisationURN = "123456",
-            ApplicationName = "Example Service",
-            Message = "Example message.",
+            Title = "Contact us",
+            Summary = "Contact us if you need assistance.",
+            ContentHtml = "<p>Contact us if you need assistance.</p>",
+
+            SubjectOptions = [],
+            ApplicationOptions = [],
+
+            FullNameInput = "Alex Johnson",
+            EmailAddressInput = "alex.johnson@example.com",
+            SubjectCodeInput = "other",
+            CustomSummaryInput = "Example custom summary.",
+            OrganisationNameInput = "Example Organisation",
+            OrganisationUrnInput = "123456",
+            ApplicationNameInput = "Example Service",
+            MessageInput = "Example message.",
         });
 
         Assert.IsNotNull(capturedRequest);
@@ -107,6 +164,15 @@ public sealed class ContactControllerTests
         Assert.AreEqual("123456", capturedRequest.OrganisationURN);
         Assert.AreEqual("Example Service", capturedRequest.ApplicationName);
         Assert.AreEqual("Example message.", capturedRequest.Message);
+    }
+
+    [TestMethod]
+    public Task PostIndex_PresentsViewWithTopicContent_WhenRequestIsInvalid()
+    {
+        return AssertPresentsViewWithTopicContent((autoMocker, controller) => {
+            autoMocker.MockThrows<RaiseSupportTicketRequest>(new InvalidRequestException());
+            return controller.PostIndex(Activator.CreateInstance<ContactViewModel>());
+        });
     }
 
     [TestMethod]
