@@ -27,6 +27,7 @@ public static partial class SelectOrganisationEndpoints
             },
             cancellationToken
         );
+
         return mapper.Map<CreateSelectOrganisationSession_PublicApiResponse>(response);
     }
 }

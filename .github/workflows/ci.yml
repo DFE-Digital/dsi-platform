@@ -2,10 +2,10 @@ name: CI
 
 on:
   pull_request:
-    types: [ opened, reopened, synchronize ]
+    types: [opened, reopened, synchronize]
 
   merge_group:
-    types: [ checks_requested ]
+    types: [checks_requested]
 
   workflow_dispatch:
     inputs:
@@ -127,7 +127,6 @@ jobs:
             -ForceBuildSelectOrganisation ${{ github.event.inputs.build_select_organisation || false }} `
             -ForceBuildPublicApi ${{ github.event.inputs.build_public_api || false }}
 
-
   # -------------------------------------------------------------------------------------
   # Run checks, build and then publish any Docker images to the container registry.
   # -------------------------------------------------------------------------------------
@@ -166,7 +165,7 @@ jobs:
       project_name: ${{ matrix.image.project }}
       registry: ${{ needs.prepare.outputs.registry }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
 
   dotnet-packages:
     name: .NET publish packages
@@ -197,9 +196,8 @@ jobs:
     with:
       project_name: docs/external
       registry: ${{ needs.prepare.outputs.registry }}
-      repository_name: '${{ needs.prepare.outputs.lifecycle_name }}/developer'
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
-
+      repository_name: "${{ needs.prepare.outputs.lifecycle_name }}/developer"
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
 
   # -------------------------------------------------------------------------------------
   # Publish any packages and trigger any CD pipelines.
@@ -216,16 +214,31 @@ jobs:
       - dotnet-packages
       - docs-templates-checks
       - docs-build
-    if: ${{ !cancelled() && !failure() }}
+    if: ${{ always() }}
     steps:
       - name: Triggering deployments
         shell: pwsh
-        run: Write-Host Triggering deployments...
+        run: |
+          $statuses = @(
+            '${{ needs.prepare.result }}'
+            '${{ needs.powershell-checks.result }}'
+            '${{ needs.dotnet-checks.result }}'
+            '${{ needs.dotnet-build.result }}'
+            '${{ needs.dotnet-packages.result }}'
+            '${{ needs.docs-templates-checks.result }}'
+            '${{ needs.docs-build.result }}'
+          )
+
+          if ($statuses.Contains('failure') -or $statuses.Contains('cancelled')) {
+            exit 1
+          }
+
+          Write-Host Triggering deployments...
 
   dotnet-trigger-cd:
     name: .NET deploy
     uses: ./.github/workflows/image-deploy.yml
-    needs: [ prepare, checks-passed ]
+    needs: [prepare, checks-passed]
     if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_dotnet_images != '[]' }}
     strategy:
       matrix:
@@ -236,13 +249,13 @@ jobs:
     with:
       project_name: ${{ matrix.image.project }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
 
   docs-trigger-cd:
     name: Deploy external documentation
     uses: ./.github/workflows/image-deploy.yml
-    needs: [ prepare, checks-passed ]
+    needs: [prepare, checks-passed]
     if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
     secrets:
       AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
@@ -250,5 +263,5 @@ jobs:
     with:
       project_name: docs/external
       repository_name: ${{ needs.prepare.outputs.lifecycle_name }}/developer
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
