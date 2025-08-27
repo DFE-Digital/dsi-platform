@@ -108,5 +108,20 @@ Describe "Initialize-BuildSolution" {
                     $args[3] -ceq './tests/DoesNotExist.UnitTests/DoesNotExist.UnitTests.csproj'
             } -Times 0 -Exactly
         }
+
+        It "should add source and test projects to solution" {
+            & $Cmdlet -Projects @{
+                SourceProjects = @( 'Dfe.SignIn.PublicApi' )
+                TestProjects   = @( 'Dfe.SignIn.PublicApi.UnitTests' )
+            }
+
+            Should -Invoke dotnet -ParameterFilter {
+                $args[0] -ceq 'sln' -and `
+                    $args[1] -ceq './build.sln' -and `
+                    $args[2] -ceq 'add' -and `
+                    $args[3] -ceq './src/Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj' -and `
+                    $args[3] -ceq './tests/Dfe.SignIn.PublicApi.UnitTests/Dfe.SignIn.PublicApi.UnitTests.csproj'
+            } -Times 1 -Exactly
+        }
     }
 }

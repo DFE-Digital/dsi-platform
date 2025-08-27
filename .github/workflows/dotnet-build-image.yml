@@ -3,8 +3,18 @@ name: Build image for .NET project
 on:
   workflow_call:
     inputs:
+      environment:
+        description: Environment name
+        required: true
+        type: string
+
       project_name:
         description: Project name
+        required: true
+        type: string
+
+      registry_key:
+        description: Container registry key
         required: true
         type: string
 
@@ -24,9 +34,13 @@ on:
         type: string
 
     secrets:
-      ACR_CLIENT_ID:
+      ACR_MAIN_CLIENT_ID:
         required: true
-      ACR_CLIENT_SECRET:
+      ACR_MAIN_CLIENT_SECRET:
+        required: true
+      ACR_TRAN_CLIENT_ID:
+        required: true
+      ACR_TRAN_CLIENT_SECRET:
         required: true
 
 jobs:
@@ -35,6 +49,7 @@ jobs:
     defaults:
       run:
         shell: pwsh
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,8 +61,8 @@ jobs:
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
         with:
           registry: ${{ inputs.registry }}
-          username: ${{ secrets.ACR_CLIENT_ID }}
-          password: ${{ secrets.ACR_CLIENT_SECRET }}
+          username: ${{ secrets[format('ACR_{0}_CLIENT_ID', inputs.registry_key)] }}
+          password: ${{ secrets[format('ACR_{0}_CLIENT_SECRET', inputs.registry_key)] }}
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83

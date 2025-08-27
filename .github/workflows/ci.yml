@@ -2,10 +2,10 @@ name: CI
 
 on:
   pull_request:
-    types: [ opened, reopened, synchronize ]
+    types: [opened, reopened, synchronize]
 
   merge_group:
-    types: [ checks_requested ]
+    types: [checks_requested]
 
   workflow_dispatch:
     inputs:
@@ -77,6 +77,7 @@ jobs:
         shell: pwsh
     outputs:
       lifecycle_name: ${{ steps.prepare.outputs.lifecycle_name }}
+      environment: ${{ steps.prepare.outputs.environment }}
       registry_key: ${{ steps.prepare.outputs.registry_key }}
       registry: ${{ steps.prepare.outputs.registry }}
       acr_secret_prefix: ${{ steps.prepare.outputs.acr_secret_prefix }}
@@ -100,6 +101,11 @@ jobs:
               -Override '${{ github.event.inputs.lifecycle }}'
           echo "lifecycle_name=$lifecycleName" >> $env:GITHUB_OUTPUT
 
+          $environment = $lifecycleName -ceq 'rel' ? 'Release Lifecycle' : 'Development Lifecycle'
+          echo "environment=$environment" >> $env:GITHUB_OUTPUT
+
+          Write-Host "Using environment '$environment'."
+
           # Determine which registry to use 'MAIN' or 'TRAN'?
           $registryKey = '${{ env.TARGET_REGISTRY_KEY }}'
           echo "registry_key=$registryKey" >> $env:GITHUB_OUTPUT
@@ -107,7 +113,7 @@ jobs:
           echo "registry=$registry" >> $env:GITHUB_OUTPUT
 
           # Determine secret prefix 'ACR_(TRAN|MAIN)_(DEV|REL)'.
-          $acrSecretPrefix = "ACR_${{ env.TARGET_REGISTRY_KEY }}_$($lifecycleName.ToUpper())"
+          $acrSecretPrefix = "ACR_${{ env.TARGET_REGISTRY_KEY }}"
           echo "acr_secret_prefix=$acrSecretPrefix" >> $env:GITHUB_OUTPUT
 
           $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
@@ -126,7 +132,6 @@ jobs:
             -IncludeChangedProjects $($env:GITHUB_EVENT_NAME -ne 'workflow_dispatch') `
             -ForceBuildSelectOrganisation ${{ github.event.inputs.build_select_organisation || false }} `
             -ForceBuildPublicApi ${{ github.event.inputs.build_public_api || false }}
-
 
   # -------------------------------------------------------------------------------------
   # Run checks, build and then publish any Docker images to the container registry.
@@ -160,13 +165,17 @@ jobs:
       matrix:
         image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
     secrets:
-      ACR_CLIENT_ID: ${{ secrets[format('{0}_CLIENT_ID', needs.prepare.outputs.acr_secret_prefix)] }}
-      ACR_CLIENT_SECRET: ${{ secrets[format('{0}_CLIENT_SECRET', needs.prepare.outputs.acr_secret_prefix)] }}
+      ACR_MAIN_CLIENT_ID: ${{ secrets.ACR_MAIN_CLIENT_ID }}
+      ACR_MAIN_CLIENT_SECRET: ${{ secrets.ACR_MAIN_CLIENT_SECRET }}
+      ACR_TRAN_CLIENT_ID: ${{ secrets.ACR_TRAN_CLIENT_ID }}
+      ACR_TRAN_CLIENT_SECRET: ${{ secrets.ACR_TRAN_CLIENT_SECRET }}
     with:
+      environment: ${{ needs.prepare.outputs.environment }}
       project_name: ${{ matrix.image.project }}
+      registry_key: ${{ needs.prepare.outputs.registry_key }}
       registry: ${{ needs.prepare.outputs.registry }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
 
   dotnet-packages:
     name: .NET publish packages
@@ -192,14 +201,17 @@ jobs:
     needs: prepare
     if: "${{ needs.prepare.outputs.build_external_docs == 'true' }}"
     secrets:
-      ACR_CLIENT_ID: ${{ secrets[format('{0}_CLIENT_ID', needs.prepare.outputs.acr_secret_prefix)] }}
-      ACR_CLIENT_SECRET: ${{ secrets[format('{0}_CLIENT_SECRET', needs.prepare.outputs.acr_secret_prefix)] }}
+      ACR_MAIN_CLIENT_ID: ${{ secrets.ACR_MAIN_CLIENT_ID }}
+      ACR_MAIN_CLIENT_SECRET: ${{ secrets.ACR_MAIN_CLIENT_SECRET }}
+      ACR_TRAN_CLIENT_ID: ${{ secrets.ACR_TRAN_CLIENT_ID }}
+      ACR_TRAN_CLIENT_SECRET: ${{ secrets.ACR_TRAN_CLIENT_SECRET }}
     with:
+      environment: ${{ needs.prepare.outputs.environment }}
       project_name: docs/external
+      registry_key: ${{ needs.prepare.outputs.registry_key }}
       registry: ${{ needs.prepare.outputs.registry }}
-      repository_name: '${{ needs.prepare.outputs.lifecycle_name }}/developer'
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
-
+      repository_name: "${{ needs.prepare.outputs.lifecycle_name }}/developer"
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
 
   # -------------------------------------------------------------------------------------
   # Publish any packages and trigger any CD pipelines.
@@ -216,16 +228,31 @@ jobs:
       - dotnet-packages
       - docs-templates-checks
       - docs-build
-    if: ${{ !cancelled() && !failure() }}
+    if: ${{ always() }}
     steps:
       - name: Triggering deployments
         shell: pwsh
-        run: Write-Host Triggering deployments...
+        run: |
+          $statuses = @(
+            '${{ needs.prepare.result }}'
+            '${{ needs.powershell-checks.result }}'
+            '${{ needs.dotnet-checks.result }}'
+            '${{ needs.dotnet-build.result }}'
+            '${{ needs.dotnet-packages.result }}'
+            '${{ needs.docs-templates-checks.result }}'
+            '${{ needs.docs-build.result }}'
+          )
+
+          if ($statuses.Contains('failure') -or $statuses.Contains('cancelled')) {
+            exit 1
+          }
+
+          Write-Host Triggering deployments...
 
   dotnet-trigger-cd:
     name: .NET deploy
     uses: ./.github/workflows/image-deploy.yml
-    needs: [ prepare, checks-passed ]
+    needs: [prepare, checks-passed]
     if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_dotnet_images != '[]' }}
     strategy:
       matrix:
@@ -236,13 +263,13 @@ jobs:
     with:
       project_name: ${{ matrix.image.project }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
 
   docs-trigger-cd:
     name: Deploy external documentation
     uses: ./.github/workflows/image-deploy.yml
-    needs: [ prepare, checks-passed ]
+    needs: [prepare, checks-passed]
     if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
     secrets:
       AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
@@ -250,5 +277,5 @@ jobs:
     with:
       project_name: docs/external
       repository_name: ${{ needs.prepare.outputs.lifecycle_name }}/developer
-      tag_name: '${{ github.run_id }}-${{ github.run_attempt }}'
+      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
