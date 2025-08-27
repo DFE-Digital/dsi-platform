@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.Framework.UnitTests;
