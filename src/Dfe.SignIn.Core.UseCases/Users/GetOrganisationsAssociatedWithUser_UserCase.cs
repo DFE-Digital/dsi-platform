@@ -7,13 +7,15 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for getting all of the organisations that are associated with a particular user.
 /// </summary>
 public sealed class GetOrganisationsAssociatedWithUser_UseCase
-    : IInteractor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
+    : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {
     /// <inheritdoc/>
-    public Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(
-        GetOrganisationsAssociatedWithUserRequest request,
+    public override Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(
+        InteractionContext<GetOrganisationsAssociatedWithUserRequest> context,
         CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         throw new NotImplementedException();
     }
 }

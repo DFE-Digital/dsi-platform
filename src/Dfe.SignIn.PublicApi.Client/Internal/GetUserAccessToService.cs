@@ -42,19 +42,21 @@ internal sealed class GetUserAccessToService_PublicApiRequester(
     IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IOptions<PublicApiOptions> optionsAccessor,
     IPublicApiClient client
-) : IInteractor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>
+) : Interactor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>
 {
     /// <inheritdoc/>
-    public async Task<GetUserAccessToServiceResponse> InvokeAsync(
-        GetUserAccessToServiceRequest request,
+    public override async Task<GetUserAccessToServiceResponse> InvokeAsync(
+        InteractionContext<GetUserAccessToServiceRequest> context,
         CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         var options = optionsAccessor.Value;
         var httpClient = client.HttpClient;
 
         var serviceId = options.ClientId;
-        var organisationId = request.OrganisationId;
-        var userId = request.UserId;
+        var organisationId = context.Request.OrganisationId;
+        var userId = context.Request.UserId;
 
         var httpResponse = await httpClient.GetAsync(
             $"services/{serviceId}/organisations/{organisationId}/users/{userId}",

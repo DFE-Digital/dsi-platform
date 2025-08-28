@@ -12,17 +12,18 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationsAssociatedWithUser_NodeApiRequester(
-    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper)
-    : IInteractor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
+    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper
+) : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {
-
     /// <inheritdoc/>
-    public async Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(
-        GetOrganisationsAssociatedWithUserRequest request,
+    public override async Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(
+        InteractionContext<GetOrganisationsAssociatedWithUserRequest> context,
         CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationsAssociatedWithUserDto[]>(
-            $"/organisations/v2/associated-with-user/{request.UserId}",
+            $"/organisations/v2/associated-with-user/{context.Request.UserId}",
             cancellationToken
         );
 

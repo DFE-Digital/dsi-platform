@@ -1,6 +1,6 @@
 namespace Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 
-public sealed class FakeServiceWithInteraction(IInteractor<ExampleRequest, ExampleResponse> interaction)
+public sealed class FakeServiceWithInteraction(IInteractionDispatcher interaction)
 {
-    public IInteractor<ExampleRequest, ExampleResponse> Interaction => interaction;
+    public IInteractionDispatcher Interaction => interaction;
 }

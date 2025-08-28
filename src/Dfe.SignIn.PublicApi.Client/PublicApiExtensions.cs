@@ -100,12 +100,11 @@ public static class PublicApiExtensions
         );
     }
 
-    private static void AddApiRequester<TRequest, TResponse>(
+    private static void AddApiRequester<TRequest>(
         IServiceCollection services,
         string endpoint,
-        Func<IPublicApiClient, JsonSerializerOptions, string, IInteractor<TRequest, TResponse>> factoryMethod)
+        Func<IPublicApiClient, JsonSerializerOptions, string, IInteractor<TRequest>> factoryMethod)
         where TRequest : class
-        where TResponse : class
     {
         services.AddTransient(provider => {
             var client = provider.GetRequiredService<IPublicApiClient>();

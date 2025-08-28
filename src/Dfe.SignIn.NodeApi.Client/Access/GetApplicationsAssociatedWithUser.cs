@@ -11,17 +11,18 @@ namespace Dfe.SignIn.NodeApi.Client.Access;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Access)]
 public sealed class GetApplicationsAssociatedWithUser_NodeApiRequester(
-    [FromKeyedServices(NodeApiName.Access)] HttpClient httpClient)
-    : IInteractor<GetApplicationsAssociatedWithUserRequest, GetApplicationsAssociatedWithUserResponse>
+    [FromKeyedServices(NodeApiName.Access)] HttpClient httpClient
+) : Interactor<GetApplicationsAssociatedWithUserRequest, GetApplicationsAssociatedWithUserResponse>
 {
-
     /// <inheritdoc/>
-    public async Task<GetApplicationsAssociatedWithUserResponse> InvokeAsync(
-        GetApplicationsAssociatedWithUserRequest request,
+    public override async Task<GetApplicationsAssociatedWithUserResponse> InvokeAsync(
+        InteractionContext<GetApplicationsAssociatedWithUserRequest> context,
         CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationDto[]>(
-            $"users/{request.UserId}/services",
+            $"users/{context.Request.UserId}/services",
             cancellationToken
         );
 

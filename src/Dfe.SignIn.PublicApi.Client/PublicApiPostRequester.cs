@@ -17,7 +17,7 @@ internal class PublicApiPostRequester<TRequest, TResponse>(
     IPublicApiClient client,
     JsonSerializerOptions jsonOptions,
     string endpoint
-) : IInteractor<TRequest, TResponse>
+) : Interactor<TRequest, TResponse>
     where TRequest : class
     where TResponse : class
 {
@@ -26,17 +26,17 @@ internal class PublicApiPostRequester<TRequest, TResponse>(
     // revisit the unit testing of this code module in the future.
 
     /// <inheritdoc/>
-    public async Task<TResponse> InvokeAsync(
-        TRequest request,
+    public override async Task<TResponse> InvokeAsync(
+        InteractionContext<TRequest> context,
         CancellationToken cancellationToken = default)
     {
-        ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
+        context.ThrowIfHasValidationErrors();
 
         var httpClient = client.HttpClient;
 
         var httpResponse = await httpClient.PostAsJsonAsync(
-            this.TransformEndpoint(request, endpoint),
-            request,
+            this.TransformEndpoint(context.Request, endpoint),
+            context.Request,
             jsonOptions,
             cancellationToken
         );

@@ -48,6 +48,9 @@ builder.Services
     .SetupRedisSessionStore(builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
     .SetupSelectOrganisationInteractions();
 
+builder.Services
+    .AddInteractionFramework();
+
 // TEMP: Add mocked interactors.
 builder.Services.AddInteractors(
     InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly)

@@ -60,11 +60,11 @@ public sealed class SelectOrganisationExtensionsTests
     }
 
     [DataRow(
-        typeof(IInteractor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse>),
+        typeof(IInteractor<GetSelectOrganisationSessionByKeyRequest>),
         DisplayName = nameof(GetSelectOrganisationSessionByKeyRequest)
     )]
     [DataRow(
-        typeof(IInteractor<InvalidateSelectOrganisationSessionRequest, InvalidateSelectOrganisationSessionResponse>),
+        typeof(IInteractor<InvalidateSelectOrganisationSessionRequest>),
         DisplayName = nameof(InvalidateSelectOrganisationSessionRequest)
     )]
     [DataTestMethod]

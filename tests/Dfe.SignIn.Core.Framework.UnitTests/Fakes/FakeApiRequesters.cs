@@ -2,10 +2,10 @@ namespace Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 
 [ApiRequester]
 public sealed class Example_ApiRequester
-    : IInteractor<ExampleRequest, ExampleResponse>
+    : Interactor<ExampleRequest, ExampleResponse>
 {
-    public Task<ExampleResponse> InvokeAsync(
-        ExampleRequest request,
+    public override Task<ExampleResponse> InvokeAsync(
+        InteractionContext<ExampleRequest> context,
         CancellationToken cancellationToken = default)
     {
         return Task.FromResult(
@@ -16,10 +16,10 @@ public sealed class Example_ApiRequester
 
 [ApiRequester]
 public sealed class AnotherExample_ApiRequester
-    : IInteractor<AnotherExampleRequest, AnotherExampleResponse>
+    : Interactor<AnotherExampleRequest, AnotherExampleResponse>
 {
-    public Task<AnotherExampleResponse> InvokeAsync(
-        AnotherExampleRequest request,
+    public override Task<AnotherExampleResponse> InvokeAsync(
+        InteractionContext<AnotherExampleRequest> context,
         CancellationToken cancellationToken = default)
     {
         return Task.FromResult(new AnotherExampleResponse());

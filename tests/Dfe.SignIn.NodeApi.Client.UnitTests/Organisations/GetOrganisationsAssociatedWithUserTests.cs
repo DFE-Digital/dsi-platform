@@ -25,6 +25,15 @@ public sealed class GetOrganisationsAssociatedWithUserTests
     }
 
     [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            GetOrganisationsAssociatedWithUserRequest,
+            GetOrganisationsAssociatedWithUser_NodeApiRequester
+        >();
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
         List<OrganisationsAssociatedWithUserDto> mockDtos = [];

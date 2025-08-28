@@ -12,7 +12,7 @@ public static class InteractorReflectionHelpers
     /// </summary>
     /// <remarks>
     ///   <example>
-    ///     <para>Discover all interactor types that implement <see cref="IInteractor{,}"/>:</para>
+    ///     <para>Discover all interactor types that implement <see cref="IInteractor{}"/>:</para>
     ///     <code language="csharp"><![CDATA[
     ///       var types = InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(
     ///         typeof(SomeClass).Assembly
@@ -39,7 +39,7 @@ public static class InteractorReflectionHelpers
             })
             .Where(descriptor =>
                 descriptor.ContractType.IsGenericType &&
-                descriptor.ContractType.GetGenericTypeDefinition() == typeof(IInteractor<,>)
+                descriptor.ContractType.GetGenericTypeDefinition() == typeof(IInteractor<>)
             );
     }
 
@@ -63,7 +63,7 @@ public static class InteractorReflectionHelpers
             .Where(type => type.IsClass && !type.IsAbstract && type.GetCustomAttribute<TAttribute>() is not null)
             .Select(type => new InteractorTypeDescriptor {
                 ContractType = type.GetInterfaces().FirstOrDefault(interfaceType =>
-                    interfaceType.GetGenericTypeDefinition() == typeof(IInteractor<,>)
+                    interfaceType.GetGenericTypeDefinition() == typeof(IInteractor<>)
                 )!,
                 ConcreteType = type,
             })

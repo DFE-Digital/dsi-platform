@@ -13,16 +13,12 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// <param name="optionsAccessor">Provides access to the user flow options.</param>
 /// <param name="trackingProvider">A provider that tracks an active selection request.</param>
 /// <param name="events">Handlers for the various events that occur throughout selection.</param>
-/// <param name="createSelectOrganisationSession">A service representing an interaction with
-/// the DfE Sign-in API to create "select organisation" sessions.</param>
-/// <param name="queryUserOrganisation">A service representing an interaction with the DfE
-/// Sign-in API to query an organisation for a specific user.</param>
+/// <param name="interaction">Service to dispatch interaction requests.</param>
 public sealed class StandardSelectOrganisationUserFlow(
     IOptions<StandardSelectOrganisationUserFlowOptions> optionsAccessor,
     ISelectOrganisationRequestTrackingProvider trackingProvider,
     ISelectOrganisationEvents events,
-    IInteractor<CreateSelectOrganisationSession_PublicApiRequest, CreateSelectOrganisationSession_PublicApiResponse> createSelectOrganisationSession,
-    IInteractor<QueryUserOrganisation_PublicApiRequest, QueryUserOrganisation_PublicApiResponse> queryUserOrganisation
+    IInteractionDispatcher interaction
 ) : ISelectOrganisationUserFlow
 {
     private static void CheckUserIsAuthenticated(IHttpContext context)
@@ -51,7 +47,8 @@ public sealed class StandardSelectOrganisationUserFlow(
             request = options.PrepareSelectOrganisationRequest(request);
         }
 
-        var selectOrganisationResponse = await createSelectOrganisationSession.InvokeAsync(request, cancellationToken);
+        var selectOrganisationResponse = await interaction.DispatchAsync(request, cancellationToken)
+            .To<CreateSelectOrganisationSession_PublicApiResponse>();
 
         if (selectOrganisationResponse.HasOptions) {
             await trackingProvider.SetTrackedRequestAsync(context, selectOrganisationResponse.RequestId);
@@ -125,11 +122,13 @@ public sealed class StandardSelectOrganisationUserFlow(
 
         Guid userId = context.User.GetDsiUserId();
 
-        var response = await queryUserOrganisation.InvokeAsync(new() {
-            OrganisationId = ParseSelectedOrganisationId(context),
-            UserId = userId,
-            Filter = options.Filter,
-        });
+        var response = await interaction.DispatchAsync(
+            new QueryUserOrganisation_PublicApiRequest {
+                OrganisationId = ParseSelectedOrganisationId(context),
+                UserId = userId,
+                Filter = options.Filter,
+            }
+        ).To<QueryUserOrganisation_PublicApiResponse>();
 
         if (response.UserId != userId) {
             return null;

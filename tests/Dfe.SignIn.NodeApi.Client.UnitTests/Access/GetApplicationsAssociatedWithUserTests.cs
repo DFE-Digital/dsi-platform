@@ -9,6 +9,14 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Access;
 [TestClass]
 public sealed class GetApplicationsAssociatedWithUserTests
 {
+    [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            GetApplicationsAssociatedWithUserRequest,
+            GetApplicationsAssociatedWithUser_NodeApiRequester
+        >();
+    }
 
     [TestMethod]
     public async Task InvokeAsync_ReturnsExpectedOrganisation()

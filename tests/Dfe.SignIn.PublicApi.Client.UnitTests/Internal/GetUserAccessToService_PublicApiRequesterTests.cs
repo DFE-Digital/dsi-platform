@@ -53,6 +53,15 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
     #region InvokeAsync(GetUserAccessToServiceRequest)
 
     [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            GetUserAccessToServiceRequest,
+            GetUserAccessToService_PublicApiRequester
+        >();
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_GetsExpectedUrl()
     {
         var autoMocker = new AutoMocker();
@@ -64,7 +73,7 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
 
         var requester = autoMocker.CreateInstance<GetUserAccessToService_PublicApiRequester>();
 
-        await requester.InvokeAsync(new() {
+        await requester.InvokeAsync(new GetUserAccessToServiceRequest {
             UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
             OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
         });
@@ -105,7 +114,7 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
 
         var requester = autoMocker.CreateInstance<GetUserAccessToService_PublicApiRequester>();
 
-        await requester.InvokeAsync(new() {
+        await requester.InvokeAsync(new GetUserAccessToServiceRequest {
             UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
             OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
         });
@@ -145,7 +154,7 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
 
         var requester = autoMocker.CreateInstance<GetUserAccessToService_PublicApiRequester>();
 
-        var response = await requester.InvokeAsync(new() {
+        var response = await requester.InvokeAsync(new GetUserAccessToServiceRequest {
             UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
             OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
         });
@@ -179,7 +188,7 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
 
         var requester = autoMocker.CreateInstance<GetUserAccessToService_PublicApiRequester>();
 
-        await requester.InvokeAsync(new() {
+        await requester.InvokeAsync(new GetUserAccessToServiceRequest {
             UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
             OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
         });

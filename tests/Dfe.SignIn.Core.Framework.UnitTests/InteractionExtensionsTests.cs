@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,9 +5,55 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Dfe.SignIn.Core.Framework.UnitTests;
 
 [TestClass]
-public sealed class ServiceCollectionExtensionsTests
+public sealed class InteractionExtensionsTests
 {
     private static readonly Assembly TestAssembly = typeof(InteractorReflectionHelpersTests).Assembly;
+
+    #region AddInteractionFramework(IServiceCollection)
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void AddInteractionFramework_Throws_WhenServicesArgumentIsNull()
+    {
+        InteractionExtensions.AddInteractionFramework(
+            services: null!
+        );
+    }
+
+    [TestMethod]
+    public void AddInteractionFramework_RegistersExpectedServices()
+    {
+        var services = new ServiceCollection();
+
+        InteractionExtensions.AddInteractionFramework(services);
+
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IInteractionValidator) &&
+                descriptor.ImplementationType == typeof(InteractionValidator)
+            )
+        );
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IInteractionDispatcher) &&
+                descriptor.ImplementationType == typeof(ServiceProviderInteractionDispatcher)
+            )
+        );
+    }
+
+    [TestMethod]
+    public void AddInteractionFramework_ReturnsServicesForChainedCalls()
+    {
+        var services = new ServiceCollection();
+
+        var result = InteractionExtensions.AddInteractionFramework(services);
+
+        Assert.AreSame(services, result);
+    }
+
+    #endregion
 
     #region AddInteractor<TConcreteInteractor>(IServiceCollection)
 
@@ -16,7 +61,7 @@ public sealed class ServiceCollectionExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractor_Throws_WhenServicesArgumentIsNull()
     {
-        ServiceCollectionExtensions.AddInteractor<Example_UseCaseHandler>(
+        InteractionExtensions.AddInteractor<Example_UseCaseHandler>(
             services: null!
         );
     }
@@ -26,15 +71,25 @@ public sealed class ServiceCollectionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddInteractor<Example_UseCaseHandler>();
+        InteractionExtensions.AddInteractor<Example_UseCaseHandler>(services);
 
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
+                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
                 descriptor.ImplementationType == typeof(Example_UseCaseHandler)
             )
         );
+    }
+
+    [TestMethod]
+    public void AddInteractor_ReturnsServicesForChainedCalls()
+    {
+        var services = new ServiceCollection();
+
+        var result = InteractionExtensions.AddInteractor<Example_UseCaseHandler>(services);
+
+        Assert.AreSame(services, result);
     }
 
     #endregion
@@ -45,7 +100,7 @@ public sealed class ServiceCollectionExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractors_Throws_WhenServicesArgumentIsNull()
     {
-        ServiceCollectionExtensions.AddInteractors(
+        InteractionExtensions.AddInteractors(
             services: null!,
             descriptors: []
         );
@@ -57,7 +112,8 @@ public sealed class ServiceCollectionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddInteractors(
+        InteractionExtensions.AddInteractors(
+            services,
             descriptors: null!
         );
     }
@@ -67,89 +123,49 @@ public sealed class ServiceCollectionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddInteractors(
+        InteractionExtensions.AddInteractors(
+            services,
             InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(TestAssembly)
         );
 
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
+                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
                 descriptor.ImplementationType == typeof(Example_UseCaseHandler)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>) &&
+                descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest>) &&
                 descriptor.ImplementationType == typeof(AnotherExample_UseCaseHandler)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest, ExampleResponse>) &&
+                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
                 descriptor.ImplementationType == typeof(Example_ApiRequester)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest, AnotherExampleResponse>) &&
+                descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest>) &&
                 descriptor.ImplementationType == typeof(AnotherExample_ApiRequester)
             )
         );
     }
 
-    #endregion
-
-    #region AddInteractorModelValidation(IServiceCollection)
-
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public void AddInteractorModelValidation_Throws_WhenServicesArgumentIsNull()
-    {
-        ServiceCollectionExtensions.AddInteractorModelValidation(
-            services: null!,
-            setupAction: options => { }
-        );
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public void AddInteractorModelValidation_Throws_WhenSetupActionArgumentIsNull()
+    public void AddInteractors_ReturnsServicesForChainedCalls()
     {
         var services = new ServiceCollection();
 
-        services.AddInteractorModelValidation(
-            setupAction: null!
-        );
-    }
+        var result = InteractionExtensions.AddInteractors(services, []);
 
-    [TestMethod]
-    [ExpectedException(typeof(ValidationException))]
-    public async Task AddInteractorModelValidation_DecoratesInteractorWithValidator()
-    {
-        var services = new ServiceCollection();
-
-        services.AddTransient<
-            IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>,
-            ExampleInteractorWithValidation_ApiRequester
-        >();
-
-        services.AddInteractorModelValidation(options => { });
-
-        var provider = new DefaultServiceProviderFactory().CreateServiceProvider(services);
-        var interactor = provider.GetRequiredService<
-            IInteractor<ExampleInteractorWithValidationRequest, ExampleInteractorWithValidationResponse>
-        >();
-
-        Assert.IsNotNull(interactor);
-
-        await interactor.InvokeAsync(new ExampleInteractorWithValidationRequest {
-            Name = "A",
-            SomeEnumProperty = ExampleInteractorEnum.FirstValue,
-        });
+        Assert.AreSame(services, result);
     }
 
     #endregion

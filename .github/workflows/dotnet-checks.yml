@@ -52,6 +52,9 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' }}
         run: ./scripts/workflows/Initialize-BuildSolutionForChangedProjects
 
+      - name: Install dotnet reportgenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
       - name: Start sonar scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -61,7 +64,9 @@ jobs:
             /o:"dfe-digital" `
             /k:"DFE-Digital_dsi-platform" `
             /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.token="$env:SONAR_TOKEN"
+            /d:sonar.token="$env:SONAR_TOKEN" `
+            /d:sonar.coverageReportPaths="CoverageReport/SonarQube.xml" `
+            /d:sonar.cs.vstest.reportsPaths="**/*.trx"
 
       - name: Build project
         run: dotnet build ./build.sln --no-incremental
@@ -69,7 +74,7 @@ jobs:
       - name: Run unit tests
         run: |
           dotnet test ./build.sln `
-            --collect "Code Coverage" `
+            --collect "XPlat Code Coverage" `
             --logger "trx;LogFileName=TestResults.trx"
 
       - name: Report unit test results
@@ -79,6 +84,15 @@ jobs:
           name: .NET unit test results
           path: "**/*.trx"
           reporter: dotnet-trx
+
+      - name: Generate code coverage report
+        run: |
+          reportgenerator `
+            -reports:./**/coverage.cobertura.xml `
+            -targetdir:./CoverageReport `
+            -reporttypes:SonarQube `
+            -sourcedirs:./src `
+            -filefilters:"-*/RegexGenerator.g.cs"
 
       - name: Stop sonar scanner
         env:

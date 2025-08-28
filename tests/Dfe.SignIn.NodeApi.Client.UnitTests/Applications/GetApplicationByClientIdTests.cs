@@ -10,6 +10,15 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Applications;
 public sealed class GetApplicationByClientId
 {
     [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            GetApplicationByClientIdRequest,
+            GetApplicationByClientId_NodeApiRequester
+        >();
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
         var mockDto = new ApplicationModelDto {

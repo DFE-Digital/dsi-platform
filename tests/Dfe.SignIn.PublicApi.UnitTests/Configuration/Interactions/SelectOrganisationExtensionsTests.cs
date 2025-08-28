@@ -62,11 +62,11 @@ public sealed class SelectOrganisationExtensionsTests
     }
 
     [DataRow(
-        typeof(IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>),
+        typeof(IInteractor<CreateSelectOrganisationSessionRequest>),
         DisplayName = nameof(CreateSelectOrganisationSessionRequest)
     )]
     [DataRow(
-        typeof(IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>),
+        typeof(IInteractor<FilterOrganisationsForUserRequest>),
         DisplayName = nameof(FilterOrganisationsForUserRequest)
     )]
     [DataTestMethod]

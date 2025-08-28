@@ -12,29 +12,33 @@ namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 /// </summary>
 /// <param name="optionsAccessor">Provides access to "select organisation" options.</param>
 /// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
-/// <param name="filterOrganisationsForUser">Interaction to filter organisations for a user.</param>
+/// <param name="interaction">Service to dispatch interaction requests.</param>
 public sealed class CreateSelectOrganisationSession_UseCase(
     IOptions<SelectOrganisationOptions> optionsAccessor,
     ISelectOrganisationSessionRepository sessionRepository,
-    IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse> filterOrganisationsForUser
-) : IInteractor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>
+    IInteractionDispatcher interaction
+) : Interactor<CreateSelectOrganisationSessionRequest, CreateSelectOrganisationSessionResponse>
 {
     private static string GenerateSessionKey() => Guid.NewGuid().ToString();
 
     /// <inheritdoc/>
-    public async Task<CreateSelectOrganisationSessionResponse> InvokeAsync(
-        CreateSelectOrganisationSessionRequest request,
+    public override async Task<CreateSelectOrganisationSessionResponse> InvokeAsync(
+        InteractionContext<CreateSelectOrganisationSessionRequest> context,
         CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         var options = optionsAccessor.Value;
 
         var createdUtc = DateTime.UtcNow;
 
-        var filteredOrganisationsResponse = await filterOrganisationsForUser.InvokeAsync(new() {
-            ClientId = request.ClientId,
-            UserId = request.UserId,
-            Filter = request.Filter,
-        }, cancellationToken);
+        var filteredOrganisationsResponse = await interaction.DispatchAsync(
+            new FilterOrganisationsForUserRequest {
+                ClientId = context.Request.ClientId,
+                UserId = context.Request.UserId,
+                Filter = context.Request.Filter,
+            }, cancellationToken
+        ).To<FilterOrganisationsForUserResponse>();
 
         var filteredOptions = filteredOrganisationsResponse.FilteredOrganisations
             .Select(organisation => new SelectOrganisationOption {
@@ -46,12 +50,12 @@ public sealed class CreateSelectOrganisationSession_UseCase(
         Guid requestId = Guid.NewGuid();
 
         var sessionData = new SelectOrganisationSessionData {
-            ClientId = request.ClientId,
-            UserId = request.UserId,
-            Prompt = request.Prompt,
+            ClientId = context.Request.ClientId,
+            UserId = context.Request.UserId,
+            Prompt = context.Request.Prompt,
             OrganisationOptions = filteredOptions,
-            AllowCancel = request.AllowCancel,
-            CallbackUrl = new Uri(request.CallbackUrl.GetLeftPart(UriPartial.Path) + $"?{CallbackParamNames.RequestId}={requestId}"),
+            AllowCancel = context.Request.AllowCancel,
+            CallbackUrl = new Uri(context.Request.CallbackUrl.GetLeftPart(UriPartial.Path) + $"?{CallbackParamNames.RequestId}={requestId}"),
             Created = createdUtc,
             Expires = createdUtc + new TimeSpan(0, options.SessionTimeoutInMinutes, 0),
         };
@@ -62,7 +66,7 @@ public sealed class CreateSelectOrganisationSession_UseCase(
         return new CreateSelectOrganisationSessionResponse {
             RequestId = requestId,
             HasOptions = filteredOptions.Length > 0,
-            Url = new Uri(options.SelectOrganisationBaseAddress, $"{request.ClientId}/{sessionKey}"),
+            Url = new Uri(options.SelectOrganisationBaseAddress, $"{context.Request.ClientId}/{sessionKey}"),
         };
     }
 }

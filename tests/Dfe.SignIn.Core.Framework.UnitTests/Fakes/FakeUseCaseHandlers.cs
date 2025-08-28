@@ -2,10 +2,10 @@ namespace Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 
 [UseCaseHandler]
 public sealed class Example_UseCaseHandler
-    : IInteractor<ExampleRequest, ExampleResponse>
+    : Interactor<ExampleRequest, ExampleResponse>
 {
-    public Task<ExampleResponse> InvokeAsync(
-        ExampleRequest request,
+    public override Task<ExampleResponse> InvokeAsync(
+        InteractionContext<ExampleRequest> request,
         CancellationToken cancellationToken = default)
     {
         return Task.FromResult(
@@ -16,10 +16,10 @@ public sealed class Example_UseCaseHandler
 
 [UseCaseHandler]
 public sealed class AnotherExample_UseCaseHandler
-    : IInteractor<AnotherExampleRequest, AnotherExampleResponse>
+    : Interactor<AnotherExampleRequest, AnotherExampleResponse>
 {
-    public Task<AnotherExampleResponse> InvokeAsync(
-        AnotherExampleRequest request,
+    public override Task<AnotherExampleResponse> InvokeAsync(
+        InteractionContext<AnotherExampleRequest> request,
         CancellationToken cancellationToken = default)
     {
         return Task.FromResult(new AnotherExampleResponse());

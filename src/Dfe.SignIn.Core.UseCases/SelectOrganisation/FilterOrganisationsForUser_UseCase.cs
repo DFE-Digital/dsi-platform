@@ -7,33 +7,36 @@ using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.Core.InternalModels.Users;
 using Dfe.SignIn.Core.InternalModels.Users.Interactions;
 
+namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
+
 /// <summary>
 /// Use case for filtering organisations for a user.
 /// </summary>
+/// <param name="interaction">Service to dispatch interaction requests.</param>
 public sealed class FilterOrganisationsForUser_UseCase(
-    IInteractor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse> getOrganisationsAssociatedWithUser,
-    IInteractor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse> getApplicationByClientId,
-    IInteractor<GetApplicationsAssociatedWithUserRequest, GetApplicationsAssociatedWithUserResponse> getApplicationsAssociatedWithUser
-) : IInteractor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>
+    IInteractionDispatcher interaction
+) : Interactor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>
 {
     /// <inheritdoc/>
-    public async Task<FilterOrganisationsForUserResponse> InvokeAsync(
-        FilterOrganisationsForUserRequest request,
+    public override async Task<FilterOrganisationsForUserResponse> InvokeAsync(
+        InteractionContext<FilterOrganisationsForUserRequest> context,
         CancellationToken cancellationToken = default)
     {
-        if (request.Filter.Type == OrganisationFilterType.AnyOf) {
+        context.ThrowIfHasValidationErrors();
+
+        if (context.Request.Filter.Type == OrganisationFilterType.AnyOf) {
             return new() {
                 FilteredOrganisations = await this.RetrieveOrganisationsById(
-                    request.Filter.OrganisationIds, cancellationToken
+                    context.Request.Filter.OrganisationIds, cancellationToken
                 ),
             };
         }
 
-        var predicate = this.GetPredicateForAssociationFiltering(request.Filter);
+        var predicate = this.GetPredicateForAssociationFiltering(context.Request.Filter);
 
         return new() {
             FilteredOrganisations = await this.RetrieveOrganisationsAssociatedWithUser(
-                request, predicate, cancellationToken),
+                context.Request, predicate, cancellationToken),
         };
     }
 
@@ -125,23 +128,30 @@ public sealed class FilterOrganisationsForUser_UseCase(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var userOrganisationsResponse = await getOrganisationsAssociatedWithUser.InvokeAsync(new() {
-            UserId = userId,
-        }, cancellationToken);
-        return userOrganisationsResponse.Organisations;
+        var response = await interaction.DispatchAsync(
+            new GetOrganisationsAssociatedWithUserRequest {
+                UserId = userId,
+            }, cancellationToken
+        ).To<GetOrganisationsAssociatedWithUserResponse>();
+
+        return response.Organisations;
     }
 
     private async Task<ApplicationModel> GetClientApplicationAsync(
         string clientId,
         CancellationToken cancellationToken = default)
     {
-        var applicationResponse = await getApplicationByClientId.InvokeAsync(new() {
-            ClientId = clientId,
-        }, cancellationToken);
-        if (applicationResponse.Application is null) {
+        var response = await interaction.DispatchAsync(
+            new GetApplicationByClientIdRequest {
+                ClientId = clientId,
+            }, cancellationToken
+        ).To<GetApplicationByClientIdResponse>();
+
+        if (response.Application is null) {
             throw new ApplicationNotFoundException(null, clientId);
         }
-        return applicationResponse.Application;
+
+        return response.Application;
     }
 
     private async Task<IEnumerable<UserApplicationMappingModel>> GetUserAssociationWithApplicationAsync(
@@ -149,10 +159,13 @@ public sealed class FilterOrganisationsForUser_UseCase(
         Guid applicationId,
         CancellationToken cancellationToken = default)
     {
-        var associatedApplicationsResponse = await getApplicationsAssociatedWithUser.InvokeAsync(new() {
-            UserId = userId,
-        }, cancellationToken);
-        return associatedApplicationsResponse.UserApplicationMappings
+        var response = await interaction.DispatchAsync(
+            new GetApplicationsAssociatedWithUserRequest {
+                UserId = userId,
+            }, cancellationToken
+        ).To<GetApplicationsAssociatedWithUserResponse>();
+
+        return response.UserApplicationMappings
             .Where(mapping => mapping.ApplicationId == applicationId);
     }
 }
