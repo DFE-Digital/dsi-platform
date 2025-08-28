@@ -10,20 +10,19 @@ namespace Dfe.SignIn.Web.Help.Controllers;
 /// <summary>
 /// The controller for the 'Contact us' page.
 /// </summary>
+[Route("/")]
 public sealed class ContactController(
     ITopicIndexAccessor topicIndexAccessor,
     IInteractionDispatcher interaction
 ) : Controller
 {
-    [HttpGet]
-    [Route("/contact-us")]
+    [HttpGet("contact-us")]
     public async Task<IActionResult> Index()
     {
         return this.View(await this.PrepareViewModel());
     }
 
-    [HttpPost]
-    [Route("/contact-us")]
+    [HttpPost("contact-us")]
     public async Task<IActionResult> PostIndex(ContactViewModel viewModel)
     {
         try {

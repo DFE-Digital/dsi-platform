@@ -18,7 +18,7 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
     /// <inheritdoc/>
     public void Setup(MarkdownPipelineBuilder pipeline)
     {
-        pipeline.DocumentProcessed += this.ProcessDocument;
+        pipeline.DocumentProcessed += ProcessDocument;
     }
 
     /// <inheritdoc/>
@@ -26,28 +26,28 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
     {
     }
 
-    private void ProcessDocument(MarkdownDocument document)
+    private static void ProcessDocument(MarkdownDocument document)
     {
         foreach (var block in document.Descendants()) {
             if (block is HeadingBlock headingBlock) {
-                this.ProcessHeadingBlock(headingBlock);
+                ProcessHeadingBlock(headingBlock);
             }
             else if (block is ParagraphBlock paragraphBlock) {
-                this.ProcessParagraphBlock(paragraphBlock);
+                ProcessParagraphBlock(paragraphBlock);
             }
             else if (block is ListBlock listBlock) {
-                this.ProcessListBlock(listBlock);
+                ProcessListBlock(listBlock);
             }
             else if (block is Table tableBlock) {
-                this.ProcessTableBlock(tableBlock);
+                ProcessTableBlock(tableBlock);
             }
             else if (block is LinkInline linkInline) {
-                this.ProcessLinkInline(linkInline);
+                ProcessLinkInline(linkInline);
             }
         }
     }
 
-    private void ProcessHeadingBlock(HeadingBlock block)
+    private static void ProcessHeadingBlock(HeadingBlock block)
     {
         var attributes = block.GetAttributes();
         switch (block.Level) {
@@ -66,13 +66,13 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
         }
     }
 
-    private void ProcessParagraphBlock(ParagraphBlock block)
+    private static void ProcessParagraphBlock(ParagraphBlock block)
     {
         var attributes = block.GetAttributes();
         attributes.AddClass("govuk-body");
     }
 
-    private void ProcessListBlock(ListBlock block)
+    private static void ProcessListBlock(ListBlock block)
     {
         var attributes = block.GetAttributes();
         attributes.AddClass("govuk-list");
@@ -83,7 +83,7 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
         );
     }
 
-    private void ProcessTableBlock(Table block)
+    private static void ProcessTableBlock(Table block)
     {
         var attributes = block.GetAttributes();
         attributes.AddClass("govuk-table");
@@ -96,7 +96,7 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
         AddClassName(normalCells, "govuk-table__cell");
     }
 
-    private void ProcessLinkInline(LinkInline block)
+    private static void ProcessLinkInline(LinkInline block)
     {
         var attributes = block.GetAttributes();
         attributes.AddClass("govuk-link");

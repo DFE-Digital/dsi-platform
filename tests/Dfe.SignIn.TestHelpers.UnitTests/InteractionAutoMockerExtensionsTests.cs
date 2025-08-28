@@ -133,7 +133,12 @@ public sealed class InteractionAutoMockerExtensionsTests
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
 
-        await mockInteraction.Object.DispatchAsync(new ExampleOtherRequest());
+        try {
+            await mockInteraction.Object.DispatchAsync(new ExampleOtherRequest());
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     #endregion

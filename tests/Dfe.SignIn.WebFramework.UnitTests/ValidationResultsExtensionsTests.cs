@@ -125,7 +125,12 @@ public sealed class ValidationResultsExtensionsTests
         var modelState = new ModelStateDictionary();
         modelState.AddModelError("EmailAddress", "Enter a valid email address.");
 
-        ValidationResultsExtensions.ThrowIfNoErrorsRecorded(modelState);
+        try {
+            ValidationResultsExtensions.ThrowIfNoErrorsRecorded(modelState);
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     #endregion

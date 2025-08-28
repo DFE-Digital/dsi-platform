@@ -154,7 +154,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
         Assert.AreEqual("create-account", capturedRequest.Personalisation["type"]);
         Assert.AreEqual("Example Service", capturedRequest.Personalisation["service"]);
         Assert.AreEqual("A message.", capturedRequest.Personalisation["message"]);
-        Assert.AreEqual(false, capturedRequest.Personalisation["showAdditionalInfoHeader"]);
+        Assert.IsFalse(capturedRequest.Personalisation["showAdditionalInfoHeader"]);
         Assert.AreEqual("https://help.localhost/contact-us", capturedRequest.Personalisation["helpUrl"].ToString());
     }
 
@@ -177,7 +177,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("other", capturedRequest.Personalisation["type"]);
-        Assert.AreEqual(true, capturedRequest.Personalisation["showAdditionalInfoHeader"]);
+        Assert.IsTrue(capturedRequest.Personalisation["showAdditionalInfoHeader"]);
         Assert.AreEqual("Custom summary", capturedRequest.Personalisation["typeAdditionalInfo"]);
     }
 }

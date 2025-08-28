@@ -67,7 +67,7 @@ public sealed class RaiseSupportTicketByEmail_UseCase(
                 ["typeAdditionalInfo"] = context.Request.CustomSummary ?? "",
                 ["helpUrl"] = options.ContactUrl,
             }
-        });
+        }, cancellationToken);
 
         return new RaiseSupportTicketResponse();
     }
