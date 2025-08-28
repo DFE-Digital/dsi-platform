@@ -26,6 +26,10 @@ public sealed class GetApplicationByClientId_NodeApiRequester(
             cancellationToken
         );
 
+        Uri? serviceHomeUrl = !string.IsNullOrWhiteSpace(response?.RelyingParty.ServiceHome)
+            ? new Uri(response.RelyingParty.ServiceHome)
+            : null;
+
         return new GetApplicationByClientIdResponse {
             Application = response is null ? null : new() {
                 ApiSecret = response.RelyingParty.ApiSecret,
@@ -33,9 +37,7 @@ public sealed class GetApplicationByClientId_NodeApiRequester(
                 Description = response.Description,
                 Id = response.Id,
                 Name = response.Name,
-                ServiceHomeUrl = !string.IsNullOrWhiteSpace(response.RelyingParty.ServiceHome)
-                    ? new Uri(response.RelyingParty.ServiceHome)
-                    : null,
+                ServiceHomeUrl = serviceHomeUrl,
                 IsExternalService = response.IsExternalService,
                 IsHiddenService = response.IsHiddenService,
                 IsIdOnlyService = response.IsIdOnlyService
