@@ -230,12 +230,11 @@ public sealed class SelectOrganisationController(
                     ClientId = clientId,
                 }, cancellationToken
             ).To<GetApplicationByClientIdResponse>();
-            if (response.Application is not null) {
+            if (response.Application?.ServiceHomeUrl is not null) {
                 returnUrl = response.Application.ServiceHomeUrl;
             }
         }
 
         return returnUrl;
-
     }
 }

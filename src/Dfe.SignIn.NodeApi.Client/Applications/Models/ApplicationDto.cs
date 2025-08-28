@@ -25,7 +25,7 @@ internal sealed record RelyingPartyDto()
     public string? ApiSecret { get; init; } = null;
 
     [JsonPropertyName("service_home")]
-    public required string ServiceHome { get; init; }
+    public string? ServiceHome { get; init; }
 
     [JsonPropertyName("redirect_uris")]
     public string[] RedirectUris { get; init; } = [];
@@ -46,6 +46,6 @@ internal sealed record RelyingPartyParamDto()
 {
     public string? Header { get; init; }
     public string? HeaderMessage { get; init; }
-    public Guid? ServiceId { get; init; }
+    public string? ServiceId { get; init; }
     public string? HelpHidden { get; init; }
 }

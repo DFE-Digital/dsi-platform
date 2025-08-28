@@ -28,7 +28,7 @@ public sealed record ApplicationModel
     /// <summary>
     /// Gets the home URL of the service.
     /// </summary>
-    public required Uri ServiceHomeUrl { get; init; }
+    public Uri? ServiceHomeUrl { get; init; }
 
     /// <summary>
     /// The ApiSecret of the application.

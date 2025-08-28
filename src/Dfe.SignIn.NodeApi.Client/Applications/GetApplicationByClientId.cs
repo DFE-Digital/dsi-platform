@@ -33,7 +33,9 @@ public sealed class GetApplicationByClientId_NodeApiRequester(
                 Description = response.Description,
                 Id = response.Id,
                 Name = response.Name,
-                ServiceHomeUrl = new Uri(response.RelyingParty.ServiceHome),
+                ServiceHomeUrl = !string.IsNullOrWhiteSpace(response.RelyingParty.ServiceHome)
+                    ? new Uri(response.RelyingParty.ServiceHome)
+                    : null,
                 IsExternalService = response.IsExternalService,
                 IsHiddenService = response.IsHiddenService,
                 IsIdOnlyService = response.IsIdOnlyService
