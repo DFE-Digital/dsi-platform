@@ -1,4 +1,4 @@
-﻿using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Notifications;
 using Notify.Interfaces;
 

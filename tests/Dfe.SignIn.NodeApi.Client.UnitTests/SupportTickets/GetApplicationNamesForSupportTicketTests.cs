@@ -1,10 +1,10 @@
+using System.Net;
+using System.Text;
+using System.Text.Json;
 using Dfe.SignIn.Core.InternalModels.SupportTickets;
 using Dfe.SignIn.NodeApi.Client.Applications.Models;
 using Dfe.SignIn.NodeApi.Client.SupportTickets;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
-using System.Net;
-using System.Text;
-using System.Text.Json;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.SupportTickets;
 
