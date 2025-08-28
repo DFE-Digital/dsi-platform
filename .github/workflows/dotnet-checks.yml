@@ -68,13 +68,15 @@ jobs:
             /d:sonar.coverage.exclusions="**/Program.cs,**/*Options.cs,**/*Constants.cs,**/*.cshtml,**/*.js,Fake**" `
             /d:sonar.coverageReportPaths="CoverageReport/SonarQube.xml" `
             /d:sonar.cs.vstest.reportsPaths="**/*.trx" `
-            /d:sonar.issue.ignore.multicriteria=e1,e2,e3 `
+            /d:sonar.issue.ignore.multicriteria=e1,e2,e3,e4 `
             /d:sonar.issue.ignore.multicriteria.e1.ruleKey=csharpsquid:S2094 `
             /d:sonar.issue.ignore.multicriteria.e1.resourceKey=**/*.cs `
             /d:sonar.issue.ignore.multicriteria.e2.ruleKey=csharpsquid:S3267 `
-            /d:sonar.issue.ignore.multicriteria.e2.resourceKey=**/*.cs,**/*.cshtml `
-            /d:sonar.issue.ignore.multicriteria.e3.ruleKey=csharpsquid:S1066 `
-            /d:sonar.issue.ignore.multicriteria.e3.resourceKey=**/*.cs
+            /d:sonar.issue.ignore.multicriteria.e2.resourceKey=**/*.cs `
+            /d:sonar.issue.ignore.multicriteria.e3.ruleKey=csharpsquid:S3267 `
+            /d:sonar.issue.ignore.multicriteria.e3.resourceKey=**/*.cshtml `
+            /d:sonar.issue.ignore.multicriteria.e4.ruleKey=csharpsquid:S1066 `
+            /d:sonar.issue.ignore.multicriteria.e4.resourceKey=**/*.cs
 
       - name: Build project
         run: dotnet build ./build.sln --no-incremental
