@@ -40,4 +40,32 @@ public static class ValidationResultsExtensions
             }
         }
     }
+
+    /// <summary>
+    /// Throws exception if no validation errors have been recorded.
+    /// </summary>
+    /// <param name="modelState">The model state to add to.</param>
+    /// <param name="exception">The exception to be thrown.</param>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="modelState"/> is null.</para>
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///   <para>If an exception is being thrown but <paramref name="exception"/> was
+    ///   specified.</para>
+    /// </exception>
+    /// <exception cref="Exception">
+    ///   <para>The exception that was specified by <paramref name="exception"/> if an
+    ///   exception is to be thrown.</para>
+    /// </exception>
+    public static void ThrowIfNoErrorsRecorded(
+        this ModelStateDictionary modelState,
+        Exception? exception = null)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(modelState, nameof(modelState));
+
+        if (modelState.IsValid) {
+            exception ??= new InvalidOperationException();
+            throw exception;
+        }
+    }
 }

@@ -166,11 +166,16 @@ public sealed class ContactControllerTests
         Assert.AreEqual("Example message.", capturedRequest.Message);
     }
 
+    private static readonly Exception FakeInvalidRequestException = new InvalidRequestException(
+        Guid.Empty,
+        [new("Invalid input.", ["EmailAddress"])]
+    );
+
     [TestMethod]
     public Task PostIndex_PresentsViewWithTopicContent_WhenRequestIsInvalid()
     {
         return AssertPresentsViewWithTopicContent((autoMocker, controller) => {
-            autoMocker.MockThrows<RaiseSupportTicketRequest>(new InvalidRequestException());
+            autoMocker.MockThrows<RaiseSupportTicketRequest>(FakeInvalidRequestException);
             return controller.PostIndex(Activator.CreateInstance<ContactViewModel>());
         });
     }
@@ -179,7 +184,7 @@ public sealed class ContactControllerTests
     public Task PostIndex_PresentsViewWithSubjectOptions_WhenRequestIsInvalid()
     {
         return AssertPresentsViewWithSubjectOptions((autoMocker, controller) => {
-            autoMocker.MockThrows<RaiseSupportTicketRequest>(new InvalidRequestException());
+            autoMocker.MockThrows<RaiseSupportTicketRequest>(FakeInvalidRequestException);
             return controller.PostIndex(Activator.CreateInstance<ContactViewModel>());
         });
     }
@@ -188,7 +193,7 @@ public sealed class ContactControllerTests
     public Task PostIndex_PresentsViewWithApplicationOptions_WhenRequestIsInvalid()
     {
         return AssertPresentsViewWithApplicationOptions((autoMocker, controller) => {
-            autoMocker.MockThrows<RaiseSupportTicketRequest>(new InvalidRequestException());
+            autoMocker.MockThrows<RaiseSupportTicketRequest>(FakeInvalidRequestException);
             return controller.PostIndex(Activator.CreateInstance<ContactViewModel>());
         });
     }

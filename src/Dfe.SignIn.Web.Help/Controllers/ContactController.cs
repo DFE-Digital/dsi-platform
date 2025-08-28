@@ -37,8 +37,6 @@ public sealed class ContactController(
                 ApplicationName = viewModel.ApplicationNameInput!,
                 Message = viewModel.MessageInput!,
             }).To<RaiseSupportTicketResponse>();
-
-            return this.View("Success");
         }
         catch (InvalidRequestException ex) {
             this.ModelState.AddFrom(ex.ValidationResults, new() {
@@ -51,8 +49,14 @@ public sealed class ContactController(
                 [nameof(RaiseSupportTicketRequest.ApplicationName)] = nameof(ContactViewModel.ApplicationNameInput),
                 [nameof(RaiseSupportTicketRequest.Message)] = nameof(ContactViewModel.MessageInput),
             });
+            this.ModelState.ThrowIfNoErrorsRecorded(ex);
+        }
+
+        if (!this.ModelState.IsValid) {
             return this.View("Index", await this.PrepareViewModel(viewModel));
         }
+
+        return this.View("Success");
     }
 
     private async Task<ContactViewModel> PrepareViewModel(ContactViewModel? viewModel = null)

@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Framework;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,12 +24,8 @@ public sealed class ValidationResultsExtensionsTests
     {
         var validationResults = Array.Empty<ValidationResult>();
 
-        void Act()
-        {
-            ValidationResultsExtensions.AddFrom(null!, validationResults, []);
-        }
-
-        Assert.Throws<ArgumentNullException>(Act);
+        Assert.Throws<ArgumentNullException>(()
+            => ValidationResultsExtensions.AddFrom(null!, validationResults, []));
     }
 
     [TestMethod]
@@ -36,12 +33,8 @@ public sealed class ValidationResultsExtensionsTests
     {
         var modelState = new ModelStateDictionary();
 
-        void Act()
-        {
-            ValidationResultsExtensions.AddFrom(modelState, null!, []);
-        }
-
-        Assert.Throws<ArgumentNullException>(Act);
+        Assert.Throws<ArgumentNullException>(()
+            => ValidationResultsExtensions.AddFrom(modelState, null!, []));
     }
 
     [TestMethod]
@@ -50,12 +43,8 @@ public sealed class ValidationResultsExtensionsTests
         var modelState = new ModelStateDictionary();
         var validationResults = Array.Empty<ValidationResult>();
 
-        void Act()
-        {
-            ValidationResultsExtensions.AddFrom(modelState, validationResults, null!);
-        }
-
-        Assert.Throws<ArgumentNullException>(Act);
+        Assert.Throws<ArgumentNullException>(()
+            => ValidationResultsExtensions.AddFrom(modelState, validationResults, null!));
     }
 
     [TestMethod]
@@ -88,6 +77,55 @@ public sealed class ValidationResultsExtensionsTests
         ValidationResultsExtensions.AddFrom(modelState, validationResults, []);
 
         Assert.AreEqual(0, modelState.ErrorCount);
+    }
+
+    #endregion
+
+    #region ThrowIfNoErrorsRecorded(ModelStateDictionary, Exception?)
+
+    [TestMethod]
+    public void ThrowIfNoErrorsRecorded_Throws_WhenModelStateArgumentIsNull()
+    {
+        var validationResults = Array.Empty<ValidationResult>();
+
+        Assert.Throws<ArgumentNullException>(()
+            => ValidationResultsExtensions.ThrowIfNoErrorsRecorded(null!));
+    }
+
+    [TestMethod]
+    public void ThrowIfNoErrorsRecorded_ThrowsGivenException_WhenModelStateIsValid()
+    {
+        var validationResults = Array.Empty<ValidationResult>();
+
+        var modelState = new ModelStateDictionary();
+        var expectedException = new InvalidRequestException();
+
+        var actualException = Assert.Throws<InvalidRequestException>(()
+            => ValidationResultsExtensions.ThrowIfNoErrorsRecorded(modelState, expectedException));
+
+        Assert.AreSame(expectedException, actualException);
+    }
+
+    [TestMethod]
+    public void ThrowIfNoErrorsRecorded_ThrowsInvalidOperation_WhenModelStateIsValid()
+    {
+        var validationResults = Array.Empty<ValidationResult>();
+
+        var modelState = new ModelStateDictionary();
+
+        Assert.Throws<InvalidOperationException>(()
+            => ValidationResultsExtensions.ThrowIfNoErrorsRecorded(modelState));
+    }
+
+    [TestMethod]
+    public void ThrowIfNoErrorsRecorded_DoesNotThrow_WhenModelStateIsInvalid()
+    {
+        var validationResults = Array.Empty<ValidationResult>();
+
+        var modelState = new ModelStateDictionary();
+        modelState.AddModelError("EmailAddress", "Enter a valid email address.");
+
+        ValidationResultsExtensions.ThrowIfNoErrorsRecorded(modelState);
     }
 
     #endregion

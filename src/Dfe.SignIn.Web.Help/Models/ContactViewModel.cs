@@ -1,5 +1,5 @@
 using Dfe.SignIn.Core.InternalModels.SupportTickets;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Dfe.SignIn.Web.Help.Models;
 
@@ -11,7 +11,7 @@ public sealed class ContactViewModel
     /// <summary>
     /// Gets or sets the title of the topic.
     /// </summary>
-    [BindNever]
+    [ValidateNever]
     public required string Title { get; set; }
 
     /// <summary>
@@ -22,7 +22,7 @@ public sealed class ContactViewModel
     ///   element such as a paragraph.</para>
     ///   <para>This text can also be used for description meta tags.</para>
     /// </remarks>
-    [BindNever]
+    [ValidateNever]
     public string? Summary { get; set; }
 
     /// <summary>
@@ -32,7 +32,7 @@ public sealed class ContactViewModel
     ///   <para>This content should be presented as raw HTML since it is already HTML
     ///   encoded.</para>
     /// </remarks>
-    [BindNever]
+    [ValidateNever]
     public required string ContentHtml { get; set; }
 
     /// <summary>
@@ -58,7 +58,7 @@ public sealed class ContactViewModel
     /// <summary>
     /// Gets or sets the list of subjects to present in the contact form.
     /// </summary>
-    [BindNever]
+    [ValidateNever]
     public required IEnumerable<SubjectOptionForSupportTicket> SubjectOptions { get; set; }
 
     /// <summary>
@@ -79,7 +79,7 @@ public sealed class ContactViewModel
     /// <summary>
     /// Gets or sets the list of service options.
     /// </summary>
-    [BindNever]
+    [ValidateNever]
     public required IEnumerable<ApplicationNameForSupportTicket> ApplicationOptions { get; set; }
 
     /// <summary>
