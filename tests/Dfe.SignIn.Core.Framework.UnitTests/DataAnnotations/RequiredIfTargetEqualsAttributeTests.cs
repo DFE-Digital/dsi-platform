@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Castle.Core.Internal;
 using Dfe.SignIn.Core.Framework.DataAnnotations;
 
 namespace Dfe.SignIn.Core.Framework.UnitTests.DataAnnotations;
@@ -34,7 +33,6 @@ public sealed class RequiredIfTargetEqualsAttributeTests
         var context = new ValidationContext(model);
 
         var propertyInfo = model.GetType().GetProperty("ExampleProperty")!;
-        var attribute = propertyInfo.GetAttribute<RequiredIfTargetEqualsAttribute>();
 
         context.MemberName = propertyInfo.Name;
         Validator.ValidateProperty(propertyInfo.GetValue(model), context);

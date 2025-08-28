@@ -65,7 +65,7 @@ jobs:
             /k:"DFE-Digital_dsi-platform" `
             /d:sonar.host.url="https://sonarcloud.io" `
             /d:sonar.token="$env:SONAR_TOKEN" `
-            /d:sonar.coverage.exclusions="**/Program.cs,**/*Options.cs,**/*Constants.cs,**/*.cshtml,**/*.js" `
+            /d:sonar.coverage.exclusions="**/Program.cs,**/*Options.cs,**/*Constants.cs,**/*.cshtml,**/*.js,Fake**" `
             /d:sonar.coverageReportPaths="CoverageReport/SonarQube.xml" `
             /d:sonar.cs.vstest.reportsPaths="**/*.trx"
 

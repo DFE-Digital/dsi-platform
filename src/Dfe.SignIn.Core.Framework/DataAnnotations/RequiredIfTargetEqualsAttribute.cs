@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Dfe.SignIn.Core.Framework.DataAnnotations;
 
@@ -8,6 +9,7 @@ namespace Dfe.SignIn.Core.Framework.DataAnnotations;
 /// </summary>
 /// <param name="sourceProperty">Identifies the source property.</param>
 /// <param name="sourceValue">The conditional value of the source property.</param>
+[ExcludeFromCodeCoverage] // (SonarQube does not associate with -> RequiredIfTargetEqualsAttributeTests)
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
 public sealed class RequiredIfTargetEqualsAttribute(
     string sourceProperty,
