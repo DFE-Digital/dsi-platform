@@ -72,7 +72,7 @@ jobs:
             /d:sonar.issue.ignore.multicriteria.e1.ruleKey=csharpsquid:S2094 `
             /d:sonar.issue.ignore.multicriteria.e1.resourceKey=**/*.cs `
             /d:sonar.issue.ignore.multicriteria.e2.ruleKey=csharpsquid:S3267 `
-            /d:sonar.issue.ignore.multicriteria.e2.resourceKey=**/*.cs `
+            /d:sonar.issue.ignore.multicriteria.e2.resourceKey=**/*.cs,**/*.cshtml `
             /d:sonar.issue.ignore.multicriteria.e3.ruleKey=csharpsquid:S1066 `
             /d:sonar.issue.ignore.multicriteria.e3.resourceKey=**/*.cs
 
