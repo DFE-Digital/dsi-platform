@@ -3,10 +3,10 @@
 <govuk-footer>
     <govuk-footer-meta>
         <govuk-footer-meta-items>
-            <govuk-footer-meta-item href=@(platformOptionsAccessor.Value.CookiesUrl) target="_blank">
+            <govuk-footer-meta-item href=@(platformOptionsAccessor.Value.CookiesUrl) link-target="_blank">
                 Cookies
             </govuk-footer-meta-item>
-            <govuk-footer-meta-item href=@(platformOptionsAccessor.Value.TermsUrl) target="_blank">
+            <govuk-footer-meta-item href=@(platformOptionsAccessor.Value.TermsUrl) link-target="_blank">
                 Terms and conditions
             </govuk-footer-meta-item>
             <govuk-footer-meta-item href=@(platformOptionsAccessor.Value.PrivacyUrl) link-target="_blank">
@@ -15,7 +15,7 @@
             <govuk-footer-meta-item href=@(platformOptionsAccessor.Value.AccessibilityUrl) link-target="_blank">
                 Accessibility statement
             </govuk-footer-meta-item>
-            <govuk-footer-meta-item href=@(platformOptionsAccessor.Value.ContactUrl) link-target="_blank">
+            <govuk-footer-meta-item href=@(platformOptionsAccessor.Value.ContactUrl)>
                 Contact us
             </govuk-footer-meta-item>
         </govuk-footer-meta-items>
