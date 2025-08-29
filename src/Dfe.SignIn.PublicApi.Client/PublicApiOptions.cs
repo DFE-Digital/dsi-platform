@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client;
@@ -5,6 +6,9 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <summary>
 /// Options for the DfE Sign-in Public API.
 /// </summary>
+[SuppressMessage("csharpsquid", "S1075",
+    Justification = "Default URLs configuration for running locally on a development machine."
+)]
 public sealed class PublicApiOptions : IOptions<PublicApiOptions>
 {
     /// <summary>

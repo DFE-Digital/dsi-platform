@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.Core.Framework;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
@@ -21,8 +22,8 @@ public static class HealthCheckExtensions
     /// </exception>
     public static void SetupHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
 
         string connectionString = configuration.GetValue<string>("ConnectionString")
             ?? throw new InvalidOperationException("Missing connection string for Redis.");

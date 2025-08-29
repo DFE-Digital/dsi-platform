@@ -53,7 +53,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
             await interaction.DispatchAsync(FakeRequest);
         }
 
-        var exception = await Assert.ThrowsAsync<MissingInteractorException>(Act);
+        var exception = await Assert.ThrowsExactlyAsync<MissingInteractorException>(Act);
         Assert.AreEqual(nameof(ExampleInteractorWithValidationRequest), exception.RequestType);
     }
 
@@ -153,8 +153,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
             await interaction.DispatchAsync(FakeRequest);
         }
 
-        var exception = await Assert.ThrowsAsync<Exception>(Act);
-        Assert.IsInstanceOfType<UnexpectedException>(exception);
+        await Assert.ThrowsExactlyAsync<UnexpectedException>(Act);
     }
 
     [DataTestMethod]

@@ -5,7 +5,6 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <summary>
 /// The exception thrown when a required claim type is missing.
 /// </summary>
-[Serializable]
 public sealed class MissingClaimException : Exception
 {
     /// <summary>

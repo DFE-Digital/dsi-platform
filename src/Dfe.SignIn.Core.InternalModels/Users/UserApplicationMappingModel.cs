@@ -3,7 +3,7 @@ namespace Dfe.SignIn.Core.InternalModels.Users;
 /// <summary>
 /// A model representing an application
 /// </summary>
-public sealed record UserApplicationMappingModel()
+public sealed record UserApplicationMappingModel
 {
     /// <summary>
     /// Unique identifier of the user.

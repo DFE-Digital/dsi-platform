@@ -39,7 +39,7 @@ public sealed class ActiveOrganisationProviderExtensionsTests
             .Setup(mock => mock.GetActiveOrganisationStateAsync(It.IsAny<IHttpContext>()))
             .ReturnsAsync(null as ActiveOrganisationState);
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
             () => ActiveOrganisationProviderExtensions.GetActiveOrganisationAsync(mockProvider.Object, mockContext.Object)
         );
         Assert.AreEqual("Missing active organisation state.", exception.Message);

@@ -24,7 +24,7 @@ internal sealed class PublicApiBearerTokenHandler(
     /// <inheritdoc/>
     protected override HttpResponseMessage Send(
         HttpRequestMessage request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         request.Headers.Authorization = this.CreateAuthorizationHeader();
         return base.Send(request, cancellationToken);
@@ -34,7 +34,7 @@ internal sealed class PublicApiBearerTokenHandler(
     /// <inheritdoc/>
     protected override Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         request.Headers.Authorization = this.CreateAuthorizationHeader();
 

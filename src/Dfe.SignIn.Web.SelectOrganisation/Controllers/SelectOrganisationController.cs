@@ -14,17 +14,29 @@ namespace Dfe.SignIn.Web.SelectOrganisation.Controllers;
 /// <summary>
 /// The controller for selecting an organisation.
 /// </summary>
+[Route("")]
 public sealed class SelectOrganisationController(
     IOptions<PlatformOptions> platformOptionsAccessor,
     IInteractionDispatcher interaction
 ) : Controller
 {
-    [HttpGet]
-    [Route("{clientId}/{sessionKey}")]
+    private SelectOrganisationViewModel PrepareViewModel(
+        string clientId, string sessionKey, SelectOrganisationSessionData session)
+    {
+        return new SelectOrganisationViewModel {
+            SignOutUrl = this.Url.Action(
+                action: "SignOut",
+                values: new { clientId, sessionKey }
+            ),
+            Prompt = session.Prompt,
+            OrganisationOptions = session.OrganisationOptions,
+            AllowCancel = session.AllowCancel,
+        };
+    }
+
+    [HttpGet("{clientId}/{sessionKey}")]
     public async Task<IActionResult> Index(
-        string clientId,
-        string sessionKey,
-        CancellationToken cancellationToken = default)
+        string clientId, string sessionKey, CancellationToken cancellationToken = default)
     {
         var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
         if (sessionResult.Session is null) {
@@ -33,7 +45,7 @@ public sealed class SelectOrganisationController(
         var session = sessionResult.Session;
 
         // If there are no options; invoke the callback right away.
-        if (session.OrganisationOptions.Count() == 0) {
+        if (!session.OrganisationOptions.Any()) {
             return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.NoOptions);
         }
 
@@ -60,24 +72,12 @@ public sealed class SelectOrganisationController(
             return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
         }
 
-        // Present prompt to the user.
-        return this.View(new SelectOrganisationViewModel {
-            SignOutUrl = this.Url.Action(
-                action: "SignOut",
-                values: new { clientId, sessionKey }
-            ),
-            Prompt = session.Prompt,
-            OrganisationOptions = session.OrganisationOptions,
-            AllowCancel = session.AllowCancel,
-        });
+        return this.View(this.PrepareViewModel(clientId, sessionKey, session));
     }
 
-    [HttpPost]
-    [Route("{clientId}/{sessionKey}")]
+    [HttpPost("{clientId}/{sessionKey}")]
     public async Task<IActionResult> PostIndex(
-        string clientId,
-        string sessionKey,
-        SelectOrganisationViewModel viewModel,
+        string clientId, string sessionKey, SelectOrganisationViewModel viewModel,
         CancellationToken cancellationToken = default)
     {
         var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
@@ -86,7 +86,7 @@ public sealed class SelectOrganisationController(
         }
         var session = sessionResult.Session;
 
-        if (viewModel.Cancel == "1") {
+        if (viewModel.CancelInput == "1") {
             if (session.AllowCancel) {
                 return this.RedirectToCancelCallback(session);
             }
@@ -95,18 +95,15 @@ public sealed class SelectOrganisationController(
             }
         }
 
-        if (viewModel.SelectedOrganisationId is null) {
-            // Present prompt to the user with error.
-            this.ModelState.AddModelError(nameof(SelectOrganisationViewModel.SelectedOrganisationId), "Select one organisation.");
-            return this.View("Index", new SelectOrganisationViewModel {
-                SignOutUrl = this.Url.Action(
-                    action: "SignOut",
-                    values: new { clientId, sessionKey }
-                ),
-                Prompt = session.Prompt,
-                OrganisationOptions = session.OrganisationOptions,
-                AllowCancel = session.AllowCancel,
-            });
+        if (viewModel.SelectedOrganisationIdInput is null) {
+            this.ModelState.AddModelError(
+                nameof(SelectOrganisationViewModel.SelectedOrganisationIdInput),
+                "Select one organisation."
+            );
+        }
+
+        if (!this.ModelState.IsValid) {
+            return this.View("Index", this.PrepareViewModel(clientId, sessionKey, session));
         }
 
         await interaction.DispatchAsync(
@@ -116,14 +113,14 @@ public sealed class SelectOrganisationController(
         );
 
         bool didUserSelectOptionThatWasPresented = session.OrganisationOptions.Any(
-            option => option.Id == viewModel.SelectedOrganisationId);
+            option => option.Id == viewModel.SelectedOrganisationIdInput);
         if (!didUserSelectOptionThatWasPresented) {
             return await this.HandleInvalidSessionAsync(clientId, cancellationToken);
         }
 
         var selectedOrganisation = (await interaction.DispatchAsync(
             new GetOrganisationByIdRequest {
-                OrganisationId = (Guid)viewModel.SelectedOrganisationId,
+                OrganisationId = (Guid)viewModel.SelectedOrganisationIdInput!,
             }, cancellationToken
         ).To<GetOrganisationByIdResponse>()).Organisation;
         if (selectedOrganisation is null) {
@@ -133,8 +130,7 @@ public sealed class SelectOrganisationController(
         return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
     }
 
-    [HttpGet]
-    [Route("{clientId}/{sessionKey}/sign-out")]
+    [HttpGet("{clientId}/{sessionKey}/sign-out")]
     public async Task<IActionResult> SignOut(
         string clientId,
         string sessionKey,

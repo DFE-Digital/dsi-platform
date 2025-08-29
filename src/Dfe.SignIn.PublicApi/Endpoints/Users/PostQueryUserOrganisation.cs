@@ -13,11 +13,11 @@ public static partial class UserEndpoints
     /// <summary>
     /// Queries a specific organisation of a user.
     /// </summary>
-    public static async Task<QueryUserOrganisation_PublicApiResponse> PostQueryUserOrganisation(
+    public static async Task<QueryUserOrganisationApiResponse> PostQueryUserOrganisation(
         Guid userId,
         Guid organisationId,
         // ---
-        [FromBody] QueryUserOrganisation_PublicApiRequestBody request,
+        [FromBody] QueryUserOrganisationApiRequestBody request,
         // ---
         IScopedSessionReader scopedSession,
         IInteractionDispatcher interaction,

@@ -2,21 +2,17 @@
 
 This endpoint can be used to verify that an organisation meets the filtering requirement for a user. Responds with organisation details when filtering requirement is met.
 
-
 ## Endpoint:
 
 ```
 POST /v2/users/{userId}/organisations/{organisationId}/query
 ```
 
-
 ## Interactor (.NET):
 
-<pre class="dotnet-type-summary"><div><a href="xref:Dfe.SignIn.Core.Framework.IInteractor`2">IInteractor</a>&lt;
-    <a href="xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisation_PublicApiRequest">QueryUserOrganisation_PublicApiRequest</a>,
-    <a href="xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisation_PublicApiResponse">QueryUserOrganisation_PublicApiResponse</a>
-&gt;</div></pre>
+Request: <a href="xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiRequest">QueryUserOrganisationApiRequest</a>
 
+Response: <a href="xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiResponse">QueryUserOrganisationApiResponse</a>
 
 ## Request headers:
 
@@ -24,10 +20,9 @@ POST /v2/users/{userId}/organisations/{organisationId}/query
 
 The JWT token for authorization should be signed using your API secret, which will be provided to you.
 
-
 ## Request body:
 
-**See also:** [](xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisation_PublicApiRequestBody)
+**See also:** [](xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiRequestBody)
 
 ### filter: object (Optional)
 
@@ -36,6 +31,7 @@ Specifies the filtering organisation filtering requirement for the user.
 **See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.OrganisationFilter)
 
 **Default value:**
+
 ```json
 {
   "type": "associated",
@@ -44,6 +40,7 @@ Specifies the filtering organisation filtering requirement for the user.
 }
 ```
 
+<!-- prettier-ignore-start -->
 +-----------------------+---------------------------------------------------------------+
 | Property              | Summary                                                       |
 +=======================+===============================================================+
@@ -89,7 +86,7 @@ Specifies the filtering organisation filtering requirement for the user.
 |                       |                                                               |
 |                       | **Type:** `string[]`                                          |
 +-----------------------+---------------------------------------------------------------+
-
+<!-- prettier-ignore-end -->
 
 ## Response body:
 

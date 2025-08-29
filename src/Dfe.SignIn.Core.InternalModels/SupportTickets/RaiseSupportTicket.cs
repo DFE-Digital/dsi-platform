@@ -6,7 +6,7 @@ namespace Dfe.SignIn.Core.InternalModels.SupportTickets;
 /// <summary>
 /// Request to raise a support ticket.
 /// </summary>
-public sealed record RaiseSupportTicketRequest()
+public sealed record RaiseSupportTicketRequest
 {
     /// <summary>
     /// The full name of the user.
@@ -66,6 +66,6 @@ public sealed record RaiseSupportTicketRequest()
 /// <summary>
 /// Response model for interactor <see cref="RaiseSupportTicketRequest"/>.
 /// </summary>
-public sealed record RaiseSupportTicketResponse()
+public sealed record RaiseSupportTicketResponse
 {
 }

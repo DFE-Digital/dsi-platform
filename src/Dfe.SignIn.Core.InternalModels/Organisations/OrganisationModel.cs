@@ -5,7 +5,7 @@ namespace Dfe.SignIn.Core.InternalModels.Organisations;
 /// <summary>
 /// A model representing an organisation in DfE Sign-in.
 /// </summary>
-public sealed record OrganisationModel()
+public sealed record OrganisationModel
 {
     /// <summary>
     /// Gets the unique value that identifies the organisation.
@@ -105,7 +105,7 @@ public sealed record OrganisationModel()
     public string? PIMSProviderType { get; set; }
 
     /// <summary>
-    /// Gets the PIMS provider type code of the organisation. 
+    /// Gets the PIMS provider type code of the organisation.
     /// </summary>
     public int? PIMSProviderTypeCode { get; set; }
 

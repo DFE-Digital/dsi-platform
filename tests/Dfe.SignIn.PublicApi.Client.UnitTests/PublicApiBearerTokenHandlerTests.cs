@@ -94,8 +94,8 @@ public sealed class PublicApiBearerTokenHandlerTests
 
         var handler = CreatePublicApiBearerTokenHandler(autoMocker);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(
-            handler.CreateAuthorizationHeader
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => handler.CreateAuthorizationHeader()
         );
         Assert.AreEqual("Invalid DfE Sign-in Public API secret.", exception.Message);
     }
@@ -115,8 +115,8 @@ public sealed class PublicApiBearerTokenHandlerTests
 
         var handler = CreatePublicApiBearerTokenHandler(autoMocker);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(
-            handler.CreateAuthorizationHeader
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => handler.CreateAuthorizationHeader()
         );
         Assert.AreEqual("Invalid DfE Sign-in Public API client ID.", exception.Message);
     }
@@ -137,8 +137,8 @@ public sealed class PublicApiBearerTokenHandlerTests
 
         var handler = CreatePublicApiBearerTokenHandler(autoMocker);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(
-            handler.CreateAuthorizationHeader
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => handler.CreateAuthorizationHeader()
         );
         Assert.AreEqual("Invalid DfE Sign-in Public API service audience.", exception.Message);
     }

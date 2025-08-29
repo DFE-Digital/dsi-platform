@@ -5,7 +5,7 @@ namespace Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 /// <summary>
 /// Represents a request to get "select organisation" session data.
 /// </summary>
-public sealed record GetSelectOrganisationSessionByKeyRequest()
+public sealed record GetSelectOrganisationSessionByKeyRequest
 {
     /// <summary>
     /// Gets the unique key of the session.
@@ -17,7 +17,7 @@ public sealed record GetSelectOrganisationSessionByKeyRequest()
 /// <summary>
 /// Represents a response for <see cref="GetSelectOrganisationSessionByKeyRequest"/>.
 /// </summary>
-public sealed record GetSelectOrganisationSessionByKeyResponse()
+public sealed record GetSelectOrganisationSessionByKeyResponse
 {
     /// <summary>
     /// Gets the "select organisation" session data if any was found.

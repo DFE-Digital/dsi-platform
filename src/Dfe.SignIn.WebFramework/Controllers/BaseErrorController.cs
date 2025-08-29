@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.WebFramework.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,10 @@ public abstract class BaseErrorController : Controller
     /// Presents the error page.
     /// </summary>
     /// <param name="code">HTTP status code.</param>
+    [HttpGet]
+    [SuppressMessage("csharpsquid", "S6967",
+        Justification = "An error page should be presented regardless of ModelState."
+    )]
     public IActionResult Index(int code = 500)
     {
         return code switch {

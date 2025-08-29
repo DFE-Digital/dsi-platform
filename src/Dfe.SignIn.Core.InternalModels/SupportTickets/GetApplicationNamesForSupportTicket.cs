@@ -4,14 +4,14 @@ namespace Dfe.SignIn.Core.InternalModels.SupportTickets;
 /// Request to get the list of application names which can be chosen when a user is
 /// raising a support ticket.
 /// </summary>
-public sealed record GetApplicationNamesForSupportTicketRequest()
+public sealed record GetApplicationNamesForSupportTicketRequest
 {
 }
 
 /// <summary>
 /// Response model for interactor <see cref="GetApplicationNamesForSupportTicketRequest"/>.
 /// </summary>
-public sealed record GetApplicationNamesForSupportTicketResponse()
+public sealed record GetApplicationNamesForSupportTicketResponse
 {
     /// <summary>
     /// Gets the enumerable collection of applications.
@@ -22,7 +22,7 @@ public sealed record GetApplicationNamesForSupportTicketResponse()
 /// <summary>
 /// Represents an application name result in a <see cref="GetApplicationNamesForSupportTicketResponse"/>.
 /// </summary>
-public sealed record ApplicationNameForSupportTicket()
+public sealed record ApplicationNameForSupportTicket
 {
     /// <summary>
     /// Gets the name of the service application.

@@ -23,7 +23,10 @@ public sealed class RequiredIfTargetEqualsAttribute(
         var dependentValue = property.GetValue(validationContext.ObjectInstance, null);
         if (Equals(dependentValue, sourceValue)) {
             if (value is null || (value is string str && string.IsNullOrWhiteSpace(str))) {
-                return new ValidationResult(this.ErrorMessage, [validationContext.MemberName]);
+                IEnumerable<string>? memberNames = validationContext.MemberName is not null
+                    ? [validationContext.MemberName]
+                    : null;
+                return new ValidationResult(this.ErrorMessage, memberNames);
             }
         }
 

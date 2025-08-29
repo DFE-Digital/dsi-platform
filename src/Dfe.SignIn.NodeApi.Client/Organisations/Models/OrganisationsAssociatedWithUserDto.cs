@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.NodeApi.Client.Organisations.Models;
 
-internal sealed record OrganisationsAssociatedWithUserDto()
+internal sealed record OrganisationsAssociatedWithUserDto
 {
     public required UserOrganisationDto Organisation { get; init; }
     public RoleDto? Role { get; init; }
@@ -12,7 +12,7 @@ internal sealed record OrganisationsAssociatedWithUserDto()
     public string? TextIdentifier { get; init; } = null;
 }
 
-internal sealed record UserOrganisationDto() : OrganisationDto
+internal sealed record UserOrganisationDto : OrganisationDto
 {
     [JsonPropertyName("status")]
     public required StatusDto Status { get; set; }
@@ -42,7 +42,7 @@ internal sealed record UserOrganisationDto() : OrganisationDto
     public string? CompanyRegistrationNumber { get; set; }
 }
 
-internal sealed record RoleDto()
+internal sealed record RoleDto
 {
     [JsonPropertyName("id")]
 
@@ -53,7 +53,7 @@ internal sealed record RoleDto()
     public required string Name { get; init; }
 }
 
-internal sealed record StatusDto()
+internal sealed record StatusDto
 {
     [JsonPropertyName("id")]
     public required int Id { get; init; }
@@ -65,7 +65,7 @@ internal sealed record StatusDto()
     public required string TagColor { get; init; }
 }
 
-internal sealed record CategoryDto()
+internal sealed record CategoryDto
 {
     [JsonPropertyName("id")]
     public required string Id { get; init; }
@@ -74,7 +74,7 @@ internal sealed record CategoryDto()
     public required string Name { get; init; }
 }
 
-internal sealed record EstablishmentTypeDto()
+internal sealed record EstablishmentTypeDto
 {
     [JsonPropertyName("id")]
     public required string Id { get; init; }

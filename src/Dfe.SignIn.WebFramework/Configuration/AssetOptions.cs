@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.WebFramework.Configuration;
@@ -5,6 +6,9 @@ namespace Dfe.SignIn.WebFramework.Configuration;
 /// <summary>
 /// Options for referencing frontend assets; for example, the design system .css and .js files.
 /// </summary>
+[SuppressMessage("csharpsquid", "S1075",
+    Justification = "Default URLs configuration for running locally on a development machine."
+)]
 public sealed class AssetOptions : IOptions<AssetOptions>
 {
     /// <summary>

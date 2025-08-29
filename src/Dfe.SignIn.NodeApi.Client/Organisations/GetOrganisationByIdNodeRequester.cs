@@ -11,7 +11,7 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// ApiRequester for obtaining an organisation by its unique identifier.
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
-public sealed class GetOrganisationById_NodeApiRequester(
+public sealed class GetOrganisationByIdNodeRequester(
     [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper
 ) : Interactor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>
 {

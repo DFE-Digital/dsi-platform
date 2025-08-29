@@ -7,14 +7,14 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Access;
 
 [TestClass]
-public sealed class GetApplicationsAssociatedWithUserTests
+public sealed class GetApplicationsAssociatedWithUserNodeRequesterTests
 {
     [TestMethod]
     public Task InvokeAsync_ThrowsIfRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationsAssociatedWithUserRequest,
-            GetApplicationsAssociatedWithUser_NodeApiRequester
+            GetApplicationsAssociatedWithUserNodeRequester
         >();
     }
 
@@ -51,13 +51,11 @@ public sealed class GetApplicationsAssociatedWithUserTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationsAssociatedWithUser_NodeApiRequester(client);
+        var controller = new GetApplicationsAssociatedWithUserNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetApplicationsAssociatedWithUserRequest {
             UserId = mockDto[0].UserId
         });
-
-        Assert.IsNotNull(response.UserApplicationMappings);
 
         var applications = response.UserApplicationMappings.ToArray();
 
@@ -88,13 +86,12 @@ public sealed class GetApplicationsAssociatedWithUserTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationsAssociatedWithUser_NodeApiRequester(client);
+        var controller = new GetApplicationsAssociatedWithUserNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetApplicationsAssociatedWithUserRequest {
             UserId = Guid.Parse("8f79e542-7b8a-4904-b6fb-85b0fa41a530")
         });
 
-        Assert.IsNotNull(response.UserApplicationMappings);
         Assert.AreEqual(response.UserApplicationMappings, []);
     }
 }

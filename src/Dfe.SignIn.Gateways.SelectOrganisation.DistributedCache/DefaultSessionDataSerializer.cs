@@ -21,12 +21,11 @@ public sealed class DefaultSessionDataSerializer : ISessionDataSerializer
     }
 
     /// <inheritdoc/>
-    public SelectOrganisationSessionData Deserialize(string json)
+    public SelectOrganisationSessionData Deserialize(string sessionDataJson)
     {
-        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(json, nameof(json));
+        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(sessionDataJson, nameof(sessionDataJson));
 
-        var data = JsonSerializer.Deserialize<SelectOrganisationSessionData>(json, JsonSerializerOptions);
-        return data
-            ?? throw new JsonException("Invalid object.");
+        var data = JsonSerializer.Deserialize<SelectOrganisationSessionData>(sessionDataJson, JsonSerializerOptions);
+        return data ?? throw new JsonException("Invalid object.");
     }
 }

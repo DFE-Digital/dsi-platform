@@ -4,13 +4,13 @@ The user is redirected to a callback URL within the relying party application wh
 
 > **Important:** The service callback handler should not immediately trust the user selection. The user selection can be verified using the [Query user organisation](~/api/users/query-user-organisation.md) API.
 
-
 ## Query parameters
 
 ### type: string
 
 A value indicating the type of callback which will be one of the following values:
 
+<!-- prettier-ignore-start -->
 +---------------------+-----------------------------------------------------------------+
 | Value               | Summary                                                         |
 +=====================+=================================================================+
@@ -23,6 +23,7 @@ A value indicating the type of callback which will be one of the following value
 +---------------------+-----------------------------------------------------------------+
 | `error`             | An error has occurred.                                          |
 +---------------------+-----------------------------------------------------------------+
+<!-- prettier-ignore-end -->
 
 This parameter is always present.
 
@@ -30,9 +31,9 @@ This parameter is always present.
 
 The unique identifier associated with the request which can be used to:
 
-  - Ensure that the callback corresponds to the request that is expected.
+- Ensure that the callback corresponds to the request that is expected.
 
-  - That the callback cannot be replayed.
+- That the callback cannot be replayed.
 
 This parameter is always present.
 
@@ -51,13 +52,13 @@ The error code when `type` is `error`.
 This parameter can have one of the following values:
 
 +---------------------+-----------------------------------------------------------------+
-| Value               | Summary                                                         |
+| Value | Summary |
 +=====================+=================================================================+
-| `internalError`     | An unexpected internal error has occurred.                      |
+| `internalError` | An unexpected internal error has occurred. |
 +---------------------+-----------------------------------------------------------------+
-| `invalidSelection`  | An invalid selection was made.                                  |
+| `invalidSelection` | An invalid selection was made. |
 +---------------------+-----------------------------------------------------------------+
-| `noOptions`         | There were no options for the user to choose from.              |
+| `noOptions` | There were no options for the user to choose from. |
 +---------------------+-----------------------------------------------------------------+
 
 **See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.SelectOrganisationErrorCode)

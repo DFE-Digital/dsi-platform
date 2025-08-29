@@ -10,7 +10,7 @@ public sealed class InteractorTests
     [TestMethod]
     public async Task InvokeAsync_UntypedMethodInvokesTypedMethod()
     {
-        var fakeInteractor = new Example_UseCaseHandler();
+        var fakeInteractor = new ExampleUseCase();
 
         var response = await fakeInteractor.InvokeAsync(new ExampleRequest());
 

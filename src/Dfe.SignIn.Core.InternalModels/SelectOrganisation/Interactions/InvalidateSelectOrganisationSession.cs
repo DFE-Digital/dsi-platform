@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 /// <remarks>
 ///   <para>Does nothing if the session does not exist.</para>
 /// </remarks>
-public sealed record InvalidateSelectOrganisationSessionRequest()
+public sealed record InvalidateSelectOrganisationSessionRequest
 {
     /// <summary>
     /// Gets the unique key of the session.
@@ -20,6 +20,6 @@ public sealed record InvalidateSelectOrganisationSessionRequest()
 /// <summary>
 /// Represents a response for <see cref="InvalidateSelectOrganisationSessionRequest"/>.
 /// </summary>
-public sealed record InvalidateSelectOrganisationSessionResponse()
+public sealed record InvalidateSelectOrganisationSessionResponse
 {
 }

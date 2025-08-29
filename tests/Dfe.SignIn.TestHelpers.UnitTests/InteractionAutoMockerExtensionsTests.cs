@@ -118,7 +118,7 @@ public sealed class InteractionAutoMockerExtensionsTests
             await mockInteraction.Object.DispatchAsync(new ExampleRequest());
         }
 
-        var actualException = await Assert.ThrowsAsync<InvalidRequestException>(Act);
+        var actualException = await Assert.ThrowsExactlyAsync<InvalidRequestException>(Act);
 
         Assert.AreSame(expectedException, actualException);
     }
@@ -164,7 +164,7 @@ public sealed class InteractionAutoMockerExtensionsTests
             await mockInteraction.Object.DispatchAsync(fakeRequestA);
         }
 
-        var actualException = await Assert.ThrowsAsync<InvalidRequestException>(Act);
+        var actualException = await Assert.ThrowsExactlyAsync<InvalidRequestException>(Act);
 
         // Any other requests do not throw.
         await mockInteraction.Object.DispatchAsync(fakeRequestB);

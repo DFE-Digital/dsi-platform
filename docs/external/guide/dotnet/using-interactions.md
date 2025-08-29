@@ -15,11 +15,11 @@ public sealed class CustomApplicationClass(
     public async Task DoSomething()
     {
         var response = await interaction.DispatchAsync(
-            new CreateSelectOrganisationSession_PublicApiRequest {
+            new CreateSelectOrganisationSessionApiRequest {
                 UserId = /* some user ID */,
                 CallbackUrl = /* some callback URL */,
             }
-        ).To<CreateSelectOrganisationSession_PublicApiResponse>();
+        ).To<CreateSelectOrganisationSessionApiResponse>();
     }
 }
 ```
@@ -29,7 +29,7 @@ public sealed class CustomApplicationClass(
 Interactors can be mocked with the likes of [Moq](https://github.com/devlooped/moq) and [Moq.AutoMocker](https://github.com/moq/Moq.AutoMocker):
 
 ```csharp
-var fakeResponse = new CreateSelectOrganisationSession_PublicApiResponse {
+var fakeResponse = new CreateSelectOrganisationSessionApiResponse {
     RequestId = new Guid("78f29d5a-ca9d-4605-96ea-b3ef789131d2"),
     HasOptions = false,
     Url = new Uri("https://select-organisation.localhost"),
@@ -37,7 +37,7 @@ var fakeResponse = new CreateSelectOrganisationSession_PublicApiResponse {
 
 autoMocker.GetMock<IInteractionDispatcher>()
     .Setup(x => x.DispatchAsync(
-        It.IsAny<InteractionContext<CreateSelectOrganisationSession_PublicApiRequest>>(),
+        It.IsAny<InteractionContext<CreateSelectOrganisationSessionApiRequest>>(),
         It.IsAny<CancellationToken>()
     ))
     .ReturnsAsync(fakeResponse);

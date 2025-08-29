@@ -16,6 +16,31 @@ public sealed class ContactController(
     IInteractionDispatcher interaction
 ) : Controller
 {
+    private async Task<ContactViewModel> PrepareViewModel(ContactViewModel? viewModel = null)
+    {
+        viewModel ??= Activator.CreateInstance<ContactViewModel>();
+
+        var topicIndex = await topicIndexAccessor.GetIndexAsync();
+        var topic = topicIndex.GetRequiredTopic("/contact-us");
+        viewModel.Title = topic.Metadata.Title;
+        viewModel.Summary = topic.Metadata.Summary;
+        viewModel.ContentHtml = topic.ContentHtml;
+
+        var subjectOptionsResponse = await interaction.DispatchAsync(
+            new GetSubjectOptionsForSupportTicketRequest()
+        ).To<GetSubjectOptionsForSupportTicketResponse>();
+
+        viewModel.SubjectOptions = subjectOptionsResponse.SubjectOptions;
+
+        var applicationNamesResponse = await interaction.DispatchAsync(
+            new GetApplicationNamesForSupportTicketRequest()
+        ).To<GetApplicationNamesForSupportTicketResponse>();
+
+        viewModel.ApplicationOptions = applicationNamesResponse.Applications;
+
+        return viewModel;
+    }
+
     [HttpGet("contact-us")]
     public async Task<IActionResult> Index()
     {
@@ -56,30 +81,5 @@ public sealed class ContactController(
         }
 
         return this.View("Success");
-    }
-
-    private async Task<ContactViewModel> PrepareViewModel(ContactViewModel? viewModel = null)
-    {
-        viewModel ??= Activator.CreateInstance<ContactViewModel>();
-
-        var topicIndex = await topicIndexAccessor.GetIndexAsync();
-        var topic = topicIndex.GetRequiredTopic("/contact-us");
-        viewModel.Title = topic.Metadata.Title;
-        viewModel.Summary = topic.Metadata.Summary;
-        viewModel.ContentHtml = topic.ContentHtml;
-
-        var subjectOptionsResponse = await interaction.DispatchAsync(
-            new GetSubjectOptionsForSupportTicketRequest()
-        ).To<GetSubjectOptionsForSupportTicketResponse>();
-
-        viewModel.SubjectOptions = subjectOptionsResponse.SubjectOptions;
-
-        var applicationNamesResponse = await interaction.DispatchAsync(
-            new GetApplicationNamesForSupportTicketRequest()
-        ).To<GetApplicationNamesForSupportTicketResponse>();
-
-        viewModel.ApplicationOptions = applicationNamesResponse.Applications;
-
-        return viewModel;
     }
 }

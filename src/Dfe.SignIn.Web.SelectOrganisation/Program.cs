@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Core.ExternalModels;
 using Dfe.SignIn.Core.Framework;
@@ -37,7 +36,7 @@ builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
 
-builder.Services.SetupAutoMapper();
+builder.Services.AddAutoMapper(options => { });
 
 builder.Services
     .SetupHealthChecks(
@@ -86,8 +85,4 @@ app.MapControllerRoute(
     defaults: new { controller = "SelectOrganisation", action = "Index" }
 );
 
-app.Run();
-
-/// <exclude/>
-[ExcludeFromCodeCoverage]
-public partial class Program { }
+await app.RunAsync();

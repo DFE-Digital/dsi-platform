@@ -41,7 +41,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
         return mockContext;
     }
 
-    private static ClaimsPrincipal SetupMockNonAuthenticatedUser(AutoMocker autoMocker)
+    private static void SetupMockNonAuthenticatedUser(AutoMocker autoMocker)
     {
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
@@ -49,20 +49,18 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var fakeUser = new ClaimsPrincipal(fakeIdentity);
         mockContext.Setup(mock => mock.User)
             .Returns(fakeUser);
-
-        return fakeUser;
     }
 
     private static readonly Guid FakeUserId = new("8d2799b0-eabe-4a5c-a01f-d52bc1cce63e");
     private static readonly string FakeSessionId = "460ebb6a-643e-4f85-bfe0-29351f11bd62";
 
-    private static readonly CreateSelectOrganisationSession_PublicApiResponse FakeCreateSelectOrganisationResponse_WithOptions = new() {
+    private static readonly CreateSelectOrganisationSessionApiResponse FakeCreateSelectOrganisationResponse_WithOptions = new() {
         RequestId = new Guid("8c1225d8-65a5-4372-8025-61c0c63a323a"),
         HasOptions = true,
         Url = new Uri("https://select-organisation.localhost"),
     };
 
-    private static readonly CreateSelectOrganisationSession_PublicApiResponse FakeCreateSelectOrganisationResponse_WithNoOptions = new() {
+    private static readonly CreateSelectOrganisationSessionApiResponse FakeCreateSelectOrganisationResponse_WithNoOptions = new() {
         RequestId = new Guid("78f29d5a-ca9d-4605-96ea-b3ef789131d2"),
         HasOptions = false,
         Url = new Uri("https://select-organisation.localhost"),
@@ -70,12 +68,12 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
     private static Mock<IInteractionDispatcher> SetupMockCreateSelectOrganisationSession(
         AutoMocker autoMocker,
-        CreateSelectOrganisationSession_PublicApiResponse response)
+        CreateSelectOrganisationSessionApiResponse response)
     {
         var mockDispatcher = autoMocker.GetMock<IInteractionDispatcher>();
 
         mockDispatcher.Setup(mock => mock.DispatchAsync(
-            It.IsAny<CreateSelectOrganisationSession_PublicApiRequest>(),
+            It.IsAny<CreateSelectOrganisationSessionApiRequest>(),
             It.IsAny<CancellationToken>()
         ))
         .Returns(InteractionTask.FromResult(response));
@@ -83,7 +81,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
         return mockDispatcher;
     }
 
-    private static ClaimsPrincipal SetupMockAuthenticatedUser(AutoMocker autoMocker)
+    private static void SetupMockAuthenticatedUser(AutoMocker autoMocker)
     {
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
@@ -95,21 +93,23 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var fakeUser = new ClaimsPrincipal(fakePrimaryIdentity);
         mockContext.Setup(mock => mock.User)
             .Returns(fakeUser);
-
-        return fakeUser;
     }
 
     #region InitiateSelectionAsync(IHttpContext, bool, CancellationToken)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task InitiateSelectionAsync_Throws_WhenContextArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
 
         var flow = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        await flow.InitiateSelectionAsync(null!, false, default);
+        Task Act()
+        {
+            return flow.InitiateSelectionAsync(null!, false, default);
+        }
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(Act);
     }
 
     [TestMethod]
@@ -121,7 +121,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        var exception = await Assert.ThrowsExceptionAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
             () => selector.InitiateSelectionAsync(fakeContext.Object, false, default)
         );
         Assert.AreEqual("User is not authenticated.", exception.Message);
@@ -145,7 +145,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
         await selector.InitiateSelectionAsync(fakeContext.Object, allowCancel, default);
 
         mockCreateSelectOrganisationSession.Verify(mock => mock.DispatchAsync(
-            It.Is<CreateSelectOrganisationSession_PublicApiRequest>(request =>
+            It.Is<CreateSelectOrganisationSessionApiRequest>(request =>
                 request.UserId == FakeUserId &&
                 request.CallbackUrl == new Uri("http://localhost/app/callback/select-organisation") &&
                 request.AllowCancel == allowCancel
@@ -178,7 +178,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
         await selector.InitiateSelectionAsync(fakeContext.Object, false, default);
 
         mockCreateSelectOrganisationSession.Verify(mock => mock.DispatchAsync(
-            It.Is<CreateSelectOrganisationSession_PublicApiRequest>(request =>
+            It.Is<CreateSelectOrganisationSessionApiRequest>(request =>
                 request.UserId == FakeUserId &&
                 request.CallbackUrl == new Uri("http://localhost/app/callback/select-organisation") &&
                 !request.AllowCancel &&
@@ -317,14 +317,18 @@ public sealed class StandardSelectOrganisationUserFlowTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task ProcessCallbackAsync_Throws_WhenContextArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
 
         var flow = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        await flow.ProcessCallbackAsync(null!, default);
+        Task Act()
+        {
+            return flow.ProcessCallbackAsync(null!, default);
+        }
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(Act);
     }
 
     [TestMethod]
@@ -336,14 +340,13 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        var exception = await Assert.ThrowsExceptionAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
             () => selector.ProcessCallbackAsync(fakeContext.Object, default)
         );
         Assert.AreEqual("User is not authenticated.", exception.Message);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(MismatchedCallbackException))]
     public async Task ProcessCallbackAsync_Throws_WhenRequestIsUntracked()
     {
         var autoMocker = new AutoMocker();
@@ -355,7 +358,12 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        await selector.ProcessCallbackAsync(fakeContext.Object, default);
+        Task Act()
+        {
+            return selector.ProcessCallbackAsync(fakeContext.Object, default);
+        }
+
+        await Assert.ThrowsExactlyAsync<MismatchedCallbackException>(Act);
     }
 
     [TestMethod]
@@ -395,7 +403,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
             () => selector.ProcessCallbackAsync(fakeContext.Object, default)
         );
         Assert.AreEqual("Unexpected callback type 'unexpected'.", exception.Message);
@@ -465,14 +473,14 @@ public sealed class StandardSelectOrganisationUserFlowTests
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock =>
                 mock.DispatchAsync(
-                    It.Is<QueryUserOrganisation_PublicApiRequest>(request =>
+                    It.Is<QueryUserOrganisationApiRequest>(request =>
                         request.OrganisationId == new Guid(FakeOrganisationId) &&
                         request.UserId == FakeUserId
                     ),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .Returns(InteractionTask.FromResult(new QueryUserOrganisation_PublicApiResponse {
+            .Returns(InteractionTask.FromResult(new QueryUserOrganisationApiResponse {
                 Organisation = FakeOrganisation,
                 UserId = FakeUserId,
             }));
@@ -506,11 +514,11 @@ public sealed class StandardSelectOrganisationUserFlowTests
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock =>
                 mock.DispatchAsync(
-                    It.IsAny<QueryUserOrganisation_PublicApiRequest>(),
+                    It.IsAny<QueryUserOrganisationApiRequest>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .Returns(InteractionTask.FromResult(new QueryUserOrganisation_PublicApiResponse {
+            .Returns(InteractionTask.FromResult(new QueryUserOrganisationApiResponse {
                 Organisation = null,
                 UserId = FakeUserId,
             }));
@@ -544,11 +552,11 @@ public sealed class StandardSelectOrganisationUserFlowTests
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock =>
                 mock.DispatchAsync(
-                    It.IsAny<QueryUserOrganisation_PublicApiRequest>(),
+                    It.IsAny<QueryUserOrganisationApiRequest>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .Returns(InteractionTask.FromResult(new QueryUserOrganisation_PublicApiResponse {
+            .Returns(InteractionTask.FromResult(new QueryUserOrganisationApiResponse {
                 Organisation = FakeOrganisation,
                 UserId = new Guid("ac62be99-b4fe-4b19-9a3b-884a3c15b860"),
             }));

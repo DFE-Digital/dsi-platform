@@ -1,8 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.Core.ExternalModels.UnitTests.SelectOrganisation;
 
 [TestClass]
+[SuppressMessage("csharpsquid", "S125",
+    Justification = "Commented out code provides an example of registering JSON converters."
+)]
 public sealed class ExternalModelsJsonExtensionsTests
 {
     #region ConfigureExternalModelJsonSerialization(IServiceCollection)

@@ -4,6 +4,7 @@ A getting started page.
 
 An example of a grid table:
 
+<!-- prettier-ignore-start -->
 +--------+------------------------------+
 | Item   | Summary                      |
 +========+==============================+
@@ -11,5 +12,6 @@ An example of a grid table:
 +--------+------------------------------+
 | B      | Another example item.        |
 +--------+------------------------------+
+<!-- prettier-ignore-end -->
 
 A paragraph following a grid table.

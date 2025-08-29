@@ -7,14 +7,14 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Applications;
 
 [TestClass]
-public sealed class GetApplicationByClientId
+public sealed class GetApplicationByClientIdNodeRequesterTests
 {
     [TestMethod]
     public Task InvokeAsync_ThrowsIfRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationByClientIdRequest,
-            GetApplicationByClientId_NodeApiRequester
+            GetApplicationByClientIdNodeRequester
         >();
     }
 
@@ -46,7 +46,7 @@ public sealed class GetApplicationByClientId
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationByClientId_NodeApiRequester(client);
+        var controller = new GetApplicationByClientIdNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetApplicationByClientIdRequest {
             ClientId = "mock-client-id"
@@ -79,7 +79,7 @@ public sealed class GetApplicationByClientId
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationByClientId_NodeApiRequester(client);
+        var controller = new GetApplicationByClientIdNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetApplicationByClientIdRequest {
             ClientId = "mock-client-id"

@@ -61,7 +61,7 @@ public sealed class InteractionExtensionsTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractor_Throws_WhenServicesArgumentIsNull()
     {
-        InteractionExtensions.AddInteractor<Example_UseCaseHandler>(
+        InteractionExtensions.AddInteractor<ExampleUseCase>(
             services: null!
         );
     }
@@ -71,13 +71,13 @@ public sealed class InteractionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        InteractionExtensions.AddInteractor<Example_UseCaseHandler>(services);
+        InteractionExtensions.AddInteractor<ExampleUseCase>(services);
 
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
-                descriptor.ImplementationType == typeof(Example_UseCaseHandler)
+                descriptor.ImplementationType == typeof(ExampleUseCase)
             )
         );
     }
@@ -87,7 +87,7 @@ public sealed class InteractionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        var result = InteractionExtensions.AddInteractor<Example_UseCaseHandler>(services);
+        var result = InteractionExtensions.AddInteractor<ExampleUseCase>(services);
 
         Assert.AreSame(services, result);
     }
@@ -132,14 +132,14 @@ public sealed class InteractionExtensionsTests
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
-                descriptor.ImplementationType == typeof(Example_UseCaseHandler)
+                descriptor.ImplementationType == typeof(ExampleUseCase)
             )
         );
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Transient &&
                 descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest>) &&
-                descriptor.ImplementationType == typeof(AnotherExample_UseCaseHandler)
+                descriptor.ImplementationType == typeof(AnotherExampleUseCase)
             )
         );
         Assert.IsTrue(

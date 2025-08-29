@@ -4,7 +4,7 @@ namespace Dfe.SignIn.Web.Help.Content;
 /// A model that represents the metadata of a content topic.
 /// </summary>
 /// <seealso cref="TopicModel"/>
-public sealed record TopicMetadata()
+public sealed record TopicMetadata
 {
     /// <summary>
     /// Gets the date that the topic was last updated.
@@ -57,7 +57,7 @@ public sealed record TopicMetadata()
 /// <summary>
 /// A model that represents a listing of topics.
 /// </summary>
-public sealed record TopicListing()
+public sealed record TopicListing
 {
     /// <summary>
     /// Gets the heading of the topic listing.

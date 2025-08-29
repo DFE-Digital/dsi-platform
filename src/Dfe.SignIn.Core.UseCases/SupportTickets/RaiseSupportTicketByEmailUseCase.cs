@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace Dfe.SignIn.Core.UseCases.SupportTickets;
 
 /// <summary>
-/// Options for <see cref="RaiseSupportTicketByEmail_UseCase"/>.
+/// Options for <see cref="RaiseSupportTicketByEmailUseCase"/>.
 /// </summary>
 public sealed class RaiseSupportTicketByEmailOptions : IOptions<RaiseSupportTicketByEmailOptions>
 {
@@ -32,7 +32,7 @@ public sealed class RaiseSupportTicketByEmailOptions : IOptions<RaiseSupportTick
 /// <summary>
 /// Use case for raising a support ticket by an email notification.
 /// </summary>
-public sealed class RaiseSupportTicketByEmail_UseCase(
+public sealed class RaiseSupportTicketByEmailUseCase(
     IOptions<RaiseSupportTicketByEmailOptions> optionsAccessor,
     IInteractionDispatcher interaction
 ) : Interactor<RaiseSupportTicketRequest, RaiseSupportTicketResponse>

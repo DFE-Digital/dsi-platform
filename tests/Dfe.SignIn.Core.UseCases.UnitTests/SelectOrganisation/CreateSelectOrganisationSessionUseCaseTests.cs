@@ -14,7 +14,7 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 
 [TestClass]
-public sealed class CreateSelectOrganisationSession_UseCaseTests
+public sealed class CreateSelectOrganisationSessionUseCaseTests
 {
     private static readonly CreateSelectOrganisationSessionRequest FakeRequest = new() {
         CallbackUrl = new Uri("https://example.localhost/callback"),
@@ -60,7 +60,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
                 capturedSessionKey = sessionKey;
             });
 
-        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
+        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSessionUseCase>();
 
         var response = await useCase.InvokeAsync(request);
 
@@ -78,7 +78,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
             MockFilteredOrganisations(autoMocker);
         }
 
-        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
+        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSessionUseCase>();
 
         await useCase.InvokeAsync(request);
 
@@ -96,7 +96,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             CreateSelectOrganisationSessionRequest,
-            CreateSelectOrganisationSession_UseCase
+            CreateSelectOrganisationSessionUseCase
         >();
     }
 
@@ -251,7 +251,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
         MockDefaultOptions(autoMocker);
         MockFilteredOrganisations(autoMocker);
 
-        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
+        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSessionUseCase>();
 
         var response1 = await useCase.InvokeAsync(FakeRequest);
         var response2 = await useCase.InvokeAsync(FakeRequest);
@@ -274,7 +274,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
             },
         ]);
 
-        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
+        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSessionUseCase>();
 
         var response = await useCase.InvokeAsync(FakeRequest);
 
@@ -288,7 +288,7 @@ public sealed class CreateSelectOrganisationSession_UseCaseTests
         MockDefaultOptions(autoMocker);
         MockFilteredOrganisations(autoMocker);
 
-        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSession_UseCase>();
+        var useCase = autoMocker.CreateInstance<CreateSelectOrganisationSessionUseCase>();
 
         var response = await useCase.InvokeAsync(FakeRequest);
 

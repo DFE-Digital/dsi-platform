@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using Dfe.SignIn.Core.Framework;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace Dfe.SignIn.WebFramework.Configuration;
@@ -23,7 +24,7 @@ public static class HealthCheckExtensions
     /// </exception>
     public static void UseHealthChecks(this IApplicationBuilder builder, string endpoint = "/v2/healthcheck")
     {
-        ArgumentNullException.ThrowIfNull(builder, nameof(builder));
+        ExceptionHelpers.ThrowIfArgumentNull(builder, nameof(builder));
 
         builder.UseHealthChecks(endpoint, new HealthCheckOptions {
             Predicate = _ => true,

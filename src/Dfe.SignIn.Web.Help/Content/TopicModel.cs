@@ -4,9 +4,9 @@ namespace Dfe.SignIn.Web.Help.Content;
 /// A model that represents a content topic.
 /// </summary>
 /// <remarks>
-///   <para>There is typically a 1:1 mapping between topics and content markdown files.</para> 
+///   <para>There is typically a 1:1 mapping between topics and content markdown files.</para>
 /// </remarks>
-public sealed record TopicModel()
+public sealed record TopicModel
 {
     /// <summary>
     /// Gets the path of the topic.

@@ -15,11 +15,11 @@ namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
 [TestClass]
 public sealed class PostSelectOrganisationSessionTests
 {
-    private static readonly CreateSelectOrganisationSession_PublicApiRequest FakePublicApiMinimalRequest = new() {
+    private static readonly CreateSelectOrganisationSessionApiRequest FakePublicApiMinimalRequest = new() {
         CallbackUrl = new Uri("https://example.localhost/callback"),
         UserId = new Guid("6c843439-4633-4369-af49-f8b04b2529bc"),
     };
-    private static readonly CreateSelectOrganisationSession_PublicApiRequest FakePublicApiRequest = new() {
+    private static readonly CreateSelectOrganisationSessionApiRequest FakePublicApiRequest = new() {
         CallbackUrl = new Uri("https://example.localhost/callback"),
         UserId = new Guid("6c843439-4633-4369-af49-f8b04b2529bc"),
         Filter = new OrganisationFilter {
@@ -70,7 +70,7 @@ public sealed class PostSelectOrganisationSessionTests
     [DataTestMethod]
     [DynamicData(nameof(SelectOrganisationEndpoints_InvokesExpectedInteractionRequest_Parameters), DynamicDataSourceType.Property)]
     public async Task SelectOrganisationEndpoints_InvokesExpectedInteractionRequest(
-        CreateSelectOrganisationSession_PublicApiRequest apiRequest)
+        CreateSelectOrganisationSessionApiRequest apiRequest)
     {
         var autoMocker = CreateAutoMocker();
 

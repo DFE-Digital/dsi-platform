@@ -8,7 +8,7 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Core.UseCases.UnitTests.SupportTickets;
 
 [TestClass]
-public sealed class RaiseSupportTicketByEmail_UseCaseTests
+public sealed class RaiseSupportTicketByEmailUseCaseTests
 {
     private static readonly RaiseSupportTicketRequest FakeRequest = new() {
         FullName = "Alex Johnson",
@@ -49,7 +49,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
 
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             RaiseSupportTicketRequest,
-            RaiseSupportTicketByEmail_UseCase
+            RaiseSupportTicketByEmailUseCase
         >(autoMocker);
     }
 
@@ -60,7 +60,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
         SetupOptions(autoMocker);
         SetupSubjectOptionsResponse(autoMocker);
 
-        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmail_UseCase>();
+        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
         async Task Act()
         {
@@ -69,7 +69,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
             });
         }
 
-        await Assert.ThrowsAsync<InvalidRequestException>(Act);
+        await Assert.ThrowsExactlyAsync<InvalidRequestException>(Act);
     }
 
     [TestMethod]
@@ -86,14 +86,14 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
                 ContactUrl = new Uri("https://help.localhost/contact-us"),
             });
 
-        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmail_UseCase>();
+        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
         async Task Act()
         {
             await interactor.InvokeAsync(FakeRequest);
         }
 
-        await Assert.ThrowsAsync<InvalidOperationException>(Act);
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(Act);
     }
 
     [TestMethod]
@@ -106,7 +106,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
         SendEmailNotificationRequest? capturedRequest = null;
         autoMocker.CaptureRequest<SendEmailNotificationRequest>(r => capturedRequest = r);
 
-        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmail_UseCase>();
+        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
         await interactor.InvokeAsync(FakeRequest);
 
@@ -124,7 +124,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
         SendEmailNotificationRequest? capturedRequest = null;
         autoMocker.CaptureRequest<SendEmailNotificationRequest>(r => capturedRequest = r);
 
-        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmail_UseCase>();
+        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
         await interactor.InvokeAsync(FakeRequest);
 
@@ -142,7 +142,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
         SendEmailNotificationRequest? capturedRequest = null;
         autoMocker.CaptureRequest<SendEmailNotificationRequest>(r => capturedRequest = r);
 
-        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmail_UseCase>();
+        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
         await interactor.InvokeAsync(FakeRequest);
 
@@ -168,7 +168,7 @@ public sealed class RaiseSupportTicketByEmail_UseCaseTests
         SendEmailNotificationRequest? capturedRequest = null;
         autoMocker.CaptureRequest<SendEmailNotificationRequest>(r => capturedRequest = r);
 
-        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmail_UseCase>();
+        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
         await interactor.InvokeAsync(FakeRequest with {
             SubjectCode = "other",

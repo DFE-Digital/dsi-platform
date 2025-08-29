@@ -4,14 +4,14 @@ namespace Dfe.SignIn.Core.InternalModels.SupportTickets;
 /// Request to get the list of subject options which can be chosen from when a
 /// user is raising a support ticket.
 /// </summary>
-public sealed record GetSubjectOptionsForSupportTicketRequest()
+public sealed record GetSubjectOptionsForSupportTicketRequest
 {
 }
 
 /// <summary>
 /// Response model for interactor <see cref="GetSubjectOptionsForSupportTicketRequest"/>.
 /// </summary>
-public sealed record GetSubjectOptionsForSupportTicketResponse()
+public sealed record GetSubjectOptionsForSupportTicketResponse
 {
     /// <summary>
     /// Gets the enumerable collection of subject options.
@@ -22,7 +22,7 @@ public sealed record GetSubjectOptionsForSupportTicketResponse()
 /// <summary>
 /// Represents an application name result in a <see cref="GetSubjectOptionsForSupportTicketResponse"/>.
 /// </summary>
-public sealed record SubjectOptionForSupportTicket()
+public sealed record SubjectOptionForSupportTicket
 {
     /// <summary>
     /// Gets the unique code representing the subject option.

@@ -12,7 +12,7 @@ public static class InteractorReflectionHelpers
     /// </summary>
     /// <remarks>
     ///   <example>
-    ///     <para>Discover all interactor types that implement <see cref="IInteractor{}"/>:</para>
+    ///     <para>Discover all interactor types that implement <see cref="IInteractor{TRequest}"/>:</para>
     ///     <code language="csharp"><![CDATA[
     ///       var types = InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(
     ///         typeof(SomeClass).Assembly

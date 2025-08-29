@@ -6,7 +6,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// <summary>
 /// Use case for getting all of the organisations that are associated with a particular user.
 /// </summary>
-public sealed class GetOrganisationsAssociatedWithUser_UseCase
+public sealed class GetOrganisationsAssociatedWithUserUseCase
     : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {
     /// <inheritdoc/>

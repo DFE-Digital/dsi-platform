@@ -12,7 +12,7 @@ namespace Dfe.SignIn.NodeApi.Client.SupportTickets;
 /// 'applications' middle-tier API.
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
-public sealed class GetApplicationNamesForSupportTicket_NodeApiRequester(
+public sealed class GetApplicationNamesForSupportTicketNodeRequester(
     [FromKeyedServices(NodeApiName.Applications)] HttpClient httpClient
 ) : Interactor<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>
 {

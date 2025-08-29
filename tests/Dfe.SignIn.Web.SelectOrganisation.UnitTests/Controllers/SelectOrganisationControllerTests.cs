@@ -23,7 +23,7 @@ namespace Dfe.SignIn.Web.SelectOrganisation.UnitTests.Controllers;
 [TestClass]
 public sealed class SelectOrganisationControllerTests
 {
-    private static readonly Guid FakeUserId = new();
+    private static readonly Guid FakeUserId = Guid.NewGuid();
 
     private static readonly OrganisationModel FakeOrganisationA = new() {
         Id = new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"),
@@ -402,7 +402,7 @@ public sealed class SelectOrganisationControllerTests
         });
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.Cancel = "1";
+        inputViewModel.CancelInput = "1";
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -428,7 +428,7 @@ public sealed class SelectOrganisationControllerTests
         });
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.Cancel = "1";
+        inputViewModel.CancelInput = "1";
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -451,7 +451,7 @@ public sealed class SelectOrganisationControllerTests
         controller.Url = CreateMockUrlHelper();
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.SelectedOrganisationId = null;
+        inputViewModel.SelectedOrganisationIdInput = null;
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -474,7 +474,7 @@ public sealed class SelectOrganisationControllerTests
         controller.Url = CreateMockUrlHelper();
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.SelectedOrganisationId = new Guid("b8f142c3-b853-4a9b-8d79-c53c33f6d7b4");
+        inputViewModel.SelectedOrganisationIdInput = new Guid("b8f142c3-b853-4a9b-8d79-c53c33f6d7b4");
 
         await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -497,7 +497,7 @@ public sealed class SelectOrganisationControllerTests
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.SelectedOrganisationId = new Guid("51a8b477-f92b-41af-a86a-91ce26037c14");
+        inputViewModel.SelectedOrganisationIdInput = new Guid("51a8b477-f92b-41af-a86a-91ce26037c14");
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -521,7 +521,7 @@ public sealed class SelectOrganisationControllerTests
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.SelectedOrganisationId = new Guid("1d219e73-c674-4f8c-b982-d673ab02f015");
+        inputViewModel.SelectedOrganisationIdInput = new Guid("1d219e73-c674-4f8c-b982-d673ab02f015");
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -544,7 +544,7 @@ public sealed class SelectOrganisationControllerTests
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.SelectedOrganisationId = new Guid("3c44b79a-991f-4068-b8d9-a761d651146f");
+        inputViewModel.SelectedOrganisationIdInput = new Guid("3c44b79a-991f-4068-b8d9-a761d651146f");
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 

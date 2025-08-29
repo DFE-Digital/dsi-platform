@@ -8,14 +8,14 @@ namespace Dfe.SignIn.PublicApi.Client.Internal;
 // The following interactor is not exposed for use in applications until the
 // request/response models have been properly designed.
 
-internal sealed record GetUserAccessToServiceRequest()
+internal sealed record GetUserAccessToServiceRequest
 {
     public required Guid UserId { get; init; }
 
     public required Guid OrganisationId { get; init; }
 }
 
-internal sealed record GetUserAccessToServiceResponse()
+internal sealed record GetUserAccessToServiceResponse
 {
     public required IEnumerable<Role> Roles { get; init; }
 }
@@ -38,7 +38,7 @@ internal sealed class Status()
     public required int Id { get; init; }
 }
 
-internal sealed class GetUserAccessToService_PublicApiRequester(
+internal sealed class GetUserAccessToServiceApiRequester(
     IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IOptions<PublicApiOptions> optionsAccessor,
     IPublicApiClient client

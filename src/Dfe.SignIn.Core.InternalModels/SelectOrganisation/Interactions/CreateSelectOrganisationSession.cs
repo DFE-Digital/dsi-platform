@@ -6,7 +6,7 @@ namespace Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 /// <summary>
 /// Represents a request to create a new "select organisation" session.
 /// </summary>
-public sealed record CreateSelectOrganisationSessionRequest()
+public sealed record CreateSelectOrganisationSessionRequest
 {
     /// <summary>
     /// Gets the unique DfE Sign-in client ID of the application.
@@ -47,7 +47,7 @@ public sealed record CreateSelectOrganisationSessionRequest()
 /// <summary>
 /// Represents a response for <see cref="CreateSelectOrganisationSessionRequest"/>.
 /// </summary>
-public sealed record CreateSelectOrganisationSessionResponse()
+public sealed record CreateSelectOrganisationSessionResponse
 {
     /// <summary>
     /// A unique value representing the request.

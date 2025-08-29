@@ -1,7 +1,7 @@
 namespace Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 
 [UseCaseHandler]
-public sealed class Example_UseCaseHandler
+public sealed class ExampleUseCase
     : Interactor<ExampleRequest, ExampleResponse>
 {
     public override Task<ExampleResponse> InvokeAsync(
@@ -15,7 +15,7 @@ public sealed class Example_UseCaseHandler
 }
 
 [UseCaseHandler]
-public sealed class AnotherExample_UseCaseHandler
+public sealed class AnotherExampleUseCase
     : Interactor<AnotherExampleRequest, AnotherExampleResponse>
 {
     public override Task<AnotherExampleResponse> InvokeAsync(

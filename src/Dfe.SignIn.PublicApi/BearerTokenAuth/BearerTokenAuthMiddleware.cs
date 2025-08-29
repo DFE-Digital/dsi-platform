@@ -30,7 +30,7 @@ public sealed class BearerTokenAuthMiddleware
         this.options = optionsAccessor.Value;
     }
 
-    private record ErrorResponse()
+    private sealed record ErrorResponse()
     {
         public bool Success { get; } = false;
         public required string Message { get; set; }
