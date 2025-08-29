@@ -8,6 +8,6 @@
 
 	<!-- coverage reporting -->
 	<Property Name="sonar.coverageReportPaths">CoverageReport/SonarQube.xml</Property>
-	<Property Name="sonar.coverage.exclusions">**/Program.cs,**/*Options.cs,**/*Constants.cs,**/*.cshtml,**/*.js,Fake**</Property>
+	<Property Name="sonar.coverage.exclusions">**/Program.cs,**/*Options.cs,**/*Constants.cs,**/*.cshtml,**/*.js,**/Fake**</Property>
 	<Property Name="sonar.cs.vstest.reportsPaths">**/*.trx</Property>
 </SonarQubeAnalysisProperties>
