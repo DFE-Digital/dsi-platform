@@ -11,7 +11,7 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// ApiRequester for obtaining organisations associated with a user.
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
-public sealed class GetOrganisationsAssociatedWithUser_NodeApiRequester(
+public sealed class GetOrganisationsAssociatedWithUserNodeRequester(
     [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper
 ) : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {

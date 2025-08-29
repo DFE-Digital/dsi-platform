@@ -14,7 +14,7 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 
 [TestClass]
-public sealed class FilterOrganisationsForUser_UseCaseTests
+public sealed class FilterOrganisationsForUserUseCaseTests
 {
     private static readonly Guid FakeUserId = new("4785f325-f57f-4a3f-a1e3-5f299ce59d71");
 
@@ -114,36 +114,40 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             FilterOrganisationsForUserRequest,
-            FilterOrganisationsForUser_UseCase
+            FilterOrganisationsForUserUseCase
         >();
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public async Task InvokeAsync_Throws_WhenUnexpectedFilterTypeIsSupplied()
     {
         var autoMocker = new AutoMocker();
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
-        await useCase.InvokeAsync(FakeBasicRequest with {
-            Filter = new() {
-                Type = (OrganisationFilterType)(-1),
-            },
-        });
+        Task Act()
+        {
+            return useCase.InvokeAsync(FakeBasicRequest with {
+                Filter = new() {
+                    Type = (OrganisationFilterType)(-1),
+                },
+            });
+        }
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(Act);
     }
 
     [TestMethod]
     public async Task InvokeAsync_Throws_WhenApplicationIsNotFound()
     {
         var autoMocker = new AutoMocker();
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         MockOrganisationsAssociatedWithUser(autoMocker);
 
         // Force "fake-client" to be non-existent.
         MockClientApplication(autoMocker, null);
 
-        var exception = await Assert.ThrowsExceptionAsync<ApplicationNotFoundException>(
+        var exception = await Assert.ThrowsExactlyAsync<ApplicationNotFoundException>(
             () => useCase.InvokeAsync(FakeBasicRequest with {
                 ClientId = "fake-client",
                 Filter = new() {
@@ -168,7 +172,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker, []);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -189,7 +193,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
             IsIdOnlyService = true,
         });
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -214,7 +218,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         });
         MockApplicationsAssociatedWithUser(autoMocker, FakeUserId, []);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -246,7 +250,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
             },
         ]);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -284,7 +288,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
             },
         ]);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -310,7 +314,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker, []);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -328,7 +332,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -353,7 +357,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker, []);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -378,7 +382,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         });
         MockApplicationsAssociatedWithUser(autoMocker, FakeUserId, []);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -416,7 +420,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
             },
         ]);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -442,7 +446,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -468,7 +472,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -491,7 +495,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {
@@ -516,7 +520,7 @@ public sealed class FilterOrganisationsForUser_UseCaseTests
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
 
-        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUser_UseCase>();
+        var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
         var response = await useCase.InvokeAsync(FakeBasicRequest with {
             Filter = new() {

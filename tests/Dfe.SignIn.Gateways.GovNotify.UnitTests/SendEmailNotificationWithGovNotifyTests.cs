@@ -13,7 +13,7 @@ public sealed class SendEmailNotificationWithGovNotifyTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             SendEmailNotificationRequest,
-            SendEmailNotificationWithGovNotify
+            SendEmailNotificationWithGovNotifyUseCase
         >();
     }
 
@@ -22,7 +22,7 @@ public sealed class SendEmailNotificationWithGovNotifyTests
     {
         var autoMocker = new AutoMocker();
 
-        var interactor = autoMocker.CreateInstance<SendEmailNotificationWithGovNotify>();
+        var interactor = autoMocker.CreateInstance<SendEmailNotificationWithGovNotifyUseCase>();
 
         var request = new SendEmailNotificationRequest {
             RecipientEmailAddress = "alex.johnson@example.com",
@@ -47,7 +47,7 @@ public sealed class SendEmailNotificationWithGovNotifyTests
     {
         var autoMocker = new AutoMocker();
 
-        var interactor = autoMocker.CreateInstance<SendEmailNotificationWithGovNotify>();
+        var interactor = autoMocker.CreateInstance<SendEmailNotificationWithGovNotifyUseCase>();
 
         var request = new SendEmailNotificationRequest {
             RecipientEmailAddress = "alex.johnson@example.com",

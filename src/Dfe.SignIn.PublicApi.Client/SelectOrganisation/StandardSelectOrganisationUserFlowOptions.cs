@@ -11,8 +11,8 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// <returns>
 ///   <para>The modified "select organisation" request.</para>
 /// </returns>
-public delegate CreateSelectOrganisationSession_PublicApiRequest SelectOrganisationRequestPreparer(
-    CreateSelectOrganisationSession_PublicApiRequest request
+public delegate CreateSelectOrganisationSessionApiRequest SelectOrganisationRequestPreparer(
+    CreateSelectOrganisationSessionApiRequest request
 );
 
 /// <summary>

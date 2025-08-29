@@ -9,9 +9,8 @@ namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 public sealed class PublicApiExtensionsTests
 {
     [StackTraceHidden]
-    private static void AssertHasApiRequester<TRequest, TResponse>(IServiceCollection services)
+    private static void AssertHasApiRequester<TRequest>(IServiceCollection services)
         where TRequest : class
-        where TResponse : class
     {
         Assert.IsTrue(
             services.Any(descriptor =>
@@ -108,10 +107,7 @@ public sealed class PublicApiExtensionsTests
 
         services.SetupDfePublicApiClient();
 
-        AssertHasApiRequester<
-            CreateSelectOrganisationSession_PublicApiRequest,
-            CreateSelectOrganisationSession_PublicApiResponse
-        >(services);
+        AssertHasApiRequester<CreateSelectOrganisationSessionApiRequest>(services);
     }
 
     #endregion

@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Dfe.SignIn.Core.Framework;
 
 /// <summary>
@@ -10,7 +8,7 @@ namespace Dfe.SignIn.Core.Framework;
 ///   user interfaces such as Swagger.</para>
 /// </remarks>
 /// <param name="value">The example value.</param>
-[ExcludeFromCodeCoverage]
+[AttributeUsage(AttributeTargets.Property)]
 public sealed class ExampleValueAttribute(string value) : Attribute
 {
     /// <summary>

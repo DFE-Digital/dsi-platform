@@ -6,7 +6,6 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// <summary>
 /// The exception thrown when a "select organisation" callback error occurs.
 /// </summary>
-[Serializable]
 public sealed class SelectOrganisationCallbackErrorException : Exception
 {
     /// <summary>

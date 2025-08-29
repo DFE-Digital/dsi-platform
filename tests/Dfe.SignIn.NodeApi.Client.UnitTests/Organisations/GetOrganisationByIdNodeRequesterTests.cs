@@ -10,7 +10,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 
 [TestClass]
-public sealed class GetOrganisationByIdTests
+public sealed class GetOrganisationByIdNodeRequesterTests
 {
     private IMapper? mapper;
 
@@ -26,7 +26,7 @@ public sealed class GetOrganisationByIdTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetOrganisationByIdRequest,
-            GetOrganisationById_NodeApiRequester
+            GetOrganisationByIdNodeRequester
         >();
     }
 
@@ -51,7 +51,7 @@ public sealed class GetOrganisationByIdTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationById_NodeApiRequester(client, this.mapper!);
+        var controller = new GetOrganisationByIdNodeRequester(client, this.mapper!);
 
         var response = await controller.InvokeAsync(new GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty
@@ -77,7 +77,7 @@ public sealed class GetOrganisationByIdTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationById_NodeApiRequester(client, this.mapper!);
+        var controller = new GetOrganisationByIdNodeRequester(client, this.mapper!);
 
         var response = await controller.InvokeAsync(new GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty

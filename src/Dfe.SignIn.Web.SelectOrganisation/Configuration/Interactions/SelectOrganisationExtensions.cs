@@ -65,7 +65,7 @@ public static class SelectOrganisationExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
-        services.AddInteractor<GetSelectOrganisationSessionByKey_UseCase>();
-        services.AddInteractor<InvalidateSelectOrganisationSession_UseCase>();
+        services.AddInteractor<GetSelectOrganisationSessionByKeyUseCase>();
+        services.AddInteractor<InvalidateSelectOrganisationSessionUseCase>();
     }
 }

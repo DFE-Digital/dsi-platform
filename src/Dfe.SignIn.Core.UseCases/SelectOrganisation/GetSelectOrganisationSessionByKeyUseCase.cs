@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 /// Use case for getting a "select organisation" session by its unique key.
 /// </summary>
 /// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
-public sealed class GetSelectOrganisationSessionByKey_UseCase(
+public sealed class GetSelectOrganisationSessionByKeyUseCase(
     ISelectOrganisationSessionRepository sessionRepository
 ) : Interactor<GetSelectOrganisationSessionByKeyRequest, GetSelectOrganisationSessionByKeyResponse>
 {

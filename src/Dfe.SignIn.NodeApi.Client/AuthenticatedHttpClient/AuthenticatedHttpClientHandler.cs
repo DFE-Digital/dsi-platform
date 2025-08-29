@@ -22,7 +22,7 @@ public sealed class AuthenticatedHttpClientHandler : DelegatingHandler
     /// <inheritdoc/>
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await this.httpSecurityProvider.AddAuthorizationAsync(request, cancellationToken);
 

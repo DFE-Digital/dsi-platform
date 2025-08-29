@@ -13,7 +13,7 @@ public sealed class VariableSubstitutionTopicPreProcessorTests
         string topicPath = "/example-topic";
         string markdown = "Some value: ${{ UNEXPECTED_VARIABLE }}";
 
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var exception = await Assert.ThrowsExactlyAsync<KeyNotFoundException>(
             () => processor.ProcessAsync(topicPath, markdown)
         );
 

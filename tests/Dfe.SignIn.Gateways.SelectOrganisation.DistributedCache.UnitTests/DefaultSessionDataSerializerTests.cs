@@ -59,7 +59,7 @@ public sealed class DefaultSessionDataSerializerTests
         var serializer = new DefaultSessionDataSerializer();
 
         serializer.Deserialize(
-            json: null!
+            sessionDataJson: null!
         );
     }
 
@@ -70,7 +70,7 @@ public sealed class DefaultSessionDataSerializerTests
         var serializer = new DefaultSessionDataSerializer();
 
         serializer.Deserialize(
-            json: ""
+            sessionDataJson: ""
         );
     }
 
@@ -81,7 +81,7 @@ public sealed class DefaultSessionDataSerializerTests
         var serializer = new DefaultSessionDataSerializer();
 
         serializer.Deserialize(
-            json: "42"
+            sessionDataJson: "42"
         );
     }
 
@@ -92,7 +92,7 @@ public sealed class DefaultSessionDataSerializerTests
         var serializer = new DefaultSessionDataSerializer();
 
         serializer.Deserialize(
-            json: "null"
+            sessionDataJson: "null"
         );
     }
 

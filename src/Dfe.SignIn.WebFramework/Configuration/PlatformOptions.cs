@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.WebFramework.Configuration;
@@ -5,6 +6,9 @@ namespace Dfe.SignIn.WebFramework.Configuration;
 /// <summary>
 /// Options for the application.
 /// </summary>
+[SuppressMessage("csharpsquid", "S1075",
+    Justification = "Default URLs configuration for running locally on a development machine."
+)]
 public sealed class PlatformOptions : IOptions<PlatformOptions>
 {
     /// <summary>

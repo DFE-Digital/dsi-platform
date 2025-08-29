@@ -48,7 +48,7 @@ public sealed class AuthenticatedHttpClientHandlerTests
         var client = new HttpClient(authenticatedHttpClientHandler);
         var request = new HttpRequestMessage(HttpMethod.Get, "http://mock.localhost");
 
-        var exception = await Assert.ThrowsExceptionAsync<HttpRequestException>(
+        var exception = await Assert.ThrowsExactlyAsync<HttpRequestException>(
             () => client.SendAsync(request)
         );
         Assert.AreEqual(HttpRequestError.ConnectionError, exception.HttpRequestError);

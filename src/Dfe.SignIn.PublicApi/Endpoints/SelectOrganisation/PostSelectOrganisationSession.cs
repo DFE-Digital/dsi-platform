@@ -12,8 +12,8 @@ public static partial class SelectOrganisationEndpoints
     /// <summary>
     /// Create a URL which the end-user can use to select an organisation.
     /// </summary>
-    public static async Task<CreateSelectOrganisationSession_PublicApiResponse> PostSelectOrganisationSession(
-        [FromBody] CreateSelectOrganisationSession_PublicApiRequestBody request,
+    public static async Task<CreateSelectOrganisationSessionApiResponse> PostSelectOrganisationSession(
+        [FromBody] CreateSelectOrganisationSessionApiRequestBody request,
         // ---
         IScopedSessionReader scopedSession,
         IInteractionDispatcher interaction,
@@ -26,6 +26,6 @@ public static partial class SelectOrganisationEndpoints
                 ClientId = scopedSession.Application.ClientId,
             }, cancellationToken
         ).To<CreateSelectOrganisationSessionResponse>();
-        return mapper.Map<CreateSelectOrganisationSession_PublicApiResponse>(response);
+        return mapper.Map<CreateSelectOrganisationSessionApiResponse>(response);
     }
 }

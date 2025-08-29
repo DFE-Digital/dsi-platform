@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Gateways.GovNotify;
 /// An interactor that sends email notifications using GOV.UK Notify.
 /// </summary>
 /// <param name="notificationClient">The GOV.UK Notify client.</param>
-public sealed class SendEmailNotificationWithGovNotify(
+public sealed class SendEmailNotificationWithGovNotifyUseCase(
     IAsyncNotificationClient notificationClient
 ) : Interactor<SendEmailNotificationRequest, SendEmailNotificationResponse>
 {

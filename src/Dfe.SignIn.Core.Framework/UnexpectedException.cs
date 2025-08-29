@@ -4,7 +4,6 @@ namespace Dfe.SignIn.Core.Framework;
 /// The exception thrown when an unexpected exception occurs whilst processing an
 /// interaction; for example, an underlying system error.
 /// </summary>
-[Serializable]
 public sealed class UnexpectedException : InteractionException
 {
     /// <inheritdoc/>

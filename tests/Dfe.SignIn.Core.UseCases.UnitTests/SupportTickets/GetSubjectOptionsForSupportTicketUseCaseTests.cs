@@ -5,14 +5,14 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Core.UseCases.UnitTests.SupportTickets;
 
 [TestClass]
-public sealed class GetSubjectOptionsForSupportTicket_UseCaseTests
+public sealed class GetSubjectOptionsForSupportTicketUseCaseTests
 {
     [TestMethod]
     public Task InvokeAsync_ThrowsIfRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetSubjectOptionsForSupportTicketRequest,
-            GetSubjectOptionsForSupportTicket_UseCase
+            GetSubjectOptionsForSupportTicketUseCase
         >();
     }
 
@@ -20,7 +20,7 @@ public sealed class GetSubjectOptionsForSupportTicket_UseCaseTests
     public async Task InvokeAsync_ReturnsExpectedSubjectOptionCodes()
     {
         var autoMocker = new AutoMocker();
-        var interactor = autoMocker.CreateInstance<GetSubjectOptionsForSupportTicket_UseCase>();
+        var interactor = autoMocker.CreateInstance<GetSubjectOptionsForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(new GetSubjectOptionsForSupportTicketRequest());
 

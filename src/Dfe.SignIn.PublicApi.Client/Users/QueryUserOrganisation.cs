@@ -7,7 +7,7 @@ namespace Dfe.SignIn.PublicApi.Client.Users;
 /// <summary>
 /// Represents the body of a request to query a specific organisation of a user.
 /// </summary>
-public record QueryUserOrganisation_PublicApiRequestBody()
+public record QueryUserOrganisationApiRequestBody()
 {
     /// <summary>
     /// Specifies the organisation filtering requirements.
@@ -18,7 +18,7 @@ public record QueryUserOrganisation_PublicApiRequestBody()
 /// <summary>
 /// Represents a request to query a specific organisation of a user.
 /// </summary>
-public sealed record QueryUserOrganisation_PublicApiRequest() : QueryUserOrganisation_PublicApiRequestBody
+public sealed record QueryUserOrganisationApiRequest() : QueryUserOrganisationApiRequestBody
 {
     /// <summary>
     /// Specifies the unique DfE Sign-in ID of the user.
@@ -32,9 +32,9 @@ public sealed record QueryUserOrganisation_PublicApiRequest() : QueryUserOrganis
 }
 
 /// <summary>
-/// Response to request to <see cref="QueryUserOrganisation_PublicApiRequest"/>.
+/// Response to request to <see cref="QueryUserOrganisationApiRequest"/>.
 /// </summary>
-public sealed record QueryUserOrganisation_PublicApiResponse()
+public sealed record QueryUserOrganisationApiResponse()
 {
     /// <summary>
     /// Gets the unique DfE Sign-in ID of the user.
@@ -48,15 +48,15 @@ public sealed record QueryUserOrganisation_PublicApiResponse()
     public required OrganisationDetails? Organisation { get; init; }
 }
 
-internal sealed class QueryUserOrganisation_PublicApiRequester
-    : PublicApiPostRequester<QueryUserOrganisation_PublicApiRequest, QueryUserOrganisation_PublicApiResponse>
+internal sealed class QueryUserOrganisationApiRequester
+    : PublicApiPostRequester<QueryUserOrganisationApiRequest, QueryUserOrganisationApiResponse>
 {
-    public QueryUserOrganisation_PublicApiRequester(
+    public QueryUserOrganisationApiRequester(
         IPublicApiClient client, JsonSerializerOptions jsonOptions, string endpoint
     ) : base(client, jsonOptions, endpoint) { }
 
     /// <inheritdoc/>
-    protected override string TransformEndpoint(QueryUserOrganisation_PublicApiRequest request, string endpoint)
+    protected override string TransformEndpoint(QueryUserOrganisationApiRequest request, string endpoint)
     {
         return endpoint
             .Replace("{userId}", request.UserId.ToString())

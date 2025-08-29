@@ -24,4 +24,3 @@ public interface IScopedSessionWriter
     /// </summary>
     ApplicationModel Application { set; }
 }
-

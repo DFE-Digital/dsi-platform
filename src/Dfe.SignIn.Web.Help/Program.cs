@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.UseCases.SupportTickets;
@@ -41,7 +40,6 @@ builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient([NodeApiName.Applications]);
 
-builder.Services.SetupAutoMapper();
 builder.Services.SetupHealthChecks();
 builder.Services.SetupContentProcessing();
 
@@ -50,7 +48,7 @@ builder.Services.AddSingleton<IServiceNavigationBuilder, ServiceNavigationBuilde
 builder.Services
     .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
     .AddGovNotify()
-    .AddInteractor<SendEmailNotificationWithGovNotify>();
+    .AddInteractor<SendEmailNotificationWithGovNotifyUseCase>();
 
 builder.Services
     .Configure<RaiseSupportTicketByEmailOptions>(builder.Configuration.GetRequiredSection("RaiseSupportTicketByEmail"))
@@ -59,8 +57,8 @@ builder.Services
             options.ContactUrl = platformOptionsAccessor.Value.ContactUrl;
         });
 builder.Services
-    .AddInteractor<GetSubjectOptionsForSupportTicket_UseCase>()
-    .AddInteractor<RaiseSupportTicketByEmail_UseCase>();
+    .AddInteractor<GetSubjectOptionsForSupportTicketUseCase>()
+    .AddInteractor<RaiseSupportTicketByEmailUseCase>();
 
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
@@ -112,8 +110,4 @@ app.MapControllerRoute(
 await app.Services.GetRequiredService<ITopicIndexAccessor>()
     .GetIndexAsync();
 
-app.Run();
-
-/// <exclude/>
-[ExcludeFromCodeCoverage]
-public partial class Program { }
+await app.RunAsync();

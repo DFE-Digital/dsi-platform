@@ -31,9 +31,9 @@ public sealed class QueryUserOrganisationTests
         Status = OrganisationStatus.Open,
     };
 
-    private static readonly QueryUserOrganisation_PublicApiRequestBody FakeMinimalRequest = new();
+    private static readonly QueryUserOrganisationApiRequestBody FakeMinimalRequest = new();
 
-    private static readonly QueryUserOrganisation_PublicApiRequestBody FakeDetailedRequest = new() {
+    private static readonly QueryUserOrganisationApiRequestBody FakeDetailedRequest = new() {
         Filter = new OrganisationFilter {
             Association = OrganisationFilterAssociation.AssignedToUser,
             OrganisationIds = [],
@@ -88,7 +88,7 @@ public sealed class QueryUserOrganisationTests
     [DataTestMethod]
     [DynamicData(nameof(PostQueryUserOrganisation_InvokesExpectedInteractionRequest_Parameters), DynamicDataSourceType.Property)]
     public async Task PostQueryUserOrganisation_InvokesExpectedInteractionRequest(
-        QueryUserOrganisation_PublicApiRequestBody apiRequest)
+        QueryUserOrganisationApiRequestBody apiRequest)
     {
         var autoMocker = CreateAutoMocker();
         SetupFakeFilteredOrganisationsResponse(autoMocker);

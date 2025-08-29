@@ -32,7 +32,7 @@ public interface IExceptionJsonSerializer
     ///   <para>Returns an exception of type <see cref="UnexpectedException"/> when the
     ///   exception type cannot be determined.</para>
     /// </remarks>
-    /// <param name="exception">The exception instance.</param>
+    /// <param name="json">JSON encoded exception data.</param>
     /// <returns>
     ///   <para>The deserialized exception instance.</para>
     /// </returns>

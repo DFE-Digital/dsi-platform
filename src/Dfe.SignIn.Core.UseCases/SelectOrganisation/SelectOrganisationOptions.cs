@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
@@ -5,6 +6,9 @@ namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 /// <summary>
 /// Options for the "select organisation" feature.
 /// </summary>
+[SuppressMessage("csharpsquid", "S1075",
+    Justification = "Default URLs configuration for running locally on a development machine."
+)]
 public sealed class SelectOrganisationOptions : IOptions<SelectOrganisationOptions>
 {
     /// <summary>

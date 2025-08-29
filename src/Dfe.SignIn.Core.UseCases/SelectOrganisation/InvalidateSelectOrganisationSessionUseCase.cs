@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 /// Use case for invalidating a "select organisation" session.
 /// </summary>
 /// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
-public sealed class InvalidateSelectOrganisationSession_UseCase(
+public sealed class InvalidateSelectOrganisationSessionUseCase(
     ISelectOrganisationSessionRepository sessionRepository
 ) : Interactor<InvalidateSelectOrganisationSessionRequest, InvalidateSelectOrganisationSessionResponse>
 {

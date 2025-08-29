@@ -7,7 +7,7 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 
 [TestClass]
-public sealed class InvalidateSelectOrganisationSession_UseCaseTests
+public sealed class InvalidateSelectOrganisationSessionUseCaseTests
 {
     #region InvokeAsync(InvalidateSelectOrganisationSessionRequest)
 
@@ -16,7 +16,7 @@ public sealed class InvalidateSelectOrganisationSession_UseCaseTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             InvalidateSelectOrganisationSessionRequest,
-            InvalidateSelectOrganisationSession_UseCase
+            InvalidateSelectOrganisationSessionUseCase
         >();
     }
 
@@ -24,7 +24,7 @@ public sealed class InvalidateSelectOrganisationSession_UseCaseTests
     public async Task InvokeAsync_InvalidatesSessionWithCorrectSessionKey()
     {
         var autoMocker = new AutoMocker();
-        var useCase = autoMocker.CreateInstance<InvalidateSelectOrganisationSession_UseCase>();
+        var useCase = autoMocker.CreateInstance<InvalidateSelectOrganisationSessionUseCase>();
 
         await useCase.InvokeAsync(new InvalidateSelectOrganisationSessionRequest {
             SessionKey = "cd66b69c-144c-4365-96f6-4302b754c18b",

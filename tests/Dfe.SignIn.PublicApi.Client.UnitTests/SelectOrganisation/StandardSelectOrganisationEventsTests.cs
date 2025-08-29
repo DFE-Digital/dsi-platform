@@ -169,7 +169,7 @@ public sealed class StandardSelectOrganisationEventsTests
         var mockContext = SetupMockHttpContext(autoMocker);
         var events = autoMocker.CreateInstance<StandardSelectOrganisationEvents>();
 
-        var exception = await Assert.ThrowsAsync<SelectOrganisationCallbackErrorException>(
+        var exception = await Assert.ThrowsExactlyAsync<SelectOrganisationCallbackErrorException>(
             () => events.OnError(mockContext.Object, SelectOrganisationErrorCode.InvalidSelection)
         );
         Assert.AreEqual(SelectOrganisationErrorCode.InvalidSelection, exception.ErrorCode);

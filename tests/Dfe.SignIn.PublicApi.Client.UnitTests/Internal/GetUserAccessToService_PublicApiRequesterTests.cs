@@ -9,7 +9,7 @@ using Moq.Protected;
 namespace Dfe.SignIn.PublicApi.Client.UnitTests.Internal;
 
 [TestClass]
-public sealed class GetUserAccessToService_PublicApiRequesterTests
+public sealed class GetUserAccessToServiceApiRequesterTests
 {
     private static void UseFakeOptions(AutoMocker autoMocker)
     {
@@ -57,7 +57,7 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetUserAccessToServiceRequest,
-            GetUserAccessToService_PublicApiRequester
+            GetUserAccessToServiceApiRequester
         >();
     }
 
@@ -71,7 +71,7 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
             { "roles": [] }
         """);
 
-        var requester = autoMocker.CreateInstance<GetUserAccessToService_PublicApiRequester>();
+        var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
 
         await requester.InvokeAsync(new GetUserAccessToServiceRequest {
             UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
@@ -90,7 +90,6 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(HttpRequestException))]
     public async Task InvokeAsync_Throws_WhenHasFailingStatusCode()
     {
         var autoMocker = new AutoMocker();
@@ -112,12 +111,17 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
             BaseAddress = new Uri("https://public-api"),
         });
 
-        var requester = autoMocker.CreateInstance<GetUserAccessToService_PublicApiRequester>();
+        var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
 
-        await requester.InvokeAsync(new GetUserAccessToServiceRequest {
-            UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
-            OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
-        });
+        Task Act()
+        {
+            return requester.InvokeAsync(new GetUserAccessToServiceRequest {
+                UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
+                OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
+            });
+        }
+
+        await Assert.ThrowsExactlyAsync<HttpRequestException>(Act);
     }
 
     [TestMethod]
@@ -152,7 +156,7 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
             }
         """);
 
-        var requester = autoMocker.CreateInstance<GetUserAccessToService_PublicApiRequester>();
+        var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
 
         var response = await requester.InvokeAsync(new GetUserAccessToServiceRequest {
             UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
@@ -178,7 +182,6 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public async Task InvokeAsync_Throws_WhenResponseIsNull()
     {
         var autoMocker = new AutoMocker();
@@ -186,12 +189,17 @@ public sealed class GetUserAccessToService_PublicApiRequesterTests
 
         UseHttpClientWithFakeResponse(autoMocker, "null");
 
-        var requester = autoMocker.CreateInstance<GetUserAccessToService_PublicApiRequester>();
+        var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
 
-        await requester.InvokeAsync(new GetUserAccessToServiceRequest {
-            UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
-            OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
-        });
+        Task Act()
+        {
+            return requester.InvokeAsync(new GetUserAccessToServiceRequest {
+                UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
+                OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
+            });
+        }
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(Act);
     }
 
     #endregion

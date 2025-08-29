@@ -38,7 +38,7 @@ internal sealed class Status()
     public required int Id { get; init; }
 }
 
-internal sealed class GetUserAccessToService_PublicApiRequester(
+internal sealed class GetUserAccessToServiceApiRequester(
     IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IOptions<PublicApiOptions> optionsAccessor,
     IPublicApiClient client

@@ -10,7 +10,7 @@ namespace Dfe.SignIn.NodeApi.Client.Applications;
 /// ApiRequester for obtaining an application.
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
-public sealed class GetApplicationByClientId_NodeApiRequester(
+public sealed class GetApplicationByClientIdNodeRequester(
     [FromKeyedServices(NodeApiName.Applications)] HttpClient httpClient
 ) : Interactor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
 {

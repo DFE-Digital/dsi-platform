@@ -28,7 +28,7 @@ public interface IInteractor<TRequest>
     ///   <para>The interaction response.</para>
     /// </returns>
     /// <exception cref="InvalidRequestException">
-    ///   <para>If the <paramref name="request"/> model is invalid.</para>
+    ///   <para>If the request model is invalid.</para>
     /// </exception>
     /// <exception cref="InteractionException">
     ///   <para>If a business domain exception occurs. This should be a custom exception.</para>
@@ -37,7 +37,20 @@ public interface IInteractor<TRequest>
     Task<object> InvokeAsync(InteractionContext<TRequest> context, CancellationToken cancellationToken = default);
 }
 
-/// <inheritdoc cref="IInteractor{TRequest}"/>
+/// <summary>
+/// Represents an interaction within the system.
+/// </summary>
+/// <remarks>
+///   <para>Interactors should be added to service collections with the transient lifetime:</para>
+///   <code language="csharp"><![CDATA[
+///     services.AddInteractor<GetExampleById_ApiRequester>();
+///   ]]></code>
+///   <para>Or manually with:</para>
+///   <code language="csharp"><![CDATA[
+///     services.AddTransient<IInteractor<GetExampleByIdRequest>, GetExampleById_ApiRequester>();
+///   ]]></code>
+/// </remarks>
+/// <typeparam name="TRequest">The type of request.</typeparam>
 /// <typeparam name="TResponse">The type of response.</typeparam>
 public abstract class Interactor<TRequest, TResponse> : IInteractor<TRequest>
     where TRequest : class
@@ -64,7 +77,7 @@ public abstract class Interactor<TRequest, TResponse> : IInteractor<TRequest>
 ///     <para>An example implementation:</para>
 ///     <code language="csharp"><![CDATA[
 ///       [UseCaseHandler]
-///       public sealed class GetExampleById_UseCaseHandler
+///       public sealed class GetExampleByIdUseCase
 ///           : Interactor<GetExampleByIdRequest, GetExampleByIdResponse>
 ///       {
 ///           public override Task<GetExampleByIdResponse> InvokeAsync(

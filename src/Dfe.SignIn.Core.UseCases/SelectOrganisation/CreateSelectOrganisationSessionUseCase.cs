@@ -13,7 +13,7 @@ namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 /// <param name="optionsAccessor">Provides access to "select organisation" options.</param>
 /// <param name="sessionRepository">The repository of "select organisation" sessions.</param>
 /// <param name="interaction">Service to dispatch interaction requests.</param>
-public sealed class CreateSelectOrganisationSession_UseCase(
+public sealed class CreateSelectOrganisationSessionUseCase(
     IOptions<SelectOrganisationOptions> optionsAccessor,
     ISelectOrganisationSessionRepository sessionRepository,
     IInteractionDispatcher interaction

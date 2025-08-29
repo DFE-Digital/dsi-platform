@@ -10,7 +10,7 @@ namespace Dfe.SignIn.NodeApi.Client.Access;
 /// ApiRequester for obtaining applications associated with a user.
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Access)]
-public sealed class GetApplicationsAssociatedWithUser_NodeApiRequester(
+public sealed class GetApplicationsAssociatedWithUserNodeRequester(
     [FromKeyedServices(NodeApiName.Access)] HttpClient httpClient
 ) : Interactor<GetApplicationsAssociatedWithUserRequest, GetApplicationsAssociatedWithUserResponse>
 {

@@ -13,7 +13,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 
 [TestClass]
-public sealed class GetOrganisationsAssociatedWithUserTests
+public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
 {
     private IMapper? mapper;
 
@@ -29,7 +29,7 @@ public sealed class GetOrganisationsAssociatedWithUserTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetOrganisationsAssociatedWithUserRequest,
-            GetOrganisationsAssociatedWithUser_NodeApiRequester
+            GetOrganisationsAssociatedWithUserNodeRequester
         >();
     }
 
@@ -87,13 +87,11 @@ public sealed class GetOrganisationsAssociatedWithUserTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationsAssociatedWithUser_NodeApiRequester(client, this.mapper!);
+        var controller = new GetOrganisationsAssociatedWithUserNodeRequester(client, this.mapper!);
 
         var response = await controller.InvokeAsync(new GetOrganisationsAssociatedWithUserRequest {
             UserId = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e")
         });
-
-        Assert.IsNotNull(response.Organisations);
 
         var organisations = response.Organisations.ToArray();
 
@@ -125,7 +123,7 @@ public sealed class GetOrganisationsAssociatedWithUserTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationsAssociatedWithUser_NodeApiRequester(client, this.mapper!);
+        var controller = new GetOrganisationsAssociatedWithUserNodeRequester(client, this.mapper!);
 
         var response = await controller.InvokeAsync(new GetOrganisationsAssociatedWithUserRequest {
             UserId = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e")

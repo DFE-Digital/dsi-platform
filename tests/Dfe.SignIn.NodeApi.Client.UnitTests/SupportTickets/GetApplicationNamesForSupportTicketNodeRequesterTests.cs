@@ -9,7 +9,7 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.SupportTickets;
 
 [TestClass]
-public sealed class GetApplicationNamesForSupportTicket_NodeApiRequesterTests
+public sealed class GetApplicationNamesForSupportTicketNodeRequesterTests
 {
     private static readonly RelyingPartyDto FakeRelyingPartyDetails = new() {
         ClientId = "xyz",
@@ -22,7 +22,7 @@ public sealed class GetApplicationNamesForSupportTicket_NodeApiRequesterTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationNamesForSupportTicketRequest,
-            GetApplicationNamesForSupportTicket_NodeApiRequester
+            GetApplicationNamesForSupportTicketNodeRequester
         >();
     }
 
@@ -70,7 +70,7 @@ public sealed class GetApplicationNamesForSupportTicket_NodeApiRequesterTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetApplicationNamesForSupportTicket_NodeApiRequester(client);
+        var controller = new GetApplicationNamesForSupportTicketNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetApplicationNamesForSupportTicketRequest());
 

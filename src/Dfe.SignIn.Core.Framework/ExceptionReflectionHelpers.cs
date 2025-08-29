@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Dfe.SignIn.Core.Framework;
@@ -46,10 +47,10 @@ internal static class ExceptionReflectionHelpers
     ///   <para>The exception type when found; otherwise, a value of null.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="property"/> is null.</para>
+    ///   <para>If <paramref name="fullName"/> is null.</para>
     /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="property"/> is empty string.</para>
+    ///   <para>If <paramref name="fullName"/> is empty string.</para>
     /// </exception>
     public static Type? GetExceptionTypeByFullName(string fullName)
     {
@@ -77,6 +78,9 @@ internal static class ExceptionReflectionHelpers
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="property"/> is null.</para>
     /// </exception>
+    [SuppressMessage("csharpsquid", "S3011",
+        Justification = "Access to private setters on models is required for serialization."
+    )]
     public static bool IsSerializableProperty(PropertyInfo property)
     {
         ExceptionHelpers.ThrowIfArgumentNull(property, nameof(property));

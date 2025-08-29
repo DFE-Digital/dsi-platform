@@ -10,9 +10,9 @@ public sealed class SelectOrganisationMappingProfile : Profile
     /// <exclude/>
     public SelectOrganisationMappingProfile()
     {
-        this.CreateMap<CreateSelectOrganisationSessionResponse, CreateSelectOrganisationSession_PublicApiResponse>();
+        this.CreateMap<CreateSelectOrganisationSessionResponse, CreateSelectOrganisationSessionApiResponse>();
 
-        this.CreateMap<CreateSelectOrganisationSession_PublicApiRequestBody, CreateSelectOrganisationSessionRequest>()
+        this.CreateMap<CreateSelectOrganisationSessionApiRequestBody, CreateSelectOrganisationSessionRequest>()
             .ForMember(destination => destination.ClientId, options => options.Ignore());
     }
 }

@@ -9,7 +9,7 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 
 [TestClass]
-public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
+public sealed class GetSelectOrganisationSessionByKeyUseCaseTests
 {
     #region InvokeAsync(GetSelectOrganisationSessionByKeyRequest)
 
@@ -18,7 +18,7 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetSelectOrganisationSessionByKeyRequest,
-            GetSelectOrganisationSessionByKey_UseCase
+            GetSelectOrganisationSessionByKeyUseCase
         >();
     }
 
@@ -26,7 +26,7 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
     public async Task InvokeAsync_FetchesSessionWithCorrectSessionKey()
     {
         var autoMocker = new AutoMocker();
-        var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKey_UseCase>();
+        var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKeyUseCase>();
 
         await useCase.InvokeAsync(new GetSelectOrganisationSessionByKeyRequest {
             SessionKey = "cd66b69c-144c-4365-96f6-4302b754c18b",
@@ -66,7 +66,7 @@ public sealed class GetSelectOrganisationSessionByKey_UseCaseTests
             ))
             .ReturnsAsync(fakeSession);
 
-        var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKey_UseCase>();
+        var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKeyUseCase>();
 
         var response = await useCase.InvokeAsync(new GetSelectOrganisationSessionByKeyRequest {
             SessionKey = "cd66b69c-144c-4365-96f6-4302b754c18b",

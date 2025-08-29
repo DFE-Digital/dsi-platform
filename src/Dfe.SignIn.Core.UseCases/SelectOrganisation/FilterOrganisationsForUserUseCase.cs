@@ -13,7 +13,7 @@ namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 /// Use case for filtering organisations for a user.
 /// </summary>
 /// <param name="interaction">Service to dispatch interaction requests.</param>
-public sealed class FilterOrganisationsForUser_UseCase(
+public sealed class FilterOrganisationsForUserUseCase(
     IInteractionDispatcher interaction
 ) : Interactor<FilterOrganisationsForUserRequest, FilterOrganisationsForUserResponse>
 {
@@ -26,13 +26,13 @@ public sealed class FilterOrganisationsForUser_UseCase(
 
         if (context.Request.Filter.Type == OrganisationFilterType.AnyOf) {
             return new() {
-                FilteredOrganisations = await this.RetrieveOrganisationsById(
+                FilteredOrganisations = await RetrieveOrganisationsById(
                     context.Request.Filter.OrganisationIds, cancellationToken
                 ),
             };
         }
 
-        var predicate = this.GetPredicateForAssociationFiltering(context.Request.Filter);
+        var predicate = GetPredicateForAssociationFiltering(context.Request.Filter);
 
         return new() {
             FilteredOrganisations = await this.RetrieveOrganisationsAssociatedWithUser(
@@ -40,7 +40,7 @@ public sealed class FilterOrganisationsForUser_UseCase(
         };
     }
 
-    private Task<IEnumerable<OrganisationModel>> RetrieveOrganisationsById(
+    private static Task<IEnumerable<OrganisationModel>> RetrieveOrganisationsById(
         IEnumerable<Guid> organisationIds,
         CancellationToken cancellationToken = default)
     {
@@ -48,7 +48,7 @@ public sealed class FilterOrganisationsForUser_UseCase(
         throw new NotImplementedException();
     }
 
-    private Func<OrganisationModel, bool> GetPredicateForAssociationFiltering(OrganisationFilter filter)
+    private static Func<OrganisationModel, bool> GetPredicateForAssociationFiltering(OrganisationFilter filter)
     {
         if (filter.Type == OrganisationFilterType.Associated) {
             return (_) => true;
@@ -103,7 +103,7 @@ public sealed class FilterOrganisationsForUser_UseCase(
 
         var userAssociationWithApplication = await this.GetUserAssociationWithApplicationAsync(
             request.UserId, application.Id, cancellationToken);
-        if (userAssociationWithApplication.Count() == 0) {
+        if (!userAssociationWithApplication.Any()) {
             // User is not associated with the application at all.
             if (request.Filter.Association == OrganisationFilterAssociation.Auto) {
                 // let them choose any org?

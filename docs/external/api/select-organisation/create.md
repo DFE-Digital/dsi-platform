@@ -2,21 +2,17 @@
 
 This endpoint can be used to initiate a new "select organisation" session.
 
-
 ## Endpoint:
 
 ```
 POST /v2/select-organisation
 ```
 
+## Interaction (.NET):
 
-## Interactor (.NET):
+Request: <a href="xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSessionApiRequest">CreateSelectOrganisationSessionApiRequest</a>
 
-<pre class="dotnet-type-summary"><div><a href="xref:Dfe.SignIn.Core.Framework.IInteractor`2">IInteractor</a>&lt;
-    <a href="xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSession_PublicApiRequest">CreateSelectOrganisationSession_PublicApiRequest</a>,
-    <a href="xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSession_PublicApiResponse">CreateSelectOrganisationSession_PublicApiResponse</a>
-&gt;</div></pre>
-
+Response: <a href="xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSessionApiResponse">CreateSelectOrganisationSessionApiResponse</a>
 
 ## Request headers:
 
@@ -24,10 +20,9 @@ POST /v2/select-organisation
 
 The JWT token for authorization should be signed using your API secret, which will be provided to you.
 
-
 ## Request body:
 
-**See also:** [](xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSession_PublicApiRequestBody)
+**See also:** [](xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSessionApiRequestBody)
 
 ### callbackUrl: string (Required)
 
@@ -46,6 +41,7 @@ Note: This can be retrieved from the "dsi_user" claim.
 Custom prompt message to show in the "select organisation" UI.
 
 **Default value:**
+
 ```json
 {
   "heading": "Which organisation would you like to use?",
@@ -53,6 +49,7 @@ Custom prompt message to show in the "select organisation" UI.
 }
 ```
 
+<!-- prettier-ignore-start -->
 +---------------------+-----------------------------------------------------------------+
 | Property            | Summary                                                         |
 +=====================+=================================================================+
@@ -69,6 +66,7 @@ Custom prompt message to show in the "select organisation" UI.
 |                     | "Select one option."                                            |
 |                     | ```                                                             |
 +---------------------+-----------------------------------------------------------------+
+<!-- prettier-ignore-end -->
 
 ### filter: object (Optional)
 
@@ -77,6 +75,7 @@ Specifies the filtering organisation filtering requirement for the user.
 **See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.OrganisationFilter)
 
 **Default value:**
+
 ```json
 {
   "type": "associated",
@@ -85,6 +84,7 @@ Specifies the filtering organisation filtering requirement for the user.
 }
 ```
 
+<!-- prettier-ignore-start -->
 +-----------------------+---------------------------------------------------------------+
 | Property              | Summary                                                       |
 +=======================+===============================================================+
@@ -130,16 +130,17 @@ Specifies the filtering organisation filtering requirement for the user.
 |                       |                                                               |
 |                       | **Type:** `string[]`                                          |
 +-----------------------+---------------------------------------------------------------+
+<!-- prettier-ignore-end -->
 
 ### allowCancel: boolean (Optional)
 
 A value indicating if the user can cancel selection.
 
 **Default value:**
+
 ```json
 true
 ```
-
 
 ## Response body:
 
@@ -159,10 +160,9 @@ The user can be redirected to this URL to so that they are prompted to select an
 
 In the case where the user would have no options; the relying party can choose:
 
-  - not to redirect the user to the url (more efficient).
+- not to redirect the user to the url (more efficient).
 
-  - or, to redirect the user to the url which will immediate invoke the callback (easier to integrate).
-
+- or, to redirect the user to the url which will immediate invoke the callback (easier to integrate).
 
 ## Related content
 

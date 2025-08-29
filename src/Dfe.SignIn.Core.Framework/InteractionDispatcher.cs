@@ -13,7 +13,6 @@ public interface IInteractionDispatcher
     /// Dispatches an interaction request and awaits a response.
     /// </summary>
     /// <typeparam name="TRequest">The type of request.</typeparam>
-    /// <typeparam name="TResponse">The type of response.</typeparam>
     /// <param name="request">Request model for the interaction.</param>
     /// <param name="cancellationToken">A cancellation token that can be used by other
     /// objects or threads to receive notice of cancellation.</param>

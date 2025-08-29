@@ -33,7 +33,7 @@ public static class InteractionAssert
             return useCase.InvokeAsync(context);
         }
 
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(Act);
+        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(Act);
         Assert.AreEqual(context.InvocationId, exception.InvocationId);
     }
 }

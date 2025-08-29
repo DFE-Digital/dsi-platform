@@ -38,7 +38,7 @@ public sealed class StandardSelectOrganisationUserFlow(
 
         var options = optionsAccessor.Value;
 
-        var request = new CreateSelectOrganisationSession_PublicApiRequest {
+        var request = new CreateSelectOrganisationSessionApiRequest {
             UserId = context.User.GetDsiUserId(),
             CallbackUrl = new Uri($"{context.Request.Scheme}://{context.Request.Host}{context.Request.PathBase}{options.CallbackPath}"),
             AllowCancel = allowCancel,
@@ -48,7 +48,7 @@ public sealed class StandardSelectOrganisationUserFlow(
         }
 
         var selectOrganisationResponse = await interaction.DispatchAsync(request, cancellationToken)
-            .To<CreateSelectOrganisationSession_PublicApiResponse>();
+            .To<CreateSelectOrganisationSessionApiResponse>();
 
         if (selectOrganisationResponse.HasOptions) {
             await trackingProvider.SetTrackedRequestAsync(context, selectOrganisationResponse.RequestId);
@@ -123,12 +123,12 @@ public sealed class StandardSelectOrganisationUserFlow(
         Guid userId = context.User.GetDsiUserId();
 
         var response = await interaction.DispatchAsync(
-            new QueryUserOrganisation_PublicApiRequest {
+            new QueryUserOrganisationApiRequest {
                 OrganisationId = ParseSelectedOrganisationId(context),
                 UserId = userId,
                 Filter = options.Filter,
             }
-        ).To<QueryUserOrganisation_PublicApiResponse>();
+        ).To<QueryUserOrganisationApiResponse>();
 
         if (response.UserId != userId) {
             return null;

@@ -9,7 +9,7 @@ public sealed class InteractionAssertTests
     {
     }
 
-    internal sealed class ExampleInteractorWithRequestValidation : IInteractor<ExampleRequest>
+    private sealed class ExampleInteractorWithRequestValidation : IInteractor<ExampleRequest>
     {
         public Task<object> InvokeAsync(InteractionContext<ExampleRequest> context, CancellationToken cancellationToken)
         {
@@ -19,7 +19,7 @@ public sealed class InteractionAssertTests
         }
     }
 
-    internal sealed class ExampleInteractorWithoutRequestValidation : IInteractor<ExampleRequest>
+    private sealed class ExampleInteractorWithoutRequestValidation : IInteractor<ExampleRequest>
     {
         public Task<object> InvokeAsync(InteractionContext<ExampleRequest> context, CancellationToken cancellationToken)
         {

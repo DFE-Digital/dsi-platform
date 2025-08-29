@@ -7,7 +7,7 @@ namespace Dfe.SignIn.Core.UseCases.SupportTickets;
 /// Use case for getting the list of possible subject options when a user is raising a
 /// support request.
 /// </summary>
-public sealed class GetSubjectOptionsForSupportTicket_UseCase
+public sealed class GetSubjectOptionsForSupportTicketUseCase
     : Interactor<GetSubjectOptionsForSupportTicketRequest, GetSubjectOptionsForSupportTicketResponse>
 {
     /// <inheritdoc/>

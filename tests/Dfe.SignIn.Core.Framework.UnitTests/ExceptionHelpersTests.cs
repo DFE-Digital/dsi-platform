@@ -8,7 +8,7 @@ public sealed class ExceptionHelpersTests
     [TestMethod]
     public void ThrowIfArgumentNull_Throws_WhenValueIsNull()
     {
-        var exception = Assert.ThrowsException<ArgumentNullException>(
+        var exception = Assert.ThrowsExactly<ArgumentNullException>(
             () => ExceptionHelpers.ThrowIfArgumentNull(null!, "exampleParam")
         );
         Assert.AreEqual("exampleParam", exception.ParamName);
@@ -27,7 +27,7 @@ public sealed class ExceptionHelpersTests
     [TestMethod]
     public void ThrowIfArgumentNullOrEmpty_Throws_WhenValueIsNull()
     {
-        var exception = Assert.ThrowsException<ArgumentNullException>(
+        var exception = Assert.ThrowsExactly<ArgumentNullException>(
             () => ExceptionHelpers.ThrowIfArgumentNullOrEmpty(null!, "exampleParam")
         );
         Assert.AreEqual("exampleParam", exception.ParamName);
@@ -36,7 +36,7 @@ public sealed class ExceptionHelpersTests
     [TestMethod]
     public void ThrowIfArgumentNullOrEmpty_Throws_WhenValueIsEmptyString()
     {
-        var exception = Assert.ThrowsException<ArgumentException>(
+        var exception = Assert.ThrowsExactly<ArgumentException>(
             () => ExceptionHelpers.ThrowIfArgumentNullOrEmpty("", "exampleParam")
         );
         Assert.AreEqual("exampleParam", exception.ParamName);
@@ -55,7 +55,7 @@ public sealed class ExceptionHelpersTests
     [TestMethod]
     public void ThrowIfArgumentNullOrWhiteSpace_Throws_WhenValueIsNull()
     {
-        var exception = Assert.ThrowsException<ArgumentNullException>(
+        var exception = Assert.ThrowsExactly<ArgumentNullException>(
             () => ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace(null!, "exampleParam")
         );
         Assert.AreEqual("exampleParam", exception.ParamName);
@@ -66,7 +66,7 @@ public sealed class ExceptionHelpersTests
     [DataTestMethod]
     public void ThrowIfArgumentNullOrWhiteSpace_Throws_WhenValueIsWhiteSpace(string value)
     {
-        var exception = Assert.ThrowsException<ArgumentException>(
+        var exception = Assert.ThrowsExactly<ArgumentException>(
             () => ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace(value, "exampleParam")
         );
         Assert.AreEqual("exampleParam", exception.ParamName);

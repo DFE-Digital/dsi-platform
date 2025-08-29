@@ -3,7 +3,6 @@ namespace Dfe.SignIn.PublicApi.Client;
 /// <summary>
 /// The exception that occurs when response data is missing from a public API request.
 /// </summary>
-[Serializable]
 public sealed class MissingResponseDataException : Exception
 {
     /// <summary>

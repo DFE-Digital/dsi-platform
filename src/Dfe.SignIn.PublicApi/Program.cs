@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
@@ -67,8 +66,4 @@ app.UseBearerTokenAuthMiddleware();
 app.UseSelectOrganisationEndpoints();
 app.UseUserEndpoints();
 
-app.Run();
-
-/// <exclude/>
-[ExcludeFromCodeCoverage]
-public partial class Program { }
+await app.RunAsync();
