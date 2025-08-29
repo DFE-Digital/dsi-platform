@@ -1,34 +1,57 @@
 ﻿@model TopicViewModel
 
 @{
-    ViewData[DsiLayoutConstants.ServiceName] = "DfE Sign-in Help";
     ViewData[DsiLayoutConstants.Title] = Model.Title;
     ViewData[DsiLayoutConstants.MetaDescription] = Model.Summary;
     ViewData[DsiLayoutConstants.Crumbs] = Model.Crumbs;
 }
 
-@if (Model.CardSections.Any())
-{
+@if (Model.IsGlobal) {
+    // Show global "non-help" topics in the "DfE Sign-in" space instead.
+    ViewData[DsiLayoutConstants.ServiceName] = "DfE Sign-in";
+    ViewData[DsiLayoutConstants.ServiceNavigationItems] = Array.Empty<NavigationItemViewModel>();
+}
+
+@if (Model.TopicListingSections.Any()) {
     ViewData[DsiLayoutConstants.Hero] = new HeroViewModel
     {
         Heading = Model.Title,
         Text = Model.Summary,
     };
 }
-else
-{
-    if (!string.IsNullOrWhiteSpace(Model.Caption))
-    {
+else {
+    if (!string.IsNullOrWhiteSpace(Model.Caption)) {
         <span class="govuk-caption-xl">@Model.Caption</span>
     }
     <h1 class="govuk-heading-l">@Model.Title</h1>
 }
 
-@Html.Raw(@Model.ContentHtml)
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        @Html.Raw(@Model.ContentHtml)
+    </div>
+</div>
 
-@await Html.PartialAsync("Components/_CardSections", Model.CardSections)
+<div class="govuk-grid-row govuk-!-margin-top-5">
+    <div class="govuk-grid-column-full">
+        @foreach (var section in Model.TopicListingSections) {
+            if (section.Topics.Any()) {
+                @await Html.PartialAsync("Partials/_TopicListingSection", section)
+            }
+        }
+    </div>
+</div>
 
-@if (Model.AllowDeveloperReloadAction)
-{
+@if (@Model.Updated is not null) {
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <p class="govuk-body end-of-section">
+                Last updated: @Model.Updated.Value.ToString("dd MMMM yyyy")
+            </p>
+        </div>
+    </div>
+}
+
+@if (Model.AllowDeveloperReloadAction) {
     @await Html.PartialAsync("Partials/_DeveloperReloadButton")
 }

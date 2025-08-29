@@ -7,6 +7,14 @@ namespace Dfe.SignIn.Web.Help.Content;
 public sealed record TopicMetadata()
 {
     /// <summary>
+    /// Gets the date that the topic was last updated.
+    /// </summary>
+    /// <remarks>
+    ///   <para>A value of <c>null</c> indicates that no date has been given.</para>
+    /// </remarks>
+    public DateTime? Updated { get; init; } = null;
+
+    /// <summary>
     /// Gets the optional caption of the topic.
     /// </summary>
     public string? Caption { get; init; }
@@ -28,6 +36,17 @@ public sealed record TopicMetadata()
     /// Gets a brief summary of the topic.
     /// </summary>
     public string? Summary { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating if the topic is a global topic.
+    /// </summary>
+    /// <remarks>
+    ///   <para>Global "non-help" topics such as the "Cookies" page are presented within
+    ///   the "DfE Sign-in" space and do not include service navigation links.</para>
+    ///   <para>Help topics are presented within the "DfE Sign-in Help" space and include
+    ///   the related service navigation links.</para>
+    /// </remarks>
+    public bool IsGlobal { get; init; } = false;
 
     /// <summary>
     /// Gets the ordered enumerable collection of topic listings.

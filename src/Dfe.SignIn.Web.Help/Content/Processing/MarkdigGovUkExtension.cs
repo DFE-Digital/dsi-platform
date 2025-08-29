@@ -1,4 +1,5 @@
 using Markdig;
+using Markdig.Extensions.Tables;
 using Markdig.Renderers;
 using Markdig.Renderers.Html;
 using Markdig.Syntax;
@@ -17,7 +18,7 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
     /// <inheritdoc/>
     public void Setup(MarkdownPipelineBuilder pipeline)
     {
-        pipeline.DocumentProcessed += this.ProcessDocument;
+        pipeline.DocumentProcessed += ProcessDocument;
     }
 
     /// <inheritdoc/>
@@ -25,25 +26,28 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
     {
     }
 
-    private void ProcessDocument(MarkdownDocument document)
+    private static void ProcessDocument(MarkdownDocument document)
     {
         foreach (var block in document.Descendants()) {
             if (block is HeadingBlock headingBlock) {
-                this.ProcessHeadingBlock(headingBlock);
+                ProcessHeadingBlock(headingBlock);
             }
             else if (block is ParagraphBlock paragraphBlock) {
-                this.ProcessParagraphBlock(paragraphBlock);
+                ProcessParagraphBlock(paragraphBlock);
             }
             else if (block is ListBlock listBlock) {
-                this.ProcessListBlock(listBlock);
+                ProcessListBlock(listBlock);
+            }
+            else if (block is Table tableBlock) {
+                ProcessTableBlock(tableBlock);
             }
             else if (block is LinkInline linkInline) {
-                this.ProcessLinkInline(linkInline);
+                ProcessLinkInline(linkInline);
             }
         }
     }
 
-    private void ProcessHeadingBlock(HeadingBlock block)
+    private static void ProcessHeadingBlock(HeadingBlock block)
     {
         var attributes = block.GetAttributes();
         switch (block.Level) {
@@ -62,13 +66,13 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
         }
     }
 
-    private void ProcessParagraphBlock(ParagraphBlock block)
+    private static void ProcessParagraphBlock(ParagraphBlock block)
     {
         var attributes = block.GetAttributes();
         attributes.AddClass("govuk-body");
     }
 
-    private void ProcessListBlock(ListBlock block)
+    private static void ProcessListBlock(ListBlock block)
     {
         var attributes = block.GetAttributes();
         attributes.AddClass("govuk-list");
@@ -79,9 +83,29 @@ public sealed class MarkdigGovUkExtension : IMarkdownExtension
         );
     }
 
-    private void ProcessLinkInline(LinkInline block)
+    private static void ProcessTableBlock(Table block)
+    {
+        var attributes = block.GetAttributes();
+        attributes.AddClass("govuk-table");
+
+        var rows = block.Descendants<TableRow>();
+        AddClassName(rows, "govuk-table__row");
+        var headerCells = rows.Where(row => row.IsHeader).SelectMany(row => row.Descendants<TableCell>());
+        AddClassName(headerCells, "govuk-table__header");
+        var normalCells = rows.Where(row => !row.IsHeader).SelectMany(row => row.Descendants<TableCell>());
+        AddClassName(normalCells, "govuk-table__cell");
+    }
+
+    private static void ProcessLinkInline(LinkInline block)
     {
         var attributes = block.GetAttributes();
         attributes.AddClass("govuk-link");
+    }
+
+    private static void AddClassName(IEnumerable<Block> blocks, string name)
+    {
+        foreach (var block in blocks) {
+            block.GetAttributes().AddClass(name);
+        }
     }
 }

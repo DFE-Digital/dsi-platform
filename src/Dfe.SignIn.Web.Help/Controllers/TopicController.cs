@@ -22,32 +22,53 @@ public sealed class TopicController(
             return this.NotFound();
         }
 
-        var crumbs = topicIndex.GetCrumbs(topic).Select(crumbTopic => new CrumbViewModel {
-            Text = crumbTopic.Metadata.NavigationTitle,
-            Href = new Uri(crumbTopic.Path, UriKind.Relative),
-        });
-
-        var cardSections = topic.Metadata.Topics.Select(topicListing => new CardSectionViewModel {
-            Heading = topicListing.Heading,
-            Cards = topicListing.Paths.Select(childTopicPath => {
-                var childTopic = topicIndex.GetRequiredTopic(childTopicPath);
-                return new CardViewModel {
-                    Title = childTopic.Metadata.NavigationTitle,
-                    Summary = childTopic.Metadata.Summary,
-                    Href = new Uri(childTopic.Path, UriKind.Relative),
-                };
-            }),
-        });
+        var crumbs = topicIndex.GetCrumbs(topic);
+        // Skip first crumb for global "non-help" topics (eg. "Cookies").
+        if (topic.Metadata.IsGlobal) {
+            crumbs = crumbs.Skip(1);
+        }
 
         return this.View(new TopicViewModel {
             AllowDeveloperReloadAction = AllowDeveloperReloadAction,
-            Crumbs = crumbs,
+            Updated = topic.Metadata.Updated,
+            Crumbs = BuildCrumbViewModels(crumbs),
             Caption = topic.Metadata.Caption,
             Title = topic.Metadata.Title,
             Summary = topic.Metadata.Summary,
             ContentHtml = topic.ContentHtml,
-            CardSections = cardSections,
+            IsGlobal = topic.Metadata.IsGlobal,
+            TopicListingSections = topic.Metadata.Topics.Select(
+                topicListing => BuildTopicListingViewModel(topicListing, topicIndex)
+            ),
         });
+    }
+
+    private static IEnumerable<CrumbViewModel> BuildCrumbViewModels(IEnumerable<TopicModel> crumbs)
+    {
+        return crumbs.Select(crumbTopic => new CrumbViewModel {
+            Text = crumbTopic.Metadata.NavigationTitle,
+            Href = new Uri(crumbTopic.Path, UriKind.Relative),
+        });
+    }
+
+    private static TopicListingViewModel BuildTopicListingViewModel(TopicListing topicListing, ITopicIndex topicIndex)
+    {
+        return new TopicListingViewModel {
+            Heading = topicListing.Heading,
+            Topics = topicListing.Paths.Select(childTopicPath => {
+                var childTopic = topicIndex.GetRequiredTopic(childTopicPath);
+                return BuildTopicListingItemViewModel(childTopic);
+            }),
+        };
+    }
+
+    private static TopicListingItemViewModel BuildTopicListingItemViewModel(TopicModel topic)
+    {
+        return new TopicListingItemViewModel {
+            Title = topic.Metadata.NavigationTitle,
+            Summary = topic.Metadata.Summary,
+            Href = new Uri(topic.Path, UriKind.Relative),
+        };
     }
 
     #region Developer reload feature

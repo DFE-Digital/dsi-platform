@@ -21,10 +21,10 @@ public sealed class GetApplicationByClientId
     [TestMethod]
     public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
-        var mockDto = new ApplicationModelDto {
+        var mockDto = new ApplicationDto {
             Id = Guid.Parse("f3abb794-1399-4975-9c91-bf25d8ce9b4b"),
             Name = "mock-name",
-            RelyingParty = new RelyingPartyModelDto {
+            RelyingParty = new RelyingPartyDto {
                 ClientId = "mock-client-id",
                 ClientSecret = "mock-api-secret",
                 GrantTypes = [],

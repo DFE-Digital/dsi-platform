@@ -1,9 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Core.UseCases.SupportTickets;
+using Dfe.SignIn.Gateways.GovNotify;
+using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Help.Configuration;
 using Dfe.SignIn.Web.Help.Content;
+using Dfe.SignIn.Web.Help.Services;
 using Dfe.SignIn.WebFramework.Configuration;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +28,8 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 builder.Services.AddControllersWithViews();
 
 builder.Services
-    .ConfigureDfeSignInJsonSerializerOptions();
+    .ConfigureDfeSignInJsonSerializerOptions()
+    .AddInteractionFramework();
 
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
@@ -30,10 +37,33 @@ builder.Services
 builder.Services
     .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
     .SetupFrontendAssets();
+builder.Services
+    .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
+    .SetupNodeApiClient([NodeApiName.Applications]);
 
 builder.Services.SetupAutoMapper();
 builder.Services.SetupHealthChecks();
 builder.Services.SetupContentProcessing();
+
+builder.Services.AddSingleton<IServiceNavigationBuilder, ServiceNavigationBuilder>();
+
+builder.Services
+    .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
+    .AddGovNotify()
+    .AddInteractor<SendEmailNotificationWithGovNotify>();
+
+builder.Services
+    .Configure<RaiseSupportTicketByEmailOptions>(builder.Configuration.GetRequiredSection("RaiseSupportTicketByEmail"))
+    .AddOptions<RaiseSupportTicketByEmailOptions>()
+        .Configure<IOptions<PlatformOptions>>((options, platformOptionsAccessor) => {
+            options.ContactUrl = platformOptionsAccessor.Value.ContactUrl;
+        });
+builder.Services
+    .AddInteractor<GetSubjectOptionsForSupportTicket_UseCase>()
+    .AddInteractor<RaiseSupportTicketByEmail_UseCase>();
+
+// TEMP: Add fake interactor implementations.
+// builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
 
 var app = builder.Build();
 
@@ -50,6 +80,10 @@ app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseHealthChecks();
+
+var rewriteOptions = new RewriteOptions();
+rewriteOptions.AddRedirect("(.*)/$", "$1", statusCode: 301);
+app.UseRewriter(rewriteOptions);
 
 app.UseRouting();
 

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -46,6 +47,10 @@ public interface IInteractionDispatcher
 /// <param name="task">The actual task.</param>
 public struct InteractionTask(Task<object> task)
 {
+    // Defaults to a task that resolves to `null` to assist mocking in unit tests.
+    private readonly Task<object> InnerTask
+        => task ?? Task.FromResult<object>(null!);
+
     /// <summary>
     /// Creates a resolved <see cref="InteractionTask"/> from a given result.
     /// </summary>
@@ -96,7 +101,17 @@ public struct InteractionTask(Task<object> task)
     /// <exception cref="InvalidCastException">
     ///   <para>If the specified response model cannot be cast into the expected type.</para>
     /// </exception>
-    public readonly async Task<TResponse> To<TResponse>() => (TResponse)await task;
+    public readonly async Task<TResponse> To<TResponse>()
+        => (TResponse)await this.InnerTask;
+
+    /// <summary>
+    /// Gets awaiter for interaction task.
+    /// </summary>
+    /// <returns>
+    ///   <para>Awaiter for interaction task.</para>
+    /// </returns>
+    public readonly TaskAwaiter<object> GetAwaiter()
+        => this.InnerTask.GetAwaiter();
 }
 
 /// <summary>

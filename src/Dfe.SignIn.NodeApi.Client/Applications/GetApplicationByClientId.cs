@@ -21,10 +21,14 @@ public sealed class GetApplicationByClientId_NodeApiRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var response = await httpClient.GetFromJsonOrDefaultAsync<ApplicationModelDto>(
+        var response = await httpClient.GetFromJsonOrDefaultAsync<ApplicationDto>(
             $"services/{context.Request.ClientId}",
             cancellationToken
         );
+
+        Uri? serviceHomeUrl = !string.IsNullOrWhiteSpace(response?.RelyingParty.ServiceHome)
+            ? new Uri(response.RelyingParty.ServiceHome)
+            : null;
 
         return new GetApplicationByClientIdResponse {
             Application = response is null ? null : new() {
@@ -33,7 +37,7 @@ public sealed class GetApplicationByClientId_NodeApiRequester(
                 Description = response.Description,
                 Id = response.Id,
                 Name = response.Name,
-                ServiceHomeUrl = new Uri(response.RelyingParty.ServiceHome),
+                ServiceHomeUrl = serviceHomeUrl,
                 IsExternalService = response.IsExternalService,
                 IsHiddenService = response.IsHiddenService,
                 IsIdOnlyService = response.IsIdOnlyService

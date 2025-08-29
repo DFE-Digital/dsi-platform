@@ -21,8 +21,7 @@ public static class AssetConfigurationExtensions
 
         services.AddGovUkFrontend((options) => {
             // Disable hosting of GDS design system assets since these are hosted from our CDN.
-            options.StaticAssetsContentPath = null;
-            options.CompiledContentPath = null;
+            options.FrontendPackageHostingOptions = FrontendPackageHostingOptions.None;
         });
     }
 }

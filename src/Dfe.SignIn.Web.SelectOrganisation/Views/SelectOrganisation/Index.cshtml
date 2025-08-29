@@ -6,7 +6,7 @@
 }
 
 <form method="post" asp-antiforgery=true>
-    <govuk-radios asp-for=SelectedOrganisationId>
+    <govuk-radios for=SelectedOrganisationId>
         <govuk-radios-fieldset>
             <govuk-radios-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">
                 @Model.Prompt.Heading

@@ -17,6 +17,9 @@ indent_size = 2
 indent_style = space
 tab_width = 2
 
+[*.{yml}]
+trim_trailing_whitespace = false
+
 [*.cs]
 # Here we set all microsoft's IDExxxx rule violations as compile errors
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/

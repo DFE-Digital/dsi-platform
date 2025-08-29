@@ -1,9 +1,7 @@
-﻿@using Dfe.SignIn.WebFramework.Configuration
-@using Microsoft.Extensions.Options
-
-@inject IOptions<PlatformOptions> platformOptionsAccessor
+﻿@inject IOptions<PlatformOptions> platformOptionsAccessor
 
 @{
+    ViewData[DsiLayoutConstants.ServiceNavigationItems] = Array.Empty<NavigationItemViewModel>();
     ViewData[DsiLayoutConstants.Title] = "Page not found";
 }
 

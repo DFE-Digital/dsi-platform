@@ -1,0 +1,13 @@
+@if (ViewData[DsiLayoutConstants.ServiceNavigationItems] is IEnumerable<NavigationItemViewModel> items && items.Any())
+{
+    <govuk-service-navigation>
+        <govuk-service-navigation-nav>
+            @foreach (var item in items)
+            {
+                <govuk-service-navigation-nav-item href=@item.Href active=@item.IsActive>
+                    @item.Text
+                </govuk-service-navigation-nav-item>
+            }
+        </govuk-service-navigation-nav>
+    </govuk-service-navigation>
+}

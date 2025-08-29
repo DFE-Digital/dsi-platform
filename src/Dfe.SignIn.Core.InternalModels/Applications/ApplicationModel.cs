@@ -16,7 +16,7 @@ public sealed record ApplicationModel
     public required string ClientId { get; init; }
 
     /// <summary>
-    /// Gets the name of the service.
+    /// Gets the name of the service application.
     /// </summary>
     public required string Name { get; init; }
 
@@ -28,7 +28,7 @@ public sealed record ApplicationModel
     /// <summary>
     /// Gets the home URL of the service.
     /// </summary>
-    public required Uri ServiceHomeUrl { get; init; }
+    public Uri? ServiceHomeUrl { get; init; }
 
     /// <summary>
     /// The ApiSecret of the application.
