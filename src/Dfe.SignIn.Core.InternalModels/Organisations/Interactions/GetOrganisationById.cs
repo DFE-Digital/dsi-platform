@@ -3,7 +3,7 @@ namespace Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
 /// <summary>
 /// Request to get an organisation by its unique identifier.
 /// </summary>
-public record GetOrganisationByIdRequest()
+public record GetOrganisationByIdRequest
 {
     /// <summary>
     /// Gets the unique identifier of the organisation.
@@ -14,7 +14,7 @@ public record GetOrganisationByIdRequest()
 /// <summary>
 /// Response model for request <see cref="GetOrganisationByIdRequest"/>.
 /// </summary>
-public record GetOrganisationByIdResponse()
+public record GetOrganisationByIdResponse
 {
     /// <summary>
     /// Gets a model representing the organisation when the organisation was found;

@@ -6,7 +6,7 @@ namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 /// A model representing the user prompt that is to be presented to the user
 /// when they are selecting an organisation.
 /// </summary>
-public sealed record SelectOrganisationPrompt()
+public sealed record SelectOrganisationPrompt
 {
     /// <summary>
     /// Gets the heading text for the "select organisation" user interface.

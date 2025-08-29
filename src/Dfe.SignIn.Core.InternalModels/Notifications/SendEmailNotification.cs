@@ -5,7 +5,7 @@ namespace Dfe.SignIn.Core.InternalModels.Notifications;
 /// <summary>
 /// Request to send an email notification.
 /// </summary>
-public sealed record SendEmailNotificationRequest()
+public sealed record SendEmailNotificationRequest
 {
     /// <summary>
     /// Gets the recipients email address.
@@ -28,6 +28,6 @@ public sealed record SendEmailNotificationRequest()
 /// <summary>
 /// Response model for interactor <see cref="SendEmailNotificationRequest"/>.
 /// </summary>
-public sealed record SendEmailNotificationResponse()
+public sealed record SendEmailNotificationResponse
 {
 }

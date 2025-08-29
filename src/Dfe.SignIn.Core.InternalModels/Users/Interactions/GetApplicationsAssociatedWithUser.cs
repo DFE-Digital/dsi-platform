@@ -3,7 +3,7 @@ namespace Dfe.SignIn.Core.InternalModels.Users.Interactions;
 /// <summary>
 /// Request to get all the applications that are associated with a user.
 /// </summary>
-public sealed record GetApplicationsAssociatedWithUserRequest()
+public sealed record GetApplicationsAssociatedWithUserRequest
 {
     /// <summary>
     /// Gets the unique identifier of the user.
@@ -14,7 +14,7 @@ public sealed record GetApplicationsAssociatedWithUserRequest()
 /// <summary>
 /// Response model for request <see cref="GetApplicationsAssociatedWithUserRequest"/>.
 /// </summary>
-public sealed record GetApplicationsAssociatedWithUserResponse()
+public sealed record GetApplicationsAssociatedWithUserResponse
 {
     /// <summary>
     /// Gets the enumerable collection of user application mappings.

@@ -5,7 +5,7 @@ namespace Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 /// <summary>
 /// A model representing how organisations are to be filtered in the user interface.
 /// </summary>
-public sealed record OrganisationFilter()
+public sealed record OrganisationFilter
 {
     /// <summary>
     /// Gets a value specifying the type of filtering to be used.

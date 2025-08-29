@@ -46,7 +46,7 @@ public interface IActiveOrganisationProvider
 /// <summary>
 /// Represents the active organisation state of a user.
 /// </summary>
-public sealed record ActiveOrganisationState()
+public sealed record ActiveOrganisationState
 {
     /// <summary>
     /// Gets the organisation when one is active; otherwise, a value of <c>null</c> to

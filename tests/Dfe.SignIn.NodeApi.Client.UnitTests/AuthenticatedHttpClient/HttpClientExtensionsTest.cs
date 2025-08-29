@@ -8,7 +8,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.AuthenticatedHttpClient;
 public sealed class HttpClientExtensionsTest
 {
 
-    private record TestModel()
+    private record TestModel
     {
         public required string Value { get; set; }
     }

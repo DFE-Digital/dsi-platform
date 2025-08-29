@@ -7,7 +7,7 @@ namespace Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 /// <summary>
 /// Represents a request to filter organisations for a user.
 /// </summary>
-public sealed record FilterOrganisationsForUserRequest()
+public sealed record FilterOrganisationsForUserRequest
 {
     /// <summary>
     /// Gets the unique DfE Sign-in client ID of the application.
@@ -29,7 +29,7 @@ public sealed record FilterOrganisationsForUserRequest()
 /// <summary>
 /// Represents a response for <see cref="FilterOrganisationsForUserRequest"/>.
 /// </summary>
-public sealed record FilterOrganisationsForUserResponse()
+public sealed record FilterOrganisationsForUserResponse
 {
     /// <summary>
     /// Gets the enumerable collection of filtered organisations.

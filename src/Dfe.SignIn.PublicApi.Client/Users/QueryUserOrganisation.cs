@@ -7,7 +7,7 @@ namespace Dfe.SignIn.PublicApi.Client.Users;
 /// <summary>
 /// Represents the body of a request to query a specific organisation of a user.
 /// </summary>
-public record QueryUserOrganisationApiRequestBody()
+public record QueryUserOrganisationApiRequestBody
 {
     /// <summary>
     /// Specifies the organisation filtering requirements.
@@ -18,7 +18,7 @@ public record QueryUserOrganisationApiRequestBody()
 /// <summary>
 /// Represents a request to query a specific organisation of a user.
 /// </summary>
-public sealed record QueryUserOrganisationApiRequest() : QueryUserOrganisationApiRequestBody
+public sealed record QueryUserOrganisationApiRequest : QueryUserOrganisationApiRequestBody
 {
     /// <summary>
     /// Specifies the unique DfE Sign-in ID of the user.
@@ -34,7 +34,7 @@ public sealed record QueryUserOrganisationApiRequest() : QueryUserOrganisationAp
 /// <summary>
 /// Response to request to <see cref="QueryUserOrganisationApiRequest"/>.
 /// </summary>
-public sealed record QueryUserOrganisationApiResponse()
+public sealed record QueryUserOrganisationApiResponse
 {
     /// <summary>
     /// Gets the unique DfE Sign-in ID of the user.

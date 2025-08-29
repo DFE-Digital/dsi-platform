@@ -3,7 +3,7 @@ namespace Dfe.SignIn.Core.ExternalModels.Organisations;
 /// <summary>
 /// Provides details about an organisation.
 /// </summary>
-public record OrganisationDetails()
+public record OrganisationDetails
 {
     /// <summary>
     /// Gets the unique value that identifies the organisation.

@@ -6,7 +6,7 @@ namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 /// <summary>
 /// Represents a request to create a URL where the end-user can select an organisation.
 /// </summary>
-public record CreateSelectOrganisationSessionApiRequestBody()
+public record CreateSelectOrganisationSessionApiRequestBody
 {
     /// <summary>
     /// Specifies the callback URL where the selected organisation response will be sent.
@@ -42,7 +42,7 @@ public record CreateSelectOrganisationSessionApiRequestBody()
 /// <summary>
 /// Represents a request to create a URL where the end-user can select an organisation.
 /// </summary>
-public sealed record CreateSelectOrganisationSessionApiRequest()
+public sealed record CreateSelectOrganisationSessionApiRequest
     : CreateSelectOrganisationSessionApiRequestBody
 {
 }
@@ -50,7 +50,7 @@ public sealed record CreateSelectOrganisationSessionApiRequest()
 /// <summary>
 /// Response to <see cref="CreateSelectOrganisationSessionApiRequest"/>.
 /// </summary>
-public sealed record CreateSelectOrganisationSessionApiResponse()
+public sealed record CreateSelectOrganisationSessionApiResponse
 {
     /// <summary>
     /// A unique value representing the request.
