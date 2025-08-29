@@ -11,7 +11,7 @@ public static class InteractionAutoMockerExtensions
 {
     /// <summary>
     /// Sets up a mock to captures an interaction request model upon being dispatched
-    /// using the <see cref="IInteractionDispatcher"/> service..
+    /// using the <see cref="IInteractionDispatcher"/> service.
     /// </summary>
     /// <typeparam name="TRequest">The type of request model.</typeparam>
     /// <param name="autoMocker">The auto mocker instance.</param>
