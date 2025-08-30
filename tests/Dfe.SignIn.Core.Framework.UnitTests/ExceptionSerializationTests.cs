@@ -38,12 +38,12 @@ public sealed class ExceptionSerialization
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SerializeExceptionToJson_Throws_WhenExceptionArgumentIsNull()
     {
         var serializer = CreateDefaultExceptionJsonSerializer();
 
-        serializer.SerializeExceptionToJson(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => serializer.SerializeExceptionToJson(null!));
     }
 
     [TestMethod]

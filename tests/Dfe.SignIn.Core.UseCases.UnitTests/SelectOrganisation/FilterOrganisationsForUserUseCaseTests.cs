@@ -119,21 +119,17 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenUnexpectedFilterTypeIsSupplied()
+    public Task InvokeAsync_Throws_WhenUnexpectedFilterTypeIsSupplied()
     {
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
 
-        Task Act()
-        {
-            return useCase.InvokeAsync(FakeBasicRequest with {
+        return Assert.ThrowsExactlyAsync<InvalidOperationException>(()
+            => useCase.InvokeAsync(FakeBasicRequest with {
                 Filter = new() {
                     Type = (OrganisationFilterType)(-1),
                 },
-            });
-        }
-
-        await Assert.ThrowsExactlyAsync<InvalidOperationException>(Act);
+            }));
     }
 
     [TestMethod]

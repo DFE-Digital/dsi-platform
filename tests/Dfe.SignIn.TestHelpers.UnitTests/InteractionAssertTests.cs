@@ -36,10 +36,10 @@ public sealed class InteractionAssertTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(AssertFailedException))]
     public Task ThrowsWhenRequestIsInvalid_Throws_WhenInteractorDoesNotThrowOnInvalidRequest()
     {
-        return InteractionAssert.ThrowsWhenRequestIsInvalid<ExampleRequest, ExampleInteractorWithoutRequestValidation>();
+        return Assert.ThrowsExactlyAsync<AssertFailedException>(()
+            => InteractionAssert.ThrowsWhenRequestIsInvalid<ExampleRequest, ExampleInteractorWithoutRequestValidation>());
     }
 
     #endregion

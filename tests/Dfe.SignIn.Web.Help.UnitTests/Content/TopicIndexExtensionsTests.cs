@@ -8,21 +8,21 @@ public sealed class TopicIndexExtensionsTests
     #region GetRequiredTopic(this ITopicIndex topicIndex, string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetRequiredTopic_Throws_WhenTopicIndexArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
 
-        TopicIndexExtensions.GetRequiredTopic(null!, "/");
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicIndexExtensions.GetRequiredTopic(null!, "/"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetRequiredTopic_Throws_WhenTopicPathArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
 
-        TopicIndexExtensions.GetRequiredTopic(topicCache, null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicIndexExtensions.GetRequiredTopic(topicCache, null!));
     }
 
     [TestMethod]
@@ -30,7 +30,7 @@ public sealed class TopicIndexExtensionsTests
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
 
-        var exception = Assert.Throws<KeyNotFoundException>(
+        var exception = Assert.ThrowsExactly<KeyNotFoundException>(
             () => TopicIndexExtensions.GetRequiredTopic(topicCache, "/unexpected-path")
         );
 
@@ -57,22 +57,22 @@ public sealed class TopicIndexExtensionsTests
     #region GetParentTopic(this ITopicIndex topicIndex, TopicModel)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetParentTopic_Throws_WhenTopicIndexArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
-
         var topic = TopicMemoryCacheTests.FakeTopics.First();
-        TopicIndexExtensions.GetParentTopic(null!, topic);
+
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicIndexExtensions.GetParentTopic(null!, topic));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetParentTopic_Throws_WhenTopicArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
 
-        TopicIndexExtensions.GetParentTopic(topicCache, null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicIndexExtensions.GetParentTopic(topicCache, null!));
     }
 
     [TestMethod]
@@ -106,22 +106,22 @@ public sealed class TopicIndexExtensionsTests
     #region GetChildTopics(this ITopicIndex topicIndex, TopicModel)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetChildTopics_Throws_WhenTopicIndexArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
-
         var topic = TopicMemoryCacheTests.FakeTopics.First();
-        TopicIndexExtensions.GetChildTopics(null!, topic);
+
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicIndexExtensions.GetChildTopics(null!, topic));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetChildTopics_Throws_WhenTopicArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
 
-        TopicIndexExtensions.GetChildTopics(topicCache, null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicIndexExtensions.GetChildTopics(topicCache, null!));
     }
 
     [TestMethod]
@@ -158,22 +158,22 @@ public sealed class TopicIndexExtensionsTests
     #region GetCrumbs(this ITopicIndex topicIndex, TopicModel)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetCrumbs_Throws_WhenTopicIndexArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
-
         var topic = TopicMemoryCacheTests.FakeTopics.First();
-        TopicIndexExtensions.GetCrumbs(null!, topic);
+
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicIndexExtensions.GetCrumbs(null!, topic));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetCrumbs_Throws_WhenTopicArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
 
-        TopicIndexExtensions.GetCrumbs(topicCache, null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicIndexExtensions.GetCrumbs(topicCache, null!));
     }
 
     [DataRow("/", new string[0])]

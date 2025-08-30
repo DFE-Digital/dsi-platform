@@ -12,12 +12,12 @@ public sealed class ContentProcessingExtensionsTests
     #region SetupContentProcessing(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupContentProcessing_Throws_WhenServicesArgumentIsNull()
     {
-        ContentProcessingExtensions.SetupContentProcessing(
-            services: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ContentProcessingExtensions.SetupContentProcessing(
+                services: null!
+            ));
     }
 
     [TestMethod]

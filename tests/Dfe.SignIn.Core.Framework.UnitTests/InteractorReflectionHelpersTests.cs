@@ -12,12 +12,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverInteractorTypesInAssembly(Assembly)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverInteractorTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-        InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(
-            assembly: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(
+                assembly: null!
+            ));
     }
 
     [TestMethod]
@@ -49,12 +49,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverUseCaseHandlerTypesInAssembly(Assembly)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverUseCaseHandlerTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-        InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(
-            assembly: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(
+                assembly: null!
+            ));
     }
 
     [TestMethod]
@@ -78,12 +78,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverApiRequesterTypesInAssembly(Assembly)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverApiRequesterTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-        InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(
-            assembly: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(
+                assembly: null!
+            ));
     }
 
     [TestMethod]

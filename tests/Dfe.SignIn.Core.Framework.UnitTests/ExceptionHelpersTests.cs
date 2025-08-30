@@ -17,7 +17,12 @@ public sealed class ExceptionHelpersTests
     [TestMethod]
     public void ThrowIfArgumentNull_DoesNotThrow_WhenValueIsValid()
     {
-        ExceptionHelpers.ThrowIfArgumentNull("Not null!", "exampleParam");
+        try {
+            ExceptionHelpers.ThrowIfArgumentNull("Not null!", "exampleParam");
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     #endregion
@@ -45,7 +50,12 @@ public sealed class ExceptionHelpersTests
     [TestMethod]
     public void ThrowIfArgumentNullOrEmpty_DoesNotThrow_WhenValueIsValid()
     {
-        ExceptionHelpers.ThrowIfArgumentNullOrEmpty("Not null or empty!", "exampleParam");
+        try {
+            ExceptionHelpers.ThrowIfArgumentNullOrEmpty("Not null or empty!", "exampleParam");
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     #endregion
@@ -75,7 +85,12 @@ public sealed class ExceptionHelpersTests
     [TestMethod]
     public void ThrowIfArgumentNullOrWhiteSpace_DoesNotThrow_WhenValueIsValid()
     {
-        ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace("Not null or just white space!", "exampleParam");
+        try {
+            ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace("Not null or just white space!", "exampleParam");
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     #endregion

@@ -11,7 +11,7 @@ public sealed class GovNotifyExtensionsTests
     [TestMethod]
     public void AddGovNotify_Throw_WhenServicesArgumentIsNull()
     {
-        Assert.Throws<ArgumentNullException>(()
+        Assert.ThrowsExactly<ArgumentNullException>(()
             => GovNotifyExtensions.AddGovNotify(services: null!));
     }
 

@@ -98,18 +98,13 @@ public sealed class StandardSelectOrganisationUserFlowTests
     #region InitiateSelectionAsync(IHttpContext, bool, CancellationToken)
 
     [TestMethod]
-    public async Task InitiateSelectionAsync_Throws_WhenContextArgumentIsNull()
+    public Task InitiateSelectionAsync_Throws_WhenContextArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
-
         var flow = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        Task Act()
-        {
-            return flow.InitiateSelectionAsync(null!, false, default);
-        }
-
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(Act);
+        return Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => flow.InitiateSelectionAsync(null!, false, default));
     }
 
     [TestMethod]
@@ -317,18 +312,13 @@ public sealed class StandardSelectOrganisationUserFlowTests
     }
 
     [TestMethod]
-    public async Task ProcessCallbackAsync_Throws_WhenContextArgumentIsNull()
+    public Task ProcessCallbackAsync_Throws_WhenContextArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
-
         var flow = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        Task Act()
-        {
-            return flow.ProcessCallbackAsync(null!, default);
-        }
-
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(Act);
+        return Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => flow.ProcessCallbackAsync(null!, default));
     }
 
     [TestMethod]
@@ -347,7 +337,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
     }
 
     [TestMethod]
-    public async Task ProcessCallbackAsync_Throws_WhenRequestIsUntracked()
+    public Task ProcessCallbackAsync_Throws_WhenRequestIsUntracked()
     {
         var autoMocker = new AutoMocker();
         SetupMockRequestTracker(autoMocker, new Guid(FakeRequestId));
@@ -358,12 +348,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
-        Task Act()
-        {
-            return selector.ProcessCallbackAsync(fakeContext.Object, default);
-        }
-
-        await Assert.ThrowsExactlyAsync<MismatchedCallbackException>(Act);
+        return Assert.ThrowsExactlyAsync<MismatchedCallbackException>(()
+            => selector.ProcessCallbackAsync(fakeContext.Object, default));
     }
 
     [TestMethod]

@@ -12,10 +12,10 @@ public sealed class ExternalModelsJsonExtensionsTests
     #region ConfigureExternalModelJsonSerialization(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void ConfigureExternalModelJsonSerialization_Throws_WhenServicesArgumentIsNull()
     {
-        ExternalModelsJsonExtensions.ConfigureExternalModelJsonSerialization(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ExternalModelsJsonExtensions.ConfigureExternalModelJsonSerialization(null!));
     }
 
     [TestMethod]

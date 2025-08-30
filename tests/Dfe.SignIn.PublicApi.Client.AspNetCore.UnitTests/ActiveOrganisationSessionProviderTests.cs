@@ -57,12 +57,12 @@ public sealed class ActiveOrganisationSessionProviderTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task SetActiveOrganisationAsync_Throws_WhenContextArgumentIsNull()
     {
         var provider = new ActiveOrganisationSessionProvider();
 
-        await provider.SetActiveOrganisationAsync(null!, null);
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => provider.SetActiveOrganisationAsync(null!, null));
     }
 
     [TestMethod]
@@ -120,12 +120,12 @@ public sealed class ActiveOrganisationSessionProviderTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task GetActiveOrganisationStateAsync_Throws_WhenContextArgumentIsNull()
     {
         var provider = new ActiveOrganisationSessionProvider();
 
-        await provider.GetActiveOrganisationStateAsync(null!);
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => provider.GetActiveOrganisationStateAsync(null!));
     }
 
     [TestMethod]

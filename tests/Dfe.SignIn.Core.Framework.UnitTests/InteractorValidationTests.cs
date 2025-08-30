@@ -15,7 +15,7 @@ public sealed class InteractorValidationTests
         var autoMocker = new AutoMocker();
         var validator = autoMocker.CreateInstance<InteractionValidator>();
 
-        var exception = Assert.Throws<ArgumentNullException>(() => {
+        var exception = Assert.ThrowsExactly<ArgumentNullException>(() => {
             var validationResults = new List<ValidationResult>();
             validator.TryValidateRequest(null!, validationResults);
         });
@@ -27,7 +27,7 @@ public sealed class InteractorValidationTests
         var autoMocker = new AutoMocker();
         var validator = autoMocker.CreateInstance<InteractionValidator>();
 
-        var exception = Assert.Throws<ArgumentNullException>(() => {
+        var exception = Assert.ThrowsExactly<ArgumentNullException>(() => {
             var model = new object();
             validator.TryValidateRequest(model, null!);
         });
@@ -113,7 +113,7 @@ public sealed class InteractorValidationTests
         var autoMocker = new AutoMocker();
         var validator = autoMocker.CreateInstance<InteractionValidator>();
 
-        var exception = Assert.Throws<ArgumentNullException>(() => {
+        var exception = Assert.ThrowsExactly<ArgumentNullException>(() => {
             var validationResults = new List<ValidationResult>();
             validator.TryValidateResponse(null!, validationResults);
         });
@@ -125,7 +125,7 @@ public sealed class InteractorValidationTests
         var autoMocker = new AutoMocker();
         var validator = autoMocker.CreateInstance<InteractionValidator>();
 
-        var exception = Assert.Throws<ArgumentNullException>(() => {
+        var exception = Assert.ThrowsExactly<ArgumentNullException>(() => {
             var model = new object();
             validator.TryValidateResponse(model, null!);
         });

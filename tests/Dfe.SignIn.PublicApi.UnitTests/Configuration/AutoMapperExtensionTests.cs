@@ -12,12 +12,12 @@ public sealed class AutoMapperExtensionTests
     #region SetupAutoMapper(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupAutoMapper_Throws_WhenServicesArgumentIsNull()
     {
-        AutoMapperExtensions.SetupAutoMapper(
-            services: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => AutoMapperExtensions.SetupAutoMapper(
+                services: null!
+            ));
     }
 
     [TestMethod]

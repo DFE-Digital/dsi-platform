@@ -48,12 +48,9 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
 
-        async Task Act()
-        {
-            await interaction.DispatchAsync(FakeRequest);
-        }
+        var exception = await Assert.ThrowsExactlyAsync<MissingInteractorException>(async ()
+            => await interaction.DispatchAsync(FakeRequest));
 
-        var exception = await Assert.ThrowsExactlyAsync<MissingInteractorException>(Act);
         Assert.AreEqual(nameof(ExampleInteractorWithValidationRequest), exception.RequestType);
     }
 
@@ -148,12 +145,8 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
 
-        async Task Act()
-        {
-            await interaction.DispatchAsync(FakeRequest);
-        }
-
-        await Assert.ThrowsExactlyAsync<UnexpectedException>(Act);
+        await Assert.ThrowsExactlyAsync<UnexpectedException>(async ()
+            => await interaction.DispatchAsync(FakeRequest));
     }
 
     [DataTestMethod]
@@ -176,12 +169,9 @@ public sealed class ServiceProviderInteractionDispatcherTests
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
 
-        async Task Act()
-        {
-            await interaction.DispatchAsync(FakeRequest);
-        }
-
-        var exception = await Assert.ThrowsAsync<Exception>(Act);
+        var exception = await Assert.ThrowsAsync<Exception>(async ()
+            => await interaction.DispatchAsync(FakeRequest))
+;
         Assert.IsInstanceOfType(exception, expectedExceptionType);
     }
 

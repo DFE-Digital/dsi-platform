@@ -26,25 +26,25 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     #region RetrieveAsync(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task RetrieveSession_Throws_WhenSessionKeyArgumentIsNull()
     {
         var mocker = new AutoMocker();
         var retriever = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await retriever.RetrieveAsync(
-            sessionKey: null!
-        );
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => retriever.RetrieveAsync(
+                sessionKey: null!
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public async Task RetrieveSession_Throws_WhenSessionKeyArgumentIsEmptyString()
     {
         var mocker = new AutoMocker();
         var retriever = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await retriever.RetrieveAsync("");
+        await Assert.ThrowsExactlyAsync<ArgumentException>(()
+            => retriever.RetrieveAsync(""));
     }
 
     [TestMethod]
@@ -124,42 +124,42 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     #region StoreAsync(string, SelectOrganisationSessionData)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task StoreAsync_Throws_WhenSessionKeyArgumentIsNull()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await storer.StoreAsync(
-            sessionKey: null!,
-            sessionData: FakeSessionData
-        );
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => storer.StoreAsync(
+                sessionKey: null!,
+                sessionData: FakeSessionData
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public async Task StoreAsync_Throws_WhenSessionKeyArgumentIsEmptyString()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await storer.StoreAsync(
-            sessionKey: "",
-            sessionData: FakeSessionData
-        );
+        await Assert.ThrowsExactlyAsync<ArgumentException>(()
+            => storer.StoreAsync(
+                sessionKey: "",
+                sessionData: FakeSessionData
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task StoreAsync_Throws_WhenSessionDataArgumentIsNull()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await storer.StoreAsync(
-            sessionKey: "example-key",
-            sessionData: null!
-        );
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => storer.StoreAsync(
+                sessionKey: "example-key",
+                sessionData: null!
+            ));
     }
 
     [TestMethod]
@@ -215,27 +215,27 @@ public sealed class DistributedCacheSelectOrganisationSessionRepositoryTests
     #region InvalidateAsync(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task InvalidateAsync_Throws_WhenSessionKeyArgumentIsNull()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await storer.InvalidateAsync(
-            sessionKey: null!
-        );
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => storer.InvalidateAsync(
+                sessionKey: null!
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public async Task InvalidateAsync_Throws_WhenSessionKeyArgumentIsEmptyString()
     {
         var mocker = new AutoMocker();
         var storer = mocker.CreateInstance<DistributedCacheSelectOrganisationSessionRepository>();
 
-        await storer.InvalidateAsync(
-            sessionKey: ""
-        );
+        await Assert.ThrowsExactlyAsync<ArgumentException>(()
+            => storer.InvalidateAsync(
+                sessionKey: ""
+            ));
     }
 
     [TestMethod]

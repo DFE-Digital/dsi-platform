@@ -12,12 +12,12 @@ public sealed class InteractionExtensionsTests
     #region AddInteractionFramework(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractionFramework_Throws_WhenServicesArgumentIsNull()
     {
-        InteractionExtensions.AddInteractionFramework(
-            services: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractionExtensions.AddInteractionFramework(
+                services: null!
+            ));
     }
 
     [TestMethod]
@@ -58,12 +58,12 @@ public sealed class InteractionExtensionsTests
     #region AddInteractor<TConcreteInteractor>(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractor_Throws_WhenServicesArgumentIsNull()
     {
-        InteractionExtensions.AddInteractor<ExampleUseCase>(
-            services: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractionExtensions.AddInteractor<ExampleUseCase>(
+                services: null!
+            ));
     }
 
     [TestMethod]
@@ -97,25 +97,25 @@ public sealed class InteractionExtensionsTests
     #region AddInteractors(IServiceCollection, Assembly)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractors_Throws_WhenServicesArgumentIsNull()
     {
-        InteractionExtensions.AddInteractors(
-            services: null!,
-            descriptors: []
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractionExtensions.AddInteractors(
+                services: null!,
+                descriptors: []
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddInteractors_Throws_WhenDescriptorsArgumentIsNull()
     {
         var services = new ServiceCollection();
 
-        InteractionExtensions.AddInteractors(
-            services,
-            descriptors: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractionExtensions.AddInteractors(
+                services,
+                descriptors: null!
+            ));
     }
 
     [TestMethod]

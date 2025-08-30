@@ -23,10 +23,10 @@ public sealed class PublicApiExtensionsTests
     #region SetupDfePublicApiClient(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupDfePublicApiClient_Throws_WhenServicesArgumentIsNull()
     {
-        PublicApiExtensions.SetupDfePublicApiClient(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => PublicApiExtensions.SetupDfePublicApiClient(null!));
     }
 
     [TestMethod]

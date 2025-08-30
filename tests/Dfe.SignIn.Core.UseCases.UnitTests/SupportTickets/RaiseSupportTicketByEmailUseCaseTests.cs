@@ -54,7 +54,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenInvalidSubjectCodeIsProvided()
+    public Task InvokeAsync_Throws_WhenInvalidSubjectCodeIsProvided()
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
@@ -62,18 +62,14 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
 
         var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
-        async Task Act()
-        {
-            await interactor.InvokeAsync(FakeRequest with {
+        return Assert.ThrowsExactlyAsync<InvalidRequestException>(()
+            => interactor.InvokeAsync(FakeRequest with {
                 SubjectCode = "unexpected",
-            });
-        }
-
-        await Assert.ThrowsExactlyAsync<InvalidRequestException>(Act);
+            }));
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenRequiredConfigurationIsMissing()
+    public Task InvokeAsync_Throws_WhenRequiredConfigurationIsMissing()
     {
         var autoMocker = new AutoMocker();
         SetupSubjectOptionsResponse(autoMocker);
@@ -88,12 +84,8 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
 
         var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
-        async Task Act()
-        {
-            await interactor.InvokeAsync(FakeRequest);
-        }
-
-        await Assert.ThrowsExactlyAsync<InvalidOperationException>(Act);
+        return Assert.ThrowsExactlyAsync<InvalidOperationException>(()
+            => interactor.InvokeAsync(FakeRequest));
     }
 
     [TestMethod]

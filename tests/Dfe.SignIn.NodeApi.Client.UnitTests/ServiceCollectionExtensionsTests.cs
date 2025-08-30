@@ -42,24 +42,24 @@ public sealed class ServiceCollectionExtensionsTests
     #region SetupNodeApiClient(IServiceCollection, IEnumerable<NodeApiName>, Action<NodeApiClientOptions>)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupNodeApiClient_Throws_WhenServicesArgumentIsNull()
     {
-        ServiceCollectionExtensions.SetupNodeApiClient(
-            services: null!,
-            apiNames: []
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ServiceCollectionExtensions.SetupNodeApiClient(
+                services: null!,
+                apiNames: []
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupNodeApiClient_Throws_WhenApiNamesArgumentIsNull()
     {
         var services = new ServiceCollection();
 
-        services.SetupNodeApiClient(
-            apiNames: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => services.SetupNodeApiClient(
+                apiNames: null!
+            ));
     }
 
     [TestMethod]

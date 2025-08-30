@@ -8,10 +8,10 @@ public sealed class TopicPathHelpersTests
     #region TopicPathToTitle(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void TopicPathToTitle_Throws_WhenTopicPathArgumentIsNull()
     {
-        TopicPathHelpers.TopicPathToTitle(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicPathHelpers.TopicPathToTitle(null!));
     }
 
     [DataRow("", TopicPathHelpers.DefaultTitle)]
@@ -32,10 +32,10 @@ public sealed class TopicPathHelpersTests
     #region SlugFromPath(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SlugFromPath_Throws_WhenTopicPathArgumentIsNull()
     {
-        TopicPathHelpers.SlugFromPath(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicPathHelpers.SlugFromPath(null!));
     }
 
     [DataRow("", null)]
@@ -56,10 +56,10 @@ public sealed class TopicPathHelpersTests
     #region GetParentTopicPath(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetParentTopicPath_Throws_WhenTopicPathArgumentIsNull()
     {
-        TopicPathHelpers.GetParentTopicPath(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicPathHelpers.GetParentTopicPath(null!));
     }
 
     [DataRow("", null)]
@@ -80,10 +80,10 @@ public sealed class TopicPathHelpersTests
     #region ResolveTopicPath(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void ResolveTopicPath_Throws_WhenTopicPathArgumentIsNull()
     {
-        TopicPathHelpers.ResolveTopicPath(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => TopicPathHelpers.ResolveTopicPath(null!));
     }
 
     [TestMethod]
