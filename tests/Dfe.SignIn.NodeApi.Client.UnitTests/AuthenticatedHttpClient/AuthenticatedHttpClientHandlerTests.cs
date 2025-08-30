@@ -25,10 +25,9 @@ public sealed class AuthenticatedHttpClientHandlerTests
         var request = new HttpRequestMessage(HttpMethod.Get, "http://mock.localhost");
         await client.SendAsync(request);
 
-        Assert.IsNotNull(testHandler.CapturedRequests);
-        Assert.IsTrue(testHandler.CapturedRequests.First().Headers.Contains("Authorization"));
+        Assert.IsTrue(testHandler.CapturedRequests[0].Headers.Contains("Authorization"));
 
-        string actualValue = testHandler.CapturedRequests.First().Headers.GetValues("Authorization").First();
+        string actualValue = testHandler.CapturedRequests[0].Headers.GetValues("Authorization").First();
         Assert.AreEqual("Bearer fake-bearer-token", actualValue);
     }
 

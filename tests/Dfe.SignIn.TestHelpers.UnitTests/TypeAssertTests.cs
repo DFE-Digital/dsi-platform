@@ -34,7 +34,6 @@ public sealed class TypeAssertTests
     {
         string result = TypeAssert.IsType<string>("A valid value!");
 
-        Assert.IsNotNull(result);
         Assert.AreEqual("A valid value!", result);
     }
 

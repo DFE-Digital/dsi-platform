@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 using Moq.AutoMock;
@@ -107,6 +108,9 @@ public sealed class InteractorReflectionHelpersTests
     #region Unit testing
 
     [TestMethod]
+    [SuppressMessage("roslyn", "MSTEST0032",
+        Justification = "Required for unit test."
+    )]
     public void UnitTesting_CanEasilyInjectMockInteractors()
     {
         var autoMocker = new AutoMocker();

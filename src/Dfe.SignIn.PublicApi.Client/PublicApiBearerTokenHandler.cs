@@ -53,7 +53,7 @@ internal sealed class PublicApiBearerTokenHandler(
 
             if (options.BearerTokenTtlInMinutes > 0) {
                 var tokenExpirationUtc = DateTime.UtcNow.AddMinutes(options.BearerTokenTtlInMinutes);
-                token = this.GenerateAuthorizationToken(options, tokenExpirationUtc);
+                token = GenerateAuthorizationToken(options, tokenExpirationUtc);
 
                 // Even though the token expires after the configured TTL; the memory
                 // cache needs to expire sooner to allow a cross-over period.
@@ -69,7 +69,7 @@ internal sealed class PublicApiBearerTokenHandler(
             }
             else {
                 // Token does not expire.
-                token = this.GenerateAuthorizationToken(options, null);
+                token = GenerateAuthorizationToken(options, null);
                 memoryCache.Set(BearerTokenCacheKey, token);
             }
         }
@@ -93,7 +93,7 @@ internal sealed class PublicApiBearerTokenHandler(
         return options;
     }
 
-    private string GenerateAuthorizationToken(PublicApiOptions options, DateTime? expirationUtc)
+    private static string GenerateAuthorizationToken(PublicApiOptions options, DateTime? expirationUtc)
     {
         byte[] key = HmacKeyNormalizer.NormalizeHmacSha256Key(
             Encoding.UTF8.GetBytes(options.ApiSecret)

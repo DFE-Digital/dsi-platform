@@ -66,7 +66,6 @@ public sealed class HttpContextAspNetCoreTests
         var mockContext = SetupMockHttpContext(autoMocker);
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
-        Assert.IsNotNull(adapter.User);
         Assert.AreSame(mockContext.Object.User, adapter.User);
     }
 

@@ -145,23 +145,23 @@ public sealed class SelectOrganisationController(
         return this.RedirectToSignOutCallback(session);
     }
 
-    private IActionResult RedirectToSelectionCallback(
+    private RedirectResult RedirectToSelectionCallback(
         SelectOrganisationSessionData session, Guid selection)
     {
         return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.Selection}&{CallbackParamNames.Selection}={selection}");
     }
 
-    private IActionResult RedirectToErrorCallback(SelectOrganisationSessionData session, string errorCode)
+    private RedirectResult RedirectToErrorCallback(SelectOrganisationSessionData session, string errorCode)
     {
         return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.Error}&{CallbackParamNames.ErrorCode}={errorCode}");
     }
 
-    private IActionResult RedirectToCancelCallback(SelectOrganisationSessionData session)
+    private RedirectResult RedirectToCancelCallback(SelectOrganisationSessionData session)
     {
         return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.Cancel}");
     }
 
-    private IActionResult RedirectToSignOutCallback(SelectOrganisationSessionData session)
+    private RedirectResult RedirectToSignOutCallback(SelectOrganisationSessionData session)
     {
         return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.SignOut}");
     }

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Dfe.SignIn.Core.Framework.UnitTests;
@@ -20,6 +21,9 @@ public sealed class ExceptionReflectionHelpersTests
         public Assembly? NullablePropertyWithAssembly { get; set; } = typeof(FakeReflectionHelperException).Assembly;
 
         [Persist]
+        [SuppressMessage("roslyn", "CA1822",
+            Justification = "Property needs to be instance member for unit test."
+        )]
         public string PropertyWithoutGetter { set { } }
 
         [Persist]
