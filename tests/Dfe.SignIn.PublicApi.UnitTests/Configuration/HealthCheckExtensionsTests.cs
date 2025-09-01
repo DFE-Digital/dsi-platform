@@ -12,27 +12,27 @@ public sealed class HealthCheckExtensionsTests
     #region SetupHealthChecks(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupHealthChecks_Throws_WhenServiceArgumentIsNull()
     {
         var configuration = new ConfigurationRoot([]);
 
-        HealthCheckExtensions.SetupHealthChecks(
-            services: null!,
-            configuration: configuration
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => HealthCheckExtensions.SetupHealthChecks(
+                services: null!,
+                configuration: configuration
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupHealthChecks_Throws_WhenConfigurationArgumentIsNull()
     {
         var services = new ServiceCollection();
 
-        HealthCheckExtensions.SetupHealthChecks(
-            services: services,
-            configuration: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => HealthCheckExtensions.SetupHealthChecks(
+                services: services,
+                configuration: null!
+            ));
     }
 
     [TestMethod]
@@ -68,13 +68,13 @@ public sealed class HealthCheckExtensionsTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void SetupHealthChecks_Throws_WhenRedisConnectionStringIsMissing()
     {
         var services = new ServiceCollection();
         var configuration = new ConfigurationRoot([]);
 
-        services.SetupHealthChecks(configuration);
+        Assert.ThrowsExactly<InvalidOperationException>(()
+            => services.SetupHealthChecks(configuration));
     }
 
     private static IConfiguration GetFakeConfiguration()

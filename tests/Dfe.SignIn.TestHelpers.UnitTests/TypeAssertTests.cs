@@ -10,17 +10,17 @@ public sealed class TypeAssertTests
     #region IsType<T>(object)
 
     [TestMethod]
-    [ExpectedException(typeof(AssertFailedException))]
     public void IsType_Throws_WhenValueArgumentIsNull()
     {
-        TypeAssert.IsType<string>(null);
+        Assert.ThrowsExactly<AssertFailedException>(()
+            => TypeAssert.IsType<string>(null));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(AssertFailedException))]
     public void IsType_Throws_WhenValueArgumentIsNotTheExpectedType()
     {
-        TypeAssert.IsType<string>(42);
+        Assert.ThrowsExactly<AssertFailedException>(()
+            => TypeAssert.IsType<string>(42));
     }
 
     [TestMethod]
@@ -34,7 +34,6 @@ public sealed class TypeAssertTests
     {
         string result = TypeAssert.IsType<string>("A valid value!");
 
-        Assert.IsNotNull(result);
         Assert.AreEqual("A valid value!", result);
     }
 
@@ -67,28 +66,28 @@ public sealed class TypeAssertTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(AssertFailedException))]
     public void IsViewModelType_Throws_WhenResultArgumentIsNull()
     {
-        TypeAssert.IsViewModelType<FakeViewModelA>(null!);
+        Assert.ThrowsExactly<AssertFailedException>(()
+            => TypeAssert.IsViewModelType<FakeViewModelA>(null!));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(AssertFailedException))]
     public void IsViewModelType_Throws_WhenResultArgumentIsNotViewResult()
     {
         var result = new EmptyResult();
 
-        TypeAssert.IsViewModelType<FakeViewModelA>(result);
+        Assert.ThrowsExactly<AssertFailedException>(()
+            => TypeAssert.IsViewModelType<FakeViewModelA>(result));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(AssertFailedException))]
     public void IsViewModelType_Throws_WhenViewModelIsNotTheExpectedType()
     {
         var result = CreateFakeViewResult(new FakeViewModelC());
 
-        TypeAssert.IsViewModelType<FakeViewModelA>(result);
+        Assert.ThrowsExactly<AssertFailedException>(()
+            => TypeAssert.IsViewModelType<FakeViewModelA>(result));
     }
 
     [TestMethod]

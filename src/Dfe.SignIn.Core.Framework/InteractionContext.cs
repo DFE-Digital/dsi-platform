@@ -51,7 +51,7 @@ public class InteractionContext<TRequest>(TRequest request)
     /// </exception>
     public void ThrowIfHasValidationErrors()
     {
-        if (this.ValidationResults.Any()) {
+        if (this.ValidationResults.Count != 0) {
             throw new InvalidRequestException(this.InvocationId, this.ValidationResults);
         }
     }

@@ -38,10 +38,10 @@ public sealed class SecurityHeaderPolicyExtensionsTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void UseDsiSecurityHeaderPolicy_Throws_WhenBuilderArgumentIsNull()
     {
-        SecurityHeaderPolicyExtensions.UseDsiSecurityHeaderPolicy(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => SecurityHeaderPolicyExtensions.UseDsiSecurityHeaderPolicy(null!));
     }
 
     private async Task<HttpResponseMessage> MakeTestRequest()

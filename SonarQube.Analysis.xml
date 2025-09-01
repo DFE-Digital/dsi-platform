@@ -4,7 +4,7 @@
 	<Property Name="sonar.qualitygate.wait">true</Property>
 
 	<!-- analysis exclusions -->
-	<Property Name="sonar.exclusions">**/Dfe.PrepareConversions/Dfe.PrepareConversions/**/*.cshtml,**/Dfe.PrepareConversions/Dfe.PrepareConversions/**/*.cshtml.cs,**/Dfe.PrepareConversions/Dfe.PrepareConversions/wwwroot/**</Property>
+	<Property Name="sonar.exclusions">docs/templates/dsi/**,**/snapshots/**</Property>
 
 	<!-- coverage reporting -->
 	<Property Name="sonar.coverageReportPaths">CoverageReport/SonarQube.xml</Property>

@@ -9,10 +9,10 @@ public sealed class JsonHelperExtensionsTests
     #region SetupDfeSignInJsonSerializerOptions(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupDfeSignInJsonSerializerOptions_Throws_WhenServicesArgumentIsNull()
     {
-        JsonHelperExtensions.ConfigureDfeSignInJsonSerializerOptions(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => JsonHelperExtensions.ConfigureDfeSignInJsonSerializerOptions(null!));
     }
 
     [TestMethod]

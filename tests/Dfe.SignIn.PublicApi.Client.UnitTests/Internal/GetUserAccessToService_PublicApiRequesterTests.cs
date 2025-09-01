@@ -90,7 +90,7 @@ public sealed class GetUserAccessToServiceApiRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenHasFailingStatusCode()
+    public Task InvokeAsync_Throws_WhenHasFailingStatusCode()
     {
         var autoMocker = new AutoMocker();
         UseFakeOptions(autoMocker);
@@ -113,15 +113,11 @@ public sealed class GetUserAccessToServiceApiRequesterTests
 
         var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
 
-        Task Act()
-        {
-            return requester.InvokeAsync(new GetUserAccessToServiceRequest {
+        return Assert.ThrowsExactlyAsync<HttpRequestException>(()
+            => requester.InvokeAsync(new GetUserAccessToServiceRequest {
                 UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
                 OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
-            });
-        }
-
-        await Assert.ThrowsExactlyAsync<HttpRequestException>(Act);
+            }));
     }
 
     [TestMethod]
@@ -182,7 +178,7 @@ public sealed class GetUserAccessToServiceApiRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenResponseIsNull()
+    public Task InvokeAsync_Throws_WhenResponseIsNull()
     {
         var autoMocker = new AutoMocker();
         UseFakeOptions(autoMocker);
@@ -191,15 +187,11 @@ public sealed class GetUserAccessToServiceApiRequesterTests
 
         var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
 
-        Task Act()
-        {
-            return requester.InvokeAsync(new GetUserAccessToServiceRequest {
+        return Assert.ThrowsExactlyAsync<InvalidOperationException>(()
+            => requester.InvokeAsync(new GetUserAccessToServiceRequest {
                 UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
                 OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
-            });
-        }
-
-        await Assert.ThrowsExactlyAsync<InvalidOperationException>(Act);
+            }));
     }
 
     #endregion

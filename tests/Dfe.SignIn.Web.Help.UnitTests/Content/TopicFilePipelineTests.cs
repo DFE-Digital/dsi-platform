@@ -40,25 +40,25 @@ public sealed class TopicFilePipelineTests
     #region LoadAllTopicFilesAsync(string, CancellationToken)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task LoadAllTopicFilesAsync_Throws_WhenContentFilesPathArgumentIsNull()
+    public Task LoadAllTopicFilesAsync_Throws_WhenContentFilesPathArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
 
         var pipeline = autoMocker.CreateInstance<TopicFilePipeline>();
 
-        await pipeline.LoadAllTopicFilesAsync(null!);
+        return Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => pipeline.LoadAllTopicFilesAsync(null!));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public async Task LoadAllTopicFilesAsync_Throws_WhenContentFilesPathArgumentIsEmpty()
+    public Task LoadAllTopicFilesAsync_Throws_WhenContentFilesPathArgumentIsEmpty()
     {
         var autoMocker = new AutoMocker();
 
         var pipeline = autoMocker.CreateInstance<TopicFilePipeline>();
 
-        await pipeline.LoadAllTopicFilesAsync("");
+        return Assert.ThrowsExactlyAsync<ArgumentException>(()
+            => pipeline.LoadAllTopicFilesAsync(""));
     }
 
     #endregion
@@ -66,47 +66,47 @@ public sealed class TopicFilePipelineTests
     #region LoadTopicFileAsync(string, CancellationToken)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task LoadTopicFileAsync_Throws_WhenContentFilesPathArgumentIsNull()
+    public Task LoadTopicFileAsync_Throws_WhenContentFilesPathArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
 
         var pipeline = autoMocker.CreateInstance<TopicFilePipeline>();
 
-        await pipeline.LoadTopicFileAsync(null!, "/");
+        return Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => pipeline.LoadTopicFileAsync(null!, "/"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public async Task LoadTopicFileAsync_Throws_WhenContentFilesPathArgumentIsEmpty()
+    public Task LoadTopicFileAsync_Throws_WhenContentFilesPathArgumentIsEmpty()
     {
         var autoMocker = new AutoMocker();
 
         var pipeline = autoMocker.CreateInstance<TopicFilePipeline>();
 
-        await pipeline.LoadTopicFileAsync("", "/");
+        return Assert.ThrowsExactlyAsync<ArgumentException>(()
+            => pipeline.LoadTopicFileAsync("", "/"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task LoadTopicFileAsync_Throws_WhenTopicFilePathArgumentIsNull()
+    public Task LoadTopicFileAsync_Throws_WhenTopicFilePathArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
 
         var pipeline = autoMocker.CreateInstance<TopicFilePipeline>();
 
-        await pipeline.LoadTopicFileAsync(".", null!);
+        return Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => pipeline.LoadTopicFileAsync(".", null!));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public async Task LoadTopicFileAsync_Throws_WhenTopicFilePathArgumentIsEmpty()
+    public Task LoadTopicFileAsync_Throws_WhenTopicFilePathArgumentIsEmpty()
     {
         var autoMocker = new AutoMocker();
 
         var pipeline = autoMocker.CreateInstance<TopicFilePipeline>();
 
-        await pipeline.LoadTopicFileAsync(".", "");
+        return Assert.ThrowsExactlyAsync<ArgumentException>(()
+            => pipeline.LoadTopicFileAsync(".", ""));
     }
 
     [TestMethod]

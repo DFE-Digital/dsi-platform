@@ -12,10 +12,10 @@ public sealed class AspNetCoreMiddlewareExtensionsTests
     #region SetupSelectOrganisationMiddleware(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupSelectOrganisationMiddleware_Throws_WhenServicesArgumentIsNull()
     {
-        AspNetCoreMiddlewareExtensions.SetupSelectOrganisationMiddleware(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => AspNetCoreMiddlewareExtensions.SetupSelectOrganisationMiddleware(null!));
     }
 
     [TestMethod]
@@ -48,10 +48,10 @@ public sealed class AspNetCoreMiddlewareExtensionsTests
     #region UseSelectOrganisationMiddleware(IApplicationBuilder)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void UseSelectOrganisationMiddleware_Throws_WhenAppArgumentIsNull()
     {
-        AspNetCoreMiddlewareExtensions.UseSelectOrganisationMiddleware(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => AspNetCoreMiddlewareExtensions.UseSelectOrganisationMiddleware(null!));
     }
 
     [TestMethod]

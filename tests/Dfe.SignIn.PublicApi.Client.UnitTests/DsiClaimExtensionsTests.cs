@@ -8,10 +8,10 @@ public sealed class DsiClaimExtensionsTests
     #region GetPrimaryIdentity(ClaimsPrincipal)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetPrimaryIdentity_Throws_When_UserArgumentIsNull()
     {
-        DsiClaimExtensions.GetPrimaryIdentity(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => DsiClaimExtensions.GetPrimaryIdentity(null!));
     }
 
     [TestMethod]
@@ -45,10 +45,10 @@ public sealed class DsiClaimExtensionsTests
     #region GetDsiUserId(ClaimsPrincipal)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetDsiUserId_Throws_WhenUserArgumentIsNull()
     {
-        DsiClaimExtensions.GetDsiUserId(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => DsiClaimExtensions.GetDsiUserId(null!));
     }
 
     [TestMethod]
@@ -56,7 +56,7 @@ public sealed class DsiClaimExtensionsTests
     {
         var user = new ClaimsPrincipal();
 
-        var exception = Assert.Throws<MissingClaimException>(
+        var exception = Assert.ThrowsExactly<MissingClaimException>(
             () => user.GetDsiUserId()
         );
         Assert.AreEqual("Missing identity with claim.", exception.Message);
@@ -81,10 +81,10 @@ public sealed class DsiClaimExtensionsTests
     #region TryGetDsiUserId(ClaimsPrincipal, out Guid?)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void TryGetDsiUserId_Throws_WhenUserArgumentIsNull()
     {
-        DsiClaimExtensions.TryGetDsiUserId(null!, out _);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => DsiClaimExtensions.TryGetDsiUserId(null!, out _));
     }
 
     [TestMethod]

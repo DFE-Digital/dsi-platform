@@ -28,12 +28,9 @@ public static class InteractionAssert
         );
         context.AddValidationError("Invalid request");
 
-        Task Act()
-        {
-            return useCase.InvokeAsync(context);
-        }
+        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(()
+            => useCase.InvokeAsync(context));
 
-        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(Act);
         Assert.AreEqual(context.InvocationId, exception.InvocationId);
     }
 }

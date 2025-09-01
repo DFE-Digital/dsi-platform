@@ -47,12 +47,9 @@ public sealed class RequiredIfTargetEqualsAttributeTests
             ExampleProperty = null!,
         };
 
-        void Act()
-        {
-            ValidateExampleProperty(model);
-        }
+        var exception = Assert.ThrowsExactly<MissingMemberException>(()
+            => ValidateExampleProperty(model));
 
-        var exception = Assert.Throws<MissingMemberException>(Act);
         Assert.AreEqual("Unknown property: MissingProperty", exception.Message);
     }
 
@@ -64,12 +61,9 @@ public sealed class RequiredIfTargetEqualsAttributeTests
             ExampleProperty = null,
         };
 
-        void Act()
-        {
-            ValidateExampleProperty(model);
-        }
+        var exception = Assert.Throws<ValidationException>(()
+            => ValidateExampleProperty(model));
 
-        var exception = Assert.Throws<ValidationException>(Act);
         Assert.AreEqual("Example error!", exception.ValidationResult.ErrorMessage);
         Assert.AreEqual("ExampleProperty", exception.ValidationResult.MemberNames.First());
     }
@@ -84,12 +78,9 @@ public sealed class RequiredIfTargetEqualsAttributeTests
             ExampleProperty = value,
         };
 
-        void Act()
-        {
-            ValidateExampleProperty(model);
-        }
+        var exception = Assert.Throws<ValidationException>(()
+            => ValidateExampleProperty(model));
 
-        var exception = Assert.Throws<ValidationException>(Act);
         Assert.AreEqual("Example error!", exception.ValidationResult.ErrorMessage);
         Assert.AreEqual("ExampleProperty", exception.ValidationResult.MemberNames.First());
     }

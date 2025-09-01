@@ -8,8 +8,8 @@ namespace Dfe.SignIn.Web.Help.Content;
 /// </summary>
 public sealed class TopicMemoryCache : ITopicIndex
 {
-    private readonly IDictionary<string, TopicModel> TopicsByPath;
-    private readonly IDictionary<string, TopicModel[]> TopicsBySection;
+    private readonly Dictionary<string, TopicModel> TopicsByPath;
+    private readonly Dictionary<string, TopicModel[]> TopicsBySection;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TopicMemoryCache"/> class.

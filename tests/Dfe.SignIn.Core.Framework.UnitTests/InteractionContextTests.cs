@@ -50,7 +50,12 @@ public sealed class InteractionContextTests
     {
         var context = new InteractionContext<ExampleRequest>(new ExampleRequest());
 
-        context.ThrowIfHasValidationErrors();
+        try {
+            context.ThrowIfHasValidationErrors();
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     [TestMethod]
@@ -59,7 +64,7 @@ public sealed class InteractionContextTests
         var context = new InteractionContext<ExampleRequest>(new ExampleRequest());
         context.ValidationResults.Add(new ValidationResult("An example error."));
 
-        var exception = Assert.Throws<InvalidRequestException>(context.ThrowIfHasValidationErrors);
+        var exception = Assert.ThrowsExactly<InvalidRequestException>(context.ThrowIfHasValidationErrors);
 
         Assert.HasCount(1, exception.ValidationResults);
     }

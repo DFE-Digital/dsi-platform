@@ -24,7 +24,7 @@ public sealed class ValidationResultsExtensionsTests
     {
         var validationResults = Array.Empty<ValidationResult>();
 
-        Assert.Throws<ArgumentNullException>(()
+        Assert.ThrowsExactly<ArgumentNullException>(()
             => ValidationResultsExtensions.AddFrom(null!, validationResults, []));
     }
 
@@ -33,7 +33,7 @@ public sealed class ValidationResultsExtensionsTests
     {
         var modelState = new ModelStateDictionary();
 
-        Assert.Throws<ArgumentNullException>(()
+        Assert.ThrowsExactly<ArgumentNullException>(()
             => ValidationResultsExtensions.AddFrom(modelState, null!, []));
     }
 
@@ -43,7 +43,7 @@ public sealed class ValidationResultsExtensionsTests
         var modelState = new ModelStateDictionary();
         var validationResults = Array.Empty<ValidationResult>();
 
-        Assert.Throws<ArgumentNullException>(()
+        Assert.ThrowsExactly<ArgumentNullException>(()
             => ValidationResultsExtensions.AddFrom(modelState, validationResults, null!));
     }
 
@@ -88,7 +88,7 @@ public sealed class ValidationResultsExtensionsTests
     {
         var validationResults = Array.Empty<ValidationResult>();
 
-        Assert.Throws<ArgumentNullException>(()
+        Assert.ThrowsExactly<ArgumentNullException>(()
             => ValidationResultsExtensions.ThrowIfNoErrorsRecorded(null!));
     }
 
@@ -100,7 +100,7 @@ public sealed class ValidationResultsExtensionsTests
         var modelState = new ModelStateDictionary();
         var expectedException = new InvalidRequestException();
 
-        var actualException = Assert.Throws<InvalidRequestException>(()
+        var actualException = Assert.ThrowsExactly<InvalidRequestException>(()
             => ValidationResultsExtensions.ThrowIfNoErrorsRecorded(modelState, expectedException));
 
         Assert.AreSame(expectedException, actualException);
@@ -113,7 +113,7 @@ public sealed class ValidationResultsExtensionsTests
 
         var modelState = new ModelStateDictionary();
 
-        Assert.Throws<InvalidOperationException>(()
+        Assert.ThrowsExactly<InvalidOperationException>(()
             => ValidationResultsExtensions.ThrowIfNoErrorsRecorded(modelState));
     }
 

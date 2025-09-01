@@ -12,21 +12,21 @@ public sealed class ActiveOrganisationProviderExtensionsTests
     #region GetActiveOrganisationAsync(this IActiveOrganisationProvider, HttpContext)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task GetActiveOrganisationAsync_Throws_WhenProviderArgumentIsNull()
     {
         var mockContext = new Mock<HttpContext>();
 
-        await ActiveOrganisationProviderExtensions.GetActiveOrganisationAsync(null!, mockContext.Object);
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => ActiveOrganisationProviderExtensions.GetActiveOrganisationAsync(null!, mockContext.Object));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task GetActiveOrganisationAsync_Throws_WhenContextArgumentIsNull()
     {
         var mockProvider = new Mock<IActiveOrganisationProvider>();
 
-        await ActiveOrganisationProviderExtensions.GetActiveOrganisationAsync(mockProvider.Object, null!);
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => ActiveOrganisationProviderExtensions.GetActiveOrganisationAsync(mockProvider.Object, null!));
     }
 
     [TestMethod]

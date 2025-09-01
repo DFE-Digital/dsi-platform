@@ -1,9 +1,8 @@
 # dsi-platform
 
-[![CI](https://github.com/DFE-Digital/dsi-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/DFE-Digital/dsi-platform/actions/workflows/ci.yml)
+[![CI](https://github.com/DFE-Digital/dsi-platform/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DFE-Digital/dsi-platform/actions/workflows/ci.yml)
 
 This repository contains the .NET version of the DfE Sign-in platform.Sign-in solution.
-
 
 ## Working on PowerShell scripts locally
 
@@ -15,16 +14,16 @@ The official Microsoft PowerShell extension can be used to ensure automatic form
 
 2. Run command:
 
-    ```pwsh
-    Invoke-Pester scripts
-    ```
+   ```pwsh
+   Invoke-Pester scripts
+   ```
 
 3. Or, to run with coverage reporting:
 
-    ```pwsh
-    $config = New-PesterConfiguration -Hashtable $(Import-PowerShellDataFile ./.config/PesterSettings.psd1)
-    Invoke-Pester -Configuration $config
-    ```
+   ```pwsh
+   $config = New-PesterConfiguration -Hashtable $(Import-PowerShellDataFile ./.config/PesterSettings.psd1)
+   Invoke-Pester -Configuration $config
+   ```
 
 ### PowerShell code quality checks
 
@@ -36,10 +35,9 @@ They can also be ran from the command line:
 
 2. Run command:
 
-    ```pwsh
-    Invoke-ScriptAnalyzer -Path ./scripts/**/*.ps1 -Settings ./.config/PSScriptAnalyzerSettings.psd1
-    ```
-
+   ```pwsh
+   Invoke-ScriptAnalyzer -Path ./scripts/**/*.ps1 -Settings ./.config/PSScriptAnalyzerSettings.psd1
+   ```
 
 ## Pushing NuGet packages to your local feed
 

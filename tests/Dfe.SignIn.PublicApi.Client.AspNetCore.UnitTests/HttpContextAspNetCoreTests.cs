@@ -66,7 +66,6 @@ public sealed class HttpContextAspNetCoreTests
         var mockContext = SetupMockHttpContext(autoMocker);
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
-        Assert.IsNotNull(adapter.User);
         Assert.AreSame(mockContext.Object.User, adapter.User);
     }
 
@@ -166,25 +165,25 @@ public sealed class HttpContextAspNetCoreTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void IHttpRequest_GetQuery_Throws_WhenKeyArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
         SetupMockHttpContext(autoMocker);
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
-        adapter.Request.GetQuery(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => adapter.Request.GetQuery(null!));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void IHttpRequest_GetQuery_Throws_WhenKeyArgumentIsEmptyString()
     {
         var autoMocker = new AutoMocker();
         SetupMockHttpContext(autoMocker);
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
-        adapter.Request.GetQuery("");
+        Assert.ThrowsExactly<ArgumentException>(()
+            => adapter.Request.GetQuery(""));
     }
 
     [TestMethod]

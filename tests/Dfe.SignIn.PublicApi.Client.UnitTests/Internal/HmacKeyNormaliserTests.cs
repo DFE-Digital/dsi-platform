@@ -45,9 +45,9 @@ public sealed class HmacKeyPaddingTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Null_Key_Should_Throw_ArgumentNullException()
     {
-        HmacKeyNormalizer.NormalizeHmacSha256Key(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => HmacKeyNormalizer.NormalizeHmacSha256Key(null!));
     }
 }

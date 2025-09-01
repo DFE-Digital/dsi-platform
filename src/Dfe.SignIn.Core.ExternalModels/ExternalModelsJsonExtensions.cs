@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Framework;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,6 +7,9 @@ namespace Dfe.SignIn.Core.ExternalModels;
 /// <summary>
 /// Extension methods to setup JSON serialization for external model types.
 /// </summary>
+[SuppressMessage("csharpsquid", "S125",
+    Justification = "Commented out code provides an example of registering JSON converters."
+)]
 public static class ExternalModelsJsonExtensions
 {
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Dfe.SignIn.Core.Framework.UnitTests;
@@ -20,6 +21,9 @@ public sealed class ExceptionReflectionHelpersTests
         public Assembly? NullablePropertyWithAssembly { get; set; } = typeof(FakeReflectionHelperException).Assembly;
 
         [Persist]
+        [SuppressMessage("roslyn", "CA1822",
+            Justification = "Property needs to be instance member for unit test."
+        )]
         public string PropertyWithoutGetter { set { } }
 
         [Persist]
@@ -43,17 +47,17 @@ public sealed class ExceptionReflectionHelpersTests
     #region GetExceptionTypeByFullName(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetExceptionTypeByFullName_Throws_WhenFullNameArgumentIsNull()
     {
-        ExceptionReflectionHelpers.GetExceptionTypeByFullName(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ExceptionReflectionHelpers.GetExceptionTypeByFullName(null!));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void GetExceptionTypeByFullName_Throws_WhenFullNameArgumentIsEmptyString()
     {
-        ExceptionReflectionHelpers.GetExceptionTypeByFullName("");
+        Assert.ThrowsExactly<ArgumentException>(()
+            => ExceptionReflectionHelpers.GetExceptionTypeByFullName(""));
     }
 
     [DataRow("System.Exception", typeof(Exception))]
@@ -84,10 +88,10 @@ public sealed class ExceptionReflectionHelpersTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void IsSerializableProperty_Throws_WhenPropertyArgumentIsNull()
     {
-        ExceptionReflectionHelpers.IsSerializableProperty(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ExceptionReflectionHelpers.IsSerializableProperty(null!));
     }
 
     [TestMethod]
@@ -179,10 +183,10 @@ public sealed class ExceptionReflectionHelpersTests
     #region GetSerializableExceptionProperties(Type)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetSerializableExceptionProperties_Throws_WhenExceptionTypeArgumentIsNull()
     {
-        ExceptionReflectionHelpers.GetSerializableExceptionProperties(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ExceptionReflectionHelpers.GetSerializableExceptionProperties(null!));
     }
 
     [TestMethod]

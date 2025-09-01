@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Dfe.SignIn.Core.Framework.UnitTests.Fakes;
 using Moq.AutoMock;
@@ -12,12 +13,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverInteractorTypesInAssembly(Assembly)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverInteractorTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-        InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(
-            assembly: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(
+                assembly: null!
+            ));
     }
 
     [TestMethod]
@@ -49,12 +50,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverUseCaseHandlerTypesInAssembly(Assembly)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverUseCaseHandlerTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-        InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(
-            assembly: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(
+                assembly: null!
+            ));
     }
 
     [TestMethod]
@@ -78,12 +79,12 @@ public sealed class InteractorReflectionHelpersTests
     #region DiscoverApiRequesterTypesInAssembly(Assembly)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void DiscoverApiRequesterTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
     {
-        InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(
-            assembly: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(
+                assembly: null!
+            ));
     }
 
     [TestMethod]
@@ -107,6 +108,9 @@ public sealed class InteractorReflectionHelpersTests
     #region Unit testing
 
     [TestMethod]
+    [SuppressMessage("roslyn", "MSTEST0032",
+        Justification = "Required for unit test."
+    )]
     public void UnitTesting_CanEasilyInjectMockInteractors()
     {
         var autoMocker = new AutoMocker();

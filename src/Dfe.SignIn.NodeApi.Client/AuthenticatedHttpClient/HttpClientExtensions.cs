@@ -27,7 +27,7 @@ public static class HttpClientExtensions
     public static async Task<T?> GetFromJsonOrDefaultAsync<T>(
         this HttpClient client, string url, CancellationToken cancellationToken = default)
     {
-        var response = await client.GetAsync(url);
+        var response = await client.GetAsync(url, cancellationToken);
 
         return response.StatusCode == HttpStatusCode.NotFound
             ? default

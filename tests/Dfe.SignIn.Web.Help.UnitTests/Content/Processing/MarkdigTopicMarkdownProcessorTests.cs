@@ -10,24 +10,24 @@ public sealed class MarkdigTopicMarkdownProcessorTests
     private readonly MarkdigTopicMarkdownProcessor processor = new();
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task ProcessMarkdownAsync_Throws_WhenTopicPathArgumentIsNull()
+    public Task ProcessMarkdownAsync_Throws_WhenTopicPathArgumentIsNull()
     {
-        await this.processor.ProcessMarkdownAsync(null!, "");
+        return Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => this.processor.ProcessMarkdownAsync(null!, ""));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public async Task ProcessMarkdownAsync_Throws_WhenTopicPathArgumentIsEmptyString()
+    public Task ProcessMarkdownAsync_Throws_WhenTopicPathArgumentIsEmptyString()
     {
-        await this.processor.ProcessMarkdownAsync("", "");
+        return Assert.ThrowsExactlyAsync<ArgumentException>(()
+            => this.processor.ProcessMarkdownAsync("", ""));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task ProcessMarkdownAsync_Throws_WhenMarkdownArgumentIsNull()
+    public Task ProcessMarkdownAsync_Throws_WhenMarkdownArgumentIsNull()
     {
-        await this.processor.ProcessMarkdownAsync("/", null!);
+        return Assert.ThrowsExactlyAsync<ArgumentNullException>(()
+            => this.processor.ProcessMarkdownAsync("/", null!));
     }
 
     [TestMethod]

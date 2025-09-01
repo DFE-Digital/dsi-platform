@@ -14,21 +14,21 @@ public sealed class SelectOrganisationExtensionsTests
     #region SetupRedisSessionStore(IServiceCollection, IConfiguration)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupRedisSessionStore_Throws_WhenServicesArgumentIsNull()
     {
         var configuration = new ConfigurationRoot([]);
 
-        SelectOrganisationExtensions.SetupRedisSessionStore(null!, configuration);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => SelectOrganisationExtensions.SetupRedisSessionStore(null!, configuration));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupRedisSessionStore_Throws_WhenConfigurationArgumentIsNull()
     {
         var services = new ServiceCollection();
 
-        services.SetupRedisSessionStore(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => services.SetupRedisSessionStore(null!));
     }
 
     [TestMethod]
@@ -53,10 +53,10 @@ public sealed class SelectOrganisationExtensionsTests
     #region SetupSelectOrganisationInteractions(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupSelectOrganisationInteractions_Throws_WhenServicesArgumentIsNull()
     {
-        SelectOrganisationExtensions.SetupSelectOrganisationInteractions(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => SelectOrganisationExtensions.SetupSelectOrganisationInteractions(null!));
     }
 
     [DataRow(

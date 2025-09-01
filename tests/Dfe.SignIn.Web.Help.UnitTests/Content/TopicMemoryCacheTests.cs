@@ -59,12 +59,12 @@ public sealed class TopicMemoryCacheTests
     #region GetTopic(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetTopic_Throws_WhenTopicPathArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(FakeTopics);
 
-        topicCache.GetTopic(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => topicCache.GetTopic(null!));
     }
 
     [TestMethod]
@@ -94,12 +94,12 @@ public sealed class TopicMemoryCacheTests
     #region GetParentTopic(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetParentTopic_Throws_WhenTopicPathArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(FakeTopics);
 
-        topicCache.GetParentTopic(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => topicCache.GetParentTopic(null!));
     }
 
     [TestMethod]
@@ -141,12 +141,12 @@ public sealed class TopicMemoryCacheTests
     #region GetChildTopics(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetChildTopics_Throws_WhenTopicPathArgumentIsNull()
     {
         var topicCache = new TopicMemoryCache(FakeTopics);
 
-        topicCache.GetChildTopics(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => topicCache.GetChildTopics(null!));
     }
 
     [TestMethod]

@@ -28,14 +28,14 @@ public sealed class DefaultSessionDataSerializerTests
     #region Serialize(SelectOrganisationSessionData)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Serialize_Throws_WhenSessionDataArgumentIsNull()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-        serializer.Serialize(
-            sessionData: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => serializer.Serialize(
+                sessionData: null!
+            ));
     }
 
     [TestMethod]
@@ -53,47 +53,47 @@ public sealed class DefaultSessionDataSerializerTests
     #region Deserialize(string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Deserialize_Throws_WhenJsonArgumentIsNull()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-        serializer.Deserialize(
-            sessionDataJson: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => serializer.Deserialize(
+                sessionDataJson: null!
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void Deserialize_Throws_WhenJsonArgumentIsEmptyString()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-        serializer.Deserialize(
-            sessionDataJson: ""
-        );
+        Assert.ThrowsExactly<ArgumentException>(()
+            => serializer.Deserialize(
+                sessionDataJson: ""
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(JsonException))]
     public void Deserialize_Throws_WhenInputIsInvalid()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-        serializer.Deserialize(
-            sessionDataJson: "42"
-        );
+        Assert.Throws<JsonException>(()
+            => serializer.Deserialize(
+                sessionDataJson: "42"
+            ));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(JsonException))]
     public void Deserialize_Throws_WhenInputIsNull()
     {
         var serializer = new DefaultSessionDataSerializer();
 
-        serializer.Deserialize(
-            sessionDataJson: "null"
-        );
+        Assert.Throws<JsonException>(()
+            => serializer.Deserialize(
+                sessionDataJson: "null"
+            ));
     }
 
     [TestMethod]

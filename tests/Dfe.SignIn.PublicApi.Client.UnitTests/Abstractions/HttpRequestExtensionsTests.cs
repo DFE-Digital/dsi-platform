@@ -9,10 +9,10 @@ public sealed class HttpRequestExtensionsTests
     #region GetRequiredQuery(IHttpRequest, string)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GetRequiredQuery_Throws_WhenRequestArgumentIsNull()
     {
-        HttpRequestExtensions.GetRequiredQuery(null!, "abc");
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => HttpRequestExtensions.GetRequiredQuery(null!, "abc"));
     }
 
     [TestMethod]
@@ -26,7 +26,7 @@ public sealed class HttpRequestExtensionsTests
             ))
             .Returns((string)null!);
 
-        var exception = Assert.Throws<KeyNotFoundException>(
+        var exception = Assert.ThrowsExactly<KeyNotFoundException>(
             () => HttpRequestExtensions.GetRequiredQuery(mockRequest.Object, "abc")
         );
 

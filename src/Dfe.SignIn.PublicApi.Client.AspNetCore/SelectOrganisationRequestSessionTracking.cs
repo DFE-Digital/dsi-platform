@@ -38,7 +38,9 @@ public sealed class SelectOrganisationRequestSessionTracking : ISelectOrganisati
         var httpContext = (context.Inner as HttpContext)!;
 
         string trackedRequestIdRaw = httpContext.Session.GetString(TrackedRequestIdSessionKey);
-        Guid.TryParse(trackedRequestIdRaw, out var trackedRequestId);
+        if (!Guid.TryParse(trackedRequestIdRaw, out var trackedRequestId)) {
+            trackedRequestId = Guid.Empty;
+        }
 
         return Task.FromResult(trackedRequestId == requestId);
     }

@@ -9,12 +9,12 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
     #region AddSelectOrganisationSessionCache(IServiceCollection, Action<SelectOrganisationSessionCacheOptions>)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddSelectOrganisationSessionCache_Throws_WhenServicesArgumentIsNull()
     {
-        SelectOrganisationSessionCacheExtensions.AddSelectOrganisationSessionCache(
-            services: null!
-        );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => SelectOrganisationSessionCacheExtensions.AddSelectOrganisationSessionCache(
+                services: null!
+            ));
     }
 
     [TestMethod]

@@ -9,10 +9,10 @@ public sealed class SelectOrganisationExtensionsTests
     #region SetupSelectOrganisationFeatures(IServiceCollection)
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetupSelectOrganisationFeatures_Throws_WhenServicesArgumentIsNull()
     {
-        SelectOrganisationExtensions.SetupSelectOrganisationFeatures(null!);
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => SelectOrganisationExtensions.SetupSelectOrganisationFeatures(null!));
     }
 
     [TestMethod]
