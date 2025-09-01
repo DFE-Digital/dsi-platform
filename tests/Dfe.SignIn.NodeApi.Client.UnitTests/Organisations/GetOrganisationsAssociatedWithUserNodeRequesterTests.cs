@@ -1,11 +1,9 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Users.Interactions;
-using Dfe.SignIn.NodeApi.Client.MappingProfiles;
 using Dfe.SignIn.NodeApi.Client.Organisations;
 using Dfe.SignIn.NodeApi.Client.Organisations.Models;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
@@ -15,15 +13,6 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 [TestClass]
 public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
 {
-    private IMapper? mapper;
-
-    [TestInitialize]
-    public void Setup()
-    {
-        var mapperConfiguration = new MapperConfiguration(options => options.AddProfile<OrganisationProfile>());
-        this.mapper = mapperConfiguration.CreateMapper();
-    }
-
     [TestMethod]
     public Task InvokeAsync_ThrowsIfRequestIsInvalid()
     {
@@ -87,7 +76,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationsAssociatedWithUserNodeRequester(client, this.mapper!);
+        var controller = new GetOrganisationsAssociatedWithUserNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetOrganisationsAssociatedWithUserRequest {
             UserId = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e")
@@ -123,7 +112,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationsAssociatedWithUserNodeRequester(client, this.mapper!);
+        var controller = new GetOrganisationsAssociatedWithUserNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetOrganisationsAssociatedWithUserRequest {
             UserId = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e")

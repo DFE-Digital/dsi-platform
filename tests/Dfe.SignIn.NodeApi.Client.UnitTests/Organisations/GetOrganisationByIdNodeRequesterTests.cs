@@ -1,8 +1,6 @@
-using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
-using Dfe.SignIn.NodeApi.Client.MappingProfiles;
 using Dfe.SignIn.NodeApi.Client.Organisations;
 using Dfe.SignIn.NodeApi.Client.Organisations.Models;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
@@ -12,24 +10,6 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 [TestClass]
 public sealed class GetOrganisationByIdNodeRequesterTests
 {
-    private IMapper? mapper;
-
-    [TestInitialize]
-    public void Setup()
-    {
-        var mapperConfiguration = new MapperConfiguration(options => options.AddProfile<OrganisationProfile>());
-        this.mapper = mapperConfiguration.CreateMapper();
-    }
-
-    [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
-    {
-        return InteractionAssert.ThrowsWhenRequestIsInvalid<
-            GetOrganisationByIdRequest,
-            GetOrganisationByIdNodeRequester
-        >();
-    }
-
     [TestMethod]
     public async Task InvokeAsync_ReturnsExpectedOrganisation()
     {
@@ -51,7 +31,7 @@ public sealed class GetOrganisationByIdNodeRequesterTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationByIdNodeRequester(client, this.mapper!);
+        var controller = new GetOrganisationByIdNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty
@@ -77,7 +57,7 @@ public sealed class GetOrganisationByIdNodeRequesterTests
             BaseAddress = new Uri("http://mock.localhost")
         };
 
-        var controller = new GetOrganisationByIdNodeRequester(client, this.mapper!);
+        var controller = new GetOrganisationByIdNodeRequester(client);
 
         var response = await controller.InvokeAsync(new GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty

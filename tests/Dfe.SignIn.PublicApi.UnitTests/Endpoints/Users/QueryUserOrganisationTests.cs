@@ -1,4 +1,3 @@
-using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
@@ -7,7 +6,6 @@ using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.PublicApi.Client.Users;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
-using Dfe.SignIn.PublicApi.MappingProfiles;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq;
 using Moq.AutoMock;
@@ -59,10 +57,6 @@ public sealed class QueryUserOrganisationTests
             .Setup(x => x.Application)
             .Returns(FakeApplicationModel);
 
-        autoMocker.Use(new MapperConfiguration(cfg =>
-            cfg.AddProfile<OrganisationDetailsMappingProfile>()
-        ).CreateMapper());
-
         return autoMocker;
     }
 
@@ -98,8 +92,7 @@ public sealed class QueryUserOrganisationTests
             FakeOrganisation1.Id,
             apiRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractionDispatcher>(),
-            autoMocker.Get<IMapper>()
+            autoMocker.Get<IInteractionDispatcher>()
         );
 
         autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
@@ -134,8 +127,7 @@ public sealed class QueryUserOrganisationTests
             FakeOrganisation1.Id,
             FakeMinimalRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractionDispatcher>(),
-            autoMocker.Get<IMapper>()
+            autoMocker.Get<IInteractionDispatcher>()
         );
 
         Assert.AreEqual(FakeUserId, response.UserId);
@@ -165,8 +157,7 @@ public sealed class QueryUserOrganisationTests
             FakeOrganisation1.Id,
             FakeMinimalRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractionDispatcher>(),
-            autoMocker.Get<IMapper>()
+            autoMocker.Get<IInteractionDispatcher>()
         );
 
         Assert.AreEqual(FakeUserId, response.UserId);
