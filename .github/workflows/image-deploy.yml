@@ -24,7 +24,9 @@ on:
         type: boolean
 
     secrets:
-      AZURE_DEVOPS_TOKEN:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
         required: true
       AZURE_PIPELINE_ID:
         required: true
@@ -42,9 +44,23 @@ jobs:
           sparse-checkout: |
             scripts/workflows
 
+      - name: Login to Azure
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+          enable-AzPSSession: true
+
+      - name: Get access token for Azure DevOps
+        run: |
+          $token = az account get-access-token `
+            --resource 499b84ac-1321-427f-aa17-267ca6975798 `
+            --query "accessToken" -o tsv
+          echo "AZURE_DEVOPS_TOKEN=$token" >> $env:GITHUB_ENV
+
       - name: Deploy image for '${{ inputs.project_name }}'
         env:
-          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
           AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
         run: |
           $response = ./scripts/workflows/Start-AzurePipeline `

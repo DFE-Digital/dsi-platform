@@ -183,7 +183,8 @@ jobs:
     needs: prepare
     if: "${{ needs.prepare.outputs.publish_dotnet_packages == 'true' }}"
     secrets:
-      AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     with:
       nuget_source: ${{ vars.AZURE_DEVOPS_NUGET_SOURCE }}
 
@@ -194,6 +195,7 @@ jobs:
     if: "${{ needs.prepare.outputs.check_docs_templates == 'true' }}"
     permissions:
       checks: write # Needed by 'dorny/test-reporter'.
+      id-token: write # Needed by 'azure/login'
 
   docs-build:
     name: Build external documentation
@@ -257,8 +259,11 @@ jobs:
     strategy:
       matrix:
         image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
+    permissions:
+      id-token: write # Needed by 'azure/login'
     secrets:
-      AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
     with:
       project_name: ${{ matrix.image.project }}
@@ -271,8 +276,11 @@ jobs:
     uses: ./.github/workflows/image-deploy.yml
     needs: [prepare, checks-passed]
     if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
+    permissions:
+      id-token: write # Needed by 'azure/login'
     secrets:
-      AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
     with:
       project_name: docs/external
