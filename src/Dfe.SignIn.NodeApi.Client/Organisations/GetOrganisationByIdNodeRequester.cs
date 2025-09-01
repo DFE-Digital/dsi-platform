@@ -1,8 +1,7 @@
-using AutoMapper;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
+using Dfe.SignIn.NodeApi.Client.Organisations.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.NodeApi.Client.Organisations;
@@ -12,7 +11,7 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationByIdNodeRequester(
-    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper
+    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient
 ) : Interactor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>
 {
 
@@ -23,13 +22,13 @@ public sealed class GetOrganisationByIdNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationByIdDto>(
+        var response = await httpClient.GetFromJsonOrDefaultAsync<OrganisationByIdDto>(
             $"/organisations/{context.Request.OrganisationId}",
             cancellationToken
         );
 
         return new GetOrganisationByIdResponse {
-            Organisation = response is null ? null : mapper.Map<OrganisationModel>(response)
+            Organisation = response?.MapToOrganisationModel()
         };
     }
 }

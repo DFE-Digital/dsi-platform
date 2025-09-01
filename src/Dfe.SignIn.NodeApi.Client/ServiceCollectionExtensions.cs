@@ -3,7 +3,6 @@ using System.Reflection;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApi.Client.HttpSecurityProvider;
-using Dfe.SignIn.NodeApi.Client.MappingProfiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -53,10 +52,6 @@ public static class ServiceCollectionExtensions
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(apiNames, nameof(apiNames));
 
-        services.AddAutoMapper(options => {
-            options.AddProfile<OrganisationProfile>();
-        });
-
         foreach (var apiName in apiNames) {
             services.AddHttpClient(apiName.ToString(), (provider, client) => {
                 var apiOptions = GetNodeApiOptions(provider, apiName);
@@ -77,7 +72,7 @@ public static class ServiceCollectionExtensions
                 return new AuthenticatedHttpClientHandler(msalHttpSecurityProvider);
             });
 
-            // endpoints can use the httpClient via  
+            // endpoints can use the httpClient via
             // app.MapGet("your-route", [FromKeyedServices(NodeApiName.Applications)] HttpClient client)
             services.AddKeyedSingleton(apiName, (provider, key) => {
                 var factory = provider.GetRequiredService<IHttpClientFactory>();

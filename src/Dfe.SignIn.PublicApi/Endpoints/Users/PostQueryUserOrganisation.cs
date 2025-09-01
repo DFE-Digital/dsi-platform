@@ -1,4 +1,3 @@
-using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.Organisations;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
@@ -21,7 +20,6 @@ public static partial class UserEndpoints
         // ---
         IScopedSessionReader scopedSession,
         IInteractionDispatcher interaction,
-        IMapper mapper,
         // ---
         CancellationToken cancellationToken = default)
     {
@@ -38,7 +36,11 @@ public static partial class UserEndpoints
 
         return new() {
             UserId = userId,
-            Organisation = mapper.Map<OrganisationDetails>(organisation),
+            Organisation = organisation is null ? null : new OrganisationDetails {
+                Id = organisation.Id,
+                Name = organisation.Name,
+                LegalName = organisation.LegalName
+            }
         };
     }
 }
