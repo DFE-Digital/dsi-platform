@@ -1,6 +1,6 @@
 # dsi-platform
 
-[![CI](https://github.com/DFE-Digital/dsi-platform/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DFE-Digital/dsi-platform/actions/workflows/ci.yml)
+[![CI](https://github.com/DFE-Digital/dsi-platform/actions/workflows/ci.yml/badge.svg?event=merge_group)](https://github.com/DFE-Digital/dsi-platform/actions/workflows/ci.yml)
 
 This repository contains the .NET version of the DfE Sign-in platform.Sign-in solution.
 
