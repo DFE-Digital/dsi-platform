@@ -1,4 +1,6 @@
-namespace Dfe.SignIn.Core.Framework.UnitTests;
+using Dfe.SignIn.Core.Framework.Internal;
+
+namespace Dfe.SignIn.Core.Framework.UnitTests.Internal;
 
 [TestClass]
 public sealed class EnumHelpersTests

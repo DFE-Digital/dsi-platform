@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Core.Framework.Internal;
 using Dfe.SignIn.Core.InternalModels.Organisations;
 
 namespace Dfe.SignIn.NodeApi.Client.Organisations.Models;

@@ -1,9 +1,10 @@
 
-namespace Dfe.SignIn.Core.Framework;
+namespace Dfe.SignIn.Core.Framework.Internal;
 
 /// <summary>
 /// Provides helper methods for working with Enums.
 /// </summary>
+/// <exclude />
 public static class EnumHelpers
 {
     /// <summary>
