@@ -6,7 +6,7 @@
     {
       "label": "dfe: update local feed",
       "type": "shell",
-      "command": "dotnet build -p:IsPipeline=true && dotnet nuget push \"**/*.nupkg\" --source LocalStore",
+      "command": "dotnet build -p:IsPipeline=true && dotnet nuget push \"packages/*.nupkg\" --source LocalStore",
       "problemMatcher": []
     }
   ]

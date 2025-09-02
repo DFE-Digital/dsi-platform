@@ -58,7 +58,7 @@ jobs:
             --password "$env:AZURE_DEVOPS_TOKEN" `
             --store-password-in-clear-text
 
-          Get-ChildItem -Path ./src -Recurse -Filter *.nupkg | ForEach-Object {
+          Get-ChildItem -Path ./packages -Filter *.nupkg | ForEach-Object {
             dotnet nuget push $_.FullName `
               --source AzureArtifacts `
               --api-key null `
