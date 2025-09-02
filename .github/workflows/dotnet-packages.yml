@@ -9,7 +9,9 @@ on:
         type: string
 
     secrets:
-      AZURE_DEVOPS_TOKEN:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
         required: true
 
 jobs:
@@ -33,9 +35,22 @@ jobs:
             /p:Configuration=Release `
             /p:BuildPackages=true
 
+      - name: Login to Azure
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+          enable-AzPSSession: true
+
+      - name: Get access token for Azure DevOps
+        run: |
+          $token = az account get-access-token `
+            --resource 499b84ac-1321-427f-aa17-267ca6975798 `
+            --query "accessToken" -o tsv
+          echo "AZURE_DEVOPS_TOKEN=$token" >> $env:GITHUB_ENV
+
       - name: Push NuGet package to Azure Artifacts
-        env:
-          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
         run: |
           dotnet nuget add source "${{ inputs.nuget_source }}" `
             --name AzureArtifacts `
