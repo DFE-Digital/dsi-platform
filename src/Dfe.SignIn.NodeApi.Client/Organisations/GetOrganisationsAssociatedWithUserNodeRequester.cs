@@ -1,6 +1,4 @@
-using AutoMapper;
 using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Organisations;
 using Dfe.SignIn.Core.InternalModels.Users.Interactions;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +10,7 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationsAssociatedWithUserNodeRequester(
-    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient, IMapper mapper
+    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient
 ) : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {
     /// <inheritdoc/>
@@ -27,7 +25,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequester(
             cancellationToken
         );
 
-        var organisations = response?.Select(org => mapper.Map<OrganisationModel>(org.Organisation)) ?? [];
+        var organisations = response?.Select(org => org.Organisation.MapToOrganisationModel()) ?? [];
 
         return new GetOrganisationsAssociatedWithUserResponse {
             Organisations = organisations

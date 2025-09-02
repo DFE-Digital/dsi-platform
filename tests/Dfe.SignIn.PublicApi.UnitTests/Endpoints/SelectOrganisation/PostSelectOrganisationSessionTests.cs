@@ -1,11 +1,9 @@
-using AutoMapper;
 using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.Applications;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
-using Dfe.SignIn.PublicApi.MappingProfiles;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq;
 using Moq.AutoMock;
@@ -49,10 +47,6 @@ public sealed class PostSelectOrganisationSessionTests
 
         autoMocker.Use(FakePublicApiRequest);
 
-        autoMocker.Use(new MapperConfiguration(cfg =>
-            cfg.AddProfile<SelectOrganisationMappingProfile>()
-        ).CreateMapper());
-
         return autoMocker;
     }
 
@@ -88,8 +82,7 @@ public sealed class PostSelectOrganisationSessionTests
         await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             apiRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractionDispatcher>(),
-            autoMocker.Get<IMapper>()
+            autoMocker.Get<IInteractionDispatcher>()
         );
 
         autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
@@ -125,8 +118,7 @@ public sealed class PostSelectOrganisationSessionTests
         var response = await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             FakePublicApiRequest,
             autoMocker.Get<IScopedSessionReader>(),
-            autoMocker.Get<IInteractionDispatcher>(),
-            autoMocker.Get<IMapper>()
+            autoMocker.Get<IInteractionDispatcher>()
         );
 
         Assert.AreEqual(FakeResponse.RequestId, response.RequestId);

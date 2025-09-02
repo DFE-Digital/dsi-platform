@@ -1,4 +1,3 @@
-using AutoMapper;
 using Dfe.SignIn.Core.Framework;
 using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -17,15 +16,24 @@ public static partial class SelectOrganisationEndpoints
         // ---
         IScopedSessionReader scopedSession,
         IInteractionDispatcher interaction,
-        IMapper mapper,
         // ---
         CancellationToken cancellationToken = default)
     {
         var response = await interaction.DispatchAsync(
-            mapper.Map<CreateSelectOrganisationSessionRequest>(request) with {
+            new CreateSelectOrganisationSessionRequest {
                 ClientId = scopedSession.Application.ClientId,
+                UserId = request.UserId,
+                Prompt = request.Prompt,
+                Filter = request.Filter,
+                AllowCancel = request.AllowCancel,
+                CallbackUrl = request.CallbackUrl,
             }, cancellationToken
         ).To<CreateSelectOrganisationSessionResponse>();
-        return mapper.Map<CreateSelectOrganisationSessionApiResponse>(response);
+
+        return new CreateSelectOrganisationSessionApiResponse {
+            RequestId = response.RequestId,
+            HasOptions = response.HasOptions,
+            Url = response.Url,
+        };
     }
 }

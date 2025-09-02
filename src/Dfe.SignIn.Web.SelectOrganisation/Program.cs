@@ -36,8 +36,6 @@ builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
 
-builder.Services.AddAutoMapper(options => { });
-
 builder.Services
     .SetupHealthChecks(
         builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache")

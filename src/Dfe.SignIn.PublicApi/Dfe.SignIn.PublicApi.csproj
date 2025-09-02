@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Redis" />
-    <PackageReference Include="AutoMapper" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />

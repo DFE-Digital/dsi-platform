@@ -1,4 +1,7 @@
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Core.ExternalModels.Organisations;
+using Dfe.SignIn.Core.Framework.Internal;
+using Dfe.SignIn.Core.InternalModels.Organisations;
 
 namespace Dfe.SignIn.NodeApi.Client.Organisations.Models;
 
@@ -12,4 +15,13 @@ internal sealed record OrganisationByIdDto : OrganisationDto
 
     [JsonPropertyName("type")]
     public string? EstablishmentType { get; init; }
+
+    public OrganisationModel MapToOrganisationModel()
+    {
+        return this.MapToOrganisationModel(
+            EnumHelpers.MapEnum<OrganisationStatus>(this.Status),
+            this.Category,
+            this.EstablishmentType
+        );
+    }
 }

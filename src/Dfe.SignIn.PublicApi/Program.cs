@@ -35,7 +35,6 @@ builder.Services
 
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();
-builder.Services.SetupAutoMapper();
 builder.Services.SetupScopedSession();
 builder.Services.SetupHealthChecks(
     builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache")
