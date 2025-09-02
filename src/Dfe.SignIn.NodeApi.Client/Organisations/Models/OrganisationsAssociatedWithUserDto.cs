@@ -46,7 +46,7 @@ internal sealed record UserOrganisationDto : OrganisationDto
     public OrganisationModel MapToOrganisationModel()
     {
         return this.MapToOrganisationModel(
-            EnumHelpers.MapEnum<Core.ExternalModels.Organisations.OrganisationStatus>(this.Status.Id),
+            EnumHelpers.MapEnum<OrganisationStatus>(this.Status.Id),
             this.Category.Id,
             this.EstablishmentType?.Id
         );
