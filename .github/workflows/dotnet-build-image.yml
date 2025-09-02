@@ -70,7 +70,8 @@ jobs:
           context: .
           file: ./docker/dotnet/Dockerfile
           platforms: linux/amd64
-          outputs: type=docker
+          outputs: type=image,push=true
+          provenance: false
           load: true
           build-args: |
             PROJECT_NAME=${{ inputs.project_name }}
