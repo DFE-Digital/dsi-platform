@@ -54,7 +54,7 @@ Use the following command to build and push NuGet packages to a local feed:
 
 ```pwsh
 dotnet build /p:BuildPackages=true
-dotnet nuget push "**/*.nupkg" --source LocalStore
+dotnet nuget push "packages/*.nupkg" --source LocalStore
 ```
 
 Alternatively the following can be ran from the Visual Studio Code command palette:

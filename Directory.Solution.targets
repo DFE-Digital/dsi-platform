@@ -2,7 +2,7 @@
 
   <Target Name="CleanupPreviousNupkgFiles" BeforeTargets="Build" Condition="$(BuildPackages) == 'true'">
     <ItemGroup>
-      <NupkgFiles Include="**/bin/$(Configuration)/*.nupkg" />
+      <NupkgFiles Include="packages/*.nupkg" />
     </ItemGroup>
     <Delete Files="@(NupkgFiles)" />
   </Target>
