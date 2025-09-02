@@ -32,21 +32,13 @@ public sealed class EnumHelpersTests
     [DataRow(3.14)]
     public void MapEnum_InvalidInput_Throws(object input)
     {
-        Type exceptionType;
-
         if (input == null) {
-            exceptionType = typeof(ArgumentNullException);
+            Assert.ThrowsExactly<ArgumentNullException>(
+            () => EnumHelpers.MapEnum<EnumTest>(input));
         }
         else {
-            exceptionType = typeof(ArgumentException);
-        }
-
-        try {
-            EnumHelpers.MapEnum<EnumTest>(input);
-            Assert.Fail("Expected exception was not thrown.");
-        }
-        catch (Exception ex) {
-            Assert.IsInstanceOfType(ex, exceptionType);
+            Assert.ThrowsExactly<ArgumentException>(
+            () => EnumHelpers.MapEnum<EnumTest>(input));
         }
     }
 }
