@@ -66,10 +66,15 @@ jobs:
             /d:sonar.token="$env:SONAR_TOKEN" `
             /s:${{ github.workspace }}/SonarQube.Analysis.xml
 
+      - name: Build project
+        run: |
+          dotnet build ./build.sln `
+            --framework net8.0
+
       - name: Run unit tests
         run: |
           dotnet test ./build.sln `
-            --framework net8.0 `
+            --no-build `
             --collect "XPlat Code Coverage" `
             --logger "trx;LogFileName=TestResults.trx"
 
