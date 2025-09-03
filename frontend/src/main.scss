@@ -1,0 +1,23 @@
+//-----------------------------------------------------------------------------
+// Third-party libraries
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+// GOV.UK design system
+//-----------------------------------------------------------------------------
+
+@import "../node_modules/govuk-frontend/dist/govuk/all";
+
+
+//-----------------------------------------------------------------------------
+// Components
+//-----------------------------------------------------------------------------
+
+@import "./components/article-content";
+@import "./components/header";
+@import "./components/hero";
+@import "./components/site-search";
+@import "./components/subnav";
+@import "./components/topic-cards";
+@import "./components/width-container";

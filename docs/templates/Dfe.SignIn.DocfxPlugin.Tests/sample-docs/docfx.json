@@ -55,8 +55,7 @@
       "_appName": "DfE Sign-in Sample",
       "_appTitle": "DfE Sign-in Sample",
       "_disableContribution": true,
-      "_cdnBaseAddress": "https://localhost:3001/",
-      "_cdnVersion": "1.0",
+      "_cdnBaseAddress": "http://localhost:8081/",
       "_surveyUrl": "#",
       "pdf": false
     }

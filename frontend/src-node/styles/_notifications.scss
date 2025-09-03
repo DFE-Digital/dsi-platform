@@ -1,0 +1,133 @@
+$success: map.get($govuk-colours, "turquoise");
+$warning: map.get($govuk-colours, "orange");
+
+.notification {
+  font-family: $govuk-font-family;
+  font-size: 1.2rem;
+  background: govuk-colour("light-grey");
+  margin: 15px 0;
+  padding: 10px;
+  @include govuk-media-query(tablet) {
+    padding: 15px;
+  }
+  border: 3px solid map.get($govuk-colours, "mid-grey");
+  position: relative;
+  @include govuk-media-query(tablet) {
+    border-width: 5px;
+  }
+  .notification-header {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+  // h2 {
+  //   font-weight:bold;
+  //   font-size: 120%;
+  // }
+  p {
+    margin-bottom: 0;
+    a {
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+  a.action {
+    display: block;
+    @include govuk-media-query(tablet) {
+      display: inline-block;
+      text-align: right;
+      float: right;
+    }
+  }
+  &:focus {
+    outline: 3px solid map.get($govuk-colours, "yellow");
+  }
+  .icon {
+    position: absolute;
+    height: 30px;
+    width: 30px;
+    top: 10px;
+    right: 10px;
+    overflow: hidden;
+    opacity: 0.5;
+    text-indent: -9999px;
+    cursor: pointer;
+    &:before,
+    &:after {
+      position: absolute;
+      left: 15px;
+      content: " ";
+      height: 33px;
+      width: 2px;
+      background-color: #333;
+    }
+    &:before {
+      transform: rotate(45deg);
+    }
+    &:after {
+      transform: rotate(-45deg);
+    }
+    &:hover {
+      opacity: 1;
+    }
+  }
+  &.with-icon {
+    padding-left: 50px;
+    img {
+      width: 30px;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+    @include govuk-media-query(tablet) {
+      padding-left: 70px;
+      img {
+        width: 40px;
+        top: 15px;
+        left: 15px;
+      }
+    }
+  }
+}
+
+.notification-success {
+  border-color: $success;
+  background: $success;
+  color: #fff;
+  .icon:before,
+  .icon:after {
+    background: #fff;
+  }
+  p a {
+    color: #fff;
+  }
+}
+
+.alert-default {
+  margin: 15px 0;
+  border-color: map.get($govuk-colours, "light-blue");
+  background-color: mix(white, #2b8cc4, 90%);
+}
+
+.notification-warning {
+  border-color: $warning;
+}
+
+.notification-information {
+  border-color: map.get($govuk-colours, "blue");
+  background: #fff;
+  &.with-icon {
+    background-image: url("../images/icon-info.svg");
+    background-repeat: no-repeat;
+    background-position: 10px 10px;
+    background-size: 30px 30px;
+    @include govuk-media-query(tablet) {
+      background-position: 15px 15px;
+      background-size: 40px 40px;
+    }
+  }
+}
+
+.notification-error {
+  border-color: map.get($govuk-colours, "red");
+}

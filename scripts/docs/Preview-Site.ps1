@@ -66,7 +66,6 @@ docker build $root -f "$root/docker/docs/Dockerfile" -t $($site.tag) `
     --build-arg PROJECT_NAME=$($site.path)
 
 docker run -p "$($site.port):8080" `
-    -e CDN_BASE_ADDRESS=https://localhost:3001/ `
-    -e CDN_VERSION=1 `
+    -e CDN_BASE_ADDRESS=http://localhost:8081/ `
     -e SURVEY_URL=https://survey.localhost/ `
     -e _ $($site.tag)

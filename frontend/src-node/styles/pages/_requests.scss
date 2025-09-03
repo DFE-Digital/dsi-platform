@@ -1,0 +1,41 @@
+.request {
+  padding: 15px;
+  background: govuk-colour("light-grey");
+  margin-bottom: 10px;
+  position: relative;
+  border: 1px solid map.get($govuk-colours, "mid-grey");
+  border-left: 5px solid map.get($govuk-colours, "mid-grey");
+  p {
+    @include govuk-media-query(tablet) {
+      margin: 0;
+      width: 75%;
+    }
+    a {
+      font-weight: bold;
+    }
+  }
+  .button-respond {
+    @extend .govuk-link-bold;
+    @include govuk-media-query(tablet) {
+      padding: 5px 15px;
+      border-left: 1px solid map.get($govuk-colours, "mid-grey");
+      margin-top: 10px;
+      background: govuk-colour("light-grey");
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    display: inline-block;
+    margin: 5px 0 0;
+  }
+
+  .overdue-text {
+    color: govuk-colour("red");
+  }
+}
+
+.pane {
+  .overdue {
+    border-left: 5px solid map.get($govuk-colours, "red");
+  }
+}

@@ -19,17 +19,17 @@
     <meta property="docfx:rel" content="../">
 
 
-    <link rel="stylesheet" href="https://localhost:3001/gds-upgrade/css/screen.css?version=1.0">
-    <link rel="stylesheet" href="../dist/app.min.css">
+    <link rel="stylesheet" href="http://localhost:8081/styles/main.css">
+    <link rel="stylesheet" href="http://localhost:8081/styles/docs.css">
 
-    <link rel="shortcut icon" href="https://localhost:3001/gds-upgrade/images/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="http://localhost:8081/images/favicon.ico" type="image/x-icon">
 
-    <link rel="apple-touch-icon" sizes="180x180" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-180x180.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-167x167.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" href="https://localhost:3001/gds-upgrade/images/govuk-apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="http://localhost:8081/images/govuk-apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="http://localhost:8081/images/govuk-apple-touch-icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="http://localhost:8081/images/govuk-apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" href="http://localhost:8081/images/govuk-apple-touch-icon.png">
 
-    <meta property="og:image" content="https://localhost:3001/gds-upgrade/images/opengraph-image.png">
+    <meta property="og:image" content="http://localhost:8081/images/opengraph-image.png">
 </head>
 
 <body class="govuk-template__body">
@@ -167,11 +167,8 @@ Interfaces
         </div>
     </footer>
 
-    <script src="https://localhost:3001/gds-upgrade/javascript/vendors/jquery.min.js?version=1.0"></script>
-    <script src="https://localhost:3001/gds-upgrade/javascript/vendors/vendors.min.js?version=1.0"></script>
-    <script src="https://localhost:3001/gds-upgrade/javascript/app.min.js?version=1.0"></script>
-
-    <script src="../dist/app.min.js"></script>
+    <script src="http://localhost:8081/scripts/main.min.js"></script>
+    <script src="http://localhost:8081/scripts/docs.min.js"></script>
 </body>
 
 </html>

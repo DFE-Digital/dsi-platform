@@ -23,8 +23,7 @@
     <title>{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}}{{/_appTitle}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b0c0c">
-    <meta name="title"
-        content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}">
+    <meta name="title" content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}">
     {{#_description}}
     <meta name="description" content="{{_description}}">{{/_description}}
     {{#description}}
@@ -35,20 +34,17 @@
     {{#_enableNewTab}}
     <meta property="docfx:newtab" content="true">{{/_enableNewTab}}
 
-    <link rel="stylesheet" href="{{{_cdnBaseAddress}}}gds-upgrade/css/screen.css?version={{{_cdnVersion}}}">
-    <link rel="stylesheet" href="{{_rel}}dist/app.min.css">
+    <link rel="stylesheet" href="{{{_cdnBaseAddress}}}styles/main.css">
+    <link rel="stylesheet" href="{{{_cdnBaseAddress}}}styles/docs.css">
 
-    <link rel="shortcut icon" href="{{{_cdnBaseAddress}}}gds-upgrade/images/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{{_cdnBaseAddress}}}images/favicon.ico" type="image/x-icon" />
 
-    <link rel="apple-touch-icon" sizes="180x180"
-        href="{{{_cdnBaseAddress}}}gds-upgrade/images/govuk-apple-touch-icon-180x180.png">
-    <link rel="apple-touch-icon" sizes="167x167"
-        href="{{{_cdnBaseAddress}}}gds-upgrade/images/govuk-apple-touch-icon-167x167.png">
-    <link rel="apple-touch-icon" sizes="152x152"
-        href="{{{_cdnBaseAddress}}}gds-upgrade/images/govuk-apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" href="{{{_cdnBaseAddress}}}gds-upgrade/images/govuk-apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{{_cdnBaseAddress}}}images/govuk-apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="{{{_cdnBaseAddress}}}images/govuk-apple-touch-icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{{_cdnBaseAddress}}}images/govuk-apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" href="{{{_cdnBaseAddress}}}images/govuk-apple-touch-icon.png">
 
-    <meta property="og:image" content="{{{_cdnBaseAddress}}}gds-upgrade/images/opengraph-image.png">
+    <meta property="og:image" content="{{{_cdnBaseAddress}}}images/opengraph-image.png">
     {{/redirect_url}}
 </head>
 
@@ -166,11 +162,8 @@
         </div>
     </footer>
 
-    <script src="{{{_cdnBaseAddress}}}gds-upgrade/javascript/vendors/jquery.min.js?version={{{_cdnVersion}}}"></script>
-    <script src="{{{_cdnBaseAddress}}}gds-upgrade/javascript/vendors/vendors.min.js?version={{{_cdnVersion}}}"></script>
-    <script src="{{{_cdnBaseAddress}}}gds-upgrade/javascript/app.min.js?version={{{_cdnVersion}}}"></script>
-
-    <script src="{{_rel}}dist/app.min.js"></script>
+    <script src="{{{_cdnBaseAddress}}}scripts/main.min.js"></script>
+    <script src="{{{_cdnBaseAddress}}}scripts/docs.min.js"></script>
 </body>
 
 </html>

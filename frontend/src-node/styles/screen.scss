@@ -1,0 +1,88 @@
+@use "sass:map";
+
+// $govuk-compatibility-govukfrontendtoolkit: true;
+$govuk-assets-path: "/gds-upgrade/";
+$govuk-new-organisation-colours: true;
+
+@import "../../node_modules/govuk-frontend/dist/govuk/index";
+@import "../../node_modules/select2/src/scss/core";
+@import "variables";
+@import "mixins";
+@import "layout";
+@import "links";
+@import "components";
+@import "components-pre-gds";
+@import "details";
+@import "forms";
+@import "tables";
+@import "notifications";
+@import "header";
+@import "typography";
+@import "navigation";
+@import "filters";
+@import "footer";
+@import "help";
+@import "support";
+@import "check-your-answers";
+@import "manage-orgs";
+@import "timeout-modal";
+@import "pages/services";
+@import "pages/search-results";
+@import "pages/splash";
+@import "pages/requests";
+@import "pages/task-list";
+@import "pages/password";
+@import "components/_custom_grid_and_cell";
+
+html,
+body {
+  background: govuk-colour("light-grey");
+  &.white-bg {
+    background: #fff;
+  }
+  scroll-behavior: smooth;
+}
+
+.wrapper {
+  background: #fff;
+}
+
+.identity {
+  color: #fff;
+  margin: 10px 15px;
+  font-size: 16px;
+  @include govuk-media-query(tablet) {
+    font-size: 24px;
+  }
+}
+
+h1.govuk-heading-xl {
+  margin: 1.25em 0 0.625em;
+}
+
+.vh {
+  @extend .govuk-visually-hidden;
+}
+
+nav.prototype {
+  position: fixed;
+  background: #000;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  text-align: center;
+  ul {
+    margin: 0 auto;
+    li {
+      display: inline-block;
+      color: govuk-colour("light-grey");
+      margin: 0 5px;
+      a {
+        display: inline-block;
+        padding: 5px 0 10px;
+        color: #fff;
+      }
+    }
+  }
+}

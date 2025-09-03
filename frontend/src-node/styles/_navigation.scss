@@ -1,0 +1,194 @@
+// TODO remove global-navigation and main-nav
+.global-navigation {
+  border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+  nav {
+    @include govuk-media-query(desktop) {
+      margin: 0 auto;
+      max-width: 960px;
+    }
+  }
+  ul {
+    @include govuk-clearfix;
+    list-style: none;
+    position: relative;
+    bottom: -1px;
+    padding-inline-start: 0;
+    @include govuk-media-query(tablet) {
+      margin: 0 15px;
+    }
+    @include govuk-media-query(desktop) {
+      margin: 0 -15px;
+    }
+  }
+  li {
+    border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+    position: relative;
+    @include govuk-media-query(tablet) {
+      float: left;
+      &.pull-right {
+        float: right;
+      }
+    }
+  }
+  a {
+    display: block;
+    padding: 8px 15px 6px;
+    text-decoration: none;
+    color: govuk-colour("black");
+    text-decoration: underline;
+    &.govuk-link-bold {
+      color: govuk-colour("black");
+    }
+    &.current {
+      font-weight: bold;
+      text-decoration: none;
+      color: govuk-colour("blue");
+      &:after {
+        display: block;
+        background: govuk-colour("blue");
+        content: "";
+        width: 5px;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        position: absolute;
+        @include govuk-media-query(tablet) {
+          top: auto;
+          left: 15px;
+          right: 15px;
+          bottom: -1px;
+          width: auto;
+          height: 5px;
+        }
+      }
+    }
+  }
+}
+
+.main-nav {
+  border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+  nav {
+    @include govuk-media-query(desktop) {
+      margin: 0 auto;
+      max-width: 960px;
+    }
+  }
+  ul {
+    @include govuk-clearfix;
+    list-style: none;
+    position: relative;
+    bottom: -1px;
+    @include govuk-media-query(tablet) {
+      margin: 0 15px;
+    }
+    @include govuk-media-query(desktop) {
+      margin: 0 -15px;
+    }
+  }
+  li {
+    border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+    position: relative;
+    @include govuk-media-query(tablet) {
+      float: left;
+      &.pull-right {
+        float: right;
+      }
+    }
+  }
+  a {
+    display: block;
+    padding: 7px 15px 5px;
+    text-decoration: none;
+    color: govuk-colour("black");
+    &.current {
+      font-weight: bold;
+      &:after {
+        display: block;
+        background: govuk-colour("blue");
+        content: "";
+        width: 5px;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        position: absolute;
+        @include govuk-media-query(tablet) {
+          top: auto;
+          left: 15px;
+          right: 15px;
+          width: auto;
+          height: 5px;
+        }
+      }
+    }
+  }
+}
+
+ul.tabs {
+  list-style: none;
+  border: 1px solid map.get($govuk-colours, "mid-grey");
+  margin: 20px 0;
+  @include govuk-clearfix;
+  @include govuk-media-query(tablet) {
+    border: none;
+    border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+  }
+  li {
+    border: 1px solid transparent;
+    border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+    position: relative;
+    margin-bottom: -1px;
+    @include govuk-media-query(tablet) {
+      float: left;
+    }
+  }
+  li > a,
+  li.active {
+    padding: 15px 15px 10px;
+    display: block;
+    @include govuk-media-query(tablet) {
+      padding: 15px 30px 10px;
+    }
+  }
+  li.active {
+    @include govuk-media-query(tablet) {
+      border-color: map.get($govuk-colours, "mid-grey");
+      border-bottom-color: #fff;
+    }
+  }
+}
+
+.pagination {
+  @include govuk-clearfix;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  .govuk-list {
+    line-height: inherit;
+  }
+  li {
+    float: left;
+    text-align: center;
+    margin-right: 10px;
+    a,
+    span.current,
+    button {
+      display: block;
+      min-width: 1em;
+      text-align: center;
+    }
+    span.current {
+      font-weight: bold;
+    }
+  }
+}
+
+@include govuk-media-query(tablet) {
+  .pagination {
+    float: right;
+    margin-top: 0.26316em;
+    margin-bottom: 1.05263em;
+    li {
+      margin-left: 10px;
+      margin-right: 0;
+    }
+  }
+}

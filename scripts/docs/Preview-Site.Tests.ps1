@@ -55,11 +55,11 @@ Describe "Preview-Site" {
             } -Times 1 -Exactly
         }
 
-        It "should run with https://localhost:3001 for the CDN" {
+        It "should run with http://localhost:8081 for the CDN" {
             & $Cmdlet -Name $Name
 
             Should -Invoke docker -ParameterFilter {
-                $args[0] -ceq "run" -and $args -join " " -match '-e CDN_BASE_ADDRESS=https://localhost:3001/'
+                $args[0] -ceq "run" -and $args -join " " -match '-e CDN_BASE_ADDRESS=http://localhost:8081/'
             } -Times 1 -Exactly
         }
 

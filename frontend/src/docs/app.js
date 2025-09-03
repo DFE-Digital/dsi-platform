@@ -1,3 +1,10 @@
+const $ = require("jquery");
+
+const hljs = require('highlight.js/lib/core');
+require("highlight.js/lib/languages/csharp");
+
+const lunr = require('lunr');
+
 $(async () => {
 
   //---------------------------------------------------------------------------

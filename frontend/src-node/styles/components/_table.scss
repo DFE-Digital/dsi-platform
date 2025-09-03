@@ -1,0 +1,62 @@
+.govuk-table {
+  & .govuk-table__body .govuk-table__header {
+    vertical-align: middle;
+  }
+  & .govuk-table__row {
+    & .govuk-table__cell {
+      vertical-align: middle;
+    }
+
+    & .extra-padding .govuk-table__cell {
+      padding-top: govuk-spacing(4);
+      padding-bottom: govuk-spacing(4);
+    }
+
+    // custom width
+    @for $i from 0 through 100 {
+      .width-#{$i} {
+        width: #{$i}#{"%"} !important;
+      }
+    }
+    & .sorted,
+    a.sorted {
+      position: relative;
+      padding-left: 15px;
+      &:before {
+        display: block;
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 13px;
+        border: 7px solid transparent;
+        border-top-color: map.get($govuk-colours, "blue");
+        border-left-width: 5px;
+        border-right-width: 5px;
+        @include govuk-media-query(tablet) {
+          top: 16px;
+        }
+      }
+      &.dir-a {
+        &:before {
+          border-top-color: transparent;
+          border-bottom-color: map.get($govuk-colours, "blue");
+          top: 7px;
+          @include govuk-media-query(tablet) {
+            top: 10px;
+          }
+        }
+      }
+    }
+    a.sorted {
+      font-weight: bold;
+      &:before {
+        top: 10px;
+      }
+      &.dir-a {
+        &:before {
+          top: 0;
+        }
+      }
+    }
+  }
+}

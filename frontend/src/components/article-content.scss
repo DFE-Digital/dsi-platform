@@ -1,0 +1,28 @@
+.app-article-content--Conceptual ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.app-article-content--Conceptual ol {
+  padding-left: 20px;
+  list-style-type: decimal;
+}
+
+.app-article-content h2,
+.app-article-content h3,
+.app-article-content h4 {
+  margin-top: 15px !important;
+}
+
+@media (min-width: 40.0625em) {
+
+  .app-article-content h2,
+  .app-article-content h3,
+  .app-article-content h4 {
+    margin-top: 25px !important;
+  }
+}
+
+.app-article-content .govuk-table__body {
+  vertical-align: top;
+}

@@ -16,22 +16,20 @@
         <meta name="description" content="@metaDescription">
     }
 
-    <link rel="stylesheet"
-        href="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/css/screen.css?version=@(assetOptionsAccessor.Value.Version)">
+    <link rel="stylesheet" href="@(assetOptionsAccessor.Value.BaseAddress)styles/main.css">
 
-    <link rel="shortcut icon" href="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/images/favicon.ico"
-        type="image/x-icon" />
+    <link rel="shortcut icon" href="@(assetOptionsAccessor.Value.BaseAddress)images/favicon.ico" type="image/x-icon" />
 
     <link rel="apple-touch-icon" sizes="180x180"
-        href="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/images/govuk-apple-touch-icon-180x180.png">
+        href="@(assetOptionsAccessor.Value.BaseAddress)images/govuk-apple-touch-icon-180x180.png">
     <link rel="apple-touch-icon" sizes="167x167"
-        href="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/images/govuk-apple-touch-icon-167x167.png">
+        href="@(assetOptionsAccessor.Value.BaseAddress)images/govuk-apple-touch-icon-167x167.png">
     <link rel="apple-touch-icon" sizes="152x152"
-        href="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/images/govuk-apple-touch-icon-152x152.png">
+        href="@(assetOptionsAccessor.Value.BaseAddress)images/govuk-apple-touch-icon-152x152.png">
     <link rel="apple-touch-icon"
-        href="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/images/govuk-apple-touch-icon.png">
+        href="@(assetOptionsAccessor.Value.BaseAddress)images/govuk-apple-touch-icon.png">
 
-    <meta property="og:image" content="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/images/opengraph-image.png">
+    <meta property="og:image" content="@(assetOptionsAccessor.Value.BaseAddress)images/opengraph-image.png">
 </head>
 
 <body class="govuk-template__body">
@@ -98,8 +96,8 @@
 
     @if (ViewData[DsiLayoutConstants.Hero] is HeroViewModel hero)
     {
-        <div id="home-top" class="home-top">
-            <div class="govuk-width-container home-top__inner">
+        <div id="home-top" class="app-hero">
+            <div class="govuk-width-container">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
                         <partial name="~/Views/Shared/Partials/_Crumbs.cshtml" />
@@ -137,12 +135,7 @@
 
     <partial name="~/Views/Shared/Partials/_Footer.cshtml" />
 
-    <script
-        src="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/javascript/vendors/jquery.min.js?version=@(assetOptionsAccessor.Value.Version)"></script>
-    <script
-        src="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/javascript/vendors/vendors.min.js?version=@(assetOptionsAccessor.Value.Version)"></script>
-    <script
-        src="@(assetOptionsAccessor.Value.BaseAddress)gds-upgrade/javascript/app.min.js?version=@(assetOptionsAccessor.Value.Version)"></script>
+    <script src="@(assetOptionsAccessor.Value.BaseAddress)scripts/main.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

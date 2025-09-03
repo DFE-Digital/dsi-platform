@@ -1,0 +1,113 @@
+.font-style-italic {
+  font-style: italic;
+}
+
+b,
+strong {
+  font-weight: 700;
+}
+
+h1 {
+  small {
+    display: block;
+    font-size: 50%;
+  }
+}
+
+.heading-secondary {
+  font-weight: normal;
+  color: govuk-colour("dark-grey");
+}
+
+ul.list-bullet {
+  margin-bottom: 30px;
+}
+
+dl.simple {
+  dt {
+    font-weight: bold;
+  }
+  dd {
+    margin-bottom: 15px;
+  }
+}
+
+dl.rows {
+  margin-bottom: 15px;
+  &.condensed {
+    font-size: 90%;
+  }
+  dt {
+    font-weight: bold;
+    @include govuk-media-query(tablet) {
+      float: left;
+      clear: left;
+      width: 200px;
+      text-align: right;
+    }
+  }
+  &.la {
+    dt {
+      text-align: left;
+      padding: 3px 0;
+    }
+    dd {
+      padding: 3px 0;
+    }
+  }
+  dd {
+    margin-bottom: 5px;
+    @include govuk-media-query(tablet) {
+      margin-left: 210px;
+    }
+  }
+}
+
+dl.inline {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  &.condensed {
+    font-size: 90%;
+  }
+  dt {
+    font-weight: bold;
+  }
+  dd {
+    font-weight: normal;
+    margin-bottom: 7px;
+  }
+}
+
+.spacer-heading {
+  margin-top: 30px;
+  margin-bottom: 0;
+  padding-bottom: 5px;
+}
+
+blockquote {
+  background: govuk-colour("light-grey");
+  padding: 15px;
+  border-left: 5px solid map.get($govuk-colours, "light-grey");
+  margin: 15px 0;
+}
+
+.breakable {
+  max-width: 300px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -ms-word-break: break-all;
+  word-break: break-all;
+  word-break: break-word;
+}
+
+.meta * {
+  font-size: 14px;
+  @include govuk-media-query(tablet) {
+    font-size: 16px;
+  }
+}
+
+.no-border {
+  border-style: none;
+  border-width: 0;
+}

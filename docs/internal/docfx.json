@@ -63,8 +63,7 @@
       "_appName": "DfE Sign-in Developer Reference",
       "_appTitle": "DfE Sign-in Developer Reference",
       "_disableContribution": false,
-      "_cdnBaseAddress": "https://localhost:3001/",
-      "_cdnVersion": "1.0",
+      "_cdnBaseAddress": "http://localhost:8081/",
       "_surveyUrl": "#",
       "pdf": false
     }
