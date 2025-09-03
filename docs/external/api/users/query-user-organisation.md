@@ -10,9 +10,9 @@ POST /v2/users/{userId}/organisations/{organisationId}/query
 
 ## Interactor (.NET):
 
-Request: <a href="xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiRequest">QueryUserOrganisationApiRequest</a>
+Request: <a href="xref:Dfe.SignIn.PublicApi.Contracts.Users.QueryUserOrganisationApiRequest">QueryUserOrganisationApiRequest</a>
 
-Response: <a href="xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiResponse">QueryUserOrganisationApiResponse</a>
+Response: <a href="xref:Dfe.SignIn.PublicApi.Contracts.Users.QueryUserOrganisationApiResponse">QueryUserOrganisationApiResponse</a>
 
 ## Request headers:
 
@@ -22,7 +22,7 @@ The JWT token for authorization should be signed using your API secret, which wi
 
 ## Request body:
 
-**See also:** [](xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiRequestBody)
+**See also:** [](xref:Dfe.SignIn.PublicApi.Contracts.Users.QueryUserOrganisationApiRequestBody)
 
 ### filter: object (Optional)
 
@@ -106,4 +106,4 @@ This value is `null` in the following circumstances:
 
 - The organisation selection does not meet the filtering criteria.
 
-**Type:** [](xref:Dfe.SignIn.Core.Public.OrganisationDetails)
+**Type:** [](xref:Dfe.SignIn.PublicApi.Contracts.Organisations.OrganisationDetails)

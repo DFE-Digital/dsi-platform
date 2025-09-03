@@ -49,7 +49,7 @@ public interface ITopicFileReader
 }
 
 /// <summary>
-/// A concrete implementation of the <see cref="ITopicFileLoader"/> interface which reads
+/// A concrete implementation of the <see cref="ITopicFileReader"/> interface which reads
 /// markdown encoded topic files.
 /// </summary>
 [ExcludeFromCodeCoverage]

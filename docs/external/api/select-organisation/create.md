@@ -10,9 +10,9 @@ POST /v2/select-organisation
 
 ## Interaction (.NET):
 
-Request: <a href="xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSessionApiRequest">CreateSelectOrganisationSessionApiRequest</a>
+Request: <a href="xref:Dfe.SignIn.PublicApi.Contracts.SelectOrganisation.CreateSelectOrganisationSessionApiRequest">CreateSelectOrganisationSessionApiRequest</a>
 
-Response: <a href="xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSessionApiResponse">CreateSelectOrganisationSessionApiResponse</a>
+Response: <a href="xref:Dfe.SignIn.PublicApi.Contracts.SelectOrganisation.CreateSelectOrganisationSessionApiResponse">CreateSelectOrganisationSessionApiResponse</a>
 
 ## Request headers:
 
@@ -22,7 +22,7 @@ The JWT token for authorization should be signed using your API secret, which wi
 
 ## Request body:
 
-**See also:** [](xref:Dfe.SignIn.PublicApi.Client.SelectOrganisation.CreateSelectOrganisationSessionApiRequestBody)
+**See also:** [](xref:Dfe.SignIn.PublicApi.Contracts.SelectOrganisation.CreateSelectOrganisationSessionApiRequestBody)
 
 ### callbackUrl: string (Required)
 

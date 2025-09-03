@@ -6,10 +6,11 @@
         {
           "src": "../../src",
           "files": [
-            "Dfe.SignIn.Core.Public/*.csproj",
             "Dfe.SignIn.Base.Framework/*.csproj",
+            "Dfe.SignIn.Core.Public/*.csproj",
+            "Dfe.SignIn.PublicApi.Client.AspNetCore/*.csproj",
             "Dfe.SignIn.PublicApi.Client/*.csproj",
-            "Dfe.SignIn.PublicApi.Client.AspNetCore/*.csproj"
+            "Dfe.SignIn.PublicApi.Contracts/*.csproj"
           ]
         }
       ],
