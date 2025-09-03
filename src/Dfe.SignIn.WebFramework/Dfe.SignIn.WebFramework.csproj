@@ -19,10 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" />
     <PackageReference Include="GovUk.Frontend.AspNetCore" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders.TagHelpers" />
+    <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
   </ItemGroup>
 
   <ItemGroup>

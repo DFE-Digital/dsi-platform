@@ -165,7 +165,7 @@ public sealed class SelectOrganisationController(
         return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.SignOut}");
     }
 
-    private sealed record GetSessionResult()
+    private sealed record GetSessionResult
     {
         public SelectOrganisationSessionData? Session { get; init; } = null;
         public IActionResult? RedirectActionResult { get; init; } = null;

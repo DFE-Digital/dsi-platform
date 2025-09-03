@@ -14,9 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.Redis" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
   </ItemGroup>
 
   <ItemGroup>

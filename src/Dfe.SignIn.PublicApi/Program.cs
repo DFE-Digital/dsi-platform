@@ -1,6 +1,7 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
+using Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.Configuration;
@@ -43,7 +44,9 @@ builder.Services
     .AddInteractionFramework();
 
 builder.Services
-    .SetupRedisSessionStore(builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
+    .SetupRedisSessionStore(SelectOrganisationConstants.CacheStoreKey,
+        builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
+    .AddSelectOrganisationSessionCache()
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
     .SetupSelectOrganisationInteractions();
 
