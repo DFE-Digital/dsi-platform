@@ -61,4 +61,4 @@ This parameter can have one of the following values:
 | `noOptions` | There were no options for the user to choose from. |
 +---------------------+-----------------------------------------------------------------+
 
-**See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.SelectOrganisationErrorCode)
+**See also:** [](xref:Dfe.SignIn.Core.Public.SelectOrganisation.SelectOrganisationErrorCode)

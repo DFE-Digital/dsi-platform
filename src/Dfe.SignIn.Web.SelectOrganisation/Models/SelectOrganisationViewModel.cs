@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Dfe.SignIn.Web.SelectOrganisation.Models;

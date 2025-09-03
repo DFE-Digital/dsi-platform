@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Notifications;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Notifications;
 using Notify.Interfaces;
 
 namespace Dfe.SignIn.Gateways.GovNotify;

@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 using Microsoft.Extensions.DependencyInjection;
 

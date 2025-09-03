@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.InternalModels.Notifications;
+using Dfe.SignIn.Core.Contracts.Notifications;
 using Moq;
 using Moq.AutoMock;
 using Notify.Interfaces;

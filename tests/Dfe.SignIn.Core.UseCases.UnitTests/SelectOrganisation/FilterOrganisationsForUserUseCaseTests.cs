@@ -1,12 +1,10 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Applications;
-using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
-using Dfe.SignIn.Core.InternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.Core.InternalModels.Users;
-using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Public;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Moq;
 using Moq.AutoMock;
@@ -23,34 +21,34 @@ public sealed class FilterOrganisationsForUserUseCaseTests
         UserId = FakeUserId,
     };
 
-    private static readonly OrganisationModel FakeOrganisationA = new() {
+    private static readonly Organisation FakeOrganisationA = new() {
         Id = new Guid("a2dccb2c-6f1f-41f3-a9e3-84f081cc857c"),
         Name = "Organisation A",
         LegalName = "Legal Name A",
         Status = OrganisationStatus.Open,
     };
 
-    private static readonly OrganisationModel FakeOrganisationB = new() {
+    private static readonly Organisation FakeOrganisationB = new() {
         Id = new Guid("5728e48d-c067-400a-a211-8ec2c2e09b38"),
         Name = "Organisation B",
         LegalName = "Legal Name B",
         Status = OrganisationStatus.Open,
     };
 
-    private static readonly OrganisationModel FakeOrganisationC = new() {
+    private static readonly Organisation FakeOrganisationC = new() {
         Id = new Guid("69fdbe34-9fb0-4599-8609-d77ce665b433"),
         Name = "Organisation C",
         LegalName = "Legal Name C",
         Status = OrganisationStatus.Open,
     };
 
-    private static readonly IEnumerable<OrganisationModel> FakeOrganisations = [
+    private static readonly IEnumerable<Organisation> FakeOrganisations = [
         FakeOrganisationA,
         FakeOrganisationB,
         FakeOrganisationC
     ];
 
-    private static readonly ApplicationModel FakeApplication = new() {
+    private static readonly Application FakeApplication = new() {
         ClientId = "fake-client",
         Id = new Guid("0302059d-0241-4963-ae2b-d0a00715c8d5"),
         Name = "Fake Application",
@@ -64,7 +62,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
 
     private static void MockOrganisationsAssociatedWithUser(
         AutoMocker autoMocker,
-        OrganisationModel[]? organisations = null)
+        Organisation[]? organisations = null)
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock => mock.DispatchAsync(
@@ -78,7 +76,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
 
     private static void MockClientApplication(
         AutoMocker autoMocker,
-        ApplicationModel? application)
+        Application? application)
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock => mock.DispatchAsync(
@@ -95,7 +93,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     private static void MockApplicationsAssociatedWithUser(
         AutoMocker autoMocker,
         Guid userId,
-        UserApplicationMappingModel[]? mappings = null)
+        UserApplicationMapping[]? mappings = null)
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(mock => mock.DispatchAsync(
@@ -293,7 +291,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
             },
         });
 
-        var expected = new OrganisationModel[] {
+        var expected = new Organisation[] {
             FakeOrganisationA,
             FakeOrganisationC,
         };
@@ -425,7 +423,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
             },
         });
 
-        var expected = new OrganisationModel[] {
+        var expected = new Organisation[] {
             FakeOrganisationA,
             FakeOrganisationC,
         };
@@ -455,7 +453,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
             },
         });
 
-        var expected = new OrganisationModel[] {
+        var expected = new Organisation[] {
             FakeOrganisationA,
             FakeOrganisationC,
         };
@@ -504,7 +502,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
             },
         });
 
-        var expected = new OrganisationModel[] {
+        var expected = new Organisation[] {
             FakeOrganisationB,
         };
         CollectionAssert.AreEqual(expected, response.FilteredOrganisations.ToArray());

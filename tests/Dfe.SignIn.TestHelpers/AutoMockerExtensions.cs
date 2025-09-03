@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;

@@ -1,4 +1,5 @@
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;

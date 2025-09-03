@@ -1,9 +1,9 @@
 using System.Text.Json;
-using Dfe.SignIn.Core.ExternalModels;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.PublicApi.Client.Internal;
-using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Users;
+using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

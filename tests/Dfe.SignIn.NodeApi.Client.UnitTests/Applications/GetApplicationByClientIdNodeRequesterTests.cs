@@ -1,5 +1,4 @@
-using Dfe.SignIn.Core.InternalModels.Applications;
-using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
+using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.NodeApi.Client.Applications;
 using Dfe.SignIn.NodeApi.Client.Applications.Models;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
@@ -54,7 +53,7 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
 
         Assert.IsNotNull(response.Application);
 
-        Assert.AreEqual(response.Application, new ApplicationModel {
+        Assert.AreEqual(response.Application, new Application {
             ApiSecret = mockDto.RelyingParty.ApiSecret,
             ClientId = mockDto.RelyingParty.ClientId,
             Description = mockDto.Description,

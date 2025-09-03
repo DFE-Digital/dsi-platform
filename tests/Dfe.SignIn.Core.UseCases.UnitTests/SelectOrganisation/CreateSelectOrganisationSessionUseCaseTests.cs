@@ -1,11 +1,10 @@
 using System.Linq.Expressions;
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
+using Dfe.SignIn.Core.Public;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -29,7 +28,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
         autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions());
     }
 
-    private static void MockFilteredOrganisations(AutoMocker autoMocker, IEnumerable<OrganisationModel>? filteredOrganisations = null)
+    private static void MockFilteredOrganisations(AutoMocker autoMocker, IEnumerable<Organisation>? filteredOrganisations = null)
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(

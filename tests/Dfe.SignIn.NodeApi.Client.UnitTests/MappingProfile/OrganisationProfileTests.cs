@@ -1,5 +1,5 @@
 
-using Dfe.SignIn.Core.ExternalModels.Organisations;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.NodeApi.Client.Organisations;
 using Dfe.SignIn.NodeApi.Client.Organisations.Models;
 
@@ -8,7 +8,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.MappingProfile;
 [TestClass]
 public sealed class OrganisationProfileTests
 {
-    #region Mapping: UserOrganisationDto -> OrganisationModel
+    #region Mapping: UserOrganisationDto -> Organisation
 
     private static readonly UserOrganisationDto FakeUserOrganisationDto = new() {
         Id = new Guid("65916f8e-8704-4a73-b8ed-0c8daa11e6d2"),
@@ -27,7 +27,7 @@ public sealed class OrganisationProfileTests
     [DataRow(1, "Open", "green", OrganisationStatus.Open)]
     [DataRow(9, "Created in error", "red", OrganisationStatus.CreatedInError)]
     [DataTestMethod]
-    public void UserOrganisationDto_to_OrganisationModel_MapsStatus(
+    public void UserOrganisationDto_to_Organisation_MapsStatus(
         int id, string name, string tagColor, OrganisationStatus expectedStatus)
     {
         var organisation = (FakeUserOrganisationDto with {
@@ -36,7 +36,7 @@ public sealed class OrganisationProfileTests
                 Name = name,
                 TagColor = tagColor,
             },
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.AreEqual(expectedStatus, organisation.Status);
     }
@@ -44,7 +44,7 @@ public sealed class OrganisationProfileTests
     [DataRow("002", "Local Authority", OrganisationCategory.LocalAuthority)]
     [DataRow("052", "Billing Authority", OrganisationCategory.BillingAuthority)]
     [DataTestMethod]
-    public void UserOrganisationDto_to_OrganisationModel_MapsCategory(
+    public void UserOrganisationDto_to_Organisation_MapsCategory(
         string id, string name, OrganisationCategory expectedCategory)
     {
         var organisation = (FakeUserOrganisationDto with {
@@ -52,7 +52,7 @@ public sealed class OrganisationProfileTests
                 Id = id,
                 Name = name,
             },
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.AreEqual(expectedCategory, organisation.Category);
     }
@@ -60,7 +60,7 @@ public sealed class OrganisationProfileTests
     [DataRow("01", "Community School", EstablishmentType.CommunitySchool)]
     [DataRow("34", "Academy Converter", EstablishmentType.AcademyConverter)]
     [DataTestMethod]
-    public void UserOrganisationDto_to_OrganisationModel_MapsEstablishmentType(
+    public void UserOrganisationDto_to_Organisation_MapsEstablishmentType(
         string id, string name, EstablishmentType expectedEstablishmentType)
     {
         var organisation = (FakeUserOrganisationDto with {
@@ -72,13 +72,13 @@ public sealed class OrganisationProfileTests
                 Id = id,
                 Name = name,
             },
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.AreEqual(expectedEstablishmentType, organisation.EstablishmentType);
     }
 
     [TestMethod]
-    public void UserOrganisationDto_to_OrganisationModel_EstablishmentTypeIsNull_WhenCategoryIsNotAnEstablishment()
+    public void UserOrganisationDto_to_Organisation_EstablishmentTypeIsNull_WhenCategoryIsNotAnEstablishment()
     {
         var organisation = (FakeUserOrganisationDto with {
             Category = new CategoryDto {
@@ -89,14 +89,14 @@ public sealed class OrganisationProfileTests
                 Id = "01",
                 Name = "Community School",
             },
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.IsNull(organisation.EstablishmentType);
     }
 
     #endregion
 
-    #region Mapping: OrganisationByIdDto -> OrganisationModel
+    #region Mapping: OrganisationByIdDto -> Organisation
 
     private static readonly OrganisationByIdDto FakeOrganisationByIdDto = new() {
         Id = new Guid("65916f8e-8704-4a73-b8ed-0c8daa11e6d2"),
@@ -108,12 +108,12 @@ public sealed class OrganisationProfileTests
     [DataRow(1, OrganisationStatus.Open)]
     [DataRow(9, OrganisationStatus.CreatedInError)]
     [DataTestMethod]
-    public void OrganisationByIdDto_to_OrganisationModel_MapsStatus(
+    public void OrganisationByIdDto_to_Organisation_MapsStatus(
         int id, OrganisationStatus expectedStatus)
     {
         var organisation = (FakeOrganisationByIdDto with {
             Status = id,
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.AreEqual(expectedStatus, organisation.Status);
     }
@@ -121,12 +121,12 @@ public sealed class OrganisationProfileTests
     [DataRow("002", OrganisationCategory.LocalAuthority)]
     [DataRow("052", OrganisationCategory.BillingAuthority)]
     [DataTestMethod]
-    public void OrganisationByIdDto_to_OrganisationModel_MapsCategory(
+    public void OrganisationByIdDto_to_Organisation_MapsCategory(
         string id, OrganisationCategory expectedCategory)
     {
         var organisation = (FakeOrganisationByIdDto with {
             Category = id,
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.AreEqual(expectedCategory, organisation.Category);
     }
@@ -134,30 +134,30 @@ public sealed class OrganisationProfileTests
     [DataRow("01", EstablishmentType.CommunitySchool)]
     [DataRow("34", EstablishmentType.AcademyConverter)]
     [DataTestMethod]
-    public void OrganisationByIdDto_to_OrganisationModel_MapsEstablishmentType(
+    public void OrganisationByIdDto_to_Organisation_MapsEstablishmentType(
         string id, EstablishmentType expectedEstablishmentType)
     {
         var organisation = (FakeOrganisationByIdDto with {
             Category = OrganisationConstants.CategoryId_Establishment,
             EstablishmentType = id,
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.AreEqual(expectedEstablishmentType, organisation.EstablishmentType);
     }
 
     [TestMethod]
-    public void OrganisationByIdDto_to_OrganisationModel_EstablishmentTypeIsNull_WhenCategoryIsNotAnEstablishment()
+    public void OrganisationByIdDto_to_Organisation_EstablishmentTypeIsNull_WhenCategoryIsNotAnEstablishment()
     {
         var organisation = (FakeOrganisationByIdDto with {
             Category = "002",
             EstablishmentType = "01",
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.IsNull(organisation.EstablishmentType);
     }
 
     [TestMethod]
-    public void OrganisationByIdDto_to_OrganisationModel_ValidateMapping()
+    public void OrganisationByIdDto_to_Organisation_ValidateMapping()
     {
         var organisation = (FakeOrganisationByIdDto with {
             Id = Guid.Parse("65916f8e-8704-4a73-b8ed-0c8daa11e6d2"),
@@ -188,7 +188,7 @@ public sealed class OrganisationProfileTests
             DistrictAdministrativeName = "District X",
             DistrictAdministrativeCode = "D123",
             IsOnAPAR = "Yes"
-        }).MapToOrganisationModel();
+        }).MapToOrganisation();
 
         Assert.AreEqual(Guid.Parse("65916f8e-8704-4a73-b8ed-0c8daa11e6d2"), organisation.Id);
         Assert.AreEqual("Fake Org", organisation.Name);

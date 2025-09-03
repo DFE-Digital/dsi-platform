@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using GovUk.Frontend.AspNetCore;
 
 namespace Dfe.SignIn.WebFramework.Configuration;

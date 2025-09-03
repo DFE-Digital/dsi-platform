@@ -1,6 +1,6 @@
 using System.Net;
 using System.Reflection;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApi.Client.HttpSecurityProvider;
 using Microsoft.Extensions.DependencyInjection;

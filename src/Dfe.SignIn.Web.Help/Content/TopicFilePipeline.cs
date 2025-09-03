@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Web.Help.Content.Processing;
 
 namespace Dfe.SignIn.Web.Help.Content;

@@ -1,5 +1,5 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.SupportTickets;
 using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.NodeApi.Client;

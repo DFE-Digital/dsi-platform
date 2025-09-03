@@ -1,6 +1,6 @@
 ---
-uid: Dfe.SignIn.Core.Framework
+uid: Dfe.SignIn.Base.Framework
 summary: >
-  The `Dfe.SignIn.Core.Framework` namespace contains a lightweight framework for
+  The `Dfe.SignIn.Base.Framework` namespace contains a lightweight framework for
   building DfE Sign-in platform components.
 ---

@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 

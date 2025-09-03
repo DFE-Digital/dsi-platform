@@ -1,5 +1,5 @@
 using System.Text;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Microsoft.Extensions.Caching.Distributed;
 using Moq;
 using Moq.AutoMock;

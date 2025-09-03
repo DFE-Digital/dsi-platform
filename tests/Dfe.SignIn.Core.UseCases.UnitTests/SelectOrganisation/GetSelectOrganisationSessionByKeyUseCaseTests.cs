@@ -1,7 +1,6 @@
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Moq;
 using Moq.AutoMock;

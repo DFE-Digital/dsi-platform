@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApi.Client.Organisations.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +28,7 @@ public sealed class GetOrganisationByIdNodeRequester(
         );
 
         return new GetOrganisationByIdResponse {
-            Organisation = response?.MapToOrganisationModel()
+            Organisation = response?.MapToOrganisation()
         };
     }
 }

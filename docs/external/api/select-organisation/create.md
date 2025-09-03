@@ -72,7 +72,7 @@ Custom prompt message to show in the "select organisation" UI.
 
 Specifies the filtering organisation filtering requirement for the user.
 
-**See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.OrganisationFilter)
+**See also:** [](xref:Dfe.SignIn.Core.Public.SelectOrganisation.OrganisationFilter)
 
 **Default value:**
 
@@ -108,7 +108,7 @@ Specifies the filtering organisation filtering requirement for the user.
 |                       |     specified in `organisationIds` regardless of whether the  |
 |                       |     user is associated with them.                             |
 |                       |                                                               |
-|                       | **See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.OrganisationFilterType) |
+|                       | **See also:** [](xref:Dfe.SignIn.Core.Public.SelectOrganisation.OrganisationFilterType) |
 +-----------------------+---------------------------------------------------------------+
 | `association`         | The type of association with the user:                        |
 |                       |                                                               |
@@ -124,7 +124,7 @@ Specifies the filtering organisation filtering requirement for the user.
 |                       | :   Present organisations that are assigned to the user where |
 |                       |     they have permissions for the service.                    |
 |                       |                                                               |
-|                       | **See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.OrganisationFilterAssociation) |
+|                       | **See also:** [](xref:Dfe.SignIn.Core.Public.SelectOrganisation.OrganisationFilterAssociation) |
 +-----------------------+---------------------------------------------------------------+
 | `organisationIds`     | List of organisation IDs (see `type`).                        |
 |                       |                                                               |

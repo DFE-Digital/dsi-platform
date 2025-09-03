@@ -1,10 +1,9 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.Configuration;
-using Dfe.SignIn.PublicApi.Configuration.Interactions;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
 using Dfe.SignIn.WebFramework.Configuration;

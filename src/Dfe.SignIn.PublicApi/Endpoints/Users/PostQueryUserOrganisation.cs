@@ -1,7 +1,7 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.PublicApi.Client.Users;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Contracts.Organisations;
+using Dfe.SignIn.PublicApi.Contracts.Users;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.AspNetCore.Mvc;
 

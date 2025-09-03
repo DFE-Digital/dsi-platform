@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Web.Help.Content;
 

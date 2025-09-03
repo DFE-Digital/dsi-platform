@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;

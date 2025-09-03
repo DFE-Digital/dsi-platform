@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Notify.Client;

@@ -1,7 +1,7 @@
 namespace Dfe.SignIn.NodeApi.Client;
 
 /// <summary>
-/// An attribute that associates an <see cref="Core.Framework.IInteractor{TRequest}"/>
+/// An attribute that associates an <see cref="Base.Framework.IInteractor{TRequest}"/>
 /// implementation with the corresponding Node.js API.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Users;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
 

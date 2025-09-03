@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace Dfe.SignIn.WebFramework.Configuration;

@@ -1,6 +1,6 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Contracts.Organisations;
 using Microsoft.AspNetCore.Http;
 
 namespace Dfe.SignIn.PublicApi.Client.AspNetCore;

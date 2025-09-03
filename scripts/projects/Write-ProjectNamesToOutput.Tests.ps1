@@ -27,14 +27,14 @@ Deployable projects:
                 SourceProjects = @(
                     'Dfe.SignIn.Core.PublicApi'
                     'Dfe.SignIn.Core.PublicApi.Client'
-                    'Dfe.SignIn.Core.Framework'
+                    'Dfe.SignIn.Base.Framework'
                 )
             }
             $output | Out-String | Should -Be @"
 
 Source projects:
 -----------------------------
-Dfe.SignIn.Core.Framework
+Dfe.SignIn.Base.Framework
 Dfe.SignIn.Core.PublicApi
 Dfe.SignIn.Core.PublicApi.Client
 
@@ -54,7 +54,7 @@ Deployable projects:
                 TestProjects = @(
                     'Dfe.SignIn.PublicApi.UnitTests'
                     'Dfe.SignIn.PublicApi.Client.UnitTests'
-                    'Dfe.SignIn.Core.Framework.UnitTests'
+                    'Dfe.SignIn.Base.Framework.UnitTests'
                 )
             }
             $output | Out-String | Should -Be @"
@@ -64,7 +64,7 @@ Source projects:
 
 Test projects:
 -----------------------------
-Dfe.SignIn.Core.Framework.UnitTests
+Dfe.SignIn.Base.Framework.UnitTests
 Dfe.SignIn.PublicApi.Client.UnitTests
 Dfe.SignIn.PublicApi.UnitTests
 

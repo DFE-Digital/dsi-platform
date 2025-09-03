@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.InternalModels.SupportTickets;
+using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Dfe.SignIn.Web.Help.Models;

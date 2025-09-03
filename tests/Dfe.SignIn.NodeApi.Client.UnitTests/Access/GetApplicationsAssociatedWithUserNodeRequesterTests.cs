@@ -1,5 +1,4 @@
-using Dfe.SignIn.Core.InternalModels.Users;
-using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.Access;
 using Dfe.SignIn.NodeApi.Client.Access.Models;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
@@ -59,14 +58,14 @@ public sealed class GetApplicationsAssociatedWithUserNodeRequesterTests
 
         var applications = response.UserApplicationMappings.ToArray();
 
-        Assert.AreEqual(applications[0], new UserApplicationMappingModel {
+        Assert.AreEqual(applications[0], new UserApplicationMapping {
             AccessGranted = mockDto[0].AccessGrantedOn,
             ApplicationId = mockDto[0].ServiceId,
             OrganisationId = mockDto[0].OrganisationId,
             UserId = mockDto[0].UserId
         });
 
-        Assert.AreEqual(applications[1], new UserApplicationMappingModel {
+        Assert.AreEqual(applications[1], new UserApplicationMapping {
             AccessGranted = mockDto[1].AccessGrantedOn,
             ApplicationId = mockDto[1].ServiceId,
             OrganisationId = mockDto[1].OrganisationId,

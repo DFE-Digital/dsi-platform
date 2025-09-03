@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Moq;
 using Moq.AutoMock;
 

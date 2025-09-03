@@ -24,7 +24,7 @@ Describe "Test-IsDeployableProject" {
 
     Context "when the project is neither web-based nor an API" {
         It "should return false for Dfe.SignIn.OtherProject" {
-            $result = & $Cmdlet -ProjectName "Dfe.SignIn.Core.ExternalModels"
+            $result = & $Cmdlet -ProjectName "Dfe.SignIn.Core.Public"
             $result | Should -Be $false
         }
 

@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 

@@ -1,6 +1,5 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Users;
-using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,7 +26,7 @@ public sealed class GetApplicationsAssociatedWithUserNodeRequester(
         );
 
         return new GetApplicationsAssociatedWithUserResponse {
-            UserApplicationMappings = response?.Select(s => new UserApplicationMappingModel {
+            UserApplicationMappings = response?.Select(s => new UserApplicationMapping {
                 UserId = s.UserId,
                 AccessGranted = s.AccessGrantedOn,
                 OrganisationId = s.OrganisationId,

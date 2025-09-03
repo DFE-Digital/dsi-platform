@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 
 namespace Dfe.SignIn.PublicApi.Client.UnitTests.SelectOrganisation;
