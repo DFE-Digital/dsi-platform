@@ -40,6 +40,21 @@ public sealed class PublicApiExtensionsTests
     }
 
     [TestMethod]
+    public void SetupDfePublicApiClient_RegistersInteractionFramework()
+    {
+        var services = new ServiceCollection();
+
+        services.SetupDfePublicApiClient();
+
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IInteractionDispatcher)
+            )
+        );
+    }
+
+    [TestMethod]
     public void SetupDfePublicApiClient_RegistersPublicApiClientServices()
     {
         var services = new ServiceCollection();

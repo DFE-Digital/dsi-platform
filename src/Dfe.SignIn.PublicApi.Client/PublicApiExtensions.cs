@@ -38,6 +38,7 @@ public static class PublicApiExtensions
             services.AddSingleton(TimeProvider.System);
         }
 
+        services.AddInteractionFramework();
         DiscoverCustomApiRequesters(services);
         AddSelectOrganisationApiRequesters(services);
         AddUsersApiRequesters(services);
