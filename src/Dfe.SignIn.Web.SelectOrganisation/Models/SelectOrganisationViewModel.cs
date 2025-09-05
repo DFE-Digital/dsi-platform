@@ -40,5 +40,8 @@ public sealed class SelectOrganisationViewModel
     /// <summary>
     /// Gets or sets a value indicating if the user has cancelled.
     /// </summary>
-    public string? CancelInput { get; set; } = null;
+    /// <remarks>
+    ///   <para>A value of "1" indicates that the action was cancelled.</para>
+    /// </remarks>
+    public string? CancelAction { get; set; } = null;
 }

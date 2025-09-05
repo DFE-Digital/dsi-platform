@@ -85,7 +85,7 @@ public sealed class SelectOrganisationController(
         }
         var session = sessionResult.Session;
 
-        if (viewModel.CancelInput == "1") {
+        if (viewModel.CancelAction == "1") {
             if (session.AllowCancel) {
                 return this.RedirectToCancelCallback(session);
             }

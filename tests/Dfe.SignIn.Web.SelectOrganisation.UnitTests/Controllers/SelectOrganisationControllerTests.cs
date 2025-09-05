@@ -341,7 +341,7 @@ public sealed class SelectOrganisationControllerTests
 
     #endregion
 
-    #region Index(string, string, CancellationToken)
+    #region PostIndex(string, string, SelectOrganisationViewModel, CancellationToken)
 
     [TestMethod]
     public async Task PostIndex_RedirectsToInvalidSessionHandler_WithApplicationServicesUrl_WhenSessionDoesNotExist()
@@ -399,7 +399,7 @@ public sealed class SelectOrganisationControllerTests
         });
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.CancelInput = "1";
+        inputViewModel.CancelAction = "1";
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -425,7 +425,7 @@ public sealed class SelectOrganisationControllerTests
         });
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.CancelInput = "1";
+        inputViewModel.CancelAction = "1";
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
