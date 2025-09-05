@@ -1,0 +1,210 @@
+.govuk-header__logo {
+  width: inherit;
+}
+
+code {
+  padding: 0.2rem;
+  font-size: 1rem;
+  background-color: #f8f8f8 !important;
+  border-radius: 5px;
+}
+
+pre>code,
+.dotnet-type-summary>div {
+  display: block;
+  padding: 1em;
+  overflow-x: auto;
+  background-color: #f8f8f8 !important;
+  border-radius: 5px;
+}
+
+.dotnet-type-summary>div,
+.dotnet-type-summary>div a {
+  font-family: monospace;
+  font-size: 1rem;
+  color: #24292e;
+}
+
+img {
+  max-width: 100%;
+}
+
+table {
+  border: solid 2px gray;
+}
+
+table,
+th,
+td {
+  vertical-align: top !important;
+}
+
+th,
+td {
+  padding: 1rem !important;
+}
+
+td>:first-child {
+  margin-top: 0;
+}
+
+td>:last-child {
+  margin-bottom: 0;
+}
+
+dt {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+.govuk-header__content {
+  width: inherit;
+  padding-left: inherit;
+  float: inherit;
+}
+
+.app-service-name {
+  font-weight: normal;
+}
+
+.app-page-caption {
+  color: #505a5f;
+  font-family: "GDS Transport", arial, sans-serif;
+  font-size: 1.8rem;
+  line-height: 1.09375;
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 40.0625em) {
+  .app-page-caption {
+    font-size: 2.5rem;
+    line-height: 1.0416666667;
+  }
+}
+
+.inheritance .level0 {
+  display: none;
+}
+
+.inheritance .level2::before,
+.inheritance .level3::before,
+.inheritance .level4::before,
+.inheritance .level5::before,
+.inheritance .level6::before,
+.inheritance .level7::before,
+.inheritance .level8::before,
+.inheritance .level9::before,
+.inheritance .level10::before,
+.inheritance .level11::before,
+.inheritance .level12::before {
+  content: '└ ';
+}
+
+.inheritance .level2 {
+  margin-left: 1rem;
+}
+
+.inheritance .level3 {
+  margin-left: 2.5rem;
+}
+
+.inheritance .level4 {
+  margin-left: 4rem;
+}
+
+.inheritance .level5 {
+  margin-left: 5.5rem;
+}
+
+.inheritance .level6 {
+  margin-left: 7rem;
+}
+
+.inheritance .level7 {
+  margin-left: 8.5rem;
+}
+
+.inheritance .level8 {
+  margin-left: 10rem;
+}
+
+.inheritance .level9 {
+  margin-left: 11.5rem;
+}
+
+.inheritance .level10 {
+  margin-left: 13rem;
+}
+
+.inheritance .level11 {
+  margin-left: 14.5rem;
+}
+
+.inheritance .level12 {
+  margin-left: 16rem;
+}
+
+.app-cards__type {
+  font-size: 1rem;
+}
+
+.app-cards--details .app-cards__summary {
+  margin-left: 1rem;
+}
+
+.app-link-blob {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.app-link-blob__item {
+  display: inline;
+}
+
+.app-link-blob__item:not(:first-child)::before {
+  content: ', ';
+}
+
+/* The following is based on .govuk-inset-text */
+.NOTE {
+  font-family: GDS Transport, arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: #0b0c0c;
+  padding: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  clear: both;
+  border-left: 10px solid #b1b4b6;
+}
+
+.NOTE h5 {
+  display: none;
+}
+
+.NOTE p:nth-child(2) {
+  margin-top: 0;
+}
+
+.NOTE p:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 40.0625em) {
+  .NOTE {
+    font-size: 1.1875rem;
+    line-height: 1.3157894737;
+  }
+}
+
+@media (min-width: 40.0625em) {
+  .NOTE {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+}

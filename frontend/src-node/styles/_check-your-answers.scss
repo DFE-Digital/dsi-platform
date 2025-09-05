@@ -1,0 +1,115 @@
+.app-check-your-answers {
+  margin-top: 0;
+  margin-bottom: 40px;
+  @include govuk-media-query(tablet) {
+    display: table;
+  }
+}
+
+.app-check-your-answers--short {
+  @include govuk-media-query(tablet) {
+    width: 100%;
+    // recommended for mostly short questions
+    .app-check-your-answers__question,
+    .app-check-your-answers__group__title {
+      width: 30%;
+    }
+  }
+}
+
+.app-check-your-answers--long {
+  @include govuk-media-query(tablet) {
+    width: 100%;
+    .app-check-your-answers__question,
+    .app-check-your-answers__group__title {
+      width: 50%;
+    }
+  }
+}
+
+.app-check-your-answers__contents {
+  position: relative;
+  border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+
+  @include govuk-media-query(tablet) {
+    display: table-row;
+    border-bottom-width: 0;
+  }
+}
+
+.app-check-your-answers__contents__group {
+  position: relative;
+  @include govuk-media-query(tablet) {
+    display: table-row;
+    border-bottom-width: 0;
+  }
+}
+
+.app-check-your-answers__contents:first-child .app-check-your-answers__question,
+.app-check-your-answers__contents__group:first-child
+  .app-check-your-answers__group__title,
+.app-check-your-answers__contents__group:first-child
+  .app-check-your-answers__group,
+.app-check-your-answers__contents:first-child .app-check-your-answers__answer,
+.app-check-your-answers__contents:first-child .app-check-your-answers__change {
+  @include govuk-media-query(tablet) {
+    padding-top: 0;
+  }
+}
+
+.app-check-your-answers__title,
+.app-check-your-answers__question,
+.app-check-your-answers__answer,
+.app-check-your-answers__change {
+  display: block;
+  margin: 0;
+  @include govuk-media-query(tablet) {
+    display: table-cell;
+    border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+    padding: em(12, 19) em(20, 19) em(9, 19) 0;
+  }
+}
+.app-check-your-answers__title {
+  font-weight: bold;
+}
+
+.app-check-your-answers__question {
+  margin: em(12, 19) 4em em(4, 19) 0;
+}
+
+.app-check-your-answers__group__title,
+.app-check-your-answers__group {
+  display: block;
+  margin: 0;
+  @include govuk-media-query(tablet) {
+    display: table-cell;
+    padding: em(12, 19) em(20, 19) em(9, 19) 0;
+    margin: em(12, 19) 4em em(4, 19) 0;
+  }
+}
+
+.app-check-your-answers__group__title {
+  margin: em(12, 19) 4em em(4, 19) 0;
+}
+
+.app-check-your-answers__answer {
+  padding-bottom: em(9, 19);
+}
+
+.app-check-your-answers__change {
+  text-align: right;
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  @include govuk-media-query(tablet) {
+    position: static;
+    padding-right: 0;
+  }
+}
+
+.check-your-answers-paragraph {
+  @include govuk-media-query(tablet) {
+    position: absolute;
+  }
+}

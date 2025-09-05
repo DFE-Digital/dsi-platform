@@ -1,0 +1,70 @@
+// Task list pattern
+
+// Override column width for tablet and up
+.column-minimum {
+  @include govuk-media-query(tablet) {
+    min-width: 600px;
+  }
+}
+
+// Spacing to the left of the task list
+$task-list-indent: 35px;
+
+.task-list {
+  @include govuk-responsive-margin(8, "top");
+  padding-inline-start: 0;
+}
+
+.task-list-section {
+  display: table;
+  margin-bottom: 0;
+  @include govuk-font(24, $weight: bold);
+  @include govuk-responsive-padding(1, "bottom");
+}
+
+.task-list-section-number {
+  display: table-cell;
+  @include govuk-responsive-padding(1, "right");
+
+  @include govuk-media-query(tablet) {
+    min-width: $task-list-indent;
+    padding-right: 0;
+  }
+}
+
+.task-list-items {
+  @include govuk-responsive-margin(9, "bottom");
+  @include govuk-font(19);
+  @include govuk-media-query(tablet) {
+    padding-left: $task-list-indent;
+  }
+}
+
+.task-list-item {
+  border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+  @include govuk-responsive-padding(2, "top");
+  @include govuk-responsive-padding(2, "bottom");
+  @include govuk-clearfix;
+}
+
+.task-list-item:first-child {
+  border-top: 1px solid map.get($govuk-colours, "mid-grey");
+}
+
+.task-name {
+  @include govuk-grid-column(two-thirds);
+  float: left;
+  margin: 0 0;
+  padding-left: 0;
+}
+
+.task-status {
+  float: right;
+  margin-right: 0;
+  min-width: 105px;
+  text-align: center;
+}
+
+.pending-task {
+  color: #6f777b;
+}

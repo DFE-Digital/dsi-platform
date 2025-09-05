@@ -1,0 +1,28 @@
+footer#footer {
+  margin-bottom: 80px;
+  nav {
+    margin-bottom: 20px;
+    @include govuk-media-query(tablet) {
+      margin-bottom: 0;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      li {
+        @include govuk-media-query(tablet) {
+          display: inline-block;
+          margin-right: 15px;
+        }
+      }
+    }
+  }
+}
+
+#footer .footer-meta .copyright a {
+  background-image: url("../images/govuk-crest-2x.png");
+  background-size: 125px 102px;
+}
+
+#footer .footer-meta .footer-meta-inner .open-government-licence .logo a {
+  background-image: url("../images/open-government-licence.png");
+}

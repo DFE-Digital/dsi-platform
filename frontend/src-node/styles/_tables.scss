@@ -1,0 +1,143 @@
+.empty-state {
+  background: govuk-colour("light-grey");
+  padding: 15px;
+  text-align: center;
+  p {
+    margin: 0;
+  }
+}
+
+.govuk-table.cell-align-top
+  .govuk-table__body
+  .govuk-table__row
+  .govuk-table__cell {
+  vertical-align: top;
+}
+.govuk-table.cell-align-top .govuk-table__row .govuk-table__cell {
+  vertical-align: top;
+}
+.custom-table {
+  width: 100%;
+  border-spacing: 0;
+  border-top: 1px solid map.get($govuk-colours, "black");
+  border-bottom: 2px solid map.get($govuk-colours, "black");
+  margin-bottom: 20px;
+  th,
+  td {
+    @include govuk-font(19);
+    padding: em(12, 19) em(20, 19) em(9, 19) 0;
+    text-align: left;
+    border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+    vertical-align: top;
+  }
+  thead th {
+    border-bottom: 2px solid map.get($govuk-colours, "black");
+  }
+
+  th.sorted,
+  th a.sorted {
+    position: relative;
+    padding-left: 15px;
+    &:before {
+      display: block;
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 13px;
+      border: 7px solid transparent;
+      border-top-color: map.get($govuk-colours, "blue");
+      border-left-width: 5px;
+      border-right-width: 5px;
+      @include govuk-media-query(tablet) {
+        top: 16px;
+      }
+    }
+    &.dir-a {
+      &:before {
+        border-top-color: transparent;
+        border-bottom-color: map.get($govuk-colours, "blue");
+        top: 7px;
+        @include govuk-media-query(tablet) {
+          top: 10px;
+        }
+      }
+    }
+  }
+
+  th a {
+    color: map.get($govuk-colours, "blue");
+    text-decoration: none;
+    &:visited {
+      color: govuk-colour("blue");
+    }
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  th a.sorted {
+    font-weight: bold;
+    &:before {
+      top: 5px;
+    }
+    &.dir-a {
+      &:before {
+        top: 0;
+      }
+    }
+  }
+
+  tr.pending {
+    color: govuk-colour("dark-grey");
+    font-style: italic;
+  }
+
+  td span.empty-state {
+    display: inline-block;
+    margin-bottom: 5px;
+  }
+
+  tr th:last-child:not(:first-child),
+  tr td:last-child:not(:first-child) {
+    text-align: right;
+    padding: 1em 0 0.8em 1em;
+  }
+
+  @for $i from 1 through 30 {
+    .cw-#{$i * 10} {
+      width: #{$i * 10}px;
+    }
+  }
+
+  @for $i from 1 through 20 {
+    .cwp-#{$i * 5} {
+      width: #{$i * 5%};
+    }
+  }
+
+  &.no-borders {
+    border: none;
+  }
+
+  &.condensed {
+    th,
+    td {
+      font-size: 14px;
+      line-height: 1.1em;
+    }
+  }
+
+  &.data {
+    th,
+    td {
+      font-size: 15px;
+      line-height: 1.1em;
+      padding: 1em 1em 0.8em 0;
+    }
+    tr.sortable {
+      th {
+        font-weight: normal;
+      }
+    }
+  }
+}

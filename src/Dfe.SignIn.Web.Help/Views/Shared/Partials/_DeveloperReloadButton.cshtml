@@ -1,17 +1,23 @@
 <script asp-add-nonce>
     window.addEventListener("load", (event) => {
-        $('<a href="#">Reload</a>')
-            .addClass("govuk-button")
-            .css({
-                position: "fixed",
-                top: "7px",
-                right: "7px",
-                margin: "0px",
-            })
-            .click(async () => {
-                await fetch("/reload");
-                window.location.reload();
-            })
-            .appendTo(document.body);
+        const reloadButton = document.createElement("a");
+        reloadButton.href = "#";
+        reloadButton.textContent = "Reload";
+        reloadButton.classList.add("govuk-button");
+
+        Object.assign(reloadButton.style, {
+            position: "fixed",
+            top: "7px",
+            right: "7px",
+            margin: "0px",
+        });
+
+        reloadButton.addEventListener("click", async (event) => {
+            event.preventDefault();
+            await fetch("/reload");
+            window.location.reload();
+        });
+
+        document.body.appendChild(reloadButton);
     });
 </script>

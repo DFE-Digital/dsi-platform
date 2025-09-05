@@ -1,0 +1,18 @@
+.help-section-title {
+  margin: govuk-spacing(6) govuk-spacing(6) govuk-spacing(8) 0;
+}
+
+.custom-section-break {
+  @extend .govuk-section-break;
+  @extend .govuk-section-break--m;
+  @extend .govuk-section-break--visible;
+  margin-top: govuk-spacing(2);
+  border-width: 3px;
+  border-color: govuk-colour("black");
+}
+
+.end-of-section {
+  @extend .font-style-italic;
+  margin-top: govuk-spacing(7);
+  margin-bottom: govuk-spacing(0);
+}

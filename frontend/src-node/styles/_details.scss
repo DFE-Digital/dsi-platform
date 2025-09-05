@@ -1,0 +1,11 @@
+.dfe-custom-details-component {
+  .govuk-details {
+    &[open] .govuk-details__summary .govuk-details__summary-text::before {
+      content: attr(data-open);
+    }
+
+    &:not([open]) .govuk-details__summary .govuk-details__summary-text::before {
+      content: attr(data-close);
+    }
+  }
+}

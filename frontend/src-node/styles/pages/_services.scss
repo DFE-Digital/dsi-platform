@@ -1,0 +1,293 @@
+.organisation-services {
+  margin-bottom: 30px;
+}
+
+.organisation {
+  header {
+    display: table;
+    width: 100%;
+    h2 {
+      font-weight: bold;
+      @include govuk-media-query(tablet) {
+        display: table-cell;
+        padding-right: 10px;
+      }
+    }
+    a {
+      padding: 5px 0;
+      font-size: 15px;
+      @include govuk-media-query(tablet) {
+        border-left: 1px solid map.get($govuk-colours, "light-grey");
+        padding: 5px 15px;
+        float: right;
+        display: table-cell;
+      }
+    }
+  }
+  .user {
+    @include govuk-clearfix;
+    font-size: 15px;
+    line-height: 18px;
+    .role {
+      float: right;
+      padding-left: 25px;
+      background: url("../images/icon-user.svg") top left no-repeat;
+      &.approver {
+        background-image: url("../images/icon-user-approver.svg");
+      }
+    }
+    a.info-link {
+      float: left;
+    }
+  }
+  .meta {
+    background: govuk-colour("light-grey");
+    padding: 10px;
+    margin-top: 10px;
+    position: relative;
+    border-top: 3px solid darken(map.get($govuk-colours, "light-grey"), 5%);
+    border-bottom: 1px solid darken(map.get($govuk-colours, "light-grey"), 5%);
+    visibility: visible;
+    &:before {
+      content: "";
+      position: absolute;
+      border: 10px solid transparent;
+      border-bottom-color: map.get($govuk-colours, "light-grey");
+      top: -19px;
+      z-index: 10;
+    }
+    &:after {
+      content: "";
+      position: absolute;
+      border: 10px solid transparent;
+      border-bottom-color: darken(map.get($govuk-colours, "light-grey"), 5%);
+      top: -23px;
+      z-index: 3;
+    }
+    dl {
+      margin-top: 0;
+    }
+  }
+}
+
+.service-list {
+  margin: 0;
+  padding: 0;
+  > li {
+    margin-bottom: 10px;
+    .links {
+      border: 1px solid $govuk-border-colour;
+      @include govuk-clearfix;
+      background: govuk-colour("light-grey");
+      margin-left: 5px;
+      position: relative;
+    }
+    div.service-link,
+    div.service-link-disabled {
+      display: block;
+      border-left: 5px solid map.get($govuk-colours, "blue");
+      padding: 15px;
+      font-size: 19px;
+      font-weight: bold;
+      line-height: 1;
+      position: relative;
+      margin: -1px;
+      background: none;
+      &:hover,
+      .govuk-link-bold:hover {
+        color: govuk-colour("light-blue");
+        border-left-color: map.get($govuk-colours, "light-blue");
+      }
+    }
+    div.service-link-disabled,
+    div.service-link-disabled:hover {
+      border-left-color: map.get($govuk-colours, "dark-grey");
+      color: govuk-colour("dark-grey");
+      .govuk-heading-s {
+        margin-top: 0;
+        margin-bottom: 0;
+        color: govuk-colour("dark-grey");
+      }
+      span.date {
+        font-size: 15px;
+        float: right;
+      }
+    }
+    a.information {
+      float: right;
+      padding: 5px 15px;
+      border-left: 1px solid map.get($govuk-colours, "light-grey");
+      font-size: 15px;
+      margin-top: 10px;
+      background: govuk-colour("light-grey");
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    .service-description {
+      font-size: 15px;
+      padding: 15px;
+      background: govuk-colour("light-grey");
+      border-top: 3px solid darken(map.get($govuk-colours, "light-grey"), 5%);
+      margin-left: 10px;
+      visibility: visible;
+      p {
+        margin: 0;
+        padding: 0;
+      }
+    }
+    .service-descriptionv2 {
+      font-size: 15px;
+      background: govuk-colour("light-grey");
+      p {
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+}
+
+.js-enabled .service-list .modal {
+  display: none;
+}
+
+.js-enabled .service-list .modal {
+  position: fixed;
+  background: #fff;
+  padding: 20px;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  box-sizing: border-box;
+  @include govuk-media-query(tablet) {
+    width: 600px;
+    top: 100px;
+    left: 50%;
+    margin-left: -300px;
+    padding: 30px;
+  }
+  h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+  .close {
+    position: absolute;
+    height: 30px;
+    width: 30px;
+    top: 15px;
+    right: 15px;
+    overflow: hidden;
+    opacity: 0.5;
+    text-indent: -9999px;
+    cursor: pointer;
+    &:before,
+    &:after {
+      position: absolute;
+      left: 15px;
+      content: " ";
+      height: 33px;
+      width: 2px;
+      background-color: #333;
+    }
+    &:before {
+      transform: rotate(45deg);
+    }
+    &:after {
+      transform: rotate(-45deg);
+    }
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.modal-bg {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.3);
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+}
+
+html.modal-open,
+html.modal-open body {
+  overflow: hidden;
+}
+
+.servicesv2 {
+  .header-user,
+  .navigation {
+    background: #fff;
+  }
+  .my-orgs {
+    margin-bottom: 0.625em;
+    @include govuk-media-query(tablet) {
+      margin-top: 4em;
+    }
+  }
+  .wrapper {
+    background: lighten(map.get($govuk-colours, "light-blue"), 50%);
+    background: #f8f9fb;
+  }
+  h2 {
+    margin-top: 0;
+    span {
+      white-space: nowrap;
+    }
+  }
+  .portal {
+    a {
+      background: #fff;
+      display: block;
+      padding: 15px;
+      padding-right: 40px;
+      min-height: 2.8em;
+      color: govuk-colour("blue");
+      font-weight: bold;
+      border: 3px solid map.get($govuk-colours, "blue");
+      border-radius: 5px;
+      font-size: 100%;
+      box-shadow: 0px 2px 5px 0px darken(#f8f9fb, 30%);
+      text-decoration: none;
+      margin-bottom: 30px;
+      position: relative;
+      svg {
+        position: absolute;
+        bottom: 15px;
+        right: 10px;
+        width: 20px;
+        height: 20px;
+        fill: map.get($govuk-colours, "blue");
+        fill: map.get($govuk-colours, "mid-grey");
+      }
+      &:visited {
+        color: govuk-colour("black");
+        color: govuk-colour("blue");
+      }
+      &:hover {
+        box-shadow: 0px 2px 9px 2px darken(#f8f9fb, 30%);
+        svg {
+          fill: map.get($govuk-colours, "blue");
+        }
+      }
+    }
+  }
+  .school {
+    border-bottom: 1px solid lighten(map.get($govuk-colours, "light-blue"), 40%);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    p {
+      margin: 0;
+      &.role {
+        padding-left: 25px;
+        background: url("../images/icon-user.svg") top left no-repeat;
+      }
+    }
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}

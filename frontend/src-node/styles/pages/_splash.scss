@@ -1,0 +1,44 @@
+.splash {
+  margin: 15px auto;
+  max-width: 600px;
+  padding: 30px;
+  border: 10px solid map.get($govuk-colours, "blue");
+  h1 {
+    font-size: 50px;
+    font-weight: bold;
+    margin: 0 0 30px 0;
+  }
+  .govuk {
+    font-weight: bold;
+    line-height: 1;
+    font-size: 30px;
+    img {
+      vertical-align: bottom;
+      margin: 2px 1px 0 0;
+      height: 32px;
+      position: relative;
+      top: -2px;
+    }
+  }
+  h2 {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+}
+
+@include govuk-media-query(tablet) {
+  .splash {
+    margin: 100px auto;
+    border: 20px solid map.get($govuk-colours, "blue");
+    padding: 50px;
+
+    h1 {
+      font-size: 120px;
+      margin: 0 0 50px 0;
+    }
+    h2 {
+      font-size: 30px;
+      margin-top: 50px;
+    }
+  }
+}

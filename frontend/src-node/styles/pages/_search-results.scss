@@ -1,0 +1,129 @@
+ol.search-results {
+  border-top: 2px solid $border-color;
+  border-bottom: 2px solid $border-color;
+  margin-bottom: 15px;
+  li {
+    padding: 15px;
+    margin: 0;
+    border-bottom: 1px solid map.get($govuk-colours, "mid-grey");
+    &:last-child {
+      border-bottom: none;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 5px;
+      button {
+        font-weight: inherit;
+      }
+    }
+    dl {
+      font-size: 16px;
+      margin: 0;
+    }
+    span.empty-state {
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+    &.added {
+      background: govuk-colour("light-grey");
+      border: 3px solid map.get($govuk-colours, "mid-grey");
+      border-top-width: 2px;
+      p {
+        border-top: 1px solid map.get($govuk-colours, "mid-grey");
+        margin: 15px -15px -15px;
+        font-size: 15px;
+        padding: 5px 15px;
+      }
+    }
+  }
+}
+
+.filter-form {
+  margin-bottom: 30px;
+}
+
+.filter-box-bg {
+  background: govuk-colour("light-grey");
+
+  .govuk-button--secondary-dark {
+    background-color: #dbdad9;
+  }
+}
+
+.filter-box {
+  background: govuk-colour("light-grey");
+  margin-bottom: 15px;
+  @include govuk-media-query(tablet) {
+    margin-bottom: 30px;
+  }
+  .option-select-label {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px 10px 6px;
+    @include govuk-media-query(tablet) {
+      font-size: 19px;
+    }
+  }
+  button.js-container-head {
+    position: relative;
+    border: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    z-index: 100;
+    padding: 0 30px 0 0;
+    background: govuk-colour("light-grey")
+      url("../images/option-select-toggle-sprite.png") no-repeat right 5px;
+    &:hover,
+    &:focus {
+      background-color: govuk-colour("mid-grey");
+      & + .options-container {
+        border-color: map.get($govuk-colours, "mid-grey");
+      }
+    }
+    &.closed {
+      background-position: right -75px;
+    }
+  }
+  .js-selected-counter {
+    padding: 0 10px;
+    position: relative;
+    top: -7px;
+    font-size: 12px;
+  }
+  .options-container {
+    position: relative;
+    background-color: #fff;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 5px solid map.get($govuk-colours, "light-grey");
+    border-top: none;
+    @include govuk-media-query(tablet) {
+      max-height: 200px;
+    }
+    label {
+      display: block;
+      padding: 7px 7px 7px 35px;
+      border-bottom: 1px solid map.get($govuk-colours, "light-grey");
+      cursor: pointer;
+      margin: 0;
+      @include govuk-media-query(tablet) {
+        font-size: 16px;
+      }
+      &:hover,
+      &:focus {
+        background: govuk-colour("light-grey");
+      }
+      &:last-child {
+        border: none;
+      }
+    }
+    input {
+      float: left;
+      margin: 2px 0 0 -27px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

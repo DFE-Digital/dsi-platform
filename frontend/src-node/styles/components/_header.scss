@@ -1,0 +1,22 @@
+// make the last element (sign out) go to the end of the container
+.govuk-header {
+  &__navigation {
+    @include govuk-clearfix;
+  }
+
+  &__navigation-item {
+    &:last-child {
+      float: right;
+
+      // except when we have the menu (small screens), then show aligned with the others
+      @include govuk-media-query($until: desktop) {
+        float: none;
+      }
+    }
+  }
+}
+
+// bold font for the Menu toggle
+.govuk-js-header-toggle {
+  font-weight: bold;
+}

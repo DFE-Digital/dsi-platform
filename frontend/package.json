@@ -1,0 +1,40 @@
+{
+  "name": "dfe-frontend-toolkit",
+  "version": "12.0.0",
+  "description": "DfE front-end toolkit",
+  "author": "Department for Education",
+  "license": "MIT",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "format": "prettier . --write",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:report": "eslint . -f junit -o eslint-results.xml",
+    "build": "npm run build:scripts && npm run build:styles && npm run build:docs && npm run build:node",
+    "build:scripts": "esbuild src/main.js --bundle --minify --sourcemap --outfile=dist/scripts/main.min.js",
+    "build:styles": "sass src/main.scss dist/styles/main.css --style=compressed",
+    "build:docs": "npm run build:docs-scripts && npm run build:docs-styles",
+    "build:docs-scripts": "esbuild src/docs/app.js --bundle --minify --sourcemap --outfile=dist/scripts/docs.min.js",
+    "build:docs-styles": "sass src/docs/app.scss dist/styles/docs.css --style=compressed",
+    "build:node": "npm run build:node-scripts && npm run build:node-styles",
+    "build:node-scripts": "esbuild src-node/scripts/main.js --bundle --minify --sourcemap --outfile=dist/javascript/app.min.js",
+    "build:node-styles": "sass src-node/styles/screen.scss dist/css/screen.css --style=compressed",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.9",
+    "eslint": "^9.31.0",
+    "eslint-formatter-junit": "^8.40.0",
+    "eslint-plugin-jest": "^28.14.0",
+    "globals": "^15.15.0",
+    "govuk-frontend": "^5.11.2",
+    "highlight.js": "^11.11.1",
+    "jquery": "^3.6.0",
+    "js-cookie": "^3.0.1",
+    "lunr": "^2.3.9",
+    "prettier": "^3.6.2",
+    "sass": "^1.92.0",
+    "select2": "^4.0.6-rc.1"
+  }
+}

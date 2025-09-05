@@ -1,0 +1,291 @@
+// Show/Hide stuff based on JS being enabled/disabled
+.hidden-when-js-enabled {
+  display: block;
+  .js-enabled & {
+    display: none;
+  }
+}
+
+.hidden-when-js-disabled {
+  display: none;
+  .js-enabled & {
+    display: block;
+  }
+}
+
+// class to show/hide elements from JS
+.js-hidden {
+  display: none;
+  visibility: hidden;
+  :not(.js-enabled &).show-when-js-disabled {
+    display: block;
+    visibility: visible;
+  }
+}
+
+// Lists without style by default
+ul,
+ol {
+  list-style-type: none;
+  padding-inline-start: 0;
+}
+
+// Grid layout
+
+.row {
+  @extend .govuk-grid-row;
+  &.row-spacer {
+    margin-bottom: 20px;
+  }
+}
+
+.row > div > span {
+  background: govuk-colour("light-grey");
+  color: govuk-colour("light-grey");
+  display: block;
+  text-align: center;
+  padding: 15px 0;
+  margin-bottom: 15px;
+  @include govuk-media-query(tablet) {
+    margin-bottom: 30px;
+  }
+}
+
+.row-intro {
+  margin-top: 20px;
+}
+
+.services-list {
+  @extend .govuk-grid-row;
+  li {
+    margin-bottom: -1px;
+    h2 {
+      font-weight: bold;
+    }
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@include govuk-media-query(tablet) {
+  .services-list {
+    li {
+      padding: 15px;
+    }
+  }
+}
+
+aside {
+  border-top: 5px solid map.get($govuk-colours, "blue");
+  padding-top: 15px;
+  margin-top: govuk-spacing(6);
+  > h2.govuk-heading-m {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+}
+
+.pull-left {
+  @include govuk-media-query(tablet) {
+    float: left;
+  }
+}
+
+.pull-right {
+  @include govuk-media-query(tablet) {
+    float: right;
+  }
+}
+
+.cards {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  @include govuk-media-query(tablet) {
+    margin: 0 -15px;
+  }
+  a.card {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    @include govuk-media-query(tablet) {
+      flex-basis: calc(50% - 30px);
+      margin: 0 15px 30px;
+    }
+  }
+}
+
+.manage-cards {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  @include govuk-media-query(tablet) {
+    margin: 0 -15px;
+  }
+  div.manage-card,
+  div.manage-card-disabled {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    position: relative;
+    @include govuk-media-query(tablet) {
+      flex-basis: calc((100% / 3) - 30px);
+      margin: 0 15px 30px;
+    }
+  }
+  div.manage-card > a {
+    position: absolute;
+    display: inline;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+  }
+  .manage-card,
+  .manage-card-disabled a {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+dl.inline {
+  dt,
+  dd {
+    margin-inline-start: 0;
+    display: inline;
+  }
+  dt {
+    &:before {
+      content: "";
+      display: block;
+    }
+  }
+  dd {
+    font-weight: bold;
+  }
+}
+
+.heading-group {
+  margin: 15px 0;
+  @include govuk-clearfix;
+  h2,
+  h3 {
+    margin: 0;
+    float: left;
+  }
+  a {
+    float: right;
+    margin-top: -3px;
+  }
+  padding-top: 10px;
+}
+
+ul.list-table {
+  margin-bottom: 15px;
+  li {
+    padding: 10px 0;
+    border-top: 1px solid map.get($govuk-colours, "mid-grey");
+    p {
+      font-weight: bold;
+      margin: 0;
+    }
+    .meta {
+      @include govuk-font(16);
+      color: govuk-colour("dark-grey");
+    }
+  }
+}
+
+section {
+  padding: 5px 0;
+  margin: 5px 0;
+}
+
+img.responsive {
+  max-width: 100%;
+  display: block;
+}
+
+.highlight {
+  margin: 25px 0;
+  padding: 25px;
+  border: 1px solid map.get($govuk-colours, "mid-grey");
+  @include govuk-media-query(tablet) {
+    margin: 0 25px 25px;
+  }
+  & > h3 {
+    margin-top: 0;
+  }
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+img.spacing {
+  margin: 20px 0;
+  @include govuk-media-query(tablet) {
+    margin: 30px 20px;
+  }
+}
+
+.col-6 img.spacing {
+  @include govuk-media-query(tablet) {
+    margin: 30px 50px;
+  }
+}
+
+.govuk-box-highlight {
+  padding: 1.5em;
+  h1.govuk-heading-xl {
+    margin: 0.5em 0;
+  }
+}
+
+.inline-wrap {
+  form,
+  p {
+    display: inline;
+  }
+}
+
+.code {
+  white-space: normal;
+  line-height: 1.4em;
+  color: govuk-colour("dark-grey");
+  background-color: govuk-colour("light-grey");
+  text-shadow: 0 1px #fff;
+  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  direction: ltr;
+  text-align: left;
+  word-spacing: normal;
+  word-break: normal;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+  border: 1px solid #bfc1c3;
+  border-radius: 5px;
+  padding: 15px;
+}
+
+// to force the cursor type when required
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-break {
+  overflow-wrap: break-word;
+}
+
+// custom width
+@for $j from 1 through 100 {
+  .width-#{$j} {
+    width: #{$j}#{"%"} !important;
+  }
+}

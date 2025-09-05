@@ -1,0 +1,15 @@
+.govuk-details {
+  .govuk-table__cell & {
+    margin-bottom: 0;
+  }
+
+  // Align visually to right where table cell is right aligned
+  .govuk-table__cell--numeric & {
+    &__text {
+      border-left: 0 transparent;
+      border-right: 5px solid #b1b4b6;
+      padding-left: 0;
+      padding-right: 20px;
+    }
+  }
+}

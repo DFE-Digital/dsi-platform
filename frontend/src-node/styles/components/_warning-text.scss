@@ -1,0 +1,8 @@
+.govuk-warning-text {
+  display: flex;
+  align-items: center;
+
+  & a {
+    @extend .govuk-link-bold;
+  }
+}
