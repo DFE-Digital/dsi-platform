@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <ProjectGuid>D4364F5D-819E-41C4-9813-6B0BE05F25D6</ProjectGuid>
     <OutputType>library</OutputType>
     <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
     <LangVersion>12.0</LangVersion>
