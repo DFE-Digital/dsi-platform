@@ -8,6 +8,35 @@
       "type": "shell",
       "command": "dotnet build -p:IsPipeline=true && dotnet nuget push \"packages/*.nupkg\" --source LocalStore",
       "problemMatcher": []
+    },
+    {
+      "label": "build (Dfe.SignIn.Fn.AuthExtensions)",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "type": "process",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/src/Dfe.SignIn.Fn.AuthExtensions"
+      }
+    },
+    {
+      "label": "debug (Dfe.SignIn.Fn.AuthExtensions)",
+      "type": "func",
+      "dependsOn": "build (functions)",
+      "options": {
+        "cwd": "${workspaceFolder}/src/Dfe.SignIn.Fn.AuthExtensions/bin/Debug/net8.0"
+      },
+      "command": "host start",
+      "isBackground": true,
+      "problemMatcher": "$func-dotnet-watch"
     }
   ]
 }

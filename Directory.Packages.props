@@ -37,6 +37,15 @@
     <PackageVersion Include="GovukNotify" Version="7.2.0" />
   </ItemGroup>
 
+  <!-- Azure functions -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.2" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.5" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
+  </ItemGroup>
+
   <!-- Monitoring -->
   <ItemGroup>
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />

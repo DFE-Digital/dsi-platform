@@ -12,6 +12,9 @@
     "**/bin": true,
     "**/obj": true,
     "**/TestResults": true,
+    "**__azurite_*": true,
+    "**__blobstorage__": true,
+    "**__queuestorage__": true,
   },
   "powershell.scriptAnalysis.settingsPath": ".config/PSScriptAnalyzerSettings.psd1",
   "sonarlint.connectedMode.project": {
