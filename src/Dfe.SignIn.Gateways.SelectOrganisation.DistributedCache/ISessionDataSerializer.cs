@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 
 namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 

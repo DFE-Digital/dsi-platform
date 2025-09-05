@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Web.Help.Content;
 

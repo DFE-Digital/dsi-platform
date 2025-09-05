@@ -1,7 +1,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApi.Client.HttpSecurityProvider;

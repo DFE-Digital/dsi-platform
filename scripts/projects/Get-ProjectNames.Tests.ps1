@@ -6,7 +6,7 @@ Describe "Get-ProjectNames" {
     BeforeAll {
         Mock Get-ChildItem -ParameterFilter { $Path -ceq "./src" } {
             return @(
-                @{ Name = "Dfe.SignIn.Core.Framework" }
+                @{ Name = "Dfe.SignIn.Base.Framework" }
                 @{ Name = "Dfe.SignIn.Core.UseCases" }
                 @{ Name = "Dfe.SignIn.PublicApi" }
                 @{ Name = "Dfe.SignIn.PublicApi.Client" }
@@ -16,7 +16,7 @@ Describe "Get-ProjectNames" {
         }
         Mock Get-ChildItem -ParameterFilter { $Path -ceq "./tests" } {
             return @(
-                @{ Name = "Dfe.SignIn.Core.Framework.UnitTests" }
+                @{ Name = "Dfe.SignIn.Base.Framework.UnitTests" }
                 @{ Name = "Dfe.SignIn.Core.UseCases.UnitTests" }
                 @{ Name = "Dfe.SignIn.PublicApi.UnitTests" }
                 @{ Name = "Dfe.SignIn.PublicApi.Client.UnitTests" }
@@ -34,7 +34,7 @@ Describe "Get-ProjectNames" {
     It "should set 'SourceProjects' to the list of associated source projects" {
         $result = & $Cmdlet -Path "."
         $result.SourceProjects | Should -Be @(
-            "Dfe.SignIn.Core.Framework"
+            "Dfe.SignIn.Base.Framework"
             "Dfe.SignIn.Core.UseCases"
             "Dfe.SignIn.PublicApi"
             "Dfe.SignIn.PublicApi.Client"
@@ -46,7 +46,7 @@ Describe "Get-ProjectNames" {
     It "should set 'TestProjects' to the list of all associated test projects" {
         $result = & $Cmdlet -Path "."
         $result.TestProjects | Should -Be @(
-            "Dfe.SignIn.Core.Framework.UnitTests"
+            "Dfe.SignIn.Base.Framework.UnitTests"
             "Dfe.SignIn.Core.UseCases.UnitTests"
             "Dfe.SignIn.PublicApi.Client.UnitTests"
             "Dfe.SignIn.PublicApi.UnitTests"

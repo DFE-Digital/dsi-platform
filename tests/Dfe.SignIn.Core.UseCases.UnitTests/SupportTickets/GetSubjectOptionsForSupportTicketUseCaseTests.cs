@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.InternalModels.SupportTickets;
+using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.Core.UseCases.SupportTickets;
 using Moq.AutoMock;
 

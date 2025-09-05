@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Organisations;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Swagger;
 using Microsoft.OpenApi.Models;
 
@@ -59,9 +59,9 @@ public static class SwaggerExtensions
             // Enable example values from `SwaggerExampleValueAttribute` annotations.
             config.SchemaFilter<SwaggerExampleValueSchemaFilter>();
 
-            // Include XML comments for 'SignIn.Core.Models.dll' assembly.
-            config.IncludeXmlComments(GetXmlFileName(typeof(OrganisationModel)));
-            // Include XML comments for 'SignIn.Core.PublicModels.dll' assembly.
+            // Include XML comments for 'SignIn.Core.Contracts.dll' assembly.
+            config.IncludeXmlComments(GetXmlFileName(typeof(Organisation)));
+            // Include XML comments for 'SignIn.Core.Public.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(OrganisationFilter)));
             // Include XML comments for 'SignIn.Core.PublicApi.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(Program)));

@@ -5,7 +5,7 @@ BeforeAll {
 Describe "Get-ProjectNamesFromFiles" {
     BeforeAll {
         $srcProjectPaths = @(
-            @{ Name = "Dfe.SignIn.Core.Framework" }
+            @{ Name = "Dfe.SignIn.Base.Framework" }
             @{ Name = "Dfe.SignIn.Core.UseCases" }
             @{ Name = "Dfe.SignIn.PublicApi.Client" }
             @{ Name = "Dfe.SignIn.PublicApi" }
@@ -14,7 +14,7 @@ Describe "Get-ProjectNamesFromFiles" {
         )
 
         $testProjectPaths = @(
-            @{ Name = "Dfe.SignIn.Core.Framework.UnitTests" }
+            @{ Name = "Dfe.SignIn.Base.Framework.UnitTests" }
             @{ Name = "Dfe.SignIn.Core.UseCases.UnitTests" }
             @{ Name = "Dfe.SignIn.PublicApi.Client.UnitTests" }
             @{ Name = "Dfe.SignIn.PublicApi.UnitTests" }
@@ -57,8 +57,8 @@ Describe "Get-ProjectNamesFromFiles" {
     Context "when source files have been changed" {
         BeforeEach {
             $changedFiles = @(
-                "src/Dfe.SignIn.Core.Framework/SomeFile.cs"
-                "src/Dfe.SignIn.Core.Framework/AnotherFile.cs"
+                "src/Dfe.SignIn.Base.Framework/SomeFile.cs"
+                "src/Dfe.SignIn.Base.Framework/AnotherFile.cs"
                 "src/Dfe.SignIn.WebFramework/Helpers.cs"
                 "README.md"
             )
@@ -68,7 +68,7 @@ Describe "Get-ProjectNamesFromFiles" {
             $result = & $Cmdlet -Path "." -Files $changedFiles
 
             $result.SourceProjects | Should -Be @(
-                "Dfe.SignIn.Core.Framework"
+                "Dfe.SignIn.Base.Framework"
                 "Dfe.SignIn.WebFramework"
             )
         }
@@ -77,7 +77,7 @@ Describe "Get-ProjectNamesFromFiles" {
             $result = & $Cmdlet -Path "." -Files $changedFiles
 
             $result.TestProjects | Should -Be @(
-                "Dfe.SignIn.Core.Framework.UnitTests"
+                "Dfe.SignIn.Base.Framework.UnitTests"
                 "Dfe.SignIn.TestHelpers"
                 "Dfe.SignIn.WebFramework.UnitTests"
             )
@@ -117,8 +117,8 @@ Describe "Get-ProjectNamesFromFiles" {
     Context "when source and test files have been changed" {
         BeforeEach {
             $changedFiles = @(
-                "src/Dfe.SignIn.Core.Framework/SomeFile.cs"
-                "src/Dfe.SignIn.Core.Framework/AnotherFile.cs"
+                "src/Dfe.SignIn.Base.Framework/SomeFile.cs"
+                "src/Dfe.SignIn.Base.Framework/AnotherFile.cs"
                 "tests/Dfe.SignIn.PublicApi.UnitTests/XyzTests.cs"
                 "README.md"
             )
@@ -128,7 +128,7 @@ Describe "Get-ProjectNamesFromFiles" {
             $result = & $Cmdlet -Path "." -Files $changedFiles
 
             $result.SourceProjects | Should -Be @(
-                "Dfe.SignIn.Core.Framework"
+                "Dfe.SignIn.Base.Framework"
             )
         }
 
@@ -136,7 +136,7 @@ Describe "Get-ProjectNamesFromFiles" {
             $result = & $Cmdlet -Path "." -Files $changedFiles
 
             $result.TestProjects | Should -Be @(
-                "Dfe.SignIn.Core.Framework.UnitTests"
+                "Dfe.SignIn.Base.Framework.UnitTests"
                 "Dfe.SignIn.PublicApi.UnitTests"
                 "Dfe.SignIn.TestHelpers"
             )
@@ -146,13 +146,13 @@ Describe "Get-ProjectNamesFromFiles" {
     Context "when an associated test project does not exist" {
         BeforeEach {
             $changedFiles = @(
-                "src/Dfe.SignIn.Core.Framework/SomeFile.cs"
-                "src/Dfe.SignIn.Core.Framework/AnotherFile.cs"
+                "src/Dfe.SignIn.Base.Framework/SomeFile.cs"
+                "src/Dfe.SignIn.Base.Framework/AnotherFile.cs"
                 "tests/Dfe.SignIn.PublicApi.UnitTests/XyzTests.cs"
                 "README.md"
             )
 
-            Mock Test-Path -ParameterFilter { $Path -ceq "./tests/Dfe.SignIn.Core.Framework.UnitTests/Dfe.SignIn.Core.Framework.UnitTests.csproj" } {
+            Mock Test-Path -ParameterFilter { $Path -ceq "./tests/Dfe.SignIn.Base.Framework.UnitTests/Dfe.SignIn.Base.Framework.UnitTests.csproj" } {
                 return $false
             }
         }
@@ -161,7 +161,7 @@ Describe "Get-ProjectNamesFromFiles" {
             $result = & $Cmdlet -Path "." -Files $changedFiles
 
             $result.SourceProjects | Should -Be @(
-                "Dfe.SignIn.Core.Framework"
+                "Dfe.SignIn.Base.Framework"
             )
         }
 
@@ -201,8 +201,8 @@ Describe "Get-ProjectNamesFromFiles" {
     Context "when source projects are deployable" {
         BeforeEach {
             $changedFiles = @(
-                "src/Dfe.SignIn.Core.Framework/AnotherFile.cs"
-                "src/Dfe.SignIn.Core.Framework/SomeFile.cs"
+                "src/Dfe.SignIn.Base.Framework/AnotherFile.cs"
+                "src/Dfe.SignIn.Base.Framework/SomeFile.cs"
                 "src/Dfe.SignIn.PublicApi/AnotherFile.cs"
                 "src/Dfe.SignIn.Web.SelectOrganisation/AnotherFile.cs"
                 "tests/Dfe.SignIn.InternalApi.UnitTests/XyzTests.cs"

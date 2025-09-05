@@ -1,8 +1,9 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
-using Dfe.SignIn.PublicApi.Client.Users;
+using Dfe.SignIn.PublicApi.Contracts.Organisations;
+using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Contracts.Users;
 using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.PublicApi.Client.SelectOrganisation;

@@ -1,6 +1,6 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 

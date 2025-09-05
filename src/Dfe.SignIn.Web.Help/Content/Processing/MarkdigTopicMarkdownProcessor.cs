@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Markdig;
 using Markdig.Extensions.Yaml;
 using Markdig.Renderers;
@@ -16,7 +16,7 @@ public partial class MarkdigTopicMarkdownProcessor : ITopicMarkdownProcessor
     private readonly IDeserializer frontmatterDeserializer;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TopicMarkdownProcessor"/> class.
+    /// Initializes a new instance of the <see cref="MarkdigTopicMarkdownProcessor"/> class.
     /// </summary>
     public MarkdigTopicMarkdownProcessor()
     {

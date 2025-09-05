@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.InternalModels.Access;
+using Dfe.SignIn.Core.Contracts.Access;
 
 namespace Dfe.SignIn.NodeApi.Client.Access.Models;
 
@@ -22,7 +22,7 @@ internal sealed record RoleDto
 
 internal sealed record StatusDto
 {
-    public required RoleStatus Id { get; init; }
+    public required ApplicationRoleStatus Id { get; init; }
 }
 
 internal sealed record IdentifiersDto

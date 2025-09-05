@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
@@ -37,6 +37,21 @@ public sealed class PublicApiExtensionsTests
         var result = services.SetupDfePublicApiClient();
 
         Assert.AreSame(services, result);
+    }
+
+    [TestMethod]
+    public void SetupDfePublicApiClient_RegistersInteractionFramework()
+    {
+        var services = new ServiceCollection();
+
+        services.SetupDfePublicApiClient();
+
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IInteractionDispatcher)
+            )
+        );
     }
 
     [TestMethod]

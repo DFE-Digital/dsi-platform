@@ -10,9 +10,9 @@ POST /v2/users/{userId}/organisations/{organisationId}/query
 
 ## Interactor (.NET):
 
-Request: <a href="xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiRequest">QueryUserOrganisationApiRequest</a>
+Request: <a href="xref:Dfe.SignIn.PublicApi.Contracts.Users.QueryUserOrganisationApiRequest">QueryUserOrganisationApiRequest</a>
 
-Response: <a href="xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiResponse">QueryUserOrganisationApiResponse</a>
+Response: <a href="xref:Dfe.SignIn.PublicApi.Contracts.Users.QueryUserOrganisationApiResponse">QueryUserOrganisationApiResponse</a>
 
 ## Request headers:
 
@@ -22,13 +22,13 @@ The JWT token for authorization should be signed using your API secret, which wi
 
 ## Request body:
 
-**See also:** [](xref:Dfe.SignIn.PublicApi.Client.Users.QueryUserOrganisationApiRequestBody)
+**See also:** [](xref:Dfe.SignIn.PublicApi.Contracts.Users.QueryUserOrganisationApiRequestBody)
 
 ### filter: object (Optional)
 
 Specifies the filtering organisation filtering requirement for the user.
 
-**See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.OrganisationFilter)
+**See also:** [](xref:Dfe.SignIn.Core.Public.SelectOrganisation.OrganisationFilter)
 
 **Default value:**
 
@@ -64,7 +64,7 @@ Specifies the filtering organisation filtering requirement for the user.
 |                       |     specified in `organisationIds` regardless of whether the  |
 |                       |     user is associated with them.                             |
 |                       |                                                               |
-|                       | **See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.OrganisationFilterType) |
+|                       | **See also:** [](xref:Dfe.SignIn.Core.Public.SelectOrganisation.OrganisationFilterType) |
 +-----------------------+---------------------------------------------------------------+
 | `association`         | The type of association with the user:                        |
 |                       |                                                               |
@@ -80,7 +80,7 @@ Specifies the filtering organisation filtering requirement for the user.
 |                       | :   Present organisations that are assigned to the user where |
 |                       |     they have permissions for the service.                    |
 |                       |                                                               |
-|                       | **See also:** [](xref:Dfe.SignIn.Core.ExternalModels.SelectOrganisation.OrganisationFilterAssociation) |
+|                       | **See also:** [](xref:Dfe.SignIn.Core.Public.SelectOrganisation.OrganisationFilterAssociation) |
 +-----------------------+---------------------------------------------------------------+
 | `organisationIds`     | List of organisation IDs (see `type`).                        |
 |                       |                                                               |
@@ -106,4 +106,4 @@ This value is `null` in the following circumstances:
 
 - The organisation selection does not meet the filtering criteria.
 
-**Type:** [](xref:Dfe.SignIn.Core.ExternalModels.Organisations.OrganisationDetails)
+**Type:** [](xref:Dfe.SignIn.PublicApi.Contracts.Organisations.OrganisationDetails)

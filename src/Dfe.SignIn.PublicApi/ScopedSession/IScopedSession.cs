@@ -1,5 +1,5 @@
 
-using Dfe.SignIn.Core.InternalModels.Applications;
+using Dfe.SignIn.Core.Contracts.Applications;
 
 namespace Dfe.SignIn.PublicApi.ScopedSession;
 
@@ -11,7 +11,7 @@ public interface IScopedSessionReader
     /// <summary>
     /// Getter for Application
     /// </summary>
-    ApplicationModel Application { get; }
+    Application Application { get; }
 }
 
 /// <summary>
@@ -22,5 +22,5 @@ public interface IScopedSessionWriter
     /// <summary>
     /// Setter for Application
     /// </summary>
-    ApplicationModel Application { set; }
+    Application Application { set; }
 }

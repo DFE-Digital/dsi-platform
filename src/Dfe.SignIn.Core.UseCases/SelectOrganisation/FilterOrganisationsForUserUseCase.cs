@@ -1,11 +1,9 @@
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Applications;
-using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
-using Dfe.SignIn.Core.InternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.Core.InternalModels.Users;
-using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 
 namespace Dfe.SignIn.Core.UseCases.SelectOrganisation;
 
@@ -40,7 +38,7 @@ public sealed class FilterOrganisationsForUserUseCase(
         };
     }
 
-    private static Task<IEnumerable<OrganisationModel>> RetrieveOrganisationsById(
+    private static Task<IEnumerable<Organisation>> RetrieveOrganisationsById(
         IEnumerable<Guid> organisationIds,
         CancellationToken cancellationToken = default)
     {
@@ -48,7 +46,7 @@ public sealed class FilterOrganisationsForUserUseCase(
         throw new NotImplementedException();
     }
 
-    private static Func<OrganisationModel, bool> GetPredicateForAssociationFiltering(OrganisationFilter filter)
+    private static Func<Organisation, bool> GetPredicateForAssociationFiltering(OrganisationFilter filter)
     {
         if (filter.Type == OrganisationFilterType.Associated) {
             return (_) => true;
@@ -66,9 +64,9 @@ public sealed class FilterOrganisationsForUserUseCase(
         }
     }
 
-    private async Task<IEnumerable<OrganisationModel>> RetrieveOrganisationsAssociatedWithUser(
+    private async Task<IEnumerable<Organisation>> RetrieveOrganisationsAssociatedWithUser(
         FilterOrganisationsForUserRequest request,
-        Func<OrganisationModel, bool> organisationPredicate,
+        Func<Organisation, bool> organisationPredicate,
         CancellationToken cancellationToken = default)
     {
         var userOrganisations = (await this.GetOrganisationsAssociatedWithUserAsync(
@@ -124,7 +122,7 @@ public sealed class FilterOrganisationsForUserUseCase(
             .Where(organisation => associatedOrganisationIds.Contains(organisation.Id));
     }
 
-    private async Task<IEnumerable<OrganisationModel>> GetOrganisationsAssociatedWithUserAsync(
+    private async Task<IEnumerable<Organisation>> GetOrganisationsAssociatedWithUserAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
@@ -137,7 +135,7 @@ public sealed class FilterOrganisationsForUserUseCase(
         return response.Organisations;
     }
 
-    private async Task<ApplicationModel> GetClientApplicationAsync(
+    private async Task<Application> GetClientApplicationAsync(
         string clientId,
         CancellationToken cancellationToken = default)
     {
@@ -154,7 +152,7 @@ public sealed class FilterOrganisationsForUserUseCase(
         return response.Application;
     }
 
-    private async Task<IEnumerable<UserApplicationMappingModel>> GetUserAssociationWithApplicationAsync(
+    private async Task<IEnumerable<UserApplicationMapping>> GetUserAssociationWithApplicationAsync(
         Guid userId,
         Guid applicationId,
         CancellationToken cancellationToken = default)

@@ -1,7 +1,7 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Contracts.Organisations;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;

@@ -1,10 +1,10 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Applications;
-using Dfe.SignIn.Core.InternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.PublicApi.Client.Users;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Public;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Contracts.Users;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq;
@@ -17,13 +17,13 @@ public sealed class QueryUserOrganisationTests
 {
     private static readonly Guid FakeUserId = new("6c843439-4633-4369-af49-f8b04b2529bc");
 
-    private static readonly OrganisationModel FakeOrganisation1 = new() {
+    private static readonly Organisation FakeOrganisation1 = new() {
         Id = new Guid("ad55df19-3d10-4089-b15f-bba6f546009f"),
         Name = "Example Organisation 1",
         Status = OrganisationStatus.Open,
     };
 
-    private static readonly OrganisationModel FakeOrganisation2 = new() {
+    private static readonly Organisation FakeOrganisation2 = new() {
         Id = new Guid("e27df6e3-84ab-40ab-84b2-4a85a7fa11cd"),
         Name = "Example Organisation 2",
         Status = OrganisationStatus.Open,
@@ -39,7 +39,7 @@ public sealed class QueryUserOrganisationTests
         },
     };
 
-    private static readonly ApplicationModel FakeApplicationModel = new() {
+    private static readonly Application FakeApplication = new() {
         Id = Guid.Empty,
         ClientId = "test-client-id",
         Name = "Test application",
@@ -55,14 +55,14 @@ public sealed class QueryUserOrganisationTests
 
         autoMocker.GetMock<IScopedSessionReader>()
             .Setup(x => x.Application)
-            .Returns(FakeApplicationModel);
+            .Returns(FakeApplication);
 
         return autoMocker;
     }
 
     private static void SetupFakeFilteredOrganisationsResponse(
         AutoMocker autoMocker,
-        params OrganisationModel[] filteredOrganisations)
+        params Organisation[] filteredOrganisations)
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(

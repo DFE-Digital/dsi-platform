@@ -1,9 +1,8 @@
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
-using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.Web.SelectOrganisation.Models;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Mvc;
@@ -86,7 +85,7 @@ public sealed class SelectOrganisationController(
         }
         var session = sessionResult.Session;
 
-        if (viewModel.CancelInput == "1") {
+        if (viewModel.CancelAction == "1") {
             if (session.AllowCancel) {
                 return this.RedirectToCancelCallback(session);
             }
@@ -166,7 +165,7 @@ public sealed class SelectOrganisationController(
         return this.Redirect($"{session.CallbackUrl}&{CallbackParamNames.Type}={CallbackTypes.SignOut}");
     }
 
-    private sealed record GetSessionResult()
+    private sealed record GetSessionResult
     {
         public SelectOrganisationSessionData? Session { get; init; } = null;
         public IActionResult? RedirectActionResult { get; init; } = null;

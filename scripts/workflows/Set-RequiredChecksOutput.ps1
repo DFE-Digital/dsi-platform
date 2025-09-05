@@ -89,8 +89,8 @@ Set-OutputFlag -Name 'build_external_docs' -Value $(
 
 Set-OutputFlag -Name 'publish_dotnet_packages' -Value $(
     $ForcePublishDotnetPackages -eq $true -or $ChangedFiles -match $(@(
-            "^src/Dfe.SignIn.Core.Framework/"
-            "^src/Dfe.SignIn.Core.ExternalModels/"
+            "^src/Dfe.SignIn.Base.Framework/"
+            "^src/Dfe.SignIn.Core.Public/"
             "^src/Dfe.SignIn.PublicApi.Client/"
             "^src/Dfe.SignIn.PublicApi.Client.AspNetCore/"
         ) -join '|')

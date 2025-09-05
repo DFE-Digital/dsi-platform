@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Dfe.SignIn.WebFramework.UnitTests;

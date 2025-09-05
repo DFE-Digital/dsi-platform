@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 
 namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 

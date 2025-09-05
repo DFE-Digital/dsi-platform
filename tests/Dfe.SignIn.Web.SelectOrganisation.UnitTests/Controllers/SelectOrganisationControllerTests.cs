@@ -1,12 +1,9 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Applications;
-using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
-using Dfe.SignIn.Core.InternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Public;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.Web.SelectOrganisation.Controllers;
 using Dfe.SignIn.Web.SelectOrganisation.Models;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -25,21 +22,21 @@ public sealed class SelectOrganisationControllerTests
 {
     private static readonly Guid FakeUserId = Guid.NewGuid();
 
-    private static readonly OrganisationModel FakeOrganisationA = new() {
+    private static readonly Organisation FakeOrganisationA = new() {
         Id = new Guid("3c44b79a-991f-4068-b8d9-a761d651146f"),
         Name = "Fake Organisation A",
         LegalName = "Legal Organisation A",
         Status = OrganisationStatus.Open,
     };
 
-    private static readonly OrganisationModel FakeOrganisationB = new() {
+    private static readonly Organisation FakeOrganisationB = new() {
         Id = new Guid("8498beb4-e3a4-4a1b-93c6-462084d84ab5"),
         Name = "Fake Organisation B",
         LegalName = "Legal Organisation B",
         Status = OrganisationStatus.Open,
     };
 
-    private static readonly ApplicationModel FakeApplication = new() {
+    private static readonly Application FakeApplication = new() {
         ClientId = "mock-client",
         Id = new Guid("46fc7902-450b-445c-8565-2dbb8c1d8c84"),
         IsExternalService = true,
@@ -344,7 +341,7 @@ public sealed class SelectOrganisationControllerTests
 
     #endregion
 
-    #region Index(string, string, CancellationToken)
+    #region PostIndex(string, string, SelectOrganisationViewModel, CancellationToken)
 
     [TestMethod]
     public async Task PostIndex_RedirectsToInvalidSessionHandler_WithApplicationServicesUrl_WhenSessionDoesNotExist()
@@ -402,7 +399,7 @@ public sealed class SelectOrganisationControllerTests
         });
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.CancelInput = "1";
+        inputViewModel.CancelAction = "1";
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 
@@ -428,7 +425,7 @@ public sealed class SelectOrganisationControllerTests
         });
 
         var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
-        inputViewModel.CancelInput = "1";
+        inputViewModel.CancelAction = "1";
 
         var result = await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
 

@@ -135,8 +135,8 @@ Describe "Set-RequiredChecksOutput" {
         }
 
         It "should be `$true when package <name> files have been changed" -ForEach @(
-            @{ Name = 'Dfe.SignIn.Core.Framework' }
-            @{ Name = 'Dfe.SignIn.Core.ExternalModels' }
+            @{ Name = 'Dfe.SignIn.Base.Framework' }
+            @{ Name = 'Dfe.SignIn.Core.Public' }
             @{ Name = 'Dfe.SignIn.PublicApi.Client' }
             @{ Name = 'Dfe.SignIn.PublicApi.Client.AspNetCore' }
         ) {

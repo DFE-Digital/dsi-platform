@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Content.Processing;
 using Dfe.SignIn.WebFramework.Configuration;

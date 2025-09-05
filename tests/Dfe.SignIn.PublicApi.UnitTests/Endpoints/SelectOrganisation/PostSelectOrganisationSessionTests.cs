@@ -1,8 +1,8 @@
-using Dfe.SignIn.Core.ExternalModels.SelectOrganisation;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Applications;
-using Dfe.SignIn.Core.InternalModels.SelectOrganisation.Interactions;
-using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Core.Public.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq;
@@ -31,7 +31,7 @@ public sealed class PostSelectOrganisationSessionTests
         },
     };
 
-    private static readonly ApplicationModel FakeApplicationModel = new() {
+    private static readonly Application FakeApplication = new() {
         Id = Guid.Empty,
         ClientId = "test-client-id",
         Name = "Test application",
@@ -70,7 +70,7 @@ public sealed class PostSelectOrganisationSessionTests
 
         autoMocker.GetMock<IScopedSessionReader>()
             .Setup(x => x.Application)
-            .Returns(FakeApplicationModel);
+            .Returns(FakeApplication);
 
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
@@ -106,7 +106,7 @@ public sealed class PostSelectOrganisationSessionTests
 
         autoMocker.GetMock<IScopedSessionReader>()
             .Setup(x => x.Application)
-            .Returns(FakeApplicationModel);
+            .Returns(FakeApplication);
 
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(

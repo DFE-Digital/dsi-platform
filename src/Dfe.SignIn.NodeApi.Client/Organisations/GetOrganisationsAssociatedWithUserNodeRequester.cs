@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,7 +25,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequester(
             cancellationToken
         );
 
-        var organisations = response?.Select(org => org.Organisation.MapToOrganisationModel()) ?? [];
+        var organisations = response?.Select(org => org.Organisation.MapToOrganisation()) ?? [];
 
         return new GetOrganisationsAssociatedWithUserResponse {
             Organisations = organisations

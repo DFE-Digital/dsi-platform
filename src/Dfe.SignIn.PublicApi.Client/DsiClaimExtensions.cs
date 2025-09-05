@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.PublicApi.Client;
 

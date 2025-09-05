@@ -1,6 +1,5 @@
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.Organisations.Interactions;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.NodeApi.Client.Organisations;
 using Dfe.SignIn.NodeApi.Client.Organisations.Models;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
@@ -37,7 +36,7 @@ public sealed class GetOrganisationByIdNodeRequesterTests
             OrganisationId = Guid.Empty
         });
 
-        Assert.AreEqual(response.Organisation, new OrganisationModel {
+        Assert.AreEqual(response.Organisation, new Organisation {
             Id = mockDto.Id,
             Name = mockDto.Name,
             Status = OrganisationStatus.Open,

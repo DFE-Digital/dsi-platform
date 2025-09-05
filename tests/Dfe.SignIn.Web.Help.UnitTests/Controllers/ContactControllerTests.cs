@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.SupportTickets;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Controllers;
 using Dfe.SignIn.Web.Help.Models;

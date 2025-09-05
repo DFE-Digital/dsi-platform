@@ -1,10 +1,10 @@
 # Using interactions
 
-Some of the functionality provided by [](xref:Dfe.SignIn.PublicApi.Client) is provided via the [](xref:Dfe.SignIn.Core.Framework.IInteractor`1) abstraction.
+Some of the functionality provided by [](xref:Dfe.SignIn.PublicApi.Client) is provided via the [](xref:Dfe.SignIn.Base.Framework.IInteractor`1) abstraction.
 
 ## Example: Create a "select organisation" request
 
-The [IInteractionDispatcher](xref:Dfe.SignIn.Core.Framework.IInteractionDispatcher) service can be injected into an application class.
+The [IInteractionDispatcher](xref:Dfe.SignIn.Base.Framework.IInteractionDispatcher) service can be injected into an application class.
 
 An interaction can be dispatched asynchronously with a request model which will then yield a response model:
 
@@ -47,7 +47,7 @@ autoMocker.GetMock<IInteractionDispatcher>()
 
 When dispatched any data annotation attributes in the request model of an interaction are validated automatically by the dispatch mechanism. Any validation results are recorded into the invocation context which can be accessed and amended by the interactor.
 
-Interactor implementations can record any additional request validation results using the provided [](xref:Dfe.SignIn.Core.Framework.InteractionContext`1) object:
+Interactor implementations can record any additional request validation results using the provided [](xref:Dfe.SignIn.Base.Framework.InteractionContext`1) object:
 
 ```csharp
 context.AddValidationError("Specify a valid foo", nameof(ExampleRequest.Foo));
@@ -78,10 +78,10 @@ context.ThrowIfHasValidationErrors();
 
 There are two types of validation exception:
 
-- [](xref:Dfe.SignIn.Core.Framework.InvalidRequestException) occurs when a request model was invalid.
+- [](xref:Dfe.SignIn.Base.Framework.InvalidRequestException) occurs when a request model was invalid.
 
-- [](xref:Dfe.SignIn.Core.Framework.InvalidResponseException) occurs when a response model was invalid.
+- [](xref:Dfe.SignIn.Base.Framework.InvalidResponseException) occurs when a response model was invalid.
 
 ## Interaction exceptions
 
-A specialised [](xref:Dfe.SignIn.Core.Framework.InteractionException) exception is thrown where applicable. Such scenarios are documented on the request model type.
+A specialised [](xref:Dfe.SignIn.Base.Framework.InteractionException) exception is thrown where applicable. Such scenarios are documented on the request model type.

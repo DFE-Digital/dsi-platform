@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.UseCases.Gateways.SelectOrganisationSessions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;

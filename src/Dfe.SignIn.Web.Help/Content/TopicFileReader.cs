@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.Core.Framework;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Web.Help.Content;
 
@@ -49,7 +49,7 @@ public interface ITopicFileReader
 }
 
 /// <summary>
-/// A concrete implementation of the <see cref="ITopicFileLoader"/> interface which reads
+/// A concrete implementation of the <see cref="ITopicFileReader"/> interface which reads
 /// markdown encoded topic files.
 /// </summary>
 [ExcludeFromCodeCoverage]

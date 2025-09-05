@@ -1,6 +1,6 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Notifications;
-using Dfe.SignIn.Core.InternalModels.SupportTickets;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Notifications;
+using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.Core.UseCases.SupportTickets;
 using Microsoft.Extensions.Options;
 using Moq.AutoMock;

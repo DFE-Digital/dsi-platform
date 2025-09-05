@@ -1,5 +1,5 @@
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.SupportTickets;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.NodeApi.Client.Applications.Models;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +34,7 @@ public sealed class GetApplicationNamesForSupportTicketNodeRequester(
 
         return new GetApplicationNamesForSupportTicketResponse {
             Applications = [
-                ..filteredServices.Select(service => new ApplicationNameForSupportTicket {
+                .. filteredServices.Select(service => new ApplicationNameForSupportTicket {
                     Name = service.Name,
                 }),
                 new() {

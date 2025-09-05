@@ -1,8 +1,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
-using Dfe.SignIn.Core.Framework;
-using Dfe.SignIn.Core.InternalModels.Applications;
-using Dfe.SignIn.Core.InternalModels.Applications.Interactions;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.PublicApi.BearerTokenAuth;
 using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.AspNetCore.Http;
@@ -145,7 +144,7 @@ public sealed class BearerTokenAuthMiddlewareTests
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new ApplicationModel {
+                Application = new Application {
                     ApiSecret = this.mockValidJwtSecret,
                     ClientId = "mock-invalid-client-id",
                     Id = Guid.Empty,
@@ -199,7 +198,7 @@ public sealed class BearerTokenAuthMiddlewareTests
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new ApplicationModel {
+                Application = new Application {
                     Id = Guid.Empty,
                     ApiSecret = null,
                     ClientId = "mock-client-id",
@@ -231,7 +230,7 @@ public sealed class BearerTokenAuthMiddlewareTests
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new ApplicationModel {
+                Application = new Application {
                     ApiSecret = "does-not-match-secret",
                     ClientId = string.Empty,
                     Id = Guid.Empty,
@@ -263,7 +262,7 @@ public sealed class BearerTokenAuthMiddlewareTests
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new ApplicationModel {
+                Application = new Application {
                     ApiSecret = "does-not-match-secret",
                     ClientId = string.Empty,
                     Id = Guid.Empty,
@@ -295,7 +294,7 @@ public sealed class BearerTokenAuthMiddlewareTests
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new ApplicationModel {
+                Application = new Application {
                     ApiSecret = this.mockValidJwtSecret,
                     ClientId = this.mockValidJwtIss,
                     Id = Guid.Empty,
@@ -327,7 +326,7 @@ public sealed class BearerTokenAuthMiddlewareTests
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new ApplicationModel {
+                Application = new Application {
                     ApiSecret = this.mockValidJwtSecret,
                     ClientId = this.mockValidJwtIss,
                     Id = Guid.Empty,
@@ -358,7 +357,7 @@ public sealed class BearerTokenAuthMiddlewareTests
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new ApplicationModel {
+                Application = new Application {
                     ApiSecret = this.mockValidJwtSecret,
                     ClientId = this.mockValidJwtIss,
                     Id = Guid.Empty,
@@ -383,7 +382,7 @@ public sealed class BearerTokenAuthMiddlewareTests
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
-        var application = new ApplicationModel {
+        var application = new Application {
             ApiSecret = this.mockValidJwtSecret,
             ClientId = this.mockValidJwtIss,
             Id = Guid.Empty,

@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.Framework.Internal;
-using Dfe.SignIn.Core.InternalModels.Organisations;
+using Dfe.SignIn.Base.Framework.Internal;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Public;
 
 namespace Dfe.SignIn.NodeApi.Client.Organisations.Models;
 
@@ -85,7 +85,7 @@ internal abstract record OrganisationDto()
     [JsonPropertyName("IsOnAPAR")]
     public string? IsOnAPAR { get; set; }
 
-    protected OrganisationModel MapToOrganisationModel(
+    protected Organisation MapToOrganisation(
         OrganisationStatus organisationStatus,
         string organisationCategory,
         string? establishmentType)
@@ -95,7 +95,7 @@ internal abstract record OrganisationDto()
             ? EnumHelpers.MapEnum<EstablishmentType>(establishmentType)
             : null;
 
-        return new OrganisationModel {
+        return new Organisation {
             Id = this.Id,
             Status = organisationStatus,
             Name = this.Name,

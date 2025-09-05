@@ -1,9 +1,9 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Dfe.SignIn.Core.ExternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.Organisations;
-using Dfe.SignIn.Core.InternalModels.Users.Interactions;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.NodeApi.Client.Organisations;
 using Dfe.SignIn.NodeApi.Client.Organisations.Models;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
@@ -84,7 +84,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
 
         var organisations = response.Organisations.ToArray();
 
-        Assert.AreEqual(organisations[0], new OrganisationModel {
+        Assert.AreEqual(organisations[0], new Organisation {
             Id = mockDtos[0].Organisation.Id,
             Name = mockDtos[0].Organisation.Name,
             Status = OrganisationStatus.Open,
@@ -92,7 +92,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
             EstablishmentType = EstablishmentType.HigherEducationInstitution,
         });
 
-        Assert.AreEqual(organisations[1], new OrganisationModel {
+        Assert.AreEqual(organisations[1], new Organisation {
             Id = mockDtos[1].Organisation.Id,
             Name = mockDtos[1].Organisation.Name,
             Status = OrganisationStatus.Open,
