@@ -32,12 +32,14 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
 
     private static void SetupSubjectOptionsResponse(AutoMocker autoMocker)
     {
-        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest>(new GetSubjectOptionsForSupportTicketResponse {
-            SubjectOptions = [
-                new() { Code = "create-account", Description = "Creating an account" },
-                new() { Code = "other", Description = "Other (please specify)" },
-            ],
-        });
+        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest>(
+            new GetSubjectOptionsForSupportTicketResponse {
+                SubjectOptions = [
+                    new() { Code = "create-account", Description = "Creating an account" },
+                    new() { Code = "other", Description = "Other (please specify)" },
+                ],
+            }
+        );
     }
 
     [TestMethod]

@@ -58,6 +58,31 @@ public sealed class InteractionAutoMockerExtensionsTests
 
     #endregion
 
+    #region MockResponseWhere<TRequest>(AutoMocker, TRequest, object)
+
+    [TestMethod]
+    public async Task MockResponseWhere_MatchedRequestReturnsExpectedResponse()
+    {
+        var autoMocker = new AutoMocker();
+
+        var fakeRequestA = new ExampleRequest { Value = 123 };
+        var fakeRequestB = new ExampleRequest { Value = 456 };
+
+        var fakeResponseA = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponseWhere<ExampleRequest>(autoMocker, req => req.Value == 123, fakeResponseA);
+        var fakeResponseB = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponseWhere<ExampleRequest>(autoMocker, req => req.Value == 456, fakeResponseB);
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        var actualResponseA = await mockInteraction.Object.DispatchAsync(fakeRequestA);
+        var actualResponseB = await mockInteraction.Object.DispatchAsync(fakeRequestB);
+
+        Assert.AreEqual(fakeResponseA, actualResponseA);
+        Assert.AreEqual(fakeResponseB, actualResponseB);
+    }
+
+    #endregion
+
     #region MockResponse<TRequest>(AutoMocker, TRequest, object)
 
     [TestMethod]
@@ -72,6 +97,31 @@ public sealed class InteractionAutoMockerExtensionsTests
         InteractionAutoMockerExtensions.MockResponse(autoMocker, fakeRequestA, fakeResponseA);
         var fakeResponseB = new ExampleResponse();
         InteractionAutoMockerExtensions.MockResponse(autoMocker, fakeRequestB, fakeResponseB);
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        var actualResponseA = await mockInteraction.Object.DispatchAsync(fakeRequestA);
+        var actualResponseB = await mockInteraction.Object.DispatchAsync(fakeRequestB);
+
+        Assert.AreEqual(fakeResponseA, actualResponseA);
+        Assert.AreEqual(fakeResponseB, actualResponseB);
+    }
+
+    #endregion
+
+    #region MockResponseExactly<TRequest>(AutoMocker, TRequest, object)
+
+    [TestMethod]
+    public async Task MockResponseExactly_SpecificRequestReturnsExpectedResponse()
+    {
+        var autoMocker = new AutoMocker();
+
+        var fakeRequestA = new ExampleRequest();
+        var fakeRequestB = new ExampleRequest();
+
+        var fakeResponseA = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponseExactly(autoMocker, fakeRequestA, fakeResponseA);
+        var fakeResponseB = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponseExactly(autoMocker, fakeRequestB, fakeResponseB);
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
         var actualResponseA = await mockInteraction.Object.DispatchAsync(fakeRequestA);
