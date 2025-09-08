@@ -5,7 +5,12 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// <summary>
 /// Represents a request to check whether an email address would be blocked.
 /// </summary>
-/// <seealso cref="CheckIsBlockedEmailAddressResponse"/>
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="CheckIsBlockedEmailAddressResponse"/></item>
+///   </list>
+/// </remarks>
 public sealed record CheckIsBlockedEmailAddressRequest
 {
     /// <summary>
