@@ -1,10 +1,19 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.NodeApi.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var builder = FunctionsApplication.CreateBuilder(args);
+
+builder.Configuration
+#if DEBUG
+    .AddUserSecrets<Program>()
+#endif
+    .AddEnvironmentVariables();
 
 builder.ConfigureFunctionsWebApplication();
 
@@ -14,5 +23,18 @@ builder.Services
 
 builder.Services
     .AddInteractionFramework();
+
+builder.Services
+    .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
+    .SetupNodeApiClient([
+        NodeApiName.Access,
+        NodeApiName.Directories,
+        NodeApiName.Organisations,
+        NodeApiName.Search,
+    ]);
+
+builder.Services
+    .AddInteractor<CheckIsBlockedEmailAddressUseCase>()
+    .AddInteractor<AutoLinkEntraUserToDsiUseCase>();
 
 builder.Build().Run();
