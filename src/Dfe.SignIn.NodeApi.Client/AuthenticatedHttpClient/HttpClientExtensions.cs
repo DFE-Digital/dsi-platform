@@ -9,9 +9,10 @@ namespace Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 public static class HttpClientExtensions
 {
     /// <summary>
-    /// Return a default of T in 404 cases, otherwise return type of T
+    /// Return a default of <typeparamref name="TResponseBody"/> in 404 cases, otherwise
+    /// return type of <typeparamref name="TResponseBody"/>
     /// </summary>
-    /// <typeparam name="T">Type definition.</typeparam>
+    /// <typeparam name="TResponseBody">Type of response.</typeparam>
     /// <param name="client">HttpClient instance.</param>
     /// <param name="url">Url to query.</param>
     /// <param name="cancellationToken">A cancellation token that can be used by other
@@ -24,13 +25,13 @@ public static class HttpClientExtensions
     /// <exception cref="TaskCanceledException" />
     /// <exception cref="UriFormatException" />
     /// <exception cref="OperationCanceledException" />
-    public static async Task<T?> GetFromJsonOrDefaultAsync<T>(
+    public static async Task<TResponseBody?> GetFromJsonOrDefaultAsync<TResponseBody>(
         this HttpClient client, string url, CancellationToken cancellationToken = default)
     {
         var response = await client.GetAsync(url, cancellationToken);
 
         return response.StatusCode == HttpStatusCode.NotFound
             ? default
-            : await response.Content.ReadFromJsonAsync<T>(cancellationToken);
+            : await response.Content.ReadFromJsonAsync<TResponseBody>(cancellationToken);
     }
 }

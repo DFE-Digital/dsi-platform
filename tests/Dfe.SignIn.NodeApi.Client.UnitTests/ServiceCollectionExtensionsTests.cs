@@ -7,17 +7,30 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests;
 [TestClass]
 public sealed class ServiceCollectionExtensionsTests
 {
-    #region IsFor(InteractorTypeDescriptor, NodeApiName)
+    #region AreAllRequiredApisAvailable(InteractorTypeDescriptor, IEnumerable<NodeApiName>)
 
     [TestMethod]
-    public void IsFor_ReturnsTrue_WhenAssociatedWithApi()
+    public void AreAllRequiredApisAvailable_ReturnsTrue_WhenRequiredApiIsAvailable()
     {
         var descriptor = new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest>),
             ConcreteType = typeof(ExampleApiRequesterForAccessApi)
         };
 
-        bool result = descriptor.IsFor(NodeApiName.Access);
+        bool result = descriptor.AreAllRequiredApisAvailable([NodeApiName.Access]);
+
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void AreAllRequiredApisAvailable_ReturnsTrue_WhenAllRequiredApisAreAvailable()
+    {
+        var descriptor = new InteractorTypeDescriptor {
+            ContractType = typeof(IInteractor<ExampleRequest>),
+            ConcreteType = typeof(ExampleApiRequesterForAccessAndDirectoriesApi)
+        };
+
+        bool result = descriptor.AreAllRequiredApisAvailable([NodeApiName.Access, NodeApiName.Directories]);
 
         Assert.IsTrue(result);
     }
@@ -25,14 +38,27 @@ public sealed class ServiceCollectionExtensionsTests
     [DataTestMethod]
     [DataRow(typeof(ExampleApiRequesterUnspecifiedApi))]
     [DataRow(typeof(ExampleApiRequesterForAccessApi))]
-    public void IsFor_ReturnsFalse_WhenNotAssociatedWithApi(Type requesterType)
+    public void AreAllRequiredApisAvailable_ReturnsFalse_WhenNoRequiredApisAreUnavailable(Type requesterType)
     {
         var descriptor = new InteractorTypeDescriptor {
             ContractType = typeof(IInteractor<ExampleRequest>),
             ConcreteType = requesterType,
         };
 
-        bool result = descriptor.IsFor(NodeApiName.Directories);
+        bool result = descriptor.AreAllRequiredApisAvailable([NodeApiName.Directories]);
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void AreAllRequiredApisAvailable_ReturnsFalse_WhenSomeRequiredApisAreUnavailable()
+    {
+        var descriptor = new InteractorTypeDescriptor {
+            ContractType = typeof(IInteractor<ExampleRequest>),
+            ConcreteType = typeof(ExampleApiRequesterForAccessAndDirectoriesApi)
+        };
+
+        bool result = descriptor.AreAllRequiredApisAvailable([NodeApiName.Access]);
 
         Assert.IsFalse(result);
     }

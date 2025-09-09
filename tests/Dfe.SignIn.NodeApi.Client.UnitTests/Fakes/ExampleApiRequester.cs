@@ -33,3 +33,17 @@ public sealed class ExampleApiRequesterForAccessApi
         throw new NotImplementedException();
     }
 }
+
+[ApiRequester]
+[NodeApi(NodeApiName.Access)]
+[NodeApi(NodeApiName.Directories)]
+public sealed class ExampleApiRequesterForAccessAndDirectoriesApi
+    : Interactor<ExampleRequest, ExampleResponse>
+{
+    public override Task<ExampleResponse> InvokeAsync(
+        InteractionContext<ExampleRequest> context,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+}
