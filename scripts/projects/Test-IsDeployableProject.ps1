@@ -26,4 +26,4 @@ param (
     [string]$ProjectName
 )
 
-return $ProjectName -match "^Dfe\.SignIn\.(Web\.|[^.]+Api$)"
+return $ProjectName -match "^Dfe\.SignIn\.(Web\.|Fn\.|[^.]+Api$)"

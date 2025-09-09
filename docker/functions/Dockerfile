@@ -2,8 +2,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:3cef19377b2ef2a0171e930a24627677447
 
 ARG PROJECT_NAME
 
-COPY "src/$PROJECT_NAME" /src/dotnet-function-app
-RUN cd /src/dotnet-function-app && \
+COPY src ./src
+COPY *.props ./
+COPY *.targets ./
+
+RUN cd "/src/$PROJECT_NAME" && \
     mkdir -p /home/site/wwwroot && \
     dotnet publish *.csproj --output /home/site/wwwroot
 

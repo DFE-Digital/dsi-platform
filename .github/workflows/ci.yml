@@ -24,6 +24,11 @@ on:
         default: false
         type: boolean
 
+      build_auth_extensions:
+        description: Build "Auth Extensions"
+        default: false
+        type: boolean
+
       build_select_organisation:
         description: Build "Select Organisation"
         default: false
@@ -130,6 +135,7 @@ jobs:
             -LifecycleName $lifecycleName `
             -ChangedFiles $changedFiles `
             -IncludeChangedProjects $($env:GITHUB_EVENT_NAME -ne 'workflow_dispatch') `
+            -ForceBuildAuthExtensions ${{ github.event.inputs.build_auth_extensions || false }} `
             -ForceBuildSelectOrganisation ${{ github.event.inputs.build_select_organisation || false }} `
             -ForceBuildPublicApi ${{ github.event.inputs.build_public_api || false }}
 
@@ -172,6 +178,7 @@ jobs:
     with:
       environment: ${{ needs.prepare.outputs.environment }}
       project_name: ${{ matrix.image.project }}
+      dockerfile: ${{ matrix.image.dockerfile }}
       registry_key: ${{ needs.prepare.outputs.registry_key }}
       registry: ${{ needs.prepare.outputs.registry }}
       repository_name: ${{ matrix.image.repository }}

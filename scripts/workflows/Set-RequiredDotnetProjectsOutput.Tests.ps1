@@ -12,10 +12,7 @@ Describe "Set-RequiredDotnetProjectsOutput" {
 
         $global:capturedValue = $null
         Mock Add-Content -ParameterFilter { $Path -ceq 'GITHUB_OUTPUT' } {
-            $deserialized = $Value -replace 'dotnet_images=', '' | ConvertFrom-Json
-            $global:capturedValue = $deserialized | ForEach-Object {
-                @{ project = $_.project; repository = $_.repository }
-            }
+            $global:capturedValue =$Value -replace 'dotnet_images=', '' | ConvertFrom-Json
         }
     }
 
@@ -90,6 +87,18 @@ Describe "Set-RequiredDotnetProjectsOutput" {
     }
 
     Context "a specific project has been specified with an input" {
+        It "includes project 'Dfe.SignIn.Fn.AuthExtensions'" {
+            & $Cmdlet `
+                -LifecycleName 'dev' `
+                -ForceBuildAuthExtensions $true
+
+            Should -Invoke Add-Content -Times 1 -Exactly
+
+            $global:capturedValue.project | Should -Be 'Dfe.SignIn.Fn.AuthExtensions'
+            $global:capturedValue.dockerfile | Should -Be 'functions'
+            $global:capturedValue.repository | Should -Be 'dev/auth-extensions'
+        }
+
         It "includes project 'Dfe.SignIn.PublicApi'" {
             & $Cmdlet `
                 -LifecycleName 'dev' `
@@ -98,6 +107,7 @@ Describe "Set-RequiredDotnetProjectsOutput" {
             Should -Invoke Add-Content -Times 1 -Exactly
 
             $global:capturedValue.project | Should -Be 'Dfe.SignIn.PublicApi'
+            $global:capturedValue.dockerfile | Should -Be 'dotnet'
             $global:capturedValue.repository | Should -Be 'dev/public-api'
         }
 
@@ -109,6 +119,7 @@ Describe "Set-RequiredDotnetProjectsOutput" {
             Should -Invoke Add-Content -Times 1 -Exactly
 
             $global:capturedValue.project | Should -Be 'Dfe.SignIn.Web.SelectOrganisation'
+            $global:capturedValue.dockerfile | Should -Be 'dotnet'
             $global:capturedValue.repository | Should -Be 'dev/select-organisation'
         }
     }
