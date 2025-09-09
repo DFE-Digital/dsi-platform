@@ -46,11 +46,11 @@ public sealed class GetApplicationsAssociatedWithUserNodeRequesterTests
             return Task.FromResult(response);
         });
 
-        var client = new HttpClient(testHandler) {
-            BaseAddress = new Uri("http://mock.localhost")
+        var accessClient = new HttpClient(testHandler) {
+            BaseAddress = new Uri("http://access.localhost")
         };
 
-        var controller = new GetApplicationsAssociatedWithUserNodeRequester(client);
+        var controller = new GetApplicationsAssociatedWithUserNodeRequester(accessClient);
 
         var response = await controller.InvokeAsync(new GetApplicationsAssociatedWithUserRequest {
             UserId = mockDto[0].UserId
@@ -81,11 +81,11 @@ public sealed class GetApplicationsAssociatedWithUserNodeRequesterTests
             return Task.FromResult(response);
         });
 
-        var client = new HttpClient(testHandler) {
-            BaseAddress = new Uri("http://mock.localhost")
+        var accessClient = new HttpClient(testHandler) {
+            BaseAddress = new Uri("http://access.localhost")
         };
 
-        var controller = new GetApplicationsAssociatedWithUserNodeRequester(client);
+        var controller = new GetApplicationsAssociatedWithUserNodeRequester(accessClient);
 
         var response = await controller.InvokeAsync(new GetApplicationsAssociatedWithUserRequest {
             UserId = Guid.Parse("8f79e542-7b8a-4904-b6fb-85b0fa41a530")

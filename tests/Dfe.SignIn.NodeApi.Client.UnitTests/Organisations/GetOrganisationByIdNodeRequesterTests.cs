@@ -26,11 +26,11 @@ public sealed class GetOrganisationByIdNodeRequesterTests
             return Task.FromResult(response);
         });
 
-        var client = new HttpClient(testHandler) {
-            BaseAddress = new Uri("http://mock.localhost")
+        var organisationsClient = new HttpClient(testHandler) {
+            BaseAddress = new Uri("http://organisations.localhost")
         };
 
-        var controller = new GetOrganisationByIdNodeRequester(client);
+        var controller = new GetOrganisationByIdNodeRequester(organisationsClient);
 
         var response = await controller.InvokeAsync(new GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty
@@ -52,11 +52,11 @@ public sealed class GetOrganisationByIdNodeRequesterTests
             return Task.FromResult(response);
         });
 
-        var client = new HttpClient(testHandler) {
-            BaseAddress = new Uri("http://mock.localhost")
+        var organisationsClient = new HttpClient(testHandler) {
+            BaseAddress = new Uri("http://organisations.localhost")
         };
 
-        var controller = new GetOrganisationByIdNodeRequester(client);
+        var controller = new GetOrganisationByIdNodeRequester(organisationsClient);
 
         var response = await controller.InvokeAsync(new GetOrganisationByIdRequest {
             OrganisationId = Guid.Empty

@@ -11,7 +11,7 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationByIdNodeRequester(
-    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient
+    [FromKeyedServices(NodeApiName.Organisations)] HttpClient organisationsClient
 ) : Interactor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>
 {
 
@@ -22,7 +22,7 @@ public sealed class GetOrganisationByIdNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var response = await httpClient.GetFromJsonOrDefaultAsync<OrganisationByIdDto>(
+        var response = await organisationsClient.GetFromJsonOrDefaultAsync<OrganisationByIdDto>(
             $"/organisations/{context.Request.OrganisationId}",
             cancellationToken
         );

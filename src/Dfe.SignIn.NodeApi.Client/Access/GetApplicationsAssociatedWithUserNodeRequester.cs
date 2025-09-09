@@ -10,7 +10,7 @@ namespace Dfe.SignIn.NodeApi.Client.Access;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Access)]
 public sealed class GetApplicationsAssociatedWithUserNodeRequester(
-    [FromKeyedServices(NodeApiName.Access)] HttpClient httpClient
+    [FromKeyedServices(NodeApiName.Access)] HttpClient accessClient
 ) : Interactor<GetApplicationsAssociatedWithUserRequest, GetApplicationsAssociatedWithUserResponse>
 {
     /// <inheritdoc/>
@@ -20,7 +20,7 @@ public sealed class GetApplicationsAssociatedWithUserNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.ApplicationDto[]>(
+        var response = await accessClient.GetFromJsonOrDefaultAsync<Models.ApplicationDto[]>(
             $"users/{context.Request.UserId}/services",
             cancellationToken
         );

@@ -10,7 +10,7 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationsAssociatedWithUserNodeRequester(
-    [FromKeyedServices(NodeApiName.Organisations)] HttpClient httpClient
+    [FromKeyedServices(NodeApiName.Organisations)] HttpClient organisationsClient
 ) : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {
     /// <inheritdoc/>
@@ -20,7 +20,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var response = await httpClient.GetFromJsonOrDefaultAsync<Models.OrganisationsAssociatedWithUserDto[]>(
+        var response = await organisationsClient.GetFromJsonOrDefaultAsync<Models.OrganisationsAssociatedWithUserDto[]>(
             $"/organisations/v2/associated-with-user/{context.Request.UserId}",
             cancellationToken
         );

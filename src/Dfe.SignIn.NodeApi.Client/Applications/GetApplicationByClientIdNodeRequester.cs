@@ -11,7 +11,7 @@ namespace Dfe.SignIn.NodeApi.Client.Applications;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
 public sealed class GetApplicationByClientIdNodeRequester(
-    [FromKeyedServices(NodeApiName.Applications)] HttpClient httpClient
+    [FromKeyedServices(NodeApiName.Applications)] HttpClient applicationsClient
 ) : Interactor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
 {
     /// <inheritdoc/>
@@ -21,7 +21,7 @@ public sealed class GetApplicationByClientIdNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var response = await httpClient.GetFromJsonOrDefaultAsync<ApplicationDto>(
+        var response = await applicationsClient.GetFromJsonOrDefaultAsync<ApplicationDto>(
             $"services/{context.Request.ClientId}",
             cancellationToken
         );
