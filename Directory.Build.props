@@ -1,10 +1,21 @@
 <Project>
-   <PropertyGroup>
-      <PackageOutputPath>$(MSBuildThisFileDirectory)packages</PackageOutputPath>
-   </PropertyGroup>
 
-   <PropertyGroup>
-      <!-- Warnings are also suppressed in SonarQube UI. -->
-      <NoWarn>S2094;S3267;S1066;S2376;S6819;CA1861</NoWarn>
-   </PropertyGroup>
+  <PropertyGroup>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)packages</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Warnings are also suppressed in SonarQube UI. -->
+    <NoWarn>S2094;S3267;S1066;S2376;S6819;CA1861</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NuGetAudit>true</NuGetAudit>
+    <!-- Can specify 'all' or 'direct' or 'transitive'. -->
+    <NuGetAuditMode>direct</NuGetAuditMode>
+    <!-- Minimum severity level to report. -->
+    <NuGetAuditLevel>moderate</NuGetAuditLevel>
+  </PropertyGroup>
+
 </Project>
