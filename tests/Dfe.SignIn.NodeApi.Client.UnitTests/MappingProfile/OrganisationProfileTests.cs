@@ -26,7 +26,7 @@ public sealed class OrganisationProfileTests
 
     [DataRow(1, "Open", "green", OrganisationStatus.Open)]
     [DataRow(9, "Created in error", "red", OrganisationStatus.CreatedInError)]
-    [DataTestMethod]
+    [TestMethod]
     public void UserOrganisationDto_to_Organisation_MapsStatus(
         int id, string name, string tagColor, OrganisationStatus expectedStatus)
     {
@@ -43,7 +43,7 @@ public sealed class OrganisationProfileTests
 
     [DataRow("002", "Local Authority", OrganisationCategory.LocalAuthority)]
     [DataRow("052", "Billing Authority", OrganisationCategory.BillingAuthority)]
-    [DataTestMethod]
+    [TestMethod]
     public void UserOrganisationDto_to_Organisation_MapsCategory(
         string id, string name, OrganisationCategory expectedCategory)
     {
@@ -59,7 +59,7 @@ public sealed class OrganisationProfileTests
 
     [DataRow("01", "Community School", EstablishmentType.CommunitySchool)]
     [DataRow("34", "Academy Converter", EstablishmentType.AcademyConverter)]
-    [DataTestMethod]
+    [TestMethod]
     public void UserOrganisationDto_to_Organisation_MapsEstablishmentType(
         string id, string name, EstablishmentType expectedEstablishmentType)
     {
@@ -107,7 +107,7 @@ public sealed class OrganisationProfileTests
 
     [DataRow(1, OrganisationStatus.Open)]
     [DataRow(9, OrganisationStatus.CreatedInError)]
-    [DataTestMethod]
+    [TestMethod]
     public void OrganisationByIdDto_to_Organisation_MapsStatus(
         int id, OrganisationStatus expectedStatus)
     {
@@ -120,7 +120,7 @@ public sealed class OrganisationProfileTests
 
     [DataRow("002", OrganisationCategory.LocalAuthority)]
     [DataRow("052", OrganisationCategory.BillingAuthority)]
-    [DataTestMethod]
+    [TestMethod]
     public void OrganisationByIdDto_to_Organisation_MapsCategory(
         string id, OrganisationCategory expectedCategory)
     {
@@ -133,7 +133,7 @@ public sealed class OrganisationProfileTests
 
     [DataRow("01", EstablishmentType.CommunitySchool)]
     [DataRow("34", EstablishmentType.AcademyConverter)]
-    [DataTestMethod]
+    [TestMethod]
     public void OrganisationByIdDto_to_Organisation_MapsEstablishmentType(
         string id, EstablishmentType expectedEstablishmentType)
     {

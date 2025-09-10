@@ -1,5 +1,6 @@
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Text;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 
@@ -8,15 +9,11 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.AuthenticatedHttpClient;
 [TestClass]
 public sealed class HttpClientExtensionsTest
 {
-    private sealed record TestRequestModel
-    {
-        public required string Param1 { get; init; }
-
-        public required int Param2 { get; init; }
-    }
-
     private sealed record TestResponseModel
     {
+        [SuppressMessage("csharpsquid", "S3459",
+            Justification = "Required for unit test."
+        )]
         public required string Value { get; init; }
     }
 

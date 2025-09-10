@@ -124,7 +124,7 @@ public sealed class TopicMemoryCacheTests
 
     [DataRow("/my-account", "/")]
     [DataRow("/my-account/changing-my-password", "/my-account")]
-    [DataTestMethod]
+    [TestMethod]
     public void GetParentTopic_ReturnsExpectedParentTopic(string topicPath, string expectedParentTopicPath)
     {
         var topicCache = new TopicMemoryCache(FakeTopics);
@@ -173,7 +173,7 @@ public sealed class TopicMemoryCacheTests
 
     [DataRow("/", new string[] { "/my-account" })]
     [DataRow("/my-account", new string[] { "/my-account/changing-my-password", "/my-account/multifactor-authentication" })]
-    [DataTestMethod]
+    [TestMethod]
     public void GetChildTopics_ReturnsExpectedChildTopics(string topicPath, string[] expectedChildTopicPaths)
     {
         var topicCache = new TopicMemoryCache(FakeTopics);

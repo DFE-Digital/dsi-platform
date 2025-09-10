@@ -35,7 +35,7 @@ public sealed class ServiceCollectionExtensionsTests
         Assert.IsTrue(result);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(typeof(ExampleApiRequesterUnspecifiedApi))]
     [DataRow(typeof(ExampleApiRequesterForAccessApi))]
     public void AreAllRequiredApisAvailable_ReturnsFalse_WhenNoRequiredApisAreUnavailable(Type requesterType)

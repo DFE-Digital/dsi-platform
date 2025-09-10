@@ -68,7 +68,7 @@ public sealed class RequiredIfTargetEqualsAttributeTests
         Assert.AreEqual("ExampleProperty", exception.ValidationResult.MemberNames.First());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
     public void IsValid_ThrowsValidationException_WhenRequiredAndIsEmptyString(string value)

@@ -17,7 +17,7 @@ public sealed class ErrorViewModelTests
         Assert.IsTrue(viewModel.ShowRequestId);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null)]
     [DataRow("")]
     public void ShowRequestId_ReturnsFalse_WhenRequestIdIsNotProvided(string? requestId)

@@ -61,7 +61,7 @@ public sealed class PostSelectOrganisationSessionTests
         Url = new Uri("https://select-organisation.localhost"),
     };
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(SelectOrganisationEndpoints_InvokesExpectedInteractionRequest_Parameters), DynamicDataSourceType.Property)]
     public async Task SelectOrganisationEndpoints_InvokesExpectedInteractionRequest(
         CreateSelectOrganisationSessionApiRequest apiRequest)

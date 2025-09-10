@@ -321,7 +321,7 @@ public sealed class SelectOrganisationControllerTests
 
     [DataRow(true)]
     [DataRow(false)]
-    [DataTestMethod]
+    [TestMethod]
     public async Task Index_PresentsReflectsSessionAllowCancel(bool allowCancel)
     {
         var autoMocker = CreateAutoMocker();

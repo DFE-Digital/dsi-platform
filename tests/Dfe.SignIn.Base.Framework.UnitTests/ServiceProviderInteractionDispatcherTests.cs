@@ -121,7 +121,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
         );
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(typeof(InvalidRequestException))]
     [DataRow(typeof(InvalidResponseException))]
     public async Task DispatchAsync_ThrowsUnexpectedException_WhenInvocationIdOfValidationExceptionDoesNotMatchContext(
@@ -149,7 +149,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
             => await interaction.DispatchAsync(FakeRequest));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(typeof(InvalidOperationException), typeof(UnexpectedException))]
     [DataRow(typeof(FakeInteractionException), typeof(FakeInteractionException))]
     [DataRow(typeof(OperationCanceledException), typeof(OperationCanceledException))]

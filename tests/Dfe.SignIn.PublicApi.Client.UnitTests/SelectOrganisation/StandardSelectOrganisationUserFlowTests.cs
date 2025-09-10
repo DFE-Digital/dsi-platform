@@ -125,7 +125,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
     [DataRow(false)]
     [DataRow(true)]
-    [DataTestMethod]
+    [TestMethod]
     public async Task InitiateSelectionAsync_InteractsTo_CreateSelectOrganisationSession(bool allowCancel)
     {
         var autoMocker = new AutoMocker();

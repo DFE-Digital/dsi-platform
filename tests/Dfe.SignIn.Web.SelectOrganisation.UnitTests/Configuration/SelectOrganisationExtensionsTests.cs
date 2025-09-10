@@ -25,7 +25,7 @@ public sealed class SelectOrganisationExtensionsTests
         typeof(IInteractor<InvalidateSelectOrganisationSessionRequest>),
         DisplayName = nameof(InvalidateSelectOrganisationSessionRequest)
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void SetupSelectOrganisationInteractions_HasExpectedInteractionType(
         Type interactionType)
     {

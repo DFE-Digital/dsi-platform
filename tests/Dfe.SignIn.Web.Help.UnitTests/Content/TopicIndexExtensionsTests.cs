@@ -10,8 +10,6 @@ public sealed class TopicIndexExtensionsTests
     [TestMethod]
     public void GetRequiredTopic_Throws_WhenTopicIndexArgumentIsNull()
     {
-        var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
-
         Assert.ThrowsExactly<ArgumentNullException>(()
             => TopicIndexExtensions.GetRequiredTopic(null!, "/"));
     }
@@ -59,8 +57,7 @@ public sealed class TopicIndexExtensionsTests
     [TestMethod]
     public void GetParentTopic_Throws_WhenTopicIndexArgumentIsNull()
     {
-        var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
-        var topic = TopicMemoryCacheTests.FakeTopics.First();
+        var topic = TopicMemoryCacheTests.FakeTopics[0];
 
         Assert.ThrowsExactly<ArgumentNullException>(()
             => TopicIndexExtensions.GetParentTopic(null!, topic));
@@ -88,7 +85,7 @@ public sealed class TopicIndexExtensionsTests
 
     [DataRow("/my-account", "/")]
     [DataRow("/my-account/changing-my-password", "/my-account")]
-    [DataTestMethod]
+    [TestMethod]
     public void GetParentTopic_ReturnsExpectedParentTopic(string topicPath, string expectedParentTopicPath)
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
@@ -108,8 +105,7 @@ public sealed class TopicIndexExtensionsTests
     [TestMethod]
     public void GetChildTopics_Throws_WhenTopicIndexArgumentIsNull()
     {
-        var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
-        var topic = TopicMemoryCacheTests.FakeTopics.First();
+        var topic = TopicMemoryCacheTests.FakeTopics[0];
 
         Assert.ThrowsExactly<ArgumentNullException>(()
             => TopicIndexExtensions.GetChildTopics(null!, topic));
@@ -138,7 +134,7 @@ public sealed class TopicIndexExtensionsTests
 
     [DataRow("/", new string[] { "/my-account" })]
     [DataRow("/my-account", new string[] { "/my-account/changing-my-password", "/my-account/multifactor-authentication" })]
-    [DataTestMethod]
+    [TestMethod]
     public void GetChildTopics_ReturnsExpectedChildTopics(string topicPath, string[] expectedChildTopicPaths)
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
@@ -160,8 +156,7 @@ public sealed class TopicIndexExtensionsTests
     [TestMethod]
     public void GetCrumbs_Throws_WhenTopicIndexArgumentIsNull()
     {
-        var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);
-        var topic = TopicMemoryCacheTests.FakeTopics.First();
+        var topic = TopicMemoryCacheTests.FakeTopics[0];
 
         Assert.ThrowsExactly<ArgumentNullException>(()
             => TopicIndexExtensions.GetCrumbs(null!, topic));
@@ -179,7 +174,7 @@ public sealed class TopicIndexExtensionsTests
     [DataRow("/", new string[0])]
     [DataRow("/my-account", new string[] { "/" })]
     [DataRow("/my-account/changing-my-password", new string[] { "/", "/my-account" })]
-    [DataTestMethod]
+    [TestMethod]
     public void GetCrumbs_ReturnsExpectedCrumbTopics(string topicPath, string[] expectedCrumbTopicPaths)
     {
         var topicCache = new TopicMemoryCache(TopicMemoryCacheTests.FakeTopics);

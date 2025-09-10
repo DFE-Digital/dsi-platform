@@ -30,7 +30,7 @@ public class TokenIssuanceStartHandlerTests
         },
     };
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("", "Invalid event type ''.")]
     [DataRow("microsoft.graph.invalidEvent", "Invalid event type 'microsoft.graph.invalidEvent'.")]
     public async Task Throws_WhenGivenUnexpectedEventType(
@@ -48,7 +48,7 @@ public class TokenIssuanceStartHandlerTests
         Assert.AreEqual(expectedMessage, exception.Message);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("", "Invalid callout data type ''.")]
     [DataRow("microsoft.graph.invalidCalloutDataType", "Invalid callout data type 'microsoft.graph.invalidCalloutDataType'.")]
     public async Task Throws_WhenGivenUnexpectedCalloutDataType(
