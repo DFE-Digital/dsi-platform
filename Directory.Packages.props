@@ -9,27 +9,25 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
-  <PropertyGroup>
+  <!-- .NET framework -->
+  <ItemGroup>
     <!--
       Even though projects currently target .NET SDK 8.0; newer packages are compatible:
       https://learn.microsoft.com/en-us/dotnet/core/versions/#net-runtime-compatibility
     -->
-    <MicrosoftSdkVersion>9.0.4</MicrosoftSdkVersion>
-    <AspNetCoreVersion>2.3.0</AspNetCoreVersion>
-    <MicrosoftTestFrameworkVersion>3.8.3</MicrosoftTestFrameworkVersion>
-  </PropertyGroup>
+  </ItemGroup>
 
   <!-- Application composition -->
   <ItemGroup>
     <!-- Dependency injection -->
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftSdkVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftSdkVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
 
     <!-- Options -->
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MicrosoftSdkVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.9" />
 
     <!-- Decorator pattern -->
-    <PackageVersion Include="Scrutor" Version="6.0.1" />
+    <PackageVersion Include="Scrutor" Version="6.1.0" />
   </ItemGroup>
 
   <!-- Communication -->
@@ -48,20 +46,20 @@
 
   <!-- Monitoring -->
   <ItemGroup>
-    <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(MicrosoftSdkVersion)" />
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.9" />
   </ItemGroup>
 
   <!-- HTTP / API -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.Http" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="$(MicrosoftSdkVersion)" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="8.1.1" />
-    <PackageVersion Include="System.Net.Http.Json" Version="$(MicrosoftSdkVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.9" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.4" />
+    <PackageVersion Include="System.Net.Http.Json" Version="9.0.9" />
   </ItemGroup>
 
   <!-- Security -->
@@ -71,8 +69,8 @@
     <PackageVersion Include="NetEscapades.AspNetCore.SecurityHeaders.TagHelpers" Version="1.0.0" />
 
     <!-- Identity -->
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.3.0" />
     <PackageVersion Include="Microsoft.Identity.Client" Version="4.68.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
   </ItemGroup>
@@ -80,9 +78,9 @@
   <!-- Persistance -->
   <ItemGroup>
     <!-- Caching -->
-    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="$(MicrosoftSdkVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftSdkVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(MicrosoftSdkVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.9" />
   </ItemGroup>
 
   <!-- Frontends -->
@@ -94,7 +92,7 @@
   <!-- Content -->
   <ItemGroup>
     <PackageVersion Include="HtmlAgilityPack" Version="1.12.1" />
-    <PackageVersion Include="Markdig" Version="0.41.2" />
+    <PackageVersion Include="Markdig" Version="0.41.3" />
     <PackageVersion Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
@@ -106,13 +104,13 @@
   <!-- Unit testing -->
   <ItemGroup>
     <!-- Code coverage -->
-    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
 
     <!-- Microsoft testing framework -->
-    <PackageVersion Include="MSTest.TestAdapter" Version="$(MicrosoftTestFrameworkVersion)" />
-    <PackageVersion Include="MSTest.TestFramework" Version="$(MicrosoftTestFrameworkVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="3.10.4" />
+    <PackageVersion Include="MSTest.TestFramework" Version="3.10.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="8.0.20" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
 
     <!-- Mocking -->
     <PackageVersion Include="Moq" Version="4.20.72" />
