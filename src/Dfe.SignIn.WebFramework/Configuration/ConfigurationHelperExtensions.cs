@@ -1,0 +1,81 @@
+using System.Text.Json;
+using Dfe.SignIn.Base.Framework;
+using Microsoft.Extensions.Configuration;
+
+namespace Dfe.SignIn.WebFramework.Configuration;
+
+/// <summary>
+/// Extensions to help with configuring applications.
+/// </summary>
+public static class ConfigurationHelperExtensions
+{
+    /// <summary>
+    /// Gets JSON encoded data from configuration section.
+    /// </summary>
+    /// <typeparam name="T">The type of data.</typeparam>
+    /// <param name="section">Configuration section.</param>
+    /// <param name="key">Key of configuration entry.</param>
+    /// <returns>
+    ///   <para>The JSON encoded data when present; otherwise, a value null.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="section"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="key"/> is null.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    /// </exception>
+    public static T? GetJson<T>(this IConfigurationSection section, string key)
+        where T : class
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(section, nameof(section));
+        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(key, nameof(key));
+
+        string? json = section[key];
+        return JsonSerializer.Deserialize<T>(!string.IsNullOrWhiteSpace(json) ? json : "null");
+    }
+
+    /// <summary>
+    /// Gets JSON encoded list of elements from configuration section.
+    /// </summary>
+    /// <typeparam name="T">The type of element.</typeparam>
+    /// <param name="section">Configuration section.</param>
+    /// <param name="key">Key of configuration entry.</param>
+    /// <returns>
+    ///   <para>The JSON encoded list of elements when present; otherwise, an empty list.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="section"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="key"/> is null.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    /// </exception>
+    public static List<T> GetJsonList<T>(this IConfigurationSection section, string key)
+    {
+        return GetJson<List<T>>(section, key) ?? [];
+    }
+
+    /// <summary>
+    /// Gets JSON encoded list of strings from configuration section.
+    /// </summary>
+    /// <param name="section">Configuration section.</param>
+    /// <param name="key">Key of configuration entry.</param>
+    /// <returns>
+    ///   <para>The JSON encoded list of strings when present; otherwise, an empty list.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="section"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="key"/> is null.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    /// </exception>
+    public static List<string> GetJsonList(this IConfigurationSection section, string key)
+    {
+        return GetJsonList<string>(section, key) ?? [];
+    }
+}

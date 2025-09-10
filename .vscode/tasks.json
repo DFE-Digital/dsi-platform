@@ -30,11 +30,11 @@
     {
       "label": "debug (Dfe.SignIn.Fn.AuthExtensions)",
       "type": "func",
-      "dependsOn": "build (functions)",
+      "dependsOn": "build (Dfe.SignIn.Fn.AuthExtensions)",
       "options": {
         "cwd": "${workspaceFolder}/src/Dfe.SignIn.Fn.AuthExtensions/bin/Debug/net8.0"
       },
-      "command": "host start",
+      "command": "host start --verbose",
       "isBackground": true,
       "problemMatcher": "$func-dotnet-watch"
     }

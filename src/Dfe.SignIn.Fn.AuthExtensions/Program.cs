@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.NodeApi.Client;
+using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +35,11 @@ builder.Services
     ]);
 
 builder.Services
+    .Configure<BlockedEmailAddressOptions>(options => {
+        var section = builder.Configuration.GetSection("BlockedEmailAddresses");
+        options.BlockedDomains = section.GetJsonList("BlockedDomains");
+        options.BlockedNames = section.GetJsonList("BlockedNames");
+    })
     .AddInteractor<CheckIsBlockedEmailAddressUseCase>()
     .AddInteractor<AutoLinkEntraUserToDsiUseCase>();
 
