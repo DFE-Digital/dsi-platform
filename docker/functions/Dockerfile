@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:3cef19377b2ef2a0171e930a24627677447c3e41b5f2eab84ff4895f1b15d254 AS installer-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:3cef19377b2ef2a0171e930a24627677447c3e41b5f2eab84ff4895f1b15d254 AS build
 
 ARG PROJECT_NAME
 
@@ -16,4 +16,9 @@ FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0@sha2
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 
-COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]
+COPY --from=build ["/home/site/wwwroot", "/home/site/wwwroot"]
+
+RUN chown -R "$APP_UID:$APP_UID" /azure-functions-host && \
+    chown -R "$APP_UID:$APP_UID" /home
+
+USER $APP_UID

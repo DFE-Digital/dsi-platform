@@ -40,17 +40,16 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
 
         var user = await this.ConvertInvitationToUserAsync(invitation.Id, context.Request.EntraUserId);
         logger.LogInformation(
-            $"Fulfilled pending invitation '{invitation.Id}' for user '{user.Id}'."
+            "Fulfilled pending invitation '{InvitationId}' for user '{UserId}'.",
+            invitation.Id, user.Id
         );
 
         await this.AssignOrganisationsFromInvitationAsync(invitation.Id, user.Id);
-        logger.LogInformation(
-            $"Assigned organisations from pending invitation '{invitation.Id}' for user '{user.Id}'."
-        );
-
         await this.AssignServicesFromInvitationAsync(invitation.Id, user.Id);
+
         logger.LogInformation(
-            $"Assigned services from pending invitation '{invitation.Id}' for user '{user.Id}'."
+            "Assigned organisations and services from pending invitation '{InvitationId}' for user '{UserId}'.",
+            invitation.Id, user.Id
         );
 
         await this.RemoveInvitationFromSearchIndexAsync(invitation.Id, user.Id);
@@ -115,12 +114,15 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             var response = await searchClient.DeleteAsync($"users/{removeSearchIndexId}");
             response.EnsureSuccessStatusCode();
             logger.LogInformation(
-                $"Removed '{removeSearchIndexId}' from search index for user '{userId}'."
+                "Removed '{RemoveSearchIndexId}' from search index for user '{UserId}'.",
+                removeSearchIndexId, userId
             );
         }
-        catch {
+        catch (Exception ex) {
             logger.LogError(
-                $"Unable to remove '{removeSearchIndexId}' from search index for user '{userId}'."
+                ex,
+                "Unable to remove '{RemoveSearchIndexId}' from search index for user '{UserId}'.",
+                removeSearchIndexId, userId
             );
         }
     }
@@ -136,12 +138,14 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             )!;
             response.EnsureSuccessStatusCode();
             logger.LogInformation(
-                $"Updated search index pending invitation '{invitationId}' for user '{userId}'."
+                "Updated search index pending invitation '{InvitationId}' for user '{UserId}'.",
+                invitationId, userId
             );
         }
         catch {
             logger.LogError(
-                $"Unable to update search index pending invitation '{invitationId}' for user '{userId}'."
+                "Unable to update search index pending invitation '{InvitationId}' for user '{UserId}'.",
+                invitationId, userId
             );
         }
     }

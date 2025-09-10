@@ -50,12 +50,15 @@ public sealed class CreateUserNodeRequester(
             })!;
             response.EnsureSuccessStatusCode();
             logger.LogInformation(
-                $"Updated search index for user '{userId}'."
+                "Updated search index for user '{UserId}'.",
+                userId
             );
         }
-        catch {
+        catch (Exception ex) {
             logger.LogError(
-                $"Unable to update search index for user '{userId}'."
+                ex,
+                "Unable to update search index for user '{UserId}'.",
+                userId
             );
         }
     }

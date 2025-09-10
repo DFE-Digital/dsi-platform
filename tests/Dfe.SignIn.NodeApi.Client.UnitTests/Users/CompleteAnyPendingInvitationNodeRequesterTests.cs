@@ -143,7 +143,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var capturedLogs = new List<string>();
         var interactor = CreateCompleteAnyPendingInvitationNodeRequester(responseMappings, capturedLogs);
 
-        var response = await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
+        await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
             EmailAddress = "jo.bradford@example.com",
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
         });
@@ -179,7 +179,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var capturedLogs = new List<string>();
         var interactor = CreateCompleteAnyPendingInvitationNodeRequester(responseMappings, capturedLogs);
 
-        var response = await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
+        await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
             EmailAddress = "jo.bradford@example.com",
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
         });
@@ -187,7 +187,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var mapping = responseMappings["(POST) http://organisations.localhost/invitations/559c27b8-303e-4aff-b485-037a927827cd/migrate-to-user"];
         Assert.AreEqual(1, mapping.InvocationCount);
 
-        Assert.Contains("Information: Assigned organisations from pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
+        Assert.Contains("Information: Assigned organisations and services from pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
     }
 
     [TestMethod]
@@ -215,7 +215,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var capturedLogs = new List<string>();
         var interactor = CreateCompleteAnyPendingInvitationNodeRequester(responseMappings, capturedLogs);
 
-        var response = await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
+        await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
             EmailAddress = "jo.bradford@example.com",
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
         });
@@ -223,7 +223,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var mapping = responseMappings["(POST) http://access.localhost/invitations/559c27b8-303e-4aff-b485-037a927827cd/migrate-to-user"];
         Assert.AreEqual(1, mapping.InvocationCount);
 
-        Assert.Contains("Information: Assigned services from pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
+        Assert.Contains("Information: Assigned organisations and services from pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
     }
 
     [TestMethod]
@@ -251,7 +251,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var capturedLogs = new List<string>();
         var interactor = CreateCompleteAnyPendingInvitationNodeRequester(responseMappings, capturedLogs);
 
-        var response = await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
+        await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
             EmailAddress = "jo.bradford@example.com",
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
         });
@@ -269,7 +269,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var capturedLogs = new List<string>();
         var interactor = CreateCompleteAnyPendingInvitationNodeRequester(responseMappings, capturedLogs);
 
-        var response = await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
+        await interactor.InvokeAsync(new CompleteAnyPendingInvitationRequest {
             EmailAddress = "jo.bradford@example.com",
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
         });

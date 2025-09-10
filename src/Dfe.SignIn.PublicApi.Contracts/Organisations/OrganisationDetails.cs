@@ -20,7 +20,7 @@ public record OrganisationDetails
     /// </summary>
     public string? LegalName { get; init; }
 
-    // TODO: Add missing properties...
+    // Add missing properties...
     //   category - Category of the organisation.
     //   type - Type of organisation.
     //   urn - Unique reference number.
