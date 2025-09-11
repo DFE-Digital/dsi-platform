@@ -10,7 +10,9 @@ namespace Dfe.SignIn.NodeApi.Client.Users;
 /// <summary>
 /// An interactor to complete any pending invitation for a given user.
 /// </summary>
-[ApiRequester, NodeApi(NodeApiName.Directories)]
+[ApiRequester]
+[NodeApi(NodeApiName.Directories)]
+[NodeApi(NodeApiName.Search)]
 public sealed class CreateUserNodeRequester(
     [FromKeyedServices(NodeApiName.Directories)] HttpClient directoriesClient,
     [FromKeyedServices(NodeApiName.Search)] HttpClient searchClient,

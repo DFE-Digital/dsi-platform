@@ -42,7 +42,7 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
 
         // User exists in the system; are they an active user though?
         if (userStatusResponse.AccountStatus != AccountStatus.Active) {
-            throw new InvalidOperationException("Cannot link inactive user.");
+            throw new CannotLinkInactiveUserException();
         }
 
         return userStatusResponse.UserId;
@@ -63,7 +63,7 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
 
         // User exists in the system; are they an active user though?
         if (userStatusResponse.AccountStatus != AccountStatus.Active) {
-            throw new InvalidOperationException("Cannot link inactive user.");
+            throw new CannotLinkInactiveUserException();
         }
 
         await interaction.DispatchAsync(
@@ -87,6 +87,7 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
                 EntraUserId = request.EntraUserId,
             }
         ).To<CompleteAnyPendingInvitationResponse>();
+
         if (completeAnyPendingInvitationResponse.UserId is not null) {
             return completeAnyPendingInvitationResponse.UserId.Value;
         }
@@ -100,6 +101,7 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
                 Surname = request.Surname,
             }
         ).To<CreateUserResponse>();
+
         return createUserResponse.UserId;
     }
 }

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.NodeApi.Client.Users.Models;
 
-internal sealed record LinkToEntraRequestDto()
+internal sealed record LinkToEntraRequestDto
 {
     [JsonPropertyName("entraOid")]
     public required Guid EntraOid { get; init; }
@@ -14,7 +14,7 @@ internal sealed record LinkToEntraRequestDto()
     public required string LastName { get; init; }
 }
 
-internal sealed record LinkToEntraResponseDto()
+internal sealed record LinkToEntraResponseDto
 {
     [JsonPropertyName("id")]
     public required Guid Id { get; init; }

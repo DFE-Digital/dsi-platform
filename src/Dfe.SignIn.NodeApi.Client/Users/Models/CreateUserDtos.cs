@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.NodeApi.Client.Users.Models;
 
-internal sealed record CreateUserRequestDto()
+internal sealed record CreateUserRequestDto
 {
     [JsonPropertyName("email")]
     public required string Email { get; init; }
@@ -20,7 +20,7 @@ internal sealed record CreateUserRequestDto()
     public required Guid EntraOid { get; init; }
 }
 
-internal sealed record CreateUserResponseDto()
+internal sealed record CreateUserResponseDto
 {
     [JsonPropertyName("id")]
     public required Guid Id { get; init; }

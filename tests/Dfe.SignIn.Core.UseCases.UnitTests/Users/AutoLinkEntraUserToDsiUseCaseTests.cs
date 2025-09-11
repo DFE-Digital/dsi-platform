@@ -34,9 +34,8 @@ public sealed class AutoLinkEntraUserToDsiUseCaseTests
 
         var interactor = autoMocker.CreateInstance<AutoLinkEntraUserToDsiUseCase>();
 
-        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
+        await Assert.ThrowsExactlyAsync<CannotLinkInactiveUserException>(()
             => interactor.InvokeAsync(FakeRequest));
-        Assert.AreEqual("Cannot link inactive user.", exception.Message);
     }
 
     [TestMethod]
@@ -94,9 +93,8 @@ public sealed class AutoLinkEntraUserToDsiUseCaseTests
 
         var interactor = autoMocker.CreateInstance<AutoLinkEntraUserToDsiUseCase>();
 
-        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
+        await Assert.ThrowsExactlyAsync<CannotLinkInactiveUserException>(()
             => interactor.InvokeAsync(FakeRequest));
-        Assert.AreEqual("Cannot link inactive user.", exception.Message);
     }
 
     [TestMethod]
