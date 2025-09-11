@@ -5,31 +5,97 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C#: Application - Help",
-      "type": "dotnet",
+      "name": "Frontend Assets",
+      "presentation": {
+        "group": "_shared",
+      },
+      "type": "node",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj"
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "dfe: start frontend assets",
+      "postDebugTask": "dfe: stop frontend assets",
     },
     {
-      "name": "C#: Application - Public API",
+      "name": "App: Help",
+      "presentation": {
+        "group": "apps",
+      },
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj"
+      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj",
     },
     {
-      "name": "C#: Application - Select Organisation",
+      "name": "App: Public API",
+      "presentation": {
+        "group": "apps",
+      },
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.SelectOrganisation/Dfe.SignIn.Web.SelectOrganisation.csproj"
+      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj",
+    },
+    {
+      "name": "App: Select Organisation",
+      "presentation": {
+        "group": "apps",
+      },
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.SelectOrganisation/Dfe.SignIn.Web.SelectOrganisation.csproj",
+    },
+    {
+      "name": "Docs: External",
+      "presentation": {
+        "hidden": true
+      },
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "dfe: start external docs",
+      "postDebugTask": "dfe: stop external docs",
+    },
+    {
+      "name": "Docs: Internal",
+      "presentation": {
+        "hidden": true
+      },
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "dfe: start internal docs",
+      "postDebugTask": "dfe: stop internal docs",
     },
   ],
   "compounds": [
     {
-      "name": "C#: Select Organisation",
+      "name": "External Docs",
+      "presentation": {
+        "group": "docs",
+      },
       "configurations": [
-        "C#: Application - Public API",
-        "C#: Application - Select Organisation"
-      ]
+        "Frontend Assets",
+        "Docs: External",
+      ],
     },
-  ]
+    {
+      "name": "Internal Docs",
+      "presentation": {
+        "group": "docs",
+      },
+      "configurations": [
+        "Frontend Assets",
+        "Docs: Internal",
+      ],
+    },
+    {
+      "name": "Multi: Select Organisation",
+      "presentation": {
+        "group": "sets",
+      },
+      "configurations": [
+        "Frontend Assets",
+        "App: Public API",
+        "App: Select Organisation",
+      ],
+    },
+  ],
 }

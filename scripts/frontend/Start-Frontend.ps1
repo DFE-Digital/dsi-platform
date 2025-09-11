@@ -29,5 +29,5 @@ $root = Resolve-Path "$PSScriptRoot/../.."
 docker build $root -f "$root/docker/frontend/Dockerfile" -t $($site.tag) `
     --build-arg PROJECT_NAME=$($site.path)
 
-docker run -p "$($site.port):8080" `
+docker run -d -p "$($site.port):8080" `
     -e _ $($site.tag)

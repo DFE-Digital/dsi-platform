@@ -9,5 +9,47 @@
       "command": "dotnet build -p:IsPipeline=true && dotnet nuget push \"packages/*.nupkg\" --source LocalStore",
       "problemMatcher": []
     },
+    {
+      "label": "dfe: start frontend assets",
+      "type": "shell",
+      "command": "./scripts/frontend/Start-Frontend.ps1",
+      "problemMatcher": []
+    },
+    {
+      "label": "dfe: stop frontend assets",
+      "type": "shell",
+      "command": "./scripts/docker/Stop-Docker.ps1 -Tag frontend",
+      "problemMatcher": []
+    },
+    {
+      "label": "dfe: start external docs",
+      "type": "shell",
+      "command": "./scripts/docs/Start-Site.ps1 -Name external; open http://localhost:8085",
+      "windows": {
+        "command": "./scripts/docs/Start-Site.ps1 -Name external; start http://localhost:8085"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "dfe: stop external docs",
+      "type": "shell",
+      "command": "./scripts/docker/Stop-Docker.ps1 -Tag external-docs",
+      "problemMatcher": []
+    },
+    {
+      "label": "dfe: start internal docs",
+      "type": "shell",
+      "command": "./scripts/docs/Start-Site.ps1 -Name internal; open http://localhost:8086",
+      "windows": {
+        "command": "./scripts/docs/Start-Site.ps1 -Name internal; start http://localhost:8086"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "dfe: stop internal docs",
+      "type": "shell",
+      "command": "./scripts/docker/Stop-Docker.ps1 -Tag internal-docs",
+      "problemMatcher": []
+    },
   ]
 }

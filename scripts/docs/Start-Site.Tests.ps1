@@ -2,7 +2,7 @@ BeforeAll {
     $Cmdlet = $PSCommandPath.Replace('.Tests.ps1', '.ps1')
 }
 
-Describe "Preview-Site" {
+Describe "Start-Site" {
     BeforeAll {
         Mock Resolve-Path {
             return "."
