@@ -7,6 +7,10 @@ namespace Dfe.SignIn.Core.Contracts.SelectOrganisation;
 /// </summary>
 /// <remarks>
 ///   <para>Does nothing if the session does not exist.</para>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="InvalidateSelectOrganisationSessionResponse"/></item>
+///   </list>
 /// </remarks>
 public sealed record InvalidateSelectOrganisationSessionRequest
 {

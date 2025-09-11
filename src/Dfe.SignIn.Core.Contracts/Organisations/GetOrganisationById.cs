@@ -3,6 +3,12 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// <summary>
 /// Request to get an organisation by its unique identifier.
 /// </summary>
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="GetOrganisationByIdResponse"/></item>
+///   </list>
+/// </remarks>
 public record GetOrganisationByIdRequest
 {
     /// <summary>

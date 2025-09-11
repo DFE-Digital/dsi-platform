@@ -5,6 +5,12 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// <summary>
 /// Request to get all of the organisations that are associated with a particular user.
 /// </summary>
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="GetOrganisationsAssociatedWithUserResponse"/></item>
+///   </list>
+/// </remarks>
 public record GetOrganisationsAssociatedWithUserRequest()
 {
     /// <summary>

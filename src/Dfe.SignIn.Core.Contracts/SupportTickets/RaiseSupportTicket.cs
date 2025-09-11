@@ -6,6 +6,12 @@ namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 /// <summary>
 /// Request to raise a support ticket.
 /// </summary>
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="RaiseSupportTicketResponse"/></item>
+///   </list>
+/// </remarks>
 public sealed record RaiseSupportTicketRequest
 {
     /// <summary>
