@@ -68,7 +68,7 @@ jobs:
 
       - name: Build project
         run: |
-          dotnet build ./build.sln `
+          dotnet build ./build.sln /maxcpucount:1 `
             --framework net8.0
 
       - name: Run unit tests
