@@ -25,13 +25,13 @@
     Output from building the external developer reference documentation site.
 
 .EXAMPLE
-    ./scripts/docs/Preview-Site external
+    ./scripts/docs/Start-Site external
 
 .EXAMPLE
-    ./scripts/docs/Preview-Site internal
+    ./scripts/docs/Start-Site internal
 
 .EXAMPLE
-    ./scripts/docs/Preview-Site test
+    ./scripts/docs/Start-Site test
 #>
 [CmdletBinding()]
 param (
@@ -65,7 +65,7 @@ $root = Resolve-Path "$PSScriptRoot/../.."
 docker build $root -f "$root/docker/docs/Dockerfile" -t $($site.tag) `
     --build-arg PROJECT_NAME=$($site.path)
 
-docker run -p "$($site.port):8080" `
+docker run -d -p "$($site.port):8080" `
     -e CDN_BASE_ADDRESS=http://localhost:8081/ `
     -e SURVEY_URL=https://survey.localhost/ `
     -e _ $($site.tag)
