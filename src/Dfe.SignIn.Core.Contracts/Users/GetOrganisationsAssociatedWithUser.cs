@@ -11,7 +11,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 ///     <item><see cref="GetOrganisationsAssociatedWithUserResponse"/></item>
 ///   </list>
 /// </remarks>
-public record GetOrganisationsAssociatedWithUserRequest()
+public sealed record GetOrganisationsAssociatedWithUserRequest
 {
     /// <summary>
     /// Gets the unique identifier of the user.
@@ -22,7 +22,7 @@ public record GetOrganisationsAssociatedWithUserRequest()
 /// <summary>
 /// Response model for request <see cref="GetOrganisationsAssociatedWithUserRequest"/>.
 /// </summary>
-public record GetOrganisationsAssociatedWithUserResponse()
+public sealed record GetOrganisationsAssociatedWithUserResponse
 {
     /// <summary>
     /// Gets a list of zero-or-more models representing the organisations that are

@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 ///     <item><see cref="GetOrganisationByIdResponse"/></item>
 ///   </list>
 /// </remarks>
-public record GetOrganisationByIdRequest
+public sealed record GetOrganisationByIdRequest
 {
     /// <summary>
     /// Gets the unique identifier of the organisation.
@@ -20,7 +20,7 @@ public record GetOrganisationByIdRequest
 /// <summary>
 /// Response model for request <see cref="GetOrganisationByIdRequest"/>.
 /// </summary>
-public record GetOrganisationByIdResponse
+public sealed record GetOrganisationByIdResponse
 {
     /// <summary>
     /// Gets a model representing the organisation when the organisation was found;
