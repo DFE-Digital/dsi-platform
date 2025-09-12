@@ -20,10 +20,10 @@ public static class ValidationHelpers
             validateAllProperties: true
         );
         if (expectFailure && validationPassed) {
-            throw new Exception("Expected validation to fail; but it passed!");
+            throw new UnexpectedException("Expected validation to fail; but it passed!");
         }
         if (!expectFailure && !validationPassed) {
-            throw new Exception("Expected validation to pass; but it failed!");
+            throw new UnexpectedException("Expected validation to pass; but it failed!");
         }
         return results;
     }
@@ -38,7 +38,7 @@ public static class ValidationHelpers
     /// <returns>
     ///   <para>The list of validation results.</para>
     /// </returns>
-    /// <exception cref="Exception">
+    /// <exception cref="UnexpectedException">
     ///   <para>If the validation has passed unexpectedly.</para>
     /// </exception>
     public static List<ValidationResult> ValidateAndExpectFailure(object instance)
@@ -53,7 +53,7 @@ public static class ValidationHelpers
     ///   <para>This helper function is intended for use in unit tests only.</para>
     /// </remarks>
     /// <param name="instance">The object under test.</param>
-    /// <exception cref="Exception">
+    /// <exception cref="UnexpectedException">
     ///   <para>If the validation has failed unexpectedly.</para>
     /// </exception>
     public static void ValidateAndExpectOk(object instance)

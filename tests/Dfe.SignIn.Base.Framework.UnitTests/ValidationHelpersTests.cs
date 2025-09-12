@@ -8,7 +8,7 @@ public sealed class ValidationHelpersTests
     private sealed record ExampleModel
     {
         [MinLength(1, ErrorMessage = "Specify at least one character")]
-        public string Value = "";
+        public string Value { get; set; } = "";
     }
 
     #region ValidateAndExpectFailure(object)
@@ -18,7 +18,7 @@ public sealed class ValidationHelpersTests
     {
         var model = new ExampleModel { Value = "valid" };
 
-        var exception = Assert.ThrowsExactly<Exception>(()
+        var exception = Assert.ThrowsExactly<UnexpectedException>(()
             => ValidationHelpers.ValidateAndExpectFailure(model));
         Assert.AreEqual("Expected validation to fail; but it passed!", exception.Message);
     }
@@ -45,7 +45,7 @@ public sealed class ValidationHelpersTests
     {
         var model = new ExampleModel();
 
-        var exception = Assert.ThrowsExactly<Exception>(()
+        var exception = Assert.ThrowsExactly<UnexpectedException>(()
             => ValidationHelpers.ValidateAndExpectOk(model));
         Assert.AreEqual("Expected validation to pass; but it failed!", exception.Message);
     }
@@ -69,9 +69,9 @@ public sealed class ValidationHelpersTests
 
     private sealed record ExampleModelWithMultipleMembers
     {
-        public string? First;
-        public string? Second;
-        public string? Third;
+        public string? First { get; set; }
+        public string? Second { get; set; }
+        public string? Third { get; set; }
     }
 
     private static readonly string[] ExampleModelWithMultipleMembersMemberNames
