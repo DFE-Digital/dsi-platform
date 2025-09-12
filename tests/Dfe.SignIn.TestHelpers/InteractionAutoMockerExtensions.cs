@@ -47,7 +47,25 @@ public static class InteractionAutoMockerExtensions
     }
 
     /// <summary>
-    /// Sets up a mock response for a specific request.
+    /// Sets up a mock response where request matches a given predicate.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="predicate">The predicate.</param>
+    /// <param name="response">The fake response.</param>
+    public static void MockResponseWhere<TRequest>(this AutoMocker autoMocker, Predicate<TRequest> predicate, object response)
+        where TRequest : class
+    {
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
+                It.Is<TRequest>(r => predicate(r)),
+                It.IsAny<CancellationToken>()
+            ))
+            .Returns(InteractionTask.FromResult(response));
+    }
+
+    /// <summary>
+    /// Sets up a mock response matching the given request.
     /// </summary>
     /// <typeparam name="TRequest">The type of request model.</typeparam>
     /// <param name="autoMocker">The auto mocker instance.</param>
@@ -56,12 +74,20 @@ public static class InteractionAutoMockerExtensions
     public static void MockResponse<TRequest>(this AutoMocker autoMocker, TRequest request, object response)
         where TRequest : class
     {
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(x => x.DispatchAsync(
-                It.Is<TRequest>(r => ReferenceEquals(r, request)),
-                It.IsAny<CancellationToken>()
-            ))
-            .Returns(InteractionTask.FromResult(response));
+        MockResponseWhere<TRequest>(autoMocker, r => Equals(r, request), response);
+    }
+
+    /// <summary>
+    /// Sets up a mock response for the exact request instance.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="request">The fake request.</param>
+    /// <param name="response">The fake response.</param>
+    public static void MockResponseExactly<TRequest>(this AutoMocker autoMocker, TRequest request, object response)
+        where TRequest : class
+    {
+        MockResponseWhere<TRequest>(autoMocker, r => ReferenceEquals(r, request), response);
     }
 
     /// <summary>

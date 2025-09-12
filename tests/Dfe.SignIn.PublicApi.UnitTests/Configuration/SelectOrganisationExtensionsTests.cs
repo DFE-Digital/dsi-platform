@@ -27,7 +27,7 @@ public sealed class SelectOrganisationExtensionsTests
         typeof(IInteractor<FilterOrganisationsForUserRequest>),
         DisplayName = nameof(FilterOrganisationsForUserRequest)
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void SetupSelectOrganisationInteractions_HasExpectedInteractionType(
         Type interactionType)
     {

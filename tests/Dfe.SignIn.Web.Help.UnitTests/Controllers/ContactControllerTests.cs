@@ -56,11 +56,13 @@ public sealed class ContactControllerTests
         var autoMocker = new AutoMocker();
         SetupMockContactUsTopic(autoMocker);
 
-        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest>(new GetSubjectOptionsForSupportTicketResponse {
-            SubjectOptions = [
-                new() { Code = "other", Description = "Other (please specify)" },
-            ],
-        });
+        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest>(
+            new GetSubjectOptionsForSupportTicketResponse {
+                SubjectOptions = [
+                    new() { Code = "other", Description = "Other (please specify)" },
+                ],
+            }
+        );
 
         autoMocker.MockResponse<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
 
@@ -81,12 +83,14 @@ public sealed class ContactControllerTests
 
         autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetSubjectOptionsForSupportTicketResponse>();
 
-        autoMocker.MockResponse<GetApplicationNamesForSupportTicketRequest>(new GetApplicationNamesForSupportTicketResponse {
-            Applications = [
-                new() { Name = "Service A" },
-                new() { Name = "Service B" },
-            ],
-        });
+        autoMocker.MockResponse<GetApplicationNamesForSupportTicketRequest>(
+            new GetApplicationNamesForSupportTicketResponse {
+                Applications = [
+                    new() { Name = "Service A" },
+                    new() { Name = "Service B" },
+                ],
+            }
+        );
 
         var controller = autoMocker.CreateInstance<ContactController>();
 

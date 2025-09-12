@@ -19,7 +19,7 @@ public sealed class TopicPathHelpersTests
     [DataRow("/about", "About")]
     [DataRow("/my-account/change-password", "Change password")]
     [DataRow("/my-account/change-password/", "Change password")]
-    [DataTestMethod]
+    [TestMethod]
     public void TopicPathToTitle_ReturnsExpectedTitle(string topicPath, string expectedTitle)
     {
         string title = TopicPathHelpers.TopicPathToTitle(topicPath);
@@ -43,7 +43,7 @@ public sealed class TopicPathHelpersTests
     [DataRow("/about", "about")]
     [DataRow("/my-account/change-password", "change-password")]
     [DataRow("/my-account/change-password/", "change-password")]
-    [DataTestMethod]
+    [TestMethod]
     public void SlugFromPath_ReturnsExpectedSlug(string topicPath, string? expectedSlug)
     {
         string? slug = TopicPathHelpers.SlugFromPath(topicPath);
@@ -67,7 +67,7 @@ public sealed class TopicPathHelpersTests
     [DataRow("/about", "/")]
     [DataRow("/about/", "/about")]
     [DataRow("/my-account/change-password", "/my-account")]
-    [DataTestMethod]
+    [TestMethod]
     public void GetParentTopicPath_ReturnsExpectedParentTopicPath(string topicPath, string? expectedParentTopicPath)
     {
         string? parentTopicPath = TopicPathHelpers.GetParentTopicPath(topicPath);
@@ -104,7 +104,7 @@ public sealed class TopicPathHelpersTests
 
     [DataRow("/", "/")]
     [DataRow("/path/with/trailing-slash-character/", "/path/with/trailing-slash-character")]
-    [DataTestMethod]
+    [TestMethod]
     public void ResolveTopicPath_RemovesTrailingSlashCharacter(string topicPath, string expectedResolvedTopicPath)
     {
         string resolvedTopicPath = TopicPathHelpers.ResolveTopicPath(topicPath);
@@ -122,7 +122,7 @@ public sealed class TopicPathHelpersTests
 
     [DataRow("/my-account/index.md", "/my-account")]
     [DataRow("/my-account/changing-my-password.md", "/my-account/changing-my-password")]
-    [DataTestMethod]
+    [TestMethod]
     public void ResolveTopicPath_RemovesTrailingFileExtension(string topicPath, string expecedResolvedTopicPath)
     {
         string resolvedTopicPath = TopicPathHelpers.ResolveTopicPath(topicPath);

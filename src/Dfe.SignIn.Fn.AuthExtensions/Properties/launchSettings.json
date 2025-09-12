@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Dfe.SignIn.Fn.AuthExtensions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7048",
+      "launchBrowser": false
+    }
+  }
+}

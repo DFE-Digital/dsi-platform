@@ -13,7 +13,7 @@ public sealed class EnumHelpersTests
         Three = 3
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("One", EnumTest.One)]
     [DataRow("two", EnumTest.Two)]
     [DataRow("3", EnumTest.Three)]
@@ -25,7 +25,7 @@ public sealed class EnumHelpersTests
         Assert.AreEqual(expected, result);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null)]
     [DataRow("InvalidValue")]
     [DataRow(99)]

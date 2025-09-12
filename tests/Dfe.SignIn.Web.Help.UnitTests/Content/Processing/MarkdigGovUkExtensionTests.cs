@@ -29,7 +29,7 @@ public sealed class MarkdigGovUkExtensionTests
     [DataRow("## heading", "h2", "govuk-heading-m")]
     [DataRow("### heading", "h3", "govuk-heading-s")]
     [DataRow("#### heading", "h4", "govuk-heading-xs")]
-    [DataTestMethod]
+    [TestMethod]
     public void DocumentProcessed_Heading_HasExpectedClass(string markdown, string elementName, string expectedClass)
     {
         var doc = this.ParseMarkdown(markdown);
@@ -65,7 +65,7 @@ public sealed class MarkdigGovUkExtensionTests
         "ol",
         "govuk-list--number"
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void DocumentProcessed_List_HasExpectedClass(string markdown, string elementName, string expectedClass)
     {
         var doc = this.ParseMarkdown(markdown);

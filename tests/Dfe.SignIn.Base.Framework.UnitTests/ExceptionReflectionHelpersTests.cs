@@ -24,6 +24,15 @@ public sealed class ExceptionReflectionHelpersTests
         [SuppressMessage("roslyn", "CA1822",
             Justification = "Property needs to be instance member for unit test."
         )]
+        [SuppressMessage("csharpsquid", "S1186",
+            Justification = "Required for unit test."
+        )]
+        [SuppressMessage("csharpsquid", "S3237",
+            Justification = "Required for unit test."
+        )]
+        [SuppressMessage("csharpsquid", "S108",
+            Justification = "Required for unit test."
+        )]
         public string PropertyWithoutGetter { set { } }
 
         [Persist]
@@ -39,7 +48,7 @@ public sealed class ExceptionReflectionHelpersTests
         public string AnotherProperty { get; private set; } = "";
     }
 
-    private class FakeOtherReflectionHelperException : Exception
+    public class FakeOtherReflectionHelperException : Exception
     {
         public string SomeProperty { get; private set; } = "";
     }
@@ -63,7 +72,7 @@ public sealed class ExceptionReflectionHelpersTests
     [DataRow("System.Exception", typeof(Exception))]
     [DataRow("Dfe.SignIn.Base.Framework.InteractionException", typeof(InteractionException))]
     [DataRow("Dfe.SignIn.Base.Framework.UnexpectedException", typeof(UnexpectedException))]
-    [DataTestMethod]
+    [TestMethod]
     public void GetExceptionTypeByFullName_ReturnsExpectedType(string fullName, Type expectedType)
     {
         var exceptionType = ExceptionReflectionHelpers.GetExceptionTypeByFullName(fullName);

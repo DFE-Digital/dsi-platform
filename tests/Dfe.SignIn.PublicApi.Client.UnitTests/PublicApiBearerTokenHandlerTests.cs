@@ -81,7 +81,7 @@ public sealed class PublicApiBearerTokenHandlerTests
 
     [DataRow(null)]
     [DataRow("   ")]
-    [DataTestMethod]
+    [TestMethod]
     public void CreateAuthorizationHeader_Throws_WhenApiSecretOptionIsMissing(string fakeApiSecret)
     {
         var autoMocker = new AutoMocker();
@@ -95,14 +95,14 @@ public sealed class PublicApiBearerTokenHandlerTests
         var handler = CreatePublicApiBearerTokenHandler(autoMocker);
 
         var exception = Assert.ThrowsExactly<InvalidOperationException>(
-            () => handler.CreateAuthorizationHeader()
+            handler.CreateAuthorizationHeader
         );
         Assert.AreEqual("Invalid DfE Sign-in Public API secret.", exception.Message);
     }
 
     [DataRow(null)]
     [DataRow("   ")]
-    [DataTestMethod]
+    [TestMethod]
     public void CreateAuthorizationHeader_Throws_WhenClientIdOptionIsMissing(string fakeClientId)
     {
         var autoMocker = new AutoMocker();
@@ -116,14 +116,14 @@ public sealed class PublicApiBearerTokenHandlerTests
         var handler = CreatePublicApiBearerTokenHandler(autoMocker);
 
         var exception = Assert.ThrowsExactly<InvalidOperationException>(
-            () => handler.CreateAuthorizationHeader()
+            handler.CreateAuthorizationHeader
         );
         Assert.AreEqual("Invalid DfE Sign-in Public API client ID.", exception.Message);
     }
 
     [DataRow(null)]
     [DataRow("   ")]
-    [DataTestMethod]
+    [TestMethod]
     public void CreateAuthorizationHeader_Throws_WhenAudienceOptionIsMissing(string fakeAudience)
     {
         var autoMocker = new AutoMocker();
@@ -138,7 +138,7 @@ public sealed class PublicApiBearerTokenHandlerTests
         var handler = CreatePublicApiBearerTokenHandler(autoMocker);
 
         var exception = Assert.ThrowsExactly<InvalidOperationException>(
-            () => handler.CreateAuthorizationHeader()
+            handler.CreateAuthorizationHeader
         );
         Assert.AreEqual("Invalid DfE Sign-in Public API service audience.", exception.Message);
     }

@@ -77,7 +77,7 @@ public sealed class SelectOrganisationRequestSessionTrackingTests
         autoMocker.GetMock<ISession>()
             .Setup(mock => mock.TryGetValue(
                 It.Is<string>(key => key == SelectOrganisationRequestSessionTracking.TrackedRequestIdSessionKey),
-                out output
+                out output!
             ))
             .Returns(true);
 
@@ -100,7 +100,7 @@ public sealed class SelectOrganisationRequestSessionTrackingTests
         autoMocker.GetMock<ISession>()
             .Setup(mock => mock.TryGetValue(
                 It.Is<string>(key => key == SelectOrganisationRequestSessionTracking.TrackedRequestIdSessionKey),
-                out output
+                out output!
             ))
             .Returns(true);
 

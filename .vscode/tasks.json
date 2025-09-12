@@ -8,6 +8,6 @@
       "type": "shell",
       "command": "dotnet build -p:IsPipeline=true && dotnet nuget push \"packages/*.nupkg\" --source LocalStore",
       "problemMatcher": []
-    }
+    },
   ]
 }

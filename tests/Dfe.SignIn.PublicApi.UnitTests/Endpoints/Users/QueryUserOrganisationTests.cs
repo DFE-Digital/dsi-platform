@@ -79,7 +79,7 @@ public sealed class QueryUserOrganisationTests
         [FakeDetailedRequest],
     ];
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(PostQueryUserOrganisation_InvokesExpectedInteractionRequest_Parameters), DynamicDataSourceType.Property)]
     public async Task PostQueryUserOrganisation_InvokesExpectedInteractionRequest(
         QueryUserOrganisationApiRequestBody apiRequest)

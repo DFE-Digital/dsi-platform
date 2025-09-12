@@ -13,7 +13,7 @@ namespace Dfe.SignIn.NodeApi.Client.SupportTickets;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
 public sealed class GetApplicationNamesForSupportTicketNodeRequester(
-    [FromKeyedServices(NodeApiName.Applications)] HttpClient httpClient
+    [FromKeyedServices(NodeApiName.Applications)] HttpClient applicationsClient
 ) : Interactor<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>
 {
     /// <inheritdoc/>
@@ -23,7 +23,7 @@ public sealed class GetApplicationNamesForSupportTicketNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var response = (await httpClient.GetFromJsonOrDefaultAsync<ApplicationListingDto>(
+        var response = (await applicationsClient.GetFromJsonOrDefaultAsync<ApplicationListingDto>(
             $"services?page=1&pageSize=1000",
             cancellationToken
         ))!;

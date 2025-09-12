@@ -17,19 +17,20 @@ public static class ServiceCollectionExtensions
     private static readonly Assembly ThisAssembly = typeof(ServiceCollectionExtensions).Assembly;
 
     /// <summary>
-    /// Determines whether an interactor type descriptor is associated with a named
-    /// DfE Sign-in mit-tier API (Node.js implementation).
+    /// Determines whether all of the middle-tier APIs that are required by an
+    /// interactor type descriptor are available.
     /// </summary>
     /// <param name="descriptor">The interactor type descriptor.</param>
-    /// <param name="apiName">The name of a DfE Sign-in mid-tier API.</param>
+    /// <param name="availableApis">The names of available middle-tier APIs.</param>
     /// <returns>
     ///   <para>True when interactor is associated with the named mid-tier API;
     ///   otherwise, a value of false.</para>
     /// </returns>
-    public static bool IsFor(this InteractorTypeDescriptor descriptor, NodeApiName apiName)
+    public static bool AreAllRequiredApisAvailable(this InteractorTypeDescriptor descriptor, IEnumerable<NodeApiName> availableApis)
     {
-        var attr = descriptor.ConcreteType.GetCustomAttribute<NodeApiAttribute>(inherit: true);
-        return attr?.Name == apiName;
+        var attrs = descriptor.ConcreteType.GetCustomAttributes<NodeApiAttribute>(inherit: true);
+        var availableAttrs = attrs.IntersectBy(availableApis, attr => attr.Name);
+        return attrs.Any() && availableAttrs.Count() == attrs.Count();
     }
 
     /// <summary>
@@ -88,12 +89,12 @@ public static class ServiceCollectionExtensions
                     .WithAuthority(apiOptions.AuthenticatedHttpClientOptions.HostUrl)
                     .Build();
             });
-
-            services.AddInteractors(
-                InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
-                    .Where(descriptor => descriptor.IsFor(apiName))
-            );
         }
+
+        services.AddInteractors(
+            InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
+                .Where(descriptor => descriptor.AreAllRequiredApisAvailable(apiNames))
+        );
     }
 
     private static NodeApiOptions GetNodeApiOptions(IServiceProvider provider, NodeApiName apiName)

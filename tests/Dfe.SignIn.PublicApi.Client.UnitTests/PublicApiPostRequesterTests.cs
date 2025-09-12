@@ -36,7 +36,7 @@ public sealed class PublicApiPostRequesterTests
     public async Task InvokeAsync_Throws_WhenThereAreValidationErrors()
     {
         Uri? capturedUri = null;
-        var handlerMock = HttpClientMocking.CreateMockMessageHandlerWithJson(
+        var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(
             uri => capturedUri = uri, "{}", HttpStatusCode.BadRequest);
 
         var mockClient = CreateMockClient(handlerMock);
@@ -58,7 +58,7 @@ public sealed class PublicApiPostRequesterTests
     public async Task InvokeAsync_InvokesExpectedEndpoint()
     {
         Uri? capturedUri = null;
-        var handlerMock = HttpClientMocking.CreateMockMessageHandlerWithJson(uri => capturedUri = uri,
+        var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(uri => capturedUri = uri,
             /*lang=json,strict*/ """
             {
               "value": 123
@@ -86,7 +86,7 @@ public sealed class PublicApiPostRequesterTests
     public async Task InvokeAsync_Throws_WhenResponseIsNotSuccess()
     {
         Uri? capturedUri = null;
-        var handlerMock = HttpClientMocking.CreateMockMessageHandlerWithJson(
+        var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(
             uri => capturedUri = uri, "{}", HttpStatusCode.BadRequest);
 
         var mockClient = CreateMockClient(handlerMock);
@@ -105,7 +105,7 @@ public sealed class PublicApiPostRequesterTests
     public async Task InvokeAsync_Throws_WhenResponseDataIsNull()
     {
         Uri? capturedUri = null;
-        var handlerMock = HttpClientMocking.CreateMockMessageHandlerWithJson(
+        var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(
             uri => capturedUri = uri, "null");
 
         var mockClient = CreateMockClient(handlerMock);

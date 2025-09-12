@@ -114,7 +114,7 @@ public sealed class ActiveOrganisationSessionProviderTests
         autoMocker.GetMock<ISession>()
             .Setup(mock => mock.TryGetValue(
                 It.Is<string>(key => key == expectedKey),
-                out output
+                out output!
             ))
             .Returns(true);
     }

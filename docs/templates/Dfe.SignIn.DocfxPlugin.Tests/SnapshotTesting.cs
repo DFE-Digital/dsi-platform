@@ -43,7 +43,7 @@ public sealed class SnapshotTesting : VerifyBase
     }
 
     [DynamicData(nameof(GetOutputFilePaths), DynamicDataSourceType.Method)]
-    [DataTestMethod]
+    [TestMethod]
     public async Task VerifyOutputFile(string filePath)
     {
         string html = await File.ReadAllTextAsync(filePath, Encoding.UTF8);

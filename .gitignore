@@ -3,6 +3,14 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Azure Functions localsettings file
+local.settings.json
+
+# Azurite Storage API emulator
+__azurite*
+__blobstorage__
+__queuestorage__
+
 # User-specific files
 *.rsuser
 *.suo

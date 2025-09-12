@@ -66,11 +66,11 @@ public sealed class GetApplicationNamesForSupportTicketNodeRequesterTests
             return Task.FromResult(response);
         });
 
-        var client = new HttpClient(testHandler) {
-            BaseAddress = new Uri("http://mock.localhost")
+        var applicationsClient = new HttpClient(testHandler) {
+            BaseAddress = new Uri("http://applications.localhost")
         };
 
-        var controller = new GetApplicationNamesForSupportTicketNodeRequester(client);
+        var controller = new GetApplicationNamesForSupportTicketNodeRequester(applicationsClient);
 
         var response = await controller.InvokeAsync(new GetApplicationNamesForSupportTicketRequest());
 

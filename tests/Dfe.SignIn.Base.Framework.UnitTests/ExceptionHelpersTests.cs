@@ -73,7 +73,7 @@ public sealed class ExceptionHelpersTests
 
     [DataRow("   ")]
     [DataRow("")]
-    [DataTestMethod]
+    [TestMethod]
     public void ThrowIfArgumentNullOrWhiteSpace_Throws_WhenValueIsWhiteSpace(string value)
     {
         var exception = Assert.ThrowsExactly<ArgumentException>(

@@ -10,6 +10,13 @@ Describe "Test-IsDeployableProject" {
         }
     }
 
+    Context "when the project is an Azure Functions application" {
+        It "should return true for Dfe.SignIn.Fn.AuthExtensions" {
+            $result = & $Cmdlet -ProjectName "Dfe.SignIn.Fn.AuthExtensions"
+            $result | Should -Be $true
+        }
+    }
+
     Context "when the project is an API" {
         It "should return true for Dfe.SignIn.PublicApi" {
             $result = & $Cmdlet -ProjectName "Dfe.SignIn.PublicApi"

@@ -14,6 +14,10 @@
     A value indicating if .NET projects should be built when associated files have
     been changed. This is determined by checking the 'ChangedFiles' parameter.
 
+.PARAMETER ForceBuildAuthExtensions
+    A value indicating whether the 'Dfe.SignIn.Fn.AuthExtensions' .NET project
+    should be built regardless of whether any associated files have been changed.
+
 .PARAMETER ForceBuildSelectOrganisation
     A value indicating whether the 'Dfe.SignIn.Web.SelectOrganisation' .NET project
     should be built regardless of whether any associated files have been changed.
@@ -58,6 +62,9 @@ param (
     [String]$IncludeChangedProjects = $false,
 
     [ValidateSet('true', 'false')]
+    [String]$ForceBuildAuthExtensions = $false,
+
+    [ValidateSet('true', 'false')]
     [String]$ForceBuildSelectOrganisation = $false,
 
     [ValidateSet('true', 'false')]
@@ -67,6 +74,9 @@ param (
 $ErrorActionPreference = "Stop"
 
 $projectNames = @(
+    if ($ForceBuildAuthExtensions -eq $true) {
+        'Dfe.SignIn.Fn.AuthExtensions'
+    }
     if ($ForceBuildSelectOrganisation -eq $true) {
         'Dfe.SignIn.Web.SelectOrganisation'
     }
@@ -83,18 +93,26 @@ if ($IncludeChangedProjects -eq $true) {
 }
 
 $repositoryMappings = @{
+    'Dfe.SignIn.Fn.AuthExtensions'      = @{
+        Repository = 'auth-extensions'
+        Dockerfile = 'functions'
+    }
     'Dfe.SignIn.Web.SelectOrganisation' = @{
         Repository = 'select-organisation'
+        Dockerfile = 'dotnet'
     }
     'Dfe.SignIn.PublicApi'              = @{
         Repository = 'public-api'
+        Dockerfile = 'dotnet'
     }
 }
 
 $dotnetImages = $projectNames | Sort-Object | ForEach-Object {
-    if ($mapping = $repositoryMappings[$_]) {
+    $mapping = $repositoryMappings[$_]
+    if ($mapping) {
         @{
             project    = $_
+            dockerfile = $mapping.Dockerfile
             repository = "$LifecycleName/$($mapping.Repository)".ToLower()
         }
     }

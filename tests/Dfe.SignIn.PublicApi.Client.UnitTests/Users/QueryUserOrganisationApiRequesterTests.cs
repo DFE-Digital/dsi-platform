@@ -14,7 +14,7 @@ public sealed class QueryUserOrganisationApiRequesterTests
     public async Task InvokeAsync_InvokesExpectedEndpoint()
     {
         Uri? actualUrl = null;
-        var handlerMock = HttpClientMocking.CreateMockMessageHandlerWithJson(uri => actualUrl = uri,
+        var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(uri => actualUrl = uri,
             /*lang=json,strict*/ """
             {
                 "userId": "74004f34-a6c3-4144-88a1-c32b1c2bd82b",

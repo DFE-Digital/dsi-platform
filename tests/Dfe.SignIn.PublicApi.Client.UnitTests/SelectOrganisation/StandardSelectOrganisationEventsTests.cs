@@ -119,11 +119,11 @@ public sealed class StandardSelectOrganisationEventsTests
         => [[null!], [FakeOrganisation]];
 
     [DynamicData(nameof(OnConfirmSelection_RedirectsToCompletedPath_Scenarios))]
-    [DataTestMethod]
+    [TestMethod]
     public async Task OnConfirmSelection_SetsActiveOrganisation(OrganisationDetails? expectedOrganisation)
     {
         var autoMocker = new AutoMocker();
-        var options = SetupMockOptions(autoMocker);
+        SetupMockOptions(autoMocker);
         var mockContext = SetupMockHttpContext(autoMocker);
         var events = autoMocker.CreateInstance<StandardSelectOrganisationEvents>();
 
@@ -139,7 +139,7 @@ public sealed class StandardSelectOrganisationEventsTests
     }
 
     [DynamicData(nameof(OnConfirmSelection_RedirectsToCompletedPath_Scenarios))]
-    [DataTestMethod]
+    [TestMethod]
     public async Task OnConfirmSelection_RedirectsToCompletedPath(OrganisationDetails? expectedOrganisation)
     {
         var autoMocker = new AutoMocker();

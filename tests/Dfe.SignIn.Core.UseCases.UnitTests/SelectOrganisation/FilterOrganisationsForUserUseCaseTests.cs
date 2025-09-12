@@ -240,7 +240,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
                 UserId = FakeUserId,
                 OrganisationId = FakeOrganisationA.Id,
                 ApplicationId = FakeAnotherApplicationId,
-                AccessGranted = new DateTime(),
+                AccessGranted = new DateTime(0, DateTimeKind.Utc),
             },
         ]);
 
@@ -272,13 +272,13 @@ public sealed class FilterOrganisationsForUserUseCaseTests
                 UserId = FakeUserId,
                 OrganisationId = FakeOrganisationA.Id,
                 ApplicationId = FakeApplication.Id,
-                AccessGranted = new DateTime(),
+                AccessGranted = new DateTime(0, DateTimeKind.Utc),
             },
             new() {
                 UserId = FakeUserId,
                 OrganisationId = FakeOrganisationC.Id,
                 ApplicationId = FakeApplication.Id,
-                AccessGranted = new DateTime(),
+                AccessGranted = new DateTime(0, DateTimeKind.Utc),
             },
         ]);
 
@@ -363,7 +363,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
         Assert.AreEqual(0, response.FilteredOrganisations.Count());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false)]
     [DataRow(true)]
     public async Task InvokeAsync_AssociatedWithAssignedToUserForApplication_ReturnsNone_WhenApplicationIsNotAssociatedWithApplication(
@@ -388,7 +388,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
         Assert.AreEqual(0, response.FilteredOrganisations.Count());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false)]
     [DataRow(true)]
     public async Task InvokeAsync_AssociatedWithAssignedToUserForApplicationReturnsAssociatedApplicationOrganisations_WhenUserAssociatedWithApplication(
@@ -404,13 +404,13 @@ public sealed class FilterOrganisationsForUserUseCaseTests
                 UserId = FakeUserId,
                 OrganisationId = FakeOrganisationA.Id,
                 ApplicationId = FakeApplication.Id,
-                AccessGranted = new DateTime(),
+                AccessGranted = new DateTime(0, DateTimeKind.Utc),
             },
             new() {
                 UserId = FakeUserId,
                 OrganisationId = FakeOrganisationC.Id,
                 ApplicationId = FakeApplication.Id,
-                AccessGranted = new DateTime(),
+                AccessGranted = new DateTime(0, DateTimeKind.Utc),
             },
         ]);
 

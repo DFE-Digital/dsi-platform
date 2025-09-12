@@ -13,6 +13,11 @@ on:
         required: true
         type: string
 
+      dockerfile:
+        description: Dockerfile name
+        required: true
+        type: string
+
       registry_key:
         description: Container registry key
         required: true
@@ -68,7 +73,7 @@ jobs:
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
         with:
           context: .
-          file: ./docker/dotnet/Dockerfile
+          file: ./docker/${{ inputs.dockerfile }}/Dockerfile
           platforms: linux/amd64
           outputs: type=image,push=true
           provenance: false

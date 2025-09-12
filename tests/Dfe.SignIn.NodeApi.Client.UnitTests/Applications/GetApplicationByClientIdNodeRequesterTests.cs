@@ -41,11 +41,11 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
             return Task.FromResult(response);
         });
 
-        var client = new HttpClient(testHandler) {
-            BaseAddress = new Uri("http://mock.localhost")
+        var applicationsClient = new HttpClient(testHandler) {
+            BaseAddress = new Uri("http://applications.localhost")
         };
 
-        var controller = new GetApplicationByClientIdNodeRequester(client);
+        var controller = new GetApplicationByClientIdNodeRequester(applicationsClient);
 
         var response = await controller.InvokeAsync(new GetApplicationByClientIdRequest {
             ClientId = "mock-client-id"
@@ -74,11 +74,11 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
             return Task.FromResult(response);
         });
 
-        var client = new HttpClient(testHandler) {
-            BaseAddress = new Uri("http://mock.localhost")
+        var applicationsClient = new HttpClient(testHandler) {
+            BaseAddress = new Uri("http://applications.localhost")
         };
 
-        var controller = new GetApplicationByClientIdNodeRequester(client);
+        var controller = new GetApplicationByClientIdNodeRequester(applicationsClient);
 
         var response = await controller.InvokeAsync(new GetApplicationByClientIdRequest {
             ClientId = "mock-client-id"
