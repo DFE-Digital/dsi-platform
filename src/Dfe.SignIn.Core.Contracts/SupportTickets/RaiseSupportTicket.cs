@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Dfe.SignIn.Base.Framework.DataAnnotations;
 
 namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 
@@ -12,7 +11,7 @@ namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 ///     <item><see cref="RaiseSupportTicketResponse"/></item>
 ///   </list>
 /// </remarks>
-public sealed record RaiseSupportTicketRequest
+public sealed record RaiseSupportTicketRequest : IValidatableObject
 {
     /// <summary>
     /// The full name of the user.
@@ -37,7 +36,7 @@ public sealed record RaiseSupportTicketRequest
     /// The URN or UKPRN of the user's organisation.
     /// </summary>
     [RegularExpression("^[0-9]{6,8}$", ErrorMessage = "Enter a valid URN or UKPRN, if known")]
-    public string? OrganisationURN { get; init; } = null;
+    public string? OrganisationUrn { get; init; } = null;
 
     /// <summary>
     /// The subject that helps to indicate what the user needs help with.
@@ -51,7 +50,6 @@ public sealed record RaiseSupportTicketRequest
     /// <remarks>
     ///   <para>This is relevant when <see cref="SubjectCode"/> has a value of "other".</para>
     /// </remarks>
-    [RequiredIfTargetEquals(nameof(SubjectCode), "other", ErrorMessage = "Enter a summary of your issue")]
     [MaxLength(200, ErrorMessage = "Issue summary must be 200 characters or less")]
     public string? CustomSummary { get; init; } = null;
 
@@ -67,6 +65,14 @@ public sealed record RaiseSupportTicketRequest
     [Required(ErrorMessage = "Enter information about your issue")]
     [MaxLength(1000, ErrorMessage = "Issue details cannot be longer than 1000 characters")]
     public required string Message { get; init; }
+
+    /// <inheritdoc/>
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (this.SubjectCode == "other" && string.IsNullOrWhiteSpace(this.CustomSummary)) {
+            yield return new ValidationResult("Enter a summary of your issue", [nameof(this.CustomSummary)]);
+        }
+    }
 }
 
 /// <summary>
