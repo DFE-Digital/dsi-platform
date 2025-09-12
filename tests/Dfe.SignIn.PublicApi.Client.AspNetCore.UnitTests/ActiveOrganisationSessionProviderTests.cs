@@ -27,7 +27,7 @@ public sealed class ActiveOrganisationSessionProviderTests
         var mockAbstractionContext = autoMocker.GetMock<IHttpContext>();
 
         var mockContext = autoMocker.GetMock<HttpContext>();
-        mockAbstractionContext.Setup(mock => mock.Inner).Returns(mockContext.Object);
+        mockAbstractionContext.Setup(x => x.Inner).Returns(mockContext.Object);
 
         var user = new ClaimsPrincipal(
             new ClaimsIdentity([
@@ -35,10 +35,10 @@ public sealed class ActiveOrganisationSessionProviderTests
                 new(DsiClaimTypes.UserId, FakeUserId),
             ])
         );
-        mockContext.Setup(mock => mock.User).Returns(user);
+        mockContext.Setup(x => x.User).Returns(user);
 
         var mockSession = autoMocker.GetMock<ISession>();
-        mockContext.Setup(mock => mock.Session).Returns(mockSession.Object);
+        mockContext.Setup(x => x.Session).Returns(mockSession.Object);
 
         return mockAbstractionContext;
     }
@@ -47,8 +47,8 @@ public sealed class ActiveOrganisationSessionProviderTests
 
     private static void AssertSessionSetString(AutoMocker autoMocker, string expectedKey, string expectedValue)
     {
-        autoMocker.Verify<ISession>(mock =>
-            mock.Set(
+        autoMocker.Verify<ISession>(x =>
+            x.Set(
                 It.Is<string>(key => key == expectedKey),
                 It.Is<byte[]>(value => Encoding.UTF8.GetString(value) == expectedValue)
             ),
@@ -112,7 +112,7 @@ public sealed class ActiveOrganisationSessionProviderTests
     {
         byte[] output = Encoding.UTF8.GetBytes(expectedValue);
         autoMocker.GetMock<ISession>()
-            .Setup(mock => mock.TryGetValue(
+            .Setup(x => x.TryGetValue(
                 It.Is<string>(key => key == expectedKey),
                 out output!
             ))

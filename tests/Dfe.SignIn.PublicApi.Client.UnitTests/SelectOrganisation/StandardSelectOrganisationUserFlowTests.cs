@@ -17,7 +17,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
     private static void SetupMockOptions(AutoMocker autoMocker, StandardSelectOrganisationUserFlowOptions? options = null)
     {
         autoMocker.GetMock<IOptions<StandardSelectOrganisationUserFlowOptions>>()
-            .Setup(mock => mock.Value)
+            .Setup(x => x.Value)
             .Returns(options ?? new StandardSelectOrganisationUserFlowOptions {
                 CompletedPath = "/completed/path",
             });
@@ -28,14 +28,14 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
-        mockRequest.Setup(mock => mock.Scheme).Returns("http");
-        mockRequest.Setup(mock => mock.Host).Returns("localhost");
-        mockRequest.Setup(mock => mock.PathBase).Returns("/app");
-        mockContext.Setup(mock => mock.Request)
+        mockRequest.Setup(x => x.Scheme).Returns("http");
+        mockRequest.Setup(x => x.Host).Returns("localhost");
+        mockRequest.Setup(x => x.PathBase).Returns("/app");
+        mockContext.Setup(x => x.Request)
             .Returns(mockRequest.Object);
 
         var mockResponse = autoMocker.GetMock<IHttpResponse>();
-        mockContext.Setup(mock => mock.Response)
+        mockContext.Setup(x => x.Response)
             .Returns(mockResponse.Object);
 
         return mockContext;
@@ -47,7 +47,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[]);
         var fakeUser = new ClaimsPrincipal(fakeIdentity);
-        mockContext.Setup(mock => mock.User)
+        mockContext.Setup(x => x.User)
             .Returns(fakeUser);
     }
 
@@ -76,7 +76,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
         ], "PrimaryAuthenticationType");
 
         var fakeUser = new ClaimsPrincipal(fakePrimaryIdentity);
-        mockContext.Setup(mock => mock.User)
+        mockContext.Setup(x => x.User)
             .Returns(fakeUser);
     }
 
@@ -207,8 +207,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.InitiateSelectionAsync(fakeContext.Object, false, default);
 
-        autoMocker.Verify<ISelectOrganisationEvents>(mock =>
-            mock.OnStartSelection(
+        autoMocker.Verify<ISelectOrganisationEvents>(x =>
+            x.OnStartSelection(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<Uri>(selectionUri => selectionUri == new Uri("https://select-organisation.localhost"))
             ),
@@ -232,8 +232,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.InitiateSelectionAsync(fakeContext.Object, false, default);
 
-        autoMocker.Verify<ISelectOrganisationRequestTrackingProvider>(mock =>
-            mock.SetTrackedRequestAsync(
+        autoMocker.Verify<ISelectOrganisationRequestTrackingProvider>(x =>
+            x.SetTrackedRequestAsync(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<Guid?>(requestId => requestId == null)
             ),
@@ -257,8 +257,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.InitiateSelectionAsync(fakeContext.Object, false, default);
 
-        autoMocker.Verify<ISelectOrganisationEvents>(mock =>
-            mock.OnConfirmSelection(
+        autoMocker.Verify<ISelectOrganisationEvents>(x =>
+            x.OnConfirmSelection(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<OrganisationDetails?>(organisation => organisation == null)
             ),
@@ -281,14 +281,14 @@ public sealed class StandardSelectOrganisationUserFlowTests
     private static void SetupMockRequestTracker(AutoMocker autoMocker, Guid trackedRequestId)
     {
         autoMocker.GetMock<ISelectOrganisationRequestTrackingProvider>()
-            .Setup(mock => mock.IsTrackingRequestAsync(
+            .Setup(x => x.IsTrackingRequestAsync(
                 It.IsAny<IHttpContext>(),
                 It.Is<Guid>(requestId => requestId != trackedRequestId)
             ))
             .ReturnsAsync(false);
 
         autoMocker.GetMock<ISelectOrganisationRequestTrackingProvider>()
-            .Setup(mock => mock.IsTrackingRequestAsync(
+            .Setup(x => x.IsTrackingRequestAsync(
                 It.IsAny<IHttpContext>(),
                 It.Is<Guid>(requestId => requestId == trackedRequestId)
             ))
@@ -298,7 +298,7 @@ public sealed class StandardSelectOrganisationUserFlowTests
     private static void MockQueryParam(AutoMocker autoMocker, string key, object value)
     {
         autoMocker.GetMock<IHttpRequest>()
-            .Setup(mock => mock.GetQuery(It.Is<string>(k => k == key)))
+            .Setup(x => x.GetQuery(It.Is<string>(k => k == key)))
             .Returns(value.ToString());
     }
 
@@ -358,8 +358,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.ProcessCallbackAsync(fakeContext.Object, default);
 
-        autoMocker.Verify<ISelectOrganisationRequestTrackingProvider>(mock =>
-            mock.SetTrackedRequestAsync(
+        autoMocker.Verify<ISelectOrganisationRequestTrackingProvider>(x =>
+            x.SetTrackedRequestAsync(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<Guid?>(requestId => requestId == null)
             ),
@@ -401,8 +401,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.ProcessCallbackAsync(fakeContext.Object, default);
 
-        autoMocker.Verify<ISelectOrganisationEvents>(mock =>
-            mock.OnCancelSelection(
+        autoMocker.Verify<ISelectOrganisationEvents>(x =>
+            x.OnCancelSelection(
                 It.Is<IHttpContext>(context => context == fakeContext.Object)
             ),
             Times.Once
@@ -425,8 +425,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.ProcessCallbackAsync(fakeContext.Object, default);
 
-        autoMocker.Verify<ISelectOrganisationEvents>(mock =>
-            mock.OnError(
+        autoMocker.Verify<ISelectOrganisationEvents>(x =>
+            x.OnError(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<string>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
             ),
@@ -460,8 +460,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.ProcessCallbackAsync(fakeContext.Object, default);
 
-        autoMocker.Verify<ISelectOrganisationEvents>(mock =>
-            mock.OnConfirmSelection(
+        autoMocker.Verify<ISelectOrganisationEvents>(x =>
+            x.OnConfirmSelection(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<OrganisationDetails?>(organisation => organisation == FakeOrganisation)
             ),
@@ -526,8 +526,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.ProcessCallbackAsync(fakeContext.Object, default);
 
-        autoMocker.Verify<ISelectOrganisationEvents>(mock =>
-            mock.OnError(
+        autoMocker.Verify<ISelectOrganisationEvents>(x =>
+            x.OnError(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<string>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
             ),
@@ -550,8 +550,8 @@ public sealed class StandardSelectOrganisationUserFlowTests
 
         await selector.ProcessCallbackAsync(fakeContext.Object, default);
 
-        autoMocker.Verify<ISelectOrganisationEvents>(mock =>
-            mock.OnSignOut(
+        autoMocker.Verify<ISelectOrganisationEvents>(x =>
+            x.OnSignOut(
                 It.Is<IHttpContext>(context => context == fakeContext.Object)
             ),
             Times.Once

@@ -36,7 +36,7 @@ public sealed class ActiveOrganisationProviderExtensionsTests
         var mockProvider = new Mock<IActiveOrganisationProvider>();
 
         mockProvider
-            .Setup(mock => mock.GetActiveOrganisationStateAsync(It.IsAny<IHttpContext>()))
+            .Setup(x => x.GetActiveOrganisationStateAsync(It.IsAny<IHttpContext>()))
             .ReturnsAsync(null as ActiveOrganisationState);
 
         var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
@@ -52,7 +52,7 @@ public sealed class ActiveOrganisationProviderExtensionsTests
         var mockProvider = new Mock<IActiveOrganisationProvider>();
 
         mockProvider
-            .Setup(mock => mock.GetActiveOrganisationStateAsync(It.IsAny<IHttpContext>()))
+            .Setup(x => x.GetActiveOrganisationStateAsync(It.IsAny<IHttpContext>()))
             .ReturnsAsync(new ActiveOrganisationState {
                 Organisation = null,
             });
@@ -74,7 +74,7 @@ public sealed class ActiveOrganisationProviderExtensionsTests
         };
 
         mockProvider
-            .Setup(mock => mock.GetActiveOrganisationStateAsync(It.IsAny<IHttpContext>()))
+            .Setup(x => x.GetActiveOrganisationStateAsync(It.IsAny<IHttpContext>()))
             .ReturnsAsync(new ActiveOrganisationState {
                 Organisation = fakeOrganisation,
             });

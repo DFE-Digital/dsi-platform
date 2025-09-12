@@ -21,7 +21,7 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         StandardSelectOrganisationUserFlowOptions? options = null)
     {
         autoMocker.GetMock<IOptions<StandardSelectOrganisationUserFlowOptions>>()
-            .Setup(mock => mock.Value)
+            .Setup(x => x.Value)
             .Returns(options ?? new StandardSelectOrganisationUserFlowOptions {
                 CompletedPath = "/completed/path",
             });
@@ -33,10 +33,10 @@ public sealed class StandardSelectOrganisationMiddlewareTests
     {
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
-        mockContext.Setup(mock => mock.Request)
+        mockContext.Setup(x => x.Request)
             .Returns(autoMocker.Get<IHttpRequest>());
 
-        mockContext.Setup(mock => mock.Response)
+        mockContext.Setup(x => x.Response)
             .Returns(autoMocker.Get<IHttpResponse>());
 
         return mockContext;
@@ -49,7 +49,7 @@ public sealed class StandardSelectOrganisationMiddlewareTests
 
         var fakeIdentity = new ClaimsIdentity((IEnumerable<Claim>?)[]);
         var fakeUser = new ClaimsPrincipal(fakeIdentity);
-        mockContext.Setup(mock => mock.User)
+        mockContext.Setup(x => x.User)
             .Returns(fakeUser);
 
         return fakeUser;
@@ -68,7 +68,7 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         ], "PrimaryAuthenticationType");
 
         var fakeUser = new ClaimsPrincipal(fakePrimaryIdentity);
-        mockContext.Setup(mock => mock.User)
+        mockContext.Setup(x => x.User)
             .Returns(fakeUser);
 
         return fakeUser;
@@ -77,7 +77,7 @@ public sealed class StandardSelectOrganisationMiddlewareTests
     private static void SetupMockActiveOrganisation(AutoMocker autoMocker, OrganisationDetails? organisation)
     {
         autoMocker.GetMock<IActiveOrganisationProvider>()
-            .Setup(mock => mock.GetActiveOrganisationStateAsync(
+            .Setup(x => x.GetActiveOrganisationStateAsync(
                 It.IsAny<IHttpContext>()
             ))
             .ReturnsAsync(new ActiveOrganisationState { Organisation = organisation });
@@ -112,8 +112,8 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         var middleware = autoMocker.CreateInstance<StandardSelectOrganisationMiddleware>();
 
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns("GET");
-        mockRequest.Setup(mock => mock.Path).Returns("/sign-out");
+        mockRequest.Setup(x => x.Method).Returns("GET");
+        mockRequest.Setup(x => x.Path).Returns("/sign-out");
 
         var mockContext = SetupMockHttpContext(autoMocker);
         var mockNext = new Mock<Func<Task>>();
@@ -131,8 +131,8 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         SetupMockAuthenticatedUser(autoMocker);
 
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns("GET");
-        mockRequest.Setup(mock => mock.Path).Returns("/callback/select-organisation");
+        mockRequest.Setup(x => x.Method).Returns("GET");
+        mockRequest.Setup(x => x.Path).Returns("/callback/select-organisation");
 
         var mockContext = SetupMockHttpContext(autoMocker);
         var mockNext = new Mock<Func<Task>>();
@@ -141,8 +141,8 @@ public sealed class StandardSelectOrganisationMiddlewareTests
 
         await middleware.InvokeAsync(mockContext.Object, mockNext.Object);
 
-        autoMocker.Verify<ISelectOrganisationUserFlow>(mock =>
-            mock.ProcessCallbackAsync(
+        autoMocker.Verify<ISelectOrganisationUserFlow>(x =>
+            x.ProcessCallbackAsync(
                 It.Is<IHttpContext>(context => context == mockContext.Object),
                 It.IsAny<CancellationToken>()
             ),
@@ -165,8 +165,8 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         var middleware = autoMocker.CreateInstance<StandardSelectOrganisationMiddleware>();
 
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns("GET");
-        mockRequest.Setup(mock => mock.Path).Returns("/select-organisation");
+        mockRequest.Setup(x => x.Method).Returns("GET");
+        mockRequest.Setup(x => x.Path).Returns("/select-organisation");
 
         var mockContext = SetupMockHttpContext(autoMocker);
         var mockNext = new Mock<Func<Task>>();
@@ -192,8 +192,8 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         var middleware = autoMocker.CreateInstance<StandardSelectOrganisationMiddleware>();
 
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns("GET");
-        mockRequest.Setup(mock => mock.Path).Returns("/select-organisation");
+        mockRequest.Setup(x => x.Method).Returns("GET");
+        mockRequest.Setup(x => x.Path).Returns("/select-organisation");
 
         var mockContext = SetupMockHttpContext(autoMocker);
         var mockNext = new Mock<Func<Task>>();
@@ -224,8 +224,8 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         var middleware = autoMocker.CreateInstance<StandardSelectOrganisationMiddleware>();
 
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns("GET");
-        mockRequest.Setup(mock => mock.Path).Returns("/select-organisation");
+        mockRequest.Setup(x => x.Method).Returns("GET");
+        mockRequest.Setup(x => x.Path).Returns("/select-organisation");
 
         var mockContext = SetupMockHttpContext(autoMocker);
         var mockNext = new Mock<Func<Task>>();
@@ -257,8 +257,8 @@ public sealed class StandardSelectOrganisationMiddlewareTests
 
         // Mock a request to some page within the application.
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns("GET");
-        mockRequest.Setup(mock => mock.Path).Returns("/profile");
+        mockRequest.Setup(x => x.Method).Returns("GET");
+        mockRequest.Setup(x => x.Path).Returns("/profile");
 
         var mockContext = SetupMockHttpContext(autoMocker);
 
@@ -287,7 +287,7 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         SetupMockActiveOrganisation(autoMocker, FakeOrganisation);
 
         autoMocker.GetMock<IActiveOrganisationProvider>()
-            .Setup(mock => mock.GetActiveOrganisationStateAsync(
+            .Setup(x => x.GetActiveOrganisationStateAsync(
                 It.IsAny<IHttpContext>()
             ))
             .ReturnsAsync(new ActiveOrganisationState {
@@ -298,8 +298,8 @@ public sealed class StandardSelectOrganisationMiddlewareTests
 
         // Mock a request to some page within the application.
         var mockRequest = autoMocker.GetMock<IHttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns("GET");
-        mockRequest.Setup(mock => mock.Path).Returns("/profile");
+        mockRequest.Setup(x => x.Method).Returns("GET");
+        mockRequest.Setup(x => x.Path).Returns("/profile");
 
         var mockContext = SetupMockHttpContext(autoMocker);
         var mockNext = new Mock<Func<Task>>();

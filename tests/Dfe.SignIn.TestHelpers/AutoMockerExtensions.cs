@@ -26,7 +26,9 @@ public static class AutoMockerExtensions
         var standardOptions = JsonHelperExtensions.CreateStandardOptionsTestHelper();
 
         autoMocker.GetMock<IOptionsMonitor<JsonSerializerOptions>>()
-            .Setup(mock => mock.Get(It.Is<string>(key => key == JsonHelperExtensions.StandardOptionsKey)))
+            .Setup(x => x.Get(
+                It.Is<string>(key => key == JsonHelperExtensions.StandardOptionsKey)
+            ))
             .Returns(standardOptions);
 
         return standardOptions;

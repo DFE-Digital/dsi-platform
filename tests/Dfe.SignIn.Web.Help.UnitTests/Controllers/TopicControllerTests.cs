@@ -63,25 +63,25 @@ public sealed class TopicControllerTests
         var mockTopicIndex = autoMocker.GetMock<ITopicIndex>();
 
         autoMocker.GetMock<ITopicIndexAccessor>()
-            .Setup(mock => mock.GetIndexAsync(
+            .Setup(x => x.GetIndexAsync(
                 It.Is<bool>(invalidate => !invalidate)
             ))
             .ReturnsAsync(mockTopicIndex.Object);
 
         mockTopicIndex
-            .Setup(mock => mock.GetTopic(
+            .Setup(x => x.GetTopic(
                 It.Is<string>(topicPath => topicPath == "/guidance")
             ))
             .Returns(GuidanceSectionTopic);
 
         mockTopicIndex
-            .Setup(mock => mock.GetTopic(
+            .Setup(x => x.GetTopic(
                 It.Is<string>(topicPath => topicPath == "/guidance/example-topic")
             ))
             .Returns(ExampleTopic);
 
         mockTopicIndex
-            .Setup(mock => mock.GetTopic(
+            .Setup(x => x.GetTopic(
                 It.Is<string>(topicPath => topicPath == "/cookies")
             ))
             .Returns(ExampleGlobalTopic);
@@ -94,10 +94,10 @@ public sealed class TopicControllerTests
         var controller = autoMocker.CreateInstance<TopicController>();
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Path).Returns(requestPath);
+        mockRequest.Setup(x => x.Path).Returns(requestPath);
 
         var mockContext = autoMocker.GetMock<HttpContext>();
-        mockContext.Setup(mock => mock.Request).Returns(mockRequest.Object);
+        mockContext.Setup(x => x.Request).Returns(mockRequest.Object);
 
         controller.ControllerContext = new ControllerContext {
             HttpContext = mockContext.Object,
@@ -144,19 +144,19 @@ public sealed class TopicControllerTests
 
         // Parent topic references used to build crumbs.
         mockTopicIndex
-            .Setup(mock => mock.GetParentTopic(
+            .Setup(x => x.GetParentTopic(
                 It.Is<string>(topicPath => topicPath == "/guidance/example-topic")
             ))
             .Returns(GuidanceSectionTopic);
 
         mockTopicIndex
-            .Setup(mock => mock.GetParentTopic(
+            .Setup(x => x.GetParentTopic(
                 It.Is<string>(topicPath => topicPath == "/guidance")
             ))
             .Returns(HomePageTopic);
 
         mockTopicIndex
-            .Setup(mock => mock.GetParentTopic(
+            .Setup(x => x.GetParentTopic(
                 It.Is<string>(topicPath => topicPath == "/")
             ))
             .Returns<TopicModel>(null!);
@@ -182,13 +182,13 @@ public sealed class TopicControllerTests
 
         // Parent topic references used to build crumbs.
         mockTopicIndex
-            .Setup(mock => mock.GetParentTopic(
+            .Setup(x => x.GetParentTopic(
                 It.Is<string>(topicPath => topicPath == "/cookies")
             ))
             .Returns(HomePageTopic);
 
         mockTopicIndex
-            .Setup(mock => mock.GetParentTopic(
+            .Setup(x => x.GetParentTopic(
                 It.Is<string>(topicPath => topicPath == "/")
             ))
             .Returns<TopicModel>(null!);

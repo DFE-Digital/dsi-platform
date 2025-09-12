@@ -145,7 +145,7 @@ public sealed class SelectOrganisationControllerTests
     {
         var mockUrlHelper = new Mock<IUrlHelper>();
         mockUrlHelper
-            .Setup(mock => mock.Action(It.IsAny<UrlActionContext>()))
+            .Setup(x => x.Action(It.IsAny<UrlActionContext>()))
             .Returns("http://localhost/sign-out");
         return mockUrlHelper.Object;
     }

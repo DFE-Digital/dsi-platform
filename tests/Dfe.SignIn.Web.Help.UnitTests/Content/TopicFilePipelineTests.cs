@@ -14,8 +14,8 @@ public sealed class TopicFilePipelineTests
     private static void SetupFakeFileReader(AutoMocker autoMocker)
     {
         autoMocker.GetMock<ITopicFileReader>()
-            .Setup(mock =>
-                mock.ReadAsync(
+            .Setup(x =>
+                x.ReadAsync(
                     It.Is<string>(topicFilePath => topicFilePath == "./ContentFiles/my-account/index.md"),
                     It.IsAny<CancellationToken>()
                 )
@@ -141,8 +141,8 @@ public sealed class TopicFilePipelineTests
         autoMocker.Use<IEnumerable<ITopicProcessor>>([]);
 
         autoMocker.GetMock<ITopicPreProcessor>()
-            .Setup(mock =>
-                mock.ProcessAsync(
+            .Setup(x =>
+                x.ProcessAsync(
                     It.Is<string>(topicPath => topicPath == "/my-account"),
                     It.Is<string>(markdown => markdown == FakeTopicFileContent),
                     It.IsAny<CancellationToken>()

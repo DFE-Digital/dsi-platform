@@ -63,7 +63,7 @@ public sealed class AspNetCoreMiddlewareExtensionsTests
         mockApp.Object.UseSelectOrganisationMiddleware();
 
         mockApp.Verify(
-            mock => mock.Use(
+            x => x.Use(
                 It.IsAny<Func<RequestDelegate, RequestDelegate>>()
             ),
             Times.Once
