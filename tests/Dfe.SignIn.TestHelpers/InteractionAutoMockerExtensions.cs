@@ -16,7 +16,9 @@ public static class InteractionAutoMockerExtensions
     /// <typeparam name="TRequest">The type of request model.</typeparam>
     /// <param name="autoMocker">The auto mocker instance.</param>
     /// <param name="captureRequest">A callback to capture the request model.</param>
-    public static void CaptureRequest<TRequest>(this AutoMocker autoMocker, Action<TRequest> captureRequest)
+    /// <param name="response">The fake response.</param>
+    public static void CaptureRequest<TRequest>(
+        this AutoMocker autoMocker, Action<TRequest> captureRequest, object? response = null)
         where TRequest : class
     {
         autoMocker.GetMock<IInteractionDispatcher>()
@@ -26,7 +28,8 @@ public static class InteractionAutoMockerExtensions
             ))
             .Callback<TRequest, CancellationToken>(
                 (request, _) => captureRequest(request)
-            );
+            )
+            .Returns(InteractionTask.FromResult(response!));
     }
 
     /// <summary>
@@ -53,7 +56,8 @@ public static class InteractionAutoMockerExtensions
     /// <param name="autoMocker">The auto mocker instance.</param>
     /// <param name="predicate">The predicate.</param>
     /// <param name="response">The fake response.</param>
-    public static void MockResponseWhere<TRequest>(this AutoMocker autoMocker, Predicate<TRequest> predicate, object response)
+    public static void MockResponseWhere<TRequest>(
+        this AutoMocker autoMocker, Predicate<TRequest> predicate, object response)
         where TRequest : class
     {
         autoMocker.GetMock<IInteractionDispatcher>()
@@ -71,7 +75,8 @@ public static class InteractionAutoMockerExtensions
     /// <param name="autoMocker">The auto mocker instance.</param>
     /// <param name="request">The fake request.</param>
     /// <param name="response">The fake response.</param>
-    public static void MockResponse<TRequest>(this AutoMocker autoMocker, TRequest request, object response)
+    public static void MockResponse<TRequest>(
+        this AutoMocker autoMocker, TRequest request, object response)
         where TRequest : class
     {
         MockResponseWhere<TRequest>(autoMocker, r => Equals(r, request), response);
@@ -84,7 +89,8 @@ public static class InteractionAutoMockerExtensions
     /// <param name="autoMocker">The auto mocker instance.</param>
     /// <param name="request">The fake request.</param>
     /// <param name="response">The fake response.</param>
-    public static void MockResponseExactly<TRequest>(this AutoMocker autoMocker, TRequest request, object response)
+    public static void MockResponseExactly<TRequest>(
+        this AutoMocker autoMocker, TRequest request, object response)
         where TRequest : class
     {
         MockResponseWhere<TRequest>(autoMocker, r => ReferenceEquals(r, request), response);

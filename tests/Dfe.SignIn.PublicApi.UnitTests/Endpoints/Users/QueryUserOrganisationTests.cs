@@ -7,7 +7,6 @@ using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Contracts.Users;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
 using Dfe.SignIn.PublicApi.ScopedSession;
-using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Users;
@@ -60,20 +59,6 @@ public sealed class QueryUserOrganisationTests
         return autoMocker;
     }
 
-    private static void SetupFakeFilteredOrganisationsResponse(
-        AutoMocker autoMocker,
-        params Organisation[] filteredOrganisations)
-    {
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(x => x.DispatchAsync(
-                It.IsAny<FilterOrganisationsForUserRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .Returns(InteractionTask.FromResult(new FilterOrganisationsForUserResponse {
-                FilteredOrganisations = filteredOrganisations,
-            }));
-    }
-
     private static IEnumerable<object[]> PostQueryUserOrganisation_InvokesExpectedInteractionRequest_Parameters => [
         [FakeMinimalRequest],
         [FakeDetailedRequest],
@@ -85,7 +70,14 @@ public sealed class QueryUserOrganisationTests
         QueryUserOrganisationApiRequestBody apiRequest)
     {
         var autoMocker = CreateAutoMocker();
-        SetupFakeFilteredOrganisationsResponse(autoMocker);
+
+        FilterOrganisationsForUserRequest? capturedRequest = null;
+        autoMocker.CaptureRequest<FilterOrganisationsForUserRequest>(
+            request => capturedRequest = request,
+            new FilterOrganisationsForUserResponse {
+                FilteredOrganisations = [],
+            }
+        );
 
         await UserEndpoints.PostQueryUserOrganisation(
             FakeUserId,
@@ -95,32 +87,22 @@ public sealed class QueryUserOrganisationTests
             autoMocker.Get<IInteractionDispatcher>()
         );
 
-        autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
-            x.DispatchAsync(
-                It.Is<FilterOrganisationsForUserRequest>(request =>
-                    request.ClientId == "test-client-id" &&
-                    request.UserId == FakeUserId &&
-                    request.Filter == apiRequest.Filter
-                ),
-                It.IsAny<CancellationToken>()
-            )
-        );
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual("test-client-id", capturedRequest.ClientId);
+        Assert.AreEqual(FakeUserId, capturedRequest.UserId);
+        Assert.AreEqual(apiRequest.Filter, capturedRequest.Filter);
     }
 
     [TestMethod]
     public async Task PostQueryUserOrganisation_ReturnsExpectedResponse_WhenOrganisationWasNotMatched()
     {
         var autoMocker = CreateAutoMocker();
-        SetupFakeFilteredOrganisationsResponse(autoMocker);
 
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(x => x.DispatchAsync(
-                It.IsAny<FilterOrganisationsForUserRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .Returns(InteractionTask.FromResult(new FilterOrganisationsForUserResponse {
+        autoMocker.MockResponse<FilterOrganisationsForUserRequest>(
+            new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = [],
-            }));
+            }
+        );
 
         var response = await UserEndpoints.PostQueryUserOrganisation(
             FakeUserId,
@@ -138,19 +120,15 @@ public sealed class QueryUserOrganisationTests
     public async Task PostQueryUserOrganisation_ReturnsExpectedResponse_WhenOrganisationWasMatched()
     {
         var autoMocker = CreateAutoMocker();
-        SetupFakeFilteredOrganisationsResponse(autoMocker);
 
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(x => x.DispatchAsync(
-                It.IsAny<FilterOrganisationsForUserRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .Returns(InteractionTask.FromResult(new FilterOrganisationsForUserResponse {
+        autoMocker.MockResponse<FilterOrganisationsForUserRequest>(
+            new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = [
                     FakeOrganisation1,
                     FakeOrganisation2,
                 ],
-            }));
+            }
+        );
 
         var response = await UserEndpoints.PostQueryUserOrganisation(
             FakeUserId,

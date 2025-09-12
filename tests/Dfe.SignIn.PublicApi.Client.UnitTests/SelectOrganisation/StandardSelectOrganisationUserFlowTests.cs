@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
@@ -67,21 +66,6 @@ public sealed class StandardSelectOrganisationUserFlowTests
         Url = new Uri("https://select-organisation.localhost"),
     };
 
-    private static Mock<IInteractionDispatcher> SetupMockCreateSelectOrganisationSession(
-        AutoMocker autoMocker,
-        CreateSelectOrganisationSessionApiResponse response)
-    {
-        var mockDispatcher = autoMocker.GetMock<IInteractionDispatcher>();
-
-        mockDispatcher.Setup(mock => mock.DispatchAsync(
-            It.IsAny<CreateSelectOrganisationSessionApiRequest>(),
-            It.IsAny<CancellationToken>()
-        ))
-        .Returns(InteractionTask.FromResult(response));
-
-        return mockDispatcher;
-    }
-
     private static void SetupMockAuthenticatedUser(AutoMocker autoMocker)
     {
         var mockContext = autoMocker.GetMock<IHttpContext>();
@@ -133,21 +117,20 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var fakeContext = SetupMockContext(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        var mockCreateSelectOrganisationSession = SetupMockCreateSelectOrganisationSession(
-            autoMocker, FakeCreateSelectOrganisationResponse_WithOptions);
+        CreateSelectOrganisationSessionApiRequest? capturedRequest = null;
+        autoMocker.CaptureRequest<CreateSelectOrganisationSessionApiRequest>(
+            request => capturedRequest = request,
+            FakeCreateSelectOrganisationResponse_WithOptions
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
         await selector.InitiateSelectionAsync(fakeContext.Object, allowCancel, default);
 
-        mockCreateSelectOrganisationSession.Verify(mock => mock.DispatchAsync(
-            It.Is<CreateSelectOrganisationSessionApiRequest>(request =>
-                request.UserId == FakeUserId &&
-                request.CallbackUrl == new Uri("http://localhost/app/callback/select-organisation") &&
-                request.AllowCancel == allowCancel
-            ),
-            It.IsAny<CancellationToken>()
-        ), Times.Once);
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual(FakeUserId, capturedRequest.UserId);
+        Assert.AreEqual(new Uri("http://localhost/app/callback/select-organisation"), capturedRequest.CallbackUrl);
+        Assert.AreEqual(allowCancel, capturedRequest.AllowCancel);
     }
 
     [TestMethod]
@@ -166,22 +149,21 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var fakeContext = SetupMockContext(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        var mockCreateSelectOrganisationSession = SetupMockCreateSelectOrganisationSession(
-            autoMocker, FakeCreateSelectOrganisationResponse_WithOptions);
+        CreateSelectOrganisationSessionApiRequest? capturedRequest = null;
+        autoMocker.CaptureRequest<CreateSelectOrganisationSessionApiRequest>(
+            request => capturedRequest = request,
+            FakeCreateSelectOrganisationResponse_WithOptions
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
         await selector.InitiateSelectionAsync(fakeContext.Object, false, default);
 
-        mockCreateSelectOrganisationSession.Verify(mock => mock.DispatchAsync(
-            It.Is<CreateSelectOrganisationSessionApiRequest>(request =>
-                request.UserId == FakeUserId &&
-                request.CallbackUrl == new Uri("http://localhost/app/callback/select-organisation") &&
-                !request.AllowCancel &&
-                request.Prompt.Heading == "Custom prompt heading"
-            ),
-            It.IsAny<CancellationToken>()
-        ), Times.Once);
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual(FakeUserId, capturedRequest.UserId);
+        Assert.AreEqual(new Uri("http://localhost/app/callback/select-organisation"), capturedRequest.CallbackUrl);
+        Assert.IsFalse(capturedRequest.AllowCancel);
+        Assert.AreEqual("Custom prompt heading", capturedRequest.Prompt.Heading);
     }
 
     [TestMethod]
@@ -192,14 +174,16 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var fakeContext = SetupMockContext(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithOptions);
+        autoMocker.MockResponse<CreateSelectOrganisationSessionApiRequest>(
+            FakeCreateSelectOrganisationResponse_WithOptions
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
         await selector.InitiateSelectionAsync(fakeContext.Object, false, default);
 
-        autoMocker.Verify<ISelectOrganisationRequestTrackingProvider>(mock =>
-            mock.SetTrackedRequestAsync(
+        autoMocker.Verify<ISelectOrganisationRequestTrackingProvider>(x =>
+            x.SetTrackedRequestAsync(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<Guid?>(requestId => requestId == FakeCreateSelectOrganisationResponse_WithOptions.RequestId)
             ),
@@ -215,7 +199,9 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var fakeContext = SetupMockContext(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithOptions);
+        autoMocker.MockResponse<CreateSelectOrganisationSessionApiRequest>(
+            FakeCreateSelectOrganisationResponse_WithOptions
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
@@ -238,7 +224,9 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var fakeContext = SetupMockContext(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithNoOptions);
+        autoMocker.MockResponse<CreateSelectOrganisationSessionApiRequest>(
+            FakeCreateSelectOrganisationResponse_WithNoOptions
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
@@ -261,7 +249,9 @@ public sealed class StandardSelectOrganisationUserFlowTests
         var fakeContext = SetupMockContext(autoMocker);
         SetupMockAuthenticatedUser(autoMocker);
 
-        SetupMockCreateSelectOrganisationSession(autoMocker, FakeCreateSelectOrganisationResponse_WithNoOptions);
+        autoMocker.MockResponse<CreateSelectOrganisationSessionApiRequest>(
+            FakeCreateSelectOrganisationResponse_WithNoOptions
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
@@ -457,20 +447,14 @@ public sealed class StandardSelectOrganisationUserFlowTests
         MockQueryParam(autoMocker, CallbackParamNames.Type, CallbackTypes.Selection);
         MockQueryParam(autoMocker, CallbackParamNames.Selection, FakeOrganisationId);
 
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(mock =>
-                mock.DispatchAsync(
-                    It.Is<QueryUserOrganisationApiRequest>(request =>
-                        request.OrganisationId == new Guid(FakeOrganisationId) &&
-                        request.UserId == FakeUserId
-                    ),
-                    It.IsAny<CancellationToken>()
-                )
-            )
-            .Returns(InteractionTask.FromResult(new QueryUserOrganisationApiResponse {
+        autoMocker.MockResponseWhere<QueryUserOrganisationApiRequest>(
+            request => request.OrganisationId == new Guid(FakeOrganisationId) &&
+                       request.UserId == FakeUserId,
+            new QueryUserOrganisationApiResponse {
                 Organisation = FakeOrganisation,
                 UserId = FakeUserId,
-            }));
+            }
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
@@ -498,24 +482,19 @@ public sealed class StandardSelectOrganisationUserFlowTests
         MockQueryParam(autoMocker, CallbackParamNames.Type, CallbackTypes.Selection);
         MockQueryParam(autoMocker, CallbackParamNames.Selection, FakeOrganisationId);
 
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(mock =>
-                mock.DispatchAsync(
-                    It.IsAny<QueryUserOrganisationApiRequest>(),
-                    It.IsAny<CancellationToken>()
-                )
-            )
-            .Returns(InteractionTask.FromResult(new QueryUserOrganisationApiResponse {
+        autoMocker.MockResponse<QueryUserOrganisationApiRequest>(
+            new QueryUserOrganisationApiResponse {
                 Organisation = null,
                 UserId = FakeUserId,
-            }));
+            }
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
         await selector.ProcessCallbackAsync(fakeContext.Object, default);
 
-        autoMocker.Verify<ISelectOrganisationEvents>(mock =>
-            mock.OnError(
+        autoMocker.Verify<ISelectOrganisationEvents>(x =>
+            x.OnError(
                 It.Is<IHttpContext>(context => context == fakeContext.Object),
                 It.Is<string>(errorCode => errorCode == SelectOrganisationErrorCode.InvalidSelection)
             ),
@@ -536,17 +515,12 @@ public sealed class StandardSelectOrganisationUserFlowTests
         MockQueryParam(autoMocker, CallbackParamNames.Type, CallbackTypes.Selection);
         MockQueryParam(autoMocker, CallbackParamNames.Selection, FakeOrganisationId);
 
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(mock =>
-                mock.DispatchAsync(
-                    It.IsAny<QueryUserOrganisationApiRequest>(),
-                    It.IsAny<CancellationToken>()
-                )
-            )
-            .Returns(InteractionTask.FromResult(new QueryUserOrganisationApiResponse {
+        autoMocker.MockResponse<QueryUserOrganisationApiRequest>(
+            new QueryUserOrganisationApiResponse {
                 Organisation = FakeOrganisation,
                 UserId = new Guid("ac62be99-b4fe-4b19-9a3b-884a3c15b860"),
-            }));
+            }
+        );
 
         var selector = autoMocker.CreateInstance<StandardSelectOrganisationUserFlow>();
 
