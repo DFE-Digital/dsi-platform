@@ -30,12 +30,43 @@ public sealed class InteractionAutoMockerExtensionsTests
         autoMocker.CaptureRequest<ExampleRequest>(r => capturedRequest = r);
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
-        await mockInteraction.Object.DispatchAsync(new ExampleRequest {
-            Value = 42,
-        });
+        await mockInteraction.Object.DispatchAsync(
+            new ExampleRequest { Value = 42 }
+        );
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual(42, capturedRequest.Value);
+    }
+
+    [TestMethod]
+    public async Task CaptureRequest_OverridesResponseWithNull()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.CaptureRequest<ExampleRequest>(_ => { });
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        var response = await mockInteraction.Object.DispatchAsync(
+            new ExampleRequest { Value = 42 }
+        );
+
+        Assert.IsNull(response);
+    }
+
+    [TestMethod]
+    public async Task CaptureRequest_UsesProvidedResponse()
+    {
+        var autoMocker = new AutoMocker();
+        var fakeResponse = new ExampleResponse();
+
+        autoMocker.CaptureRequest<ExampleRequest>(_ => { }, fakeResponse);
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        var response = await mockInteraction.Object.DispatchAsync(
+            new ExampleRequest { Value = 42 }
+        );
+
+        Assert.AreSame(fakeResponse, response);
     }
 
     #endregion

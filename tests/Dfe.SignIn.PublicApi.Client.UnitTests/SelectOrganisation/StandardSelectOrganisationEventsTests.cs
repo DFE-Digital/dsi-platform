@@ -16,7 +16,7 @@ public sealed class StandardSelectOrganisationEventsTests
         var options = new StandardSelectOrganisationUserFlowOptions();
 
         autoMocker.GetMock<IOptions<StandardSelectOrganisationUserFlowOptions>>()
-            .Setup(mock => mock.Value)
+            .Setup(x => x.Value)
             .Returns(options);
 
         return options;
@@ -27,7 +27,7 @@ public sealed class StandardSelectOrganisationEventsTests
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
         var mockResponse = autoMocker.GetMock<IHttpResponse>();
-        mockContext.Setup(mock => mock.Response)
+        mockContext.Setup(x => x.Response)
             .Returns(mockResponse.Object);
 
         return mockContext;
@@ -46,8 +46,8 @@ public sealed class StandardSelectOrganisationEventsTests
 
         await events.OnStartSelection(mockContext.Object, new Uri(expectedSelectionUri));
 
-        autoMocker.Verify<IHttpResponse>(mock =>
-            mock.Redirect(
+        autoMocker.Verify<IHttpResponse>(x =>
+            x.Redirect(
                 It.Is<string>(selectionUri => selectionUri == expectedSelectionUri)
             ),
             Times.Once
@@ -67,15 +67,15 @@ public sealed class StandardSelectOrganisationEventsTests
         var events = autoMocker.CreateInstance<StandardSelectOrganisationEvents>();
 
         autoMocker.GetMock<IActiveOrganisationProvider>()
-            .Setup(mock => mock.GetActiveOrganisationStateAsync(
+            .Setup(x => x.GetActiveOrganisationStateAsync(
                 It.Is<IHttpContext>(context => context == mockContext.Object)
             ))
             .ReturnsAsync((ActiveOrganisationState?)null);
 
         await events.OnCancelSelection(mockContext.Object);
 
-        autoMocker.Verify<IHttpResponse>(mock =>
-            mock.Redirect(
+        autoMocker.Verify<IHttpResponse>(x =>
+            x.Redirect(
                 It.Is<string>(selectionUri => selectionUri == options.SignOutPath)
             ),
             Times.Once
@@ -91,15 +91,15 @@ public sealed class StandardSelectOrganisationEventsTests
         var events = autoMocker.CreateInstance<StandardSelectOrganisationEvents>();
 
         autoMocker.GetMock<IActiveOrganisationProvider>()
-            .Setup(mock => mock.GetActiveOrganisationStateAsync(
+            .Setup(x => x.GetActiveOrganisationStateAsync(
                 It.Is<IHttpContext>(context => context == mockContext.Object)
             ))
             .ReturnsAsync(new ActiveOrganisationState());
 
         await events.OnCancelSelection(mockContext.Object);
 
-        autoMocker.Verify<IHttpResponse>(mock =>
-            mock.Redirect(
+        autoMocker.Verify<IHttpResponse>(x =>
+            x.Redirect(
                 It.Is<string>(selectionUri => selectionUri == options.CompletedPath)
             ),
             Times.Once
@@ -129,8 +129,8 @@ public sealed class StandardSelectOrganisationEventsTests
 
         await events.OnConfirmSelection(mockContext.Object, expectedOrganisation);
 
-        autoMocker.Verify<IActiveOrganisationProvider>(mock =>
-            mock.SetActiveOrganisationAsync(
+        autoMocker.Verify<IActiveOrganisationProvider>(x =>
+            x.SetActiveOrganisationAsync(
                 It.Is<IHttpContext>(context => context == mockContext.Object),
                 It.Is<OrganisationDetails?>(organisation => organisation == expectedOrganisation)
             ),
@@ -149,8 +149,8 @@ public sealed class StandardSelectOrganisationEventsTests
 
         await events.OnConfirmSelection(mockContext.Object, expectedOrganisation);
 
-        autoMocker.Verify<IHttpResponse>(mock =>
-            mock.Redirect(
+        autoMocker.Verify<IHttpResponse>(x =>
+            x.Redirect(
                 It.Is<string>(selectionUri => selectionUri == options.CompletedPath)
             ),
             Times.Once
@@ -189,8 +189,8 @@ public sealed class StandardSelectOrganisationEventsTests
 
         await events.OnSignOut(mockContext.Object);
 
-        autoMocker.Verify<IHttpResponse>(mock =>
-            mock.Redirect(
+        autoMocker.Verify<IHttpResponse>(x =>
+            x.Redirect(
                 It.Is<string>(selectionUri => selectionUri == options.SignOutPath)
             ),
             Times.Once

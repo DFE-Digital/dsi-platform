@@ -7,6 +7,12 @@ namespace Dfe.SignIn.Core.Contracts.SelectOrganisation;
 /// <summary>
 /// Represents a request to filter organisations for a user.
 /// </summary>
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="FilterOrganisationsForUserResponse"/></item>
+///   </list>
+/// </remarks>
 public sealed record FilterOrganisationsForUserRequest
 {
     /// <summary>

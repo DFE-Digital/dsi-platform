@@ -57,7 +57,7 @@ public sealed class ContactController(
                 SubjectCode = viewModel.SubjectCodeInput!,
                 CustomSummary = viewModel.CustomSummaryInput,
                 OrganisationName = viewModel.OrganisationNameInput!,
-                OrganisationURN = viewModel.OrganisationUrnInput,
+                OrganisationUrn = viewModel.OrganisationUrnInput,
                 ApplicationName = viewModel.ApplicationNameInput!,
                 Message = viewModel.MessageInput!,
             }).To<RaiseSupportTicketResponse>();
@@ -69,7 +69,7 @@ public sealed class ContactController(
                 [nameof(RaiseSupportTicketRequest.SubjectCode)] = nameof(ContactViewModel.SubjectCodeInput),
                 [nameof(RaiseSupportTicketRequest.CustomSummary)] = nameof(ContactViewModel.CustomSummaryInput),
                 [nameof(RaiseSupportTicketRequest.OrganisationName)] = nameof(ContactViewModel.OrganisationNameInput),
-                [nameof(RaiseSupportTicketRequest.OrganisationURN)] = nameof(ContactViewModel.OrganisationUrnInput),
+                [nameof(RaiseSupportTicketRequest.OrganisationUrn)] = nameof(ContactViewModel.OrganisationUrnInput),
                 [nameof(RaiseSupportTicketRequest.ApplicationName)] = nameof(ContactViewModel.ApplicationNameInput),
                 [nameof(RaiseSupportTicketRequest.Message)] = nameof(ContactViewModel.MessageInput),
             });

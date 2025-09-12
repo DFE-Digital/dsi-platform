@@ -59,7 +59,7 @@ public sealed class RaiseSupportTicketByEmailUseCase(
                 ["name"] = context.Request.FullName,
                 ["email"] = context.Request.EmailAddress,
                 ["orgName"] = context.Request.OrganisationName,
-                ["urn"] = context.Request.OrganisationURN ?? "",
+                ["urn"] = context.Request.OrganisationUrn ?? "",
                 ["service"] = context.Request.ApplicationName ?? "",
                 ["type"] = context.Request.SubjectCode,
                 ["message"] = context.Request.Message,

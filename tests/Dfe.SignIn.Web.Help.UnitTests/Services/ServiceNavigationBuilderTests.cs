@@ -57,31 +57,31 @@ public sealed class ServiceNavigationBuilderTests
         var mockTopicIndex = autoMocker.GetMock<ITopicIndex>();
 
         autoMocker.GetMock<ITopicIndexAccessor>()
-            .Setup(mock => mock.GetIndexAsync(
+            .Setup(x => x.GetIndexAsync(
                 It.Is<bool>(invalidate => !invalidate)
             ))
             .ReturnsAsync(mockTopicIndex.Object);
 
         mockTopicIndex
-            .Setup(mock => mock.GetTopic(
+            .Setup(x => x.GetTopic(
                 It.Is<string>(topicPath => topicPath == "/")
             ))
             .Returns(HomePageTopic);
 
         mockTopicIndex
-            .Setup(mock => mock.GetTopic(
+            .Setup(x => x.GetTopic(
                 It.Is<string>(topicPath => topicPath == "/getting-started")
             ))
             .Returns(GettingStartedTopic);
 
         mockTopicIndex
-            .Setup(mock => mock.GetTopic(
+            .Setup(x => x.GetTopic(
                 It.Is<string>(topicPath => topicPath == "/guidance")
             ))
             .Returns(GuidanceTopic);
 
         mockTopicIndex
-            .Setup(mock => mock.GetTopic(
+            .Setup(x => x.GetTopic(
                 It.Is<string>(topicPath => topicPath == "/guidance/example")
             ))
             .Returns(ExampleTopic);

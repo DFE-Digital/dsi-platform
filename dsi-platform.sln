@@ -67,9 +67,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Web.SelectOrgani
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.WebFramework.UnitTests", "tests\Dfe.SignIn.WebFramework.UnitTests\Dfe.SignIn.WebFramework.UnitTests.csproj", "{3B02B13D-FA1B-49CD-8300-FED255FD5D82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Fn.AuthExtensions", "src\Dfe.SignIn.Fn.AuthExtensions\Dfe.SignIn.Fn.AuthExtensions.csproj", "{40C9DBAC-DBA2-472B-8713-90A4B8A4821D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Fn.AuthExtensions.UnitTests", "tests\Dfe.SignIn.Fn.AuthExtensions.UnitTests\Dfe.SignIn.Fn.AuthExtensions.UnitTests.csproj", "{75DF9F36-8BCE-4CB2-8899-94F62C792C52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Core.Contracts.UnitTests", "tests\Dfe.SignIn.Core.Contracts.UnitTests\Dfe.SignIn.Core.Contracts.UnitTests.csproj", "{1DAFDC10-747E-41B4-990B-834665E8C88E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.Fn.AuthExtensions", "src\Dfe.SignIn.Fn.AuthExtensions\Dfe.SignIn.Fn.AuthExtensions.csproj", "{40C9DBAC-DBA2-472B-8713-90A4B8A4821D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -204,6 +206,14 @@ Global
 		{75DF9F36-8BCE-4CB2-8899-94F62C792C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75DF9F36-8BCE-4CB2-8899-94F62C792C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75DF9F36-8BCE-4CB2-8899-94F62C792C52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DAFDC10-747E-41B4-990B-834665E8C88E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DAFDC10-747E-41B4-990B-834665E8C88E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DAFDC10-747E-41B4-990B-834665E8C88E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DAFDC10-747E-41B4-990B-834665E8C88E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40C9DBAC-DBA2-472B-8713-90A4B8A4821D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40C9DBAC-DBA2-472B-8713-90A4B8A4821D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40C9DBAC-DBA2-472B-8713-90A4B8A4821D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40C9DBAC-DBA2-472B-8713-90A4B8A4821D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0E7C6BE1-C8B5-4867-A85A-AA0DB04EE36D} = {3F245DBD-544F-4DD4-9B56-06B116BB9CFE}
@@ -237,5 +247,7 @@ Global
 		{D37E3C80-2152-46E5-9244-F51117CE64B9} = {66605B0E-3683-4A9D-B8C6-73C7146BC2D6}
 		{3B02B13D-FA1B-49CD-8300-FED255FD5D82} = {66605B0E-3683-4A9D-B8C6-73C7146BC2D6}
 		{75DF9F36-8BCE-4CB2-8899-94F62C792C52} = {66605B0E-3683-4A9D-B8C6-73C7146BC2D6}
+		{1DAFDC10-747E-41B4-990B-834665E8C88E} = {66605B0E-3683-4A9D-B8C6-73C7146BC2D6}
+		{40C9DBAC-DBA2-472B-8713-90A4B8A4821D} = {3F245DBD-544F-4DD4-9B56-06B116BB9CFE}
 	EndGlobalSection
 EndGlobal

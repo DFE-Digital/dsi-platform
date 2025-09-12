@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.Base.Framework.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
@@ -13,12 +13,11 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 ///     <item><see cref="GetUserStatusResponse"/></item>
 ///   </list>
 /// </remarks>
-public sealed record GetUserStatusRequest
+public sealed record GetUserStatusRequest : IValidatableObject
 {
     /// <summary>
     /// Gets the unique ID of the user in the Entra tenant.
     /// </summary>
-    [RequiredIfTargetEquals(nameof(EmailAddress), null!)]
     public Guid? EntraUserId { get; init; }
 
     /// <summary>
@@ -27,9 +26,20 @@ public sealed record GetUserStatusRequest
     /// <value>
     /// A well formed email address.
     /// </value>
-    [RequiredIfTargetEquals(nameof(EntraUserId), null!)]
     [EmailAddress]
     public string? EmailAddress { get; init; }
+
+    /// <inheritdoc/>
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        string[] memberNames = [
+            nameof(this.EntraUserId),
+            nameof(this.EmailAddress)
+        ];
+        if (!ValidationHelpers.HasExactlyOneMember(validationContext, memberNames)) {
+            yield return new ValidationResult("Exactly one option must be specified.", memberNames);
+        }
+    }
 }
 
 /// <summary>

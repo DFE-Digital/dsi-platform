@@ -20,8 +20,8 @@ public sealed class HttpRequestExtensionsTests
     {
         var mockRequest = new Mock<IHttpRequest>();
 
-        mockRequest.Setup(mock =>
-            mock.GetQuery(
+        mockRequest.Setup(x =>
+            x.GetQuery(
                 It.Is<string>(key => key == "abc")
             ))
             .Returns((string)null!);

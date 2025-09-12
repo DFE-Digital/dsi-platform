@@ -14,7 +14,7 @@ public sealed class GetUserAccessToServiceApiRequesterTests
     private static void UseFakeOptions(AutoMocker autoMocker)
     {
         autoMocker.GetMock<IOptions<PublicApiOptions>>()
-            .Setup(mock => mock.Value)
+            .Setup(x => x.Value)
             .Returns(new PublicApiOptions {
                 ClientId = "<client_id>",
                 ApiSecret = "<api_secret>",

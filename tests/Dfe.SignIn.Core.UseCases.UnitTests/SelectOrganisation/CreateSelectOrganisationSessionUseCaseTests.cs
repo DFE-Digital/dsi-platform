@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
@@ -30,14 +29,11 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
 
     private static void MockFilteredOrganisations(AutoMocker autoMocker, IEnumerable<Organisation>? filteredOrganisations = null)
     {
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(x => x.DispatchAsync(
-                It.IsAny<FilterOrganisationsForUserRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .Returns(InteractionTask.FromResult(new FilterOrganisationsForUserResponse {
+        autoMocker.MockResponse<FilterOrganisationsForUserRequest>(
+            new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = filteredOrganisations ?? [],
-            }));
+            }
+        );
     }
 
     private static async Task<(CreateSelectOrganisationSessionResponse, string?)> InvokeCaptureSessionKey(

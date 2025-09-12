@@ -16,7 +16,7 @@ public sealed class SelectOrganisationRequestSessionTrackingTests
         var mockContext = autoMocker.GetMock<HttpContext>();
 
         var mockSession = autoMocker.GetMock<ISession>();
-        mockContext.Setup(mock => mock.Session).Returns(mockSession.Object);
+        mockContext.Setup(x => x.Session).Returns(mockSession.Object);
     }
 
     #region SetTrackedRequestAsync(IHttpContext, Guid?)
@@ -32,8 +32,8 @@ public sealed class SelectOrganisationRequestSessionTrackingTests
 
         await tracking.SetTrackedRequestAsync(adapter, FakeRequestId1);
 
-        autoMocker.Verify<ISession>(mock =>
-            mock.Set(
+        autoMocker.Verify<ISession>(x =>
+            x.Set(
                 It.Is<string>(key => key == SelectOrganisationRequestSessionTracking.TrackedRequestIdSessionKey),
                 It.Is<byte[]>(value => Encoding.UTF8.GetString(value) == FakeRequestId1.ToString())
             ),
@@ -53,8 +53,8 @@ public sealed class SelectOrganisationRequestSessionTrackingTests
         await tracking.SetTrackedRequestAsync(adapter, FakeRequestId1);
         await tracking.SetTrackedRequestAsync(adapter, null);
 
-        autoMocker.Verify<ISession>(mock =>
-            mock.Remove(
+        autoMocker.Verify<ISession>(x =>
+            x.Remove(
                 It.Is<string>(key => key == SelectOrganisationRequestSessionTracking.TrackedRequestIdSessionKey)
             ),
             Times.Once
@@ -75,7 +75,7 @@ public sealed class SelectOrganisationRequestSessionTrackingTests
         byte[] output = Encoding.UTF8.GetBytes(FakeRequestId1.ToString());
 
         autoMocker.GetMock<ISession>()
-            .Setup(mock => mock.TryGetValue(
+            .Setup(x => x.TryGetValue(
                 It.Is<string>(key => key == SelectOrganisationRequestSessionTracking.TrackedRequestIdSessionKey),
                 out output!
             ))
@@ -98,7 +98,7 @@ public sealed class SelectOrganisationRequestSessionTrackingTests
         byte[] output = Encoding.UTF8.GetBytes(FakeRequestId1.ToString());
 
         autoMocker.GetMock<ISession>()
-            .Setup(mock => mock.TryGetValue(
+            .Setup(x => x.TryGetValue(
                 It.Is<string>(key => key == SelectOrganisationRequestSessionTracking.TrackedRequestIdSessionKey),
                 out output!
             ))
@@ -121,7 +121,7 @@ public sealed class SelectOrganisationRequestSessionTrackingTests
         byte[]? output = null;
 
         autoMocker.GetMock<ISession>()
-            .Setup(mock => mock.TryGetValue(
+            .Setup(x => x.TryGetValue(
                 It.Is<string>(key => key == SelectOrganisationRequestSessionTracking.TrackedRequestIdSessionKey),
                 out output
             ))

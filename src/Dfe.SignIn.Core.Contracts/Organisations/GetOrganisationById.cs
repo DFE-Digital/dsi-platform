@@ -3,7 +3,13 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// <summary>
 /// Request to get an organisation by its unique identifier.
 /// </summary>
-public record GetOrganisationByIdRequest
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="GetOrganisationByIdResponse"/></item>
+///   </list>
+/// </remarks>
+public sealed record GetOrganisationByIdRequest
 {
     /// <summary>
     /// Gets the unique identifier of the organisation.
@@ -14,7 +20,7 @@ public record GetOrganisationByIdRequest
 /// <summary>
 /// Response model for request <see cref="GetOrganisationByIdRequest"/>.
 /// </summary>
-public record GetOrganisationByIdResponse
+public sealed record GetOrganisationByIdResponse
 {
     /// <summary>
     /// Gets a model representing the organisation when the organisation was found;

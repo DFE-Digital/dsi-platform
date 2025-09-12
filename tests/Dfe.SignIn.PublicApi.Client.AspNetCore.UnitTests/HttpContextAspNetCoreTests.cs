@@ -15,13 +15,13 @@ public sealed class HttpContextAspNetCoreTests
     {
         var mockContext = autoMocker.GetMock<HttpContext>();
 
-        mockContext.Setup(mock => mock.User).Returns(new ClaimsPrincipal());
+        mockContext.Setup(x => x.User).Returns(new ClaimsPrincipal());
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockContext.Setup(mock => mock.Request).Returns(mockRequest.Object);
+        mockContext.Setup(x => x.Request).Returns(mockRequest.Object);
 
         var mockResponse = autoMocker.GetMock<HttpResponse>();
-        mockContext.Setup(mock => mock.Response).Returns(mockResponse.Object);
+        mockContext.Setup(x => x.Response).Returns(mockResponse.Object);
 
         return mockContext;
     }
@@ -76,7 +76,7 @@ public sealed class HttpContextAspNetCoreTests
         var mockAuthService = new Mock<IAuthenticationService>();
         var services = new ServiceCollection();
         services.AddSingleton(mockAuthService.Object);
-        mockContext.Setup(mock => mock.RequestServices).Returns(services.BuildServiceProvider());
+        mockContext.Setup(x => x.RequestServices).Returns(services.BuildServiceProvider());
 
         var newPrincipal = new ClaimsPrincipal();
 
@@ -104,7 +104,7 @@ public sealed class HttpContextAspNetCoreTests
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Method).Returns("PATCH");
+        mockRequest.Setup(x => x.Method).Returns("PATCH");
 
         Assert.AreSame("PATCH", adapter.Request.Method);
     }
@@ -117,7 +117,7 @@ public sealed class HttpContextAspNetCoreTests
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Scheme).Returns("https");
+        mockRequest.Setup(x => x.Scheme).Returns("https");
 
         Assert.AreSame("https", adapter.Request.Scheme);
     }
@@ -130,7 +130,7 @@ public sealed class HttpContextAspNetCoreTests
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Host).Returns(new HostString("localhost:3000"));
+        mockRequest.Setup(x => x.Host).Returns(new HostString("localhost:3000"));
 
         Assert.AreSame("localhost:3000", adapter.Request.Host);
     }
@@ -143,7 +143,7 @@ public sealed class HttpContextAspNetCoreTests
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.PathBase).Returns(new PathString("/app"));
+        mockRequest.Setup(x => x.PathBase).Returns(new PathString("/app"));
 
         Assert.AreSame("/app", adapter.Request.PathBase);
     }
@@ -156,7 +156,7 @@ public sealed class HttpContextAspNetCoreTests
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Path).Returns(new PathString("/entra/callback"));
+        mockRequest.Setup(x => x.Path).Returns(new PathString("/entra/callback"));
 
         Assert.AreSame("/entra/callback", adapter.Request.Path);
     }
@@ -191,7 +191,7 @@ public sealed class HttpContextAspNetCoreTests
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock => mock.Query).Returns(
+        mockRequest.Setup(x => x.Query).Returns(
             new QueryCollection(QueryHelpers.ParseQuery("?first=1&second=2"))
         );
 
@@ -208,8 +208,8 @@ public sealed class HttpContextAspNetCoreTests
         var adapter = autoMocker.CreateInstance<HttpContextAspNetCoreAdapter>();
 
         var mockRequest = autoMocker.GetMock<HttpRequest>();
-        mockRequest.Setup(mock =>
-            mock.ReadFormAsync(
+        mockRequest.Setup(x =>
+            x.ReadFormAsync(
                 It.IsAny<CancellationToken>()
             )
         ).ReturnsAsync(
@@ -239,8 +239,8 @@ public sealed class HttpContextAspNetCoreTests
 
         adapter.Response.Redirect("/new-location");
 
-        autoMocker.Verify<HttpResponse>(mock =>
-            mock.Redirect(
+        autoMocker.Verify<HttpResponse>(x =>
+            x.Redirect(
                 It.Is<string>(location => location == "/new-location")
             ),
             Times.Once

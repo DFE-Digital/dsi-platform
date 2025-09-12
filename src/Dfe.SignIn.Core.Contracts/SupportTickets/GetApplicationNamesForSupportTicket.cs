@@ -4,6 +4,12 @@ namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 /// Request to get the list of application names which can be chosen when a user is
 /// raising a support ticket.
 /// </summary>
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="GetApplicationNamesForSupportTicketResponse"/></item>
+///   </list>
+/// </remarks>
 public sealed record GetApplicationNamesForSupportTicketRequest
 {
 }

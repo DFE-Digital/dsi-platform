@@ -5,7 +5,6 @@ using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.ScopedSession;
-using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
@@ -72,12 +71,11 @@ public sealed class PostSelectOrganisationSessionTests
             .Setup(x => x.Application)
             .Returns(FakeApplication);
 
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(x => x.DispatchAsync(
-                It.IsAny<CreateSelectOrganisationSessionRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .Returns(InteractionTask.FromResult(FakeResponse));
+        CreateSelectOrganisationSessionRequest? capturedRequest = null;
+        autoMocker.CaptureRequest<CreateSelectOrganisationSessionRequest>(
+            request => capturedRequest = request,
+            FakeResponse
+        );
 
         await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             apiRequest,
@@ -85,18 +83,12 @@ public sealed class PostSelectOrganisationSessionTests
             autoMocker.Get<IInteractionDispatcher>()
         );
 
-        autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
-            x.DispatchAsync(
-                It.Is<CreateSelectOrganisationSessionRequest>(request =>
-                    request.ClientId == "test-client-id" &&
-                    request.CallbackUrl == apiRequest.CallbackUrl &&
-                    request.UserId == apiRequest.UserId &&
-                    request.Filter == apiRequest.Filter &&
-                    request.Prompt == apiRequest.Prompt
-                ),
-                It.IsAny<CancellationToken>()
-            )
-        );
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual("test-client-id", capturedRequest.ClientId);
+        Assert.AreEqual(apiRequest.CallbackUrl, capturedRequest.CallbackUrl);
+        Assert.AreEqual(apiRequest.UserId, capturedRequest.UserId);
+        Assert.AreEqual(apiRequest.Filter, capturedRequest.Filter);
+        Assert.AreEqual(apiRequest.Prompt, capturedRequest.Prompt);
     }
 
     [TestMethod]
@@ -108,12 +100,7 @@ public sealed class PostSelectOrganisationSessionTests
             .Setup(x => x.Application)
             .Returns(FakeApplication);
 
-        autoMocker.GetMock<IInteractionDispatcher>()
-            .Setup(x => x.DispatchAsync(
-                It.IsAny<CreateSelectOrganisationSessionRequest>(),
-                It.IsAny<CancellationToken>()
-            ))
-            .Returns(InteractionTask.FromResult(FakeResponse));
+        autoMocker.MockResponse<CreateSelectOrganisationSessionRequest>(FakeResponse);
 
         var response = await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             FakePublicApiRequest,

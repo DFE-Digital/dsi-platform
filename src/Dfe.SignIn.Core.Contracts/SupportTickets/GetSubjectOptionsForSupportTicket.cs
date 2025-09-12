@@ -4,6 +4,12 @@ namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 /// Request to get the list of subject options which can be chosen from when a
 /// user is raising a support ticket.
 /// </summary>
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="GetSubjectOptionsForSupportTicketResponse"/></item>
+///   </list>
+/// </remarks>
 public sealed record GetSubjectOptionsForSupportTicketRequest
 {
 }

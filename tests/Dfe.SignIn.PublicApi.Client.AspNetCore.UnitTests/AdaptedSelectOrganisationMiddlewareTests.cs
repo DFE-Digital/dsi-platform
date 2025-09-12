@@ -14,7 +14,7 @@ public sealed class AdaptedSelectOrganisationMiddlewareTests
     {
         var mockMiddleware = new Mock<IHttpMiddleware>();
         mockMiddleware
-            .Setup(mock => mock.InvokeAsync(
+            .Setup(x => x.InvokeAsync(
                 It.IsAny<IHttpContext>(),
                 It.IsAny<Func<Task>>()
             ))
@@ -27,8 +27,8 @@ public sealed class AdaptedSelectOrganisationMiddlewareTests
 
         await adapter.InvokeAsync(mockContext.Object, mockNext.Object);
 
-        mockMiddleware.Verify(mock =>
-            mock.InvokeAsync(
+        mockMiddleware.Verify(x =>
+            x.InvokeAsync(
                 It.Is<IHttpContext>(context => context.Inner == mockContext.Object),
                 It.IsAny<Func<Task>>()
             ),

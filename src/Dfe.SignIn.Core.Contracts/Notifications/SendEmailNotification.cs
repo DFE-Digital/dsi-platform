@@ -5,6 +5,12 @@ namespace Dfe.SignIn.Core.Contracts.Notifications;
 /// <summary>
 /// Request to send an email notification.
 /// </summary>
+/// <remarks>
+///   <para>Associated response type:</para>
+///   <list type="bullet">
+///     <item><see cref="SendEmailNotificationResponse"/></item>
+///   </list>
+/// </remarks>
 public sealed record SendEmailNotificationRequest
 {
     /// <summary>

@@ -165,7 +165,7 @@ public sealed class ContactControllerTests
         Assert.AreEqual("other", capturedRequest.SubjectCode);
         Assert.AreEqual("Example custom summary.", capturedRequest.CustomSummary);
         Assert.AreEqual("Example Organisation", capturedRequest.OrganisationName);
-        Assert.AreEqual("123456", capturedRequest.OrganisationURN);
+        Assert.AreEqual("123456", capturedRequest.OrganisationUrn);
         Assert.AreEqual("Example Service", capturedRequest.ApplicationName);
         Assert.AreEqual("Example message.", capturedRequest.Message);
     }
