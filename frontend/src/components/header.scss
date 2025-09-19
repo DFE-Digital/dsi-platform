@@ -5,3 +5,14 @@
 .app-header__service-name {
   flex-grow: 2;
 }
+
+.govuk-header__link {
+  .govuk-header__logotype {
+    height: 30px;
+  }
+
+  &:focus .govuk-header__logotype {
+    content: url("/assets/images/department-for-education_black.png");
+    height: 30px;
+  }
+}
