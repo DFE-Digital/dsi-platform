@@ -140,7 +140,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
@@ -172,7 +172,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
@@ -194,7 +194,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
@@ -226,7 +226,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
@@ -258,7 +258,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
@@ -290,7 +290,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
@@ -322,7 +322,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
@@ -353,7 +353,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
@@ -396,7 +396,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<GetApplicationByClientIdRequest>(),
+                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
