@@ -23,11 +23,11 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.IsAny<TRequest>(),
+                It.IsAny<InteractionContext<TRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Callback<TRequest, CancellationToken>(
-                (request, _) => captureRequest(request)
+            .Callback<InteractionContext<TRequest>, CancellationToken>(
+                (context, _) => captureRequest(context.Request)
             )
             .Returns(InteractionTask.FromResult(response!));
     }
@@ -43,7 +43,7 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.IsAny<TRequest>(),
+                It.IsAny<InteractionContext<TRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(response));
@@ -62,7 +62,26 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.Is<TRequest>(r => predicate(r)),
+                It.Is<InteractionContext<TRequest>>(c => predicate(c.Request)),
+                It.IsAny<CancellationToken>()
+            ))
+            .Returns(InteractionTask.FromResult(response));
+    }
+
+    /// <summary>
+    /// Sets up a mock response where request matches a given predicate.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="predicate">The predicate.</param>
+    /// <param name="response">The fake response.</param>
+    public static void MockResponseWhereContext<TRequest>(
+        this AutoMocker autoMocker, Predicate<InteractionContext<TRequest>> predicate, object response)
+        where TRequest : class
+    {
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
+                It.Is<InteractionContext<TRequest>>(c => predicate(c)),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(response));
@@ -107,7 +126,7 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.IsAny<TRequest>(),
+                It.IsAny<InteractionContext<TRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(InteractionTask.FromResult(Activator.CreateInstance<TResponse>()!));
@@ -124,7 +143,7 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.IsAny<TRequest>(),
+                It.IsAny<InteractionContext<TRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
             .Throws(exception);
@@ -142,7 +161,7 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.Is<TRequest>(r => ReferenceEquals(r, request)),
+                It.Is<InteractionContext<TRequest>>(c => ReferenceEquals(c.Request, request)),
                 It.IsAny<CancellationToken>()
             ))
             .Throws(exception);

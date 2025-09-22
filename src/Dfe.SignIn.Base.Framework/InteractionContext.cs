@@ -20,6 +20,11 @@ public class InteractionContext<TRequest>(TRequest request)
     /// </summary>
     public TRequest Request { get; } = request;
 
+    /// <summary>
+    /// Gets or sets a value hinting that responses should not be cached where possible.
+    /// </summary>
+    public bool IgnoreCacheHint { get; set; } = false;
+
 #pragma warning disable IDE0028 // A mutable collection type is required here.
     /// <summary>
     /// Gets the list of any validation results that have accumulated during the invocation

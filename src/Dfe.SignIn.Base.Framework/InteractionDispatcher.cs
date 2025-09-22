@@ -13,14 +13,17 @@ public interface IInteractionDispatcher
     /// Dispatches an interaction request and awaits a response.
     /// </summary>
     /// <typeparam name="TRequest">The type of request.</typeparam>
-    /// <param name="request">Request model for the interaction.</param>
+    /// <param name="context">Context of the interaction.</param>
     /// <param name="cancellationToken">A cancellation token that can be used by other
     /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The interaction response.</para>
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="context"/> is null.</para>
+    /// </exception>
     /// <exception cref="InvalidRequestException">
-    ///   <para>If the <paramref name="request"/> model is invalid.</para>
+    ///   <para>If the request model is invalid.</para>
     /// </exception>
     /// <exception cref="InvalidResponseException">
     ///   <para>If the response model is invalid.</para>
@@ -32,7 +35,8 @@ public interface IInteractionDispatcher
     ///   <para>If an unexpected exception occurs whilst processing the interaction.</para>
     /// </exception>
     /// <exception cref="OperationCanceledException" />
-    InteractionTask DispatchAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default)
+    InteractionTask DispatchAsync<TRequest>(
+        InteractionContext<TRequest> context, CancellationToken cancellationToken = default)
         where TRequest : class;
 }
 
@@ -124,22 +128,24 @@ public sealed class ServiceProviderInteractionDispatcher(
 ) : IInteractionDispatcher
 {
     /// <inheritdoc/>
-    public InteractionTask DispatchAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default)
+    public InteractionTask DispatchAsync<TRequest>(
+        InteractionContext<TRequest> context, CancellationToken cancellationToken = default)
         where TRequest : class
     {
-        return new InteractionTask(this.DoDispatchAsync(request, cancellationToken));
+        ExceptionHelpers.ThrowIfArgumentNull(context, nameof(context));
+
+        return new InteractionTask(this.DoDispatchAsync(context, cancellationToken));
     }
 
-    private async Task<object> DoDispatchAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default)
+    private async Task<object> DoDispatchAsync<TRequest>(
+        InteractionContext<TRequest> context, CancellationToken cancellationToken = default)
         where TRequest : class
     {
         var interactor = services.GetService<IInteractor<TRequest>>()
             ?? throw new MissingInteractorException(null, typeof(TRequest).Name);
 
-        var context = new InteractionContext<TRequest>(request);
-
         try {
-            interactionValidator.TryValidateRequest(request, context.ValidationResults);
+            interactionValidator.TryValidateRequest(context.Request, context.ValidationResults);
 
             return await interactor.InvokeAsync(context, cancellationToken);
         }

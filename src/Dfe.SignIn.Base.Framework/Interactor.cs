@@ -12,6 +12,8 @@ namespace Dfe.SignIn.Base.Framework;
 ///   <code language="csharp"><![CDATA[
 ///     services.AddTransient<IInteractor<GetExampleByIdRequest>, GetExampleById_ApiRequester>();
 ///   ]]></code>
+///   <para>A request type can implement the <see cref="Caching.ICacheableRequest"/> interface to
+///   allow for the caching of interaction responses.</para>
 /// </remarks>
 /// <typeparam name="TRequest">The type of request.</typeparam>
 /// <seealso cref="Interactor{TRequest, TResponse}"/>

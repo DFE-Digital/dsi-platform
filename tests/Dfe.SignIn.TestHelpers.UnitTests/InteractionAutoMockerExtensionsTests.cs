@@ -100,9 +100,40 @@ public sealed class InteractionAutoMockerExtensionsTests
         var fakeRequestB = new ExampleRequest { Value = 456 };
 
         var fakeResponseA = new ExampleResponse();
-        InteractionAutoMockerExtensions.MockResponseWhere<ExampleRequest>(autoMocker, req => req.Value == 123, fakeResponseA);
+        InteractionAutoMockerExtensions.MockResponseWhere<ExampleRequest>(
+            autoMocker, req => req.Value == 123, fakeResponseA);
+
         var fakeResponseB = new ExampleResponse();
-        InteractionAutoMockerExtensions.MockResponseWhere<ExampleRequest>(autoMocker, req => req.Value == 456, fakeResponseB);
+        InteractionAutoMockerExtensions.MockResponseWhere<ExampleRequest>(
+            autoMocker, req => req.Value == 456, fakeResponseB);
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        var actualResponseA = await mockInteraction.Object.DispatchAsync(fakeRequestA);
+        var actualResponseB = await mockInteraction.Object.DispatchAsync(fakeRequestB);
+
+        Assert.AreEqual(fakeResponseA, actualResponseA);
+        Assert.AreEqual(fakeResponseB, actualResponseB);
+    }
+
+    #endregion
+
+    #region MockResponseWhereContext<TRequest>(AutoMocker, TRequest, object)
+
+    [TestMethod]
+    public async Task MockResponseWhereContext_MatchedRequestReturnsExpectedResponse()
+    {
+        var autoMocker = new AutoMocker();
+
+        var fakeRequestA = new ExampleRequest { Value = 123 };
+        var fakeRequestB = new ExampleRequest { Value = 456 };
+
+        var fakeResponseA = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponseWhereContext<ExampleRequest>(
+            autoMocker, ctx => ReferenceEquals(ctx.Request, fakeRequestA), fakeResponseA);
+
+        var fakeResponseB = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponseWhereContext<ExampleRequest>(
+            autoMocker, ctx => ReferenceEquals(ctx.Request, fakeRequestB), fakeResponseB);
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
         var actualResponseA = await mockInteraction.Object.DispatchAsync(fakeRequestA);
