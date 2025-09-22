@@ -41,12 +41,15 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     /// <param name="services">The collection to add services to.</param>
     /// <param name="apiNames">Indicates which mid-tier APIs are required.</param>
+    /// <returns>
+    ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="apiNames"/> is null.</para>
     /// </exception>
-    public static void SetupNodeApiClient(
+    public static IServiceCollection SetupNodeApiClient(
         this IServiceCollection services,
         IEnumerable<NodeApiName> apiNames)
     {
@@ -95,6 +98,8 @@ public static class ServiceCollectionExtensions
             InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
                 .Where(descriptor => descriptor.AreAllRequiredApisAvailable(apiNames))
         );
+
+        return services;
     }
 
     private static NodeApiOptions GetNodeApiOptions(IServiceProvider provider, NodeApiName apiName)

@@ -83,9 +83,23 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => services.SetupNodeApiClient(
+            => ServiceCollectionExtensions.SetupNodeApiClient(
+                services,
                 apiNames: null!
             ));
+    }
+
+    [TestMethod]
+    public void SetupNodeApiClient_ReturnsServicesForChainedCalls()
+    {
+        var services = new ServiceCollection();
+
+        var result = ServiceCollectionExtensions.SetupNodeApiClient(
+            services,
+            [NodeApiName.Directories]
+        );
+
+        Assert.AreSame(services, result);
     }
 
     #endregion
