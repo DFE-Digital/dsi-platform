@@ -55,21 +55,12 @@
             </div>
         </div>
     </header>
-    <div class="govuk-phase-banner">
-        <div class="govuk-width-container">
-            <p class="govuk-phase-banner__content">
-                <strong class="govuk-tag govuk-phase-banner__content__tag">
-                    Beta
-                </strong>
-                <span class="govuk-phase-banner__text">
-                    This is a new service – your <a class="govuk-link" href=@platformOptionsAccessor.Value.SurveyUrl
-                        target="_blank">feedback</a> will help us to improve it.
-                </span>
-            </p>
-        </div>
-    </div>
 
     <partial name="~/Views/Shared/Partials/_ServiceNavigation.cshtml" />
+
+    <div class="govuk-width-container">
+        <partial name="~/Views/Shared/Partials/_PhaseBanner.cshtml" />
+    </div>
 
     @if (ViewData[DsiLayoutConstants.Hero] is HeroViewModel hero)
     {
