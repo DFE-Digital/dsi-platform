@@ -35,7 +35,7 @@ public sealed class BlockedEmailAddressOptions : IOptions<BlockedEmailAddressOpt
     ///   <example>
     ///     <para>Specify the list of blocked email user names:</para>
     ///     <code language="csharp"><![CDATA[
-    ///       options.BlockedDomains = [
+    ///       options.BlockedNames = [
     ///           "admin",
     ///           "info",
     ///       ];
