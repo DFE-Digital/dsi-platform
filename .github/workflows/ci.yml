@@ -24,30 +24,23 @@ on:
         default: false
         type: boolean
 
-      build_auth_extensions:
-        description: Build "Auth Extensions"
-        default: false
-        type: boolean
-
-      build_select_organisation:
-        description: Build "Select Organisation"
-        default: false
-        type: boolean
-
-      build_public_api:
-        description: Build "Public API"
-        default: false
-        type: boolean
-
-      build_external_docs:
-        description: Build external docs
-        default: false
-        type: boolean
-
       publish_dotnet_packages:
         description: Publish .NET packages
         default: false
         type: boolean
+
+      build_for_repository:
+        description: Build for repository
+        default: (n/a)
+        type: choice
+        options:
+          - (n/a)
+          - frontend
+          - auth-extensions
+          - select-organisation
+          - public-api
+          - developer
+          - (all components)
 
       lifecycle:
         description: Lifecycle
@@ -70,7 +63,7 @@ env:
   TARGET_REGISTRY_KEY: TRAN
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ github.event.inputs.build_for_repository || '(n/a)' }}
   cancel-in-progress: true
 
 jobs:
@@ -89,9 +82,8 @@ jobs:
       check_powershell: ${{ steps.prepare.outputs.check_powershell }}
       check_dotnet: ${{ steps.prepare.outputs.check_dotnet }}
       check_docs_templates: ${{ steps.prepare.outputs.check_docs_templates }}
-      build_dotnet_images: ${{ steps.prepare.outputs.dotnet_images }}
+      build_docker_images: ${{ steps.prepare.outputs.docker_images }}
       publish_dotnet_packages: ${{ steps.prepare.outputs.publish_dotnet_packages }}
-      build_external_docs: ${{ steps.prepare.outputs.build_external_docs }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -123,21 +115,15 @@ jobs:
 
           $changedFiles = ./scripts/workflows/Get-ChangedFilesInBranch
 
-          ./scripts/workflows/Set-RequiredChecksOutput `
+          ./scripts/workflows/Set-RequirementsOutput `
+            -LifecycleName $lifecycleName `
             -ChangedFiles $changedFiles `
             -ForceCheckPowershell '${{ github.event.inputs.check_powershell || false }}' `
             -ForceCheckDotnet '${{ github.event.inputs.check_dotnet || false }}' `
             -ForceCheckDocs '${{ github.event.inputs.check_docs || false }}' `
-            -ForceBuildExternalDocs '${{ github.event.inputs.build_external_docs || false }}' `
+            -BuildChangedProjects $($env:GITHUB_EVENT_NAME -ne 'workflow_dispatch') `
+            -BuildForRepository '${{ github.event.inputs.build_for_repository || '(n/a)' }}' `
             -ForcePublishDotnetPackages '${{ github.event.inputs.publish_dotnet_packages || false }}'
-
-          ./scripts/workflows/Set-RequiredDotnetProjectsOutput `
-            -LifecycleName $lifecycleName `
-            -ChangedFiles $changedFiles `
-            -IncludeChangedProjects $($env:GITHUB_EVENT_NAME -ne 'workflow_dispatch') `
-            -ForceBuildAuthExtensions ${{ github.event.inputs.build_auth_extensions || false }} `
-            -ForceBuildSelectOrganisation ${{ github.event.inputs.build_select_organisation || false }} `
-            -ForceBuildPublicApi ${{ github.event.inputs.build_public_api || false }}
 
   # -------------------------------------------------------------------------------------
   # Run checks, build and then publish any Docker images to the container registry.
@@ -162,14 +148,22 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  dotnet-build:
-    name: .NET build images
-    uses: ./.github/workflows/dotnet-build-image.yml
+  docs-templates-checks:
+    name: Docs templates checks
+    uses: ./.github/workflows/docs-templates-checks.yml
     needs: prepare
-    if: ${{ needs.prepare.outputs.build_dotnet_images != '[]' }}
+    if: "${{ needs.prepare.outputs.check_docs_templates == 'true' }}"
+    permissions:
+      checks: write # Needed by 'dorny/test-reporter'.
+
+  image-build:
+    name: Build docker images
+    uses: ./.github/workflows/image-build.yml
+    needs: prepare
+    if: ${{ needs.prepare.outputs.build_docker_images != '[]' }}
     strategy:
       matrix:
-        image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
+        image: ${{ fromJson(needs.prepare.outputs.build_docker_images) }}
     secrets:
       ACR_MAIN_CLIENT_ID: ${{ secrets.ACR_MAIN_CLIENT_ID }}
       ACR_MAIN_CLIENT_SECRET: ${{ secrets.ACR_MAIN_CLIENT_SECRET }}
@@ -197,32 +191,6 @@ jobs:
     with:
       nuget_source: ${{ vars.AZURE_DEVOPS_NUGET_SOURCE }}
 
-  docs-templates-checks:
-    name: Docs templates checks
-    uses: ./.github/workflows/docs-templates-checks.yml
-    needs: prepare
-    if: "${{ needs.prepare.outputs.check_docs_templates == 'true' }}"
-    permissions:
-      checks: write # Needed by 'dorny/test-reporter'.
-
-  docs-build:
-    name: Build external documentation
-    uses: ./.github/workflows/docs-build.yml
-    needs: prepare
-    if: "${{ needs.prepare.outputs.build_external_docs == 'true' }}"
-    secrets:
-      ACR_MAIN_CLIENT_ID: ${{ secrets.ACR_MAIN_CLIENT_ID }}
-      ACR_MAIN_CLIENT_SECRET: ${{ secrets.ACR_MAIN_CLIENT_SECRET }}
-      ACR_TRAN_CLIENT_ID: ${{ secrets.ACR_TRAN_CLIENT_ID }}
-      ACR_TRAN_CLIENT_SECRET: ${{ secrets.ACR_TRAN_CLIENT_SECRET }}
-    with:
-      environment: ${{ needs.prepare.outputs.environment }}
-      project_name: docs/external
-      registry_key: ${{ needs.prepare.outputs.registry_key }}
-      registry: ${{ needs.prepare.outputs.registry }}
-      repository_name: "${{ needs.prepare.outputs.lifecycle_name }}/developer"
-      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
-
   # -------------------------------------------------------------------------------------
   # Publish any packages and trigger any CD pipelines.
   # -------------------------------------------------------------------------------------
@@ -234,10 +202,9 @@ jobs:
       - prepare
       - powershell-checks
       - dotnet-checks
-      - dotnet-build
+      - image-build
       - dotnet-packages
       - docs-templates-checks
-      - docs-build
     if: ${{ always() }}
     steps:
       - name: Triggering deployments
@@ -247,10 +214,9 @@ jobs:
             '${{ needs.prepare.result }}'
             '${{ needs.powershell-checks.result }}'
             '${{ needs.dotnet-checks.result }}'
-            '${{ needs.dotnet-build.result }}'
+            '${{ needs.image-build.result }}'
             '${{ needs.dotnet-packages.result }}'
             '${{ needs.docs-templates-checks.result }}'
-            '${{ needs.docs-build.result }}'
           )
 
           if ($statuses.Contains('failure') -or $statuses.Contains('cancelled')) {
@@ -259,14 +225,14 @@ jobs:
 
           Write-Host Triggering deployments...
 
-  dotnet-trigger-cd:
-    name: .NET deploy
+  trigger-cd:
+    name: Deploy
     uses: ./.github/workflows/image-deploy.yml
     needs: [prepare, checks-passed]
-    if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_dotnet_images != '[]' }}
+    if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_docker_images != '[]' }}
     strategy:
       matrix:
-        image: ${{ fromJson(needs.prepare.outputs.build_dotnet_images) }}
+        image: ${{ fromJson(needs.prepare.outputs.build_docker_images) }}
     permissions:
       id-token: write # Needed by 'azure/login'
     secrets:
@@ -276,22 +242,5 @@ jobs:
     with:
       project_name: ${{ matrix.image.project }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
-      transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
-
-  docs-trigger-cd:
-    name: Deploy external documentation
-    uses: ./.github/workflows/image-deploy.yml
-    needs: [prepare, checks-passed]
-    if: "${{ !cancelled() && !failure() && needs.prepare.outputs.build_external_docs == 'true' }}"
-    permissions:
-      id-token: write # Needed by 'azure/login'
-    secrets:
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
-    with:
-      project_name: docs/external
-      repository_name: ${{ needs.prepare.outputs.lifecycle_name }}/developer
       tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
       transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}

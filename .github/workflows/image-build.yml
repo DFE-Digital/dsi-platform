@@ -1,4 +1,4 @@
-name: Build image for .NET project
+name: Build docker image
 
 on:
   workflow_call:
