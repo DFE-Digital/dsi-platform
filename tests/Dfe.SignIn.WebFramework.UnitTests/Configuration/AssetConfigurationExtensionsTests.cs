@@ -1,5 +1,7 @@
 using Dfe.SignIn.WebFramework.Configuration;
+using GovUk.Frontend.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.WebFramework.UnitTests.Configuration;
 
@@ -30,6 +32,21 @@ public sealed class AssetConfigurationExtensionsTests
                 descriptor.ServiceType.Name == "IGovUkHtmlGenerator"
             )
         );
+    }
+
+    [TestMethod]
+    public void SetupFrontendAssets_SetsRebrandOptionToTrue()
+    {
+        var services = new ServiceCollection();
+
+        services.SetupFrontendAssets();
+
+        var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<IOptions<GovUkFrontendOptions>>();
+
+        var rebrandValue = options.Value.Rebrand;
+
+        Assert.IsTrue(rebrandValue);
     }
 
     #endregion
