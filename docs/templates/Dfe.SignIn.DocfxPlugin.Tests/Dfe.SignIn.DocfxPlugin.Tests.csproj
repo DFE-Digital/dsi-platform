@@ -21,6 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Dfe.SignIn.DocfxPlugin/Dfe.SignIn.DocfxPlugin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
