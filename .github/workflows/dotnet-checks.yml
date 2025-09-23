@@ -24,9 +24,11 @@ jobs:
       - name: Run code quality checks
         run: |
           $changedFiles = (& ./scripts/workflows/Get-ChangedFilesInBranch) -match "\.(cs|cshtml)$"
-          dotnet format `
-            --verify-no-changes `
-            --include $changedFiles
+          if ($changedFiles) {
+            dotnet format `
+              --verify-no-changes `
+              --include $changedFiles
+          }
 
   tests:
     runs-on: ubuntu-latest
