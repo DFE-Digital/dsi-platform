@@ -75,7 +75,8 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             $"invitations/{invitationId}/create_user",
             new ConvertInvitationToUserRequestDto {
                 EntraOid = entraOid
-            }
+            },
+            CancellationToken.None
         );
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<ConvertInvitationToUserResponseDto>())!;
@@ -142,8 +143,9 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
                 invitationId, userId
             );
         }
-        catch {
+        catch (Exception ex) {
             logger.LogError(
+                ex,
                 "Unable to update search index pending invitation '{InvitationId}' for user '{UserId}'.",
                 invitationId, userId
             );
