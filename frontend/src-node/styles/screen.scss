@@ -1,7 +1,6 @@
 @use "sass:map";
 
 // $govuk-compatibility-govukfrontendtoolkit: true;
-$govuk-assets-path: "/gds-upgrade/";
 $govuk-new-organisation-colours: true;
 
 @import "../../node_modules/govuk-frontend/dist/govuk/index";

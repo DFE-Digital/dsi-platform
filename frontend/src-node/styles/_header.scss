@@ -103,3 +103,54 @@
 .app-header__service-name {
   flex-grow: 2;
 }
+
+.govuk-template--rebranded {
+  .govuk-header__logo {
+    min-width: 300px;
+  }
+
+  .govuk-header__link {
+    .govuk-header__logotype {
+      height: 30px;
+    }
+
+    &:focus .govuk-header__logotype {
+      content: url("/assets/images/department-for-education_black.png");
+      height: 30px;
+    }
+  }
+
+  .govuk-header__link.govuk-header__service-name {
+    margin-top: 12px;
+  }
+
+  .govuk-header__navigation {
+    padding-top: 0;
+    margin-top: 12px;
+  }
+
+  .home-top {
+    background-color: #d2e2f1;
+    padding-bottom: govuk-spacing(6);
+    overflow: hidden;
+
+    color: inherit;
+
+    .govuk-heading-xl,
+    .govuk-heading-m,
+    a {
+      color: inherit !important;
+    }
+    a:active {
+      color: inherit !important;
+    }
+
+    .govuk-breadcrumbs__list-item::before {
+      border-color: inherit !important;
+    }
+  }
+
+  div.manage-card {
+    background: #f4f8fb;
+  }
+}

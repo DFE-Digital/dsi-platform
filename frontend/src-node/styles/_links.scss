@@ -3,17 +3,6 @@
   font-weight: bold;
 }
 
-.govuk-back-link-bold {
-  @extend .govuk-back-link;
-  font-weight: bold;
-
-  &::before {
-    bottom: 1px;
-    border-width: 2px 2px 0 0;
-    border-color: govuk-colour("black");
-  }
-}
-
 .govuk-link--no-underline:not(:hover):not(:active) {
   text-decoration: none;
 }
