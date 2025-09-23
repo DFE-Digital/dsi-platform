@@ -29,10 +29,10 @@ public sealed class LinkEntraUserToDsiNodeRequester(
             LastName = context.Request.Surname,
         };
 
-        var responseMessage = await directoriesClient.PostAsJsonAsync(endpoint, requestBody, cancellationToken);
+        var responseMessage = await directoriesClient.PostAsJsonAsync(endpoint, requestBody, CancellationToken.None);
         responseMessage.EnsureSuccessStatusCode();
 
-        var user = (await responseMessage.Content.ReadFromJsonAsync<LinkToEntraResponseDto>())!;
+        var user = (await responseMessage.Content.ReadFromJsonAsync<LinkToEntraResponseDto>(CancellationToken.None))!;
 
         if (user.Id != context.Request.DsiUserId) {
             throw new InvalidOperationException("Response mismatch.");

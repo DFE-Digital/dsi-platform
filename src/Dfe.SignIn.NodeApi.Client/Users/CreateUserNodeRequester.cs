@@ -32,10 +32,10 @@ public sealed class CreateUserNodeRequester(
             LastName = context.Request.Surname,
             Password = null,
             EntraOid = context.Request.EntraUserId,
-        });
+        }, CancellationToken.None);
         response.EnsureSuccessStatusCode();
 
-        var user = (await response.Content.ReadFromJsonAsync<CreateUserResponseDto>())!;
+        var user = (await response.Content.ReadFromJsonAsync<CreateUserResponseDto>(CancellationToken.None))!;
 
         await this.UpdateUserInSearchIndexAsync(user!.Id);
 

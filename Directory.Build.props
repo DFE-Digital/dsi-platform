@@ -7,7 +7,7 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- Warnings are also suppressed in SonarQube UI. -->
-    <NoWarn>S2094;S3267;S1066;S2376;S6819;CA1861</NoWarn>
+    <NoWarn>S2094;S3267;S1066;S2376;S6819;CA1861;MSTEST0049</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
