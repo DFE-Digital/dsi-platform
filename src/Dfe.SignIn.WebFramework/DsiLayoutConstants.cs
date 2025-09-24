@@ -40,15 +40,6 @@ public static class DsiLayoutConstants
     public const string ServiceNavigationItems = $"_DsiLayout.{nameof(ServiceNavigationItems)}";
 
     /// <summary>
-    /// View data key for service phase banner tag.
-    /// </summary>
-    /// <remarks>
-    /// <para>The phase banner tag defaults to "Beta".</para>
-    /// <para>The associated value must be a string.</para>
-    /// </remarks>
-    public const string PhaseBannerTag = $"_DsiLayout.{nameof(PhaseBannerTag)}";
-
-    /// <summary>
     /// View data key for breadcrumbs.
     /// </summary>
     /// <remarks>

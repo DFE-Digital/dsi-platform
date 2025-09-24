@@ -1,7 +1,7 @@
 @inject IOptions<PlatformOptions> platformOptionsAccessor
 
 <govuk-phase-banner>
-    <govuk-phase-banner-tag>@(ViewData[DsiLayoutConstants.PhaseBannerTag] ?? "Beta")</govuk-phase-banner-tag>
+    <govuk-phase-banner-tag> Beta </govuk-phase-banner-tag>
     This is a new service - your <a href=@(platformOptionsAccessor.Value.SurveyUrl) target="_blank"
         class="govuk-link">feedback</a> will help us to improve it.
 </govuk-phase-banner>
