@@ -8,6 +8,7 @@ $appCardGap: govuk-spacing(3);
   box-sizing: border-box;
   gap: $appCardGap;
   list-style: none;
+  padding:0;
 }
 
 .app-topic-card {
@@ -17,7 +18,7 @@ $appCardGap: govuk-spacing(3);
   padding: govuk-spacing(5);
   box-sizing: border-box;
   list-style: none;
-  background-color: govuk-colour("light-grey");
+  background-color: #f4f8fb;
 
   @include govuk-media-query($from: tablet) {
     width: calc(50% - $appCardGap * 0.5);

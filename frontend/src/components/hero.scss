@@ -1,24 +1,12 @@
 .app-hero {
   overflow: hidden;
-  background: govuk-colour("blue");
-  color: #fff;
+  background-color: #d2e2f1;
   padding-bottom: govuk-spacing(6);
-
-  & .govuk-heading-xl,
-  & .govuk-heading-m,
-  a {
-    color: #fff !important;
-  }
-
   & .govuk-heading-m {
     margin-bottom: govuk-spacing(2);
   }
 
   a:active {
     color: $govuk-text-colour !important;
-  }
-
-  & .govuk-breadcrumbs__list-item::before {
-    border-color: #fff !important;
   }
 }
