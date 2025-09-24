@@ -110,24 +110,24 @@
 Namespaces
 </h2>
 
-      <ul class="app-cards">
+      <div class="app-cards">
           <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
             <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.html">Dfe.&#8203;SignIn.&#8203;DocfxSample.&#8203;SomeNamespace</a>
           </h3>
           <div class="app-cards__summary"></div>
-      </ul>
+      </div>
 
 
     <h2 class="govuk-heading-m" id="classes">
 Classes
 </h2>
 
-      <ul class="app-cards">
+      <div class="app-cards">
           <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
             <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.ExampleClass.html">ExampleClass</a>
           </h3>
           <div class="app-cards__summary">An example class.</div>
-      </ul>
+      </div>
 
 
 

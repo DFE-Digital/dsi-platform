@@ -109,7 +109,7 @@
 Classes
 </h2>
 
-      <ul class="app-cards">
+      <div class="app-cards">
           <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
             <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.AnotherClass.html">AnotherClass</a>
           </h3>
@@ -118,19 +118,19 @@ Classes
             <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.SomeService.html">SomeService</a>
           </h3>
           <div class="app-cards__summary">A concrete implementation of <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.html">ISomeService</a>.</div>
-      </ul>
+      </div>
 
 
     <h2 class="govuk-heading-m" id="interfaces">
 Interfaces
 </h2>
 
-      <ul class="app-cards">
+      <div class="app-cards">
           <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
             <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.html">ISomeService</a>
           </h3>
           <div class="app-cards__summary">An example class.</div>
-      </ul>
+      </div>
 
 
 
