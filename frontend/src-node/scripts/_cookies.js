@@ -1,47 +1,33 @@
-const Cookies = require("js-cookie");
-
 var COOKIE_NAMES = {
-  PREFERENCES_SET: "cookies_preferences_set",
-  POLICY: "cookies_policy",
-  GA: "_ga",
-  GA_GID: "_gid",
-  GA_GAT: "_gat",
   USER_BANNER_LAST_SEEN: "user_banner_last_seen",
 };
 
 var GOVUK_COOKIE_OPTIONS = {
   expires: 365, // days
-  secure: true,
   domain: ".education.gov.uk",
 };
 
-var GovUKCookie = {
-  getRaw: function (name) {
-    return Cookies.get(name);
-  },
-  get: function (name) {
-    var value = Cookies.get(name);
-    if (value) {
-      return JSON.parse(value);
+function getCookie(name) {
+  const cookies = document.cookie.split(";");
+  for (let cookie of cookies) {
+    const [key, value] = cookie.trim().split("=");
+    if (key === name) {
+      return JSON.parse(decodeURIComponent(value));
     }
-    return value;
-  },
-  set: function (name, value) {
-    return Cookies.set(name, value, GOVUK_COOKIE_OPTIONS);
-  },
-  remove: function (name) {
-    return Cookies.remove(name, GOVUK_COOKIE_OPTIONS);
-  },
-};
+  }
+  return null;
+}
 
-// function that will remove any existing tracking cookies on page load
-(function () {
-  GovUKCookie.remove(COOKIE_NAMES.POLICY);
-  GovUKCookie.remove(COOKIE_NAMES.PREFERENCES_SET);
-  GovUKCookie.remove(COOKIE_NAMES.GA);
-  GovUKCookie.remove(COOKIE_NAMES.GA_GAT);
-  GovUKCookie.remove(COOKIE_NAMES.GA_GID);
-})();
+function setCookie(name, value) {
+  name = encodeURIComponent(name);
+  value = encodeURIComponent(value);
+
+  const expires = new Date(
+    Date.now() + GOVUK_COOKIE_OPTIONS.expires * 864e5,
+  ).toUTCString();
+
+  document.cookie = `${name}=${value};expires=${expires};path=/;domain=${GOVUK_COOKIE_OPTIONS.domain};secure;SameSite=Strict`;
+}
 
 /**
  * Section to handle review users banner
@@ -49,7 +35,7 @@ var GovUKCookie = {
  */
 
 function checkConditionForUsersBanner() {
-  var lastSeen = GovUKCookie.getRaw(COOKIE_NAMES.USER_BANNER_LAST_SEEN);
+  var lastSeen = getCookie(COOKIE_NAMES.USER_BANNER_LAST_SEEN);
   if (lastSeen) {
     var numberOfDays = (new Date().getTime() - lastSeen) / (1000 * 3600 * 24);
     if (numberOfDays > 90) {
@@ -68,7 +54,7 @@ function showReviewUsersBanner() {
 }
 
 function setReviewUsersBannerLastSeen() {
-  GovUKCookie.set(COOKIE_NAMES.USER_BANNER_LAST_SEEN, new Date().getTime());
+  setCookie(COOKIE_NAMES.USER_BANNER_LAST_SEEN, new Date().getTime());
 }
 
 function loadReviewUsersBanner() {
@@ -87,3 +73,4 @@ function updateCookieReviewUsersBanner() {
 
 window.loadReviewUsersBanner = loadReviewUsersBanner;
 window.updateCookieReviewUsersBanner = updateCookieReviewUsersBanner;
+window.setReviewUsersBannerLastSeen = setReviewUsersBannerLastSeen;
