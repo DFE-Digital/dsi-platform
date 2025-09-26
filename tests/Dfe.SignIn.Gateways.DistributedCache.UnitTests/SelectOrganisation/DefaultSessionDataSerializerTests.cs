@@ -1,7 +1,12 @@
 using System.Text.Json;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 
-namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests;
+namespace Dfe.SignIn.Gateways.DistributedCache.UnitTests.SelectOrganisation;
+
+// Disable warning "Provide the "DateTimeKind" when creating this object."
+// This is a unit test and it's unimportant.
+#pragma warning disable S6562
 
 [TestClass]
 public sealed class DefaultSessionDataSerializerTests

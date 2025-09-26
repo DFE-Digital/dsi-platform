@@ -2,7 +2,7 @@ using System.Text.Json;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 
-namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
+namespace Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 
 /// <inheritdoc/>
 public sealed class DefaultSessionDataSerializer : ISessionDataSerializer
