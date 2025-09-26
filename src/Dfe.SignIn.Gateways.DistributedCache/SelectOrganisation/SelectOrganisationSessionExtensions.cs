@@ -1,6 +1,8 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
+using Dfe.SignIn.Gateways.DistributedCache.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 
@@ -25,7 +27,7 @@ public static class SelectOrganisationSessionExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
-        services.AddSingleton<ISessionDataSerializer, DefaultSessionDataSerializer>();
+        services.TryAddSingleton<ICacheEntrySerializer, DefaultCacheEntrySerializer>();
         services.AddSingleton<ISelectOrganisationSessionRepository, SelectOrganisationSessionDistributedCache>();
 
         return services;

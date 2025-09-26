@@ -1,6 +1,7 @@
 using System.Text;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.Gateways.DistributedCache.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
 using Moq;
 using Moq.AutoMock;
@@ -76,10 +77,10 @@ public sealed class SelectOrganisationSessionDistributedCacheTests
         var fakeExpiredSession = FakeSessionData with {
             Expires = new DateTime(1955, 1, 1),
         };
-        string fakeExpiredSessionJson = new DefaultSessionDataSerializer().Serialize(fakeExpiredSession);
+        string fakeExpiredSessionJson = new DefaultCacheEntrySerializer().Serialize(fakeExpiredSession);
 
         var mocker = new AutoMocker();
-        mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
+        mocker.Use<ICacheEntrySerializer>(new DefaultCacheEntrySerializer());
         mocker.GetMock<IDistributedCache>()
             .Setup(x => x.GetAsync(
                 It.Is<string>(param => param == "example-key"),
@@ -100,10 +101,10 @@ public sealed class SelectOrganisationSessionDistributedCacheTests
         var fakeSession = FakeSessionData with {
             Expires = DateTime.UtcNow + new TimeSpan(0, 10, 0),
         };
-        string fakeSessionJson = new DefaultSessionDataSerializer().Serialize(fakeSession);
+        string fakeSessionJson = new DefaultCacheEntrySerializer().Serialize(fakeSession);
 
         var mocker = new AutoMocker();
-        mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
+        mocker.Use<ICacheEntrySerializer>(new DefaultCacheEntrySerializer());
         mocker.GetMock<IDistributedCache>()
             .Setup(x => x.GetAsync(
                 It.Is<string>(param => param == "example-key"),
@@ -171,7 +172,7 @@ public sealed class SelectOrganisationSessionDistributedCacheTests
     public async Task StoreSession_StoreSessionInDistributedCache()
     {
         var mocker = new AutoMocker();
-        mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
+        mocker.Use<ICacheEntrySerializer>(new DefaultCacheEntrySerializer());
 
         var storer = mocker.CreateInstance<SelectOrganisationSessionDistributedCache>();
 
@@ -195,7 +196,7 @@ public sealed class SelectOrganisationSessionDistributedCacheTests
     public async Task StoreSession_StoreSessionInDistributedCache_WithAbsoluteCacheExpiration()
     {
         var mocker = new AutoMocker();
-        mocker.Use<ISessionDataSerializer>(new DefaultSessionDataSerializer());
+        mocker.Use<ICacheEntrySerializer>(new DefaultCacheEntrySerializer());
 
         var storer = mocker.CreateInstance<SelectOrganisationSessionDistributedCache>();
 

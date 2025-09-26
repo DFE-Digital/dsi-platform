@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.Gateways.DistributedCache.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.Gateways.DistributedCache.UnitTests.SelectOrganisation;
@@ -28,8 +29,8 @@ public sealed class SelectOrganisationSessionExtensionsTests
         Assert.IsTrue(
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
-                descriptor.ServiceType == typeof(ISessionDataSerializer) &&
-                descriptor.ImplementationType == typeof(DefaultSessionDataSerializer)
+                descriptor.ServiceType == typeof(ICacheEntrySerializer) &&
+                descriptor.ImplementationType == typeof(DefaultCacheEntrySerializer)
             )
         );
         Assert.IsTrue(
