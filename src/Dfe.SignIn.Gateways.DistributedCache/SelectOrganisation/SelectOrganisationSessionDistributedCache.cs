@@ -4,7 +4,7 @@ using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
+namespace Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 
 /// <summary>
 /// A service that retrieves "select organisation" sessions from using distributed cache.
@@ -16,8 +16,8 @@ namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
 ///   <para>- or -</para>
 ///   <para>If <paramref name="serializer"/> is null.</para>
 /// </exception>
-public sealed class DistributedCacheSelectOrganisationSessionRepository(
-    [FromKeyedServices(SelectOrganisationConstants.CacheStoreKey)] IDistributedCache cache,
+public sealed class SelectOrganisationSessionDistributedCache(
+    [FromKeyedServices(DistributedCacheKeys.SelectOrganisationSessions)] IDistributedCache cache,
     ISessionDataSerializer serializer
 ) : ISelectOrganisationSessionRepository
 {

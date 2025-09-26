@@ -1,10 +1,11 @@
 using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
+using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.UnitTests;
+namespace Dfe.SignIn.Gateways.DistributedCache.UnitTests.SelectOrganisation;
 
 [TestClass]
-public sealed class SelectOrganisationSessionCacheExtensionsTests
+public sealed class SelectOrganisationSessionExtensionsTests
 {
     #region AddSelectOrganisationSessionCache(IServiceCollection, Action<SelectOrganisationSessionCacheOptions>)
 
@@ -12,7 +13,7 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
     public void AddSelectOrganisationSessionCache_Throws_WhenServicesArgumentIsNull()
     {
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => SelectOrganisationSessionCacheExtensions.AddSelectOrganisationSessionCache(
+            => SelectOrganisationSessionExtensions.AddSelectOrganisationSessionCache(
                 services: null!
             ));
     }
@@ -35,7 +36,7 @@ public sealed class SelectOrganisationSessionCacheExtensionsTests
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(ISelectOrganisationSessionRepository) &&
-                descriptor.ImplementationType == typeof(DistributedCacheSelectOrganisationSessionRepository)
+                descriptor.ImplementationType == typeof(SelectOrganisationSessionDistributedCache)
             )
         );
     }

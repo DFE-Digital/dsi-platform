@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dfe.SignIn.TestHelpers\Dfe.SignIn.TestHelpers.csproj" />
-    <ProjectReference Include="..\..\src\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache\Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Gateways.DistributedCache\Dfe.SignIn.Gateways.DistributedCache.csproj" />
   </ItemGroup>
 
 </Project>

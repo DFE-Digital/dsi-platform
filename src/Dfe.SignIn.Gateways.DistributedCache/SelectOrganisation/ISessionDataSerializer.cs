@@ -1,6 +1,6 @@
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 
-namespace Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
+namespace Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 
 /// <summary>
 /// Represents a service that serializes and deserializes <see cref="SelectOrganisationSessionData"/>.
