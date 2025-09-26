@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.Core.Interfaces.SelectOrganisationSessions;
+using Dfe.SignIn.Gateways.DistributedCache.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +19,7 @@ namespace Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 /// </exception>
 public sealed class SelectOrganisationSessionDistributedCache(
     [FromKeyedServices(DistributedCacheKeys.SelectOrganisationSessions)] IDistributedCache cache,
-    ISessionDataSerializer serializer
+    ICacheEntrySerializer serializer
 ) : ISelectOrganisationSessionRepository
 {
     /// <inheritdoc/>
@@ -31,7 +32,7 @@ public sealed class SelectOrganisationSessionDistributedCache(
             return null;
         }
 
-        var sessionData = serializer.Deserialize(sessionDataJson);
+        var sessionData = serializer.Deserialize<SelectOrganisationSessionData>(sessionDataJson);
         if (DateTime.UtcNow > sessionData.Expires) {
             return null;
         }
