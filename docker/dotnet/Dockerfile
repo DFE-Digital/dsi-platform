@@ -11,7 +11,7 @@ ARG PROJECT_NAME
 COPY src ./src
 COPY *.props ./
 COPY *.targets ./
-RUN dotnet publish -c Release -o /app "src/$PROJECT_NAME/$PROJECT_NAME.csproj"
+RUN dotnet publish -c Release -o /app "src/$PROJECT_NAME/$PROJECT_NAME.csproj" /p:AutomatedRun=true
 
 # Use the official ASP.NET runtime image for the Azure Linux-based container
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:f854e3c899e6174fb19820effe614d4b011e029ca97f06b4a90142a93ab96383
