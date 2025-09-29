@@ -33,6 +33,7 @@ jobs:
         run: |
           dotnet build ./solutions/dsi-packages.sln `
             /p:Configuration=Release `
+            /p:AutomatedRun=true `
             /p:BuildPackages=true
 
       - name: Login to Azure
