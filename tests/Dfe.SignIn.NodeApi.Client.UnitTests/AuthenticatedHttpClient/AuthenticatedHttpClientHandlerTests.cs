@@ -1,5 +1,7 @@
+using Azure.Core;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
+using Moq;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.AuthenticatedHttpClient;
 
@@ -16,8 +18,18 @@ public sealed class AuthenticatedHttpClientHandlerTests
             return Task.FromResult(response);
         });
 
-        var securityProvider = new FakeHttpSecurityProvider();
-        var authenticatedHttpClientHandler = new AuthenticatedHttpClientHandler(securityProvider) {
+        var mockCredential = new Mock<TokenCredential>();
+        mockCredential
+            .Setup(x => x.GetTokenAsync(
+                It.IsAny<TokenRequestContext>(),
+                It.IsAny<CancellationToken>()
+            ))
+            .ReturnsAsync(
+                new AccessToken("fake-bearer-token", new DateTimeOffset())
+            );
+
+        string[] fakeScopes = ["example-scope/.default"];
+        var authenticatedHttpClientHandler = new AuthenticatedHttpClientHandler(mockCredential.Object, fakeScopes) {
             InnerHandler = testHandler
         };
 
@@ -39,8 +51,9 @@ public sealed class AuthenticatedHttpClientHandlerTests
             return Task.FromResult(response);
         });
 
-        var securityProvider = new FakeHttpSecurityProvider();
-        var authenticatedHttpClientHandler = new AuthenticatedHttpClientHandler(securityProvider) {
+        var mockCredential = new Mock<TokenCredential>();
+        string[] fakeScopes = ["example-scope/.default"];
+        var authenticatedHttpClientHandler = new AuthenticatedHttpClientHandler(mockCredential.Object, fakeScopes) {
             InnerHandler = testHandler
         };
 

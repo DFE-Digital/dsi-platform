@@ -1,11 +1,10 @@
 using System.Net;
 using System.Reflection;
+using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
-using Dfe.SignIn.NodeApi.Client.HttpSecurityProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApi.Client;
 
@@ -41,36 +40,43 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     /// <param name="services">The collection to add services to.</param>
     /// <param name="apiNames">Indicates which mid-tier APIs are required.</param>
+    /// <param name="credential">Credential providing tokens for Node API requests.</param>
+    /// <returns>
+    ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="apiNames"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="credential"/> is null.</para>
     /// </exception>
-    public static void SetupNodeApiClient(
+    public static IServiceCollection SetupNodeApiClient(
         this IServiceCollection services,
-        IEnumerable<NodeApiName> apiNames)
+        IEnumerable<NodeApiName> apiNames,
+        TokenCredential credential)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(apiNames, nameof(apiNames));
+        ExceptionHelpers.ThrowIfArgumentNull(credential, nameof(credential));
 
         foreach (var apiName in apiNames) {
             services.AddHttpClient(apiName.ToString(), (provider, client) => {
-                var apiOptions = GetNodeApiOptions(provider, apiName);
+                var options = provider.GetRequiredService<IOptions<NodeApiClientOptions>>().Value;
+                var apiOptions = options.Apis[apiName.ToString()];
                 client.BaseAddress = apiOptions.BaseAddress;
             })
             .ConfigurePrimaryHttpMessageHandler((provider) => {
-                var apiOptions = GetNodeApiOptions(provider, apiName);
+                var options = provider.GetRequiredService<IOptions<NodeApiClientOptions>>().Value;
                 return new HttpClientHandler {
-                    UseProxy = apiOptions.AuthenticatedHttpClientOptions.UseProxy,
-                    Proxy = new WebProxy(apiOptions.AuthenticatedHttpClientOptions.ProxyUrl)
+                    UseProxy = options.UseProxy,
+                    Proxy = new WebProxy(options.ProxyUrl)
                 };
             })
             .AddHttpMessageHandler((provider) => {
-                var apiOptions = GetNodeApiOptions(provider, apiName);
-                string[] scopes = [$"{apiOptions.AuthenticatedHttpClientOptions.Resource}/.default"];
-                var msal = provider.GetRequiredKeyedService<IConfidentialClientApplication>(apiName);
-                var msalHttpSecurityProvider = new MsalHttpSecurityProvider(scopes, msal);
-                return new AuthenticatedHttpClientHandler(msalHttpSecurityProvider);
+                var options = provider.GetRequiredService<IOptions<NodeApiClientOptions>>().Value;
+                string[] scopes = [$"{options.Resource}/.default"];
+                return new AuthenticatedHttpClientHandler(credential, scopes);
             });
 
             // endpoints can use the httpClient via
@@ -80,26 +86,13 @@ public static class ServiceCollectionExtensions
                 var client = factory.CreateClient(key!.ToString()!);
                 return client!;
             });
-
-            services.AddKeyedSingleton(apiName, (provider, key) => {
-                var apiOptions = GetNodeApiOptions(provider, apiName);
-                return ConfidentialClientApplicationBuilder
-                    .Create(apiOptions.AuthenticatedHttpClientOptions.ClientId.ToString())
-                    .WithClientSecret(apiOptions.AuthenticatedHttpClientOptions.ClientSecret)
-                    .WithAuthority(apiOptions.AuthenticatedHttpClientOptions.HostUrl)
-                    .Build();
-            });
         }
 
         services.AddInteractors(
             InteractorReflectionHelpers.DiscoverApiRequesterTypesInAssembly(ThisAssembly)
                 .Where(descriptor => descriptor.AreAllRequiredApisAvailable(apiNames))
         );
-    }
 
-    private static NodeApiOptions GetNodeApiOptions(IServiceProvider provider, NodeApiName apiName)
-    {
-        return provider.GetRequiredService<IOptions<NodeApiClientOptions>>()
-            .Value.Apis[apiName.ToString()];
+        return services;
     }
 }

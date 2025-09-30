@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
@@ -31,7 +32,11 @@ builder.Services
     .Configure<BearerTokenOptions>(builder.Configuration.GetRequiredSection("BearerToken"));
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
+    .SetupNodeApiClient([
+        NodeApiName.Access,
+        NodeApiName.Applications,
+        NodeApiName.Organisations
+    ], new DefaultAzureCredential());
 
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();

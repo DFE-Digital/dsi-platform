@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.NodeApi.Client;
@@ -32,7 +33,7 @@ builder.Services
         NodeApiName.Directories,
         NodeApiName.Organisations,
         NodeApiName.Search,
-    ]);
+    ], new DefaultAzureCredential());
 
 builder.Services
     .Configure<BlockedEmailAddressOptions>(options => {

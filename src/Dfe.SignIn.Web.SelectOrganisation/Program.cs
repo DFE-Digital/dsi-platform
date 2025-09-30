@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Public;
@@ -34,7 +35,11 @@ builder.Services
     .SetupFrontendAssets();
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
+    .SetupNodeApiClient([
+        NodeApiName.Access,
+        NodeApiName.Applications,
+        NodeApiName.Organisations
+    ], new DefaultAzureCredential());
 
 builder.Services
     .SetupHealthChecks(

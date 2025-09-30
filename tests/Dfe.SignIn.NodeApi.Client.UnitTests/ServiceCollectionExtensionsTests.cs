@@ -1,6 +1,8 @@
+using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests;
 
@@ -73,7 +75,8 @@ public sealed class ServiceCollectionExtensionsTests
         Assert.ThrowsExactly<ArgumentNullException>(()
             => ServiceCollectionExtensions.SetupNodeApiClient(
                 services: null!,
-                apiNames: []
+                apiNames: [],
+                credential: new Mock<TokenCredential>().Object
             ));
     }
 
@@ -83,9 +86,38 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => services.SetupNodeApiClient(
-                apiNames: null!
+            => ServiceCollectionExtensions.SetupNodeApiClient(
+                services,
+                apiNames: null!,
+                credential: new Mock<TokenCredential>().Object
             ));
+    }
+
+    [TestMethod]
+    public void SetupNodeApiClient_Throws_WhenCredentialArgumentIsNull()
+    {
+        var services = new ServiceCollection();
+
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ServiceCollectionExtensions.SetupNodeApiClient(
+                services,
+                apiNames: [],
+                credential: null!
+            ));
+    }
+
+    [TestMethod]
+    public void SetupNodeApiClient_ReturnsServicesForChainedCalls()
+    {
+        var services = new ServiceCollection();
+
+        var result = ServiceCollectionExtensions.SetupNodeApiClient(
+            services,
+            [NodeApiName.Directories],
+            new Mock<TokenCredential>().Object
+        );
+
+        Assert.AreSame(services, result);
     }
 
     #endregion
