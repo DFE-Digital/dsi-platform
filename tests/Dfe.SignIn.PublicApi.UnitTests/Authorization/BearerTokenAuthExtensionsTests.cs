@@ -1,7 +1,7 @@
-using Dfe.SignIn.PublicApi.BearerTokenAuth;
-using Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth.Fakes;
+using Dfe.SignIn.PublicApi.Authorization;
+using Dfe.SignIn.PublicApi.UnitTests.Authorization.Fakes;
 
-namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth;
+namespace Dfe.SignIn.PublicApi.UnitTests.Authorization;
 
 [TestClass]
 public sealed class BearerTokenAuthExtensionsTests

@@ -31,11 +31,6 @@ public sealed record Application
     public Uri? ServiceHomeUrl { get; init; }
 
     /// <summary>
-    /// The ApiSecret of the application.
-    /// </summary>
-    public string? ApiSecret { get; init; } = null;
-
-    /// <summary>
     /// Gets a boolean value indicating if this is an external service.
     /// </summary>
     public required bool IsExternalService { get; init; }

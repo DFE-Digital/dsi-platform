@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
+namespace Dfe.SignIn.PublicApi.Authorization;
 
 /// <summary>
 /// Options for BearerTokenAuthMiddleware

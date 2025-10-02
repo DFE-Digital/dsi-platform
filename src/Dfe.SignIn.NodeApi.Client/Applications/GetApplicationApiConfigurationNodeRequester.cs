@@ -10,13 +10,13 @@ namespace Dfe.SignIn.NodeApi.Client.Applications;
 /// ApiRequester for obtaining an application.
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
-public sealed class GetApplicationByClientIdNodeRequester(
+public sealed class GetApplicationApiConfigurationNodeRequester(
     [FromKeyedServices(NodeApiName.Applications)] HttpClient applicationsClient
-) : Interactor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
+) : Interactor<GetApplicationApiConfigurationRequest, GetApplicationApiConfigurationResponse>
 {
     /// <inheritdoc/>
-    public override async Task<GetApplicationByClientIdResponse> InvokeAsync(
-        InteractionContext<GetApplicationByClientIdRequest> context,
+    public override async Task<GetApplicationApiConfigurationResponse> InvokeAsync(
+        InteractionContext<GetApplicationApiConfigurationRequest> context,
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
@@ -26,20 +26,10 @@ public sealed class GetApplicationByClientIdNodeRequester(
             cancellationToken
         ) ?? throw new ApplicationNotFoundException(null, context.Request.ClientId);
 
-        Uri? serviceHomeUrl = !string.IsNullOrWhiteSpace(response.RelyingParty.ServiceHome)
-            ? new Uri(response.RelyingParty.ServiceHome)
-            : null;
-
-        return new GetApplicationByClientIdResponse {
-            Application = new() {
-                Id = response.Id,
+        return new GetApplicationApiConfigurationResponse {
+            Configuration = new() {
                 ClientId = response.RelyingParty.ClientId,
-                Description = response.Description,
-                Name = response.Name,
-                ServiceHomeUrl = serviceHomeUrl,
-                IsExternalService = response.IsExternalService,
-                IsHiddenService = response.IsHiddenService,
-                IsIdOnlyService = response.IsIdOnlyService
+                ApiSecret = response.RelyingParty.ApiSecret ?? "",
             }
         };
     }

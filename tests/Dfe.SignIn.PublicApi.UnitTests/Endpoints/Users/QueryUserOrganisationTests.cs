@@ -1,12 +1,11 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.Public.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.Users;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
-using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Users;
@@ -38,23 +37,15 @@ public sealed class QueryUserOrganisationTests
         },
     };
 
-    private static readonly Application FakeApplication = new() {
-        Id = Guid.Empty,
-        ClientId = "test-client-id",
-        Name = "Test application",
-        IsExternalService = false,
-        IsHiddenService = false,
-        IsIdOnlyService = false,
-        ServiceHomeUrl = new Uri("https://service.localhost"),
-    };
+    private const string FakeApplicationClientId = "test-client-id";
 
     private static AutoMocker CreateAutoMocker()
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.GetMock<IScopedSessionReader>()
-            .Setup(x => x.Application)
-            .Returns(FakeApplication);
+        autoMocker.GetMock<IClientSession>()
+            .Setup(x => x.ClientId)
+            .Returns(FakeApplicationClientId);
 
         return autoMocker;
     }
@@ -83,7 +74,7 @@ public sealed class QueryUserOrganisationTests
             FakeUserId,
             FakeOrganisation1.Id,
             apiRequest,
-            autoMocker.Get<IScopedSessionReader>(),
+            autoMocker.Get<IClientSession>(),
             autoMocker.Get<IInteractionDispatcher>()
         );
 
@@ -108,7 +99,7 @@ public sealed class QueryUserOrganisationTests
             FakeUserId,
             FakeOrganisation1.Id,
             FakeMinimalRequest,
-            autoMocker.Get<IScopedSessionReader>(),
+            autoMocker.Get<IClientSession>(),
             autoMocker.Get<IInteractionDispatcher>()
         );
 
@@ -134,7 +125,7 @@ public sealed class QueryUserOrganisationTests
             FakeUserId,
             FakeOrganisation1.Id,
             FakeMinimalRequest,
-            autoMocker.Get<IScopedSessionReader>(),
+            autoMocker.Get<IClientSession>(),
             autoMocker.Get<IInteractionDispatcher>()
         );
 

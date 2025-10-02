@@ -71,7 +71,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
 
     private static void MockClientApplication(
         AutoMocker autoMocker,
-        Application? application)
+        Application application)
     {
         autoMocker.MockResponse(
             new GetApplicationByClientIdRequest {
@@ -129,8 +129,9 @@ public sealed class FilterOrganisationsForUserUseCaseTests
 
         MockOrganisationsAssociatedWithUser(autoMocker);
 
-        // Force "fake-client" to be non-existent.
-        MockClientApplication(autoMocker, null);
+        autoMocker.MockThrows<GetApplicationByClientIdRequest>(
+            new ApplicationNotFoundException(null, "fake-client")
+        );
 
         var exception = await Assert.ThrowsExactlyAsync<ApplicationNotFoundException>(
             () => useCase.InvokeAsync(FakeBasicRequest with {

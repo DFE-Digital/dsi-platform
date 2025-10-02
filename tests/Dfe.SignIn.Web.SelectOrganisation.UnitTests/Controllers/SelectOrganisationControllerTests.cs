@@ -100,9 +100,11 @@ public sealed class SelectOrganisationControllerTests
                 ServicesUrl = new Uri("https://services.localhost"),
             });
 
-        autoMocker.MockResponseWhere<GetApplicationByClientIdRequest>(
-            request => request.ClientId == "invalid-client",
-            new GetApplicationByClientIdResponse { Application = null }
+        autoMocker.MockThrows(
+            new GetApplicationByClientIdRequest {
+                ClientId = "invalid-client",
+            },
+            new ApplicationNotFoundException(null, "invalid-client")
         );
 
         autoMocker.MockResponseWhere<GetApplicationByClientIdRequest>(

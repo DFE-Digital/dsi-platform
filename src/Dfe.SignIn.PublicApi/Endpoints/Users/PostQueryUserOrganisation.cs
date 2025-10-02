@@ -1,8 +1,8 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.Organisations;
 using Dfe.SignIn.PublicApi.Contracts.Users;
-using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Users;
@@ -18,14 +18,14 @@ public static partial class UserEndpoints
         // ---
         [FromBody] QueryUserOrganisationApiRequestBody request,
         // ---
-        IScopedSessionReader scopedSession,
+        IClientSession scopedSession,
         IInteractionDispatcher interaction,
         // ---
         CancellationToken cancellationToken = default)
     {
         var filteredOrganisationsResponse = await interaction.DispatchAsync(
             new FilterOrganisationsForUserRequest {
-                ClientId = scopedSession.Application.ClientId,
+                ClientId = scopedSession.ClientId,
                 UserId = userId,
                 Filter = request.Filter,
             }, cancellationToken

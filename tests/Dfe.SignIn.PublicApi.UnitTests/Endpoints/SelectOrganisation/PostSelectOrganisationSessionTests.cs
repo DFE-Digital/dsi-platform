@@ -1,10 +1,9 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.Core.Public.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
-using Dfe.SignIn.PublicApi.ScopedSession;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
@@ -30,15 +29,7 @@ public sealed class PostSelectOrganisationSessionTests
         },
     };
 
-    private static readonly Application FakeApplication = new() {
-        Id = Guid.Empty,
-        ClientId = "test-client-id",
-        Name = "Test application",
-        IsExternalService = false,
-        IsHiddenService = false,
-        IsIdOnlyService = false,
-        ServiceHomeUrl = new Uri("https://service.localhost"),
-    };
+    private const string FakeApplicationClientId = "test-client-id";
 
     private static AutoMocker CreateAutoMocker()
     {
@@ -67,9 +58,9 @@ public sealed class PostSelectOrganisationSessionTests
     {
         var autoMocker = CreateAutoMocker();
 
-        autoMocker.GetMock<IScopedSessionReader>()
-            .Setup(x => x.Application)
-            .Returns(FakeApplication);
+        autoMocker.GetMock<IClientSession>()
+            .Setup(x => x.ClientId)
+            .Returns(FakeApplicationClientId);
 
         CreateSelectOrganisationSessionRequest? capturedRequest = null;
         autoMocker.CaptureRequest<CreateSelectOrganisationSessionRequest>(
@@ -79,7 +70,7 @@ public sealed class PostSelectOrganisationSessionTests
 
         await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             apiRequest,
-            autoMocker.Get<IScopedSessionReader>(),
+            autoMocker.Get<IClientSession>(),
             autoMocker.Get<IInteractionDispatcher>()
         );
 
@@ -96,15 +87,15 @@ public sealed class PostSelectOrganisationSessionTests
     {
         var autoMocker = CreateAutoMocker();
 
-        autoMocker.GetMock<IScopedSessionReader>()
-            .Setup(x => x.Application)
-            .Returns(FakeApplication);
+        autoMocker.GetMock<IClientSession>()
+            .Setup(x => x.ClientId)
+            .Returns(FakeApplicationClientId);
 
         autoMocker.MockResponse<CreateSelectOrganisationSessionRequest>(FakeResponse);
 
         var response = await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             FakePublicApiRequest,
-            autoMocker.Get<IScopedSessionReader>(),
+            autoMocker.Get<IClientSession>(),
             autoMocker.Get<IInteractionDispatcher>()
         );
 

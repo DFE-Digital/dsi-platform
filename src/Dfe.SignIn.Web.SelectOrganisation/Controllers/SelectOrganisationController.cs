@@ -209,27 +209,26 @@ public sealed class SelectOrganisationController(
         CancellationToken cancellationToken = default)
     {
         return this.View("InvalidSessionError", new InvalidSessionViewModel {
-            ReturnUrl = await this.GetServiceHomeUrlAsync(clientId, cancellationToken),
+            ReturnUrl = await this.GetServiceHomeUrlAsync(clientId, cancellationToken)
+                ?? platformOptionsAccessor.Value.ServicesUrl,
         });
     }
 
-    private async Task<Uri> GetServiceHomeUrlAsync(
+    private async Task<Uri?> GetServiceHomeUrlAsync(
         string? clientId,
         CancellationToken cancellationToken = default)
     {
-        var returnUrl = platformOptionsAccessor.Value.ServicesUrl;
-
         if (!string.IsNullOrEmpty(clientId)) {
-            var response = await interaction.DispatchAsync(
-                new GetApplicationByClientIdRequest {
-                    ClientId = clientId,
-                }, cancellationToken
-            ).To<GetApplicationByClientIdResponse>();
-            if (response.Application?.ServiceHomeUrl is not null) {
-                returnUrl = response.Application.ServiceHomeUrl;
+            try {
+                var response = await interaction.DispatchAsync(
+                    new GetApplicationByClientIdRequest {
+                        ClientId = clientId,
+                    }, cancellationToken
+                ).To<GetApplicationByClientIdResponse>();
+                return response.Application.ServiceHomeUrl;
             }
+            catch (ApplicationNotFoundException) { }
         }
-
-        return returnUrl;
+        return null;
     }
 }
