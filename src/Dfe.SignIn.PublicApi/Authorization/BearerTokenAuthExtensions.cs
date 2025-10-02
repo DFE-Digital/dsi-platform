@@ -1,6 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 
-namespace Dfe.SignIn.PublicApi.BearerTokenAuth;
+namespace Dfe.SignIn.PublicApi.Authorization;
 
 /// <summary>
 /// Extension method for setting up BearerTokenAuthMiddleware

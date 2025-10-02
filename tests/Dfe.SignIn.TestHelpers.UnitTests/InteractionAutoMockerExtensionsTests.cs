@@ -71,20 +71,30 @@ public sealed class InteractionAutoMockerExtensionsTests
 
     #endregion
 
-    #region MockResponse<TRequest>(AutoMocker, object)
+    #region MockResponseWhereContext<TRequest>(AutoMocker, TRequest, object)
 
     [TestMethod]
-    public async Task MockResponse_AnyRequestOfTypeReturnsExpectedResponse()
+    public async Task MockResponseWhereContext_MatchedRequestReturnsExpectedResponse()
     {
         var autoMocker = new AutoMocker();
 
-        var fakeResponse = new ExampleResponse();
-        InteractionAutoMockerExtensions.MockResponse<ExampleRequest>(autoMocker, fakeResponse);
+        var fakeRequestA = new ExampleRequest { Value = 123 };
+        var fakeRequestB = new ExampleRequest { Value = 456 };
+
+        var fakeResponseA = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponseWhereContext<ExampleRequest>(
+            autoMocker, ctx => ReferenceEquals(ctx.Request, fakeRequestA), fakeResponseA);
+
+        var fakeResponseB = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponseWhereContext<ExampleRequest>(
+            autoMocker, ctx => ReferenceEquals(ctx.Request, fakeRequestB), fakeResponseB);
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
-        var actualResponse = await mockInteraction.Object.DispatchAsync(new ExampleRequest());
+        var actualResponseA = await mockInteraction.Object.DispatchAsync(fakeRequestA);
+        var actualResponseB = await mockInteraction.Object.DispatchAsync(fakeRequestB);
 
-        Assert.AreSame(fakeResponse, actualResponse);
+        Assert.AreEqual(fakeResponseA, actualResponseA);
+        Assert.AreEqual(fakeResponseB, actualResponseB);
     }
 
     #endregion
@@ -117,30 +127,20 @@ public sealed class InteractionAutoMockerExtensionsTests
 
     #endregion
 
-    #region MockResponseWhereContext<TRequest>(AutoMocker, TRequest, object)
+    #region MockResponse<TRequest>(AutoMocker, object)
 
     [TestMethod]
-    public async Task MockResponseWhereContext_MatchedRequestReturnsExpectedResponse()
+    public async Task MockResponse_AnyRequestOfTypeReturnsExpectedResponse()
     {
         var autoMocker = new AutoMocker();
 
-        var fakeRequestA = new ExampleRequest { Value = 123 };
-        var fakeRequestB = new ExampleRequest { Value = 456 };
-
-        var fakeResponseA = new ExampleResponse();
-        InteractionAutoMockerExtensions.MockResponseWhereContext<ExampleRequest>(
-            autoMocker, ctx => ReferenceEquals(ctx.Request, fakeRequestA), fakeResponseA);
-
-        var fakeResponseB = new ExampleResponse();
-        InteractionAutoMockerExtensions.MockResponseWhereContext<ExampleRequest>(
-            autoMocker, ctx => ReferenceEquals(ctx.Request, fakeRequestB), fakeResponseB);
+        var fakeResponse = new ExampleResponse();
+        InteractionAutoMockerExtensions.MockResponse<ExampleRequest>(autoMocker, fakeResponse);
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
-        var actualResponseA = await mockInteraction.Object.DispatchAsync(fakeRequestA);
-        var actualResponseB = await mockInteraction.Object.DispatchAsync(fakeRequestB);
+        var actualResponse = await mockInteraction.Object.DispatchAsync(new ExampleRequest());
 
-        Assert.AreEqual(fakeResponseA, actualResponseA);
-        Assert.AreEqual(fakeResponseB, actualResponseB);
+        Assert.AreSame(fakeResponse, actualResponse);
     }
 
     #endregion
@@ -170,6 +170,24 @@ public sealed class InteractionAutoMockerExtensionsTests
 
     #endregion
 
+    #region MockResponse<TRequest, TResponse>(AutoMocker)
+
+    [TestMethod]
+    public async Task MockResponse_AnyRequestOfTypeReturnsEmptyResponse()
+    {
+        var autoMocker = new AutoMocker();
+
+        InteractionAutoMockerExtensions.MockResponse<ExampleRequest, ExampleResponse>(autoMocker);
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        var actualResponse = await mockInteraction.Object.DispatchAsync(new ExampleRequest());
+
+        Assert.IsNotNull(actualResponse);
+        Assert.IsInstanceOfType<ExampleResponse>(actualResponse);
+    }
+
+    #endregion
+
     #region MockResponseExactly<TRequest>(AutoMocker, TRequest, object)
 
     [TestMethod]
@@ -195,20 +213,86 @@ public sealed class InteractionAutoMockerExtensionsTests
 
     #endregion
 
-    #region MockResponse<TRequest, TResponse>(AutoMocker)
+    #region MockThrowsWhereContext<TRequest>(AutoMocker, TRequest, object)
 
     [TestMethod]
-    public async Task MockResponse_AnyRequestOfTypeReturnsEmptyResponse()
+    public async Task MockThrowsWhereContext_MatchedRequestThrowsExpectedException()
     {
         var autoMocker = new AutoMocker();
 
-        InteractionAutoMockerExtensions.MockResponse<ExampleRequest, ExampleResponse>(autoMocker);
+        var fakeRequestA = new ExampleRequest { Value = 123 };
+        var fakeRequestB = new ExampleRequest { Value = 456 };
+
+        var expectedExceptionA = new InvalidRequestException();
+        InteractionAutoMockerExtensions.MockThrowsWhereContext<ExampleRequest>(
+            autoMocker, ctx => ReferenceEquals(ctx.Request, fakeRequestA), expectedExceptionA);
+
+        var expectedExceptionB = new InvalidRequestException();
+        InteractionAutoMockerExtensions.MockThrowsWhereContext<ExampleRequest>(
+            autoMocker, ctx => ReferenceEquals(ctx.Request, fakeRequestB), expectedExceptionB);
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
-        var actualResponse = await mockInteraction.Object.DispatchAsync(new ExampleRequest());
 
-        Assert.IsNotNull(actualResponse);
-        Assert.IsInstanceOfType<ExampleResponse>(actualResponse);
+        // The targeted request throws.
+        var actualExceptionA = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(fakeRequestA));
+
+        // The targeted request throws.
+        var actualExceptionB = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(fakeRequestB));
+
+        // Other requests do not throw.
+        try {
+            await mockInteraction.Object.DispatchAsync(new ExampleRequest {
+                Value = 456,
+            });
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
+    }
+
+    #endregion
+
+    #region MockThrowsWhere<TRequest>(AutoMocker, TRequest, object)
+
+    [TestMethod]
+    public async Task MockThrowsWhere_MatchedRequestThrowsExpectedException()
+    {
+        var autoMocker = new AutoMocker();
+
+        var fakeRequestA = new ExampleRequest { Value = 123 };
+        var fakeRequestB = new ExampleRequest { Value = 456 };
+
+        var expectedExceptionA = new InvalidRequestException();
+        InteractionAutoMockerExtensions.MockThrowsWhere<ExampleRequest>(
+            autoMocker, req => req.Value == 123, expectedExceptionA);
+
+        var expectedExceptionB = new InvalidRequestException();
+        InteractionAutoMockerExtensions.MockThrowsWhere<ExampleRequest>(
+            autoMocker, req => req.Value == 456, expectedExceptionB);
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+
+        // The targeted request throws.
+        var actualExceptionA = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(fakeRequestA));
+        Assert.AreSame(expectedExceptionA, actualExceptionA);
+
+        // The targeted request throws.
+        var actualExceptionB = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(fakeRequestB));
+        Assert.AreSame(expectedExceptionB, actualExceptionB);
+
+        // Other requests do not throw.
+        try {
+            await mockInteraction.Object.DispatchAsync(new ExampleRequest {
+                Value = 789,
+            });
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     #endregion
@@ -225,22 +309,12 @@ public sealed class InteractionAutoMockerExtensionsTests
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
 
+        // The targeted request throws.
         var actualException = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
             => await mockInteraction.Object.DispatchAsync(new ExampleRequest()));
-
         Assert.AreSame(expectedException, actualException);
-    }
 
-    [TestMethod]
-    public async Task MockThrows_OtherRequestsDoNotThrow()
-    {
-        var autoMocker = new AutoMocker();
-
-        var expectedException = new InvalidRequestException();
-        InteractionAutoMockerExtensions.MockThrows<ExampleRequest>(autoMocker, expectedException);
-
-        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
-
+        // Other requests do not throw.
         try {
             await mockInteraction.Object.DispatchAsync(new ExampleOtherRequest());
         }
@@ -254,31 +328,69 @@ public sealed class InteractionAutoMockerExtensionsTests
     #region MockThrows<TRequest>(AutoMocker, TRequest, Exception)
 
     [TestMethod]
-    public async Task MockThrows_SpecificRequestThrowsExpectedException()
+    public async Task MockThrows_RequestThrowsExpectedException()
     {
         var autoMocker = new AutoMocker();
 
-        var fakeRequestA = new ExampleRequest();
-        var fakeRequestB = new ExampleRequest();
+        var fakeRequestA = new ExampleRequest { Value = 123 };
+        var fakeRequestB = new ExampleRequest { Value = 123 };
 
         var expectedException = new InvalidRequestException();
         InteractionAutoMockerExtensions.MockThrows(autoMocker, fakeRequestA, expectedException);
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
 
-        // The specific request throws.
+        // The targeted request throws.
+        var actualExceptionA = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(fakeRequestA));
+        Assert.AreSame(expectedException, actualExceptionA);
+
+        // The targeted request throws.
+        var actualExceptionB = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(fakeRequestB));
+        Assert.AreSame(expectedException, actualExceptionB);
+
+        // Other requests do not throw.
+        try {
+            await mockInteraction.Object.DispatchAsync(new ExampleRequest {
+                Value = 456,
+            });
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
+    }
+
+    #endregion
+
+    #region MockThrowsExactly<TRequest>(AutoMocker, TRequest, Exception)
+
+    [TestMethod]
+    public async Task MockThrowsExactly_RequestThrowsExpectedException()
+    {
+        var autoMocker = new AutoMocker();
+
+        // Separate instances of the same request.
+        var fakeRequestA = new ExampleRequest { Value = 123 };
+        var fakeRequestB = new ExampleRequest { Value = 123 };
+
+        var expectedException = new InvalidRequestException();
+        InteractionAutoMockerExtensions.MockThrowsExactly(autoMocker, fakeRequestA, expectedException);
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+
+        // The targeted request throws.
         var actualException = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
             => await mockInteraction.Object.DispatchAsync(fakeRequestA));
+        Assert.AreSame(expectedException, actualException);
 
-        // Any other requests do not throw.
+        // Other requests do not throw.
         try {
             await mockInteraction.Object.DispatchAsync(fakeRequestB);
         }
         catch (Exception ex) {
             Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
         }
-
-        Assert.AreSame(expectedException, actualException);
     }
 
     #endregion

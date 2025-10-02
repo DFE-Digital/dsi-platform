@@ -4,7 +4,7 @@ using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 using Dfe.SignIn.NodeApi.Client;
-using Dfe.SignIn.PublicApi.BearerTokenAuth;
+using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.Users;

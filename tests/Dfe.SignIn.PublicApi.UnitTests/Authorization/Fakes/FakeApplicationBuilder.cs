@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth.Fakes;
+namespace Dfe.SignIn.PublicApi.UnitTests.Authorization.Fakes;
 
 public sealed class FakeApplicationBuilder : IApplicationBuilder
 {

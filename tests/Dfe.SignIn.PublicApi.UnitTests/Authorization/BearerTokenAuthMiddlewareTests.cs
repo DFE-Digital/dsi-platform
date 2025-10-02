@@ -2,13 +2,12 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
-using Dfe.SignIn.PublicApi.BearerTokenAuth;
-using Dfe.SignIn.PublicApi.ScopedSession;
+using Dfe.SignIn.PublicApi.Authorization;
 using Microsoft.AspNetCore.Http;
 
 using Moq;
 
-namespace Dfe.SignIn.PublicApi.UnitTests.BearerTokenAuth;
+namespace Dfe.SignIn.PublicApi.UnitTests.Authorization;
 
 [TestClass]
 public sealed class BearerTokenAuthMiddlewareTests
@@ -16,7 +15,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     private DefaultHttpContext context;
-    private ScopedSession.ScopedSessionProvider mockScopedSessionProvider;
+    private ClientSessionProvider mockClientSessionProvider;
     private Mock<IServiceProvider> mockServiceProvider;
     private Mock<IInteractionDispatcher> mockInteraction;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -41,13 +40,13 @@ public sealed class BearerTokenAuthMiddlewareTests
         this.context.Response.Body = new MemoryStream();
         this.mockNext.Setup(n => n(It.IsAny<HttpContext>())).Returns(Task.CompletedTask);
 
-        this.mockScopedSessionProvider = new() { Application = default! };
+        this.mockClientSessionProvider = new() { ClientId = default! };
 
         this.mockInteraction = new Mock<IInteractionDispatcher>();
         this.mockServiceProvider = new Mock<IServiceProvider>();
         this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IInteractionDispatcher))).Returns(this.mockInteraction.Object);
-        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IScopedSessionReader))).Returns(this.mockScopedSessionProvider);
-        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IScopedSessionWriter))).Returns(this.mockScopedSessionProvider);
+        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IClientSession))).Returns(this.mockClientSessionProvider);
+        this.mockServiceProvider.Setup(sp => sp.GetService(typeof(IClientSessionWriter))).Returns(this.mockClientSessionProvider);
 
         this.context.RequestServices = this.mockServiceProvider.Object;
     }
@@ -140,20 +139,13 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new Application {
-                    ApiSecret = this.mockValidJwtSecret,
+            .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
+                Configuration = new() {
                     ClientId = "mock-invalid-client-id",
-                    Id = Guid.Empty,
-                    Description = "mock-description",
-                    IsExternalService = false,
-                    IsHiddenService = false,
-                    IsIdOnlyService = false,
-                    Name = "mock-name",
-                    ServiceHomeUrl = new Uri("https://localhost")
+                    ApiSecret = this.mockValidJwtSecret,
                 }
             }));
 
@@ -166,18 +158,16 @@ public sealed class BearerTokenAuthMiddlewareTests
     }
 
     [TestMethod]
-    public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenTheAssociatedServiceReturnsNullApplication()
+    public async Task UseBearerTokenAuthMiddleware_Returns_403_WhenApplicationIsNotFound()
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = null
-            }));
+            .Throws<ApplicationNotFoundException>();
 
         var middleware = new BearerTokenAuthMiddleware(this.mockNext.Object, new BearerTokenOptions());
         await middleware.InvokeAsync(this.context);
@@ -194,20 +184,13 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new Application {
-                    Id = Guid.Empty,
-                    ApiSecret = null,
+            .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
+                Configuration = new() {
                     ClientId = "mock-client-id",
-                    Description = "mock-description",
-                    IsExternalService = false,
-                    IsHiddenService = false,
-                    IsIdOnlyService = false,
-                    Name = "mock-name",
-                    ServiceHomeUrl = new Uri("https://localhost")
+                    ApiSecret = null!,
                 }
             }));
 
@@ -226,20 +209,13 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new Application {
+            .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
+                Configuration = new() {
+                    ClientId = "mock-client-id",
                     ApiSecret = "does-not-match-secret",
-                    ClientId = string.Empty,
-                    Id = Guid.Empty,
-                    Description = "mock-description",
-                    IsExternalService = false,
-                    IsHiddenService = false,
-                    IsIdOnlyService = false,
-                    Name = "mock-name",
-                    ServiceHomeUrl = new Uri("https://localhost")
                 }
             }));
 
@@ -258,20 +234,13 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new Application {
-                    ApiSecret = "does-not-match-secret",
+            .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
+                Configuration = new() {
                     ClientId = string.Empty,
-                    Id = Guid.Empty,
-                    Description = "mock-description",
-                    IsExternalService = false,
-                    IsHiddenService = false,
-                    IsIdOnlyService = false,
-                    Name = "mock-name",
-                    ServiceHomeUrl = new Uri("https://localhost")
+                    ApiSecret = "does-not-match-secret",
                 }
             }));
 
@@ -290,20 +259,13 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new Application {
-                    ApiSecret = this.mockValidJwtSecret,
+            .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
+                Configuration = new() {
                     ClientId = this.mockValidJwtIss,
-                    Id = Guid.Empty,
-                    Description = "mock-description",
-                    IsExternalService = false,
-                    IsHiddenService = false,
-                    IsIdOnlyService = false,
-                    Name = "mock-name",
-                    ServiceHomeUrl = new Uri("https://localhost")
+                    ApiSecret = this.mockValidJwtSecret,
                 }
             }));
 
@@ -322,20 +284,13 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new Application {
-                    ApiSecret = this.mockValidJwtSecret,
+            .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
+                Configuration = new() {
                     ClientId = this.mockValidJwtIss,
-                    Id = Guid.Empty,
-                    Description = "mock-description",
-                    IsExternalService = false,
-                    IsHiddenService = false,
-                    IsIdOnlyService = false,
-                    Name = "mock-name",
-                    ServiceHomeUrl = new Uri("https://localhost")
+                    ApiSecret = this.mockValidJwtSecret,
                 }
             }));
 
@@ -353,20 +308,13 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = new Application {
-                    ApiSecret = this.mockValidJwtSecret,
+            .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
+                Configuration = new() {
                     ClientId = this.mockValidJwtIss,
-                    Id = Guid.Empty,
-                    Description = "mock-description",
-                    IsExternalService = false,
-                    IsHiddenService = false,
-                    IsIdOnlyService = false,
-                    Name = "mock-name",
-                    ServiceHomeUrl = new Uri("https://localhost")
+                    ApiSecret = this.mockValidJwtSecret,
                 }
             }));
 
@@ -382,30 +330,21 @@ public sealed class BearerTokenAuthMiddlewareTests
     {
         this.context.Request.Headers.Append("Authorization", $"Bearer {this.mockJwtWithValidIss}");
 
-        var application = new Application {
-            ApiSecret = this.mockValidJwtSecret,
-            ClientId = this.mockValidJwtIss,
-            Id = Guid.Empty,
-            Description = "mock-description",
-            IsExternalService = false,
-            IsHiddenService = false,
-            IsIdOnlyService = false,
-            Name = "mock-name",
-            ServiceHomeUrl = new Uri("https://localhost")
-        };
-
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationByClientIdRequest>>(),
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
                 It.IsAny<CancellationToken>()
             ))
-            .Returns(InteractionTask.FromResult(new GetApplicationByClientIdResponse {
-                Application = application
+            .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
+                Configuration = new() {
+                    ClientId = this.mockValidJwtIss,
+                    ApiSecret = this.mockValidJwtSecret,
+                }
             }));
 
         var middleware = new BearerTokenAuthMiddleware(this.mockNext.Object, new BearerTokenOptions());
         await middleware.InvokeAsync(this.context);
 
-        Assert.AreSame(this.mockScopedSessionProvider.Application, application);
+        Assert.AreSame(this.mockClientSessionProvider.ClientId, this.mockValidJwtIss);
     }
 }

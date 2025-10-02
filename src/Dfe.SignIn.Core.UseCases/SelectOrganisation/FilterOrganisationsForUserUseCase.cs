@@ -145,10 +145,6 @@ public sealed class FilterOrganisationsForUserUseCase(
             }, cancellationToken
         ).To<GetApplicationByClientIdResponse>();
 
-        if (response.Application is null) {
-            throw new ApplicationNotFoundException(null, clientId);
-        }
-
         return response.Application;
     }
 

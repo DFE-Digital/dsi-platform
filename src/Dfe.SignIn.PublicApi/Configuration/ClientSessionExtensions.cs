@@ -1,12 +1,12 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.PublicApi.ScopedSession;
+using Dfe.SignIn.PublicApi.Authorization;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
 /// <summary>
 /// Extension methods for setting up scoped sessions.
 /// </summary>
-public static class ScopedSessionExtensions
+public static class ClientSessionExtensions
 {
     /// <summary>
     /// Setup ScopedSession and specify any custom mapping profiles.
@@ -19,7 +19,8 @@ public static class ScopedSessionExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
-        services.AddScoped<IScopedSessionReader, ScopedSessionProvider>();
-        services.AddScoped<IScopedSessionWriter>(sp => (ScopedSessionProvider)sp.GetRequiredService<IScopedSessionReader>());
+        services.AddScoped<ClientSessionProvider>();
+        services.AddScoped<IClientSession>(sp => sp.GetRequiredService<ClientSessionProvider>());
+        services.AddScoped<IClientSessionWriter>(sp => sp.GetRequiredService<ClientSessionProvider>());
     }
 }

@@ -1,3 +1,6 @@
+using System.Net;
+using System.Text;
+using System.Text.Json;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.NodeApi.Client.Applications;
 using Dfe.SignIn.NodeApi.Client.Applications.Models;
@@ -6,14 +9,14 @@ using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Applications;
 
 [TestClass]
-public sealed class GetApplicationByClientIdNodeRequesterTests
+public sealed class GetApplicationApiConfigurationNodeRequesterTests
 {
     [TestMethod]
     public Task InvokeAsync_ThrowsIfRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
-            GetApplicationByClientIdRequest,
-            GetApplicationByClientIdNodeRequester
+            GetApplicationApiConfigurationRequest,
+            GetApplicationApiConfigurationNodeRequester
         >();
     }
 
@@ -25,6 +28,7 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
             Name = "mock-name",
             RelyingParty = new RelyingPartyDto {
                 ClientId = "mock-client-id",
+                ApiSecret = "mock-api-secret",
                 ClientSecret = "mock-client-secret",
                 GrantTypes = [],
                 PostLogoutRedirectUris = [],
@@ -35,8 +39,8 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
         };
 
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
-            var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK) {
-                Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(mockDto), System.Text.Encoding.UTF8, "application/json")
+            var response = new HttpResponseMessage(HttpStatusCode.OK) {
+                Content = new StringContent(JsonSerializer.Serialize(mockDto), Encoding.UTF8, "application/json")
             };
             return Task.FromResult(response);
         });
@@ -45,23 +49,17 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
             BaseAddress = new Uri("http://applications.localhost")
         };
 
-        var controller = new GetApplicationByClientIdNodeRequester(applicationsClient);
+        var controller = new GetApplicationApiConfigurationNodeRequester(applicationsClient);
 
-        var response = await controller.InvokeAsync(new GetApplicationByClientIdRequest {
+        var response = await controller.InvokeAsync(new GetApplicationApiConfigurationRequest {
             ClientId = "mock-client-id"
         });
 
-        Assert.IsNotNull(response.Application);
+        Assert.IsNotNull(response.Configuration);
 
-        Assert.AreEqual(response.Application, new Application {
+        Assert.AreEqual(response.Configuration, new ApplicationApiConfiguration {
             ClientId = mockDto.RelyingParty.ClientId,
-            Description = mockDto.Description,
-            Id = mockDto.Id,
-            Name = mockDto.Name,
-            ServiceHomeUrl = new Uri(mockDto.RelyingParty.ServiceHome),
-            IsExternalService = mockDto.IsExternalService,
-            IsHiddenService = mockDto.IsHiddenService,
-            IsIdOnlyService = mockDto.IsIdOnlyService
+            ApiSecret = mockDto.RelyingParty.ApiSecret!,
         });
     }
 
@@ -69,7 +67,7 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
     public async Task InvokeAsync_Throws_WhenApplicationNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
-            var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+            var response = new HttpResponseMessage(HttpStatusCode.NotFound);
             return Task.FromResult(response);
         });
 
@@ -77,10 +75,10 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
             BaseAddress = new Uri("http://applications.localhost")
         };
 
-        var controller = new GetApplicationByClientIdNodeRequester(applicationsClient);
+        var controller = new GetApplicationApiConfigurationNodeRequester(applicationsClient);
 
         await Assert.ThrowsExactlyAsync<ApplicationNotFoundException>(()
-            => controller.InvokeAsync(new GetApplicationByClientIdRequest {
+            => controller.InvokeAsync(new GetApplicationApiConfigurationRequest {
                 ClientId = "mock-client-id"
             }));
     }
