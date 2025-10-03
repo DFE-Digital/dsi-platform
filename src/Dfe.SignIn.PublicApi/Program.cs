@@ -37,15 +37,13 @@ builder.Services
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();
 builder.Services.SetupScopedSession();
-builder.Services.SetupHealthChecks(
-    builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache")
-);
+builder.Services.AddHealthChecks();
 
 builder.Services
     .AddInteractionFramework();
 
 builder.Services
-    .SetupRedisSessionStore(DistributedCacheKeys.SelectOrganisationSessions,
+    .SetupRedisCacheStore(DistributedCacheKeys.SelectOrganisationSessions,
         builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
     .AddSelectOrganisationSessionCache()
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))

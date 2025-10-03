@@ -22,6 +22,7 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHealthChecks();
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
@@ -38,12 +39,7 @@ builder.Services
     .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
 
 builder.Services
-    .SetupHealthChecks(
-        builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache")
-    );
-
-builder.Services
-    .SetupRedisSessionStore(DistributedCacheKeys.SelectOrganisationSessions,
+    .SetupRedisCacheStore(DistributedCacheKeys.SelectOrganisationSessions,
         builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
     .AddSelectOrganisationSessionCache()
     .SetupSelectOrganisationInteractions();

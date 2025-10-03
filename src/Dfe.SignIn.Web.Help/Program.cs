@@ -28,13 +28,14 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHealthChecks();
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
     .AddInteractionFramework();
 
 builder.Services
-    .SetupRedisSessionStore(DistributedCacheKeys.InteractionRequests,
+    .SetupRedisCacheStore(DistributedCacheKeys.InteractionRequests,
         builder.Configuration.GetRequiredSection("InteractionsRedisCache"));
 
 builder.Services
@@ -50,7 +51,6 @@ builder.Services
         options.DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
     });
 
-builder.Services.SetupHealthChecks(builder.Configuration);
 builder.Services.SetupContentProcessing();
 
 builder.Services.AddSingleton<IServiceNavigationBuilder, ServiceNavigationBuilder>();
