@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
@@ -40,7 +41,12 @@ builder.Services.SetupScopedSession();
 builder.Services.AddHealthChecks();
 
 builder.Services
-    .AddInteractionFramework();
+    .AddInteractionFramework()
+    .AddInteractionCaching(builder.Configuration);
+
+var azureTokenCredential = new DefaultAzureCredential();
+builder.Services
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
 builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.SelectOrganisationSessions,

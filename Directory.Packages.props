@@ -102,6 +102,7 @@
   <!-- Monitoring -->
   <ItemGroup>
     <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+    <PackageVersion Include="AspNetCore.HealthChecks.AzureServiceBus" Version="9.0.0" />
   </ItemGroup>
 
   <!-- Unit testing -->
