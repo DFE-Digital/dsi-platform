@@ -8,47 +8,63 @@ namespace Dfe.SignIn.WebFramework.UnitTests.Configuration;
 [TestClass]
 public sealed class RedisExtensionsTests
 {
-    #region SetupRedisSessionStore(IServiceCollection, IConfiguration)
+    #region SetupRedisCacheStore(IServiceCollection, IConfiguration)
 
-    [TestMethod]
-    public void SetupRedisSessionStore_Throws_WhenServicesArgumentIsNull()
+    private static IConfiguration CreateFakeRedisConfiguration()
     {
-        var configuration = new ConfigurationRoot([]);
-
-        Assert.ThrowsExactly<ArgumentNullException>(()
-            => RedisExtensions.SetupRedisSessionStore(
-                null!, "TestCacheKey", configuration));
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["ConnectionString"] = "fake-connection-string",
+            })
+            .Build();
     }
 
     [TestMethod]
-    public void SetupRedisSessionStore_Throws_WhencCacheStoreKeyArgumentIsNull()
+    public void SetupRedisCacheStore_Throws_WhenServicesArgumentIsNull()
     {
-        var services = new ServiceCollection();
-        var configuration = new ConfigurationRoot([]);
+        var configuration = CreateFakeRedisConfiguration();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => RedisExtensions.SetupRedisSessionStore(
-                services, null!, configuration));
+            => RedisExtensions.SetupRedisCacheStore(null!, "TestCacheKey", configuration));
     }
 
     [TestMethod]
-    public void SetupRedisSessionStore_Throws_WhenConfigurationArgumentIsNull()
+    public void SetupRedisCacheStore_Throws_WhencCacheStoreKeyArgumentIsNull()
+    {
+        var services = new ServiceCollection();
+        var configuration = CreateFakeRedisConfiguration();
+
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => RedisExtensions.SetupRedisCacheStore(services, null!, configuration));
+    }
+
+    [TestMethod]
+    public void SetupRedisCacheStore_Throws_WhenConfigurationArgumentIsNull()
     {
         var services = new ServiceCollection();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => RedisExtensions.SetupRedisSessionStore(
-                services, "TestCacheKey", null!));
+            => RedisExtensions.SetupRedisCacheStore(services, "TestCacheKey", null!));
     }
 
     [TestMethod]
-    public void SetupRedisSessionStore_HasExpectedServices()
+    public void SetupRedisCacheStore_Throws_WhenConnectionStringIsMissing()
     {
-        var configuration = new ConfigurationRoot([]);
+        var configuration = new ConfigurationBuilder().Build();
         var services = new ServiceCollection();
 
-        RedisExtensions.SetupRedisSessionStore(
-            services, "TestCacheKey", configuration);
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(()
+            => RedisExtensions.SetupRedisCacheStore(services, "TestCacheKey", configuration));
+        Assert.AreEqual("Missing connection string for Redis.", exception.Message);
+    }
+
+    [TestMethod]
+    public void SetupRedisCacheStore_HasExpectedServices()
+    {
+        var configuration = CreateFakeRedisConfiguration();
+        var services = new ServiceCollection();
+
+        RedisExtensions.SetupRedisCacheStore(services, "TestCacheKey", configuration);
 
         Assert.IsTrue(
             services.Any(descriptor =>
