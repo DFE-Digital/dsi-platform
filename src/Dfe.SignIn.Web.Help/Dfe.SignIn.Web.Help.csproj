@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <UserSecretsId>604df2cb-b96d-4942-93f6-acfd70ece5d0</UserSecretsId>
   </PropertyGroup>
 
