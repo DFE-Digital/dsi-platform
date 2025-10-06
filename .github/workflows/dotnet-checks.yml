@@ -64,6 +64,7 @@ jobs:
             /o:"dfe-digital" `
             /k:"DFE-Digital_dsi-platform" `
             /d:sonar.token="$env:SONAR_TOKEN" `
+            /d:sonar.scanner.skipJreProvisioning=true `
             /s:${{ github.workspace }}/SonarQube.Analysis.xml
 
       - name: Build project
