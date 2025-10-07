@@ -33,7 +33,8 @@ jobs:
         run: |
           dotnet build ./solutions/dsi-packages.sln `
             /p:Configuration=Release `
-            /p:BuildPackages=true
+            /p:BuildPackages=true `
+            /p:BuildDocs=true
 
       - name: Login to Azure
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5

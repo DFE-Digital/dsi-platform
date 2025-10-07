@@ -8,7 +8,7 @@ ARG PROJECT_NAME
 COPY .config ./.config
 COPY docs/templates ./docs/templates
 
-RUN dotnet build ./docs/templates -c Release && \
+RUN dotnet build ./docs/templates -c Release /p:BuildDocs=true && \
     dotnet tool install docfx --local
 
 COPY $PROJECT_NAME ./$PROJECT_NAME
