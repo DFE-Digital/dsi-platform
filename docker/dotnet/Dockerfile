@@ -1,5 +1,5 @@
 # Use the official .NET SDK image as the base image for building the application
-FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:3cef19377b2ef2a0171e930a24627677447c3e41b5f2eab84ff4895f1b15d254 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:ff8311847c54c04d1a14c488362807997d59b61372da5095a95f89cbcda7f9b7 AS build
 
 ENV PORT=8080
 ENV PATH=${PATH}:/home/site/wwwroot
@@ -14,7 +14,7 @@ COPY *.targets ./
 RUN dotnet publish -c Release -o /app "src/$PROJECT_NAME/$PROJECT_NAME.csproj" /p:AutomatedRun=true
 
 # Use the official ASP.NET runtime image for the Azure Linux-based container
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:f854e3c899e6174fb19820effe614d4b011e029ca97f06b4a90142a93ab96383
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:dcabccd78f2e368c4749ab964695110e4fc86b44b0b7e14158e712a4049fe404
 
 ARG PROJECT_NAME
 ENV PROJECT_NAME=$PROJECT_NAME

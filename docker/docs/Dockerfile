@@ -1,5 +1,5 @@
 # --- Build and process documentation ---
-FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:7fd287cec03e027e39be13fb06ca1347f1338c7a6ab4ad305d94d91852693f70 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:ff8311847c54c04d1a14c488362807997d59b61372da5095a95f89cbcda7f9b7 AS build
 
 WORKDIR /work
 
@@ -26,7 +26,7 @@ RUN dotnet docfx "./$PROJECT_NAME/docfx.json" \
 
 
 # --- Serve with a lightweight non-root version of nginx ---
-FROM nginxinc/nginx-unprivileged:1.29-alpine3.22@sha256:7f2bd114a80058e93237bc9ba8f8febff89f918ff344c707d78b295027256fd1
+FROM nginxinc/nginx-unprivileged:1.29-alpine3.22@sha256:3245911073f8a6f8f5257aa08339096f90ef8d5db70f502f8ffeb2b9ecd5ca18
 
 COPY docker/docs/nginx.conf /etc/nginx/templates/default.conf.template
 
