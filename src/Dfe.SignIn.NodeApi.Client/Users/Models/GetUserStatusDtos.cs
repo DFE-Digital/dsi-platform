@@ -5,7 +5,7 @@ namespace Dfe.SignIn.NodeApi.Client.Users.Models;
 
 internal sealed record GetUserStatusResponseDto
 {
-    [JsonPropertyName("id")]
+    [JsonPropertyName("sub")]
     public required Guid Id { get; init; }
 
     [JsonPropertyName("status")]
