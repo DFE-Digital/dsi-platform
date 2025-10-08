@@ -1,7 +1,8 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Public;
-using Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
+using Dfe.SignIn.Gateways.DistributedCache;
+using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.SelectOrganisation.Configuration;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -21,6 +22,7 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHealthChecks();
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
@@ -37,12 +39,7 @@ builder.Services
     .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
 
 builder.Services
-    .SetupHealthChecks(
-        builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache")
-    );
-
-builder.Services
-    .SetupRedisSessionStore(SelectOrganisationConstants.CacheStoreKey,
+    .SetupRedisCacheStore(DistributedCacheKeys.SelectOrganisationSessions,
         builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
     .AddSelectOrganisationSessionCache()
     .SetupSelectOrganisationInteractions();

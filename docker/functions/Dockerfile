@@ -6,9 +6,10 @@ COPY src ./src
 COPY *.props ./
 COPY *.targets ./
 
-RUN cd "/src/$PROJECT_NAME" && \
-    mkdir -p /home/site/wwwroot && \
-    dotnet publish *.csproj -c Release --output /home/site/wwwroot
+WORKDIR "/src/$PROJECT_NAME"
+
+RUN mkdir -p /home/site/wwwroot && \
+    dotnet publish "$PROJECT_NAME.csproj" -c Release --output /home/site/wwwroot /p:AutomatedRun=true
 
 # To enable ssh & remote debugging on app service change the base image to the one below
 # FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0-appservice

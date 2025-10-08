@@ -1,7 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
-using Dfe.SignIn.PublicApi.ScopedSession;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
@@ -14,14 +14,14 @@ public static partial class SelectOrganisationEndpoints
     public static async Task<CreateSelectOrganisationSessionApiResponse> PostSelectOrganisationSession(
         [FromBody] CreateSelectOrganisationSessionApiRequestBody request,
         // ---
-        IScopedSessionReader scopedSession,
+        IClientSession session,
         IInteractionDispatcher interaction,
         // ---
         CancellationToken cancellationToken = default)
     {
         var response = await interaction.DispatchAsync(
             new CreateSelectOrganisationSessionRequest {
-                ClientId = scopedSession.Application.ClientId,
+                ClientId = session.ClientId,
                 UserId = request.UserId,
                 Prompt = request.Prompt,
                 Filter = request.Filter,

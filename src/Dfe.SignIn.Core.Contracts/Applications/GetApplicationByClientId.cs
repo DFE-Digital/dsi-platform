@@ -27,7 +27,7 @@ public sealed record GetApplicationByClientIdRequest
 public sealed record GetApplicationByClientIdResponse
 {
     /// <summary>
-    /// Gets the application model otherwise, a value of <c>null</c>.
+    /// Gets a model representing information about the application.
     /// </summary>
-    public required Application? Application { get; init; }
+    public required Application Application { get; init; }
 }

@@ -1,6 +1,9 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.Core.UseCases.SupportTickets;
+using Dfe.SignIn.Gateways.DistributedCache;
+using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Help.Configuration;
@@ -25,10 +28,15 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHealthChecks();
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
     .AddInteractionFramework();
+
+builder.Services
+    .SetupRedisCacheStore(DistributedCacheKeys.InteractionRequests,
+        builder.Configuration.GetRequiredSection("InteractionsRedisCache"));
 
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
@@ -38,9 +46,11 @@ builder.Services
     .SetupFrontendAssets();
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Applications]);
+    .SetupNodeApiClient([NodeApiName.Applications])
+    .AddDistributedInteractionCache<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>(options => {
+        options.DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+    });
 
-builder.Services.SetupHealthChecks();
 builder.Services.SetupContentProcessing();
 
 builder.Services.AddSingleton<IServiceNavigationBuilder, ServiceNavigationBuilder>();

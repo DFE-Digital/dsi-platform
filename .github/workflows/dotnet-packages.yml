@@ -33,6 +33,7 @@ jobs:
         run: |
           dotnet build ./solutions/dsi-packages.sln `
             /p:Configuration=Release `
+            /p:AutomatedRun=true `
             /p:BuildPackages=true
 
       - name: Login to Azure
@@ -51,8 +52,10 @@ jobs:
           echo "AZURE_DEVOPS_TOKEN=$token" >> $env:GITHUB_ENV
 
       - name: Push NuGet package to Azure Artifacts
+        env:
+          NUGET_SOURCE: ${{ inputs.nuget_source }}
         run: |
-          dotnet nuget add source "${{ inputs.nuget_source }}" `
+          dotnet nuget add source "$env:NUGET_SOURCE" `
             --name AzureArtifacts `
             --username "any" `
             --password "$env:AZURE_DEVOPS_TOKEN" `

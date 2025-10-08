@@ -38,7 +38,20 @@ public sealed class ServiceProviderInteractionDispatcherTests
         SomeEnumProperty = ExampleInteractorEnum.FirstValue,
     };
 
-    #region DispatchAsync<TRequest>(TRequest, CancellationToken)
+    #region DispatchAsync<TRequest>(InteractionContext<TRequest>, CancellationToken)
+
+    [TestMethod]
+    public async Task DispatchAsync_Throws_WhenContextArgumentIsNull()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockInteractionValidator(autoMocker);
+
+        var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        InteractionContext<ExampleInteractorWithValidationRequest> nullInteractionContext = null!;
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async ()
+            => await interaction.DispatchAsync(nullInteractionContext, CancellationToken.None));
+    }
 
     [TestMethod]
     public async Task DispatchAsync_Throws_WhenInteractorCannotBeResolved()
@@ -47,9 +60,10 @@ public sealed class ServiceProviderInteractionDispatcherTests
         SetupMockInteractionValidator(autoMocker);
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         var exception = await Assert.ThrowsExactlyAsync<MissingInteractorException>(async ()
-            => await interaction.DispatchAsync(FakeRequest));
+            => await interaction.DispatchAsync(interactionContext, CancellationToken.None));
 
         Assert.AreEqual(nameof(ExampleInteractorWithValidationRequest), exception.RequestType);
     }
@@ -67,8 +81,9 @@ public sealed class ServiceProviderInteractionDispatcherTests
             ));
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
-        await interaction.DispatchAsync(FakeRequest);
+        await interaction.DispatchAsync(interactionContext, CancellationToken.None);
 
         autoMocker.Verify<IInteractionValidator, bool>(
             x => x.TryValidateRequest(
@@ -92,8 +107,9 @@ public sealed class ServiceProviderInteractionDispatcherTests
             ));
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
-        await interaction.DispatchAsync(FakeRequest);
+        await interaction.DispatchAsync(interactionContext, CancellationToken.None);
     }
 
     [TestMethod]
@@ -109,8 +125,9 @@ public sealed class ServiceProviderInteractionDispatcherTests
             ));
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
-        await interaction.DispatchAsync(FakeRequest);
+        await interaction.DispatchAsync(interactionContext, CancellationToken.None);
 
         autoMocker.Verify<IInteractor<ExampleInteractorWithValidationRequest>>(
             x => x.InvokeAsync(
@@ -144,9 +161,10 @@ public sealed class ServiceProviderInteractionDispatcherTests
             });
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         await Assert.ThrowsExactlyAsync<UnexpectedException>(async ()
-            => await interaction.DispatchAsync(FakeRequest));
+            => await interaction.DispatchAsync(interactionContext, CancellationToken.None));
     }
 
     [TestMethod]
@@ -168,9 +186,10 @@ public sealed class ServiceProviderInteractionDispatcherTests
             .Throws((Exception)Activator.CreateInstance(exceptionTypeThrown)!);
 
         var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         var exception = await Assert.ThrowsAsync<Exception>(async ()
-            => await interaction.DispatchAsync(FakeRequest))
+            => await interaction.DispatchAsync(interactionContext, CancellationToken.None))
 ;
         Assert.IsInstanceOfType(exception, expectedExceptionType);
     }

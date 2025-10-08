@@ -43,4 +43,4 @@ builder.Services
     .AddInteractor<CheckIsBlockedEmailAddressUseCase>()
     .AddInteractor<AutoLinkEntraUserToDsiUseCase>();
 
-builder.Build().Run();
+await builder.Build().RunAsync();

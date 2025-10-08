@@ -25,7 +25,7 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
             Name = "mock-name",
             RelyingParty = new RelyingPartyDto {
                 ClientId = "mock-client-id",
-                ClientSecret = "mock-api-secret",
+                ClientSecret = "mock-client-secret",
                 GrantTypes = [],
                 PostLogoutRedirectUris = [],
                 RedirectUris = [],
@@ -54,7 +54,6 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
         Assert.IsNotNull(response.Application);
 
         Assert.AreEqual(response.Application, new Application {
-            ApiSecret = mockDto.RelyingParty.ApiSecret,
             ClientId = mockDto.RelyingParty.ClientId,
             Description = mockDto.Description,
             Id = mockDto.Id,
@@ -67,7 +66,7 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsEmptyCollectionOfApplicationsWhenNotFound()
+    public async Task InvokeAsync_Throws_WhenApplicationNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
@@ -80,10 +79,9 @@ public sealed class GetApplicationByClientIdNodeRequesterTests
 
         var controller = new GetApplicationByClientIdNodeRequester(applicationsClient);
 
-        var response = await controller.InvokeAsync(new GetApplicationByClientIdRequest {
-            ClientId = "mock-client-id"
-        });
-
-        Assert.IsNull(response.Application);
+        await Assert.ThrowsExactlyAsync<ApplicationNotFoundException>(()
+            => controller.InvokeAsync(new GetApplicationByClientIdRequest {
+                ClientId = "mock-client-id"
+            }));
     }
 }

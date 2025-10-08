@@ -72,14 +72,16 @@ jobs:
       - name: Build project
         run: |
           dotnet build ./build.sln /maxcpucount:1 `
-            --framework net8.0
+            --framework net8.0 `
+            /p:AutomatedRun=true
 
       - name: Run unit tests
         run: |
           dotnet test ./build.sln `
             --no-build `
             --collect "XPlat Code Coverage" `
-            --logger "trx;LogFileName=TestResults.trx"
+            --logger "trx;LogFileName=TestResults.trx" `
+            /p:AutomatedRun=true
 
       - name: Report unit test results
         uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3

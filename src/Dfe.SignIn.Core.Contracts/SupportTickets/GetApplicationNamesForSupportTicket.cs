@@ -1,3 +1,5 @@
+using Dfe.SignIn.Base.Framework.Caching;
+
 namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 
 /// <summary>
@@ -10,8 +12,10 @@ namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 ///     <item><see cref="GetApplicationNamesForSupportTicketResponse"/></item>
 ///   </list>
 /// </remarks>
-public sealed record GetApplicationNamesForSupportTicketRequest
+public sealed record GetApplicationNamesForSupportTicketRequest : ICacheableRequest
 {
+    /// <inheritdoc/>
+    string ICacheableRequest.CacheKey => CacheableRequestConstants.DefaultCacheKey;
 }
 
 /// <summary>

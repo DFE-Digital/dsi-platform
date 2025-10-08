@@ -24,18 +24,17 @@ public sealed class GetApplicationByClientIdNodeRequester(
         var response = await applicationsClient.GetFromJsonOrDefaultAsync<ApplicationDto>(
             $"services/{context.Request.ClientId}",
             cancellationToken
-        );
+        ) ?? throw new ApplicationNotFoundException(null, context.Request.ClientId);
 
-        Uri? serviceHomeUrl = !string.IsNullOrWhiteSpace(response?.RelyingParty.ServiceHome)
+        Uri? serviceHomeUrl = !string.IsNullOrWhiteSpace(response.RelyingParty.ServiceHome)
             ? new Uri(response.RelyingParty.ServiceHome)
             : null;
 
         return new GetApplicationByClientIdResponse {
-            Application = response is null ? null : new() {
-                ApiSecret = response.RelyingParty.ApiSecret,
+            Application = new() {
+                Id = response.Id,
                 ClientId = response.RelyingParty.ClientId,
                 Description = response.Description,
-                Id = response.Id,
                 Name = response.Name,
                 ServiceHomeUrl = serviceHomeUrl,
                 IsExternalService = response.IsExternalService,

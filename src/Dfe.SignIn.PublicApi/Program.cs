@@ -1,9 +1,11 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
-using Dfe.SignIn.Gateways.SelectOrganisation.DistributedCache;
+using Dfe.SignIn.Gateways.DistributedCache;
+using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 using Dfe.SignIn.NodeApi.Client;
-using Dfe.SignIn.PublicApi.BearerTokenAuth;
+using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
@@ -36,15 +38,18 @@ builder.Services
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();
 builder.Services.SetupScopedSession();
-builder.Services.SetupHealthChecks(
-    builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache")
-);
+builder.Services.AddHealthChecks();
 
 builder.Services
-    .AddInteractionFramework();
+    .AddInteractionFramework()
+    .AddInteractionCaching(builder.Configuration);
+
+var azureTokenCredential = new DefaultAzureCredential();
+builder.Services
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
 builder.Services
-    .SetupRedisSessionStore(SelectOrganisationConstants.CacheStoreKey,
+    .SetupRedisCacheStore(DistributedCacheKeys.SelectOrganisationSessions,
         builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
     .AddSelectOrganisationSessionCache()
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
