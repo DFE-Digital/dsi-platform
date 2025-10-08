@@ -240,8 +240,8 @@ jobs:
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
     with:
+      azure_pipeline_id: ${{ vars.AZURE_PIPELINE_ID_DEPLOY }}
       project_name: ${{ matrix.image.project }}
       repository_name: ${{ matrix.image.repository }}
       tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
