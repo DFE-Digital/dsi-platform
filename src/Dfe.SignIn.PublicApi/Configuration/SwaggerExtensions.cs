@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Public.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Swagger;
 using Microsoft.OpenApi.Models;
 
@@ -59,12 +59,12 @@ public static class SwaggerExtensions
             // Enable example values from `SwaggerExampleValueAttribute` annotations.
             config.SchemaFilter<SwaggerExampleValueSchemaFilter>();
 
-            // Include XML comments for 'SignIn.Core.Contracts.dll' assembly.
-            config.IncludeXmlComments(GetXmlFileName(typeof(Organisation)));
             // Include XML comments for 'SignIn.Core.Public.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(OrganisationFilter)));
             // Include XML comments for 'SignIn.Core.PublicApi.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(Program)));
+            // Include XML comments for 'SignIn.PublicApi.Contracts.dll' assembly.
+            config.IncludeXmlComments(GetXmlFileName(typeof(CreateSelectOrganisationSessionApiRequestBody)));
 
             config.SwaggerDoc("v1", new OpenApiInfo {
                 Title = "DfE Sign-in Public API",

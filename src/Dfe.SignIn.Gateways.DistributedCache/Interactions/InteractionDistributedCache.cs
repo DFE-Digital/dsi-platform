@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace Dfe.SignIn.Gateways.DistributedCache.Interactions;
 
 /// <summary>
-/// Defines options for the <see cref="InteractionDistributedCache{TRequest}"/> service.
+/// Defines options for the <see cref="InteractionDistributedCache{TRequest, TResponse}"/> service.
 /// </summary>
 /// <typeparam name="TRequest">The type of request.</typeparam>
 public sealed class InteractionDistributedCacheOptions<TRequest>
@@ -79,6 +79,7 @@ public sealed class InteractionDistributedCacheOptions<TRequest>
 /// <typeparam name="TRequest">The type of request.</typeparam>
 /// <typeparam name="TResponse">The type of response.</typeparam>
 /// <param name="optionsAccessor">Provides access to in-memory interaction cache options.</param>
+/// <param name="serializer">Service that serialzies cache entries.</param>
 /// <param name="cache">The memory cache instance.</param>
 public sealed partial class InteractionDistributedCache<TRequest, TResponse>(
     IOptions<InteractionDistributedCacheOptions<TRequest>> optionsAccessor,

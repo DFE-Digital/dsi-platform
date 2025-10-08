@@ -34,7 +34,7 @@ public sealed class GetUserStatusNodeRequesterTests
             ["(GET) http://directories.localhost/users/by-entra-oid/d9079a36-ce78-4265-afa3-1c0751e42616"]
                 = new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 {
-                    "id": "c97d2fc4-6951-487d-bbcd-87182e70ddce",
+                    "sub": "c97d2fc4-6951-487d-bbcd-87182e70ddce",
                     "status": 1
                 }
                 """),
@@ -73,7 +73,7 @@ public sealed class GetUserStatusNodeRequesterTests
             ["(GET) http://directories.localhost/users/jo.bradford@example.com"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 {
-                    "id": "c97d2fc4-6951-487d-bbcd-87182e70ddce",
+                    "sub": "c97d2fc4-6951-487d-bbcd-87182e70ddce",
                     "status": 1
                 }
                 """)

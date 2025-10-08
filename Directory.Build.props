@@ -19,4 +19,9 @@
     <NuGetAuditLevel>moderate</NuGetAuditLevel>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src/'))">
+    <!-- Required for NuGet packages and Swagger. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
 </Project>
