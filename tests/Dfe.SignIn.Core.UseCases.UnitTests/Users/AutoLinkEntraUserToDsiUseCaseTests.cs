@@ -14,6 +14,15 @@ public sealed class AutoLinkEntraUserToDsiUseCaseTests
         Surname = "Bradford",
     };
 
+    [TestMethod]
+    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            AutoLinkEntraUserToDsiRequest,
+            AutoLinkEntraUserToDsiUseCase
+        >();
+    }
+
     #region User that is already linked
 
     [TestMethod]

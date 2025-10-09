@@ -64,6 +64,8 @@ public sealed partial class CheckIsBlockedEmailAddressUseCase(
         InteractionContext<CheckIsBlockedEmailAddressRequest> context,
         CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         var options = optionsAccessor.CurrentValue;
 
         string[] parts = context.Request.EmailAddress.ToLower().Split('@');
