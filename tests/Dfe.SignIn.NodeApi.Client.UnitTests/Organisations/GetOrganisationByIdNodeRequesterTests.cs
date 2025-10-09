@@ -10,7 +10,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 public sealed class GetOrganisationByIdNodeRequesterTests
 {
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedOrganisation()
+    public async Task ReturnsExpectedOrganisation()
     {
         var mockDto = new OrganisationByIdDto() {
             Id = Guid.Parse("3a939152-d229-4ac2-9ffa-61cd85576f0e"),
@@ -45,7 +45,7 @@ public sealed class GetOrganisationByIdNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsNullOrganisationWhenNotFound()
+    public async Task ReturnsNullOrganisation_WhenNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);

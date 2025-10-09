@@ -50,10 +50,8 @@ public sealed class GetUserAccessToServiceApiRequesterTests
         });
     }
 
-    #region InvokeAsync(GetUserAccessToServiceRequest)
-
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetUserAccessToServiceRequest,
@@ -62,7 +60,7 @@ public sealed class GetUserAccessToServiceApiRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_GetsExpectedUrl()
+    public async Task GetsExpectedUrl()
     {
         var autoMocker = new AutoMocker();
         UseFakeOptions(autoMocker);
@@ -90,7 +88,7 @@ public sealed class GetUserAccessToServiceApiRequesterTests
     }
 
     [TestMethod]
-    public Task InvokeAsync_Throws_WhenHasFailingStatusCode()
+    public Task Throws_WhenHasFailingStatusCode()
     {
         var autoMocker = new AutoMocker();
         UseFakeOptions(autoMocker);
@@ -121,7 +119,7 @@ public sealed class GetUserAccessToServiceApiRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedResponse()
+    public async Task ReturnsExpectedResponse()
     {
         var autoMocker = new AutoMocker();
         UseFakeOptions(autoMocker);
@@ -178,7 +176,7 @@ public sealed class GetUserAccessToServiceApiRequesterTests
     }
 
     [TestMethod]
-    public Task InvokeAsync_Throws_WhenResponseIsNull()
+    public Task Throws_WhenResponseIsNull()
     {
         var autoMocker = new AutoMocker();
         UseFakeOptions(autoMocker);
@@ -193,6 +191,4 @@ public sealed class GetUserAccessToServiceApiRequesterTests
                 OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
             }));
     }
-
-    #endregion
 }

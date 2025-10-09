@@ -30,10 +30,8 @@ public sealed class PublicApiPostRequesterTests
         return mockClient;
     }
 
-    #region InvokeAsync()
-
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenThereAreValidationErrors()
+    public async Task Throws_WhenThereAreValidationErrors()
     {
         Uri? capturedUri = null;
         var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(
@@ -55,7 +53,7 @@ public sealed class PublicApiPostRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_InvokesExpectedEndpoint()
+    public async Task InvokesExpectedEndpoint()
     {
         Uri? capturedUri = null;
         var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(uri => capturedUri = uri,
@@ -83,7 +81,7 @@ public sealed class PublicApiPostRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenResponseIsNotSuccess()
+    public async Task Throws_WhenResponseIsNotSuccess()
     {
         Uri? capturedUri = null;
         var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(
@@ -102,7 +100,7 @@ public sealed class PublicApiPostRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenResponseDataIsNull()
+    public async Task Throws_WhenResponseDataIsNull()
     {
         Uri? capturedUri = null;
         var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(
@@ -119,6 +117,4 @@ public sealed class PublicApiPostRequesterTests
         await Assert.ThrowsAsync<MissingResponseDataException>(()
             => instance.InvokeAsync(new ExampleRequest()));
     }
-
-    #endregion
 }

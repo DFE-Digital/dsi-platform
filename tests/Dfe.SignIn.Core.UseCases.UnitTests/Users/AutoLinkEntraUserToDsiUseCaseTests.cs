@@ -15,7 +15,7 @@ public sealed class AutoLinkEntraUserToDsiUseCaseTests
     };
 
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             AutoLinkEntraUserToDsiRequest,

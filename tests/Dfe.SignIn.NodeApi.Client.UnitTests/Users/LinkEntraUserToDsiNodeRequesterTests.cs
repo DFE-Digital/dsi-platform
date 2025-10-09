@@ -8,7 +8,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
 public sealed class LinkEntraUserToDsiNodeRequesterTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             LinkEntraUserToDsiRequest,
@@ -28,7 +28,7 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_MakesExpectedRequestToNodeApi()
+    public async Task MakesExpectedRequestToNodeApi()
     {
         var interactor = CreateLinkEntraUserToDsiNodeRequester(new() {
             ["(POST) http://directories.localhost/users/17a2a6cb-05a6-4603-b91e-06dde2a58a6a/link-entra-oid"]
@@ -50,7 +50,7 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenRequestWasNotSuccessful()
+    public async Task Throws_WhenRequestWasNotSuccessful()
     {
         var interactor = CreateLinkEntraUserToDsiNodeRequester(new() {
             ["(POST) http://directories.localhost/users/17a2a6cb-05a6-4603-b91e-06dde2a58a6a/link-entra-oid"]
@@ -67,7 +67,7 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenHasResponseMismatch()
+    public async Task Throws_WhenHasResponseMismatch()
     {
         var interactor = CreateLinkEntraUserToDsiNodeRequester(new() {
             ["(POST) http://directories.localhost/users/17a2a6cb-05a6-4603-b91e-06dde2a58a6a/link-entra-oid"]

@@ -10,7 +10,7 @@ namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
 public sealed class CheckIsBlockedEmailAddressUseCaseTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             CheckIsBlockedEmailAddressRequest,

@@ -10,10 +10,8 @@ namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 [TestClass]
 public sealed class GetSelectOrganisationSessionByKeyUseCaseTests
 {
-    #region InvokeAsync(GetSelectOrganisationSessionByKeyRequest)
-
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetSelectOrganisationSessionByKeyRequest,
@@ -22,7 +20,7 @@ public sealed class GetSelectOrganisationSessionByKeyUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_FetchesSessionWithCorrectSessionKey()
+    public async Task FetchesSessionWithCorrectSessionKey()
     {
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<GetSelectOrganisationSessionByKeyUseCase>();
@@ -41,7 +39,7 @@ public sealed class GetSelectOrganisationSessionByKeyUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedSessionData()
+    public async Task ReturnsExpectedSessionData()
     {
         var autoMocker = new AutoMocker();
 
@@ -73,6 +71,4 @@ public sealed class GetSelectOrganisationSessionByKeyUseCaseTests
 
         Assert.AreEqual(fakeSession, response.SessionData);
     }
-
-    #endregion
 }

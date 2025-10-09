@@ -18,7 +18,7 @@ public sealed class GetApplicationNamesForSupportTicketNodeRequesterTests
     };
 
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationNamesForSupportTicketRequest,
@@ -27,7 +27,7 @@ public sealed class GetApplicationNamesForSupportTicketNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedApplicationNames()
+    public async Task ReturnsExpectedApplicationNames()
     {
         var mockDto = new ApplicationListingDto() {
             Services = [

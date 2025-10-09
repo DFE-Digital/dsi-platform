@@ -12,7 +12,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Applications;
 public sealed class GetApplicationApiConfigurationNodeRequesterTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationApiConfigurationRequest,
@@ -21,7 +21,7 @@ public sealed class GetApplicationApiConfigurationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedOrganisation()
+    public async Task ReturnsExpectedOrganisation()
     {
         var mockDto = new ApplicationDto {
             Id = Guid.Parse("f3abb794-1399-4975-9c91-bf25d8ce9b4b"),
@@ -64,7 +64,7 @@ public sealed class GetApplicationApiConfigurationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenApplicationNotFound()
+    public async Task Throws_WhenApplicationNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(HttpStatusCode.NotFound);
