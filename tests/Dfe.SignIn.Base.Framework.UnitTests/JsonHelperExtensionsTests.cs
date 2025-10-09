@@ -1,11 +1,41 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.Base.Framework.UnitTests;
 
 [TestClass]
 public sealed class JsonHelperExtensionsTests
 {
+    #region CreateStandardOptionsTestHelper()
+
+    [TestMethod]
+    public void CreateStandardOptionsTestHelper_UsesCamelCasing()
+    {
+        var options = JsonHelperExtensions.CreateStandardOptionsTestHelper();
+
+        Assert.IsTrue(options.PropertyNameCaseInsensitive);
+        Assert.AreEqual(JsonNamingPolicy.CamelCase, options.PropertyNamingPolicy);
+    }
+
+    [TestMethod]
+    public void CreateStandardOptionsTestHelper_IgnoresNullProperties()
+    {
+        var options = JsonHelperExtensions.CreateStandardOptionsTestHelper();
+
+        Assert.AreEqual(JsonIgnoreCondition.WhenWritingNull, options.DefaultIgnoreCondition);
+    }
+
+    [TestMethod]
+    public void CreateStandardOptionsTestHelper_IgnoresUnmappedMembers()
+    {
+        var options = JsonHelperExtensions.CreateStandardOptionsTestHelper();
+
+        Assert.AreEqual(JsonUnmappedMemberHandling.Skip, options.UnmappedMemberHandling);
+    }
+
+    #endregion
+
     #region SetupDfeSignInJsonSerializerOptions(IServiceCollection)
 
     [TestMethod]
@@ -16,28 +46,19 @@ public sealed class JsonHelperExtensionsTests
     }
 
     [TestMethod]
-    public void CreateStandardOptions_UsesCamelCasing()
+    public void SetupDfeSignInJsonSerializerOptions_RegistersExpectedServices()
     {
-        var options = JsonHelperExtensions.CreateStandardOptionsTestHelper();
+        var services = new ServiceCollection();
 
-        Assert.IsTrue(options.PropertyNameCaseInsensitive);
-        Assert.AreEqual(JsonNamingPolicy.CamelCase, options.PropertyNamingPolicy);
-    }
+        JsonHelperExtensions.ConfigureDfeSignInJsonSerializerOptions(services);
 
-    [TestMethod]
-    public void CreateStandardOptions_IgnoresNullProperties()
-    {
-        var options = JsonHelperExtensions.CreateStandardOptionsTestHelper();
-
-        Assert.AreEqual(JsonIgnoreCondition.WhenWritingNull, options.DefaultIgnoreCondition);
-    }
-
-    [TestMethod]
-    public void CreateStandardOptions_IgnoresUnmappedMembers()
-    {
-        var options = JsonHelperExtensions.CreateStandardOptionsTestHelper();
-
-        Assert.AreEqual(JsonUnmappedMemberHandling.Skip, options.UnmappedMemberHandling);
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IExceptionJsonSerializer) &&
+                descriptor.ImplementationType == typeof(DefaultExceptionJsonSerializer)
+            )
+        );
     }
 
     #endregion

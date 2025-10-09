@@ -1,6 +1,5 @@
 namespace Dfe.SignIn.Base.Framework.UnitTests.Fakes;
 
-[UseCaseHandler]
 public sealed class ExampleUseCase
     : Interactor<ExampleRequest, ExampleResponse>
 {
@@ -14,7 +13,6 @@ public sealed class ExampleUseCase
     }
 }
 
-[UseCaseHandler]
 public sealed class AnotherExampleUseCase
     : Interactor<AnotherExampleRequest, AnotherExampleResponse>
 {

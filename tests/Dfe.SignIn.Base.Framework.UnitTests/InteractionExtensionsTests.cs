@@ -74,11 +74,7 @@ public sealed class InteractionExtensionsTests
         InteractionExtensions.AddInteractor<ExampleUseCase>(services);
 
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
-                descriptor.ImplementationType == typeof(ExampleUseCase)
-            )
+            services.HasInteractor<ExampleRequest, ExampleUseCase>()
         );
     }
 
@@ -129,32 +125,16 @@ public sealed class InteractionExtensionsTests
         );
 
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
-                descriptor.ImplementationType == typeof(ExampleUseCase)
-            )
+            services.HasInteractor<ExampleRequest, ExampleUseCase>()
         );
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest>) &&
-                descriptor.ImplementationType == typeof(AnotherExampleUseCase)
-            )
+            services.HasInteractor<AnotherExampleRequest, AnotherExampleUseCase>()
         );
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
-                descriptor.ImplementationType == typeof(Example_ApiRequester)
-            )
+            services.HasInteractor<ExampleRequest, Example_ApiRequester>()
         );
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest>) &&
-                descriptor.ImplementationType == typeof(AnotherExample_ApiRequester)
-            )
+            services.HasInteractor<AnotherExampleRequest, AnotherExample_ApiRequester>()
         );
     }
 
