@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Public;
@@ -20,6 +21,17 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
+// Get token credential for making API requests to Node APIs.
+var apiConfigurationSection = builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions");
+var tokenCredential = new ClientSecretCredential(
+    tenantId: apiConfigurationSection.GetValue<string>("Tenant"),
+    clientId: apiConfigurationSection.GetValue<string>("ClientId"),
+    clientSecret: apiConfigurationSection.GetValue<string>("ClientSecret"),
+    new TokenCredentialOptions {
+        AuthorityHost = apiConfigurationSection.GetValue<Uri>("HostUrl"),
+    }
+);
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHealthChecks();
@@ -36,7 +48,7 @@ builder.Services
     .SetupFrontendAssets();
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
+    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations], tokenCredential);
 
 builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.SelectOrganisationSessions,

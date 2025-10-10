@@ -25,6 +25,17 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
+// Get token credential for making API requests to Node APIs.
+var apiConfigurationSection = builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions");
+var tokenCredential = new ClientSecretCredential(
+    tenantId: apiConfigurationSection.GetValue<string>("Tenant"),
+    clientId: apiConfigurationSection.GetValue<string>("ClientId"),
+    clientSecret: apiConfigurationSection.GetValue<string>("ClientSecret"),
+    new TokenCredentialOptions {
+        AuthorityHost = apiConfigurationSection.GetValue<Uri>("HostUrl"),
+    }
+);
+
 // Add services to the container.
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
@@ -33,7 +44,7 @@ builder.Services
     .Configure<BearerTokenOptions>(builder.Configuration.GetRequiredSection("BearerToken"));
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations]);
+    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations], tokenCredential);
 
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();

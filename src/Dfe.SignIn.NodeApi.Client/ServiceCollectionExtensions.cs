@@ -1,11 +1,10 @@
 using System.Net;
 using System.Reflection;
+using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
-using Dfe.SignIn.NodeApi.Client.HttpSecurityProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
 
 namespace Dfe.SignIn.NodeApi.Client;
 
@@ -41,6 +40,7 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     /// <param name="services">The collection to add services to.</param>
     /// <param name="apiNames">Indicates which mid-tier APIs are required.</param>
+    /// <param name="credential">Credential providing tokens for Node API requests.</param>
     /// <returns>
     ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
     /// </returns>
@@ -48,13 +48,17 @@ public static class ServiceCollectionExtensions
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="apiNames"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="credential"/> is null.</para>
     /// </exception>
     public static IServiceCollection SetupNodeApiClient(
         this IServiceCollection services,
-        IEnumerable<NodeApiName> apiNames)
+        IEnumerable<NodeApiName> apiNames,
+        TokenCredential credential)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(apiNames, nameof(apiNames));
+        ExceptionHelpers.ThrowIfArgumentNull(credential, nameof(credential));
 
         foreach (var apiName in apiNames) {
             services.AddHttpClient(apiName.ToString(), (provider, client) => {
@@ -62,18 +66,16 @@ public static class ServiceCollectionExtensions
                 client.BaseAddress = apiOptions.BaseAddress;
             })
             .ConfigurePrimaryHttpMessageHandler((provider) => {
-                var apiOptions = GetNodeApiOptions(provider, apiName);
+                var options = GetNodeApiOptions(provider, apiName);
                 return new HttpClientHandler {
-                    UseProxy = apiOptions.AuthenticatedHttpClientOptions.UseProxy,
-                    Proxy = new WebProxy(apiOptions.AuthenticatedHttpClientOptions.ProxyUrl)
+                    UseProxy = options.AuthenticatedHttpClientOptions.UseProxy,
+                    Proxy = new WebProxy(options.AuthenticatedHttpClientOptions.ProxyUrl)
                 };
             })
             .AddHttpMessageHandler((provider) => {
-                var apiOptions = GetNodeApiOptions(provider, apiName);
-                string[] scopes = [$"{apiOptions.AuthenticatedHttpClientOptions.Resource}/.default"];
-                var msal = provider.GetRequiredKeyedService<IConfidentialClientApplication>(apiName);
-                var msalHttpSecurityProvider = new MsalHttpSecurityProvider(scopes, msal);
-                return new AuthenticatedHttpClientHandler(msalHttpSecurityProvider);
+                var options = GetNodeApiOptions(provider, apiName);
+                string[] scopes = [$"{options.AuthenticatedHttpClientOptions.Resource}/.default"];
+                return new AuthenticatedHttpClientHandler(credential, scopes);
             });
 
             // endpoints can use the httpClient via
@@ -82,15 +84,6 @@ public static class ServiceCollectionExtensions
                 var factory = provider.GetRequiredService<IHttpClientFactory>();
                 var client = factory.CreateClient(key!.ToString()!);
                 return client!;
-            });
-
-            services.AddKeyedSingleton(apiName, (provider, key) => {
-                var apiOptions = GetNodeApiOptions(provider, apiName);
-                return ConfidentialClientApplicationBuilder
-                    .Create(apiOptions.AuthenticatedHttpClientOptions.ClientId.ToString())
-                    .WithClientSecret(apiOptions.AuthenticatedHttpClientOptions.ClientSecret)
-                    .WithAuthority(apiOptions.AuthenticatedHttpClientOptions.HostUrl)
-                    .Build();
             });
         }
 

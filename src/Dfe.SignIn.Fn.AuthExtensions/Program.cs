@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.NodeApi.Client;
@@ -25,6 +26,17 @@ builder.Services
 builder.Services
     .AddInteractionFramework();
 
+// Get token credential for making API requests to Node APIs.
+var apiConfigurationSection = builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions");
+var tokenCredential = new ClientSecretCredential(
+    tenantId: apiConfigurationSection.GetValue<string>("Tenant"),
+    clientId: apiConfigurationSection.GetValue<string>("ClientId"),
+    clientSecret: apiConfigurationSection.GetValue<string>("ClientSecret"),
+    new TokenCredentialOptions {
+        AuthorityHost = apiConfigurationSection.GetValue<Uri>("HostUrl"),
+    }
+);
+
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient([
@@ -32,7 +44,7 @@ builder.Services
         NodeApiName.Directories,
         NodeApiName.Organisations,
         NodeApiName.Search,
-    ]);
+    ], tokenCredential);
 
 builder.Services
     .Configure<BlockedEmailAddressOptions>(options => {
