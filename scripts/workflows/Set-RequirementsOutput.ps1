@@ -125,12 +125,16 @@ $repositoryMappings = @{
         Repository = 'auth-extensions'
         Dockerfile = 'functions'
     }
-    'Dfe.SignIn.Web.SelectOrganisation' = @{
-        Repository = 'select-organisation'
+    'Dfe.SignIn.InternalApi'            = @{
+        Repository = 'internal-api'
         Dockerfile = 'dotnet'
     }
     'Dfe.SignIn.PublicApi'              = @{
         Repository = 'public-api'
+        Dockerfile = 'dotnet'
+    }
+    'Dfe.SignIn.Web.SelectOrganisation' = @{
+        Repository = 'select-organisation'
         Dockerfile = 'dotnet'
     }
     'docs/external'                     = @{

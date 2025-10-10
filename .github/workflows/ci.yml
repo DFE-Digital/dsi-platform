@@ -37,11 +37,12 @@ on:
         type: choice
         options:
           - (n/a)
-          - frontend
           - auth-extensions
-          - select-organisation
-          - public-api
           - developer
+          - frontend
+          - internal-api
+          - public-api
+          - select-organisation
           - (all components)
 
       lifecycle:
