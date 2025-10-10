@@ -78,7 +78,7 @@ jobs:
               projectName = "$env:PROJECT_NAME"
               repositoryName = "$env:REPOSITORY_NAME"
               tag = "$env:TAG_NAME"
-              tran = ([bool]'$env:TRAN')
+              tran = $env:TRAN -eq $true
             }
 
           Write-Host "`nLink to pipeline: $($response._links.web.href)"

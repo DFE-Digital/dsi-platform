@@ -61,8 +61,7 @@ on:
   #push: # Useful for debugging; please comment out again before PR.
 
 env:
-  # TARGET_REGISTRY_KEY: ${{ github.event.inputs.transformation_environment == 'true' && 'TRAN' || 'MAIN' }}
-  TARGET_REGISTRY_KEY: TRAN
+  TARGET_REGISTRY_KEY: ${{ github.event.inputs.transformation_environment == 'true' && 'TRAN' || 'MAIN' }}
 
 concurrency:
   group: ci-${{ github.ref }}-${{ github.event.inputs.build_for_repository || '(n/a)' }}
