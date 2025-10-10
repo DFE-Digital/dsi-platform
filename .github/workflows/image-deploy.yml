@@ -3,6 +3,11 @@ name: Deploy image
 on:
   workflow_call:
     inputs:
+      azure_pipeline_id:
+        description: Deployment pipeline ID
+        required: true
+        type: string
+
       project_name:
         description: Project name
         required: true
@@ -27,8 +32,6 @@ on:
       AZURE_CLIENT_ID:
         required: true
       AZURE_TENANT_ID:
-        required: true
-      AZURE_PIPELINE_ID:
         required: true
 
 jobs:
@@ -61,7 +64,7 @@ jobs:
 
       - name: Deploy image for '${{ inputs.project_name }}'
         env:
-          AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID }}
+          AZURE_PIPELINE_ID: ${{ inputs.azure_pipeline_id }}
           PROJECT_NAME: ${{ inputs.project_name }}
           REPOSITORY_NAME: ${{ inputs.repository_name }}
           TAG_NAME: ${{ inputs.tag_name }}
@@ -75,7 +78,7 @@ jobs:
               projectName = "$env:PROJECT_NAME"
               repositoryName = "$env:REPOSITORY_NAME"
               tag = "$env:TAG_NAME"
-              tran = ([bool]'$env:TRAN')
+              tran = $env:TRAN -eq $true
             }
 
           Write-Host "`nLink to pipeline: $($response._links.web.href)"

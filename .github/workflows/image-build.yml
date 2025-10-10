@@ -1,4 +1,4 @@
-name: Build image for .NET project
+name: Build docker image
 
 on:
   workflow_call:
@@ -77,7 +77,6 @@ jobs:
           platforms: linux/amd64
           outputs: type=image,push=true
           provenance: false
-          load: true
           build-args: |
             PROJECT_NAME=${{ inputs.project_name }}
           tags: "${{ inputs.registry }}/${{ inputs.repository_name }}:${{ inputs.tag_name }}"
