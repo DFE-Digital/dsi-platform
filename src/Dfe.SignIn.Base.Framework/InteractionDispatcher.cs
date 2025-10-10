@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.Base.Framework;
 
@@ -120,10 +119,10 @@ public struct InteractionTask(Task<object> task)
 /// <summary>
 /// A service that dispatches interaction requests using a service provider.
 /// </summary>
-/// <param name="services">A service provider that resolves concrete interactor implementations.</param>
+/// <param name="interactorResolver">A service that resolves concrete interactor implementations.</param>
 /// <param name="interactionValidator">A service for validating interaction requests and responses.</param>
-public sealed class ServiceProviderInteractionDispatcher(
-    IServiceProvider services,
+public sealed class DefaultInteractionDispatcher(
+    IInteractorResolver interactorResolver,
     IInteractionValidator interactionValidator
 ) : IInteractionDispatcher
 {
@@ -141,8 +140,11 @@ public sealed class ServiceProviderInteractionDispatcher(
         InteractionContext<TRequest> context, CancellationToken cancellationToken = default)
         where TRequest : class
     {
-        var interactor = services.GetService<IInteractor<TRequest>>()
-            ?? throw new MissingInteractorException(null, typeof(TRequest).Name);
+        var interactor = interactorResolver.ResolveInteractor<TRequest>()
+            ?? throw new MissingInteractorException(
+                $"Cannot resolve interactor for request type '{typeof(TRequest)}'.",
+                typeof(TRequest).FullName ?? typeof(TRequest).Name
+            );
 
         try {
             interactionValidator.TryValidateRequest(context.Request, context.ValidationResults);

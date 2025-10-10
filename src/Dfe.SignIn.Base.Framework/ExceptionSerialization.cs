@@ -88,9 +88,13 @@ internal sealed class ExceptionJsonConverter : JsonConverter<Exception>
         }
         exceptionType ??= typeof(UnexpectedException);
 
+        if (!rootElement.TryGetProperty("data", out var dataElement)) {
+            dataElement = rootElement;
+        }
+
         // Get message from exception.
         string? message = null;
-        if (rootElement.TryGetProperty("message", out var messageElement)) {
+        if (dataElement.TryGetProperty("message", out var messageElement)) {
             message = messageElement.GetString();
         }
 
@@ -101,7 +105,7 @@ internal sealed class ExceptionJsonConverter : JsonConverter<Exception>
             // Deserialize exception details.
             foreach (var property in ExceptionReflectionHelpers.GetSerializableExceptionProperties(exceptionType)) {
                 string propertyName = namingPolicy.ConvertName(property.Name);
-                if (rootElement.TryGetProperty(propertyName, out var propertyElement)) {
+                if (dataElement.TryGetProperty(propertyName, out var propertyElement)) {
                     var value = propertyElement.Deserialize(property.PropertyType, options);
                     if (value is not null) {
                         property.SetValue(exception, value);

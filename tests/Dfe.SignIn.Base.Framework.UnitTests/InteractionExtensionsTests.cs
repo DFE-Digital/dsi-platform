@@ -38,7 +38,14 @@ public sealed class InteractionExtensionsTests
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IInteractionDispatcher) &&
-                descriptor.ImplementationType == typeof(ServiceProviderInteractionDispatcher)
+                descriptor.ImplementationType == typeof(DefaultInteractionDispatcher)
+            )
+        );
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IInteractorResolver) &&
+                descriptor.ImplementationType == typeof(ServiceProviderInteractorResolver)
             )
         );
     }
