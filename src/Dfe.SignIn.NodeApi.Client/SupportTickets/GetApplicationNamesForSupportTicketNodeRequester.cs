@@ -1,7 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.NodeApi.Client.Applications.Models;
-using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.NodeApi.Client.SupportTickets;

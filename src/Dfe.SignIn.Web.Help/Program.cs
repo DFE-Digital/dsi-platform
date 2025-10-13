@@ -1,4 +1,3 @@
-using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
@@ -28,14 +27,8 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 }
 
 // Get token credential for making API requests to Node APIs.
-var apiConfigurationSection = builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Applications:AuthenticatedHttpClientOptions");
-var tokenCredential = new ClientSecretCredential(
-    tenantId: apiConfigurationSection.GetValue<string>("Tenant"),
-    clientId: apiConfigurationSection.GetValue<string>("ClientId"),
-    clientSecret: apiConfigurationSection.GetValue<string>("ClientSecret"),
-    new TokenCredentialOptions {
-        AuthorityHost = apiConfigurationSection.GetValue<Uri>("HostUrl"),
-    }
+var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+    builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Applications:AuthenticatedHttpClientOptions")
 );
 
 // Add services to the container.

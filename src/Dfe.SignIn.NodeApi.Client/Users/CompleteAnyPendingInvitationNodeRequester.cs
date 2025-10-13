@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApi.Client.Users.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

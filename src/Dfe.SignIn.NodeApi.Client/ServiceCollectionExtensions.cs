@@ -2,7 +2,7 @@ using System.Net;
 using System.Reflection;
 using Azure.Core;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
+using Dfe.SignIn.InternalApi.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

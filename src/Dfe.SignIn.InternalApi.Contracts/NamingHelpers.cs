@@ -6,7 +6,7 @@ namespace Dfe.SignIn.InternalApi.Contracts;
 /// <summary>
 /// Naming helpers for interactions with the internal API.
 /// </summary>
-public sealed partial class NamingHelpers
+public static partial class NamingHelpers
 {
     [GeneratedRegex("^[A-Za-z_][A-Za-z_0-9]*", RegexOptions.Singleline)]
     private static partial Regex IdentifierPattern();

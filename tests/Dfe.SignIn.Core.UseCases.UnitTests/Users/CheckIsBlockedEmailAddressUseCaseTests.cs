@@ -1,7 +1,6 @@
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.UseCases.Users;
 using Microsoft.Extensions.Options;
-using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;

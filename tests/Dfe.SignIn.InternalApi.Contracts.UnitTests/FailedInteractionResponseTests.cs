@@ -50,8 +50,6 @@ public sealed class FailedInteractionResponseTests
         var interactionResponse = FailedInteractionResponse.FromException(
             fakeException, exceptionSerializer);
 
-        Assert.IsNotNull(interactionResponse.Exception);
-
         var exceptionJson = interactionResponse.Exception;
         Assert.AreEqual("Dfe.SignIn.Base.Framework.InvalidRequestException", exceptionJson.GetProperty("type").GetString());
         Assert.AreEqual(fakeException.Message, exceptionJson.GetProperty("message").GetString());
