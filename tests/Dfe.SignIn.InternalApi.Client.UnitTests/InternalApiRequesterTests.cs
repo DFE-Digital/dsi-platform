@@ -49,13 +49,10 @@ public sealed class InternalApiRequesterTests
             ["(POST) http://internal-api.localhost/interaction/Diagnostics.Ping"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 {
-                    "content": {
-                        "type": "Dfe.SignIn.Core.Contracts.Diagnostics.PingResponse",
-                        "data": {
-                          "value": 123
-                        }
-                    },
-                    "exception": null
+                    "type": "Dfe.SignIn.Core.Contracts.Diagnostics.PingResponse",
+                    "data": {
+                        "value": 123
+                    }
                 }
                 """)
         });
@@ -73,21 +70,18 @@ public sealed class InternalApiRequesterTests
     }
 
     [TestMethod]
-    public async Task Throws_WhenExceptionOccurs()
+    public async Task Throws_WhenValidationErrorOccurs()
     {
         var fakeRequest = new PingRequest { Value = 123 };
         var interactionContext = new InteractionContext<PingRequest>(fakeRequest);
 
         var httpClient = CreateMockHttpClient(new() {
             ["(POST) http://internal-api.localhost/interaction/Diagnostics.Ping"] =
-                new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
+                new MappedResponse(HttpStatusCode.BadRequest, /*lang=json,strict*/ """
                 {
-                    "content": null,
                     "exception": {
                         "type": "Dfe.SignIn.Base.Framework.InvalidRequestException",
-                        "data": {
-                          "invocationId": "<invocationId>"
-                        }
+                        "invocationId": "<invocationId>"
                     }
                 }
                 """.Replace("<invocationId>", interactionContext.InvocationId.ToString()))
@@ -105,14 +99,41 @@ public sealed class InternalApiRequesterTests
     }
 
     [TestMethod]
-    public async Task Throws_WhenHttpStatusIsNotSuccess()
+    public async Task Throws_WhenExceptionOccurs()
     {
         var fakeRequest = new PingRequest { Value = 123 };
         var interactionContext = new InteractionContext<PingRequest>(fakeRequest);
 
         var httpClient = CreateMockHttpClient(new() {
             ["(POST) http://internal-api.localhost/interaction/Diagnostics.Ping"] =
-                new MappedResponse(HttpStatusCode.InternalServerError)
+                new MappedResponse(HttpStatusCode.InternalServerError, /*lang=json,strict*/ """
+                {
+                    "exception": {
+                        "type": "System.InvalidOperationException"
+                    }
+                }
+                """)
+        });
+
+        var autoMocker = new AutoMocker();
+        SetupSerialization(autoMocker);
+        autoMocker.Use(httpClient);
+
+        var apiRequester = autoMocker.CreateInstance<InternalApiRequester<PingRequest>>();
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
+            => apiRequester.InvokeAsync(interactionContext, CancellationToken.None));
+    }
+
+    [TestMethod]
+    public async Task Throws_WhenOtherHttpErrorOccurs()
+    {
+        var fakeRequest = new PingRequest { Value = 123 };
+        var interactionContext = new InteractionContext<PingRequest>(fakeRequest);
+
+        var httpClient = CreateMockHttpClient(new() {
+            ["(POST) http://internal-api.localhost/interaction/Diagnostics.Ping"] =
+                new MappedResponse(HttpStatusCode.BadGateway)
         });
 
         var autoMocker = new AutoMocker();

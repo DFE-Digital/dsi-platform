@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
@@ -32,17 +33,21 @@ public sealed class InternalApiRequester<TRequest>(
         string endpointPath = NamingHelpers.GetEndpointPath<TRequest>();
 
         var responseMessage = await client.PostAsJsonAsync(endpointPath, context.Request, cancellationToken);
-        responseMessage.EnsureSuccessStatusCode();
 
-        var response = (await responseMessage.Content.ReadFromJsonAsync<InteractionResponse>(cancellationToken))!;
-        if (response.Success) {
+        if (responseMessage.StatusCode is HttpStatusCode.OK) {
+            var response = (await responseMessage.Content.ReadFromJsonAsync<InteractionResponse>(cancellationToken))!;
             var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-            var responseType = ContractsAssembly.GetType(response.Content.Type, throwOnError: true)!;
-            return JsonSerializer.Deserialize(response.Content.Data, responseType, jsonOptions)!;
+            var responseType = ContractsAssembly.GetType(response.Type, throwOnError: true)!;
+            return JsonSerializer.Deserialize(response.Data, responseType, jsonOptions)!;
+        }
+        else if (responseMessage.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.InternalServerError) {
+            var failedResponse = (await responseMessage.Content.ReadFromJsonAsync<FailedInteractionResponse>(cancellationToken))!;
+            var exception = exceptionSerializer.DeserializeExceptionFromJson(failedResponse.Exception);
+            throw exception;
         }
         else {
-            var exception = exceptionSerializer.DeserializeExceptionFromJson(response.Exception.Value);
-            throw exception;
+            responseMessage.EnsureSuccessStatusCode();
+            throw new HttpRequestException(); // Keep the compiler happy.
         }
     }
 }

@@ -18,7 +18,8 @@ public static class InteractionHandlerExtensions
     /// <summary>
     /// Posts an interaction request using the interaction framework.
     /// </summary>
-    public static async Task<InteractionResponse<TResponse>> InteractionHandler<TRequest, TResponse>(
+    public static async Task<object> InteractionHandler<TRequest, TResponse>(
+        HttpContext context,
         [FromBody] TRequest request,
         // ---
         ILogger<LoggerContext> logger,
@@ -32,14 +33,23 @@ public static class InteractionHandlerExtensions
         try {
             var interactionTask = interaction.DispatchAsync(request, cancellationToken);
             var response = await interactionTask.To<TResponse>();
-            return InteractionResponse<TResponse>.FromResponse(response);
+            return new InteractionResponse<TResponse> {
+                Type = response.GetType().FullName!,
+                Data = response,
+            };
         }
         catch (OperationCanceledException) {
             throw;
         }
+        catch (InvalidRequestException ex) {
+            logger.LogError(ex, "Invalid request.");
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            return FailedInteractionResponse.FromException(ex, exceptionSerializer);
+        }
         catch (Exception ex) {
             logger.LogError(ex, "An error occurred whilst processing internal API request.");
-            return InteractionResponse<TResponse>.FromException(ex, exceptionSerializer);
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            return FailedInteractionResponse.FromException(ex, exceptionSerializer);
         }
     }
 
@@ -55,6 +65,9 @@ public static class InteractionHandlerExtensions
         where TResponse : class
     {
         string path = NamingHelpers.GetEndpointPath<TRequest>();
-        app.MapPost(path, InteractionHandler<TRequest, TResponse>);
+        app.MapPost(path, InteractionHandler<TRequest, TResponse>)
+            .Produces<InteractionResponse<TResponse>>(StatusCodes.Status200OK)
+            .Produces<FailedInteractionResponse>(StatusCodes.Status400BadRequest)
+            .Produces<FailedInteractionResponse>(StatusCodes.Status500InternalServerError);
     }
 }
