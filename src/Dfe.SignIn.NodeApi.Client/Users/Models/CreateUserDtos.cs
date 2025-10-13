@@ -22,6 +22,6 @@ internal sealed record CreateUserRequestDto
 
 internal sealed record CreateUserResponseDto
 {
-    [JsonPropertyName("id")]
+    [JsonPropertyName("sub")]
     public required Guid Id { get; init; }
 }

@@ -16,6 +16,6 @@ internal sealed record LinkToEntraRequestDto
 
 internal sealed record LinkToEntraResponseDto
 {
-    [JsonPropertyName("id")]
+    [JsonPropertyName("sub")]
     public required Guid Id { get; init; }
 }

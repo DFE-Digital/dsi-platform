@@ -34,7 +34,7 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
             ["(POST) http://directories.localhost/users/17a2a6cb-05a6-4603-b91e-06dde2a58a6a/link-entra-oid"]
                 = new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 {
-                    "id": "17a2a6cb-05a6-4603-b91e-06dde2a58a6a"
+                    "sub": "17a2a6cb-05a6-4603-b91e-06dde2a58a6a"
                 }
                 """),
         });
@@ -73,7 +73,7 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
             ["(POST) http://directories.localhost/users/17a2a6cb-05a6-4603-b91e-06dde2a58a6a/link-entra-oid"]
                 = new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 {
-                    "id": "26a33b5b-cb6b-4a42-b260-ff8807566c4e"
+                    "sub": "26a33b5b-cb6b-4a42-b260-ff8807566c4e"
                 }
                 """)
         });

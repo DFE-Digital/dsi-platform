@@ -23,7 +23,7 @@ public sealed class CreateUserNodeRequesterTests
             ["(POST) http://directories.localhost/users"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 {
-                    "id": "17a2a6cb-05a6-4603-b91e-06dde2a58a6a"
+                    "sub": "17a2a6cb-05a6-4603-b91e-06dde2a58a6a"
                 }
                 """),
 

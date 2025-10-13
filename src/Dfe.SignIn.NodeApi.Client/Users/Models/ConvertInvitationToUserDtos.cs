@@ -10,6 +10,6 @@ internal sealed record ConvertInvitationToUserRequestDto
 
 internal sealed record ConvertInvitationToUserResponseDto
 {
-    [JsonPropertyName("id")]
+    [JsonPropertyName("sub")]
     public required Guid Id { get; init; }
 }
