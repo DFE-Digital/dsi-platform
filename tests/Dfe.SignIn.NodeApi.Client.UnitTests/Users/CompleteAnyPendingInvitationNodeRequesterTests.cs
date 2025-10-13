@@ -30,7 +30,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
             ["(POST) http://directories.localhost/invitations/559c27b8-303e-4aff-b485-037a927827cd/create_user"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 {
-                    "id": "7c9d8126-fdc9-42f3-bdfc-bbd567b472ff"
+                    "sub": "7c9d8126-fdc9-42f3-bdfc-bbd567b472ff"
                 }
                 """),
 
