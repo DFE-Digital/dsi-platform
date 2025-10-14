@@ -14,7 +14,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetOrganisationsAssociatedWithUserRequest,
@@ -23,7 +23,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedOrganisation()
+    public async Task ReturnsExpectedOrganisation()
     {
         List<OrganisationsAssociatedWithUserDto> mockDtos = [];
         mockDtos.Add(
@@ -101,7 +101,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsEmptyCollectionOfOrganisationsWhenNotFound()
+    public async Task ReturnsEmptyCollectionOfOrganisations_WhenNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(HttpStatusCode.NotFound);

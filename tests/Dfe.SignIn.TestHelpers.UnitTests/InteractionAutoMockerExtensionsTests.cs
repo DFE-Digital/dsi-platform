@@ -71,6 +71,66 @@ public sealed class InteractionAutoMockerExtensionsTests
 
     #endregion
 
+    #region CaptureRequest<TRequest>(AutoMocker, Action<InteractionContext<TRequest>, CancellationToken>)
+
+    [TestMethod]
+    public async Task CaptureRequest_Context_CapturesRequestModel()
+    {
+        var autoMocker = new AutoMocker();
+
+        InteractionContext<ExampleRequest>? capturedContext = null;
+        CancellationToken? capturedCancellationToken = null;
+        autoMocker.CaptureRequest<ExampleRequest>((context, cancellationToken) => {
+            capturedContext = context;
+            capturedCancellationToken = cancellationToken;
+        });
+
+        var cancellationTokenSource = new CancellationTokenSource();
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        await mockInteraction.Object.DispatchAsync(
+            new ExampleRequest { Value = 42 },
+            cancellationTokenSource.Token
+        );
+
+        Assert.IsNotNull(capturedContext);
+        Assert.AreEqual(42, capturedContext.Request.Value);
+        Assert.AreEqual(cancellationTokenSource.Token, capturedCancellationToken);
+    }
+
+    [TestMethod]
+    public async Task CaptureRequest_Context_OverridesResponseWithNull()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.CaptureRequest<ExampleRequest>((context, cancellationToken) => { });
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        var response = await mockInteraction.Object.DispatchAsync(
+            new ExampleRequest { Value = 42 }
+        );
+
+        Assert.IsNull(response);
+    }
+
+    [TestMethod]
+    public async Task CaptureRequest_Context_UsesProvidedResponse()
+    {
+        var autoMocker = new AutoMocker();
+        var fakeResponse = new ExampleResponse();
+
+        autoMocker.CaptureRequest<ExampleRequest>((context, cancellationToken) => { }, fakeResponse);
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+        var response = await mockInteraction.Object.DispatchAsync(
+            new ExampleRequest { Value = 42 }
+        );
+
+        Assert.AreSame(fakeResponse, response);
+    }
+
+    #endregion
+
     #region MockResponseWhereContext<TRequest>(AutoMocker, TRequest, object)
 
     [TestMethod]

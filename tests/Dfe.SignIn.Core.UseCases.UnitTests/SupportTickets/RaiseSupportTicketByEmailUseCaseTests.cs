@@ -43,7 +43,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public Task InvokeAsync_Throws_WhenRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
@@ -56,7 +56,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public Task InvokeAsync_Throws_WhenInvalidSubjectCodeIsProvided()
+    public Task Throws_WhenInvalidSubjectCodeIsProvided()
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
@@ -71,7 +71,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public Task InvokeAsync_Throws_WhenRequiredConfigurationIsMissing()
+    public Task Throws_WhenRequiredConfigurationIsMissing()
     {
         var autoMocker = new AutoMocker();
         SetupSubjectOptionsResponse(autoMocker);
@@ -91,7 +91,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SendsEmailToExpectedRecipient()
+    public async Task SendsEmailToExpectedRecipient()
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
@@ -109,7 +109,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SendsEmailWithExpectedTemplateId()
+    public async Task SendsEmailWithExpectedTemplateId()
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
@@ -127,7 +127,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SendsEmailWithExpectedPersonalisation()
+    public async Task SendsEmailWithExpectedPersonalisation()
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
@@ -153,7 +153,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SendsEmailWithOtherSubjectCode()
+    public async Task SendsEmailWithOtherSubjectCode()
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);

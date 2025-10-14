@@ -9,7 +9,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Access;
 public sealed class GetApplicationsAssociatedWithUserNodeRequesterTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationsAssociatedWithUserRequest,
@@ -18,7 +18,7 @@ public sealed class GetApplicationsAssociatedWithUserNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedOrganisation()
+    public async Task ReturnsExpectedOrganisation()
     {
         ApplicationDto[] mockDto = [
             new ApplicationDto() {
@@ -74,7 +74,7 @@ public sealed class GetApplicationsAssociatedWithUserNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsEmptyCollectionOfApplicationsWhenNotFound()
+    public async Task ReturnsEmptyCollectionOfApplications_WhenNotFound()
     {
         var testHandler = new FakeHttpMessageHandler((req, ct) => {
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);

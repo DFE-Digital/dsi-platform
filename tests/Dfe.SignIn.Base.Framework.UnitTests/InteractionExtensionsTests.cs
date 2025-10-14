@@ -38,7 +38,14 @@ public sealed class InteractionExtensionsTests
             services.Any(descriptor =>
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IInteractionDispatcher) &&
-                descriptor.ImplementationType == typeof(ServiceProviderInteractionDispatcher)
+                descriptor.ImplementationType == typeof(DefaultInteractionDispatcher)
+            )
+        );
+        Assert.IsTrue(
+            services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(IInteractorResolver) &&
+                descriptor.ImplementationType == typeof(ServiceProviderInteractorResolver)
             )
         );
     }
@@ -74,11 +81,7 @@ public sealed class InteractionExtensionsTests
         InteractionExtensions.AddInteractor<ExampleUseCase>(services);
 
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
-                descriptor.ImplementationType == typeof(ExampleUseCase)
-            )
+            services.HasInteractor<ExampleRequest, ExampleUseCase>()
         );
     }
 
@@ -129,32 +132,16 @@ public sealed class InteractionExtensionsTests
         );
 
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
-                descriptor.ImplementationType == typeof(ExampleUseCase)
-            )
+            services.HasInteractor<ExampleRequest, ExampleUseCase>()
         );
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest>) &&
-                descriptor.ImplementationType == typeof(AnotherExampleUseCase)
-            )
+            services.HasInteractor<AnotherExampleRequest, AnotherExampleUseCase>()
         );
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<ExampleRequest>) &&
-                descriptor.ImplementationType == typeof(Example_ApiRequester)
-            )
+            services.HasInteractor<ExampleRequest, Example_ApiRequester>()
         );
         Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<AnotherExampleRequest>) &&
-                descriptor.ImplementationType == typeof(AnotherExample_ApiRequester)
-            )
+            services.HasInteractor<AnotherExampleRequest, AnotherExample_ApiRequester>()
         );
     }
 

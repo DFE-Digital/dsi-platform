@@ -41,6 +41,7 @@ on:
           - developer
           - frontend
           - help
+          - internal-api
           - public-api
           - select-organisation
           - (all components)

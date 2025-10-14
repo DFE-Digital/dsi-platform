@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Dfe.SignIn.Base.Framework;
 
@@ -21,8 +22,9 @@ public static class InteractionExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
-        services.AddSingleton<IInteractionValidator, InteractionValidator>();
-        services.AddSingleton<IInteractionDispatcher, ServiceProviderInteractionDispatcher>();
+        services.TryAddSingleton<IInteractionValidator, InteractionValidator>();
+        services.TryAddSingleton<IInteractionDispatcher, DefaultInteractionDispatcher>();
+        services.TryAddSingleton<IInteractorResolver, ServiceProviderInteractorResolver>();
 
         return services;
     }

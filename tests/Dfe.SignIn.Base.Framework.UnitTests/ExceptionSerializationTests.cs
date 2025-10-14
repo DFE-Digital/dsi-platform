@@ -28,13 +28,13 @@ public sealed class ExceptionSerialization
 
     #region SerializeExceptionToJson(Exception)
 
-    private static void AssertNoUnwantedProperties(JsonDocument jsonDocument)
+    private static void AssertNoUnwantedProperties(JsonElement jsonElement)
     {
-        Assert.IsFalse(jsonDocument.RootElement.TryGetProperty("trace", out var _));
-        Assert.IsFalse(jsonDocument.RootElement.TryGetProperty("stackTrace", out var _));
-        Assert.IsFalse(jsonDocument.RootElement.TryGetProperty("source", out var _));
-        Assert.IsFalse(jsonDocument.RootElement.TryGetProperty("inner", out var _));
-        Assert.IsFalse(jsonDocument.RootElement.TryGetProperty("innerException", out var _));
+        Assert.IsFalse(jsonElement.TryGetProperty("trace", out var _));
+        Assert.IsFalse(jsonElement.TryGetProperty("stackTrace", out var _));
+        Assert.IsFalse(jsonElement.TryGetProperty("source", out var _));
+        Assert.IsFalse(jsonElement.TryGetProperty("inner", out var _));
+        Assert.IsFalse(jsonElement.TryGetProperty("innerException", out var _));
     }
 
     [TestMethod]
@@ -54,12 +54,11 @@ public sealed class ExceptionSerialization
         var exception = new Exception("Example exception message.");
         exception = AddFakeStackTraceToException(exception);
 
-        string json = serializer.SerializeExceptionToJson(exception);
+        JsonElement jsonElement = serializer.SerializeExceptionToJson(exception);
 
-        using var jsonDocument = JsonDocument.Parse(json);
-        Assert.AreEqual("System.Exception", jsonDocument.RootElement.GetProperty("type").GetString());
-        Assert.AreEqual(exception.Message, jsonDocument.RootElement.GetProperty("message").GetString());
-        AssertNoUnwantedProperties(jsonDocument);
+        Assert.AreEqual("System.Exception", jsonElement.GetProperty("type").GetString());
+        Assert.AreEqual(exception.Message, jsonElement.GetProperty("message").GetString());
+        AssertNoUnwantedProperties(jsonElement);
     }
 
     [TestMethod]
@@ -73,19 +72,17 @@ public sealed class ExceptionSerialization
         var exception = new UnexpectedException("An unexpected error has occurred.", innerException);
         exception = AddFakeStackTraceToException(exception);
 
-        string json = serializer.SerializeExceptionToJson(exception);
-
-        using var jsonDocument = JsonDocument.Parse(json);
+        JsonElement jsonElement = serializer.SerializeExceptionToJson(exception);
 
         Assert.AreEqual(
             "Dfe.SignIn.Base.Framework.UnexpectedException",
-            jsonDocument.RootElement.GetProperty("type").GetString()
+            jsonElement.GetProperty("type").GetString()
         );
         Assert.AreEqual(
             exception.Message,
-            jsonDocument.RootElement.GetProperty("message").GetString()
+            jsonElement.GetProperty("message").GetString()
         );
-        AssertNoUnwantedProperties(jsonDocument);
+        AssertNoUnwantedProperties(jsonElement);
     }
 
     [TestMethod]
@@ -96,15 +93,14 @@ public sealed class ExceptionSerialization
         var exception = new FakeInteractionException("Example exception message.");
         exception = AddFakeStackTraceToException(exception);
 
-        string json = serializer.SerializeExceptionToJson(exception);
+        JsonElement jsonElement = serializer.SerializeExceptionToJson(exception);
 
-        using var jsonDocument = JsonDocument.Parse(json);
         Assert.AreEqual(
             "Dfe.SignIn.Base.Framework.UnitTests.Fakes.FakeInteractionException",
-            jsonDocument.RootElement.GetProperty("type").GetString()
+            jsonElement.GetProperty("type").GetString()
         );
-        Assert.AreEqual(exception.Message, jsonDocument.RootElement.GetProperty("message").GetString());
-        AssertNoUnwantedProperties(jsonDocument);
+        Assert.AreEqual(exception.Message, jsonElement.GetProperty("message").GetString());
+        AssertNoUnwantedProperties(jsonElement);
     }
 
     [TestMethod]
@@ -118,17 +114,16 @@ public sealed class ExceptionSerialization
         );
         exception = AddFakeStackTraceToException(exception);
 
-        string json = serializer.SerializeExceptionToJson(exception);
+        JsonElement jsonElement = serializer.SerializeExceptionToJson(exception);
 
-        using var jsonDocument = JsonDocument.Parse(json);
         Assert.AreEqual(
             "Dfe.SignIn.Base.Framework.UnitTests.Fakes.FakeInteractionExceptionWithPeristedProperties",
-            jsonDocument.RootElement.GetProperty("type").GetString()
+            jsonElement.GetProperty("type").GetString()
         );
-        Assert.AreEqual(exception.Message, jsonDocument.RootElement.GetProperty("message").GetString());
-        Assert.AreEqual(exception.CustomProperty, jsonDocument.RootElement.GetProperty("customProperty").GetString());
-        AssertNoUnwantedProperties(jsonDocument);
-        Assert.IsFalse(jsonDocument.RootElement.TryGetProperty("computedProperty", out var _));
+        Assert.AreEqual(exception.Message, jsonElement.GetProperty("message").GetString());
+        Assert.AreEqual(exception.CustomProperty, jsonElement.GetProperty("customProperty").GetString());
+        AssertNoUnwantedProperties(jsonElement);
+        Assert.IsFalse(jsonElement.TryGetProperty("computedProperty", out var _));
     }
 
     #endregion
@@ -136,22 +131,14 @@ public sealed class ExceptionSerialization
     #region DeserializeExceptionFromJson(string)
 
     [TestMethod]
-    public void DeserializeExceptionFromJson_ReturnsUnexpectedException_WhenJsonArgumentIsNull()
+    public void DeserializeExceptionFromJson_ReturnsUnexpectedException_WhenUnexpectedValueType()
     {
         var serializer = CreateDefaultExceptionJsonSerializer();
 
-        var result = serializer.DeserializeExceptionFromJson(null!);
+        string json = /*lang=json,strict*/ "null";
+        JsonElement jsonElement = JsonDocument.Parse(json).RootElement;
 
-        Assert.IsInstanceOfType<UnexpectedException>(result);
-        Assert.AreEqual("Unknown exception type.", result.Message);
-    }
-
-    [TestMethod]
-    public void DeserializeExceptionFromJson_ReturnsUnexpectedException_WhenJsonArgumentIsEmptyString()
-    {
-        var serializer = CreateDefaultExceptionJsonSerializer();
-
-        var result = serializer.DeserializeExceptionFromJson("");
+        var result = serializer.DeserializeExceptionFromJson(jsonElement);
 
         Assert.IsInstanceOfType<UnexpectedException>(result);
         Assert.AreEqual("Unknown exception type.", result.Message);
@@ -162,14 +149,17 @@ public sealed class ExceptionSerialization
     {
         var serializer = CreateDefaultExceptionJsonSerializer();
 
-        var result = serializer.DeserializeExceptionFromJson(/*lang=json,strict*/ """
-            {
-              "type": "NonExistentException",
-              "message": "An example of an exception that does not exist.",
-              "customProperty": "A custom property.",
-              "computedProperty": "Attempting to deserialize to a computed property..."
-            }
-        """);
+        string json = /*lang=json,strict*/ """
+        {
+            "type": "NonExistentException",
+            "message": "An example of an exception that does not exist.",
+            "customProperty": "A custom property.",
+            "computedProperty": "Attempting to deserialize to a computed property..."
+        }
+        """;
+        JsonElement jsonElement = JsonDocument.Parse(json).RootElement;
+
+        var result = serializer.DeserializeExceptionFromJson(jsonElement);
 
         Assert.IsInstanceOfType<UnexpectedException>(result);
         var exception = (UnexpectedException)result;
@@ -182,12 +172,15 @@ public sealed class ExceptionSerialization
     {
         var serializer = CreateDefaultExceptionJsonSerializer();
 
-        var result = serializer.DeserializeExceptionFromJson(/*lang=json,strict*/ """
-            {
-              "type": "Dfe.SignIn.Base.Framework.UnitTests.Fakes.FakeInteractionExceptionWithMissingConstructor",
-              "message": "An example of an exception with missing constructors."
-            }
-        """);
+        string json = /*lang=json,strict*/ """
+        {
+            "type": "Dfe.SignIn.Base.Framework.UnitTests.Fakes.FakeInteractionExceptionWithMissingConstructor",
+            "message": "An example of an exception with missing constructors."
+        }
+        """;
+        JsonElement jsonElement = JsonDocument.Parse(json).RootElement;
+
+        var result = serializer.DeserializeExceptionFromJson(jsonElement);
 
         Assert.IsInstanceOfType<UnexpectedException>(result);
         var exception = (UnexpectedException)result;
@@ -200,12 +193,15 @@ public sealed class ExceptionSerialization
     {
         var serializer = CreateDefaultExceptionJsonSerializer();
 
-        var result = serializer.DeserializeExceptionFromJson(/*lang=json,strict*/ """
-            {
-              "type": "System.Exception",
-              "message": "An example exception."
-            }
-        """);
+        string json = /*lang=json,strict*/ """
+        {
+            "type": "System.Exception",
+            "message": "An example exception."
+        }
+        """;
+        JsonElement jsonElement = JsonDocument.Parse(json).RootElement;
+
+        var result = serializer.DeserializeExceptionFromJson(jsonElement);
 
         Assert.IsInstanceOfType<Exception>(result);
         Assert.AreEqual("An example exception.", result.Message);
@@ -216,14 +212,17 @@ public sealed class ExceptionSerialization
     {
         var serializer = CreateDefaultExceptionJsonSerializer();
 
-        var result = serializer.DeserializeExceptionFromJson(/*lang=json,strict*/ """
-            {
-              "type": "Dfe.SignIn.Base.Framework.UnitTests.Fakes.FakeInteractionExceptionWithPeristedProperties",
-              "message": "An example exception.",
-              "customProperty": "A custom property.",
-              "computedProperty": "Attempting to deserialize to a computed property..."
-            }
-        """);
+        string json = /*lang=json,strict*/ """
+        {
+            "type": "Dfe.SignIn.Base.Framework.UnitTests.Fakes.FakeInteractionExceptionWithPeristedProperties",
+            "message": "An example exception.",
+            "customProperty": "A custom property.",
+            "computedProperty": "Attempting to deserialize to a computed property..."
+        }
+        """;
+        JsonElement jsonElement = JsonDocument.Parse(json).RootElement;
+
+        var result = serializer.DeserializeExceptionFromJson(jsonElement);
 
         Assert.IsInstanceOfType<FakeInteractionExceptionWithPeristedProperties>(result);
         var exception = (FakeInteractionExceptionWithPeristedProperties)result;

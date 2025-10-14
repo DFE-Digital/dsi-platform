@@ -9,10 +9,8 @@ namespace Dfe.SignIn.Core.UseCases.UnitTests.SelectOrganisation;
 [TestClass]
 public sealed class InvalidateSelectOrganisationSessionUseCaseTests
 {
-    #region InvokeAsync(InvalidateSelectOrganisationSessionRequest)
-
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             InvalidateSelectOrganisationSessionRequest,
@@ -21,7 +19,7 @@ public sealed class InvalidateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_InvalidatesSessionWithCorrectSessionKey()
+    public async Task InvalidatesSessionWithCorrectSessionKey()
     {
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<InvalidateSelectOrganisationSessionUseCase>();
@@ -38,6 +36,4 @@ public sealed class InvalidateSelectOrganisationSessionUseCaseTests
             )
         );
     }
-
-    #endregion
 }

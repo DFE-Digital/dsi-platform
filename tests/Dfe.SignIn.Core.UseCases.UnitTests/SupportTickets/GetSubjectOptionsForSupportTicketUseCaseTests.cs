@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Core.UseCases.UnitTests.SupportTickets;
 public sealed class GetSubjectOptionsForSupportTicketUseCaseTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetSubjectOptionsForSupportTicketRequest,
@@ -17,7 +17,7 @@ public sealed class GetSubjectOptionsForSupportTicketUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedSubjectOptionCodes()
+    public async Task ReturnsExpectedSubjectOptionCodes()
     {
         var autoMocker = new AutoMocker();
         var interactor = autoMocker.CreateInstance<GetSubjectOptionsForSupportTicketUseCase>();

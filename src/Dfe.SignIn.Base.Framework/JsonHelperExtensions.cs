@@ -57,6 +57,8 @@ public static class JsonHelperExtensions
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
         });
 
+        services.AddSingleton<IExceptionJsonSerializer, DefaultExceptionJsonSerializer>();
+
         return services;
     }
 }

@@ -20,8 +20,6 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
         UserId = new Guid("d4176ff4-ff7e-4e3b-86ad-2aa9890b26c4"),
     };
 
-    #region InvokeAsync(CreateSelectOrganisationSessionRequest)
-
     private static void MockDefaultOptions(AutoMocker autoMocker)
     {
         autoMocker.Use<IOptions<SelectOrganisationOptions>>(new SelectOrganisationOptions());
@@ -87,7 +85,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             CreateSelectOrganisationSessionRequest,
@@ -96,7 +94,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_StoresSessionInRepositoryWithUniqueKey()
+    public async Task StoresSessionInRepositoryWithUniqueKey()
     {
         var (response1, capturedSessionKey1) = await InvokeCaptureSessionKey(FakeRequest);
         var (response2, capturedSessionKey2) = await InvokeCaptureSessionKey(FakeRequest);
@@ -105,7 +103,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedClientId()
+    public async Task SessionHasExpectedClientId()
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.ClientId == FakeRequest.ClientId
@@ -113,7 +111,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedUserId()
+    public async Task SessionHasExpectedUserId()
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.UserId == FakeRequest.UserId
@@ -121,7 +119,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedPrompt_WhenPromptIsNotSpecified()
+    public async Task SessionHasExpectedPrompt_WhenPromptIsNotSpecified()
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.Prompt.Heading == "Which organisation would you like to use?" &&
@@ -130,7 +128,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedPrompt_WhenPromptIsSpecified()
+    public async Task SessionHasExpectedPrompt_WhenPromptIsSpecified()
     {
         var request = FakeRequest with {
             Prompt = new() {
@@ -145,7 +143,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedPrompt_WhenHeadingIsSpecified()
+    public async Task SessionHasExpectedPrompt_WhenHeadingIsSpecified()
     {
         var request = FakeRequest with {
             Prompt = new() {
@@ -159,7 +157,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedOrganisations_WhenThereAreNoneToSelect()
+    public async Task SessionHasExpectedOrganisations_WhenThereAreNoneToSelect()
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.OrganisationOptions.Count() == 0
@@ -167,7 +165,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedOrganisations_WhenThereAreSomeToSelect()
+    public async Task SessionHasExpectedOrganisations_WhenThereAreSomeToSelect()
     {
         var autoMocker = new AutoMocker();
         MockDefaultOptions(autoMocker);
@@ -206,7 +204,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedCallbackUrl()
+    public async Task SessionHasExpectedCallbackUrl()
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
             session.CallbackUrl.AbsolutePath == FakeRequest.CallbackUrl.AbsolutePath &&
@@ -215,7 +213,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedCreationTime()
+    public async Task SessionHasExpectedCreationTime()
     {
         await VerifyInvokeAsyncSession(FakeRequest, session =>
             // Was created within the past 5 seconds?
@@ -224,7 +222,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SessionHasExpectedSessionTimeout()
+    public async Task SessionHasExpectedSessionTimeout()
     {
         var autoMocker = new AutoMocker();
         MockFilteredOrganisations(autoMocker);
@@ -240,7 +238,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsUniqueRequestId()
+    public async Task ReturnsUniqueRequestId()
     {
         var autoMocker = new AutoMocker();
         MockDefaultOptions(autoMocker);
@@ -256,7 +254,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsHasOptionsTrue_WhenThereIsOneOption()
+    public async Task ReturnsHasOptionsTrue_WhenThereIsOneOption()
     {
         var autoMocker = new AutoMocker();
         MockDefaultOptions(autoMocker);
@@ -277,7 +275,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsHasOptionsFalse_WhenThereAreNoOptions()
+    public async Task ReturnsHasOptionsFalse_WhenThereAreNoOptions()
     {
         var autoMocker = new AutoMocker();
         MockDefaultOptions(autoMocker);
@@ -291,7 +289,7 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedUrl()
+    public async Task ReturnsExpectedUrl()
     {
         var autoMocker = new AutoMocker();
         MockFilteredOrganisations(autoMocker);
@@ -307,6 +305,4 @@ public sealed class CreateSelectOrganisationSessionUseCaseTests
             response.Url.ToString()
         );
     }
-
-    #endregion
 }

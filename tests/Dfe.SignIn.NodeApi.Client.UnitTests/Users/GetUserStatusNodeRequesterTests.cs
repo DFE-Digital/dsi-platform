@@ -8,7 +8,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
 public sealed class GetUserStatusNodeRequesterTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetUserStatusRequest,
@@ -28,7 +28,7 @@ public sealed class GetUserStatusNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedUserStatus_WhenEntraUserIdIsProvided()
+    public async Task ReturnsExpectedUserStatus_WhenEntraUserIdIsProvided()
     {
         var interactor = CreateGetUserStatusNodeRequester(new() {
             ["(GET) http://directories.localhost/users/by-entra-oid/d9079a36-ce78-4265-afa3-1c0751e42616"]
@@ -50,7 +50,7 @@ public sealed class GetUserStatusNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsDoesNotExist_WhenEntraUserIdIsProvided()
+    public async Task ReturnsDoesNotExist_WhenEntraUserIdIsProvided()
     {
         var interactor = CreateGetUserStatusNodeRequester(new() {
             ["(GET) http://directories.localhost/users/by-entra-oid/d9079a36-ce78-4265-afa3-1c0751e42616"]
@@ -67,7 +67,7 @@ public sealed class GetUserStatusNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedUserStatus_WhenEmailAddressIsProvided()
+    public async Task ReturnsExpectedUserStatus_WhenEmailAddressIsProvided()
     {
         var interactor = CreateGetUserStatusNodeRequester(new() {
             ["(GET) http://directories.localhost/users/jo.bradford@example.com"] =
@@ -89,7 +89,7 @@ public sealed class GetUserStatusNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsDoesNotExist_WhenEmailAddressIsProvided()
+    public async Task ReturnsDoesNotExist_WhenEmailAddressIsProvided()
     {
         var interactor = CreateGetUserStatusNodeRequester(new() {
             ["(GET) http://directories.localhost/users/jo.bradford@example.com"] =

@@ -26,14 +26,16 @@ public static class ConfigurationHelperExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="key"/> is an empty string.</para>
     /// </exception>
-    public static T? GetJson<T>(this IConfigurationSection section, string key)
+    public static T? GetJson<T>(this IConfiguration section, string key)
         where T : class
     {
         ExceptionHelpers.ThrowIfArgumentNull(section, nameof(section));
         ExceptionHelpers.ThrowIfArgumentNullOrEmpty(key, nameof(key));
 
         string? json = section[key];
-        return JsonSerializer.Deserialize<T>(!string.IsNullOrWhiteSpace(json) ? json : "null");
+        return !string.IsNullOrWhiteSpace(json)
+            ? JsonSerializer.Deserialize<T>(json)
+            : section.GetSection(key)?.Get<T>();
     }
 
     /// <summary>
@@ -53,7 +55,7 @@ public static class ConfigurationHelperExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="key"/> is an empty string.</para>
     /// </exception>
-    public static List<T> GetJsonList<T>(this IConfigurationSection section, string key)
+    public static List<T> GetJsonList<T>(this IConfiguration section, string key)
     {
         return GetJson<List<T>>(section, key) ?? [];
     }
@@ -74,7 +76,7 @@ public static class ConfigurationHelperExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="key"/> is an empty string.</para>
     /// </exception>
-    public static List<string> GetJsonList(this IConfigurationSection section, string key)
+    public static List<string> GetJsonList(this IConfiguration section, string key)
     {
         return GetJsonList<string>(section, key) ?? [];
     }

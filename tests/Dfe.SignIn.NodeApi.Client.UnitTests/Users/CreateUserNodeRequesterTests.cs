@@ -8,7 +8,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
 public sealed class CreateUserNodeRequesterTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             CreateUserRequest,
@@ -54,7 +54,7 @@ public sealed class CreateUserNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_MakesExpectedRequestToCreateUser()
+    public async Task MakesExpectedRequestToCreateUser()
     {
         var interactor = CreateCreateUserNodeRequester(GetNodeResponseMappingsForHappyPath());
 
@@ -70,7 +70,7 @@ public sealed class CreateUserNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenRequestFailed()
+    public async Task Throws_WhenRequestFailed()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
@@ -89,7 +89,7 @@ public sealed class CreateUserNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_MakesExpectedRequestToUpdateSearchIndex()
+    public async Task MakesExpectedRequestToUpdateSearchIndex()
     {
         var capturedLogs = new List<string>();
         var interactor = CreateCreateUserNodeRequester(GetNodeResponseMappingsForHappyPath(), capturedLogs);
@@ -105,7 +105,7 @@ public sealed class CreateUserNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SucceedsButLogsErrorWhenSearchIndexCouldNotBeUpdated()
+    public async Task SucceedsButLogsError_WhenSearchIndexCouldNotBeUpdated()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 

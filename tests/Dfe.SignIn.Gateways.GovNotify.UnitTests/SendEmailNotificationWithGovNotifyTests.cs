@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Gateways.GovNotify.UnitTests;
 public sealed class SendEmailNotificationWithGovNotifyTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             SendEmailNotificationRequest,
@@ -18,7 +18,7 @@ public sealed class SendEmailNotificationWithGovNotifyTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_SendsEmailWithExpectedParameters()
+    public async Task SendsEmailWithExpectedParameters()
     {
         var autoMocker = new AutoMocker();
 
@@ -43,7 +43,7 @@ public sealed class SendEmailNotificationWithGovNotifyTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsValidResponse()
+    public async Task ReturnsValidResponse()
     {
         var autoMocker = new AutoMocker();
 

@@ -129,7 +129,7 @@ Describe "Set-RequirementsOutput" {
                 -BuildForRepository '(all components)'
 
             $dockerImages = $global:capturedValue.docker_images | ConvertFrom-Json
-            $dockerImages | Should -HaveCount 6
+            $dockerImages | Should -HaveCount 7
         }
 
         It "excludes projects that have been changed" {
@@ -215,6 +215,30 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].repository | Should -Be 'dev/auth-extensions'
         }
 
+        It "includes 'Dfe.SignIn.InternalApi' project when force parameter provided" {
+            & $Cmdlet `
+                -LifecycleName 'dev' `
+                -BuildForRepository 'internal-api'
+
+            $dockerImages = $global:capturedValue.docker_images | ConvertFrom-Json
+            $dockerImages | Should -HaveCount 1
+            $dockerImages[0].project | Should -Be 'Dfe.SignIn.InternalApi'
+            $dockerImages[0].dockerfile | Should -Be 'dotnet'
+            $dockerImages[0].repository | Should -Be 'dev/internal-api'
+        }
+
+        It "includes 'Dfe.SignIn.PublicApi' project when force parameter provided" {
+            & $Cmdlet `
+                -LifecycleName 'dev' `
+                -BuildForRepository 'public-api'
+
+            $dockerImages = $global:capturedValue.docker_images | ConvertFrom-Json
+            $dockerImages | Should -HaveCount 1
+            $dockerImages[0].project | Should -Be 'Dfe.SignIn.PublicApi'
+            $dockerImages[0].dockerfile | Should -Be 'dotnet'
+            $dockerImages[0].repository | Should -Be 'dev/public-api'
+        }
+
         It "includes 'Dfe.SignIn.Web.Help' project when force parameter provided" {
             & $Cmdlet `
                 -LifecycleName 'dev' `
@@ -237,18 +261,6 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.Web.SelectOrganisation'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'dev/select-organisation'
-        }
-
-        It "includes 'Dfe.SignIn.PublicApi' project when force parameter provided" {
-            & $Cmdlet `
-                -LifecycleName 'dev' `
-                -BuildForRepository 'public-api'
-
-            $dockerImages = $global:capturedValue.docker_images | ConvertFrom-Json
-            $dockerImages | Should -HaveCount 1
-            $dockerImages[0].project | Should -Be 'Dfe.SignIn.PublicApi'
-            $dockerImages[0].dockerfile | Should -Be 'dotnet'
-            $dockerImages[0].repository | Should -Be 'dev/public-api'
         }
 
         It "includes 'docs/external' project when force parameter provided" {

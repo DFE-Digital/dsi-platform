@@ -1,10 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
-using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
 
-namespace Dfe.SignIn.NodeApi.Client.UnitTests.AuthenticatedHttpClient;
+namespace Dfe.SignIn.NodeApi.Client.UnitTests;
 
 [TestClass]
 public sealed class HttpClientExtensionsTest

@@ -47,11 +47,11 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Initialize solution for all projects
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'merge_group' }}
         run: Copy-Item -Path ./dsi-platform.sln -Destination ./build.sln
 
       - name: Initialize solution for affected projects
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+        if: ${{ github.event_name != 'workflow_dispatch' && github.event_name != 'merge_group' }}
         run: ./scripts/workflows/Initialize-BuildSolutionForChangedProjects
 
       - name: Install dotnet reportgenerator

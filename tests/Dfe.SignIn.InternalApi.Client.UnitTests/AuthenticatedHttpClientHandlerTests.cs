@@ -1,7 +1,8 @@
-using Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
-using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
+using Azure.Core;
+using Dfe.SignIn.InternalApi.Client.UnitTests.Fakes;
+using Moq;
 
-namespace Dfe.SignIn.NodeApi.Client.UnitTests.AuthenticatedHttpClient;
+namespace Dfe.SignIn.InternalApi.Client.UnitTests;
 
 [TestClass]
 public sealed class AuthenticatedHttpClientHandlerTests
@@ -16,8 +17,18 @@ public sealed class AuthenticatedHttpClientHandlerTests
             return Task.FromResult(response);
         });
 
-        var securityProvider = new FakeHttpSecurityProvider();
-        var authenticatedHttpClientHandler = new AuthenticatedHttpClientHandler(securityProvider) {
+        var mockCredential = new Mock<TokenCredential>();
+        mockCredential
+            .Setup(x => x.GetTokenAsync(
+                It.IsAny<TokenRequestContext>(),
+                It.IsAny<CancellationToken>()
+            ))
+            .ReturnsAsync(
+                new AccessToken("fake-bearer-token", new DateTimeOffset())
+            );
+
+        string[] fakeScopes = ["example-scope/.default"];
+        var authenticatedHttpClientHandler = new AuthenticatedHttpClientHandler(mockCredential.Object, fakeScopes) {
             InnerHandler = testHandler
         };
 
@@ -25,7 +36,7 @@ public sealed class AuthenticatedHttpClientHandlerTests
         var request = new HttpRequestMessage(HttpMethod.Get, "http://mock.localhost");
         await client.SendAsync(request);
 
-        Assert.IsTrue(testHandler.CapturedRequests[0].Headers.Contains("Authorization"));
+        Assert.Contains("Authorization", testHandler.CapturedRequests[0].Headers.Select(x => x.Key));
 
         string actualValue = testHandler.CapturedRequests[0].Headers.GetValues("Authorization").First();
         Assert.AreEqual("Bearer fake-bearer-token", actualValue);
@@ -39,8 +50,9 @@ public sealed class AuthenticatedHttpClientHandlerTests
             return Task.FromResult(response);
         });
 
-        var securityProvider = new FakeHttpSecurityProvider();
-        var authenticatedHttpClientHandler = new AuthenticatedHttpClientHandler(securityProvider) {
+        var mockCredential = new Mock<TokenCredential>();
+        string[] fakeScopes = ["example-scope/.default"];
+        var authenticatedHttpClientHandler = new AuthenticatedHttpClientHandler(mockCredential.Object, fakeScopes) {
             InnerHandler = testHandler
         };
 

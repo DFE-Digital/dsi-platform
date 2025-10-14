@@ -8,7 +8,7 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
 public sealed class CompleteAnyPendingInvitationNodeRequesterTests
 {
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             CompleteAnyPendingInvitationRequest,
@@ -84,7 +84,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ResolvesAsNotCompleted_WhenInvitationDoesNotExist()
+    public async Task ResolvesAsNotCompleted_WhenInvitationDoesNotExist()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
@@ -108,7 +108,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ResolvesAsNotCompleted_WhenInvitationWasAlreadyCompleted()
+    public async Task ResolvesAsNotCompleted_WhenInvitationWasAlreadyCompleted()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
@@ -137,7 +137,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_MakesRequestToConvertInvitationToUser()
+    public async Task MakesRequestToConvertInvitationToUser()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
         var capturedLogs = new List<string>();
@@ -155,7 +155,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenRequestToConvertInvitationToUserWasNotSuccessful()
+    public async Task Throws_WhenRequestToConvertInvitationToUserWasNotSuccessful()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
@@ -173,7 +173,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_MakesRequestToAssignOrganisationsFromInvitation()
+    public async Task MakesRequestToAssignOrganisationsFromInvitation()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
         var capturedLogs = new List<string>();
@@ -191,7 +191,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenRequestToAssignOrganisationsFromInvitationWasNotSuccessful()
+    public async Task Throws_WhenRequestToAssignOrganisationsFromInvitationWasNotSuccessful()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
@@ -209,7 +209,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_MakesRequestToAssignServicesFromInvitation()
+    public async Task MakesRequestToAssignServicesFromInvitation()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
         var capturedLogs = new List<string>();
@@ -227,7 +227,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenRequestToAssignServicesFromInvitationWasNotSuccessful()
+    public async Task Throws_WhenRequestToAssignServicesFromInvitationWasNotSuccessful()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
@@ -245,7 +245,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_MakesRequestToRemoveInvitationFromSearchIndex()
+    public async Task MakesRequestToRemoveInvitationFromSearchIndex()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
         var capturedLogs = new List<string>();
@@ -263,7 +263,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_MakesRequestToUpdateUserInSearchIndex()
+    public async Task MakesRequestToUpdateUserInSearchIndex()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
         var capturedLogs = new List<string>();
@@ -281,7 +281,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedResponse_WhenInvitationWasCompletedSuccessfully()
+    public async Task ReturnsExpectedResponse_WhenInvitationWasCompletedSuccessfully()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
         var capturedLogs = new List<string>();
@@ -298,7 +298,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedResponseAndLogsFailure_WhenFailedToRemoveInvitationFromSearchIndex()
+    public async Task ReturnsExpectedResponseAndLogsFailure_WhenFailedToRemoveInvitationFromSearchIndex()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
@@ -324,7 +324,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_ReturnsExpectedResponseAndLogsFailure_WhenFailedToUpdateUserInSearchIndex()
+    public async Task ReturnsExpectedResponseAndLogsFailure_WhenFailedToUpdateUserInSearchIndex()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
