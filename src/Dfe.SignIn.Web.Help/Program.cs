@@ -26,6 +26,11 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
+// Get token credential for making API requests to Node APIs.
+var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+    builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Applications:AuthenticatedHttpClientOptions")
+);
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHealthChecks();
@@ -46,7 +51,7 @@ builder.Services
     .SetupFrontendAssets();
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Applications])
+    .SetupNodeApiClient([NodeApiName.Applications], tokenCredential)
     .AddDistributedInteractionCache<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>(options => {
         options.DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
     });

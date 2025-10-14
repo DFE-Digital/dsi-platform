@@ -16,6 +16,8 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
         InteractionContext<AutoLinkEntraUserToDsiRequest> context,
         CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         return new AutoLinkEntraUserToDsiResponse {
             UserId = await this.AutoLinkUserAsync(context.Request),
         };

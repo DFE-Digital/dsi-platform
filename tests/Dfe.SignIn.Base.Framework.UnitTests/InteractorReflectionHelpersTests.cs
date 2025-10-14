@@ -47,35 +47,6 @@ public sealed class InteractorReflectionHelpersTests
 
     #endregion
 
-    #region DiscoverUseCaseHandlerTypesInAssembly(Assembly)
-
-    [TestMethod]
-    public void DiscoverUseCaseHandlerTypesInAssembly_Throws_WhenAssemblyArgumentIsNull()
-    {
-        Assert.ThrowsExactly<ArgumentNullException>(()
-            => InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(
-                assembly: null!
-            ));
-    }
-
-    [TestMethod]
-    public void DiscoverUseCaseHandlerTypesInAssembly_ReturnsExpectedTypes()
-    {
-        var interactorTypes = InteractorReflectionHelpers.DiscoverUseCaseHandlerTypesInAssembly(TestAssembly)
-            .ToArray();
-
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<ExampleRequest>),
-            ConcreteType = typeof(ExampleUseCase),
-        });
-        CollectionAssert.Contains(interactorTypes, new InteractorTypeDescriptor {
-            ContractType = typeof(IInteractor<AnotherExampleRequest>),
-            ConcreteType = typeof(AnotherExampleUseCase),
-        });
-    }
-
-    #endregion
-
     #region DiscoverApiRequesterTypesInAssembly(Assembly)
 
     [TestMethod]

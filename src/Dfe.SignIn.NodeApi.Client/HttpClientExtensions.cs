@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 
-namespace Dfe.SignIn.NodeApi.Client.AuthenticatedHttpClient;
+namespace Dfe.SignIn.NodeApi.Client;
 
 /// <summary>
 /// HttpClient extension methods.

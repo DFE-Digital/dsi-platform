@@ -69,41 +69,6 @@ public abstract class Interactor<TRequest, TResponse> : IInteractor<TRequest>
 }
 
 /// <summary>
-/// Marks a use case handler within the system.
-/// </summary>
-/// <remarks>
-///   <para>A use case handler has the business logic to interact with models.
-///   Whilst a use case handler is unaware of implementation details, such as
-///   databases, it is able to interace with the system via gateways.</para>
-///   <example>
-///     <para>An example implementation:</para>
-///     <code language="csharp"><![CDATA[
-///       [UseCaseHandler]
-///       public sealed class GetExampleByIdUseCase
-///           : Interactor<GetExampleByIdRequest, GetExampleByIdResponse>
-///       {
-///           public override Task<GetExampleByIdResponse> InvokeAsync(
-///               InteractionContext<GetExampleByIdRequest> context,
-///               CancellationToken cancellationToken = default)
-///           {
-///               context.ThrowIfHasValidationErrors();
-///
-///               return Task.FromResult(
-///                   new GetExampleByIdResponse {
-///                       Name = "Example response value",
-///                   }
-///               );
-///           }
-///       }
-///     ]]></code>
-///   </example>
-/// </remarks>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
-public sealed class UseCaseHandlerAttribute : Attribute
-{
-}
-
-/// <summary>
 /// Marks an API requester within the system.
 /// </summary>
 /// <remarks>

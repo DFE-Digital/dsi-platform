@@ -72,22 +72,6 @@ public static class InteractorReflectionHelpers
 
     /// <summary>
     /// Discovers all use case handler types in an assembly (interactors that are annotated
-    /// with the <see cref="UseCaseHandlerAttribute"/>).
-    /// </summary>
-    /// <param name="assembly">The assembly to scan.</param>
-    /// <returns>
-    ///   <para>An enumerable collection of interactor type descriptors.</para>
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="assembly"/> is null.</para>
-    /// </exception>
-    public static IEnumerable<InteractorTypeDescriptor> DiscoverUseCaseHandlerTypesInAssembly(Assembly assembly)
-    {
-        return DiscoverAnnotatedInteractorsInAssembly<UseCaseHandlerAttribute>(assembly);
-    }
-
-    /// <summary>
-    /// Discovers all use case handler types in an assembly (interactors that are annotated
     /// with the <see cref="ApiRequesterAttribute"/>).
     /// </summary>
     /// <param name="assembly">The assembly to scan.</param>

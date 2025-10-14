@@ -6,16 +6,15 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Base.Framework.UnitTests;
 
 [TestClass]
-public sealed class ServiceProviderInteractionDispatcherTests
+public sealed class DefaultInteractionDispatcherTests
 {
     private static Mock<IInteractor<TRequest>> SetupMockInteractor<TRequest>(AutoMocker autoMocker)
         where TRequest : class
     {
         var mockInteractor = autoMocker.GetMock<IInteractor<TRequest>>();
 
-        var mockServiceProvider = autoMocker.GetMock<IServiceProvider>();
-        mockServiceProvider
-            .Setup(x => x.GetService(It.Is<Type>(type => type == typeof(IInteractor<TRequest>))))
+        autoMocker.GetMock<IInteractorResolver>()
+            .Setup(x => x.ResolveInteractor<TRequest>())
             .Returns(mockInteractor.Object);
 
         return mockInteractor;
@@ -46,7 +45,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
         var autoMocker = new AutoMocker();
         SetupMockInteractionValidator(autoMocker);
 
-        var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         InteractionContext<ExampleInteractorWithValidationRequest> nullInteractionContext = null!;
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(async ()
@@ -59,13 +58,13 @@ public sealed class ServiceProviderInteractionDispatcherTests
         var autoMocker = new AutoMocker();
         SetupMockInteractionValidator(autoMocker);
 
-        var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         var exception = await Assert.ThrowsExactlyAsync<MissingInteractorException>(async ()
             => await interaction.DispatchAsync(interactionContext, CancellationToken.None));
-
-        Assert.AreEqual(nameof(ExampleInteractorWithValidationRequest), exception.RequestType);
+        Assert.AreEqual("Cannot resolve interactor for request type 'Dfe.SignIn.Base.Framework.UnitTests.Fakes.ExampleInteractorWithValidationRequest'.", exception.Message);
+        Assert.AreEqual("Dfe.SignIn.Base.Framework.UnitTests.Fakes.ExampleInteractorWithValidationRequest", exception.RequestType);
     }
 
     [TestMethod]
@@ -80,7 +79,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
                 It.IsAny<CancellationToken>()
             ));
 
-        var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         await interaction.DispatchAsync(interactionContext, CancellationToken.None);
@@ -106,7 +105,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
                 It.IsAny<CancellationToken>()
             ));
 
-        var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         await interaction.DispatchAsync(interactionContext, CancellationToken.None);
@@ -124,7 +123,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
                 It.IsAny<CancellationToken>()
             ));
 
-        var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         await interaction.DispatchAsync(interactionContext, CancellationToken.None);
@@ -160,7 +159,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
                 )!;
             });
 
-        var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         await Assert.ThrowsExactlyAsync<UnexpectedException>(async ()
@@ -185,7 +184,7 @@ public sealed class ServiceProviderInteractionDispatcherTests
             ))
             .Throws((Exception)Activator.CreateInstance(exceptionTypeThrown)!);
 
-        var interaction = autoMocker.CreateInstance<ServiceProviderInteractionDispatcher>();
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         var exception = await Assert.ThrowsAsync<Exception>(async ()

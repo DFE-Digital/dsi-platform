@@ -5,38 +5,39 @@ using Microsoft.Extensions.Options;
 namespace Dfe.SignIn.Base.Framework;
 
 /// <summary>
-/// A service that performs a shallow serialization of exceptions to or from JSON
-/// encoded strings.
+/// Defines a service for shallow serialization and deserialization of exceptions
+/// to and from JSON.
 /// </summary>
 /// <remarks>
-///   <para>Reflected type information and inner exceptions are not serialized.</para>
+///   <para>This serializer does not include reflected type metadata or inner
+///   exceptions in the output.</para>
 /// </remarks>
 public interface IExceptionJsonSerializer
 {
     /// <summary>
     /// Serializes an exception to a JSON encoded string.
     /// </summary>
-    /// <param name="exception">The exception instance.</param>
+    /// <param name="exception">The exception to serialize.</param>
     /// <returns>
-    ///   <para>The JSON encoded string.</para>
+    ///   <para>A <see cref="JsonElement"/> containing the serialized exception data.</para>
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="exception"/> is null.</para>
     /// </exception>
-    string SerializeExceptionToJson(Exception exception);
+    JsonElement SerializeExceptionToJson(Exception exception);
 
     /// <summary>
-    /// Deserializes an exception from a JSON encoded string.
+    /// Reconstructs an <see cref="Exception"/> instance from its JSON representation.
     /// </summary>
     /// <remarks>
     ///   <para>Returns an exception of type <see cref="UnexpectedException"/> when the
     ///   exception type cannot be determined.</para>
     /// </remarks>
-    /// <param name="json">JSON encoded exception data.</param>
+    /// <param name="jsonElement">The JSON-encoded exception data.</param>
     /// <returns>
     ///   <para>The deserialized exception instance.</para>
     /// </returns>
-    Exception DeserializeExceptionFromJson(string? json);
+    Exception DeserializeExceptionFromJson(JsonElement jsonElement);
 }
 
 /// <summary>
@@ -49,23 +50,23 @@ public sealed class DefaultExceptionJsonSerializer(
 ) : IExceptionJsonSerializer
 {
     /// <inheritdoc/>
-    public string SerializeExceptionToJson(Exception exception)
+    public JsonElement SerializeExceptionToJson(Exception exception)
     {
         ExceptionHelpers.ThrowIfArgumentNull(exception, nameof(exception));
 
         var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-        return JsonSerializer.Serialize(exception, jsonOptions);
+        return JsonSerializer.SerializeToElement(exception, jsonOptions);
     }
 
     /// <inheritdoc/>
-    public Exception DeserializeExceptionFromJson(string? json)
+    public Exception DeserializeExceptionFromJson(JsonElement jsonElement)
     {
-        if (string.IsNullOrWhiteSpace(json)) {
+        if (jsonElement.ValueKind != JsonValueKind.Object) {
             return new UnexpectedException("Unknown exception type.");
         }
 
         var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-        return JsonSerializer.Deserialize<Exception>(json!, jsonOptions)!;
+        return JsonSerializer.Deserialize<Exception>(jsonElement, jsonOptions)!;
     }
 }
 
@@ -87,9 +88,13 @@ internal sealed class ExceptionJsonConverter : JsonConverter<Exception>
         }
         exceptionType ??= typeof(UnexpectedException);
 
+        if (!rootElement.TryGetProperty("data", out var dataElement)) {
+            dataElement = rootElement;
+        }
+
         // Get message from exception.
         string? message = null;
-        if (rootElement.TryGetProperty("message", out var messageElement)) {
+        if (dataElement.TryGetProperty("message", out var messageElement)) {
             message = messageElement.GetString();
         }
 
@@ -100,7 +105,7 @@ internal sealed class ExceptionJsonConverter : JsonConverter<Exception>
             // Deserialize exception details.
             foreach (var property in ExceptionReflectionHelpers.GetSerializableExceptionProperties(exceptionType)) {
                 string propertyName = namingPolicy.ConvertName(property.Name);
-                if (rootElement.TryGetProperty(propertyName, out var propertyElement)) {
+                if (dataElement.TryGetProperty(propertyName, out var propertyElement)) {
                     var value = propertyElement.Deserialize(property.PropertyType, options);
                     if (value is not null) {
                         property.SetValue(exception, value);

@@ -25,6 +25,11 @@ builder.Services
 builder.Services
     .AddInteractionFramework();
 
+// Get token credential for making API requests to Node APIs.
+var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+    builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions")
+);
+
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient([
@@ -32,7 +37,7 @@ builder.Services
         NodeApiName.Directories,
         NodeApiName.Organisations,
         NodeApiName.Search,
-    ]);
+    ], tokenCredential);
 
 builder.Services
     .Configure<BlockedEmailAddressOptions>(options => {

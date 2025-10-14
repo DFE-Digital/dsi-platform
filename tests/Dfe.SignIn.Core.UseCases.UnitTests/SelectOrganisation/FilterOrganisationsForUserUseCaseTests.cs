@@ -99,7 +99,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public Task InvokeAsync_ThrowsIfRequestIsInvalid()
+    public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             FilterOrganisationsForUserRequest,
@@ -108,7 +108,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public Task InvokeAsync_Throws_WhenUnexpectedFilterTypeIsSupplied()
+    public Task Throws_WhenUnexpectedFilterTypeIsSupplied()
     {
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
@@ -122,7 +122,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenApplicationIsNotFound()
+    public async Task Throws_WhenApplicationIsNotFound()
     {
         var autoMocker = new AutoMocker();
         var useCase = autoMocker.CreateInstance<FilterOrganisationsForUserUseCase>();
@@ -153,7 +153,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     #region Type: OrganisationFilterType.Associated with OrganisationFilterAssociation.Auto
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAuto_ReturnsNone_WhenNoOrganisationsAreAssociatedWithUser()
+    public async Task AssociatedWithAuto_ReturnsNone_WhenNoOrganisationsAreAssociatedWithUser()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker, []);
@@ -171,7 +171,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAuto_ReturnsAllOrganisations_WhenApplicationIsIdOnly()
+    public async Task AssociatedWithAuto_ReturnsAllOrganisations_WhenApplicationIsIdOnly()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
@@ -195,7 +195,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAuto_ReturnsAllOrganisations_WhenApplicationIsRoleBaseAndUserNotAssociatedWithApplication()
+    public async Task AssociatedWithAuto_ReturnsAllOrganisations_WhenApplicationIsRoleBaseAndUserNotAssociatedWithApplication()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
@@ -220,7 +220,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAuto_ReturnsAllOrganisations_WhenApplicationIsRoleBaseAndUserAssociatedWithDifferentApplication()
+    public async Task AssociatedWithAuto_ReturnsAllOrganisations_WhenApplicationIsRoleBaseAndUserAssociatedWithDifferentApplication()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
@@ -252,7 +252,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAuto_ReturnsAssociatedApplicationOrganisations_WhenApplicationIsRoleBaseAndUserAssociatedWithApplication()
+    public async Task AssociatedWithAuto_ReturnsAssociatedApplicationOrganisations_WhenApplicationIsRoleBaseAndUserAssociatedWithApplication()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
@@ -295,7 +295,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     #region Type: OrganisationFilterType.Associated with OrganisationFilterAssociation.AssignedToUser
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAssignedToUser_ReturnsNone_WhenNoOrganisationsAreAssociatedWithUser()
+    public async Task AssociatedWithAssignedToUser_ReturnsNone_WhenNoOrganisationsAreAssociatedWithUser()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker, []);
@@ -313,7 +313,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAssignedToUser_ReturnsAllOrganisations()
+    public async Task AssociatedWithAssignedToUser_ReturnsAllOrganisations()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
@@ -338,7 +338,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     #region Type: OrganisationFilterType.Associated with OrganisationFilterAssociation.AssignedToUserForApplication
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedWithAssignedToUserForApplication_ReturnsNone_WhenNoOrganisationsAreAssociatedWithUser()
+    public async Task AssociatedWithAssignedToUserForApplication_ReturnsNone_WhenNoOrganisationsAreAssociatedWithUser()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker, []);
@@ -358,7 +358,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     [TestMethod]
     [DataRow(false)]
     [DataRow(true)]
-    public async Task InvokeAsync_AssociatedWithAssignedToUserForApplication_ReturnsNone_WhenApplicationIsNotAssociatedWithApplication(
+    public async Task AssociatedWithAssignedToUserForApplication_ReturnsNone_WhenApplicationIsNotAssociatedWithApplication(
         bool isIdOnlyService)
     {
         var autoMocker = new AutoMocker();
@@ -383,7 +383,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     [TestMethod]
     [DataRow(false)]
     [DataRow(true)]
-    public async Task InvokeAsync_AssociatedWithAssignedToUserForApplicationReturnsAssociatedApplicationOrganisations_WhenUserAssociatedWithApplication(
+    public async Task AssociatedWithAssignedToUserForApplicationReturnsAssociatedApplicationOrganisations_WhenUserAssociatedWithApplication(
         bool isIdOnlyService)
     {
         var autoMocker = new AutoMocker();
@@ -427,7 +427,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     #region Type: OrganisationFilterType.AssociatedInclude
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedIncludeWithAssignedToUser_ReturnsOnlyIncludedOrganisations()
+    public async Task AssociatedIncludeWithAssignedToUser_ReturnsOnlyIncludedOrganisations()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
@@ -453,7 +453,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedIncludeWithAssignedToUser_ReturnsNone_WhenNoneIncluded()
+    public async Task AssociatedIncludeWithAssignedToUser_ReturnsNone_WhenNoneIncluded()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
@@ -476,7 +476,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     #region Type: OrganisationFilterType.AssociatedExclude
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedExcludeWithAssignedToUser_ReturnsOnlyIncludedOrganisations()
+    public async Task AssociatedExcludeWithAssignedToUser_ReturnsOnlyIncludedOrganisations()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);
@@ -501,7 +501,7 @@ public sealed class FilterOrganisationsForUserUseCaseTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_AssociatedIncludeWithAssignedToUser_ReturnsAll_WhenNoneExcluded()
+    public async Task AssociatedIncludeWithAssignedToUser_ReturnsAll_WhenNoneExcluded()
     {
         var autoMocker = new AutoMocker();
         MockOrganisationsAssociatedWithUser(autoMocker);

@@ -43,17 +43,18 @@ public sealed class ConfigurationHelperExtensionsTests
     [TestMethod]
     public void GetJson_ReturnsJsonEncodedData()
     {
-        var sectionMock = new Mock<IConfigurationSection>();
-        sectionMock
-            .Setup(s => s["ExampleKey"])
-            .Returns(/*lang=json,strict*/ """
-            {
-                "Values": [ "one", "two" ],
-                "Foo": 42
-            }
-            """);
+        var section = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["ExampleKey"] = /*lang=json,strict*/ """
+                {
+                    "Values": [ "one", "two" ],
+                    "Foo": 42
+                }
+                """,
+            })
+            .Build();
 
-        var result = ConfigurationHelperExtensions.GetJson<FakeJsonObject>(sectionMock.Object, "ExampleKey");
+        var result = ConfigurationHelperExtensions.GetJson<FakeJsonObject>(section, "ExampleKey");
 
         Assert.IsNotNull(result);
         CollectionAssert.AreEqual(new string[] { "one", "two" }, result.Values);
@@ -63,14 +64,27 @@ public sealed class ConfigurationHelperExtensionsTests
     [TestMethod]
     public void GetJson_ReturnsNull_WhenKeyNotPresent()
     {
-        var sectionMock = new Mock<IConfigurationSection>();
-        sectionMock
-            .Setup(s => s["ExampleKey"])
-            .Returns("");
+        var section = new ConfigurationBuilder().Build();
 
-        var result = ConfigurationHelperExtensions.GetJson<FakeJsonObject>(sectionMock.Object, "ExampleKey");
+        var result = ConfigurationHelperExtensions.GetJson<FakeJsonObject>(section, "ExampleKey");
 
         Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void GetJson_ReturnsValue_WhenNotJson()
+    {
+        var section = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["ExampleKey:0"] = "one",
+                ["ExampleKey:1"] = "two",
+            })
+            .Build();
+
+        var result = ConfigurationHelperExtensions.GetJson<string[]>(section, "ExampleKey");
+
+        Assert.IsNotNull(result);
+        CollectionAssert.AreEqual(new string[] { "one", "two" }, result);
     }
 
     #endregion
@@ -105,19 +119,20 @@ public sealed class ConfigurationHelperExtensionsTests
     [TestMethod]
     public void GetJsonList_ReturnsJsonEncodedData()
     {
-        var sectionMock = new Mock<IConfigurationSection>();
-        sectionMock
-            .Setup(s => s["ExampleKey"])
-            .Returns(/*lang=json,strict*/ """
-            [
-                {
-                    "Values": [ "one", "two" ],
-                    "Foo": 42
-                }
-            ]
-            """);
+        var section = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["ExampleKey"] = /*lang=json,strict*/ """
+                [
+                    {
+                        "Values": [ "one", "two" ],
+                        "Foo": 42
+                    }
+                ]
+                """,
+            })
+            .Build();
 
-        var result = ConfigurationHelperExtensions.GetJsonList<FakeJsonObject>(sectionMock.Object, "ExampleKey");
+        var result = ConfigurationHelperExtensions.GetJsonList<FakeJsonObject>(section, "ExampleKey");
 
         Assert.IsNotNull(result);
         Assert.HasCount(1, result);
@@ -128,12 +143,9 @@ public sealed class ConfigurationHelperExtensionsTests
     [TestMethod]
     public void GetJsonList_ReturnsNull_WhenKeyNotPresent()
     {
-        var sectionMock = new Mock<IConfigurationSection>();
-        sectionMock
-            .Setup(s => s["ExampleKey"])
-            .Returns("");
+        var section = new ConfigurationBuilder().Build();
 
-        var result = ConfigurationHelperExtensions.GetJsonList<FakeJsonObject>(sectionMock.Object, "ExampleKey");
+        var result = ConfigurationHelperExtensions.GetJsonList<FakeJsonObject>(section, "ExampleKey");
 
         Assert.IsNotNull(result);
         Assert.HasCount(0, result);
@@ -171,17 +183,18 @@ public sealed class ConfigurationHelperExtensionsTests
     [TestMethod]
     public void GetJsonList_string_ReturnsJsonEncodedData()
     {
-        var sectionMock = new Mock<IConfigurationSection>();
-        sectionMock
-            .Setup(s => s["ExampleKey"])
-            .Returns(/*lang=json,strict*/ """
-            [
-                "one",
-                "two"
-            ]
-            """);
+        var section = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["ExampleKey"] = /*lang=json,strict*/ """
+                [
+                    "one",
+                    "two"
+                ]
+                """,
+            })
+            .Build();
 
-        var result = ConfigurationHelperExtensions.GetJsonList(sectionMock.Object, "ExampleKey");
+        var result = ConfigurationHelperExtensions.GetJsonList(section, "ExampleKey");
 
         Assert.IsNotNull(result);
         CollectionAssert.AreEqual(new string[] { "one", "two" }, result);
@@ -190,12 +203,9 @@ public sealed class ConfigurationHelperExtensionsTests
     [TestMethod]
     public void GetJsonList_string_ReturnsNull_WhenKeyNotPresent()
     {
-        var sectionMock = new Mock<IConfigurationSection>();
-        sectionMock
-            .Setup(s => s["ExampleKey"])
-            .Returns("");
+        var section = new ConfigurationBuilder().Build();
 
-        var result = ConfigurationHelperExtensions.GetJsonList(sectionMock.Object, "ExampleKey");
+        var result = ConfigurationHelperExtensions.GetJsonList(section, "ExampleKey");
 
         Assert.IsNotNull(result);
         Assert.HasCount(0, result);

@@ -33,6 +33,27 @@ public static class InteractionAutoMockerExtensions
     }
 
     /// <summary>
+    /// Sets up a mock to captures an interaction request context upon being dispatched
+    /// using the <see cref="IInteractionDispatcher"/> service.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="captureRequest">A callback to capture the request context.</param>
+    /// <param name="response">The fake response.</param>
+    public static void CaptureRequest<TRequest>(
+        this AutoMocker autoMocker, Action<InteractionContext<TRequest>, CancellationToken> captureRequest, object? response = null)
+        where TRequest : class
+    {
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .Setup(x => x.DispatchAsync(
+                It.IsAny<InteractionContext<TRequest>>(),
+                It.IsAny<CancellationToken>()
+            ))
+            .Callback(captureRequest)
+            .Returns(InteractionTask.FromResult(response!));
+    }
+
+    /// <summary>
     /// Sets up a mock response where request matches a given predicate.
     /// </summary>
     /// <typeparam name="TRequest">The type of request model.</typeparam>

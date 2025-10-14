@@ -8,10 +8,8 @@ namespace Dfe.SignIn.PublicApi.Client.UnitTests.Users;
 [TestClass]
 public sealed class QueryUserOrganisationApiRequesterTests
 {
-    #region InvokeAsync()
-
     [TestMethod]
-    public async Task InvokeAsync_InvokesExpectedEndpoint()
+    public async Task InvokesExpectedEndpoint()
     {
         Uri? actualUrl = null;
         var handlerMock = HttpClientMocking.GetHandlerToCaptureRequestUri(uri => actualUrl = uri,
@@ -44,6 +42,4 @@ public sealed class QueryUserOrganisationApiRequesterTests
         var expectedUrl = new Uri("/v2/users/74004f34-a6c3-4144-88a1-c32b1c2bd82b/organisations/3278635c-28df-415d-b715-96104733d931/query");
         Assert.AreEqual(expectedUrl, actualUrl);
     }
-
-    #endregion
 }

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,18 +7,6 @@ namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 [TestClass]
 public sealed class PublicApiExtensionsTests
 {
-    [StackTraceHidden]
-    private static void AssertHasApiRequester<TRequest>(IServiceCollection services)
-        where TRequest : class
-    {
-        Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.Lifetime == ServiceLifetime.Transient &&
-                descriptor.ServiceType == typeof(IInteractor<TRequest>)
-            )
-        );
-    }
-
     #region SetupDfePublicApiClient(IServiceCollection)
 
     [TestMethod]
@@ -122,7 +109,9 @@ public sealed class PublicApiExtensionsTests
 
         services.SetupDfePublicApiClient();
 
-        AssertHasApiRequester<CreateSelectOrganisationSessionApiRequest>(services);
+        Assert.IsTrue(
+            services.HasInteractor<CreateSelectOrganisationSessionApiRequest>()
+        );
     }
 
     #endregion
