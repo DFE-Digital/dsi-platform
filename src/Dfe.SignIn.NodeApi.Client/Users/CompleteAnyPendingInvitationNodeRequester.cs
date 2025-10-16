@@ -109,7 +109,8 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
 
     private async Task RemoveInvitationFromSearchIndexAsync(Guid invitationId, Guid userId)
     {
-        string removeSearchIndexId = $"inv-{invitationId}";
+        // Invitation ID in request path is case sensitive.
+        string removeSearchIndexId = $"inv-{invitationId.ToString().ToUpper()}";
         try {
             var response = await searchClient.DeleteAsync($"users/{removeSearchIndexId}");
             response.EnsureSuccessStatusCode();
