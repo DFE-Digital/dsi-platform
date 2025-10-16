@@ -91,7 +91,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             }
         );
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<AssignOrganisationsFromInvitationResponseDto>())!;
+        return new AssignOrganisationsFromInvitationResponseDto();
     }
 
     private async Task<AssignServicesFromInvitationResponseDto> AssignServicesFromInvitationAsync(
@@ -104,7 +104,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             }
         );
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<AssignServicesFromInvitationResponseDto>())!;
+        return new AssignServicesFromInvitationResponseDto();
     }
 
     private async Task RemoveInvitationFromSearchIndexAsync(Guid invitationId, Guid userId)
