@@ -119,7 +119,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             );
         }
         catch (Exception ex) {
-            logger.LogError(
+            logger.LogWarning(
                 ex,
                 "Unable to remove '{RemoveSearchIndexId}' from search index for user '{UserId}'.",
                 removeSearchIndexId, userId
@@ -143,7 +143,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             );
         }
         catch (Exception ex) {
-            logger.LogError(
+            logger.LogWarning(
                 ex,
                 "Unable to update search index pending invitation '{InvitationId}' for user '{UserId}'.",
                 invitationId, userId

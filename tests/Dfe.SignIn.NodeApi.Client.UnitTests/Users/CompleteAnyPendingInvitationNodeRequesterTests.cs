@@ -316,7 +316,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var mapping = responseMappings["(DELETE) http://search.localhost/users/inv-559c27b8-303e-4aff-b485-037a927827cd"];
         Assert.AreEqual(1, mapping.InvocationCount);
 
-        Assert.Contains("Error: Unable to remove 'inv-559c27b8-303e-4aff-b485-037a927827cd' from search index for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
+        Assert.Contains("Warning: Unable to remove 'inv-559c27b8-303e-4aff-b485-037a927827cd' from search index for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
 
         Assert.IsNotNull(response);
         Assert.IsTrue(response.WasCompleted);
@@ -342,7 +342,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var mapping = responseMappings["(POST) http://search.localhost/users/update-index"];
         Assert.AreEqual(1, mapping.InvocationCount);
 
-        Assert.Contains("Error: Unable to update search index pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
+        Assert.Contains("Warning: Unable to update search index pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
 
         Assert.IsNotNull(response);
         Assert.IsTrue(response.WasCompleted);
