@@ -40,6 +40,7 @@ on:
           - auth-extensions
           - developer
           - frontend
+          - help
           - internal-api
           - public-api
           - select-organisation

@@ -133,6 +133,10 @@ $repositoryMappings = @{
         Repository = 'public-api'
         Dockerfile = 'dotnet'
     }
+    'Dfe.SignIn.Web.Help'               = @{
+        Repository = 'help'
+        Dockerfile = 'dotnet'
+    }
     'Dfe.SignIn.Web.SelectOrganisation' = @{
         Repository = 'select-organisation'
         Dockerfile = 'dotnet'
