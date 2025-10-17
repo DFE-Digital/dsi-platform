@@ -1,3 +1,3 @@
 #!/bin/sh
 
-dotnet /home/site/wwwroot/${PROJECT_NAME}.dll
+dotnet /app/${PROJECT_NAME}.dll

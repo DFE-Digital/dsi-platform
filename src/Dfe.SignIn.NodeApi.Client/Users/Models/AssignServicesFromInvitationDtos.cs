@@ -4,7 +4,7 @@ namespace Dfe.SignIn.NodeApi.Client.Users.Models;
 
 internal sealed record AssignServicesFromInvitationRequestDto
 {
-    [JsonPropertyName("user_id")]
+    [JsonPropertyName("userId")]
     public required Guid UserId { get; init; }
 }
 

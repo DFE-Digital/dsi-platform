@@ -91,7 +91,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             }
         );
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<AssignOrganisationsFromInvitationResponseDto>())!;
+        return new AssignOrganisationsFromInvitationResponseDto();
     }
 
     private async Task<AssignServicesFromInvitationResponseDto> AssignServicesFromInvitationAsync(
@@ -104,12 +104,13 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             }
         );
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<AssignServicesFromInvitationResponseDto>())!;
+        return new AssignServicesFromInvitationResponseDto();
     }
 
     private async Task RemoveInvitationFromSearchIndexAsync(Guid invitationId, Guid userId)
     {
-        string removeSearchIndexId = $"inv-{invitationId}";
+        // Invitation ID in request path is case sensitive.
+        string removeSearchIndexId = $"inv-{invitationId.ToString().ToUpper()}";
         try {
             var response = await searchClient.DeleteAsync($"users/{removeSearchIndexId}");
             response.EnsureSuccessStatusCode();
@@ -119,7 +120,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             );
         }
         catch (Exception ex) {
-            logger.LogError(
+            logger.LogWarning(
                 ex,
                 "Unable to remove '{RemoveSearchIndexId}' from search index for user '{UserId}'.",
                 removeSearchIndexId, userId
@@ -143,7 +144,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
             );
         }
         catch (Exception ex) {
-            logger.LogError(
+            logger.LogWarning(
                 ex,
                 "Unable to update search index pending invitation '{InvitationId}' for user '{UserId}'.",
                 invitationId, userId

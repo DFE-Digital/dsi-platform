@@ -1,10 +1,7 @@
 # Use the official .NET SDK image as the base image for building the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:ff8311847c54c04d1a14c488362807997d59b61372da5095a95f89cbcda7f9b7 AS build
 
-ENV PORT=8080
-ENV PATH=${PATH}:/home/site/wwwroot
-
-WORKDIR /home/site/wwwroot
+WORKDIR /build
 
 ARG PROJECT_NAME
 
@@ -19,16 +16,14 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:dcabccd78f2e368c47
 ARG PROJECT_NAME
 ENV PROJECT_NAME=$PROJECT_NAME
 
-WORKDIR /home/site/wwwroot
-
-COPY docker/dotnet/init.sh init.sh
-RUN chmod a+x /home/site/wwwroot/init.sh \
-    && sed -i 's/\r$//' /home/site/wwwroot/init.sh
+WORKDIR /app
 
 COPY --from=build /app .
+COPY docker/dotnet/init.sh ./init.sh
+RUN chmod +x ./init.sh
 
 EXPOSE 8080
 
 USER $APP_UID
 
-ENTRYPOINT ["/home/site/wwwroot/init.sh"]
+ENTRYPOINT ["/app/init.sh"]

@@ -129,7 +129,7 @@ Describe "Set-RequirementsOutput" {
                 -BuildForRepository '(all components)'
 
             $dockerImages = $global:capturedValue.docker_images | ConvertFrom-Json
-            $dockerImages | Should -HaveCount 6
+            $dockerImages | Should -HaveCount 7
         }
 
         It "excludes projects that have been changed" {
@@ -237,6 +237,18 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.PublicApi'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'dev/public-api'
+        }
+
+        It "includes 'Dfe.SignIn.Web.Help' project when force parameter provided" {
+            & $Cmdlet `
+                -LifecycleName 'dev' `
+                -BuildForRepository 'help'
+
+            $dockerImages = $global:capturedValue.docker_images | ConvertFrom-Json
+            $dockerImages | Should -HaveCount 1
+            $dockerImages[0].project | Should -Be 'Dfe.SignIn.Web.Help'
+            $dockerImages[0].dockerfile | Should -Be 'dotnet'
+            $dockerImages[0].repository | Should -Be 'dev/help'
         }
 
         It "includes 'Dfe.SignIn.Web.SelectOrganisation' project when force parameter provided" {
