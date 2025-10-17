@@ -45,7 +45,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
                 new MappedResponse(HttpStatusCode.OK),
 
             // Search API
-            ["(DELETE) http://search.localhost/users/inv-559c27b8-303e-4aff-b485-037a927827cd"] =
+            ["(DELETE) http://search.localhost/users/inv-559C27B8-303E-4AFF-B485-037A927827CD"] =
                 new MappedResponse(HttpStatusCode.OK),
             ["(POST) http://search.localhost/users/update-index"] =
                 new MappedResponse(HttpStatusCode.OK),
@@ -256,10 +256,10 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
         });
 
-        var mapping = responseMappings["(DELETE) http://search.localhost/users/inv-559c27b8-303e-4aff-b485-037a927827cd"];
+        var mapping = responseMappings["(DELETE) http://search.localhost/users/inv-559C27B8-303E-4AFF-B485-037A927827CD"];
         Assert.AreEqual(1, mapping.InvocationCount);
 
-        Assert.Contains("Information: Removed 'inv-559c27b8-303e-4aff-b485-037a927827cd' from search index for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
+        Assert.Contains("Information: Removed 'inv-559C27B8-303E-4AFF-B485-037A927827CD' from search index for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
     }
 
     [TestMethod]
@@ -302,7 +302,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
 
-        responseMappings["(DELETE) http://search.localhost/users/inv-559c27b8-303e-4aff-b485-037a927827cd"] =
+        responseMappings["(DELETE) http://search.localhost/users/inv-559C27B8-303E-4AFF-B485-037A927827CD"] =
             new MappedResponse(HttpStatusCode.InternalServerError);
 
         var capturedLogs = new List<string>();
@@ -313,10 +313,10 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
         });
 
-        var mapping = responseMappings["(DELETE) http://search.localhost/users/inv-559c27b8-303e-4aff-b485-037a927827cd"];
+        var mapping = responseMappings["(DELETE) http://search.localhost/users/inv-559C27B8-303E-4AFF-B485-037A927827CD"];
         Assert.AreEqual(1, mapping.InvocationCount);
 
-        Assert.Contains("Error: Unable to remove 'inv-559c27b8-303e-4aff-b485-037a927827cd' from search index for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
+        Assert.Contains("Warning: Unable to remove 'inv-559C27B8-303E-4AFF-B485-037A927827CD' from search index for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
 
         Assert.IsNotNull(response);
         Assert.IsTrue(response.WasCompleted);
@@ -342,7 +342,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         var mapping = responseMappings["(POST) http://search.localhost/users/update-index"];
         Assert.AreEqual(1, mapping.InvocationCount);
 
-        Assert.Contains("Error: Unable to update search index pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
+        Assert.Contains("Warning: Unable to update search index pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
 
         Assert.IsNotNull(response);
         Assert.IsTrue(response.WasCompleted);
