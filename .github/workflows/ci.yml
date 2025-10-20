@@ -234,6 +234,7 @@ jobs:
     needs: [prepare, checks-passed]
     if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_docker_images != '[]' }}
     strategy:
+      fail-fast: false # Continue with other triggers even when some deployment triggers fail.
       matrix:
         image: ${{ fromJson(needs.prepare.outputs.build_docker_images) }}
     permissions:
