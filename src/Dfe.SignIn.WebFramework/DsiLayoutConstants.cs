@@ -56,6 +56,14 @@ public static class DsiLayoutConstants
     public const string Crumbs = $"_DsiLayout.{nameof(Crumbs)}";
 
     /// <summary>
+    /// View data key for back link.
+    /// </summary>
+    /// <remarks>
+    ///   <para>The associated value must be assignable to <see cref="BackLinkViewModel"/>.</para>
+    /// </remarks>
+    public const string BackLink = $"_DsiLayout.{nameof(BackLink)}";
+
+    /// <summary>
     /// View data key for sign out URL.
     /// </summary>
     /// <remarks>
