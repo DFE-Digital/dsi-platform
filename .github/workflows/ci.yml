@@ -179,7 +179,7 @@ jobs:
       registry_key: ${{ needs.prepare.outputs.registry_key }}
       registry: ${{ needs.prepare.outputs.registry }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
+      tag_name: ${{ github.run_id }}
 
   dotnet-packages:
     name: .NET publish packages
@@ -234,6 +234,7 @@ jobs:
     needs: [prepare, checks-passed]
     if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_docker_images != '[]' }}
     strategy:
+      fail-fast: false # Continue with other triggers even when some deployment triggers fail.
       matrix:
         image: ${{ fromJson(needs.prepare.outputs.build_docker_images) }}
     permissions:
@@ -245,7 +246,7 @@ jobs:
       azure_pipeline_id: ${{ vars.AZURE_PIPELINE_ID_DEPLOY }}
       project_name: ${{ matrix.image.project }}
       repository_name: ${{ matrix.image.repository }}
-      tag_name: "${{ github.run_id }}-${{ github.run_attempt }}"
+      tag_name: ${{ github.run_id }}
       transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
 
   cleanup:
