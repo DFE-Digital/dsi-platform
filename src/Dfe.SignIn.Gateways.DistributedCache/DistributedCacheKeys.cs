@@ -16,6 +16,16 @@ public static class DistributedCacheKeys
     public const string GeneralCache = "d47d8b06-0afd-44e7-8bed-4cb7c7c1e8af";
 
     /// <summary>
+    /// A unique value that identifies the application session cache.
+    /// </summary>
+    public const string SessionCache = "1a8844bc-665f-4c5b-a219-c73a010db3c9";
+
+    /// <summary>
+    /// A unique value that identifies the Entra External ID token cache.
+    /// </summary>
+    public const string EntraTokenCache = "ae03be65-ed22-43ca-8fce-fe147a29cc39";
+
+    /// <summary>
     /// A unique value that identifies the "Select organisation" session cache.
     /// </summary>
     public const string SelectOrganisationSessions = "ee86309b-8f3a-4eac-943c-dc14a3c60343";

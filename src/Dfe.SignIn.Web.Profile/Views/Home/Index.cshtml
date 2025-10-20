@@ -1,0 +1,96 @@
+﻿@model HomeViewModel
+
+@{
+    ViewData[DsiLayoutConstants.Title] = "Profile";
+
+    ViewData[DsiLayoutConstants.Hero] = new HeroViewModel {
+        Heading = "Profile",
+        Text = "Access personal details associated with your account.",
+    };
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds govuk-!-padding-right-8">
+        <partial name="~/Views/Shared/Partials/_FlashNotification.cshtml" />
+
+        @if (Model.PendingEmailAddress is not null) {
+            <govuk-notification-banner>
+                <p class="govuk-notification-banner__heading">
+                    Pending email address change
+                </p>
+                <p class="govuk-body">
+                    Please confirm the new email address of <strong>@Model.PendingEmailAddress</strong> to complete your email address change.
+                </p>
+
+                <form method="post" asp-antiforgery=true>
+                    <govuk-button asp-action=@nameof(ChangeEmailController.PostCancel) asp-controller=@(MvcNaming.Controller<ChangeEmailController>()) class="govuk-button--secondary govuk-!-margin-bottom-2">
+                        Cancel email address change
+                    </govuk-button>
+                </form>
+            </govuk-notification-banner>
+        }
+
+        <h2 class="govuk-heading-m">My details</h2>
+
+        <govuk-summary-list>
+            <govuk-summary-list-row>
+                <govuk-summary-list-row-key>Name</govuk-summary-list-row-key>
+                <govuk-summary-list-row-value>@Model.FullName</govuk-summary-list-row-value>
+                <govuk-summary-list-row-actions>
+                    <govuk-summary-list-row-action asp-controller=@(MvcNaming.Controller<ChangeNameController>()) visually-hidden-text="name">
+                        Change
+                    </govuk-summary-list-row-action>
+                </govuk-summary-list-row-actions>
+            </govuk-summary-list-row>
+
+            <govuk-summary-list-row>
+                <govuk-summary-list-row-key>Email address</govuk-summary-list-row-key>
+                <govuk-summary-list-row-value>@Model.EmailAddress</govuk-summary-list-row-value>
+                @if ((await authorizationService.AuthorizeAsync(User, PolicyNames.CanChangeOwnEmailAddress)).Succeeded) {
+                    <govuk-summary-list-row-actions>
+                        <govuk-summary-list-row-action asp-controller=@(MvcNaming.Controller<ChangeEmailController>()) visually-hidden-text="email">
+                            Change
+                        </govuk-summary-list-row-action>
+                    </govuk-summary-list-row-actions>
+                }
+            </govuk-summary-list-row>
+
+            <govuk-summary-list-row>
+                <govuk-summary-list-row-key>Job title</govuk-summary-list-row-key>
+                <govuk-summary-list-row-value>@Model.JobTitle</govuk-summary-list-row-value>
+                <govuk-summary-list-row-actions>
+                    <govuk-summary-list-row-action asp-controller=@(MvcNaming.Controller<ChangeJobTitleController>()) visually-hidden-text="job title">
+                        Change
+                    </govuk-summary-list-row-action>
+                </govuk-summary-list-row-actions>
+            </govuk-summary-list-row>
+        </govuk-summary-list>
+    </div>
+
+    <div class="govuk-grid-column-one-third">
+        <aside class="app-side-panel">
+            <h2 class="app-side-panel__heading">Related actions</h2>
+            <nav aria-label="Related actions">
+                <ul class="govuk-list">
+                    <li>
+                        <a rel="noreferrer noopener" target="_blank" class="govuk-link" href="@(platformOptionsAccessor.Value.HelpUrl)profile">
+                            Help with profile (opens in new tab)
+                        </a>
+                    </li>
+                    @if ((await authorizationService.AuthorizeAsync(User, PolicyNames.CanChangeOwnPassword)).Succeeded) {
+                        <li>
+                            <a class="govuk-link" asp-controller=@(MvcNaming.Controller<ChangePasswordController>())>
+                                Change password
+                            </a>
+                        </li>
+                    }
+                    <li>
+                        <a class="govuk-link" href="@platformOptionsAccessor.Value.ContactUrl">
+                            Deactivate account
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+    </div>
+</div>

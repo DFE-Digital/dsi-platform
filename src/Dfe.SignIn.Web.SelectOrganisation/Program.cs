@@ -33,7 +33,7 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
 );
 
 // Add services to the container.
-builder.Services.AddControllersWithViews().AddRequestBodySizeLimitFilter();
+builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.AddHealthChecks();
 
 builder.Services

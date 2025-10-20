@@ -1,6 +1,4 @@
-﻿@model Dfe.SignIn.WebFramework.Mvc.Models.ErrorViewModel
-
-@inject IOptions<PlatformOptions> platformOptionsAccessor
+@model Dfe.SignIn.WebFramework.Mvc.Models.ErrorViewModel
 
 @{
     ViewData[DsiLayoutConstants.ServiceNavigationItems] = Array.Empty<NavigationItemViewModel>();
@@ -10,8 +8,12 @@
 
 <h1 class="govuk-heading-xl govuk-!-margin-top-3">There has been an error</h1>
 
-<p class="govuk-body">If the problem continues, follow the link to <a class="govuk-link govuk-link-bold"
-        href="@contactUsUrl">submit a support request</a>.
+<p class="govuk-body">
+    If the problem continues, follow the link to
+    <a class="govuk-link" href="@(platformOptionsAccessor.Value.HelpUrl)/contact-us">
+        submit a support request
+    </a>.
+</p>
 
 @if (Model.ShowRequestId)
 {

@@ -1,18 +1,16 @@
-using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.WebFramework.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
+using Dfe.SignIn.WebFramework.Mvc.ModelBinding;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Configuration;
 
 /// <summary>
-/// Extension method for <see cref="RequestBodySizeLimitFilter"/>.
+/// MVC extensions.
 /// </summary>
-[ExcludeFromCodeCoverage]
-public static class RequestBodySizeLimitExtensions
+public static class MvcExtensions
 {
     /// <summary>
-    /// Registers the <see cref="RequestBodySizeLimitFilter"/> as a global MVC filter.
+    /// Registers extensions that are used throughout DfE Sign-In frontend applications.
     /// </summary>
     /// <param name="builder">
     /// The <see cref="IMvcBuilder"/> used to configure MVC services and filters.
@@ -23,14 +21,13 @@ public static class RequestBodySizeLimitExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>Thrown if <paramref name="builder"/> is null.</para>
     /// </exception>
-    public static IMvcBuilder AddRequestBodySizeLimitFilter(this IMvcBuilder builder)
+    public static IMvcBuilder AddDsiMvcExtensions(this IMvcBuilder builder)
     {
         ExceptionHelpers.ThrowIfArgumentNull(builder, nameof(builder));
 
-        builder.Services.Configure<MvcOptions>(options => {
+        return builder.AddMvcOptions(options => {
             options.Filters.Add<RequestBodySizeLimitFilter>();
+            options.ModelBinderProviders.Insert(0, new TrimStringModelBinderProvider());
         });
-
-        return builder;
     }
 }

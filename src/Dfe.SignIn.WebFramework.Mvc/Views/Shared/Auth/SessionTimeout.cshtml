@@ -1,0 +1,16 @@
+@inject IServiceProvider provider;
+
+@{
+    ViewData[DsiLayoutConstants.Title] = "Sorry, your session has timed out";
+
+    var sessionOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<UserSessionOptions>>();
+    var sessionOptions = sessionOptionsAccessor.CurrentValue;
+}
+
+<h1 class="govuk-heading-xl govuk-!-margin-top-3">Sorry, your session has timed out</h1>
+
+<p class="govuk-heading-m">Your session automatically ends if you don't do anything for @sessionOptions.DurationInMinutes minutes</p>
+
+<p class="govuk-heading-m">We do this to keep your information safe.</p>
+
+<p class="govuk-body">To use this service again, you need to <a class="govuk-link" id="signin" href="/">sign in</a></p>

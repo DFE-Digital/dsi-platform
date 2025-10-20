@@ -1,0 +1,65 @@
+﻿@model VerificationCodeViewModel
+
+@{
+    if (User.Identity?.IsAuthenticated == true) {
+        ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(Url.Action("Index", "ChangeEmail"));
+    }
+
+    ViewData[DsiLayoutConstants.Title] = "Enter your verification code";
+
+    bool hideResendVerification = false;
+    if (TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] is bool flag) {
+        hideResendVerification = flag;
+    }
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="~/Views/Shared/Partials/_FlashNotification.cshtml" />
+
+        @if (User.Identity?.IsAuthenticated == true && !hideResendVerification) {
+            <govuk-notification-banner>
+                <p class="govuk-notification-banner__heading">
+                    Confirm your email address by entering your verification code
+                </p>
+                <p class="govuk-body">
+                    If <strong>@Model.NewEmailAddress</strong> is a valid email address, we will have sent you an email containing a verification code.
+                    If you are experiencing problems please <a class="govuk-link" href=@platformOptionsAccessor.Value.ContactUrl>Contact DfE Sign-in</a>.
+                </p>
+                <form method="post" asp-antiforgery=true>
+                    <input type="hidden" name=@nameof(ChangeEmailViewModel.EmailAddressInput) value=@Model.NewEmailAddress />
+
+                    <govuk-button asp-action=@nameof(ChangeEmailController.PostIndex) asp-route-resend=true class="govuk-button--secondary govuk-!-margin-bottom-2">
+                        Resend verification code
+                    </govuk-button>
+                </form>
+            </govuk-notification-banner>
+        }
+
+        <form method="post" asp-antiforgery=true>
+            <govuk-fieldset>
+                <govuk-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">@ViewData[DsiLayoutConstants.Title]</govuk-fieldset-legend>
+
+                <p class="govuk-body">
+                    Enter the verification code included in the email we’ve sent you and then you can continue on to change your email address.
+                </p>
+
+                <govuk-input for=VerificationCodeInput input-class="govuk-!-width-one-quarter" input-maxlength=8>
+                    <govuk-input-label class="govuk-label--s">
+                        Verification code
+                    </govuk-input-label>
+                </govuk-input>
+            </govuk-fieldset>
+
+            <div class="govuk-button-group">
+                <govuk-button asp-action=@nameof(ChangeEmailController.PostVerificationCode) asp-route-userId=@Model.UserId>
+                    Continue
+                </govuk-button>
+
+                <govuk-button asp-action=@nameof(ChangeEmailController.PostCancel) class="govuk-button--secondary">
+                    Cancel
+                </govuk-button>
+            </div>
+        </form>
+    </div>
+</div>

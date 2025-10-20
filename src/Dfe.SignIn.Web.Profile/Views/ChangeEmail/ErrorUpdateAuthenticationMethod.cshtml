@@ -1,0 +1,26 @@
+@{
+    ViewData[DsiLayoutConstants.Title] = "There has been an error";
+
+    Uri contactUsUrl = new Uri(platformOptionsAccessor.Value.HelpUrl, Model.ShowRequestId
+        ? $"contact-us?exceptionTraceId={Model.RequestId}"
+        : "contact-us");
+}
+
+<h1 class="govuk-heading-xl govuk-!-margin-top-3">There has been an error</h1>
+
+<p class="govuk-body">
+    Your email address has been updated; however, Multi-factor authentication (MFA) codes
+    will still be sent to your old email address.
+</p>
+
+<p class="govuk-body">
+    Please <a class="govuk-link" href="@contactUsUrl">contact our service desk team</a>
+    so that they can resolve this.
+</p>
+
+@if (Model.ShowRequestId)
+{
+    <p class="govuk-body">
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}

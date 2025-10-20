@@ -1,0 +1,38 @@
+@inject IServiceProvider provider;
+
+@{
+    var sessionOptionsAccessor = provider.GetService<IOptionsMonitor<UserSessionOptions>>();
+    var sessionOptions = sessionOptionsAccessor?.CurrentValue;
+}
+
+@if (sessionOptions?.DurationInMinutes > 0) {
+    <div class="app-session-timeout"
+        data-session-duration-in-minutes=@sessionOptions.DurationInMinutes
+        data-notify-remaining-minutes=@sessionOptions.NotifyRemainingMinutes
+        data-timeout-url="/session/end-timeout"
+    >
+        <div class="app-session-timeout__modal" role="alertdialog" aria-modal="true" aria-labelledby="sessionTimeoutModalTitle" aria-describedby="sessionTimeoutModalMessage">
+            <h3 id="sessionTimeoutModalTitle" class="app-session-timeout__heading">
+                <span class="app-session-timeout__timer">
+                    Your session will time out in <span class="app-session-timeout__minutes">0 minutes</span> <span class="app-session-timeout__seconds">0 seconds</span>
+                </span>
+                <span class="app-session-timeout__now">
+                    Your session will time out now.
+                </span>
+            </h3>
+            <div id="sessionTimeoutModalMessage" class="app-session-timeout__body">
+                If you do not respond, we will sign you out. We do this to keep your information safe.
+            </div>
+
+            <div class="govuk-button-group">
+                <govuk-button class="app-session-timeout__extend">
+                    Stay signed in
+                </govuk-button>
+
+                <govuk-button-link class="app-session-timeout__end govuk-button--secondary" href="/signout">
+                    Sign out now
+                </govuk-button-link>
+            </div>
+        </div>
+    </div>
+}
