@@ -80,6 +80,11 @@ jobs:
           build-args: |
             PROJECT_NAME=${{ inputs.project_name }}
           tags: "${{ inputs.registry }}/${{ inputs.repository_name }}:${{ inputs.tag_name }}"
+          annotations: |
+            uk.gov.education.signin.source=https://github.com/${{ github.repository }}
+            uk.gov.education.signin.revision=${{ github.sha }}
+            uk.gov.education.signin.run_id=${{ github.run_id }}
+            uk.gov.education.signin.run_attempt=${{ github.run_attempt }}
           labels: |
             org.opencontainers.image.title=${{ inputs.project_name }}
             org.opencontainers.image.revision=${{ github.sha }}
