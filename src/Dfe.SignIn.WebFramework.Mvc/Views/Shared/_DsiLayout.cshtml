@@ -103,6 +103,10 @@
 
     <partial name="~/Views/Shared/Partials/_Footer.cshtml" />
 
+    @if (User.Identity?.IsAuthenticated == true) {
+        <partial name="~/Views/Shared/Partials/_SessionTimeout.cshtml" />
+    }
+
     <script src="@(assetOptionsAccessor.Value.VersionedBaseAddress)scripts/main.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

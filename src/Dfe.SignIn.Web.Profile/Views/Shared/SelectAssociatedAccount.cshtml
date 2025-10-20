@@ -1,0 +1,26 @@
+@model SelectAssociatedAccountViewModel
+
+@{
+    var userProfileFeature = ViewContext.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
+
+    ViewData[DsiLayoutConstants.Title] = "Account selection";
+}
+
+<h1 class="govuk-heading-xl">@ViewData[DsiLayoutConstants.Title]</h1>
+
+<p class="govuk-body-l">
+    Your DfE Sign-In account, <strong>@userProfileFeature.EmailAddress</strong>,<br/>
+    is associated with a different Microsoft account.
+</p>
+
+<p class="govuk-body">
+    Please proceed to select the associated Microsoft account.
+</p>
+
+<form method="post" asp-antiforgery=true>
+    <input type="hidden" asp-for=RedirectUri />
+
+    <govuk-button asp-action=@nameof(SelectAccountController.PostIndex) asp-controller=@(MvcNaming.Controller<SelectAccountController>())>
+        Select associated account
+    </govuk-button>
+</form>

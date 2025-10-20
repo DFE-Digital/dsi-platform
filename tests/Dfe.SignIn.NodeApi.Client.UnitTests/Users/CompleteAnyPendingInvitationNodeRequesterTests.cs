@@ -100,7 +100,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(GET) http://directories.localhost/invitations/by-email/jo.bradford@example.com"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.IsNotNull(response);
         Assert.IsFalse(response.WasCompleted);
@@ -129,7 +129,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(GET) http://directories.localhost/invitations/by-email/jo.bradford@example.com"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.IsNotNull(response);
         Assert.IsFalse(response.WasCompleted);
@@ -149,7 +149,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(POST) http://directories.localhost/invitations/559c27b8-303e-4aff-b485-037a927827cd/create_user"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.Contains("Information: Fulfilled pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
     }
@@ -185,7 +185,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(POST) http://organisations.localhost/invitations/559c27b8-303e-4aff-b485-037a927827cd/migrate-to-user"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.Contains("Information: Assigned organisations and services from pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
     }
@@ -221,7 +221,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(POST) http://access.localhost/invitations/559c27b8-303e-4aff-b485-037a927827cd/migrate-to-user"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.Contains("Information: Assigned organisations and services from pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
     }
@@ -257,7 +257,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(DELETE) http://search.localhost/users/inv-559C27B8-303E-4AFF-B485-037A927827CD"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.Contains("Information: Removed 'inv-559C27B8-303E-4AFF-B485-037A927827CD' from search index for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
     }
@@ -275,7 +275,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(POST) http://search.localhost/users/update-index"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.Contains("Information: Updated search index pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
     }
@@ -314,7 +314,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(DELETE) http://search.localhost/users/inv-559C27B8-303E-4AFF-B485-037A927827CD"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.Contains("Warning: Unable to remove 'inv-559C27B8-303E-4AFF-B485-037A927827CD' from search index for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
 
@@ -340,7 +340,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequesterTests
         });
 
         var mapping = responseMappings["(POST) http://search.localhost/users/update-index"];
-        Assert.AreEqual(1, mapping.InvocationCount);
+        Assert.HasCount(1, mapping.Invocations);
 
         Assert.Contains("Warning: Unable to update search index pending invitation '559c27b8-303e-4aff-b485-037a927827cd' for user '7c9d8126-fdc9-42f3-bdfc-bbd567b472ff'.", capturedLogs);
 

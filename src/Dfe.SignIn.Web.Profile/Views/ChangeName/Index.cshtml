@@ -1,0 +1,39 @@
+﻿@model ChangeNameViewModel
+
+@{
+    ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(Url.Action("Index", "Home"));
+
+    ViewData[DsiLayoutConstants.Title] = "Change your name";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <form method="post" asp-antiforgery=true>
+            <govuk-fieldset>
+                <govuk-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">@ViewData[DsiLayoutConstants.Title]</govuk-fieldset-legend>
+
+                <govuk-input for=FirstNameInput input-class="govuk-!-width-three-quarters" autocomplete="given-name" spellcheck="false">
+                    <govuk-input-label class="govuk-label--s">
+                        First name
+                    </govuk-input-label>
+                </govuk-input>
+
+                <govuk-input for=LastNameInput input-class="govuk-!-width-three-quarters" autocomplete="family-name" spellcheck="false">
+                    <govuk-input-label class="govuk-label--s">
+                        Last name
+                    </govuk-input-label>
+                </govuk-input>
+            </govuk-fieldset>
+
+            <div class="govuk-button-group">
+                <govuk-button asp-action=@nameof(ChangeNameController.PostIndex)>
+                    Change name
+                </govuk-button>
+
+                <govuk-button asp-action=@nameof(ChangeNameController.PostCancel) class="govuk-button--secondary">
+                    Cancel
+                </govuk-button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -29,7 +29,7 @@ public sealed class PlatformOptions : IOptions<PlatformOptions>
     /// <summary>
     /// Gets URL of the "Profile" frontend component.
     /// </summary>
-    public Uri ProfileUrl { get; set; } = new Uri("https://profile.localhost");
+    public Uri ProfileUrl { get; set; } = new Uri("http://localhost:41011");
 
     /// <summary>
     /// Gets URL of the "Services" frontend component.

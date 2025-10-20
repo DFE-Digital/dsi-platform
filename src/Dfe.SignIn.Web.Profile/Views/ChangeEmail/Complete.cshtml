@@ -1,0 +1,23 @@
+﻿@{
+    ViewData[DsiLayoutConstants.Title] = "You have successfully changed your email address";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">@ViewData[DsiLayoutConstants.Title]</h1>
+
+        <p class="govuk-body-l">
+            Your account has been updated to your new email address.
+        </p>
+
+        <p class="govuk-body">
+            Please allow up to 10 minutes for the changes to take effect before signing back into your account.
+        </p>
+
+        <form method="post" asp-antiforgery=true>
+            <govuk-button asp-action=@nameof(ChangeEmailController.PostComplete)>
+                Continue to my profile
+            </govuk-button>
+        </form>
+    </div>
+</div>

@@ -30,8 +30,12 @@ public static class HttpClientExtensions
     {
         var response = await client.GetAsync(url, cancellationToken);
 
-        return response.StatusCode == HttpStatusCode.NotFound
-            ? default
-            : await response.Content.ReadFromJsonAsync<TResponseBody>(cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound) {
+            return default;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<TResponseBody>(cancellationToken);
     }
 }

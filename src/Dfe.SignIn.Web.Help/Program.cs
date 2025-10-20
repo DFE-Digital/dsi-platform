@@ -39,7 +39,7 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
 );
 
 // Add services to the container.
-builder.Services.AddControllersWithViews().AddRequestBodySizeLimitFilter();
+builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.AddHealthChecks();
 
 builder.Services
@@ -101,7 +101,6 @@ if (!app.Environment.IsDevelopment()) {
 
 app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseHealthChecks();
 
 var rewriteOptions = new RewriteOptions();
@@ -109,8 +108,6 @@ rewriteOptions.AddRedirect("(.*)/$", "$1", statusCode: 301);
 app.UseRewriter(rewriteOptions);
 
 app.UseRouting();
-
-app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",

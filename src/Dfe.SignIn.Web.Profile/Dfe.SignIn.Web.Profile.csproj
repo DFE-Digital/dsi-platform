@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <ProjectGuid>FE442995-B014-459E-9F1C-AFC02BA7BAD4</ProjectGuid>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <UserSecretsId>fa6df331-f36f-4e6c-a01d-a5b78c8b642f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
+    <PackageReference Include="Humanizer.Core"/>
+    <PackageReference Include="Microsoft.Graph" />
+    <PackageReference Include="Microsoft.Identity.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dfe.SignIn.Base.Framework\Dfe.SignIn.Base.Framework.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.Contracts\Dfe.SignIn.Core.Contracts.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.UseCases\Dfe.SignIn.Core.UseCases.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Gateways.DistributedCache\Dfe.SignIn.Gateways.DistributedCache.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Gateways.GovNotify\Dfe.SignIn.Gateways.GovNotify.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Gateways.ServiceBus\Dfe.SignIn.Gateways.ServiceBus.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.NodeApi.Client\Dfe.SignIn.NodeApi.Client.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.WebFramework\Dfe.SignIn.WebFramework.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.WebFramework.Mvc\Dfe.SignIn.WebFramework.Mvc.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Dfe.SignIn.WebFramework" />
+    <Using Include="Dfe.SignIn.WebFramework.Mvc" />
+  </ItemGroup>
+
+</Project>
