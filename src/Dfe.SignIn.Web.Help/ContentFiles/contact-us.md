@@ -13,4 +13,4 @@ If you've already explored the Help Centre and haven’t found the information y
 
 We're unable to assist with service-specific queries. If your issue relates to a service, you should contact the service directly.
 
-We will attempt to respond within the next 5 working days.
+Once we have received your form, we will send a response within 5 working days.
