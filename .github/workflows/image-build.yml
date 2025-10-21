@@ -18,6 +18,12 @@ on:
         required: true
         type: string
 
+      version:
+        description: Version
+        required: false
+        type: string
+        default: "0.0.0"
+
       registry_key:
         description: Container registry key
         required: true
@@ -85,6 +91,7 @@ jobs:
             uk.gov.education.signin.revision=${{ github.sha }}
             uk.gov.education.signin.run_id=${{ github.run_id }}
             uk.gov.education.signin.run_attempt=${{ github.run_attempt }}
+            uk.gov.education.signin.version=${{ inputs.version }}
           labels: |
             org.opencontainers.image.title=${{ inputs.project_name }}
             org.opencontainers.image.revision=${{ github.sha }}
