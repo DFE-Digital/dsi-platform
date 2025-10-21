@@ -10,6 +10,8 @@ Describe "Set-RequirementsOutput" {
 
         Mock Add-Content { }
 
+        Mock Get-Content -ParameterFilter { $Path -ceq './frontend/package.json' } { '{"version":"1.2.3"}' }
+
         $global:capturedValue = @{}
         Mock Add-Content -ParameterFilter { $Path -ceq 'GITHUB_OUTPUT' } {
             $parts = $Value -split '='
@@ -177,6 +179,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.PublicApi'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'dev/public-api'
+            $dockerImages[0].version | Should -Be $null
         }
 
         It "uses container repository for release lifecycle" {
@@ -189,6 +192,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.PublicApi'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'rel/public-api'
+            $dockerImages[0].version | Should -Be $null
         }
 
         It "includes 'frontend' project when force parameter provided" {
@@ -201,6 +205,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'frontend'
             $dockerImages[0].dockerfile | Should -Be 'frontend'
             $dockerImages[0].repository | Should -Be 'dev/frontend'
+            $dockerImages[0].version | Should -Be '1.2.3'
         }
 
         It "includes 'Dfe.SignIn.Fn.AuthExtensions' project when force parameter provided" {
@@ -213,6 +218,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.Fn.AuthExtensions'
             $dockerImages[0].dockerfile | Should -Be 'functions'
             $dockerImages[0].repository | Should -Be 'dev/auth-extensions'
+            $dockerImages[0].version | Should -Be $null
         }
 
         It "includes 'Dfe.SignIn.InternalApi' project when force parameter provided" {
@@ -225,6 +231,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.InternalApi'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'dev/internal-api'
+            $dockerImages[0].version | Should -Be $null
         }
 
         It "includes 'Dfe.SignIn.PublicApi' project when force parameter provided" {
@@ -237,6 +244,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.PublicApi'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'dev/public-api'
+            $dockerImages[0].version | Should -Be $null
         }
 
         It "includes 'Dfe.SignIn.Web.Help' project when force parameter provided" {
@@ -249,6 +257,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.Web.Help'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'dev/help'
+            $dockerImages[0].version | Should -Be $null
         }
 
         It "includes 'Dfe.SignIn.Web.SelectOrganisation' project when force parameter provided" {
@@ -261,6 +270,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.Web.SelectOrganisation'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'dev/select-organisation'
+            $dockerImages[0].version | Should -Be $null
         }
 
         It "includes 'docs/external' project when force parameter provided" {
@@ -273,6 +283,7 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'docs/external'
             $dockerImages[0].dockerfile | Should -Be 'docs'
             $dockerImages[0].repository | Should -Be 'dev/developer'
+            $dockerImages[0].version | Should -Be $null
         }
     }
 

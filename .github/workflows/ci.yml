@@ -176,6 +176,7 @@ jobs:
       environment: ${{ needs.prepare.outputs.environment }}
       project_name: ${{ matrix.image.project }}
       dockerfile: ${{ matrix.image.dockerfile }}
+      version: ${{ matrix.image.version }}
       registry_key: ${{ needs.prepare.outputs.registry_key }}
       registry: ${{ needs.prepare.outputs.registry }}
       repository_name: ${{ matrix.image.repository }}
