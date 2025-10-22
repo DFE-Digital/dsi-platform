@@ -11,6 +11,11 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- Disable warning 'Substring can be simplified' since modern syntax not supported by .NET Standard 2.0. -->
+    <NoWarn>$(NoWarn);IDE0057</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
   </ItemGroup>
