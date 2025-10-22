@@ -54,6 +54,7 @@ public static class JsonHelperExtensions
             options.UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip;
 
             options.Converters.Add(new ExceptionJsonConverter());
+            options.Converters.Add(new ValidationResultJsonConverter());
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
         });
 
