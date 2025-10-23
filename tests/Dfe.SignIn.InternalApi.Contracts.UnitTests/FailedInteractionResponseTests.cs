@@ -56,9 +56,9 @@ public sealed class FailedInteractionResponseTests
         Assert.AreEqual(fakeException.InvocationId, exceptionJson.GetProperty("invocationId").GetGuid());
 
         var validationResultJson = exceptionJson.GetProperty("validationResults").EnumerateArray().First();
-        Assert.AreEqual(fakeException.ValidationResults.First().ErrorMessage, validationResultJson.GetProperty("errorMessage").GetString());
+        Assert.AreEqual("Enter a valid email address.", validationResultJson.GetProperty("errorMessage").GetString());
         var memberNameJson = validationResultJson.GetProperty("memberNames").EnumerateArray().First();
-        Assert.AreEqual(fakeException.ValidationResults.First().MemberNames.First(), memberNameJson.GetString());
+        Assert.AreEqual("emailAddress", memberNameJson.GetString());
     }
 
     #endregion

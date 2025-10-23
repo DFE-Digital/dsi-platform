@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
@@ -49,13 +50,14 @@ public sealed class DefaultExceptionJsonSerializer(
     IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor
 ) : IExceptionJsonSerializer
 {
+    private readonly JsonSerializerOptions options = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+
     /// <inheritdoc/>
     public JsonElement SerializeExceptionToJson(Exception exception)
     {
         ExceptionHelpers.ThrowIfArgumentNull(exception, nameof(exception));
 
-        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-        return JsonSerializer.SerializeToElement(exception, jsonOptions);
+        return JsonSerializer.SerializeToElement(exception, this.options);
     }
 
     /// <inheritdoc/>
@@ -65,8 +67,7 @@ public sealed class DefaultExceptionJsonSerializer(
             return new UnexpectedException("Unknown exception type.");
         }
 
-        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-        return JsonSerializer.Deserialize<Exception>(jsonElement, jsonOptions)!;
+        return JsonSerializer.Deserialize<Exception>(jsonElement, this.options)!;
     }
 }
 
@@ -142,6 +143,56 @@ internal sealed class ExceptionJsonConverter : JsonConverter<Exception>
                 JsonSerializer.Serialize(writer, propertyValue, property.PropertyType, options);
             }
         }
+
+        writer.WriteEndObject();
+    }
+}
+
+internal sealed class ValidationResultJsonConverter : JsonConverter<ValidationResult>
+{
+    private static string ConvertNameToPascalCase(string name)
+    {
+        return string.IsNullOrEmpty(name)
+            ? name
+            : char.ToUpperInvariant(name[0]) + name.Substring(1);
+    }
+
+    /// <inheritdoc/>
+    public override ValidationResult? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var namingPolicy = options.PropertyNamingPolicy ?? JsonNamingPolicy.CamelCase;
+
+        using var jsonDocument = JsonDocument.ParseValue(ref reader);
+        var rootElement = jsonDocument.RootElement;
+
+        string? errorMessage = null;
+        if (rootElement.TryGetProperty(namingPolicy.ConvertName(nameof(ValidationResult.ErrorMessage)), out var errorMessageElement)) {
+            errorMessage = errorMessageElement.GetString();
+        }
+
+        string[]? memberNames = null;
+        if (rootElement.TryGetProperty(namingPolicy.ConvertName(nameof(ValidationResult.MemberNames)), out var memberNamesElement)) {
+            memberNames = memberNamesElement.Deserialize<string[]>()
+                ?.Select(ConvertNameToPascalCase).ToArray();
+        }
+
+        return new ValidationResult(errorMessage, memberNames ?? []);
+    }
+
+    /// <inheritdoc/>
+    public override void Write(Utf8JsonWriter writer, ValidationResult validationResult, JsonSerializerOptions options)
+    {
+        var namingPolicy = options.PropertyNamingPolicy ?? JsonNamingPolicy.CamelCase;
+
+        writer.WriteStartObject();
+
+        writer.WriteString(namingPolicy.ConvertName(nameof(ValidationResult.ErrorMessage)), validationResult.ErrorMessage);
+
+        writer.WriteStartArray(namingPolicy.ConvertName(nameof(ValidationResult.MemberNames)));
+        foreach (string memberName in validationResult.MemberNames) {
+            writer.WriteStringValue(namingPolicy.ConvertName(memberName));
+        }
+        writer.WriteEndArray();
 
         writer.WriteEndObject();
     }
