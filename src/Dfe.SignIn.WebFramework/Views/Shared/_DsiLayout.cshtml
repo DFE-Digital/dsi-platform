@@ -31,6 +31,9 @@
     <script asp-add-nonce>
         document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
     </script>
+
+    <partial name="~/Views/Shared/Partials/_EnvironmentBanner.cshtml" />
+
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
     <header class="govuk-header govuk-header--full-width-border" data-module="govuk-header">
         <div class="govuk-header__container govuk-width-container">

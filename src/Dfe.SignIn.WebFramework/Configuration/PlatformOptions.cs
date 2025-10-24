@@ -66,6 +66,11 @@ public sealed class PlatformOptions : IOptions<PlatformOptions>
     /// </summary>
     public Uri ContactUrl { get; set; } = new Uri("http://localhost:5012/contact-us");
 
+    /// <summary>
+    /// Gets the name of the current application environment.
+    /// </summary>
+    public EnvironmentName EnvironmentName { get; set; } = EnvironmentName.Local;
+
     /// <inheritdoc/>
     PlatformOptions IOptions<PlatformOptions>.Value => this;
 }
