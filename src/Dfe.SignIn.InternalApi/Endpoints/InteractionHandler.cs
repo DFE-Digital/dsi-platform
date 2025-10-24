@@ -66,8 +66,10 @@ public static class InteractionHandlerExtensions
     {
         string path = NamingHelpers.GetEndpointPath<TRequest>();
         app.MapPost(path, InteractionHandler<TRequest, TResponse>)
+            .RequireAuthorization()
             .Produces<InteractionResponse<TResponse>>(StatusCodes.Status200OK)
             .Produces<FailedInteractionResponse>(StatusCodes.Status400BadRequest)
-            .Produces<FailedInteractionResponse>(StatusCodes.Status500InternalServerError);
+            .Produces<FailedInteractionResponse>(StatusCodes.Status500InternalServerError)
+            .Produces(StatusCodes.Status401Unauthorized);
     }
 }
