@@ -12,8 +12,8 @@ RUN npm install --ignore-scripts && \
 # --- Serve with a lightweight non-root version of nginx ---
 FROM nginxinc/nginx-unprivileged:1.29-alpine3.22@sha256:3245911073f8a6f8f5257aa08339096f90ef8d5db70f502f8ffeb2b9ecd5ca18
 
-COPY --from=assets /frontend/dist /usr/share/nginx/html
-COPY --from=assets /frontend/node_modules/govuk-frontend/dist/govuk/assets /usr/share/nginx/html/assets
-COPY --from=assets /frontend/assets /usr/share/nginx/html/assets
+COPY --from=assets /frontend/dist /usr/share/nginx/html/assets
+COPY --from=assets /frontend/node_modules/govuk-frontend/dist/govuk/assets /usr/share/nginx/html/assets/assets
+COPY --from=assets /frontend/assets /usr/share/nginx/html/assets/assets
 
 COPY docker/frontend/nginx.conf /etc/nginx/templates/default.conf.template

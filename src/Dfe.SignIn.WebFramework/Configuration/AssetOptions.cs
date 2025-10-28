@@ -20,6 +20,18 @@ public sealed class AssetOptions : IOptions<AssetOptions>
     /// </remarks>
     public Uri BaseAddress { get; set; } = new Uri("http://localhost:8081");
 
+    /// <summary>
+    /// Gets the semantic version number of the frontend assets; eg. "1.2.3".
+    /// </summary>
+    public required string FrontendVersion { get; set; }
+
+    /// <summary>
+    /// Gets base address of assets including the resolved version number.
+    /// </summary>
+    public Uri VersionedBaseAddress => !string.IsNullOrEmpty(this.FrontendVersion)
+        ? new(this.BaseAddress, $"./{this.FrontendVersion}/")
+        : this.BaseAddress;
+
     /// <inheritdoc/>
     AssetOptions IOptions<AssetOptions>.Value => this;
 }

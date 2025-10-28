@@ -120,6 +120,7 @@ $repositoryMappings = @{
     'frontend'                          = @{
         Repository = 'frontend'
         Dockerfile = 'frontend'
+        Version    = (Get-Content './frontend/package.json' | ConvertFrom-Json).version
     }
     'Dfe.SignIn.Fn.AuthExtensions'      = @{
         Repository = 'auth-extensions'
@@ -189,11 +190,15 @@ if ($BuildChangedProjects -eq $true) {
 $dockerImages = @($buildProjectNames) | Sort-Object | ForEach-Object {
     $mapping = $repositoryMappings[$_]
     if ($mapping) {
-        @{
+        $imageInfo = @{
             project    = $_
             dockerfile = $mapping.Dockerfile
             repository = "$LifecycleName/$($mapping.Repository)".ToLower()
         }
+        if ($mapping.Version) {
+            $imageInfo.version = $mapping.Version
+        }
+        return $imageInfo
     }
 }
 
