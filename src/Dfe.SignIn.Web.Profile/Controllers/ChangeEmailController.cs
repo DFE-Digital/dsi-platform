@@ -25,7 +25,7 @@ public sealed class ChangeEmailController(
     {
         this.TempData["EmailAddressInput"] = postModel.EmailAddressInput;
 
-        return this.RedirectToAction(nameof(VerificationCode));
+        return this.RedirectToAction("VerificationCode");
     }
 
     [Authorize]
@@ -42,7 +42,7 @@ public sealed class ChangeEmailController(
             return this.RedirectToAction("Index", "Home");
         }
 
-        return this.View(new VerificationCodeViewModel {
+        return this.View("VerificationCode", new VerificationCodeViewModel {
             NewEmailAddress = (this.TempData["EmailAddressInput"] as string)!,
         });
     }
@@ -50,13 +50,13 @@ public sealed class ChangeEmailController(
     [Authorize]
     public async Task<IActionResult> PostVerificationCode()
     {
-        return this.RedirectToAction(nameof(Complete));
+        return this.RedirectToAction("Complete");
     }
 
     [Authorize]
     public async Task<IActionResult> PostResendVerificationCode()
     {
-        return this.RedirectToAction(nameof(VerificationCode));
+        return this.RedirectToAction("VerificationCode");
     }
 
     [Authorize]

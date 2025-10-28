@@ -23,14 +23,31 @@ public sealed class ChangeJobTitleController(
             new GetUserProfileRequest { UserId = userId }
         ).To<GetUserProfileResponse>();
 
-        return this.View(new ChangeJobTitleViewModel {
+        return this.View("Index", new ChangeJobTitleViewModel {
             JobTitleInput = profile.JobTitle,
         });
     }
 
     [Authorize]
-    public async Task<IActionResult> PostIndex()
+    public async Task<IActionResult> PostIndex(ChangeJobTitleViewModel viewModel)
     {
+        try {
+            await interaction.DispatchAsync(new ChangeJobTitleRequest {
+                UserId = this.User.GetUserId(),
+                NewJobTitle = viewModel.JobTitleInput!,
+            });
+        }
+        catch (InvalidRequestException ex) {
+            this.ModelState.AddFrom(ex.ValidationResults, new() {
+                [nameof(ChangeJobTitleRequest.NewJobTitle)] = nameof(ChangeJobTitleViewModel.JobTitleInput),
+            });
+            this.ModelState.ThrowIfNoErrorsRecorded(ex);
+        }
+
+        if (!this.ModelState.IsValid) {
+            return await this.Index();
+        }
+
         this.SetFlashSuccess(
             heading: "Job title updated successfully",
             message: "The job title associated with your account has been updated."

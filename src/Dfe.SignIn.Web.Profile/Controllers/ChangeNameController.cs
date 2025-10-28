@@ -23,15 +23,36 @@ public sealed class ChangeNameController(
             new GetUserProfileRequest { UserId = userId }
         ).To<GetUserProfileResponse>();
 
-        return this.View(new ChangeNameViewModel {
+        return this.View("Index", new ChangeNameViewModel {
             FirstNameInput = profile.GivenName,
             LastNameInput = profile.Surname,
         });
     }
 
     [Authorize]
-    public async Task<IActionResult> PostIndex()
+    public async Task<IActionResult> PostIndex(ChangeNameViewModel viewModel)
     {
+        try {
+            await interaction.DispatchAsync(
+                new ChangeNameRequest {
+                    UserId = this.User.GetUserId(),
+                    GivenName = viewModel.FirstNameInput!,
+                    Surname = viewModel.LastNameInput!,
+                }
+            );
+        }
+        catch (InvalidRequestException ex) {
+            this.ModelState.AddFrom(ex.ValidationResults, new() {
+                [nameof(ChangeNameRequest.GivenName)] = nameof(ChangeNameViewModel.FirstNameInput),
+                [nameof(ChangeNameRequest.Surname)] = nameof(ChangeNameViewModel.LastNameInput),
+            });
+            this.ModelState.ThrowIfNoErrorsRecorded(ex);
+        }
+
+        if (!this.ModelState.IsValid) {
+            return await this.Index();
+        }
+
         this.SetFlashSuccess(
             heading: "Name updated successfully",
             message: "The name associated with your account has been updated."

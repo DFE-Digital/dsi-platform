@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
@@ -18,7 +20,8 @@ public sealed record GetUserProfileRequest
     /// <summary>
     /// The unique ID of the user.
     /// </summary>
-    public Guid UserId { get; init; }
+    [Required]
+    public required Guid UserId { get; init; }
 }
 
 /// <summary>

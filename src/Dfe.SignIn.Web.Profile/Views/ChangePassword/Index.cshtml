@@ -32,7 +32,7 @@
             </govuk-fieldset>
 
             <div class="govuk-button-group">
-                <govuk-button asp-action="PostIndex">Change password</govuk-button>
+                <govuk-button asp-action=@Model.PostAction>Change password</govuk-button>
                 <govuk-button asp-action="PostCancel" class="govuk-button--secondary">Cancel</govuk-button>
             </div>
         </form>

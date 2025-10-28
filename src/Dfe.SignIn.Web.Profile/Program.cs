@@ -2,11 +2,13 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.NodeApi.Client;
+using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,9 +59,18 @@ builder.Services
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     });
 
+builder.Services.AddSingleton(sp =>
+    ConfidentialClientApplicationBuilder.Create(builder.Configuration.GetValue<string>("ExternalId:ClientId"))
+        .WithClientSecret(builder.Configuration.GetValue<string>("ExternalId:ClientSecret"))
+        .WithAuthority(builder.Configuration.GetValue<string>("ExternalId:CloudInstance"), builder.Configuration.GetValue<Guid>("ExternalId:TenantId"))
+        .WithRedirectUri("http://localhost:41011/auth/callback")
+        .Build()
+);
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => options.AddTrimStringModelBinding());
 builder.Services.AddHealthChecks();
+builder.Services.AddSession();
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
@@ -80,6 +91,11 @@ builder.Services
     .AddGovNotify()
     .AddInteractor<SendEmailNotificationWithGovNotifyUseCase>();
 
+builder.Services
+    .AddHttpContextAccessor()
+    .AddScoped<IHybridAuthentication, HybridAuthentication>()
+    .AddSingleton<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>();
+
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
 
@@ -98,6 +114,7 @@ app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseHealthChecks();
+app.UseSession();
 
 var rewriteOptions = new RewriteOptions();
 rewriteOptions.AddRedirect("(.*)/$", "$1", statusCode: 301);

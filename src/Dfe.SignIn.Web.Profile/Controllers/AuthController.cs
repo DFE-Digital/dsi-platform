@@ -1,3 +1,4 @@
+using Dfe.SignIn.Web.Profile.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,9 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 /// The controller for handling user authentication.
 /// </summary>
 [Route("/")]
-public sealed class AuthController : Controller
+public sealed class AuthController(
+    IHybridAuthentication hybridAuthentication
+) : Controller
 {
     [Authorize]
     [HttpGet("signout")]
@@ -17,4 +20,14 @@ public sealed class AuthController : Controller
         OpenIdConnectDefaults.AuthenticationScheme,
         CookieAuthenticationDefaults.AuthenticationScheme
     );
+
+    [Authorize]
+    [HttpGet("/auth/callback")]
+    public async Task<IActionResult> HybridCallback()
+    {
+        var redirectUri = await hybridAuthentication.ProcessCallbackAsync();
+        return redirectUri is not null
+            ? this.Redirect(redirectUri.ToString())
+            : this.RedirectToAction("Index", "Home");
+    }
 }

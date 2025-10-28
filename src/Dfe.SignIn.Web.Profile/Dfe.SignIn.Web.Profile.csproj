@@ -19,6 +19,8 @@
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
+    <PackageReference Include="Microsoft.Graph" />
+    <PackageReference Include="Microsoft.Identity.Client" />
   </ItemGroup>
 
   <ItemGroup>
