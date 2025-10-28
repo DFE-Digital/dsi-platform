@@ -1,0 +1,15 @@
+@inject IOptions<PlatformOptions> platformOptionsAccessor
+
+@{
+    EnvironmentName environmentName = platformOptionsAccessor.Value?.EnvironmentName ?? EnvironmentName.Local;
+    bool showBanner = (environmentName != EnvironmentName.Prod && environmentName != EnvironmentName.Local);
+}
+
+@if (showBanner)
+{
+    <div class="app-environment-banner">
+        <div class="govuk-width-container">
+            ATTENTION! This environment can be unavailable as we're developing new features. Please do not report any outages.
+        </div>
+    </div>
+}
