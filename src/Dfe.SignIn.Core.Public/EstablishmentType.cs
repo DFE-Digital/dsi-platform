@@ -237,6 +237,12 @@ public enum EstablishmentType
     ChildrensCentreLinkedSite = 48,
 
     /// <summary>
+    /// Online provider.
+    /// </summary>
+    [Description("Online Provider")]
+    OnlineProvider = 49,
+
+    /// <summary>
     /// Institution funded by other government department.
     /// </summary>
     [Description("Institution funded by other government department")]
