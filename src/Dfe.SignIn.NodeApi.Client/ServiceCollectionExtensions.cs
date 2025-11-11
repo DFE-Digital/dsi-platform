@@ -75,7 +75,7 @@ public static class ServiceCollectionExtensions
             .AddHttpMessageHandler((provider) => {
                 var options = GetNodeApiOptions(provider, apiName);
                 string[] scopes = [$"{options.AuthenticatedHttpClientOptions.Resource}/.default"];
-                return new AuthenticatedHttpClientHandler(credential, scopes);
+                return ActivatorUtilities.CreateInstance<AuthenticatedHttpClientHandler>(provider, credential, scopes);
             });
 
             // endpoints can use the httpClient via

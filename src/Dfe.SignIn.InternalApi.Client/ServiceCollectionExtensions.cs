@@ -54,7 +54,7 @@ public static class ServiceCollectionExtensions
             .AddHttpMessageHandler((provider) => {
                 var apiOptions = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
                 string[] scopes = [$"{apiOptions.Resource}/.default"];
-                return new AuthenticatedHttpClientHandler(credential, scopes);
+                return ActivatorUtilities.CreateInstance<AuthenticatedHttpClientHandler>(provider, credential, scopes);
             });
 
         services.AddKeyedSingleton(InternalApiKey, (provider, key) => {
