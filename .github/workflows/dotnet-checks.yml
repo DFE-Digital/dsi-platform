@@ -73,6 +73,7 @@ jobs:
         run: |
           dotnet build ./build.sln /maxcpucount:1 `
             --framework net8.0 `
+            /clp:NoSummary `
             /p:AutomatedRun=true
 
       - name: Run unit tests
