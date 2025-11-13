@@ -2,7 +2,6 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Models;
-using Dfe.SignIn.WebFramework;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.Web.Help.Controllers;
@@ -50,31 +49,8 @@ public sealed class ContactController(
     [HttpPost("contact-us")]
     public async Task<IActionResult> PostIndex(ContactViewModel viewModel)
     {
-        try {
-            await interaction.DispatchAsync(new RaiseSupportTicketRequest {
-                FullName = viewModel.FullNameInput!,
-                EmailAddress = viewModel.EmailAddressInput!,
-                SubjectCode = viewModel.SubjectCodeInput!,
-                CustomSummary = viewModel.CustomSummaryInput,
-                OrganisationName = viewModel.OrganisationNameInput!,
-                OrganisationUrn = viewModel.OrganisationUrnInput,
-                ApplicationName = viewModel.ApplicationNameInput!,
-                Message = viewModel.MessageInput!,
-            }).To<RaiseSupportTicketResponse>();
-        }
-        catch (InvalidRequestException ex) {
-            this.ModelState.AddFrom(ex.ValidationResults, new() {
-                [nameof(RaiseSupportTicketRequest.FullName)] = nameof(ContactViewModel.FullNameInput),
-                [nameof(RaiseSupportTicketRequest.EmailAddress)] = nameof(ContactViewModel.EmailAddressInput),
-                [nameof(RaiseSupportTicketRequest.SubjectCode)] = nameof(ContactViewModel.SubjectCodeInput),
-                [nameof(RaiseSupportTicketRequest.CustomSummary)] = nameof(ContactViewModel.CustomSummaryInput),
-                [nameof(RaiseSupportTicketRequest.OrganisationName)] = nameof(ContactViewModel.OrganisationNameInput),
-                [nameof(RaiseSupportTicketRequest.OrganisationUrn)] = nameof(ContactViewModel.OrganisationUrnInput),
-                [nameof(RaiseSupportTicketRequest.ApplicationName)] = nameof(ContactViewModel.ApplicationNameInput),
-                [nameof(RaiseSupportTicketRequest.Message)] = nameof(ContactViewModel.MessageInput),
-            });
-            this.ModelState.ThrowIfNoErrorsRecorded(ex);
-        }
+        await this.MapInteractionRequest<RaiseSupportTicketRequest>(viewModel)
+            .InvokeAsync(interaction.DispatchAsync);
 
         if (!this.ModelState.IsValid) {
             return this.View("Index", await this.PrepareViewModel(viewModel));

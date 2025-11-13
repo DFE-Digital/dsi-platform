@@ -38,21 +38,25 @@ public sealed class ContactViewModel
     /// <summary>
     /// Gets or sets the full name of the user.
     /// </summary>
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.FullName))]
     public string? FullNameInput { get; set; }
 
     /// <summary>
     /// Gets or sets the email address of the user.
     /// </summary>
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.EmailAddress))]
     public string? EmailAddressInput { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the user's organisation.
     /// </summary>
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.OrganisationName))]
     public string? OrganisationNameInput { get; set; }
 
     /// <summary>
     /// Gets or sets the URN or UKPRN of the user's organisation.
     /// </summary>
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.OrganisationUrn))]
     public string? OrganisationUrnInput { get; set; }
 
     /// <summary>
@@ -64,16 +68,19 @@ public sealed class ContactViewModel
     /// <summary>
     /// Gets or sets a subject that helps to indicate what the user needs help with.
     /// </summary>
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.SubjectCode))]
     public string? SubjectCodeInput { get; set; }
 
     /// <summary>
     /// Gets or sets a custom subject that the user needs help with.
     /// </summary>
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.CustomSummary))]
     public string? CustomSummaryInput { get; set; }
 
     /// <summary>
     /// Gets or sets the service that the user is using.
     /// </summary>
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.ApplicationName))]
     public string? ApplicationNameInput { get; set; }
 
     /// <summary>
@@ -85,5 +92,6 @@ public sealed class ContactViewModel
     /// <summary>
     /// Gets or sets the user message.
     /// </summary>
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.Message))]
     public string? MessageInput { get; set; }
 }
