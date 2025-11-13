@@ -33,6 +33,27 @@ public sealed class ControllerInteractionExtensionsTests
     {
     }
 
+    private sealed class FakeComplexViewModel
+    {
+        [MapTo<FakeComplexRequest>(nameof(FakeComplexRequest.RequestPropertyA))]
+        public ComplexType? ViewModelPropertyA { get; set; }
+    }
+
+    private sealed record FakeComplexRequest
+    {
+        public ComplexType? RequestPropertyA { get; init; } = null;
+    }
+
+    private sealed record ComplexType
+    {
+        public NestedType? Nested { get; init; }
+    }
+
+    private sealed record NestedType
+    {
+        public required int Foo { get; init; }
+    }
+
     #region MapInteractionRequest<TRequest>(Controller, object)
 
     [TestMethod]
@@ -77,6 +98,54 @@ public sealed class ControllerInteractionExtensionsTests
         Assert.AreEqual("abc", capturedRequest.RequestPropertyA, "Property of same type");
         Assert.AreEqual(123, capturedRequest.RequestPropertyB, "Converts to property of different type");
         Assert.AreEqual("hello", capturedRequest.RequestPropertyC, "Does not map property when value flag not set");
+    }
+
+    [TestMethod]
+    public async Task MapInteractionRequest_MapsNullProperties()
+    {
+        var mockController = new Mock<Controller>();
+
+        FakeComplexRequest? capturedRequest = null;
+        InteractionTask capturer(FakeComplexRequest request, CancellationToken _)
+        {
+            capturedRequest = request;
+            return InteractionTask.FromResult(new FakeResponse());
+        }
+
+        var fakeViewModel = new FakeComplexViewModel {
+            ViewModelPropertyA = null,
+        };
+
+        await ControllerInteractionExtensions.MapInteractionRequest<FakeComplexRequest>(mockController.Object, fakeViewModel)
+            .InvokeAsync(capturer, CancellationToken.None);
+
+        Assert.IsNotNull(capturedRequest);
+        Assert.IsNull(capturedRequest.RequestPropertyA);
+    }
+
+    [TestMethod]
+    public async Task MapInteractionRequest_MapsComplexProperty()
+    {
+        var mockController = new Mock<Controller>();
+
+        FakeComplexRequest? capturedRequest = null;
+        InteractionTask capturer(FakeComplexRequest request, CancellationToken _)
+        {
+            capturedRequest = request;
+            return InteractionTask.FromResult(new FakeResponse());
+        }
+
+        var fakeViewModel = new FakeComplexViewModel {
+            ViewModelPropertyA = new() {
+                Nested = new() { Foo = 123 },
+            },
+        };
+
+        await ControllerInteractionExtensions.MapInteractionRequest<FakeComplexRequest>(mockController.Object, fakeViewModel)
+            .InvokeAsync(capturer, CancellationToken.None);
+
+        Assert.IsNotNull(capturedRequest?.RequestPropertyA?.Nested);
+        Assert.AreEqual(123, capturedRequest.RequestPropertyA.Nested.Foo);
     }
 
     #endregion
