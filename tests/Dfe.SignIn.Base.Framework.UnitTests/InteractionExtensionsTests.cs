@@ -156,4 +156,39 @@ public sealed class InteractionExtensionsTests
     }
 
     #endregion
+
+    #region AddNullInteractor<TRequest, TResponse>(IServiceCollection)
+
+    [TestMethod]
+    public void AddNullInteractor_Throws_WhenServicesArgumentIsNull()
+    {
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => InteractionExtensions.AddNullInteractor<ExampleRequest, ExampleResponse>(
+                services: null!
+            ));
+    }
+
+    [TestMethod]
+    public void AddNullInteractor_RegistersExpectedServices()
+    {
+        var services = new ServiceCollection();
+
+        InteractionExtensions.AddNullInteractor<ExampleRequest, ExampleResponse>(services);
+
+        Assert.IsTrue(
+            services.HasInteractor<ExampleRequest, NullInteractor<ExampleRequest, ExampleResponse>>()
+        );
+    }
+
+    [TestMethod]
+    public void AddNullInteractor_ReturnsServicesForChainedCalls()
+    {
+        var services = new ServiceCollection();
+
+        var result = InteractionExtensions.AddNullInteractor<ExampleRequest, ExampleResponse>(services);
+
+        Assert.AreSame(services, result);
+    }
+
+    #endregion
 }

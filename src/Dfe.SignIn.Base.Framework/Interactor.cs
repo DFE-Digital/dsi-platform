@@ -69,6 +69,28 @@ public abstract class Interactor<TRequest, TResponse> : IInteractor<TRequest>
 }
 
 /// <summary>
+/// A null implementation of an interactor useful for testing or when features
+/// need to be disabled.
+/// </summary>
+/// <remarks>
+///   <para>This implementation returns an empty <typeparamref name="TResponse"/>
+///   instance which will not necessarily always be fully compatible with the
+///   interaction contract.</para>
+/// </remarks>
+/// <typeparam name="TRequest">The type of request.</typeparam>
+/// <typeparam name="TResponse">The type of response.</typeparam>
+public sealed class NullInteractor<TRequest, TResponse> : IInteractor<TRequest>
+    where TRequest : class
+    where TResponse : class
+{
+    /// <inheritdoc/>
+    public Task<object> InvokeAsync(InteractionContext<TRequest> context, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult<object>(Activator.CreateInstance<TResponse>());
+    }
+}
+
+/// <summary>
 /// Marks an API requester within the system.
 /// </summary>
 /// <remarks>

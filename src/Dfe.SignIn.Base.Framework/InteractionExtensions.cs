@@ -22,6 +22,8 @@ public static class InteractionExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
+        services.AddOptions();
+
         services.TryAddSingleton<IInteractionValidator, InteractionValidator>();
         services.TryAddSingleton<IInteractionDispatcher, DefaultInteractionDispatcher>();
         services.TryAddSingleton<IInteractorResolver, ServiceProviderInteractorResolver>();
@@ -74,11 +76,34 @@ public static class InteractionExtensions
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(descriptors, nameof(descriptors));
 
-        services.AddOptions();
-
         foreach (var descriptor in descriptors) {
             services.AddTransient(descriptor.ContractType, descriptor.ConcreteType);
         }
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a null implementation of an interactor into a service collection.
+    /// This is useful for testing or when a feature needs to be disabled.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <typeparam name="TResponse">The type of response model.</typeparam>
+    /// <param name="services">The collection to add services to.</param>
+    /// <returns>
+    ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="services"/> is null.</para>
+    /// </exception>
+    public static IServiceCollection AddNullInteractor<TRequest, TResponse>(
+        this IServiceCollection services)
+        where TRequest : class
+        where TResponse : class
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+
+        services.AddTransient<IInteractor<TRequest>, NullInteractor<TRequest, TResponse>>();
 
         return services;
     }
