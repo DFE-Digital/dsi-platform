@@ -27,7 +27,7 @@ builder.Services
     .AddInteractionFramework();
 
 builder.Services
-    .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
+    .Configure<AuditOptions>(builder.Configuration.GetSection("Audit"))
     .Configure<AuditOptions>(options => options.ApplicationName ??= "AuthExtensions")
     .SetupAuditContext();
 
