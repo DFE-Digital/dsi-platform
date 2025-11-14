@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -24,6 +25,11 @@ builder.Services
 
 builder.Services
     .AddInteractionFramework();
+
+builder.Services
+    .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
+    .Configure<AuditOptions>(options => options.ApplicationName ??= "AuthExtensions")
+    .SetupAuditContext();
 
 // Get token credential for making API requests to Node APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
