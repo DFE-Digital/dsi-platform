@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Contracts.Organisations;
@@ -58,7 +59,7 @@ public sealed class StandardSelectOrganisationMiddlewareTests
     private static readonly Guid FakeUserId = new("8d2799b0-eabe-4a5c-a01f-d52bc1cce63e");
     private static readonly string FakeSessionId = "460ebb6a-643e-4f85-bfe0-29351f11bd62";
 
-    private static ClaimsPrincipal SetupMockAuthenticatedUser(AutoMocker autoMocker)
+    private static void SetupMockAuthenticatedUser(AutoMocker autoMocker)
     {
         var mockContext = autoMocker.GetMock<IHttpContext>();
 
@@ -70,8 +71,6 @@ public sealed class StandardSelectOrganisationMiddlewareTests
         var fakeUser = new ClaimsPrincipal(fakePrimaryIdentity);
         mockContext.Setup(x => x.User)
             .Returns(fakeUser);
-
-        return fakeUser;
     }
 
     private static void SetupMockActiveOrganisation(AutoMocker autoMocker, OrganisationDetails? organisation)

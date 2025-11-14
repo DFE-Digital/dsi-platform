@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Security.Claims;
 using Dfe.SignIn.Core.Interfaces.Audit;
+using Dfe.SignIn.Core.Public;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq.AutoMock;
@@ -140,7 +141,7 @@ public sealed class HttpAuditContextBuilderTests
         var mockContext = autoMocker.GetMock<HttpContext>();
         mockContext.Setup(x => x.User).Returns(new ClaimsPrincipal([
             new ClaimsIdentity([
-                new Claim("dsi_user_id", "64b04c9d-0eb8-417d-b29d-8fc1d33a1ecc"),
+                new Claim(DsiClaimTypes.UserId, "64b04c9d-0eb8-417d-b29d-8fc1d33a1ecc"),
                 new Claim(ClaimTypes.NameIdentifier, "1d2db0a6-69c1-43bb-a2fb-e0baf7fa12f1"),
             ], "fake")
         ]));
