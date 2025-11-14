@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using Azure.Core;
+using Dfe.SignIn.Core.Interfaces.Audit;
 
 namespace Dfe.SignIn.InternalApi.Client;
 
@@ -8,6 +9,7 @@ namespace Dfe.SignIn.InternalApi.Client;
 /// Create a new DelegateHandler to implement a AuthenticatedHttpClientHandler
 /// </summary>
 public sealed class AuthenticatedHttpClientHandler(
+    IAuditContextBuilder auditContextBuilder,
     TokenCredential credential,
     string[] scopes
 ) : DelegatingHandler
@@ -19,6 +21,17 @@ public sealed class AuthenticatedHttpClientHandler(
     {
         var accessToken = await credential.GetTokenAsync(new(scopes), cancellationToken);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Token);
+
+        var auditContext = auditContextBuilder.BuildAuditContext();
+        if (!string.IsNullOrEmpty(auditContext.SourceApplication)) {
+            request.Headers.Add(AuditHeaderNames.SourceApplicationName, auditContext.SourceApplication);
+        }
+        if (!string.IsNullOrEmpty(auditContext.SourceIpAddress)) {
+            request.Headers.Add(AuditHeaderNames.SourceIpAddress, auditContext.SourceIpAddress);
+        }
+        if (auditContext.SourceUserId is not null) {
+            request.Headers.Add(AuditHeaderNames.SourceUserId, auditContext.SourceUserId.ToString());
+        }
 
         var response = await base.SendAsync(request, cancellationToken);
 

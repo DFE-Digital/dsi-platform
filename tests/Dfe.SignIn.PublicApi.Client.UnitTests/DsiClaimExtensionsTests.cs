@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dfe.SignIn.Core.Public;
 
 namespace Dfe.SignIn.PublicApi.Client.UnitTests;
 

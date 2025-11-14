@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Client.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Contracts.Organisations;

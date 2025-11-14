@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.PublicApi.Client.Abstractions;
 using Dfe.SignIn.PublicApi.Contracts.Organisations;
 using Microsoft.AspNetCore.Http;

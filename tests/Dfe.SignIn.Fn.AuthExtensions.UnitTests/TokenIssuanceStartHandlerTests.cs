@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Fn.AuthExtensions.Constants;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Fn.AuthExtensions.OnTokenIssuanceStart;
 using Microsoft.AspNetCore.Mvc;
 using Moq.AutoMock;
@@ -162,6 +162,6 @@ public class TokenIssuanceStartHandlerTests
         var data = TypeAssert.IsType<TokenIssuanceStartEventResponseData>(response.Data);
         Assert.HasCount(1, data.Actions);
         var provideClaimsAction = TypeAssert.IsType<ProvideClaimsForTokenAction>(data.Actions[0]);
-        Assert.AreEqual("d5ba1f44-1400-4c98-b834-5d5ba5b98995", provideClaimsAction.Claims[UserClaimConstants.UserId]);
+        Assert.AreEqual("d5ba1f44-1400-4c98-b834-5d5ba5b98995", provideClaimsAction.Claims[DsiClaimTypes.UserId]);
     }
 }
