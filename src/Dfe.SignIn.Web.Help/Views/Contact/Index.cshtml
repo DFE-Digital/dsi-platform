@@ -14,6 +14,7 @@
         @Html.Raw(@Model.ContentHtml)
 
         <form method="post" asp-antiforgery=true>
+            <input type="hidden" asp-for="ExceptionTraceId" />
             <govuk-fieldset>
                 <govuk-fieldset-legend class="govuk-visually-hidden">Contact DfE Sign-in service desk</govuk-fieldset-legend>
 
