@@ -76,6 +76,28 @@ public sealed class ContactControllerTests
         Assert.AreEqual("Other (please specify)", viewModel.SubjectOptions.First().Description);
     }
 
+    private static async Task AssertPresentsViewWithTraceOptions(Func<AutoMocker, ContactController, Task<IActionResult>> invokeAction, string? expectedExceptionTraceId = null)
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockContactUsTopic(autoMocker);
+
+        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetSubjectOptionsForSupportTicketResponse>();
+        autoMocker.MockResponse<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
+
+        var controller = autoMocker.CreateInstance<ContactController>();
+
+        var result = await invokeAction(autoMocker, controller);
+
+        var viewModel = TypeAssert.IsViewModelType<ContactViewModel>(result);
+
+        if (expectedExceptionTraceId is null) {
+            Assert.IsNull(viewModel.ExceptionTraceId);
+        }
+        else {
+            Assert.AreEqual(expectedExceptionTraceId, viewModel.ExceptionTraceId);
+        }
+    }
+
     private static async Task AssertPresentsViewWithApplicationOptions(Func<AutoMocker, ContactController, Task<IActionResult>> invokeAction)
     {
         var autoMocker = new AutoMocker();
@@ -103,6 +125,43 @@ public sealed class ContactControllerTests
         );
     }
 
+    private static async Task<RaiseSupportTicketRequest?> PostIndexAndCaptureAsync(string? exceptionTraceId = null)
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockContactUsTopic(autoMocker);
+
+        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetSubjectOptionsForSupportTicketResponse>();
+        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
+
+        RaiseSupportTicketRequest? capturedRequest = null;
+        autoMocker.CaptureRequest<RaiseSupportTicketRequest>(r => capturedRequest = r);
+
+        var controller = autoMocker.CreateInstance<ContactController>();
+
+        var vm = new ContactViewModel {
+            Title = "Contact us",
+            Summary = "Contact us if you need assistance.",
+            ContentHtml = "<p>Contact us if you need assistance.</p>",
+
+            SubjectOptions = [],
+            ApplicationOptions = [],
+
+            FullNameInput = "Alex Johnson",
+            EmailAddressInput = "alex.johnson@example.com",
+            SubjectCodeInput = "other",
+            CustomSummaryInput = "Example custom summary.",
+            OrganisationNameInput = "Example Organisation",
+            OrganisationUrnInput = "123456",
+            ApplicationNameInput = "Example Service",
+            MessageInput = "Example message.",
+            ExceptionTraceId = exceptionTraceId
+        };
+
+        await controller.PostIndex(vm);
+
+        return capturedRequest;
+    }
+
     #region Index()
 
     [TestMethod]
@@ -123,6 +182,18 @@ public sealed class ContactControllerTests
         return AssertPresentsViewWithApplicationOptions((autoMocker, controller) => controller.Index());
     }
 
+    [TestMethod]
+    public Task Index_PresentsViewWithTraceOptions()
+    {
+        return AssertPresentsViewWithTraceOptions((autoMocker, controller) => controller.Index("fake-trace-id"), "fake-trace-id");
+    }
+
+    [TestMethod]
+    public Task Index_PresentsViewWithNoTraceOptions()
+    {
+        return AssertPresentsViewWithTraceOptions((autoMocker, controller) => controller.Index());
+    }
+
     #endregion
 
     #region PostIndex(ContactViewModel)
@@ -130,34 +201,7 @@ public sealed class ContactControllerTests
     [TestMethod]
     public async Task PostIndex_RaisesSupportTicketWithUserInputs()
     {
-        var autoMocker = new AutoMocker();
-        SetupMockContactUsTopic(autoMocker);
-
-        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetSubjectOptionsForSupportTicketResponse>();
-        autoMocker.MockResponse<GetSubjectOptionsForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
-
-        RaiseSupportTicketRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<RaiseSupportTicketRequest>(r => capturedRequest = r);
-
-        var controller = autoMocker.CreateInstance<ContactController>();
-
-        await controller.PostIndex(new ContactViewModel {
-            Title = "Contact us",
-            Summary = "Contact us if you need assistance.",
-            ContentHtml = "<p>Contact us if you need assistance.</p>",
-
-            SubjectOptions = [],
-            ApplicationOptions = [],
-
-            FullNameInput = "Alex Johnson",
-            EmailAddressInput = "alex.johnson@example.com",
-            SubjectCodeInput = "other",
-            CustomSummaryInput = "Example custom summary.",
-            OrganisationNameInput = "Example Organisation",
-            OrganisationUrnInput = "123456",
-            ApplicationNameInput = "Example Service",
-            MessageInput = "Example message.",
-        });
+        var capturedRequest = await PostIndexAndCaptureAsync();
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("Alex Johnson", capturedRequest.FullName);
@@ -168,6 +212,24 @@ public sealed class ContactControllerTests
         Assert.AreEqual("123456", capturedRequest.OrganisationUrn);
         Assert.AreEqual("Example Service", capturedRequest.ApplicationName);
         Assert.AreEqual("Example message.", capturedRequest.Message);
+        Assert.IsNull(capturedRequest.ExceptionTraceId);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_WithExceptionTraceId_RaisesSupportTicketWithUserInputs()
+    {
+        var capturedRequest = await PostIndexAndCaptureAsync("fake-trace-id");
+
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual("Alex Johnson", capturedRequest.FullName);
+        Assert.AreEqual("alex.johnson@example.com", capturedRequest.EmailAddress);
+        Assert.AreEqual("other", capturedRequest.SubjectCode);
+        Assert.AreEqual("Example custom summary.", capturedRequest.CustomSummary);
+        Assert.AreEqual("Example Organisation", capturedRequest.OrganisationName);
+        Assert.AreEqual("123456", capturedRequest.OrganisationUrn);
+        Assert.AreEqual("Example Service", capturedRequest.ApplicationName);
+        Assert.AreEqual("Example message.", capturedRequest.Message);
+        Assert.AreEqual("fake-trace-id", capturedRequest.ExceptionTraceId);
     }
 
     private static readonly Exception FakeInvalidRequestException = new InvalidRequestException(
