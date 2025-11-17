@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dfe.SignIn.Base.Framework\Dfe.SignIn.Base.Framework.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.Interfaces\Dfe.SignIn.Core.Interfaces.csproj" />
   </ItemGroup>
 
   <ItemGroup>

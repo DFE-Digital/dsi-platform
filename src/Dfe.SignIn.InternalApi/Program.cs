@@ -1,5 +1,6 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -52,6 +53,10 @@ builder.Services
     .AddInteractionFramework()
     .AddInteractionCaching(builder.Configuration)
     .AddUseCasesUser(builder.Configuration);
+
+builder.Services
+    .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
+    .SetupAuditContext();
 
 // Setup Service Bus integration if needed...
 // var azureTokenCredential = new DefaultAzureCredential();

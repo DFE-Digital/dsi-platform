@@ -1,6 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Fn.AuthExtensions.Constants;
+using Dfe.SignIn.Core.Public;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -37,7 +37,7 @@ public sealed class TokenIssuanceStartHandler(
 
         return ResponseAction(new ProvideClaimsForTokenAction {
             Claims = new() {
-                [UserClaimConstants.UserId] = checkLinkedResponse.UserId.ToString(),
+                [DsiClaimTypes.UserId] = checkLinkedResponse.UserId.ToString(),
             },
         });
     }

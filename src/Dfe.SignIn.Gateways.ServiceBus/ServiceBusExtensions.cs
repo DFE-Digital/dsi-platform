@@ -1,6 +1,7 @@
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Caching;
+using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,10 +28,7 @@ public static class ServiceBusExtensions
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="configuration"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="sectionName"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="sectionName"/> is empty.</para>
+    ///   <para>If <paramref name="sectionName"/> is null or empty.</para>
     /// </exception>
     public static ServiceBusTopicProcessorOptions? GetServiceBusTopicOptions(
         this IConfigurationRoot configuration, string sectionName)
@@ -60,7 +58,7 @@ public static class ServiceBusExtensions
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="options"/> is null.</para>
@@ -104,17 +102,12 @@ public static class ServiceBusExtensions
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="topicOrQueueName"/> is null.</para>
+    ///   <para>If <paramref name="topicOrQueueName"/> is null or empty.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="subject"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="topicOrQueueName"/> is empty.</para>
-    ///   <para>- or -</para>
-    ///   <para>If <paramref name="subject"/> is empty.</para>
+    ///   <para>If <paramref name="subject"/> is null or empty.</para>
     /// </exception>
     public static IServiceCollection AddServiceBusHandler<THandler>(
         this IServiceCollection services, string topicOrQueueName, string subject, params object[] parameters)
@@ -138,19 +131,17 @@ public static class ServiceBusExtensions
     /// <param name="topicOrQueueName">Name of the Service Bus topic or queue.</param>
     /// <param name="subject">The subject that uniquely identifies the message type.</param>
     /// <param name="getCacheKey">A delegate that determines a cache key from a Service Bus message.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <returns>
+    ///   <para>The <paramref name="services"/> instance for chained calls.</para>
+    /// </returns>
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="topicOrQueueName"/> is null.</para>
+    ///   <para>If <paramref name="topicOrQueueName"/> is null or empty.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="subject"/> is null.</para>
+    ///   <para>If <paramref name="subject"/> is null or empty.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="getCacheKey"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="topicOrQueueName"/> is empty.</para>
-    ///   <para>- or -</para>
-    ///   <para>If <paramref name="subject"/> is empty.</para>
     /// </exception>
     public static IServiceCollection AddServiceBusCacheInvalidator<TRequest>(
         this IServiceCollection services, string topicOrQueueName, string subject, CacheKeyFromServiceBusMessageDelegate getCacheKey)
@@ -160,5 +151,46 @@ public static class ServiceBusExtensions
 
         return AddServiceBusHandler<ServiceBusCacheInvalidationHandler<TRequest>>(
             services, topicOrQueueName, subject, getCacheKey);
+    }
+
+    /// <summary>
+    /// Identifies the keyed <see cref="ServiceBusSender"/> singleton for sending messages
+    /// to the audit topic in Service Bus.
+    /// </summary>
+    public const string AuditSenderKey = "161b6895-e195-4fed-b102-6dcf8bf0cd75";
+
+    /// <summary>
+    /// Adds auditing capabilities.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The root configuration.</param>
+    /// <returns>
+    ///   <para>The <paramref name="services"/> instance for chained calls.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="services"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="configuration"/> is null.</para>
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///   <para>If topic name was not specified.</para>
+    /// </exception>
+    public static IServiceCollection AddAuditingWithServiceBus(
+        this IServiceCollection services, IConfigurationRoot configuration)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
+
+        var options = configuration.GetServiceBusTopicOptions("ServiceBus:AuditTopic")
+            ?? throw new InvalidOperationException("Missing topic options.");
+
+        services.AddKeyedSingleton(AuditSenderKey, (provider, _) => {
+            var client = provider.GetRequiredService<ServiceBusClient>();
+            return client.CreateSender(options.TopicName);
+        });
+
+        services.AddInteractor<WriteToAuditWithServiceBus>();
+
+        return services;
     }
 }
