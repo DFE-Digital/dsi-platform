@@ -455,7 +455,7 @@ public sealed class ControllerInteractionExtensionsTests
     }
 
     [TestMethod]
-    public async Task InvokeAsync_HandlesUnmappedProperties_WhenHasValidationResults()
+    public async Task InvokeAsync_Throws_WhenHasUnmappedProperties()
     {
         var mockController = new Mock<Controller>();
 
@@ -469,13 +469,11 @@ public sealed class ControllerInteractionExtensionsTests
         };
         var fakeException = new InvalidRequestException(Guid.Empty, validationResults);
 
-        await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync((_, _) => throw fakeException, CancellationToken.None);
+        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
+            => ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
+                .InvokeAsync((_, _) => throw fakeException, CancellationToken.None));
 
-        var modelState = mockController.Object.ModelState;
-        Assert.IsFalse(modelState.IsValid);
-        Assert.AreEqual(1, modelState.ErrorCount);
-        Assert.AreEqual("Example error", modelState.First(x => x.Key == "").Value!.Errors[0].ErrorMessage);
+        Assert.AreEqual("Unable to map validation result 'UnmappedProperty' with message 'Example error'.", exception.Message);
     }
 
     #endregion
