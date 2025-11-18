@@ -3,6 +3,7 @@ using Dfe.SignIn.Base.Framework;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
@@ -44,6 +45,8 @@ public static class RedisExtensions
 
         string connectionString = configuration.GetValue<string>("ConnectionString")
             ?? throw new InvalidOperationException("Missing connection string for Redis.");
+
+        services.TryAddSingleton(TimeProvider.System);
 
         // Ensure that "redis" health check is only added once even when multiple
         // redis stores are configured.
