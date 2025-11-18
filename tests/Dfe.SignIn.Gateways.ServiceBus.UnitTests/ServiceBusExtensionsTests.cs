@@ -149,9 +149,9 @@ public sealed class ServiceBusExtensionsTests
 
     #region AddServiceBusCacheInvalidator<TRequest>(IServiceCollection, string, string, CacheKeyFromServiceBusMessageDelegate)
 
-    public sealed record FakeRequest : ICacheableRequest
+    public sealed record FakeRequest : IKeyedRequest
     {
-        public string CacheKey => CacheableRequestConstants.DefaultCacheKey;
+        public string Key => KeyedRequestConstants.DefaultKey;
     }
 
     [TestMethod]

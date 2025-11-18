@@ -7,16 +7,16 @@ namespace Dfe.SignIn.Base.Framework.UnitTests.Caching;
 [TestClass]
 public sealed class CachedInteractorTests
 {
-    public sealed record ExampleRequest : ICacheableRequest
+    public sealed record ExampleRequest : IKeyedRequest
     {
-        public required string CacheKey { get; init; }
+        public required string Key { get; init; }
     }
 
     public sealed record ExampleResponse
     {
     }
 
-    private static readonly ExampleRequest FakeRequest = new() { CacheKey = "abc" };
+    private static readonly ExampleRequest FakeRequest = new() { Key = "abc" };
 
     [TestMethod]
     public async Task DoesNotInvokeInnerInteractor_WhenUsingCachedResponse()

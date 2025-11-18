@@ -16,11 +16,11 @@ namespace Dfe.SignIn.Base.Framework.Caching;
 ///   ]]></code>
 /// </remarks>
 /// <typeparam name="TRequest">
-/// The type of request being handled, which must implement <see cref="ICacheableRequest"/>.
+/// The type of request being handled, which must implement <see cref="IKeyedRequest"/>.
 /// </typeparam>
-/// <seealso cref="ICacheableRequest"/>
+/// <seealso cref="IKeyedRequest"/>
 public interface IInteractionCache<TRequest>
-    where TRequest : ICacheableRequest
+    where TRequest : IKeyedRequest
 {
     /// <summary>
     /// Sets the cache entry for an interaction response.
@@ -34,7 +34,7 @@ public interface IInteractionCache<TRequest>
     /// </exception>
     /// <exception cref="InvalidOperationException">
     ///   <para>If the <paramref name="request"/> has a null, empty, or otherwise invalid
-    ///   <see cref="ICacheableRequest.CacheKey"/> value.</para>
+    ///   <see cref="IKeyedRequest.Key"/> value.</para>
     /// </exception>
     Task SetAsync(TRequest request, object response);
 
@@ -54,7 +54,7 @@ public interface IInteractionCache<TRequest>
     /// </exception>
     /// <exception cref="InvalidOperationException">
     ///   <para>If the <paramref name="request"/> has a null, empty, or otherwise invalid
-    ///   <see cref="ICacheableRequest.CacheKey"/> value.</para>
+    ///   <see cref="IKeyedRequest.Key"/> value.</para>
     /// </exception>
     /// <exception cref="OperationCanceledException" />
     Task<object?> GetAsync(TRequest request, CancellationToken cancellationToken = default);

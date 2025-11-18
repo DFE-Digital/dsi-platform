@@ -1,4 +1,5 @@
 using Azure.Messaging.ServiceBus;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Caching;
 using Moq;
 
@@ -7,9 +8,9 @@ namespace Dfe.SignIn.Gateways.ServiceBus.UnitTests;
 [TestClass]
 public sealed class ServiceBusCacheInvalidationHandlerTests
 {
-    public sealed record ExampleRequest : ICacheableRequest
+    public sealed record ExampleRequest : IKeyedRequest
     {
-        public string CacheKey => CacheableRequestConstants.DefaultCacheKey;
+        public string Key => KeyedRequestConstants.DefaultKey;
     }
 
     [TestMethod]

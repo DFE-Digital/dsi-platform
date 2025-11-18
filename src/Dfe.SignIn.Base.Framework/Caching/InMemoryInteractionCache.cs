@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Base.Framework.Caching;
 /// <typeparam name="TRequest">The type of request.</typeparam>
 public sealed class InMemoryInteractionCacheOptions<TRequest>
     : IOptions<InMemoryInteractionCacheOptions<TRequest>>
-    where TRequest : class, ICacheableRequest
+    where TRequest : class, IKeyedRequest
 {
     /// <summary>
     /// Gets or sets the default absolute expiration date for a cache entry.
@@ -78,7 +78,7 @@ public sealed class InMemoryInteractionCache<TRequest>(
     IOptions<InMemoryInteractionCacheOptions<TRequest>> optionsAccessor,
     MemoryCache cache
 ) : IInteractionCache<TRequest>
-    where TRequest : class, ICacheableRequest
+    where TRequest : class, IKeyedRequest
 {
     private static void CheckCacheKey(string cacheKey)
     {
@@ -92,11 +92,11 @@ public sealed class InMemoryInteractionCache<TRequest>(
     {
         ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
         ExceptionHelpers.ThrowIfArgumentNull(response, nameof(response));
-        CheckCacheKey(request.CacheKey);
+        CheckCacheKey(request.Key);
 
         var cacheEntryOptions = optionsAccessor.Value.GetCacheEntryOptionsForRequest(request);
         if (cacheEntryOptions is not null) {
-            cache.Set(request.CacheKey, response, cacheEntryOptions);
+            cache.Set(request.Key, response, cacheEntryOptions);
         }
         return Task.CompletedTask;
     }
@@ -105,9 +105,9 @@ public sealed class InMemoryInteractionCache<TRequest>(
     public Task<object?> GetAsync(TRequest request, CancellationToken cancellationToken = default)
     {
         ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
-        CheckCacheKey(request.CacheKey);
+        CheckCacheKey(request.Key);
 
-        var cachedResponse = cache.Get(request.CacheKey);
+        var cachedResponse = cache.Get(request.Key);
         return Task.FromResult(cachedResponse);
     }
 

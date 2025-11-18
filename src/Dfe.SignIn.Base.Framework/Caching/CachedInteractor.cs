@@ -4,7 +4,7 @@ namespace Dfe.SignIn.Base.Framework.Caching;
 /// A decorator for <see cref="IInteractor{TRequest}"/> that adds caching capabilities.
 /// </summary>
 /// <typeparam name="TRequest">
-/// The type of request being handled, which must implement <see cref="ICacheableRequest"/>.
+/// The type of request being handled, which must implement <see cref="IKeyedRequest"/>.
 /// </typeparam>
 /// <param name="inner">The underlying interactor to be decorated with caching.</param>
 /// <param name="cache">The cache implementation used to store and retrieve interaction responses.</param>
@@ -12,7 +12,7 @@ public sealed class CachedInteractor<TRequest>(
     IInteractor<TRequest> inner,
     IInteractionCache<TRequest> cache
 ) : IInteractor<TRequest>
-    where TRequest : class, ICacheableRequest
+    where TRequest : class, IKeyedRequest
 {
     /// <inheritdoc/>
     public async Task<object> InvokeAsync(

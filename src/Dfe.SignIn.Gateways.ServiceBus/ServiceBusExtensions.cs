@@ -1,6 +1,5 @@
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Base.Framework.Caching;
 using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -145,7 +144,7 @@ public static class ServiceBusExtensions
     /// </exception>
     public static IServiceCollection AddServiceBusCacheInvalidator<TRequest>(
         this IServiceCollection services, string topicOrQueueName, string subject, CacheKeyFromServiceBusMessageDelegate getCacheKey)
-        where TRequest : class, ICacheableRequest
+        where TRequest : class, IKeyedRequest
     {
         ExceptionHelpers.ThrowIfArgumentNull(getCacheKey, nameof(getCacheKey));
 

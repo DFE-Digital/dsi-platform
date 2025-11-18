@@ -1,4 +1,5 @@
 using Azure.Messaging.ServiceBus;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Caching;
 
 namespace Dfe.SignIn.Gateways.ServiceBus;
@@ -23,7 +24,7 @@ public sealed class ServiceBusCacheInvalidationHandler<TRequest>(
     IInteractionCache<TRequest> interactionCache,
     CacheKeyFromServiceBusMessageDelegate getCacheKey
 ) : IServiceBusMessageHandler
-    where TRequest : class, ICacheableRequest
+    where TRequest : class, IKeyedRequest
 {
     /// <inheritdoc/>
     public Task HandleAsync(ServiceBusReceivedMessage message, CancellationToken cancellationToken = default)
