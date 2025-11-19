@@ -1,12 +1,12 @@
 ---
 updated: 2025-08-20
 caption: Account access and permissions
-title: Do I need access to services?
+title: Understanding account permissions
 summary: |
-  Understand what access you need to use DFE Sign-in as an approver and an end user.
+  See the minimum permissions needed for your account to be functional.
 ---
 
-No. You only need access to an organisation to use DfE Sign-in.
+DfE Sign-in can be used without service access, but organisation access is required.
 
 That means you can, if given approver status, manage users at your organisation without having services on your account.
 

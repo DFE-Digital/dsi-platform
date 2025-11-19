@@ -3,7 +3,7 @@ updated: 2025-08-20
 caption: Account access and permissions
 title: Adding organisations to your account
 summary: |
-  You can. One account is all you need to manage every organisation.
+  Find out how to request access to organisations.
 ---
 
 You are able to have one or more organisations associated with your account. You must submit an individual request for each organisation you require access to by following the steps below:

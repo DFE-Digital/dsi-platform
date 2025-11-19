@@ -17,6 +17,7 @@ To change the password associated with your account, follow the steps below:
 To make your password more secure, you should include:
 
 - a combination of three or more unrelated words
-- at least one special character (such as !, $, %)- a mix of numbers
+- at least one special character (such as !, $, %)
+- a mix of numbers
 
 If you are trying to sign into DfE Sign-in but cannot remember your password, you can reset this by selecting 'Forgotten password' on the sign in page.

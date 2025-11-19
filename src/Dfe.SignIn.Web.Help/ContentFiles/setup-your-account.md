@@ -4,7 +4,7 @@ caption: Getting started
 title: Setting up your DfE Sign-in account
 navigationTitle: Setting up your account
 summary: |
-  Started making your DfE Sign-in account? You'll need access to an organisation. Here's what to do.
+  How to verify your new account and request initial access to an organisation and services.
 ---
 
 There are 3 steps involved in setting up your account.
