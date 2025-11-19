@@ -68,6 +68,12 @@ public sealed class RedisExtensionsTests
 
         Assert.IsTrue(
             services.Any(descriptor =>
+                descriptor.Lifetime == ServiceLifetime.Singleton &&
+                descriptor.ServiceType == typeof(TimeProvider)
+            )
+        );
+        Assert.IsTrue(
+            services.Any(descriptor =>
                 (string?)descriptor.ServiceKey == "TestCacheKey" &&
                 descriptor.Lifetime == ServiceLifetime.Singleton &&
                 descriptor.ServiceType == typeof(IDistributedCache)

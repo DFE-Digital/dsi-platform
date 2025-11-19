@@ -24,7 +24,9 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
 
     <!-- Options -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.9" />
 
     <!-- Decorator pattern -->
     <PackageVersion Include="Scrutor" Version="6.1.0" />

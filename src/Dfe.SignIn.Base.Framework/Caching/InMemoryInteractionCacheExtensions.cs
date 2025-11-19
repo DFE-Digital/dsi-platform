@@ -25,7 +25,7 @@ public static class InMemoryInteractionCacheExtensions
     public static IServiceCollection AddInMemoryInteractionCache<TRequest>(
         this IServiceCollection services,
         Action<InMemoryInteractionCacheOptions<TRequest>>? configureOptions = null
-    ) where TRequest : class, ICacheableRequest
+    ) where TRequest : class, IKeyedRequest
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 

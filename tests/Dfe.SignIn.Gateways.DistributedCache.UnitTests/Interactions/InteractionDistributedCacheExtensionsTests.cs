@@ -11,9 +11,9 @@ namespace Dfe.SignIn.Gateways.DistributedCache.UnitTests.Interactions;
 [TestClass]
 public sealed class InteractionDistributedCacheExtensionsTests
 {
-    private sealed record ExampleRequest : ICacheableRequest
+    private sealed record ExampleRequest : IKeyedRequest
     {
-        public string CacheKey => "abc";
+        public string Key => "abc";
     }
 
     private sealed record ExampleResponse

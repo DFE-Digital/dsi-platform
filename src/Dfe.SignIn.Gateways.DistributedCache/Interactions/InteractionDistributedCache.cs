@@ -14,7 +14,7 @@ namespace Dfe.SignIn.Gateways.DistributedCache.Interactions;
 /// <typeparam name="TRequest">The type of request.</typeparam>
 public sealed class InteractionDistributedCacheOptions<TRequest>
     : IOptions<InteractionDistributedCacheOptions<TRequest>>
-    where TRequest : class, ICacheableRequest
+    where TRequest : class, IKeyedRequest
 {
     /// <summary>
     /// Gets or sets the default absolute expiration date for a cache entry.
@@ -86,7 +86,7 @@ public sealed partial class InteractionDistributedCache<TRequest, TResponse>(
     [FromKeyedServices(DistributedCacheKeys.InteractionRequests)] IDistributedCache cache,
     ICacheEntrySerializer serializer
 ) : IInteractionCache<TRequest>
-    where TRequest : class, ICacheableRequest
+    where TRequest : class, IKeyedRequest
     where TResponse : class
 {
     private static void CheckCacheKey(string cacheKey)
@@ -107,11 +107,11 @@ public sealed partial class InteractionDistributedCache<TRequest, TResponse>(
     {
         ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
         ExceptionHelpers.ThrowIfArgumentNull(response, nameof(response));
-        CheckCacheKey(request.CacheKey);
+        CheckCacheKey(request.Key);
 
         var cacheEntryOptions = optionsAccessor.Value.GetCacheEntryOptionsForRequest(request);
         if (cacheEntryOptions is not null) {
-            string cacheKey = TransformCacheKey(request.CacheKey);
+            string cacheKey = TransformCacheKey(request.Key);
             string entryJson = serializer.Serialize(response);
             cache.SetStringAsync(cacheKey, entryJson, cacheEntryOptions);
         }
@@ -122,9 +122,9 @@ public sealed partial class InteractionDistributedCache<TRequest, TResponse>(
     public async Task<object?> GetAsync(TRequest request, CancellationToken cancellationToken = default)
     {
         ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
-        CheckCacheKey(request.CacheKey);
+        CheckCacheKey(request.Key);
 
-        string cacheKey = TransformCacheKey(request.CacheKey);
+        string cacheKey = TransformCacheKey(request.Key);
 
         string? responseJson = await cache.GetStringAsync(cacheKey);
         if (responseJson is null) {

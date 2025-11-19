@@ -1,5 +1,5 @@
 using System.Text;
-using Dfe.SignIn.Base.Framework.Caching;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.DistributedCache.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
@@ -12,9 +12,9 @@ namespace Dfe.SignIn.Gateways.DistributedCache.UnitTests.Interactions;
 [TestClass]
 public sealed class InteractionDistributedCacheTests
 {
-    public sealed record ExampleRequest : ICacheableRequest
+    public sealed record ExampleRequest : IKeyedRequest
     {
-        public required string CacheKey { get; init; }
+        public required string Key { get; init; }
     }
 
     public sealed record ExampleResponse
@@ -22,7 +22,7 @@ public sealed class InteractionDistributedCacheTests
         public required int Value { get; init; }
     }
 
-    private static readonly ExampleRequest FakeRequest = new() { CacheKey = "abc" };
+    private static readonly ExampleRequest FakeRequest = new() { Key = "abc" };
     private static readonly ExampleResponse FakeResponse = new() { Value = 123 };
 
     private static TimeSpan GetFakeTime(int hour) => new(hour, 0, 0);
@@ -68,7 +68,7 @@ public sealed class InteractionDistributedCacheTests
         var cache = autoMocker.CreateInstance<InteractionDistributedCache<ExampleRequest, ExampleResponse>>();
 
         var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
-            => cache.SetAsync(new ExampleRequest { CacheKey = cacheKey }, FakeResponse));
+            => cache.SetAsync(new ExampleRequest { Key = cacheKey }, FakeResponse));
 
         Assert.AreEqual("Invalid cache key.", exception.Message);
     }
@@ -151,7 +151,7 @@ public sealed class InteractionDistributedCacheTests
         var cache = autoMocker.CreateInstance<InteractionDistributedCache<ExampleRequest, ExampleResponse>>();
 
         var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
-            => cache.GetAsync(new ExampleRequest { CacheKey = cacheKey }, CancellationToken.None));
+            => cache.GetAsync(new ExampleRequest { Key = cacheKey }, CancellationToken.None));
 
         Assert.AreEqual("Invalid cache key.", exception.Message);
     }
@@ -224,7 +224,7 @@ public sealed class InteractionDistributedCacheTests
         SetupInteractionDistributedCacheOptions(autoMocker);
         var cache = autoMocker.CreateInstance<InteractionDistributedCache<ExampleRequest, ExampleResponse>>();
 
-        await cache.RemoveAsync(FakeRequest.CacheKey);
+        await cache.RemoveAsync(FakeRequest.Key);
 
         autoMocker.Verify<IDistributedCache>(x =>
             x.RemoveAsync(

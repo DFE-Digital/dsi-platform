@@ -29,7 +29,7 @@ public static class InteractionDistributedCacheExtensions
         this IServiceCollection services,
         Action<InteractionDistributedCacheOptions<TRequest>>? configureOptions = null
     )
-        where TRequest : class, ICacheableRequest
+        where TRequest : class, IKeyedRequest
         where TResponse : class
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));

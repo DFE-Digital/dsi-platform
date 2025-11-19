@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework.Caching;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Applications;
 
@@ -16,7 +16,7 @@ namespace Dfe.SignIn.Core.Contracts.Applications;
 ///     <item>When attempting to access an application that does not exist.</item>
 ///   </list>
 /// </remarks>
-public sealed record GetApplicationApiConfigurationRequest : ICacheableRequest
+public sealed record GetApplicationApiConfigurationRequest : IKeyedRequest
 {
     /// <summary>
     /// Gets the unique client identifier of the application.
@@ -24,7 +24,7 @@ public sealed record GetApplicationApiConfigurationRequest : ICacheableRequest
     public required string ClientId { get; init; }
 
     /// <inheritdoc/>
-    string ICacheableRequest.CacheKey => this.ClientId;
+    string IKeyedRequest.Key => this.ClientId;
 }
 
 /// <summary>

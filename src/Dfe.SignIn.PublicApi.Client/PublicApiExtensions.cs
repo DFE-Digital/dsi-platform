@@ -32,12 +32,6 @@ public static class PublicApiExtensions
 
         SetupHttpClient(services);
 
-        if (!services.Any(serviceDescriptor =>
-            serviceDescriptor.ServiceType == typeof(TimeProvider) ||
-            typeof(TimeProvider).IsAssignableFrom(serviceDescriptor.ServiceType))) {
-            services.AddSingleton(TimeProvider.System);
-        }
-
         services.AddInteractionFramework();
         DiscoverCustomApiRequesters(services);
         AddSelectOrganisationApiRequesters(services);

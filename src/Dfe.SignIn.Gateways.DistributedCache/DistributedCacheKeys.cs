@@ -11,6 +11,11 @@ namespace Dfe.SignIn.Gateways.DistributedCache;
 public static class DistributedCacheKeys
 {
     /// <summary>
+    /// A unique value that identifies a general cache.
+    /// </summary>
+    public const string GeneralCache = "d47d8b06-0afd-44e7-8bed-4cb7c7c1e8af";
+
+    /// <summary>
     /// A unique value that identifies the "Select organisation" session cache.
     /// </summary>
     public const string SelectOrganisationSessions = "ee86309b-8f3a-4eac-943c-dc14a3c60343";

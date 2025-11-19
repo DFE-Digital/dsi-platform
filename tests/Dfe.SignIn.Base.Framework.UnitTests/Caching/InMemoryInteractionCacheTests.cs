@@ -9,19 +9,19 @@ namespace Dfe.SignIn.Base.Framework.UnitTests.Caching;
 [TestClass]
 public sealed class InMemoryInteractionCacheTests
 {
-    public sealed record ExampleRequest : ICacheableRequest
+    public sealed record ExampleRequest : IKeyedRequest
     {
-        public required string CacheKey { get; init; }
+        public required string Key { get; init; }
     }
 
     public sealed record ExampleResponse
     {
     }
 
-    private static readonly ExampleRequest FakeRequest = new() { CacheKey = "abc" };
+    private static readonly ExampleRequest FakeRequest = new() { Key = "abc" };
     private static readonly ExampleResponse FakeResponse = new();
 
-    private static readonly ExampleRequest FakeOtherRequest = new() { CacheKey = "other" };
+    private static readonly ExampleRequest FakeOtherRequest = new() { Key = "other" };
     private static readonly ExampleResponse FakeOtherResponse = new();
 
     private static DateTimeOffset GetFakeTime(int hour) => new(2025, 9, 24, hour, 0, 0, TimeSpan.Zero);
@@ -80,7 +80,7 @@ public sealed class InMemoryInteractionCacheTests
         var cache = autoMocker.CreateInstance<InMemoryInteractionCache<ExampleRequest>>();
 
         var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
-            => cache.SetAsync(new ExampleRequest { CacheKey = cacheKey }, FakeResponse));
+            => cache.SetAsync(new ExampleRequest { Key = cacheKey }, FakeResponse));
 
         Assert.AreEqual("Invalid cache key.", exception.Message);
     }
@@ -128,7 +128,7 @@ public sealed class InMemoryInteractionCacheTests
         var cache = autoMocker.CreateInstance<InMemoryInteractionCache<ExampleRequest>>();
 
         var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
-            => cache.GetAsync(new ExampleRequest { CacheKey = cacheKey }, CancellationToken.None));
+            => cache.GetAsync(new ExampleRequest { Key = cacheKey }, CancellationToken.None));
 
         Assert.AreEqual("Invalid cache key.", exception.Message);
     }
@@ -262,7 +262,7 @@ public sealed class InMemoryInteractionCacheTests
 
         await cache.SetAsync(FakeRequest, FakeResponse);
 
-        await cache.RemoveAsync(FakeRequest.CacheKey);
+        await cache.RemoveAsync(FakeRequest.Key);
 
         var cachedResponse = await cache.GetAsync(FakeRequest, CancellationToken.None);
 
@@ -280,7 +280,7 @@ public sealed class InMemoryInteractionCacheTests
         await cache.SetAsync(FakeOtherRequest, FakeOtherResponse);
         await cache.SetAsync(FakeRequest, FakeResponse);
 
-        await cache.RemoveAsync(FakeRequest.CacheKey);
+        await cache.RemoveAsync(FakeRequest.Key);
 
         var cachedResponse = await cache.GetAsync(FakeRequest, CancellationToken.None);
         var otherCachedResponse = await cache.GetAsync(FakeOtherRequest, CancellationToken.None);
