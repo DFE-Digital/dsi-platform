@@ -73,6 +73,31 @@ public sealed class WriteToAuditWithServiceBusTests
     }
 
     [TestMethod]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    public async Task SendsExpectedSuccessMetadata(bool wasFailure, bool expectedSuccessValue)
+    {
+        var autoMocker = new AutoMocker();
+
+        ServiceBusMessage? capturedMessage = null;
+        CaptureServiceBusMessage(autoMocker, (message, _) => capturedMessage = message);
+
+        var interactor = CreateInteractor(autoMocker);
+
+        await interactor.InvokeAsync(new WriteToAuditRequest {
+            EventCategory = "Login",
+            Message = "Example audit message",
+            WasFailure = wasFailure,
+        }, CancellationToken.None);
+
+        Assert.IsNotNull(capturedMessage);
+
+        var body = JsonSerializer.Deserialize<JsonElement>(ApplyTripleDeserializationWorkaround(capturedMessage.Body));
+
+        Assert.AreEqual(expectedSuccessValue, body.GetProperty("meta").GetProperty("success").GetBoolean());
+    }
+
+    [TestMethod]
     public async Task SendsExpectedMessage_WhenFullRequestIsSent()
     {
         var autoMocker = new AutoMocker();
@@ -88,7 +113,6 @@ public sealed class WriteToAuditWithServiceBusTests
             Message = "Example audit message",
             OrganisationId = new Guid("da7d2275-330d-4ba9-93a1-686162c994b0"),
             CustomProperties = [
-                new("success", true),
                 new("email", "jessica@example.com"),
             ],
         }, CancellationToken.None);
