@@ -16,6 +16,8 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
+
 #if DEBUG
 builder.Configuration
     .AddJsonFile("appsettings.Local.json")

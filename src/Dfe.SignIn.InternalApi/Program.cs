@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
+
 builder.Configuration
 #if DEBUG
     .AddJsonFile("appsettings.Local.json")
