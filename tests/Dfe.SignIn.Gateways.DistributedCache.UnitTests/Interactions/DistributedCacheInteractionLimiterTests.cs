@@ -62,7 +62,7 @@ public sealed class DistributedCacheInteractionLimiterTests
     }
 
     [TestMethod]
-    public async Task LimitActionAsync_DoesNotReject_WhenNothingCached()
+    public async Task LimitActionAsync_DoesNotReject_WhenCounterNotPresent()
     {
         var autoMocker = new AutoMocker();
         var limiter = CreateLimiter(autoMocker);
@@ -80,7 +80,7 @@ public sealed class DistributedCacheInteractionLimiterTests
     }
 
     [TestMethod]
-    public async Task LimitActionAsync_DoesNotReject_WhenHasBeenCachedOnce()
+    public async Task LimitActionAsync_DoesNotReject_WhenCounterIsOne()
     {
         var autoMocker = new AutoMocker();
         var limiter = CreateLimiter(autoMocker);
@@ -100,7 +100,7 @@ public sealed class DistributedCacheInteractionLimiterTests
     }
 
     [TestMethod]
-    public async Task LimitActionAsync_Rejects_WhenRequestLimitReached()
+    public async Task LimitActionAsync_Rejects_WhenCounterAtLimit()
     {
         var autoMocker = new AutoMocker();
         var limiter = CreateLimiter(autoMocker);
@@ -120,7 +120,7 @@ public sealed class DistributedCacheInteractionLimiterTests
     }
 
     [TestMethod]
-    public async Task LimitActionAsync_SetsNewCacheEntry()
+    public async Task LimitActionAsync_SetsNewCounterToOne()
     {
         var autoMocker = new AutoMocker();
         var limiter = CreateLimiter(autoMocker);
@@ -153,7 +153,7 @@ public sealed class DistributedCacheInteractionLimiterTests
     }
 
     [TestMethod]
-    public async Task LimitActionAsync_IncrementsExistingCacheEntry()
+    public async Task LimitActionAsync_IncrementsExistingCounter()
     {
         var autoMocker = new AutoMocker();
         var limiter = CreateLimiter(autoMocker);
