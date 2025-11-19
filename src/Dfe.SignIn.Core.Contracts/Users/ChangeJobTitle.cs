@@ -26,7 +26,7 @@ public sealed record ChangeJobTitleRequest
     /// <summary>
     /// The user's new job title.
     /// </summary>
-    [RegularExpression(@"^[\p{L}\p{N} ()]*$", ErrorMessage = "Special characters cannot be used")]
+    [RegularExpression(@"^[\p{L}\p{N} ()]*$", ErrorMessage = "Special characters cannot be used in job title")]
     [MaxLength(60, ErrorMessage = "Enter a job title with no more than 60 characters")]
     public required string NewJobTitle { get; init; }
 }
