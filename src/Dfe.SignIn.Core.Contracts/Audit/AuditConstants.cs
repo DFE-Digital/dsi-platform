@@ -6,6 +6,11 @@ namespace Dfe.SignIn.Core.Contracts.Audit;
 public static class AuditEventCategoryNames
 {
     /// <summary>
+    /// An event that is raised when a user signs out.
+    /// </summary>
+    public const string SignOut = "Sign-out";
+
+    /// <summary>
     /// An event that is raised by the support team.
     /// </summary>
     /// <seealso cref="AuditSupportEventNames"/>

@@ -74,7 +74,9 @@ builder.Services
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(
+            builder.Configuration.GetValue<int>("Session:DurationInMinutes")
+        );
     });
 
 builder.Services.AddSingleton(sp =>
@@ -88,7 +90,19 @@ builder.Services.AddSingleton(sp =>
 // Add services to the container.
 builder.Services.AddControllersWithViews(options => options.AddTrimStringModelBinding());
 builder.Services.AddHealthChecks();
-builder.Services.AddSession();
+
+builder.Services
+    .Configure<UserSessionOptions>(builder.Configuration.GetRequiredSection("Session"))
+    .AddSession(options => {
+        options.Cookie.Name = "Session";
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+        options.IdleTimeout = TimeSpan.FromMinutes(
+            builder.Configuration.GetValue<int>("Session:DurationInMinutes")
+        );
+    });
 
 builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache,
