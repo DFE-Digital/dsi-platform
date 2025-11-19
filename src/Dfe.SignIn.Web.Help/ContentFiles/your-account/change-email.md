@@ -1,5 +1,5 @@
 ---
-updated: 2025-08-20
+updated: 2025-11-19
 caption: Account security
 title: How do I change the email address on my account?
 summary: |
@@ -10,7 +10,7 @@ To change the email address associated with your account, follow the steps below
 
 1. Click on 'Profile' in the top banner.
 
-2. Select 'Change my email address' from the related actions.
+2. Select 'Change email' from the related actions.
 
 3. Enter the new email address you would like to be linked to your account.
 
