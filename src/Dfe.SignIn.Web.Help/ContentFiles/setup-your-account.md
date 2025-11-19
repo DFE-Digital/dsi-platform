@@ -1,5 +1,5 @@
 ---
-updated: 2025-08-20
+updated: 2025-11-19
 caption: Getting started
 title: Setting up your DfE Sign-in account
 navigationTitle: Setting up your account
@@ -32,6 +32,6 @@ You will be asked to connect with only one organisation during initial account s
 
 During initial account set up, you’ll be able to request access to multiple services within the organisation you have requested access to.
 
-These services are areas within DfE Sign-in that will allow you to complete tasks or see certain data, for example Publish to the Course Directory and Analyse School Performance.
+These services are areas within DfE Sign-in that will allow you to complete tasks or see certain data, for example Get Information About Schools and Analyse School Performance.
 
 [Find out how to request access to a service](/your-account/request-service-access)
