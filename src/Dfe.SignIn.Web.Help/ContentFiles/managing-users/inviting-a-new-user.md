@@ -21,10 +21,10 @@ When you invite a new user, you must:
 
 Examples of not allowed email addresses:
 
-- admin@gmail.com
-- head@yahoo.com
+- admin\@gmail.com
+- head\@yahoo.com
 
 These are not allowed because:
 
 - admin and head are not a real persons name.
-- @gmail.com and @yahoo.com are generic email providers, not work email addresses.
+- \@gmail.com and \@yahoo.com are generic email providers, not work email addresses.
