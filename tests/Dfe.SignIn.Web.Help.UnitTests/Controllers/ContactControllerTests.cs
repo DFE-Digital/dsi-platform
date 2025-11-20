@@ -120,7 +120,7 @@ public sealed class ContactControllerTests
         );
     }
 
-    private static async Task<RaiseSupportTicketRequest?> PostIndexAndCaptureAsync(string? exceptionTraceId = null)
+    private static async Task<(IActionResult Result, RaiseSupportTicketRequest? CapturedRequest)> PostIndexAndCaptureResultAsync(string? exceptionTraceId = null, string faxNumber = "123", string website = "")
     {
         var autoMocker = new AutoMocker();
         SetupMockContactUsTopic(autoMocker);
@@ -149,12 +149,15 @@ public sealed class ContactControllerTests
             OrganisationUrnInput = "123456",
             ApplicationNameInput = "Example Service",
             MessageInput = "Example message.",
-            ExceptionTraceId = exceptionTraceId
+            ExceptionTraceId = exceptionTraceId,
+
+            FaxNumber = faxNumber,
+            Website = website
         };
 
-        await controller.PostIndex(vm);
+        var result = await controller.PostIndex(vm);
 
-        return capturedRequest;
+        return (result, capturedRequest);
     }
 
     #region Index()
@@ -196,7 +199,7 @@ public sealed class ContactControllerTests
     [TestMethod]
     public async Task PostIndex_RaisesSupportTicketWithUserInputs()
     {
-        var capturedRequest = await PostIndexAndCaptureAsync();
+        var (_, capturedRequest) = await PostIndexAndCaptureResultAsync();
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("Alex Johnson", capturedRequest.FullName);
@@ -213,7 +216,7 @@ public sealed class ContactControllerTests
     [TestMethod]
     public async Task PostIndex_WithExceptionTraceId_RaisesSupportTicketWithUserInputs()
     {
-        var capturedRequest = await PostIndexAndCaptureAsync("fake-trace-id");
+        var (_, capturedRequest) = await PostIndexAndCaptureResultAsync(exceptionTraceId: "fake-trace-id");
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("Alex Johnson", capturedRequest.FullName);
@@ -225,6 +228,42 @@ public sealed class ContactControllerTests
         Assert.AreEqual("Example Service", capturedRequest.ApplicationName);
         Assert.AreEqual("Example message.", capturedRequest.Message);
         Assert.AreEqual("fake-trace-id", capturedRequest.ExceptionTraceId);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_DoesNotRaiseSupportTicket_WhenFaxNumberIsIncorrect()
+    {
+        var (result, capturedRequest) = await PostIndexAndCaptureResultAsync(faxNumber: "bad-value");
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        var viewResult = (ViewResult)result;
+        Assert.AreEqual("Success", viewResult.ViewName);
+
+        Assert.IsNull(capturedRequest);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_DoesNotRaiseSupportTicket_WhenWebsiteHoneypotIsPopulated()
+    {
+        var (result, capturedRequest) = await PostIndexAndCaptureResultAsync(website: "http://spam");
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        var viewResult = (ViewResult)result;
+        Assert.AreEqual("Success", viewResult.ViewName);
+
+        Assert.IsNull(capturedRequest);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_RaisesSupportTicket_WhenHoneypotFieldsAreValid()
+    {
+        var (result, capturedRequest) = await PostIndexAndCaptureResultAsync();
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        var viewResult = (ViewResult)result;
+        Assert.AreEqual("Success", viewResult.ViewName);
+
+        Assert.IsNotNull(capturedRequest);
     }
 
     private static readonly Exception FakeInvalidRequestException = new InvalidRequestException(
