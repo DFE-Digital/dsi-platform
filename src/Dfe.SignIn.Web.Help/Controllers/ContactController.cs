@@ -50,6 +50,10 @@ public sealed class ContactController(
     [HttpPost("contact-us")]
     public async Task<IActionResult> PostIndex(ContactViewModel viewModel)
     {
+        if (viewModel.FaxNumber != ContactViewModel.HoneypotDefaultFaxValue || !string.IsNullOrEmpty(viewModel.Website)) {
+            return this.View("Success");
+        }
+
         await this.MapInteractionRequest<RaiseSupportTicketRequest>(viewModel)
             .InvokeAsync(interaction.DispatchAsync);
 

@@ -9,6 +9,11 @@ namespace Dfe.SignIn.Web.Help.Models;
 public sealed class ContactViewModel
 {
     /// <summary>
+    /// Defines the default honeypot value for the Fax field.
+    /// </summary>
+    internal static readonly string HoneypotDefaultFaxValue = "123";
+
+    /// <summary>
     /// Gets or sets the title of the topic.
     /// </summary>
     [ValidateNever]
@@ -102,4 +107,20 @@ public sealed class ContactViewModel
     [ValidateNever]
     [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.ExceptionTraceId))]
     public string? ExceptionTraceId { get; set; }
+
+    /// <summary>
+    /// This is a honeypot field used to bait bots, and in such circumstances
+    /// when the value received differs from that which was set, the contact-us
+    /// page pretends to succeed and doesn't submit a support request.
+    /// </summary>
+    [ValidateNever]
+    public string? FaxNumber { get; set; } = HoneypotDefaultFaxValue;
+
+    /// <summary>
+    /// This is a honeypot field used to bait bots, and in such circumstances
+    /// when the value received differs from that which was set, the contact-us
+    /// page pretends to succeed and doesn't submit a support request.
+    /// </summary>
+    [ValidateNever]
+    public string? Website { get; set; }
 }
