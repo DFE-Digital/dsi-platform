@@ -90,12 +90,7 @@ public sealed class ContactControllerTests
 
         var viewModel = TypeAssert.IsViewModelType<ContactViewModel>(result);
 
-        if (expectedExceptionTraceId is null) {
-            Assert.IsNull(viewModel.ExceptionTraceId);
-        }
-        else {
-            Assert.AreEqual(expectedExceptionTraceId, viewModel.ExceptionTraceId);
-        }
+        Assert.AreEqual(expectedExceptionTraceId, viewModel.ExceptionTraceId);
     }
 
     private static async Task AssertPresentsViewWithApplicationOptions(Func<AutoMocker, ContactController, Task<IActionResult>> invokeAction)
