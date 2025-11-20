@@ -15,7 +15,7 @@ public sealed class ContactController(
     IInteractionDispatcher interaction
 ) : Controller
 {
-    private async Task<ContactViewModel> PrepareViewModel(ContactViewModel? viewModel = null)
+    private async Task<ContactViewModel> PrepareViewModel(ContactViewModel? viewModel = null, string? exceptionTraceId = null)
     {
         viewModel ??= Activator.CreateInstance<ContactViewModel>();
 
@@ -36,14 +36,15 @@ public sealed class ContactController(
         ).To<GetApplicationNamesForSupportTicketResponse>();
 
         viewModel.ApplicationOptions = applicationNamesResponse.Applications;
+        viewModel.ExceptionTraceId = exceptionTraceId;
 
         return viewModel;
     }
 
     [HttpGet("contact-us")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index([FromQuery] string? exceptionTraceId = null)
     {
-        return this.View(await this.PrepareViewModel());
+        return this.View(await this.PrepareViewModel(null, exceptionTraceId));
     }
 
     [HttpPost("contact-us")]

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Notifications;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
@@ -32,7 +33,7 @@ public sealed class RaiseSupportTicketByEmailOptions : IOptions<RaiseSupportTick
 /// <summary>
 /// Use case for raising a support ticket by an email notification.
 /// </summary>
-public sealed class RaiseSupportTicketByEmailUseCase(
+public sealed partial class RaiseSupportTicketByEmailUseCase(
     IOptions<RaiseSupportTicketByEmailOptions> optionsAccessor,
     IInteractionDispatcher interaction
 ) : Interactor<RaiseSupportTicketRequest, RaiseSupportTicketResponse>
@@ -52,6 +53,10 @@ public sealed class RaiseSupportTicketByEmailUseCase(
             throw new InvalidOperationException("Missing required configuration");
         }
 
+        string supportEmailMessage = IsValidTraceId(context.Request.ExceptionTraceId ?? string.Empty)
+            ? $"{context.Request.Message}{Environment.NewLine}(TraceId: {context.Request.ExceptionTraceId})"
+            : context.Request.Message;
+
         await interaction.DispatchAsync(new SendEmailNotificationRequest {
             RecipientEmailAddress = options.SupportEmailAddress,
             TemplateId = options.EmailTemplateId,
@@ -62,7 +67,7 @@ public sealed class RaiseSupportTicketByEmailUseCase(
                 ["urn"] = context.Request.OrganisationUrn ?? "",
                 ["service"] = context.Request.ApplicationName ?? "",
                 ["type"] = context.Request.SubjectCode,
-                ["message"] = context.Request.Message,
+                ["message"] = supportEmailMessage,
                 ["showAdditionalInfoHeader"] = !string.IsNullOrWhiteSpace(context.Request.CustomSummary),
                 ["typeAdditionalInfo"] = context.Request.CustomSummary ?? "",
                 ["helpUrl"] = options.ContactUrl,
@@ -70,6 +75,14 @@ public sealed class RaiseSupportTicketByEmailUseCase(
         }, cancellationToken);
 
         return new RaiseSupportTicketResponse();
+    }
+
+    [GeneratedRegex(@"^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$")]
+    private static partial Regex TraceIdPattern();
+
+    private static bool IsValidTraceId(string traceId)
+    {
+        return TraceIdPattern().IsMatch(traceId);
     }
 
     private async Task ValidateSubjectCodeAsync(InteractionContext<RaiseSupportTicketRequest> context)

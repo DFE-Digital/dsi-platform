@@ -127,7 +127,11 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     }
 
     [TestMethod]
-    public async Task SendsEmailWithExpectedPersonalisation()
+    [DataRow("00-85de56127199fe095c3606936214fa7e-378170829362213b-00", "A message.\n(TraceId: 00-85de56127199fe095c3606936214fa7e-378170829362213b-00)")]
+    [DataRow("fake-trace-id", "A message.")]
+    [DataRow("0HNH7OMN7JND3:00000002", "A message.")]
+    [DataRow(null, "A message.")]
+    public async Task SendsEmailWithExpectedPersonalisation(string? exceptionTraceId, string expectedMessage)
     {
         var autoMocker = new AutoMocker();
         SetupOptions(autoMocker);
@@ -138,7 +142,9 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
 
         var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
-        await interactor.InvokeAsync(FakeRequest);
+        await interactor.InvokeAsync(FakeRequest with {
+            ExceptionTraceId = exceptionTraceId
+        });
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("Alex Johnson", capturedRequest.Personalisation["name"]);
@@ -147,7 +153,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
         Assert.AreEqual("", capturedRequest.Personalisation["urn"]);
         Assert.AreEqual("create-account", capturedRequest.Personalisation["type"]);
         Assert.AreEqual("Example Service", capturedRequest.Personalisation["service"]);
-        Assert.AreEqual("A message.", capturedRequest.Personalisation["message"]);
+        Assert.AreEqual(expectedMessage, capturedRequest.Personalisation["message"]);
         Assert.IsFalse(capturedRequest.Personalisation["showAdditionalInfoHeader"]);
         Assert.AreEqual("https://help.localhost/contact-us", capturedRequest.Personalisation["helpUrl"].ToString());
     }

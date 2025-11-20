@@ -5,12 +5,13 @@
 @{
     ViewData[DsiLayoutConstants.ServiceNavigationItems] = Array.Empty<NavigationItemViewModel>();
     ViewData[DsiLayoutConstants.Title] = "There has been an error";
+    Uri contactUsUrl = new Uri(platformOptionsAccessor.Value.HelpUrl, Model.ShowRequestId ? $"contact-us?exceptionTraceId={Model.RequestId}" : "contact-us");
 }
 
 <h1 class="govuk-heading-xl govuk-!-margin-top-3">There has been an error</h1>
 
 <p class="govuk-body">If the problem continues, follow the link to <a class="govuk-link govuk-link-bold"
-        href="@(platformOptionsAccessor.Value.HelpUrl)/contact-us">submit a support request</a>.
+        href="@contactUsUrl">submit a support request</a>.
 
 @if (Model.ShowRequestId)
 {

@@ -66,6 +66,12 @@ public sealed record RaiseSupportTicketRequest : IValidatableObject
     [MaxLength(1000, ErrorMessage = "Issue details cannot be longer than 1000 characters")]
     public required string Message { get; init; }
 
+    /// <summary>
+    /// Trace identifier captured when an exception occurs.  When a user follows the support
+    /// link from an error page, this value is included so support can correlate logs and aid debugging.
+    /// </summary>
+    public string? ExceptionTraceId { get; init; }
+
     /// <inheritdoc/>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

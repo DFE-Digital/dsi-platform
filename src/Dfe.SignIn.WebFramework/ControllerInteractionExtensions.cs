@@ -17,7 +17,7 @@ public static class ControllerInteractionExtensions
     /// </summary>
     /// <typeparam name="TRequest">The type of the request model to map to.</typeparam>
     /// <param name="controller">The controller initiating the interaction.</param>
-    /// <param name="viewModel">The vieControllerInteractionExtensionsw model containing input data.</param>
+    /// <param name="viewModel">The view model containing input data.</param>
     /// <returns>
     ///   <para>A <see cref="MapInteractionRequestBuilder{TRequest}"/> that encapsulates the
     ///   controller, the populated request model, and the view model type for validation

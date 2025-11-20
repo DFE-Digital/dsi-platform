@@ -94,4 +94,12 @@ public sealed class ContactViewModel
     /// </summary>
     [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.Message))]
     public string? MessageInput { get; set; }
+
+    /// <summary>
+    /// Trace identifier captured when an exception occurs. When a user follows the support link from an error page,
+    /// this value is included so support can correlate logs and aid debugging.
+    /// </summary>
+    [ValidateNever]
+    [MapTo<RaiseSupportTicketRequest>(nameof(RaiseSupportTicketRequest.ExceptionTraceId))]
+    public string? ExceptionTraceId { get; set; }
 }
