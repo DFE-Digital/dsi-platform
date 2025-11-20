@@ -129,6 +129,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
     [TestMethod]
     [DataRow("00-85de56127199fe095c3606936214fa7e-378170829362213b-00", "A message.\n(TraceId: 00-85de56127199fe095c3606936214fa7e-378170829362213b-00)")]
     [DataRow("fake-trace-id", "A message.")]
+    [DataRow("0HNH7OMN7JND3:00000002", "A message.")]
     [DataRow(null, "A message.")]
     public async Task SendsEmailWithExpectedPersonalisation(string? exceptionTraceId, string expectedMessage)
     {
