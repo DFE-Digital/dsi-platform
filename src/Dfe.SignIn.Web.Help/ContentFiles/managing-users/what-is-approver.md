@@ -1,9 +1,9 @@
 ---
 updated: 2025-08-20
 caption: Managing user approval status
-title: The difference between an end-user and an approver
+title: Differences between end-users and approvers
 summary: |
-  Approvers are tasked with several responsibilities relating to your organisation, including providing access to services.
+  See the access levels and responsibilities of the two user types.
 ---
 
 An end user has the **standard** permission level and an approver has the **highest** permission level within DfE Sign-in.

@@ -1,9 +1,9 @@
 ---
 updated: 2025-08-20
 caption: Managing user requests
-title: How to reject a request
+title: How to reject requests
 summary: |
-  If you reject an organisation access request the person who raised it will be declined access to your organisation.
+  Find out how to reject organisation, service and sub-service access requests.
 ---
 
 As an approver, you have the responsibility of approving and rejecting requests.

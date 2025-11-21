@@ -1,7 +1,7 @@
 ---
 title: Your account
 summary: |
-  Find help with your profile, including account setup, changing your personal details and enhancing account security.
+  How to change your personal details and manage your service and organisation access.
 
 topics:
   - heading: Account security
@@ -12,8 +12,8 @@ topics:
   - heading: Account access and permissions
     paths:
       - /your-account/add-organisations
-      - /your-account/do-i-need-access
       - /your-account/request-service-access
+      - /your-account/do-i-need-access
 
   - heading: Guidance for approvers
     paths:

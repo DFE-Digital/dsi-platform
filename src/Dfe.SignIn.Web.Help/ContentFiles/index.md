@@ -5,7 +5,7 @@ summary: |
   Practical support and guidance in one place.
 
 topics:
-  - heading: Help sections
+  - heading: Explore areas of support
     paths:
       - /setup-your-account
       - /your-account

@@ -1,9 +1,9 @@
 ---
 updated: 2025-08-20
 caption: Managing user requests
-title: How to approve a request
+title: How to approve requests
 summary: |
-  Approving service and organisation access requests is a big part of managing users. Find out how with our step-by-step guide.
+  Find out how to approve organisation, service and sub-service access requests.
 ---
 
 As an approver, you have the responsibility of approving and rejecting requests.

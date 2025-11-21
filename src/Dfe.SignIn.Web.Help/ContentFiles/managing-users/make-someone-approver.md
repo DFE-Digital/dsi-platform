@@ -1,9 +1,9 @@
 ---
 updated: 2025-08-20
 caption: Managing user approval status
-title: How do I make someone an approver?
+title: Granting a user approver status
 summary: |
-  There are two main ways to make someone an approver at your organisation.
+  Find out how to grant a user at your organisation approver status.
 ---
 
 There are two main ways to make someone an approver at your organisation. But in order to do either, you must first be an approver at that organisation yourself.

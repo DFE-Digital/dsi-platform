@@ -1,7 +1,7 @@
 ---
 title: Managing users
 summary: |
-  Find help with how to manage users, including how to invite new users, and how to add a service to a user.
+  Learn as an approver how to invite users, handle access requests, and assign approver status.
 
 topics:
   - heading: General user management
@@ -31,6 +31,4 @@ topics:
       - /managing-users/make-someone-approver
 ---
 
-As an approver you can select the [manage users](${{ SERVICES_URL }}approvals/users) section for actions related to managing users.
-
-Find out more information about each action that can be completed within the ‘manage users’ section below.
+As an approver you can select the [manage users](${{ SERVICES_URL }}approvals/users) area in your account to see actions related to managing users.

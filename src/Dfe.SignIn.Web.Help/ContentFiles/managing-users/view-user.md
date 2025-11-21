@@ -3,7 +3,7 @@ updated: 2025-08-20
 caption: General user management
 title: Viewing user details
 summary: |
-  Accessing user details will allow you to view their current permissions and allow you to make any changes.
+  See how to access user details so you can view and amend permissions.
 ---
 
 As an approver, reviewing user details can help you manage their access to your organisation and services, as well as monitor their activity.
