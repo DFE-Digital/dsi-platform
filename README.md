@@ -39,6 +39,19 @@ They can also be ran from the command line:
    Invoke-ScriptAnalyzer -Path ./scripts/**/*.ps1 -Settings ./.config/PSScriptAnalyzerSettings.psd1
    ```
 
+## Updating the frontend assets version
+
+The latest version of the frontend assets is maintained by developers by updating the `version` property in the `/frontend/package.json` file.
+
+Applications can specify which version of the frontend assets they depend on using the `Assets:FrontendVersion` configuration which is maintained by developers in the various `appsettings.json` files throughout this repository:
+
+- Developer documentation - `/docs/appsettings.json`
+- Frontend applications - `/src/Dfe.SignIn.Web.*/appsettings.json`
+
+This approach allows developers to iteratively update, test and rollout frontend udpates across the various frontend applications. This is particuarly useful when a large scale change is being made; for example, a major update to the GOV.UK design system which requires template changes.
+
+> **Note** - If necessary the dev-ops team can override the `Assets:FrontendVersion` of any application by providing this configuration to the deployed app service.
+
 ## Pushing NuGet packages to your local feed
 
 It is sometimes useful to push packages to a local feed when working locally.
