@@ -63,7 +63,8 @@ $site = @{
 $root = Resolve-Path "$PSScriptRoot/../.."
 
 docker build $root -f "$root/docker/docs/Dockerfile" -t $($site.tag) `
-    --build-arg PROJECT_NAME=$($site.path)
+    --build-arg PROJECT_NAME=$($site.path) `
+    --build-arg CDN_BASE_ADDRESS_FORMAT=%s%.s
 
 docker run -d -p "$($site.port):8080" `
     -e CDN_BASE_ADDRESS=http://localhost:8081/ `
