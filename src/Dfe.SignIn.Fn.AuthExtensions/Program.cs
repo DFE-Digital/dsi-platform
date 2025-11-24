@@ -1,6 +1,9 @@
+using Azure.Identity;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Fn.AuthExtensions.Configuration;
+using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.Azure.Functions.Worker;
@@ -37,8 +40,16 @@ builder.Services
     .Configure<AuditOptions>(options => options.ApplicationName ??= "AuthExtensions")
     .SetupAuditContext();
 
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
+builder.Services
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
+    .AddAuditingWithServiceBus(builder.Configuration);
+
 // Get token credential for making API requests to Node APIs.
-var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+var apiTokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions")
 );
 
@@ -49,7 +60,7 @@ builder.Services
         NodeApiName.Directories,
         NodeApiName.Organisations,
         NodeApiName.Search,
-    ], tokenCredential);
+    ], apiTokenCredential);
 
 builder.Services
     .Configure<BlockedEmailAddressOptions>(options => {
