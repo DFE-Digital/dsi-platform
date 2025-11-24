@@ -11,6 +11,7 @@ using Dfe.SignIn.Web.Help.Configuration;
 using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Services;
 using Dfe.SignIn.WebFramework.Configuration;
+using Dfe.SignIn.WebFramework.Filters;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Options;
 
@@ -21,6 +22,11 @@ builder.Configuration
     .AddJsonFile("appsettings.Local.json")
     .AddUserSecrets<Program>();
 #endif
+
+builder.WebHost.ConfigureKestrel((context, options) => {
+    options.AddServerHeader = false;
+    context.Configuration.GetSection("Kestrel").Bind(options);
+});
 
 // Add OpenTelemetry and configure it to use Azure Monitor.
 if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
@@ -33,7 +39,7 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
 );
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddRequestBodySizeLimitFilter();
 builder.Services.AddHealthChecks();
 
 builder.Services

@@ -17,12 +17,16 @@ public abstract class BaseErrorController : Controller
     /// Presents the error page.
     /// </summary>
     /// <param name="code">HTTP status code.</param>
-    [HttpGet]
     [SuppressMessage("csharpsquid", "S6967",
         Justification = "An error page should be presented regardless of ModelState."
     )]
-    public IActionResult Index(int code = 500)
+    [SuppressMessage("csharpsquid", "S5693",
+        Justification = "Size validated upstream by RequestSizeLimit attribute, RequestBodySizeLimitFilter filter and Kestrel."
+    )]
+    [DisableRequestSizeLimit]
+    public IActionResult Index([FromQuery] int code = 500)
     {
+        this.Response.StatusCode = code;
         return code switch {
             404 => this.View("NotFound"),
             _ => this.View(new ErrorViewModel {
