@@ -21,6 +21,11 @@ builder.Configuration
 #endif
     .AddEnvironmentVariables();
 
+builder.WebHost.ConfigureKestrel((context, options) => {
+    options.AddServerHeader = false;
+    context.Configuration.GetSection("Kestrel").Bind(options);
+});
+
 // Add OpenTelemetry and configure it to use Azure Monitor.
 if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
