@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
@@ -19,6 +20,13 @@ public static partial class SelectOrganisationEndpoints
         // ---
         CancellationToken cancellationToken = default)
     {
+        await interaction.DispatchAsync(new WriteToAuditRequest {
+            EventCategory = "PublicApiTest",
+            EventName = "Test",
+            Message = "Creating select organisation session.",
+            UserId = request.UserId,
+        }, CancellationToken.None);
+
         var response = await interaction.DispatchAsync(
             new CreateSelectOrganisationSessionRequest {
                 ClientId = session.ClientId,
