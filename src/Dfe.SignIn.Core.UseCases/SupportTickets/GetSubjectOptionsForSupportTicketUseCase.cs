@@ -23,6 +23,7 @@ public sealed class GetSubjectOptionsForSupportTicketUseCase
                 new() { Code = "service-access", Description = "Using a DfE service" },
                 new() { Code = "email-password", Description = "Changing my email or password" },
                 new() { Code = "deactivate-account", Description = "Deactivating my account" },
+                new() { Code = "reactivate-account", Description = "Reactivating my account" },
                 new() { Code = "approver", Description = "Managing my users as an approver" },
                 new() { Code = "add-org", Description = "Adding organisations to your account" },
                 new() { Code = "other", Description = "Other (please specify)" },
