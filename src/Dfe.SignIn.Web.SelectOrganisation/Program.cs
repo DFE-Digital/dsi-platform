@@ -7,7 +7,7 @@ using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.SelectOrganisation.Configuration;
 using Dfe.SignIn.WebFramework.Configuration;
-using Dfe.SignIn.WebFramework.Filters;
+using Dfe.SignIn.WebFramework.Mvc.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

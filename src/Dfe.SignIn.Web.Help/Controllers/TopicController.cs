@@ -1,6 +1,6 @@
 using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Models;
-using Dfe.SignIn.WebFramework.Models;
+using Dfe.SignIn.WebFramework.Mvc.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.Web.Help.Controllers;

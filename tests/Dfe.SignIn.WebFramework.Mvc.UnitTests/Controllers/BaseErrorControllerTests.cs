@@ -1,0 +1,36 @@
+using Dfe.SignIn.WebFramework.Mvc.Controllers;
+using Dfe.SignIn.WebFramework.Mvc.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq.AutoMock;
+
+namespace Dfe.SignIn.WebFramework.Mvc.UnitTests.Controllers;
+
+[TestClass]
+public sealed class BaseErrorControllerTests
+{
+    private sealed class FakeErrorController : BaseErrorController
+    {
+    }
+
+    #region Index()
+
+    [TestMethod]
+    public void Index_UsesTraceIdentifierAsRequestId()
+    {
+        var mocker = new AutoMocker();
+        var controller = mocker.CreateInstance<FakeErrorController>();
+        controller.ControllerContext = new ControllerContext {
+            HttpContext = new DefaultHttpContext {
+                TraceIdentifier = "a492f33c-a859-4098-8c01-b8b2f09a6090"
+            }
+        };
+
+        var result = controller.Index();
+
+        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
+    }
+
+    #endregion
+}

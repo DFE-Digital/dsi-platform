@@ -1,5 +1,5 @@
 using Dfe.SignIn.Web.Help.Content;
-using Dfe.SignIn.WebFramework.Models;
+using Dfe.SignIn.WebFramework.Mvc.Models;
 
 namespace Dfe.SignIn.Web.Help.Services;
 

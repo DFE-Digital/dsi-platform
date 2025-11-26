@@ -1,4 +1,4 @@
-using Dfe.SignIn.WebFramework.Controllers;
+using Dfe.SignIn.WebFramework.Mvc.Controllers;
 
 namespace Dfe.SignIn.Web.Help.Controllers;
 
