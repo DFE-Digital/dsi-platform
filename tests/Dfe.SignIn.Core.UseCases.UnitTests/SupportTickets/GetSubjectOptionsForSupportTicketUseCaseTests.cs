@@ -29,6 +29,7 @@ public sealed class GetSubjectOptionsForSupportTicketUseCaseTests
             "service-access",
             "email-password",
             "deactivate-account",
+            "reactivate-account",
             "approver",
             "add-org",
             "other"
