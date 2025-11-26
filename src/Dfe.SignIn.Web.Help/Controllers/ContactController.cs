@@ -48,6 +48,7 @@ public sealed class ContactController(
     }
 
     [HttpPost("contact-us")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(ContactViewModel viewModel)
     {
         if (viewModel.FaxNumber != ContactViewModel.HoneypotDefaultFaxValue || !string.IsNullOrEmpty(viewModel.Website)) {
