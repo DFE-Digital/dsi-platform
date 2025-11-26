@@ -66,6 +66,10 @@ public sealed class ContentProcessingExtensionsTests
                 options.ServicesUrl = new Uri("https://services.localhost");
                 options.SupportUrl = new Uri("https://support.localhost");
             })
+            .Configure<AssetOptions>(options => {
+                options.BaseAddress = new Uri("https://assets.localhost");
+                options.FrontendVersion = "1.0.0";
+            })
             .SetupContentProcessing();
 
         var provider = services.BuildServiceProvider();
@@ -82,6 +86,7 @@ public sealed class ContentProcessingExtensionsTests
             profile = ${{ PROFILE_URL }}
             services = ${{ SERVICES_URL }}
             support = ${{ SUPPORT_URL }}
+            assets = ${{ ASSETS_URL }}
         ");
 
         string expectedContent = @"
@@ -90,6 +95,7 @@ public sealed class ContentProcessingExtensionsTests
             profile = https://profile.localhost/
             services = https://services.localhost/
             support = https://support.localhost/
+            assets = https://assets.localhost/1.0.0/
         ";
 
         Assert.AreEqual(expectedContent, resolvedContent);
