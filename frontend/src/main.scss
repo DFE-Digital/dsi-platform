@@ -17,6 +17,7 @@ $govuk-assets-path: "../assets/";
 //-----------------------------------------------------------------------------
 
 @import "./base/blockquote";
+@import "./base/scrolling";
 
 
 //-----------------------------------------------------------------------------
@@ -28,6 +29,9 @@ $govuk-assets-path: "../assets/";
 @import "./components/environment-banner";
 @import "./components/header";
 @import "./components/hero";
+@import "./components/password-toggle";
+@import "./components/session-timeout";
+@import "./components/side-panel";
 @import "./components/site-search";
 @import "./components/subnav";
 @import "./components/topic-cards";

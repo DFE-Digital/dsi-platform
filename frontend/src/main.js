@@ -14,3 +14,6 @@ GOVUKFrontend.initAll();
 //-----------------------------------------------------------------------------
 // Components
 //-----------------------------------------------------------------------------
+
+require("./components/password-toggle");
+require("./components/session-timeout");
