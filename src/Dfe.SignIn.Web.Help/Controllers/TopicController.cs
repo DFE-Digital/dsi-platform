@@ -12,6 +12,7 @@ public sealed class TopicController(
     ITopicIndexAccessor topicIndexAccessor
 ) : Controller
 {
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var topicIndex = await topicIndexAccessor.GetIndexAsync();
@@ -86,6 +87,7 @@ public sealed class TopicController(
     /// <summary>
     /// This endpoint forces a reload of the topic index.
     /// </summary>
+    [HttpGet]
     public async Task<IActionResult> Reload()
     {
         await topicIndexAccessor.GetIndexAsync(invalidate: true);

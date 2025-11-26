@@ -35,7 +35,8 @@ public sealed class SelectOrganisationController(
 
     [HttpGet("{clientId}/{sessionKey}")]
     public async Task<IActionResult> Index(
-        string clientId, string sessionKey, CancellationToken cancellationToken = default)
+        [FromRoute] string clientId, [FromRoute] string sessionKey,
+        CancellationToken cancellationToken = default)
     {
         var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
         if (sessionResult.Session is null) {
@@ -75,8 +76,10 @@ public sealed class SelectOrganisationController(
     }
 
     [HttpPost("{clientId}/{sessionKey}")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
-        string clientId, string sessionKey, SelectOrganisationViewModel viewModel,
+        [FromRoute] string clientId, [FromRoute] string sessionKey,
+        SelectOrganisationViewModel viewModel,
         CancellationToken cancellationToken = default)
     {
         var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);

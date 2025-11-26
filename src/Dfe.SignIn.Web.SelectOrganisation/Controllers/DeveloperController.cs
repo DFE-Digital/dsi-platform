@@ -13,6 +13,7 @@ public sealed class DeveloperController(
     ISelectOrganisationSessionRepository sessionRepository
 ) : Controller
 {
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var session = new SelectOrganisationSessionData {
