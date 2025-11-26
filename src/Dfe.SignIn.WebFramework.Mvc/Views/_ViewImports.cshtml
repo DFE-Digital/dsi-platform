@@ -4,6 +4,10 @@
 @using Dfe.SignIn.WebFramework.Mvc.Configuration;
 @using Dfe.SignIn.WebFramework.Mvc.Models;
 @using Microsoft.Extensions.Options;
+
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, NetEscapades.AspNetCore.SecurityHeaders.TagHelpers
 @addTagHelper *, GovUk.Frontend.AspNetCore
+
+@inject IOptions<PlatformOptions> platformOptionsAccessor
+@inject IOptions<AssetOptions> assetOptionsAccessor

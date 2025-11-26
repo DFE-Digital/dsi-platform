@@ -1,5 +1,3 @@
-@inject IOptions<PlatformOptions> platformOptionsAccessor
-
 @{
     EnvironmentName environmentName = platformOptionsAccessor.Value?.EnvironmentName ?? EnvironmentName.Local;
     bool showBanner = (environmentName != EnvironmentName.Prod && environmentName != EnvironmentName.Local);
