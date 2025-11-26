@@ -11,7 +11,7 @@ using Dfe.SignIn.Web.Help.Configuration;
 using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Services;
 using Dfe.SignIn.WebFramework.Configuration;
-using Dfe.SignIn.WebFramework.Filters;
+using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Options;
 

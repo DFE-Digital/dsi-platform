@@ -26,7 +26,12 @@
     <ProjectReference Include="..\Dfe.SignIn.Core.UseCases\Dfe.SignIn.Core.UseCases.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Gateways.DistributedCache\Dfe.SignIn.Gateways.DistributedCache.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.NodeApi.Client\Dfe.SignIn.NodeApi.Client.csproj" />
-    <ProjectReference Include="..\Dfe.SignIn.WebFramework\Dfe.SignIn.WebFramework.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.WebFramework.Mvc\Dfe.SignIn.WebFramework.Mvc.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Dfe.SignIn.WebFramework" />
+    <Using Include="Dfe.SignIn.WebFramework.Mvc" />
   </ItemGroup>
 
 </Project>

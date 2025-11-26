@@ -33,4 +33,8 @@
     <ProjectReference Include="..\Dfe.SignIn.WebFramework\Dfe.SignIn.WebFramework.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Dfe.SignIn.WebFramework" />
+  </ItemGroup>
+
 </Project>

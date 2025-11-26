@@ -1,4 +1,4 @@
-using Dfe.SignIn.WebFramework.Models;
+using Dfe.SignIn.WebFramework.Mvc.Models;
 
 namespace Dfe.SignIn.Web.Help.Models;
 

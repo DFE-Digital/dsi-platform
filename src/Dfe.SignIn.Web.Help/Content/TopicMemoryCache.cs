@@ -66,6 +66,6 @@ public sealed class TopicMemoryCache : ITopicIndex
         ExceptionHelpers.ThrowIfArgumentNull(topicPath, nameof(topicPath));
 
         this.TopicsBySection.TryGetValue(topicPath, out var childTopics);
-        return childTopics! ?? [];
+        return childTopics ?? [];
     }
 }
