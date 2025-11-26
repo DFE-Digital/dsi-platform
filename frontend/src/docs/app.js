@@ -1,7 +1,8 @@
 const $ = require("jquery");
 
 const hljs = require('highlight.js/lib/core');
-require("highlight.js/lib/languages/csharp");
+hljs.registerLanguage('csharp', require("highlight.js/lib/languages/csharp"));
+hljs.registerLanguage('razor', require("highlight.js/lib/languages/xml"));
 
 const lunr = require('lunr');
 
