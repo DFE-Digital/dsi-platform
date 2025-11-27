@@ -27,6 +27,9 @@ public abstract class BaseErrorController : Controller
         this.Response.StatusCode = code;
         return code switch {
             404 => this.View("NotFound"),
+            405 => HttpMethods.IsGet(this.Request.Method)
+                ? this.Redirect("/") // eg. when authentication occurs when submitting a form.
+                : this.ErrorView(),
             _ => this.ErrorView(),
         };
     }
