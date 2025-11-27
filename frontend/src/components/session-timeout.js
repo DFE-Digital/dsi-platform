@@ -1,6 +1,7 @@
 function initSessionTimeoutElement(element) {
   const sessionDurationInMinutes = parseInt(element.dataset.sessionDurationInMinutes);
   const notifyRemainingMinutes = parseInt(element.dataset.notifyRemainingMinutes);
+  const endSessionUrl = element.dataset.endSessionUrl;
   const timeoutUrl = element.dataset.timeoutUrl;
 
   const modalElement = element.querySelector('.app-session-timeout__modal');
@@ -16,18 +17,25 @@ function initSessionTimeoutElement(element) {
 
   const intervalId = setInterval(() => {
     const timeout = Number(window.localStorage.getItem('session-timeout:end'));
+    if (timeout === 1) {
+      setTimeout(() => {
+        location.href = timeoutUrl;
+        clearInterval(intervalId);
+      }, 2000);
+      return;
+    }
+
     const popupTime = timeout - notifyRemainingMinutes * 60 * 1000;
     if (Date.now() >= popupTime) {
       element.classList.add('app-session-timeout--show');
       modalElement.focus();
 
-      // End 10 seconds earlier so that session timeout can use cookies.
+      // End several seconds earlier so that session timeout can use cookies.
       const allowanceInSeconds = 10;
-
       const totalSecondsRemaining = Math.round((timeout - Date.now()) / 1000 - allowanceInSeconds);
 
       if (totalSecondsRemaining <= 0) {
-        location.href = timeoutUrl;
+        location.href = endSessionUrl;
         clearInterval(intervalId);
         timerElement.style.display = "none";
         timeoutNowElement.style.display = "";
