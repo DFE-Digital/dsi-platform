@@ -26,7 +26,7 @@ public sealed record GetUserStatusRequest : IValidatableObject
     /// <value>
     /// A well formed email address.
     /// </value>
-    [EmailAddress]
+    [RegularExpression(StringPatterns.EmailAddressPattern)]
     public string? EmailAddress { get; init; }
 
     /// <inheritdoc/>

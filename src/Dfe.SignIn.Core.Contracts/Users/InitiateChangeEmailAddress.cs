@@ -32,7 +32,7 @@ public sealed record InitiateChangeEmailAddressRequest : IKeyedRequest
     /// The user's new email address.
     /// </summary>
     [Required(ErrorMessage = "Enter an email address")]
-    [EmailAddress(ErrorMessage = "Enter a valid email address")]
+    [RegularExpression(StringPatterns.EmailAddressPattern, ErrorMessage = "Enter a valid email address")]
     public required string NewEmailAddress { get; init; }
 
     /// <summary>
