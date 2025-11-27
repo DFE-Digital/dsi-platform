@@ -2,7 +2,6 @@ using Dfe.SignIn.WebFramework.Mvc.Controllers;
 using Dfe.SignIn.WebFramework.Mvc.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Moq.AutoMock;
 
 namespace Dfe.SignIn.WebFramework.Mvc.UnitTests.Controllers;
 
@@ -32,7 +31,25 @@ public sealed class BaseErrorControllerTests
     }
 
     [TestMethod]
-    public void Index_UsesTraceIdentifierAsRequestId()
+    public void Index_RedirectToRoot_WhenGetRequestStatusIs405()
+    {
+        var controller = new FakeErrorController {
+            ControllerContext = new() {
+                HttpContext = new DefaultHttpContext(),
+            },
+        };
+        controller.Request.Method = HttpMethods.Get;
+
+        var result = controller.Index(405);
+
+        var redirectResult = TypeAssert.IsType<RedirectResult>(result);
+        Assert.AreEqual("/", redirectResult.Url);
+    }
+
+    [TestMethod]
+    [DataRow(405)]
+    [DataRow(500)]
+    public void Index_UsesTraceIdentifierAsRequestId(int statusCode)
     {
         var controller = new FakeErrorController {
             ControllerContext = new() {
@@ -42,11 +59,11 @@ public sealed class BaseErrorControllerTests
             },
         };
 
-        var result = controller.Index(500);
+        var result = controller.Index(statusCode);
 
         var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
         Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
-        Assert.AreEqual(500, controller.Response.StatusCode);
+        Assert.AreEqual(statusCode, controller.Response.StatusCode);
     }
 
     #endregion
