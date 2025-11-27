@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Core.Contracts;
 
 namespace Dfe.SignIn.Fn.AuthExtensions.OnTokenIssuanceStart;
 
@@ -62,7 +63,7 @@ public sealed record UserContext
     public required Guid Id { get; init; }
 
     [JsonPropertyName("mail")]
-    [EmailAddress]
+    [RegularExpression(StringPatterns.EmailAddressPattern)]
     public required string Mail { get; init; }
 
     [JsonPropertyName("displayName")]

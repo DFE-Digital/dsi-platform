@@ -24,7 +24,7 @@ public sealed record CreateUserRequest
     /// <value>
     /// A well formed email address.
     /// </value>
-    [EmailAddress]
+    [RegularExpression(StringPatterns.EmailAddressPattern)]
     public required string EmailAddress { get; init; }
 
     /// <summary>
