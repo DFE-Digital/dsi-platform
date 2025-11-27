@@ -8,6 +8,7 @@ topics:
     paths:
       - /managing-users/view-user
       - /managing-users/inviting-a-new-user
+      - /managing-users/reactivate-deactivated-user
 
   - heading: User organisation management
     paths:

@@ -14,6 +14,7 @@ topics:
       - /your-account/add-organisations
       - /your-account/request-service-access
       - /your-account/do-i-need-access
+      - /your-account/types-of-services
 
   - heading: Guidance for approvers
     paths:
