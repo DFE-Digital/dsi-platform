@@ -23,6 +23,7 @@ public static class AssetConfigurationExtensions
             // Disable hosting of GDS design system assets since these are hosted from our CDN.
             options.FrontendPackageHostingOptions = FrontendPackageHostingOptions.None;
             options.Rebrand = true;
+            options.DefaultButtonPreventDoubleClick = true;
         });
     }
 }
