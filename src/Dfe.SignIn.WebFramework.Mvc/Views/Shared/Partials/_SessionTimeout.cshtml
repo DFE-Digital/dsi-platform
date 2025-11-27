@@ -9,7 +9,8 @@
     <div class="app-session-timeout"
         data-session-duration-in-minutes=@sessionOptions.DurationInMinutes
         data-notify-remaining-minutes=@sessionOptions.NotifyRemainingMinutes
-        data-timeout-url="/session/end-timeout"
+        data-end-session-url="/session/end-timeout"
+        data-timeout-url="/session-timeout"
     >
         <div class="app-session-timeout__modal" role="alertdialog" aria-modal="true" aria-labelledby="sessionTimeoutModalTitle" aria-describedby="sessionTimeoutModalMessage">
             <h3 id="sessionTimeoutModalTitle" class="app-session-timeout__heading">
