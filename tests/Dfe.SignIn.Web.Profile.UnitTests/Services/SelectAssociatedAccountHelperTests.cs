@@ -1,10 +1,13 @@
 using System.Security.Claims;
+using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.AutoMock;
@@ -15,6 +18,29 @@ namespace Dfe.SignIn.Web.Profile.UnitTests.Services;
 public sealed class SelectAssociatedAccountHelperTests
 {
     private sealed class FakeController : Controller { }
+
+    private static IUrlHelper CreateMockUrlHelper()
+    {
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        mockUrlHelper
+            .Setup(x => x.Action(
+                It.Is<UrlActionContext>(ctx =>
+                    ctx.Action == nameof(HomeController.Index) &&
+                    ctx.Controller == MvcNaming.Controller<HomeController>()
+                )
+            ))
+            .Returns("https://test.localhost/");
+        mockUrlHelper
+            .Setup(x => x.Action(
+                It.Is<UrlActionContext>(ctx =>
+                    ctx.Action == nameof(ChangePasswordController.Index) &&
+                    ctx.Controller == MvcNaming.Controller<ChangePasswordController>()
+                )
+            ))
+            .Returns("https://test.localhost/change-password");
+
+        return mockUrlHelper.Object;
+    }
 
     private static Controller CreateMockControllerWithNonEntraUser(AutoMocker autoMocker)
     {
@@ -35,6 +61,7 @@ public sealed class SelectAssociatedAccountHelperTests
         });
 
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        controller.Url = CreateMockUrlHelper();
 
         return controller;
     }
@@ -69,9 +96,27 @@ public sealed class SelectAssociatedAccountHelperTests
         });
 
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        controller.Url = CreateMockUrlHelper();
 
         return controller;
     }
+
+    #region GetUrlFromReturnLocation(IUrlHelper, SelectAssociatedReturnLocation)
+
+    [TestMethod]
+    public void GetUrlFromReturnLocation_Throws_WhenUrlHelperArgumentIsNull()
+    {
+        var autoMocker = new AutoMocker();
+        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => service.GetUrlFromReturnLocation(
+                urlHelper: null!,
+                returnLocation: SelectAssociatedReturnLocation.Home
+            ));
+    }
+
+    #endregion
 
     #region AuthenticateAssociatedAccount(Controller, string[], string?, bool)
 
@@ -85,7 +130,7 @@ public sealed class SelectAssociatedAccountHelperTests
             => service.AuthenticateAssociatedAccount(
                 controller: null!,
                 scopes: [],
-                redirectUri: null,
+                returnLocation: SelectAssociatedReturnLocation.Home,
                 force: false
             ));
     }
@@ -100,7 +145,7 @@ public sealed class SelectAssociatedAccountHelperTests
             => service.AuthenticateAssociatedAccount(
                 controller: new Mock<Controller>().Object,
                 scopes: null!,
-                redirectUri: null,
+                returnLocation: SelectAssociatedReturnLocation.Home,
                 force: false
             ));
     }
@@ -120,7 +165,8 @@ public sealed class SelectAssociatedAccountHelperTests
         var controller = CreateMockControllerWithEntraUser(autoMocker);
         var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
 
-        var result = await service.AuthenticateAssociatedAccount(controller, ["fake-scope"], "/");
+        var result = await service.AuthenticateAssociatedAccount(
+            controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword);
 
         TypeAssert.IsType<ChallengeResult>(result);
     }
@@ -144,7 +190,8 @@ public sealed class SelectAssociatedAccountHelperTests
         var controller = CreateMockControllerWithEntraUser(autoMocker);
         var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
 
-        var result = await service.AuthenticateAssociatedAccount(controller, ["fake-scope"], "/", force: true);
+        var result = await service.AuthenticateAssociatedAccount(
+            controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword, force: true);
 
         TypeAssert.IsType<ChallengeResult>(result);
     }
@@ -168,7 +215,8 @@ public sealed class SelectAssociatedAccountHelperTests
         var controller = CreateMockControllerWithEntraUser(autoMocker);
         var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
 
-        var result = await service.AuthenticateAssociatedAccount(controller, ["fake-scope"], "/", force: false);
+        var result = await service.AuthenticateAssociatedAccount(
+            controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword, force: false);
 
         TypeAssert.IsType<ChallengeResult>(result);
     }
@@ -194,13 +242,14 @@ public sealed class SelectAssociatedAccountHelperTests
         var controller = CreateMockControllerWithEntraUser(autoMocker);
         var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
 
-        var result = await service.AuthenticateAssociatedAccount(controller, ["fake-scope"], "/redirect", force: false);
+        var result = await service.AuthenticateAssociatedAccount(controller, ["fake-scope"],
+            SelectAssociatedReturnLocation.ChangePassword, force: false);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("SelectAssociatedAccount", viewResult.ViewName);
 
         var viewModel = TypeAssert.IsViewModelType<SelectAssociatedAccountViewModel>(result!);
-        Assert.AreEqual("/redirect", viewModel.RedirectUri);
+        Assert.AreEqual(SelectAssociatedReturnLocation.ChangePassword, viewModel.ReturnLocation);
     }
 
     [TestMethod]
@@ -224,7 +273,8 @@ public sealed class SelectAssociatedAccountHelperTests
         var controller = CreateMockControllerWithEntraUser(autoMocker);
         var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
 
-        await service.AuthenticateAssociatedAccount(controller, ["fake-scope"], "/redirect", force: false);
+        await service.AuthenticateAssociatedAccount(controller, ["fake-scope"],
+            SelectAssociatedReturnLocation.ChangePassword, force: false);
 
         autoMocker.Verify<ITokenAcquisition>(
             x => x.GetAccessTokenForUserAsync(
@@ -260,7 +310,8 @@ public sealed class SelectAssociatedAccountHelperTests
         var controller = CreateMockControllerWithEntraUser(autoMocker);
         var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
 
-        var result = await service.AuthenticateAssociatedAccount(controller, ["fake-scope"], "/redirect", force: false);
+        var result = await service.AuthenticateAssociatedAccount(
+            controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword, force: false);
 
         Assert.IsNull(result);
     }
@@ -297,7 +348,8 @@ public sealed class SelectAssociatedAccountHelperTests
             ))
             .Throws(new InvalidOperationException());
 
-        var result = await service.AuthenticateAssociatedAccount(controller, ["fake-scope"], "/redirect", force: false);
+        var result = await service.AuthenticateAssociatedAccount(
+            controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword, force: false);
 
         TypeAssert.IsType<ChallengeResult>(result);
     }

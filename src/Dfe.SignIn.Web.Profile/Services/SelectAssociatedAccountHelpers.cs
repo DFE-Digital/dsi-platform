@@ -18,12 +18,25 @@ namespace Dfe.SignIn.Web.Profile.Services;
 public interface ISelectAssociatedAccountHelper
 {
     /// <summary>
+    /// Gets a URL from a named return location.
+    /// </summary>
+    /// <param name="urlHelper">The URL helper.</param>
+    /// <param name="returnLocation">The named return location.</param>
+    /// <returns>
+    ///   <para>The resolved URI.</para>
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="urlHelper"/> is null.</para>
+    /// </exception>
+    string GetUrlFromReturnLocation(IUrlHelper urlHelper, SelectAssociatedReturnLocation returnLocation);
+
+    /// <summary>
     /// Authenticates the external account that is associated with the user's
     /// DfE Sign-In account.
     /// </summary>
     /// <param name="controller">The current controller.</param>
     /// <param name="scopes">The array of required scopes.</param>
-    /// <param name="redirectUri">The URI where the user will be redirected to
+    /// <param name="returnLocation">The location where the user will be return to
     /// upon authenticating with the external identity provider.</param>
     /// <param name="force">Indicates if the user should be forced to authenticate
     /// with the external identity provider. This is useful when the user has
@@ -41,7 +54,7 @@ public interface ISelectAssociatedAccountHelper
     ///   <para>If <paramref name="scopes"/> is null.</para>
     /// </exception>
     Task<IActionResult?> AuthenticateAssociatedAccount(
-        Controller controller, string[] scopes, string? redirectUri, bool force = false);
+        Controller controller, string[] scopes, SelectAssociatedReturnLocation returnLocation, bool force = false);
 
     /// <summary>
     /// Creates an access token for the external account that is associated with
@@ -74,6 +87,22 @@ public interface ISelectAssociatedAccountHelper
 }
 
 /// <summary>
+/// The names of locations that the user can be returned to upon selecting an account.
+/// </summary>
+public enum SelectAssociatedReturnLocation
+{
+    /// <summary>
+    /// Home page of the profile component.
+    /// </summary>
+    Home = 0,
+
+    /// <summary>
+    /// Change password interface.
+    /// </summary>
+    ChangePassword = 1,
+}
+
+/// <summary>
 /// A service for authenticating the external account that is associated with
 /// the user's DfE Sign-In account.
 /// </summary>
@@ -83,8 +112,22 @@ public sealed class SelectAssociatedAccountHelper(
 ) : ISelectAssociatedAccountHelper
 {
     /// <inheritdoc/>
+    public string GetUrlFromReturnLocation(IUrlHelper urlHelper, SelectAssociatedReturnLocation returnLocation)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(urlHelper, nameof(urlHelper));
+
+        return returnLocation switch {
+            SelectAssociatedReturnLocation.Home => urlHelper.Action(
+                nameof(HomeController.Index), MvcNaming.Controller<HomeController>()),
+            SelectAssociatedReturnLocation.ChangePassword => urlHelper.Action(
+                nameof(ChangePasswordController.Index), MvcNaming.Controller<ChangePasswordController>()),
+            _ => "/",
+        } ?? "/";
+    }
+
+    /// <inheritdoc/>
     public async Task<IActionResult?> AuthenticateAssociatedAccount(
-        Controller controller, string[] scopes, string? redirectUri, bool force = false)
+        Controller controller, string[] scopes, SelectAssociatedReturnLocation returnLocation, bool force = false)
     {
         ExceptionHelpers.ThrowIfArgumentNull(controller, nameof(controller));
         ExceptionHelpers.ThrowIfArgumentNull(scopes, nameof(scopes));
@@ -95,7 +138,7 @@ public sealed class SelectAssociatedAccountHelper(
         {
             return controller.Challenge(new AuthenticationProperties {
                 IsPersistent = true,
-                RedirectUri = redirectUri,
+                RedirectUri = this.GetUrlFromReturnLocation(controller.Url, returnLocation),
                 Parameters = {
                     { "login_hint", userProfileFeature.EmailAddress },
                 },
@@ -116,7 +159,7 @@ public sealed class SelectAssociatedAccountHelper(
 
             if (dsiUserId != userProfileFeature.UserId) {
                 return controller.View("SelectAssociatedAccount", new SelectAssociatedAccountViewModel {
-                    RedirectUri = redirectUri ?? controller.Url.Action(nameof(HomeController.Index), nameof(HomeController)),
+                    ReturnLocation = returnLocation,
                 });
             }
 

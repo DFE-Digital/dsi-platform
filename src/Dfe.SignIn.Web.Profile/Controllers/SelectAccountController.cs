@@ -29,12 +29,15 @@ public sealed class SelectAccountController(
 
         if (userProfileFeature.IsEntra) {
             var actionResult = await selectAssociatedAccountHelper.AuthenticateAssociatedAccount(
-                this, [], viewModel.RedirectUri, force: true);
+                this, [], viewModel.ReturnLocation, force: true);
             if (actionResult is not null) {
                 return actionResult;
             }
         }
 
-        return this.Redirect(viewModel.RedirectUri ?? "/");
+        return this.Redirect(
+            selectAssociatedAccountHelper.GetUrlFromReturnLocation(
+                this.Url, viewModel.ReturnLocation)
+        );
     }
 }

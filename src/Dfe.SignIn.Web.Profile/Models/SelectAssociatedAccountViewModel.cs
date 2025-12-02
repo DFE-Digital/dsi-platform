@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Web.Profile.Services;
+
 namespace Dfe.SignIn.Web.Profile.Models;
 
 /// <summary>
@@ -6,8 +9,10 @@ namespace Dfe.SignIn.Web.Profile.Models;
 public sealed class SelectAssociatedAccountViewModel
 {
     /// <summary>
-    /// Gets or sets the URI where the user will be redirected to upon selecting
+    /// Gets or sets the location that the user will be returned to upon selecting
     /// their external account.
     /// </summary>
-    public string? RedirectUri { get; set; }
+    [EnumDataType(typeof(SelectAssociatedReturnLocation))]
+    public SelectAssociatedReturnLocation ReturnLocation { get; set; }
+        = SelectAssociatedReturnLocation.Home;
 }

@@ -28,7 +28,7 @@ public sealed partial class ChangePasswordController(
 
         if (userProfileFeature.IsEntra) {
             var actionResult = await selectAssociatedAccountHelper.AuthenticateAssociatedAccount(
-                this, ["https://graph.microsoft.com/.default"], this.Url.Action(nameof(Index)));
+                this, ["https://graph.microsoft.com/.default"], SelectAssociatedReturnLocation.ChangePassword);
             if (actionResult is not null) {
                 return actionResult;
             }

@@ -91,7 +91,7 @@ public sealed class ChangePasswordControllerTests
             .Setup(x => x.AuthenticateAssociatedAccount(
                 It.Is<Controller>(controller => controller is ChangePasswordController),
                 It.IsAny<string[]>(),
-                It.IsAny<string>(),
+                It.IsAny<SelectAssociatedReturnLocation>(),
                 It.Is<bool>(force => !force)
             ))
             .ReturnsAsync(mockActionResult.Object);
@@ -112,7 +112,7 @@ public sealed class ChangePasswordControllerTests
             .Setup(x => x.AuthenticateAssociatedAccount(
                 It.Is<Controller>(controller => controller is ChangePasswordController),
                 It.IsAny<string[]>(),
-                It.IsAny<string>(),
+                It.IsAny<SelectAssociatedReturnLocation>(),
                 It.Is<bool>(force => !force)
             ))
             .Returns(Task.FromResult<IActionResult?>(null));

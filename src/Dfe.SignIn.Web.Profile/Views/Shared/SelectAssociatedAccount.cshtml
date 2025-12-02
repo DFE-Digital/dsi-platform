@@ -18,7 +18,7 @@
 </p>
 
 <form method="post" asp-antiforgery=true>
-    <input type="hidden" asp-for=RedirectUri />
+    <input type="hidden" asp-for=ReturnLocation />
 
     <govuk-button asp-action=@nameof(SelectAccountController.PostIndex) asp-controller=@(MvcNaming.Controller<SelectAccountController>())>
         Select associated account

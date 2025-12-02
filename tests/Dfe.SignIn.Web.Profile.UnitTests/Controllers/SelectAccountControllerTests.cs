@@ -14,6 +14,14 @@ public sealed class SelectAccountControllerTests
 {
     private static SelectAccountController CreateController(AutoMocker autoMocker, bool isEntraUser)
     {
+        autoMocker.GetMock<ISelectAssociatedAccountHelper>()
+            .Setup(x => x.GetUrlFromReturnLocation(
+                It.IsAny<IUrlHelper>(),
+                It.Is<SelectAssociatedReturnLocation>(returnLocation
+                    => returnLocation == SelectAssociatedReturnLocation.ChangePassword)
+            ))
+            .Returns("https://test.localhost/change-password");
+
         var controller = autoMocker.CreateInstance<SelectAccountController>();
 
         var httpContext = new DefaultHttpContext();
@@ -47,18 +55,16 @@ public sealed class SelectAccountControllerTests
     }
 
     [TestMethod]
-    [DataRow("/redirect-test", "/redirect-test")]
-    [DataRow(null, "/")]
-    public async Task SelectAssociatedAccountViewModel_Redirects_WhenNotEntraUser(string? redirectUri, string expectedRedirectUri)
+    public async Task SelectAssociatedAccountViewModel_Redirects_WhenNotEntraUser()
     {
         var controller = CreateController(new AutoMocker(), isEntraUser: false);
 
         var result = await controller.PostIndex(new SelectAssociatedAccountViewModel {
-            RedirectUri = redirectUri,
+            ReturnLocation = SelectAssociatedReturnLocation.ChangePassword,
         });
 
         var redirectResult = TypeAssert.IsType<RedirectResult>(result);
-        Assert.AreEqual(expectedRedirectUri, redirectResult.Url);
+        Assert.AreEqual("https://test.localhost/change-password", redirectResult.Url);
     }
 
     [TestMethod]
@@ -71,7 +77,8 @@ public sealed class SelectAccountControllerTests
             .Setup(x => x.AuthenticateAssociatedAccount(
                 It.Is<Controller>(controller => controller is SelectAccountController),
                 It.IsAny<string[]>(),
-                It.Is<string>(redirectUri => redirectUri == "/redirect-test"),
+                It.Is<SelectAssociatedReturnLocation>(returnLocation
+                    => returnLocation == SelectAssociatedReturnLocation.ChangePassword),
                 It.Is<bool>(force => force)
             ))
             .ReturnsAsync(mockActionResult.Object);
@@ -79,7 +86,7 @@ public sealed class SelectAccountControllerTests
         var controller = CreateController(autoMocker, isEntraUser: true);
 
         var result = await controller.PostIndex(new SelectAssociatedAccountViewModel {
-            RedirectUri = "/redirect-test",
+            ReturnLocation = SelectAssociatedReturnLocation.ChangePassword,
         });
 
         Assert.AreSame(mockActionResult.Object, result);
@@ -94,7 +101,8 @@ public sealed class SelectAccountControllerTests
             .Setup(x => x.AuthenticateAssociatedAccount(
                 It.Is<Controller>(controller => controller is SelectAccountController),
                 It.IsAny<string[]>(),
-                It.Is<string>(redirectUri => redirectUri == "/redirect-test"),
+                It.Is<SelectAssociatedReturnLocation>(returnLocation
+                    => returnLocation == SelectAssociatedReturnLocation.ChangePassword),
                 It.Is<bool>(force => force)
             ))
             .Returns(Task.FromResult<IActionResult?>(null));
@@ -102,11 +110,11 @@ public sealed class SelectAccountControllerTests
         var controller = CreateController(autoMocker, isEntraUser: true);
 
         var result = await controller.PostIndex(new SelectAssociatedAccountViewModel {
-            RedirectUri = "/redirect-test",
+            ReturnLocation = SelectAssociatedReturnLocation.ChangePassword,
         });
 
         var redirectResult = TypeAssert.IsType<RedirectResult>(result);
-        Assert.AreEqual("/redirect-test", redirectResult.Url);
+        Assert.AreEqual("https://test.localhost/change-password", redirectResult.Url);
     }
 
     #endregion
