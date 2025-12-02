@@ -24,7 +24,7 @@ public sealed class SelectOrganisationController(
     {
         return new SelectOrganisationViewModel {
             SignOutUrl = this.Url.Action(
-                action: "SignOut",
+                action: nameof(SignOut),
                 values: new { clientId, sessionKey }
             ),
             Prompt = session.Prompt,

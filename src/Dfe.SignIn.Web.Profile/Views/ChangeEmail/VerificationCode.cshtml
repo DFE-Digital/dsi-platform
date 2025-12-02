@@ -2,7 +2,10 @@
 
 @{
     if (User.Identity?.IsAuthenticated == true) {
-        ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(Url.Action("Index", "ChangeEmail"));
+        ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(
+            Url.Action(nameof(ChangeEmailController.Index),
+            MvcNaming.Controller<ChangeEmailController>())
+        );
     }
 
     ViewData[DsiLayoutConstants.Title] = "Enter your verification code";

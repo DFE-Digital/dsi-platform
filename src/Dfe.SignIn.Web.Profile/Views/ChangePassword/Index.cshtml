@@ -1,7 +1,10 @@
 ﻿@model ChangePasswordViewModel
 
 @{
-    ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(Url.Action("Index", "Home"));
+    ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(
+        Url.Action(nameof(HomeController.Index),
+        MvcNaming.Controller<HomeController>())
+    );
 
     ViewData[DsiLayoutConstants.Title] = "Change your password";
 }
