@@ -8,6 +8,7 @@ using Dfe.SignIn.Core.Interfaces.Graph;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.GovNotify;
+using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Services;
@@ -18,11 +19,9 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#if DEBUG
-builder.Configuration
-    .AddJsonFile("appsettings.Local.json")
-    .AddUserSecrets<Program>();
-#endif
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Configuration.AddUserSecrets<Program>();
+}
 
 builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
@@ -62,13 +61,14 @@ builder.Services
 
 var azureTokenCredential = new DefaultAzureCredential();
 builder.Services
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
-#if DEBUG
-    .AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>()
-#else
-    .AddAuditingWithServiceBus(builder.Configuration)
-#endif
-;
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
+
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
+}
+else {
+    builder.Services.AddAuditingWithServiceBus(builder.Configuration);
+}
 
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
@@ -101,7 +101,7 @@ var app = builder.Build();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment()) {
+if (!app.Environment.IsEnvironment("Local")) {
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();

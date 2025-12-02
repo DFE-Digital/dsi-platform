@@ -14,12 +14,10 @@ using Dfe.SignIn.WebFramework.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration
-#if DEBUG
-    .AddJsonFile("appsettings.Local.json")
-    .AddUserSecrets<Program>()
-#endif
-    .AddEnvironmentVariables();
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Configuration.AddUserSecrets<Program>();
+}
+builder.Configuration.AddEnvironmentVariables();
 
 builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
