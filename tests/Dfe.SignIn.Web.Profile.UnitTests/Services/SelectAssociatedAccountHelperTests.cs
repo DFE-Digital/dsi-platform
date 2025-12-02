@@ -42,7 +42,7 @@ public sealed class SelectAssociatedAccountHelperTests
         return mockUrlHelper.Object;
     }
 
-    private static Controller CreateMockControllerWithNonEntraUser(AutoMocker autoMocker)
+    private static FakeController CreateMockControllerWithNonEntraUser(AutoMocker autoMocker)
     {
         var controller = new FakeController();
 
@@ -66,7 +66,7 @@ public sealed class SelectAssociatedAccountHelperTests
         return controller;
     }
 
-    private static Controller CreateMockControllerWithEntraUser(AutoMocker autoMocker)
+    private static FakeController CreateMockControllerWithEntraUser(AutoMocker autoMocker)
     {
         autoMocker.GetMock<ITokenAcquisition>()
             .Setup(x => x.GetAccessTokenForUserAsync(

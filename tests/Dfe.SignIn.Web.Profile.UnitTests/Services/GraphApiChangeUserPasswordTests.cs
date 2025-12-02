@@ -91,16 +91,21 @@ public sealed class GraphApiChangeUserPasswordTests
         SetupMockGraphServiceClientProvider(autoMocker);
         var service = autoMocker.CreateInstance<GraphApiChangeUserPassword>();
 
-        await service.ChangePassword(new SelfChangePasswordRequest {
-            UserId = new Guid("6e2636e8-3937-491e-b4f9-3c65cce4a8e5"),
-            CurrentPassword = "CurrentPass123",
-            NewPassword = "NewPass123",
-            ConfirmNewPassword = "NewPass123",
-            GraphAccessToken = new() {
-                Token = "FakeToken",
-                ExpiresOn = new DateTimeOffset(2025, 11, 10, 14, 52, 10, TimeSpan.Zero),
-            },
-        });
+        try {
+            await service.ChangePassword(new SelfChangePasswordRequest {
+                UserId = new Guid("6e2636e8-3937-491e-b4f9-3c65cce4a8e5"),
+                CurrentPassword = "CurrentPass123",
+                NewPassword = "NewPass123",
+                ConfirmNewPassword = "NewPass123",
+                GraphAccessToken = new() {
+                    Token = "FakeToken",
+                    ExpiresOn = new DateTimeOffset(2025, 11, 10, 14, 52, 10, TimeSpan.Zero),
+                },
+            });
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     private static async Task<ODataError> CreateFakeErrorAsync(string message)
