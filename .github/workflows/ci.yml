@@ -42,6 +42,7 @@ on:
           - frontend
           - help
           - internal-api
+          - profile
           - public-api
           - select-organisation
           - (all components)

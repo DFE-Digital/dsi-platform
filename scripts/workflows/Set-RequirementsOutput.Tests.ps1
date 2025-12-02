@@ -131,7 +131,7 @@ Describe "Set-RequirementsOutput" {
                 -BuildForRepository '(all components)'
 
             $dockerImages = $global:capturedValue.docker_images | ConvertFrom-Json
-            $dockerImages | Should -HaveCount 7
+            $dockerImages | Should -HaveCount 8
         }
 
         It "excludes projects that have been changed" {
@@ -244,6 +244,19 @@ Describe "Set-RequirementsOutput" {
             $dockerImages[0].project | Should -Be 'Dfe.SignIn.PublicApi'
             $dockerImages[0].dockerfile | Should -Be 'dotnet'
             $dockerImages[0].repository | Should -Be 'dev/public-api'
+            $dockerImages[0].version | Should -Be $null
+        }
+
+        It "includes 'Dfe.SignIn.Web.Profile' project when force parameter provided" {
+            & $Cmdlet `
+                -LifecycleName 'dev' `
+                -BuildForRepository 'profile'
+
+            $dockerImages = $global:capturedValue.docker_images | ConvertFrom-Json
+            $dockerImages | Should -HaveCount 1
+            $dockerImages[0].project | Should -Be 'Dfe.SignIn.Web.Profile'
+            $dockerImages[0].dockerfile | Should -Be 'dotnet'
+            $dockerImages[0].repository | Should -Be 'dev/profile'
             $dockerImages[0].version | Should -Be $null
         }
 
