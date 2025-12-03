@@ -4,6 +4,7 @@ require("./_filter-boxes.js");
 require("./_filters.js");
 require("./_modal.js");
 require("./_serviceConfigForm.js");
+require("../components/selection-list.js");
 require("./_show-hide-content.js");
 require("./_tablesort.js");
 require("./_tooltip.js");
