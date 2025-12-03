@@ -27,8 +27,15 @@ function initSessionTimeoutElement(element) {
 
     const popupTime = timeout - notifyRemainingMinutes * 60 * 1000;
     if (Date.now() >= popupTime) {
-      element.classList.add('app-session-timeout--show');
-      modalElement.focus();
+      if (!element.classList.contains('app-session-timeout--show')) {
+        element.classList.add('app-session-timeout--show');
+        if (modalElement.showModal) {
+          modalElement.showModal();
+        }
+        else {
+          modalElement.focus();
+        }
+      }
 
       // End several seconds earlier so that session timeout can use cookies.
       const allowanceInSeconds = 10;
@@ -52,6 +59,9 @@ function initSessionTimeoutElement(element) {
     }
     else {
       element.classList.remove('app-session-timeout--show');
+      if (modalElement.showModal) {
+        modalElement.close();
+      }
     }
   }, 500);
 }

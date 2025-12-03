@@ -12,7 +12,7 @@
         data-end-session-url="/session/end-timeout"
         data-timeout-url="/session-timeout"
     >
-        <div class="app-session-timeout__modal" role="alertdialog" aria-modal="true" aria-labelledby="sessionTimeoutModalTitle" aria-describedby="sessionTimeoutModalMessage">
+        <dialog class="app-session-timeout__modal" closedby="none" role="alertdialog" aria-modal="true" aria-labelledby="sessionTimeoutModalTitle" aria-describedby="sessionTimeoutModalMessage">
             <h3 id="sessionTimeoutModalTitle" class="app-session-timeout__heading">
                 <span class="app-session-timeout__timer">
                     Your session will time out in <span class="app-session-timeout__minutes">0 minutes</span> <span class="app-session-timeout__seconds">0 seconds</span>
@@ -34,6 +34,6 @@
                     Sign out now
                 </govuk-button-link>
             </div>
-        </div>
+        </dialog>
     </div>
 }
