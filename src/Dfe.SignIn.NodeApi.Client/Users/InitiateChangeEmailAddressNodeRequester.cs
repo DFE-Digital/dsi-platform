@@ -24,6 +24,10 @@ public sealed class InitiateChangeEmailAddressNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
+        var userProfile = await interaction.DispatchAsync(new GetUserProfileRequest {
+            UserId = context.Request.UserId,
+        }, cancellationToken).To<GetUserProfileResponse>();
+
         var existingUserStatus = await interaction.DispatchAsync(new GetUserStatusRequest {
             EmailAddress = context.Request.NewEmailAddress,
         }, cancellationToken).To<GetUserStatusResponse>();
@@ -39,15 +43,22 @@ public sealed class InitiateChangeEmailAddressNodeRequester(
                 context.ThrowIfHasValidationErrors();
             }
 
-            // Bail early, pretend request was fulfilled.
-            return new InitiateChangeEmailAddressResponse();
+            // The user is attempting to use the email address of an existing user account.
+            await interaction.DispatchAsync(new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeEmail,
+                EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
+                Message = $"Request to change email from {userProfile.EmailAddress} to existing user {context.Request.NewEmailAddress}",
+                UserId = context.Request.UserId,
+            }, CancellationToken.None);
+
+            context.AddValidationError(
+                "Please enter a valid new email address",
+                nameof(context.Request.NewEmailAddress)
+            );
+            context.ThrowIfHasValidationErrors();
         }
 
         await actionLimiter.LimitAndThrowAsync(context.Request);
-
-        var userProfile = await interaction.DispatchAsync(new GetUserProfileRequest {
-            UserId = context.Request.UserId,
-        }, cancellationToken).To<GetUserProfileResponse>();
 
         await interaction.DispatchAsync(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeEmail,

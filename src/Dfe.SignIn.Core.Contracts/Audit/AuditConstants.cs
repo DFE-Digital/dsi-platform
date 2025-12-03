@@ -61,6 +61,11 @@ public static class AuditChangeEmailEventNames
     public const string RequestToChangeEmail = "request-to-change-email";
 
     /// <summary>
+    /// Indicates that the user attempted to use an existing email address.
+    /// </summary>
+    public const string RequestedExistingEmail = "requested-existing-email";
+
+    /// <summary>
     /// Indicates that the change request was cancelled.
     /// </summary>
     public const string CancelChangeEmail = "cancel-change-email";

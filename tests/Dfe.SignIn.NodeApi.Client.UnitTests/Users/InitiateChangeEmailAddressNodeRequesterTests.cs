@@ -104,24 +104,52 @@ public sealed class InitiateChangeEmailAddressNodeRequesterTests
     }
 
     [TestMethod]
-    public async Task PretendsRequestWasFulfilled_WhenNewEmailAddressAlreadyTakenByAnotherUser()
+    public async Task Throws_WhenNewEmailAddressAlreadyTakenByAnotherUser()
     {
         var autoMocker = new AutoMocker();
 
-        var captureWriteToAudit = new List<WriteToAuditRequest>();
-        autoMocker.CaptureRequest<WriteToAuditRequest>(captureWriteToAudit.Add);
+        var mappings = GetNodeResponseMappingsForHappyPath();
+        var interactor = CreateInitiateChangeEmailAddressNodeRequester(autoMocker, mappings);
 
-        var interactor = CreateInitiateChangeEmailAddressNodeRequester(autoMocker, []);
+        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(()
+            => interactor.InvokeAsync(new InitiateChangeEmailAddressRequest {
+                UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
+                ClientId = "test",
+                IsSelfInvoked = true,
+                NewEmailAddress = "alex.other@example.com",
+            }));
 
-        var response = await interactor.InvokeAsync(new InitiateChangeEmailAddressRequest {
-            UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
-            ClientId = "test",
-            IsSelfInvoked = true,
-            NewEmailAddress = "alex.other@example.com",
-        });
+        InteractionAssert.HasValidationError(exception,
+            "Please enter a valid new email address",
+            nameof(InitiateChangeEmailAddressRequest.NewEmailAddress)
+        );
+    }
 
-        Assert.IsNotNull(response);
-        Assert.IsFalse(captureWriteToAudit.Any(request => request.EventName == AuditChangeEmailEventNames.RequestToChangeEmail));
+    [TestMethod]
+    public async Task WritesToAudit_WhenNewEmailAddressAlreadyTakenByAnotherUser()
+    {
+        var autoMocker = new AutoMocker();
+
+        var capturedWriteToAudit = new List<WriteToAuditRequest>();
+        autoMocker.CaptureRequest<WriteToAuditRequest>(capturedWriteToAudit.Add);
+
+        var mappings = GetNodeResponseMappingsForHappyPath();
+        var interactor = CreateInitiateChangeEmailAddressNodeRequester(autoMocker, mappings);
+
+        await Assert.ThrowsExactlyAsync<InvalidRequestException>(()
+            => interactor.InvokeAsync(new InitiateChangeEmailAddressRequest {
+                UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
+                ClientId = "test",
+                IsSelfInvoked = true,
+                NewEmailAddress = "alex.other@example.com",
+            }));
+
+        var writeToAudit = capturedWriteToAudit.FirstOrDefault(req
+            => req.EventName == AuditChangeEmailEventNames.RequestedExistingEmail);
+        Assert.IsNotNull(writeToAudit);
+        Assert.AreEqual(AuditEventCategoryNames.ChangeEmail, writeToAudit.EventCategory);
+        Assert.AreEqual("Request to change email from alex.cooper@example.com to existing user alex.other@example.com", writeToAudit.Message);
+        Assert.AreEqual(new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"), writeToAudit.UserId);
     }
 
     [TestMethod]

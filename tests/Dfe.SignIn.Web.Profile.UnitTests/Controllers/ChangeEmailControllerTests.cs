@@ -176,12 +176,27 @@ public sealed class ChangeEmailControllerTests
     }
 
     [TestMethod]
-    public async Task PostIndex_SetsFlashNotification_WhenInteractionRejectedByLimiter()
+    public async Task PostIndex_SetsFlashNotification_WhenInteractionRejectedByLimiter_AndPendingEmailChange()
     {
         var autoMocker = new AutoMocker();
 
         autoMocker.MockThrows<InitiateChangeEmailAddressRequest>(
             new InteractionRejectedByLimiterException()
+        );
+
+        autoMocker.MockResponse(
+            new GetPendingChangeEmailAddressRequest {
+                UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            },
+            new GetPendingChangeEmailAddressResponse {
+                PendingChangeEmailAddress = new() {
+                    UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+                    NewEmailAddress = "alex.new@example.com",
+                    VerificationCode = "ABC1234",
+                    ExpiryTimeUtc = new DateTime(2025, 11, 15, 12, 43, 11, DateTimeKind.Utc),
+                    HasExpired = false,
+                },
+            }
         );
 
         var controller = CreateControllerAuthenticated(autoMocker);
@@ -193,8 +208,40 @@ public sealed class ChangeEmailControllerTests
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNotNull(flashNotification);
         Assert.AreEqual("Verification code limit reached", flashNotification.Heading);
-        Assert.Contains("For security, only 4 verification codes requests can be sent.", flashNotification.Message);
+        Assert.Contains("For security, only 4 verification code requests can be sent.", flashNotification.Message);
         Assert.Contains("Wait 10 seconds before raising another request, or enter your verification code below.", flashNotification.Message);
+
+        bool hideResend = (bool)controller.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey]!;
+        Assert.IsTrue(hideResend);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_SetsFlashNotification_WhenInteractionRejectedByLimiter_AndNoPendingEmailChange()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.MockThrows<InitiateChangeEmailAddressRequest>(
+            new InteractionRejectedByLimiterException()
+        );
+
+        autoMocker.MockResponse(
+            new GetPendingChangeEmailAddressRequest {
+                UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            },
+            new GetPendingChangeEmailAddressResponse()
+        );
+
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        await controller.PostIndex(resend: true, viewModel: new() {
+            EmailAddressInput = "alex.new@example.com",
+        });
+
+        var flashNotification = controller.TempData.GetFlashNotification();
+        Assert.IsNotNull(flashNotification);
+        Assert.AreEqual("Verification code limit reached", flashNotification.Heading);
+        Assert.Contains("For security, only 4 verification code requests can be sent.", flashNotification.Message);
+        Assert.Contains("Wait 10 seconds before trying again.", flashNotification.Message);
 
         bool hideResend = (bool)controller.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey]!;
         Assert.IsTrue(hideResend);

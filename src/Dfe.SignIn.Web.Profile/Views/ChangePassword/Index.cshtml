@@ -15,19 +15,19 @@
             <govuk-fieldset>
                 <govuk-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">@ViewData[DsiLayoutConstants.Title]</govuk-fieldset-legend>
 
-                <govuk-input for=CurrentPasswordInput class="app-password-toggle" input-class="govuk-!-width-three-quarters" type="password">
+                <govuk-input for=CurrentPasswordInput class="app-password-toggle" input-class="govuk-!-width-three-quarters" type="password" autocomplete="current-password">
                     <govuk-input-label class="govuk-label--s">
                         Current password
                     </govuk-input-label>
                 </govuk-input>
 
-                <govuk-input for=NewPasswordInput class="app-password-toggle" input-class="govuk-!-width-three-quarters" type="password">
+                <govuk-input for=NewPasswordInput class="app-password-toggle" input-class="govuk-!-width-three-quarters" type="password" autocomplete="new-password">
                     <govuk-input-label class="govuk-label--s">
                         New password
                     </govuk-input-label>
                 </govuk-input>
 
-                <govuk-input for=ConfirmNewPasswordInput class="app-password-toggle" input-class="govuk-!-width-three-quarters" type="password">
+                <govuk-input for=ConfirmNewPasswordInput class="app-password-toggle" input-class="govuk-!-width-three-quarters" type="password" autocomplete="new-password">
                     <govuk-input-label class="govuk-label--s">
                         Confirm new password
                     </govuk-input-label>

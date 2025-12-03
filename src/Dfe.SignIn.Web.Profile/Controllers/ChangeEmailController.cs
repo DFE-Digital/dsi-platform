@@ -61,11 +61,18 @@ public sealed class ChangeEmailController(
         catch (InteractionRejectedByLimiterException) {
             var options = limiterOptions.Get<InitiateChangeEmailAddressRequest>();
             var timePeriod = TimeSpan.FromSeconds(options.TimePeriodInSeconds).Humanize();
+            string reason = $"Wait {timePeriod} before trying again.";
+
+            var pendingChange = await this.GetPendingChangeEmailAddress(this.User.GetUserId(), cancellationToken);
+            if (pendingChange is not null) {
+                reason = $"Wait {timePeriod} before raising another request, or enter your verification code below.";
+            }
+
             this.SetFlashNotification(
                 heading: "Verification code limit reached",
                 message: $"""
-                For security, only {options.InteractionsPerTimePeriod} verification codes requests can be sent.
-                Wait {timePeriod} before raising another request, or enter your verification code below.
+                For security, only {options.InteractionsPerTimePeriod} verification code requests can be sent.
+                {reason}
                 """
             );
             hideResendVerificationBanner = true;
@@ -98,13 +105,7 @@ public sealed class ChangeEmailController(
 
     private async Task<IActionResult> VerificationCodeHelper(Guid userId, CancellationToken cancellationToken)
     {
-        var pendingChangeEmailAddressResponse = await interaction.DispatchAsync(
-            new GetPendingChangeEmailAddressRequest {
-                UserId = userId
-            }, cancellationToken
-        ).To<GetPendingChangeEmailAddressResponse>();
-
-        var pendingChange = pendingChangeEmailAddressResponse.PendingChangeEmailAddress;
+        var pendingChange = await this.GetPendingChangeEmailAddress(userId, cancellationToken);
         if (pendingChange is null) {
             return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
         }
@@ -183,5 +184,17 @@ public sealed class ChangeEmailController(
         );
 
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
+    }
+
+    private async Task<PendingChangeEmailAddress?> GetPendingChangeEmailAddress(
+        Guid userId, CancellationToken cancellationToken)
+    {
+        var pendingChangeEmailAddressResponse = await interaction.DispatchAsync(
+            new GetPendingChangeEmailAddressRequest {
+                UserId = userId,
+            }, cancellationToken
+        ).To<GetPendingChangeEmailAddressResponse>();
+
+        return pendingChangeEmailAddressResponse.PendingChangeEmailAddress;
     }
 }
