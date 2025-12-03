@@ -4,9 +4,9 @@
     ViewData[DsiLayoutConstants.ServiceName] = "DfE Sign-in";
 
     if (User.Identity?.IsAuthenticated == true) {
-        ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(
-            Url.Action(nameof(AuthController.SignOut),
-            MvcNaming.Controller<AuthController>())
+        ViewData[DsiLayoutConstants.SignOutUrl] = Url.Action(
+            nameof(AuthController.SignOut),
+            MvcNaming.Controller<AuthController>()
         );
     }
 

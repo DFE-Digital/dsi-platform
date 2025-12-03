@@ -1,8 +1,8 @@
 ﻿@model ChangePasswordViewModel
 
 @{
-    ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(
-        Url.Action(nameof(HomeController.Index),
+    ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(Url.Action(
+        nameof(HomeController.Index),
         MvcNaming.Controller<HomeController>())
     );
 
