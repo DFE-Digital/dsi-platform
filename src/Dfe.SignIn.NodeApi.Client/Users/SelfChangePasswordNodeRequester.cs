@@ -84,7 +84,7 @@ public sealed class SelfChangePasswordNodeRequester(
     private async Task ReportIncorrectCurrentPasswordAsync(InteractionContext<SelfChangePasswordRequest> context)
     {
         context.AddValidationError(
-            "We do not recognise the password you entered. Please check and try again.",
+            "The password you entered was not recognised",
             nameof(context.Request.CurrentPassword)
         );
 

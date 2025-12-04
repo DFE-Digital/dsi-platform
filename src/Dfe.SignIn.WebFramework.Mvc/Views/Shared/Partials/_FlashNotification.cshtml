@@ -1,5 +1,3 @@
-@using System.Text.Json
-
 @if (TempData.GetFlashNotification() is FlashNotificationViewModel notification) {
     <govuk-notification-banner type=@notification.Type>
         @if (!string.IsNullOrWhiteSpace(notification.Heading)) {

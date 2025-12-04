@@ -115,7 +115,7 @@ public sealed class ConfirmChangeEmailAddressNodeRequesterTests
             }));
 
         InteractionAssert.HasValidationError(exception,
-            "The verification code you entered is incorrect. Please check and try again.",
+            "The verification code you entered is incorrect",
             nameof(ConfirmChangeEmailAddressRequest.VerificationCode)
         );
     }

@@ -61,7 +61,7 @@ public sealed class ConfirmChangeEmailAddressNodeRequester(
     {
         if (!string.Equals(context.Request.VerificationCode, pendingChange.VerificationCode, StringComparison.InvariantCultureIgnoreCase)) {
             context.AddValidationError(
-                "The verification code you entered is incorrect. Please check and try again.",
+                "The verification code you entered is incorrect",
                 nameof(context.Request.VerificationCode)
             );
             await this.WriteAuditFailedToChangeEmailAsync(pendingChange, "invalid code");

@@ -15,13 +15,13 @@
             <govuk-fieldset>
                 <govuk-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">@ViewData[DsiLayoutConstants.Title]</govuk-fieldset-legend>
 
-                <govuk-input for=FirstNameInput input-class="govuk-!-width-three-quarters" autocomplete="given-name" spellcheck="false">
+                <govuk-input for=FirstNameInput input-class="govuk-!-width-three-quarters" input-maxlength=60 autocomplete="given-name" spellcheck="false">
                     <govuk-input-label class="govuk-label--s">
                         First name
                     </govuk-input-label>
                 </govuk-input>
 
-                <govuk-input for=LastNameInput input-class="govuk-!-width-three-quarters" autocomplete="family-name" spellcheck="false">
+                <govuk-input for=LastNameInput input-class="govuk-!-width-three-quarters" input-maxlength=60 autocomplete="family-name" spellcheck="false">
                     <govuk-input-label class="govuk-label--s">
                         Last name
                     </govuk-input-label>
