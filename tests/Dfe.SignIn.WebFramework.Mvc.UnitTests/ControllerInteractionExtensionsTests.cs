@@ -80,7 +80,7 @@ public sealed class ControllerInteractionExtensionsTests
         var mockController = new Mock<Controller>();
 
         FakeRequest? capturedRequest = null;
-        InteractionTask capturer(FakeRequest request, CancellationToken _)
+        InteractionTask capturer(FakeRequest request)
         {
             capturedRequest = request;
             return InteractionTask.FromResult(new FakeResponse());
@@ -92,7 +92,7 @@ public sealed class ControllerInteractionExtensionsTests
         };
 
         await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync(capturer, CancellationToken.None);
+            .InvokeAsync(capturer);
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("abc", capturedRequest.RequestPropertyA, "Property of same type");
@@ -106,7 +106,7 @@ public sealed class ControllerInteractionExtensionsTests
         var mockController = new Mock<Controller>();
 
         FakeComplexRequest? capturedRequest = null;
-        InteractionTask capturer(FakeComplexRequest request, CancellationToken _)
+        InteractionTask capturer(FakeComplexRequest request)
         {
             capturedRequest = request;
             return InteractionTask.FromResult(new FakeResponse());
@@ -117,7 +117,7 @@ public sealed class ControllerInteractionExtensionsTests
         };
 
         await ControllerInteractionExtensions.MapInteractionRequest<FakeComplexRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync(capturer, CancellationToken.None);
+            .InvokeAsync(capturer);
 
         Assert.IsNotNull(capturedRequest);
         Assert.IsNull(capturedRequest.RequestPropertyA);
@@ -129,7 +129,7 @@ public sealed class ControllerInteractionExtensionsTests
         var mockController = new Mock<Controller>();
 
         FakeComplexRequest? capturedRequest = null;
-        InteractionTask capturer(FakeComplexRequest request, CancellationToken _)
+        InteractionTask capturer(FakeComplexRequest request)
         {
             capturedRequest = request;
             return InteractionTask.FromResult(new FakeResponse());
@@ -142,7 +142,7 @@ public sealed class ControllerInteractionExtensionsTests
         };
 
         await ControllerInteractionExtensions.MapInteractionRequest<FakeComplexRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync(capturer, CancellationToken.None);
+            .InvokeAsync(capturer);
 
         Assert.IsNotNull(capturedRequest?.RequestPropertyA?.Nested);
         Assert.AreEqual(123, capturedRequest.RequestPropertyA.Nested.Foo);
@@ -258,7 +258,7 @@ public sealed class ControllerInteractionExtensionsTests
         var mockController = new Mock<Controller>();
 
         FakeRequest? capturedRequest = null;
-        InteractionTask capturer(FakeRequest request, CancellationToken _)
+        InteractionTask capturer(FakeRequest request)
         {
             capturedRequest = request;
             return InteractionTask.FromResult(new FakeResponse());
@@ -274,7 +274,7 @@ public sealed class ControllerInteractionExtensionsTests
                 RequestPropertyB = 456,
                 RequestPropertyC = "overridden",
             })
-            .InvokeAsync(capturer, CancellationToken.None);
+            .InvokeAsync(capturer);
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("abc", capturedRequest.RequestPropertyA, "Original property value");
@@ -300,7 +300,7 @@ public sealed class ControllerInteractionExtensionsTests
         var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
-            => builder.InvokeAsync<FakeResponse>(null!, CancellationToken.None));
+            => builder.InvokeAsync<FakeResponse>(null!));
     }
 
     [TestMethod]
@@ -319,7 +319,7 @@ public sealed class ControllerInteractionExtensionsTests
         var fakeException = new InvalidRequestException(Guid.Empty, validationResults);
 
         var response = await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync<FakeResponse>((_, _) => throw fakeException, CancellationToken.None);
+            .InvokeAsync<FakeResponse>(_ => throw fakeException);
 
         Assert.IsNull(response);
     }
@@ -337,7 +337,7 @@ public sealed class ControllerInteractionExtensionsTests
         var fakeResponse = new FakeResponse();
 
         var response = await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync<FakeResponse>((_, _) => InteractionTask.FromResult(fakeResponse), CancellationToken.None);
+            .InvokeAsync<FakeResponse>(_ => InteractionTask.FromResult(fakeResponse));
 
         Assert.AreSame(fakeResponse, response);
     }
@@ -360,32 +360,7 @@ public sealed class ControllerInteractionExtensionsTests
         var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
-            => builder.InvokeAsync(null!, CancellationToken.None));
-    }
-
-    [TestMethod]
-    public async Task InvokeAsync_ProvidesExpectedCancellationToken()
-    {
-        var mockController = new Mock<Controller>();
-
-        var fakeViewModel = new FakeViewModel {
-            ViewModelPropertyA = "abc",
-            ViewModelPropertyB = "123",
-        };
-
-        using var cancellationTokenSource = new CancellationTokenSource();
-
-        CancellationToken? capturedCancellationToken = null;
-        InteractionTask capturer(FakeRequest _, CancellationToken cancellationToken)
-        {
-            capturedCancellationToken = cancellationToken;
-            return InteractionTask.FromResult(new FakeResponse());
-        }
-
-        await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync(capturer, cancellationTokenSource.Token);
-
-        Assert.AreEqual(cancellationTokenSource.Token, capturedCancellationToken);
+            => builder.InvokeAsync(null!));
     }
 
     [TestMethod]
@@ -403,7 +378,7 @@ public sealed class ControllerInteractionExtensionsTests
         var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
 
         var exception = await Assert.ThrowsExactlyAsync<UnexpectedException>(()
-            => builder.InvokeAsync((_, _) => throw fakeException, CancellationToken.None));
+            => builder.InvokeAsync(_ => throw fakeException));
 
         Assert.AreSame(fakeException, exception);
     }
@@ -423,7 +398,7 @@ public sealed class ControllerInteractionExtensionsTests
         var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
 
         var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(()
-            => builder.InvokeAsync((_, _) => throw fakeException, CancellationToken.None));
+            => builder.InvokeAsync(_ => throw fakeException));
 
         Assert.AreSame(fakeException, exception);
     }
@@ -445,7 +420,7 @@ public sealed class ControllerInteractionExtensionsTests
         var fakeException = new InvalidRequestException(Guid.Empty, validationResults);
 
         await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync((_, _) => throw fakeException, CancellationToken.None);
+            .InvokeAsync(_ => throw fakeException);
 
         var modelState = mockController.Object.ModelState;
         Assert.IsFalse(modelState.IsValid);
@@ -471,7 +446,7 @@ public sealed class ControllerInteractionExtensionsTests
 
         var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
             => ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-                .InvokeAsync((_, _) => throw fakeException, CancellationToken.None));
+                .InvokeAsync(_ => throw fakeException));
 
         Assert.AreEqual("Unable to map validation result 'UnmappedProperty' with message 'Example error'.", exception.Message);
     }

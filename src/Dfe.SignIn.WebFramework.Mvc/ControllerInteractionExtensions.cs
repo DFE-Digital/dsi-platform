@@ -144,7 +144,6 @@ public struct MapInteractionRequestBuilder<TRequest>(
     /// </remarks>
     /// <typeparam name="TResponse">The expected response type from the interaction.</typeparam>
     /// <param name="dispatch">The interaction dispatcher delegate.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>
     ///   <para>The response from the interaction, or <c>null</c> if validation failed.</para>
     /// </returns>
@@ -155,13 +154,13 @@ public struct MapInteractionRequestBuilder<TRequest>(
     ///   <para>Rethrown if validation fails but no specific validation results are available.</para>
     /// </exception>
     public readonly async Task<TResponse> InvokeAsync<TResponse>(
-        InteractionDispatcher<TRequest> dispatch, CancellationToken cancellationToken = default)
+        InteractionDispatcher<TRequest> dispatch)
         where TResponse : class
     {
         ExceptionHelpers.ThrowIfArgumentNull(dispatch, nameof(dispatch));
 
         try {
-            return await dispatch(request, cancellationToken).To<TResponse>();
+            return await dispatch(request).To<TResponse>();
         }
         catch (InvalidRequestException ex) {
             if (!ex.ValidationResults.Any()) {
@@ -177,16 +176,15 @@ public struct MapInteractionRequestBuilder<TRequest>(
     /// back to the controller's <see cref="ControllerBase.ModelState"/>.
     /// </summary>
     /// <param name="dispatch">The interaction dispatcher delegate.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <exception cref="ArgumentNullException">
     ///   <para>If <paramref name="dispatch"/> is null.</para>
     /// </exception>
     /// <exception cref="InvalidRequestException">
     ///   <para>Rethrown if validation fails but no specific validation results are available.</para>
     /// </exception>
-    public readonly Task InvokeAsync(InteractionDispatcher<TRequest> dispatch, CancellationToken cancellationToken = default)
+    public readonly Task InvokeAsync(InteractionDispatcher<TRequest> dispatch)
     {
-        return this.InvokeAsync<object>(dispatch, cancellationToken);
+        return this.InvokeAsync<object>(dispatch);
     }
 }
 
@@ -195,10 +193,9 @@ public struct MapInteractionRequestBuilder<TRequest>(
 /// </summary>
 /// <typeparam name="TRequest">The type of the request model.</typeparam>
 /// <param name="request">The request model.</param>
-/// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
 /// <returns>
 ///   <para>A <see cref="InteractionTask"/> representing the asynchronous interaction.</para>
 /// </returns>
 /// <exception cref="OperationCanceledException" />
-public delegate InteractionTask InteractionDispatcher<in TRequest>(TRequest request, CancellationToken cancellationToken)
+public delegate InteractionTask InteractionDispatcher<in TRequest>(TRequest request)
     where TRequest : class;

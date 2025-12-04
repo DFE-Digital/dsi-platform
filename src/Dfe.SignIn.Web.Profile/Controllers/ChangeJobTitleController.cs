@@ -30,14 +30,13 @@ public sealed class ChangeJobTitleController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
-        ChangeJobTitleViewModel viewModel,
-        CancellationToken cancellationToken = default)
+        ChangeJobTitleViewModel viewModel)
     {
         await this.MapInteractionRequest<ChangeJobTitleRequest>(viewModel)
             .Use(request => request with {
                 UserId = this.User.GetUserId(),
             })
-            .InvokeAsync(interaction.DispatchAsync, cancellationToken);
+            .InvokeAsync(interaction.DispatchAsync);
 
         if (!this.ModelState.IsValid) {
             return this.Index();

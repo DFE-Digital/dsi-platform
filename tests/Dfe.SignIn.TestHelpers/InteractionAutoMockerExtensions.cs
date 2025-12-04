@@ -23,11 +23,10 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.IsAny<InteractionContext<TRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<TRequest>>()
             ))
-            .Callback<InteractionContext<TRequest>, CancellationToken>(
-                (context, _) => captureRequest(context.Request)
+            .Callback<InteractionContext<TRequest>>(
+                context => captureRequest(context.Request)
             )
             .Returns(InteractionTask.FromResult(response!));
     }
@@ -40,14 +39,13 @@ public static class InteractionAutoMockerExtensions
     /// <param name="autoMocker">The auto mocker instance.</param>
     /// <param name="captureRequest">A callback to capture the request context.</param>
     /// <param name="response">The fake response.</param>
-    public static void CaptureRequest<TRequest>(
-        this AutoMocker autoMocker, Action<InteractionContext<TRequest>, CancellationToken> captureRequest, object? response = null)
+    public static void CaptureInteractionContext<TRequest>(
+        this AutoMocker autoMocker, Action<InteractionContext<TRequest>> captureRequest, object? response = null)
         where TRequest : class
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.IsAny<InteractionContext<TRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<TRequest>>()
             ))
             .Callback(captureRequest)
             .Returns(InteractionTask.FromResult(response!));
@@ -66,8 +64,7 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.Is<InteractionContext<TRequest>>(c => predicate(c)),
-                It.IsAny<CancellationToken>()
+                It.Is<InteractionContext<TRequest>>(c => predicate(c))
             ))
             .Returns(InteractionTask.FromResult(response));
     }
@@ -152,8 +149,7 @@ public static class InteractionAutoMockerExtensions
     {
         autoMocker.GetMock<IInteractionDispatcher>()
             .Setup(x => x.DispatchAsync(
-                It.Is<InteractionContext<TRequest>>(c => predicate(c)),
-                It.IsAny<CancellationToken>()
+                It.Is<InteractionContext<TRequest>>(c => predicate(c))
             ))
             .Throws(exception);
     }

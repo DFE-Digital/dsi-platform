@@ -48,11 +48,13 @@ public sealed class AuthController(IInteractionDispatcher interaction) : Control
         );
 
         if (this.User.Identity?.IsAuthenticated == true) {
-            await interaction.DispatchAsync(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.SignOut,
-                Message = "User signing out",
-                UserId = this.User.GetUserId(),
-            }, CancellationToken.None);
+            await interaction.DispatchAsync(
+                new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.SignOut,
+                    Message = "User signing out",
+                    UserId = this.User.GetUserId(),
+                }
+            );
         }
 
         return result;

@@ -44,9 +44,7 @@ public sealed partial class ChangePasswordController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostIndex(
-        ChangePasswordViewModel viewModel,
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> PostIndex(ChangePasswordViewModel viewModel)
     {
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
@@ -61,7 +59,7 @@ public sealed partial class ChangePasswordController(
                 UserId = userProfileFeature.UserId,
                 GraphAccessToken = graphAccessToken,
             })
-            .InvokeAsync(interaction.DispatchAsync, cancellationToken);
+            .InvokeAsync(interaction.DispatchAsync);
 
         if (!this.ModelState.IsValid) {
             return await this.Index();

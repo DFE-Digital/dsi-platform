@@ -37,8 +37,7 @@ public sealed class UserProfileMiddlewareTests
 
         autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
             x.DispatchAsync(
-                It.IsAny<InteractionContext<GetUserProfileRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetUserProfileRequest>>()
             ),
             Times.Never
         );

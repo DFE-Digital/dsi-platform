@@ -29,11 +29,13 @@ public sealed class ChangeJobTitleNodeRequester(
 
         response.EnsureSuccessStatusCode();
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeJobTitle,
-            Message = $"Successfully changed job title to {context.Request.NewJobTitle}",
-            UserId = context.Request.UserId,
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeJobTitle,
+                Message = $"Successfully changed job title to {context.Request.NewJobTitle}",
+                UserId = context.Request.UserId,
+            }
+        );
 
         return new ChangeJobTitleResponse();
     }
