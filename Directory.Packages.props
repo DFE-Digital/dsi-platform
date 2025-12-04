@@ -94,6 +94,9 @@
     <!-- Database -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.9" />
+
+    <!-- Entity Framework tooling -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9" />
   </ItemGroup>
 
   <!-- Frontends -->
