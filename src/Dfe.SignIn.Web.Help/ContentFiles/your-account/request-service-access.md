@@ -42,9 +42,9 @@ Follow the steps below to add or remove your sub-service access:
 
 4. Once you have reviewed the details, click 'request sub-service changes'.
 
-You will see a notification banner confirming your change request(s). The request will be sent to an approver to approve or reject.
-If you deselect a sub-service that you currently have access to and this request is approved, you will lose access.
-Checking the status of a request
+You will see a notification banner confirming your change request(s). The request will be sent to an approver to approve or reject. If you deselect a sub-service that you currently have access to and this request is approved, you will lose access.
+
+## Checking the status of a request
 
 If you do not receive an approval or rejection within 5 days of your request, you can email the approver. You will find their email address under the 'organisation' tab in the top banner.
 

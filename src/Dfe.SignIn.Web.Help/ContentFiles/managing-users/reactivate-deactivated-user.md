@@ -6,8 +6,7 @@ summary: |
   Understand what you can do to reactivate an end user account after it’s been deactivated.
 ---
 
-If you have an end user account that has been deactivated that needs reactivating, please raise a request using our
-[contact us form](/contact-us).
+If you have an end user account that has been deactivated that needs reactivating, please raise a request using our [contact us form](/contact-us).
 
 Accounts can only be reactivated by the support team and not by approvers.
 
