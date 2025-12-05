@@ -6,9 +6,11 @@ namespace Dfe.SignIn.TestHelpers.UnitTests;
 [TestClass]
 public sealed class InteractionAutoMockerExtensionsTests
 {
-    private sealed record ExampleRequest
+    private sealed record ExampleRequest : IKeyedRequest
     {
         public int Value { get; init; }
+
+        string IKeyedRequest.Key => this.Value.ToString();
     }
 
     private sealed record ExampleResponse
@@ -85,7 +87,7 @@ public sealed class InteractionAutoMockerExtensionsTests
             capturedCancellationToken = cancellationToken;
         });
 
-        var cancellationTokenSource = new CancellationTokenSource();
+        using var cancellationTokenSource = new CancellationTokenSource();
 
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
         await mockInteraction.Object.DispatchAsync(
@@ -294,11 +296,11 @@ public sealed class InteractionAutoMockerExtensionsTests
         var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
 
         // The targeted request throws.
-        var actualExceptionA = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+        await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
             => await mockInteraction.Object.DispatchAsync(fakeRequestA));
 
         // The targeted request throws.
-        var actualExceptionB = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+        await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
             => await mockInteraction.Object.DispatchAsync(fakeRequestB));
 
         // Other requests do not throw.
@@ -451,6 +453,167 @@ public sealed class InteractionAutoMockerExtensionsTests
         catch (Exception ex) {
             Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
         }
+    }
+
+    #endregion
+
+    #region MockValidationError<TRequest>(AutoMocker, Exception)
+
+    [TestMethod]
+    public async Task MockValidationError_AnyRequestOfTypeThrowsExpectedException()
+    {
+        var autoMocker = new AutoMocker();
+
+        InteractionAutoMockerExtensions.MockValidationError<ExampleRequest>(autoMocker, nameof(ExampleRequest.Value));
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+
+        // The targeted request throws.
+        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(new ExampleRequest()));
+        Assert.HasCount(1, exception.ValidationResults);
+        Assert.AreEqual("Invalid value.", exception.ValidationResults.First().ErrorMessage);
+        Assert.AreEqual("Value", exception.ValidationResults.First().MemberNames.FirstOrDefault());
+
+        // Other requests do not throw.
+        try {
+            await mockInteraction.Object.DispatchAsync(new ExampleOtherRequest());
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
+    }
+
+    #endregion
+
+    #region MockValidationError<TRequest>(AutoMocker, TRequest, Exception)
+
+    [TestMethod]
+    public async Task MockValidationError_RequestThrowsExpectedException()
+    {
+        var autoMocker = new AutoMocker();
+
+        var fakeRequest = new ExampleRequest { Value = 123 };
+
+        InteractionAutoMockerExtensions.MockValidationError(autoMocker, fakeRequest, nameof(ExampleRequest.Value));
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+
+        // The targeted request throws.
+        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(fakeRequest));
+        Assert.HasCount(1, exception.ValidationResults);
+        Assert.AreEqual("Invalid value.", exception.ValidationResults.First().ErrorMessage);
+        Assert.AreEqual("Value", exception.ValidationResults.First().MemberNames.FirstOrDefault());
+
+        // Other requests do not throw.
+        try {
+            await mockInteraction.Object.DispatchAsync(new ExampleRequest {
+                Value = 456,
+            });
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
+    }
+
+    #endregion
+
+    #region MockValidationErrorExactly<TRequest>(AutoMocker, TRequest, Exception)
+
+    [TestMethod]
+    public async Task MockValidationErrorExactly_RequestThrowsExpectedException()
+    {
+        var autoMocker = new AutoMocker();
+
+        // Separate instances of the same request.
+        var fakeRequestA = new ExampleRequest { Value = 123 };
+        var fakeRequestB = new ExampleRequest { Value = 123 };
+
+        InteractionAutoMockerExtensions.MockValidationErrorExactly(autoMocker, fakeRequestA, nameof(ExampleRequest.Value));
+
+        var mockInteraction = autoMocker.GetMock<IInteractionDispatcher>();
+
+        // The targeted request throws.
+        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await mockInteraction.Object.DispatchAsync(fakeRequestA));
+        Assert.HasCount(1, exception.ValidationResults);
+        Assert.AreEqual("Invalid value.", exception.ValidationResults.First().ErrorMessage);
+        Assert.AreEqual("Value", exception.ValidationResults.First().MemberNames.FirstOrDefault());
+
+        // Other requests do not throw.
+        try {
+            await mockInteraction.Object.DispatchAsync(fakeRequestB);
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
+    }
+
+    #endregion
+
+    #region MockLimiterReject<TRequest>(AutoMocker, bool)
+
+    [TestMethod]
+    public async Task MockLimiterReject1_Rejects_WhenRejectIsTrue()
+    {
+        var autoMocker = new AutoMocker();
+
+        InteractionAutoMockerExtensions.MockLimiter<ExampleRequest>(autoMocker, reject: true);
+
+        var mockInteractionLimiter = autoMocker.GetMock<IInteractionLimiter>();
+
+        var result = await mockInteractionLimiter.Object.LimitActionAsync(
+            new ExampleRequest { Value = 123 }
+        );
+        Assert.IsTrue(result.WasRejected);
+    }
+
+    [TestMethod]
+    public async Task MockLimiterReject1_DoesNotReject_WhenRejectIsFalse()
+    {
+        var autoMocker = new AutoMocker();
+
+        InteractionAutoMockerExtensions.MockLimiter<ExampleRequest>(autoMocker, reject: false);
+
+        var mockInteractionLimiter = autoMocker.GetMock<IInteractionLimiter>();
+
+        var result = await mockInteractionLimiter.Object.LimitActionAsync(
+            new ExampleRequest { Value = 123 }
+        );
+        Assert.IsFalse(result.WasRejected);
+    }
+
+    #endregion
+
+    #region MockLimiterReject<TRequest>(AutoMocker, TRequest, bool)
+
+    [TestMethod]
+    public async Task MockLimiterReject2_Rejects_WhenRejectIsTrue()
+    {
+        var autoMocker = new AutoMocker();
+        var fakeRequest = new ExampleRequest { Value = 123 };
+
+        InteractionAutoMockerExtensions.MockLimiter(autoMocker, fakeRequest, reject: true);
+
+        var mockInteractionLimiter = autoMocker.GetMock<IInteractionLimiter>();
+
+        var result = await mockInteractionLimiter.Object.LimitActionAsync(fakeRequest);
+        Assert.IsTrue(result.WasRejected);
+    }
+
+    [TestMethod]
+    public async Task MockLimiterReject2_DoesNotReject_WhenRejectIsFalse()
+    {
+        var autoMocker = new AutoMocker();
+        var fakeRequest = new ExampleRequest { Value = 123 };
+
+        InteractionAutoMockerExtensions.MockLimiter(autoMocker, fakeRequest, reject: false);
+
+        var mockInteractionLimiter = autoMocker.GetMock<IInteractionLimiter>();
+
+        var result = await mockInteractionLimiter.Object.LimitActionAsync(fakeRequest);
+        Assert.IsFalse(result.WasRejected);
     }
 
     #endregion

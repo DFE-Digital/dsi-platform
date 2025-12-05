@@ -82,6 +82,7 @@ public sealed class WriteToAuditWithServiceBus(
 
         writer.WriteStartObject("meta");
         writer.WriteString("req", auditContext.TraceId);
+        writer.WriteBoolean("success", !request.WasFailure);
         foreach (var customProperty in request.CustomProperties) {
             writer.WritePropertyName(customProperty.Key);
             JsonSerializer.Serialize(writer, customProperty.Value);

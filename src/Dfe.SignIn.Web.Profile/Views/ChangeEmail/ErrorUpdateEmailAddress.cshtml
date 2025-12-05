@@ -1,0 +1,28 @@
+@{
+    ViewData[DsiLayoutConstants.Title] = "There has been an error";
+
+    Uri contactUsUrl = new Uri(platformOptionsAccessor.Value.HelpUrl, Model.ShowRequestId
+        ? $"contact-us?exceptionTraceId={Model.RequestId}"
+        : "contact-us");
+}
+
+<h1 class="govuk-heading-xl govuk-!-margin-top-3">There has been an error</h1>
+
+<p class="govuk-body">
+    An error ocurred while trying to change your email address, please try again.
+</p>
+
+<p class="govuk-body">
+    If the problem persists <a class="govuk-link" href="@contactUsUrl">contact our service desk team</a>.
+</p>
+
+<govuk-button-link asp-action=@nameof(Index) asp-controller=@(MvcNaming.Controller<ChangeEmailController>())>
+    Try again
+</govuk-button-link>
+
+@if (Model.ShowRequestId)
+{
+    <p class="govuk-body">
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}

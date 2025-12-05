@@ -208,4 +208,85 @@ public static class InteractionAutoMockerExtensions
     {
         MockThrowsWhereContext<TRequest>(autoMocker, ctx => ReferenceEquals(request, ctx.Request), exception);
     }
+
+    /// <summary>
+    /// Mock scenario where a validation error occurs for a specific request type.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="requestPropertyName">Name of the invalid request property.</param>
+    public static void MockValidationError<TRequest>(this AutoMocker autoMocker, string requestPropertyName)
+        where TRequest : class
+    {
+        MockThrows<TRequest>(autoMocker, new InvalidRequestException(Guid.Empty, [
+            new("Invalid value.", [requestPropertyName])
+        ]));
+    }
+
+    /// <summary>
+    /// Mock scenario where a validation error occurs for a specific request.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="request">The fake request.</param>
+    /// <param name="requestPropertyName">Name of the invalid request property.</param>
+    public static void MockValidationError<TRequest>(this AutoMocker autoMocker, TRequest request, string requestPropertyName)
+        where TRequest : class
+    {
+        MockThrows(autoMocker, request, new InvalidRequestException(Guid.Empty, [
+            new("Invalid value.", [requestPropertyName])
+        ]));
+    }
+
+    /// <summary>
+    /// Mock scenario where a validation error occurs for an exact request.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="request">The fake request.</param>
+    /// <param name="requestPropertyName">Name of the invalid request property.</param>
+    public static void MockValidationErrorExactly<TRequest>(this AutoMocker autoMocker, TRequest request, string requestPropertyName)
+        where TRequest : class
+    {
+        MockThrowsExactly(autoMocker, request, new InvalidRequestException(Guid.Empty, [
+            new("Invalid value.", [requestPropertyName])
+        ]));
+    }
+
+    /// <summary>
+    /// Mock scenario where the <see cref="IInteractionLimiter"/> has rejected the request.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="reject">Indicates if the request was rejected by the limited.</param>
+    public static void MockLimiter<TRequest>(this AutoMocker autoMocker, bool reject)
+        where TRequest : class, IKeyedRequest
+    {
+        autoMocker.GetMock<IInteractionLimiter>()
+            .Setup(x => x.LimitActionAsync(
+                It.Is<IKeyedRequest>(req => req is TRequest)
+            ))
+            .ReturnsAsync(new InteractionLimiterResult {
+                WasRejected = reject,
+            });
+    }
+
+    /// <summary>
+    /// Mock scenario where the <see cref="IInteractionLimiter"/> has rejected the request.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of request model.</typeparam>
+    /// <param name="autoMocker">The auto mocker instance.</param>
+    /// <param name="request">The fake request.</param>
+    /// <param name="reject">Indicates if the request was rejected by the limited.</param>
+    public static void MockLimiter<TRequest>(this AutoMocker autoMocker, TRequest request, bool reject)
+        where TRequest : class, IKeyedRequest
+    {
+        autoMocker.GetMock<IInteractionLimiter>()
+            .Setup(x => x.LimitActionAsync(
+                It.Is<IKeyedRequest>(req => ReferenceEquals(req, request))
+            ))
+            .ReturnsAsync(new InteractionLimiterResult {
+                WasRejected = reject,
+            });
+    }
 }

@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.WebFramework.Mvc.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Controllers;
@@ -29,9 +27,10 @@ public abstract class BaseErrorController : Controller
         this.Response.StatusCode = code;
         return code switch {
             404 => this.View("NotFound"),
-            _ => this.View(new ErrorViewModel {
-                RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier,
-            }),
+            405 => HttpMethods.IsGet(this.Request.Method)
+                ? this.Redirect("/") // eg. when authentication occurs when submitting a form.
+                : this.ErrorView(),
+            _ => this.ErrorView(),
         };
     }
 }

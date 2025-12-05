@@ -25,7 +25,8 @@ public static class DistributedCacheInteractionLimiterExtensions
     ///   <para>- or -</para>
     ///   <para>If <paramref name="configuration"/> is null.</para>
     /// </exception>
-    public static IServiceCollection AddInteractionLimiter<TRequest>(this IServiceCollection services, IConfigurationRoot configuration)
+    public static IServiceCollection AddInteractionLimiter<TRequest>(
+        this IServiceCollection services, IConfigurationRoot configuration)
         where TRequest : IKeyedRequest
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
@@ -49,7 +50,8 @@ public static class DistributedCacheInteractionLimiterExtensions
     /// <returns>
     ///   <para>The limiter options for the specified request type.</para>
     /// </returns>
-    public static DistributedCacheInteractionLimiterOptions Get<TRequest>(this IOptionsMonitor<DistributedCacheInteractionLimiterOptions> optionsAccessor)
+    public static DistributedCacheInteractionLimiterOptions Get<TRequest>(
+        this IOptionsMonitor<DistributedCacheInteractionLimiterOptions> optionsAccessor)
         where TRequest : IKeyedRequest
     {
         ExceptionHelpers.ThrowIfArgumentNull(optionsAccessor, nameof(optionsAccessor));

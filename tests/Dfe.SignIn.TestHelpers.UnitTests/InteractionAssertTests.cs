@@ -43,4 +43,27 @@ public sealed class InteractionAssertTests
     }
 
     #endregion
+
+    #region HasValidationError(InvalidRequestException, string, string)
+
+    [TestMethod]
+    public void HasValidationError_DoesNotThrow_WhenExpectedValidationErrorIsPresent()
+    {
+        var exception = new InvalidRequestException(Guid.Empty, [
+            new("Example error message.", ["OtherProperty", "ExampleProperty"])
+        ]);
+
+        InteractionAssert.HasValidationError(exception, "Example error message.", "ExampleProperty");
+    }
+
+    [TestMethod]
+    public void HasValidationError_Throws_WhenExpectedValidationErrorIsNotPresent()
+    {
+        var exception = new InvalidRequestException();
+
+        Assert.ThrowsExactly<AssertFailedException>(()
+            => InteractionAssert.HasValidationError(exception, "Example error message.", "ExampleProperty"));
+    }
+
+    #endregion
 }

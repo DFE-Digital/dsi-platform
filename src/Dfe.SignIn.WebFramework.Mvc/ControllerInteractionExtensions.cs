@@ -73,7 +73,8 @@ public static class ControllerInteractionExtensions
                 controller.ModelState.AddModelError(mapping.ViewModelProperty.Name, result.ErrorMessage!);
             }
             else {
-                controller.ModelState.AddModelError(string.Empty, result.ErrorMessage!);
+                throw new InvalidOperationException(
+                    $"Unable to map validation result '{result.MemberNames.FirstOrDefault()}' with message '{result.ErrorMessage}'.");
             }
         }
     }

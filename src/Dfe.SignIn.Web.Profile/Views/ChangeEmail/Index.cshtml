@@ -1,0 +1,44 @@
+﻿@model ChangeEmailViewModel
+
+@{
+    ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(Url.Action(
+        nameof(HomeController.Index),
+        MvcNaming.Controller<HomeController>())
+    );
+
+    ViewData[DsiLayoutConstants.Title] = "Change your email address";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <form method="post" asp-antiforgery=true>
+            <govuk-fieldset>
+                <govuk-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">@ViewData[DsiLayoutConstants.Title]</govuk-fieldset-legend>
+
+                <p class="govuk-body">
+                    This will change the email address you use to sign into your DfE Sign-in account.
+                </p>
+
+                <p class="govuk-body">
+                    Once you change your registered email address, you will not be able to use your previous email address to sign in.
+                </p>
+
+                <govuk-input for=EmailAddressInput type="email" autocomplete="off">
+                    <govuk-input-label class="govuk-label--s">
+                        New email address
+                    </govuk-input-label>
+                </govuk-input>
+            </govuk-fieldset>
+
+            <div class="govuk-button-group">
+                <govuk-button asp-action=@nameof(ChangeEmailController.PostIndex)>
+                    Change email
+                </govuk-button>
+
+                <govuk-button asp-action=@nameof(ChangeEmailController.PostCancel) class="govuk-button--secondary">
+                    Cancel
+                </govuk-button>
+            </div>
+        </form>
+    </div>
+</div>

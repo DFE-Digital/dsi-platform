@@ -48,6 +48,11 @@ public sealed record WriteToAuditRequest
     public Guid? OrganisationId { get; init; }
 
     /// <summary>
+    /// Indicates if a failure has occurred.
+    /// </summary>
+    public bool WasFailure { get; init; } = false;
+
+    /// <summary>
     /// A collection of custom key-value pairs to include in the audit metadata.
     /// </summary>
     public IEnumerable<KeyValuePair<string, object>> CustomProperties { get; init; } = [];

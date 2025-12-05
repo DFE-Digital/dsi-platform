@@ -25,6 +25,15 @@
       "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj",
     },
     {
+      "name": "App: Profile",
+      "presentation": {
+        "group": "apps",
+      },
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.Web.Profile/Dfe.SignIn.Web.Profile.csproj",
+    },
+    {
       "name": "App: Internal API",
       "presentation": {
         "group": "apps",

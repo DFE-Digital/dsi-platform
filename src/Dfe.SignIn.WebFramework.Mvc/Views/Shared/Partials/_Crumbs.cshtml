@@ -7,3 +7,7 @@
         }
     </govuk-breadcrumbs>
 }
+else if (ViewData[DsiLayoutConstants.BackLink] is BackLinkViewModel backLink)
+{
+    <govuk-back-link href="@backLink.Href">@backLink.Text</govuk-back-link>
+}

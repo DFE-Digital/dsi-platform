@@ -28,7 +28,7 @@ public sealed record AutoLinkEntraUserToDsiRequest
     /// <value>
     /// A well formed email address.
     /// </value>
-    [EmailAddress]
+    [RegularExpression(StringPatterns.EmailAddressPattern)]
     public required string EmailAddress { get; init; }
 
     /// <summary>

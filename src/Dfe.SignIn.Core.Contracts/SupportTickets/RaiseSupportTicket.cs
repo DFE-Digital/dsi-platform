@@ -23,7 +23,7 @@ public sealed record RaiseSupportTicketRequest : IValidatableObject
     /// The email address of the user.
     /// </summary>
     [Required(ErrorMessage = "Enter your email address")]
-    [EmailAddress(ErrorMessage = "Enter a valid email address")]
+    [RegularExpression(StringPatterns.EmailAddressPattern, ErrorMessage = "Enter a valid email address")]
     public required string EmailAddress { get; init; }
 
     /// <summary>

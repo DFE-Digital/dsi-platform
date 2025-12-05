@@ -1,0 +1,34 @@
+﻿@{
+    Layout = "_DsiLayout";
+
+    ViewData[DsiLayoutConstants.ServiceName] = "DfE Sign-in";
+
+    if (User.Identity?.IsAuthenticated == true) {
+        ViewData[DsiLayoutConstants.SignOutUrl] = Url.Action(
+            nameof(AuthController.SignOut),
+            MvcNaming.Controller<AuthController>()
+        );
+    }
+
+    var platformOptions = platformOptionsAccessor.Value;
+
+    ViewData[DsiLayoutConstants.ServiceNavigationItems] = new NavigationItemViewModel[] {
+        new() {
+            Href = platformOptions.ServicesUrl,
+            Text = "Services",
+        },
+        new() {
+            Href = new Uri(platformOptions.ServicesUrl, "organisations"),
+            Text = "Organisations",
+        },
+        new() {
+            Href = platformOptions.ProfileUrl,
+            Text = "Profile",
+            IsActive = true,
+        },
+        new() {
+            Href = platformOptions.HelpUrl,
+            Text = "Help",
+        },
+    };
+}

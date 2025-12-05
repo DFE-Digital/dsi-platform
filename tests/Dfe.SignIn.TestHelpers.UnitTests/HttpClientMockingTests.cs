@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dfe.SignIn.TestHelpers.UnitTests;
@@ -120,7 +121,7 @@ public sealed class HttpClientMockingTests
     }
 
     [TestMethod]
-    public async Task GetHandlerWithMappedResponses_UpdatesInvocationCount()
+    public async Task GetHandlerWithMappedResponses_UpdatesInvocations()
     {
         var responseMappings = new Dictionary<string, MappedResponse> {
             ["(GET) https://example.com/first"] =
@@ -138,12 +139,16 @@ public sealed class HttpClientMockingTests
         var client = new HttpClient(mock.Object) { BaseAddress = new Uri("https://example.com") };
 
         await client.GetAsync("/first");
-        await client.PostAsJsonAsync("/third", new object());
-        await client.PostAsJsonAsync("/third", new object());
+        await client.PostAsJsonAsync("/third", new { value = 42 });
+        await client.PostAsJsonAsync("/third", new { value = 42 });
 
-        Assert.AreEqual(1, responseMappings["(GET) https://example.com/first"].InvocationCount);
-        Assert.AreEqual(0, responseMappings["(GET) https://example.com/second"].InvocationCount);
-        Assert.AreEqual(2, responseMappings["(POST) https://example.com/third"].InvocationCount);
+        Assert.HasCount(1, responseMappings["(GET) https://example.com/first"].Invocations);
+        Assert.HasCount(0, responseMappings["(GET) https://example.com/second"].Invocations);
+
+        Assert.HasCount(2, responseMappings["(POST) https://example.com/third"].Invocations);
+        var thirdInvocation = responseMappings["(POST) https://example.com/third"].Invocations[0];
+        var thirdBody = JsonSerializer.Deserialize<JsonElement>(thirdInvocation.Body!);
+        Assert.AreEqual(42, thirdBody.GetProperty("value").GetInt32());
     }
 
     [TestMethod]

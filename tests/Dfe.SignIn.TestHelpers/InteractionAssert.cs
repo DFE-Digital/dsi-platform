@@ -33,4 +33,20 @@ public static class InteractionAssert
 
         Assert.AreEqual(context.InvocationId, exception.InvocationId);
     }
+
+    /// <summary>
+    /// Asserts that the expected validation error has occurred.
+    /// </summary>
+    /// <param name="exception">The invalid request exception.</param>
+    /// <param name="expectedMessage">The expected error message.</param>
+    /// <param name="memberName">Name of the request property.</param>
+    public static void HasValidationError(InvalidRequestException exception, string expectedMessage, string memberName)
+    {
+        var result = exception.ValidationResults?.FirstOrDefault(
+            result => result.MemberNames.Contains(memberName)
+        );
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(expectedMessage, result.ErrorMessage);
+    }
 }

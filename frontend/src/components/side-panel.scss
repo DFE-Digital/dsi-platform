@@ -1,0 +1,8 @@
+.app-side-panel {
+    border-top: 5px solid $govuk-brand-colour;
+    padding-top: 15px;
+}
+
+.app-side-panel__heading {
+    @extend .govuk-heading-m;
+}

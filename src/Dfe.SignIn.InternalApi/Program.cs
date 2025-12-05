@@ -9,12 +9,10 @@ using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration
-#if DEBUG
-    .AddJsonFile("appsettings.Local.json")
-    .AddUserSecrets<Program>()
-#endif
-    .AddEnvironmentVariables();
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Configuration.AddUserSecrets<Program>();
+}
+builder.Configuration.AddEnvironmentVariables();
 
 // Add OpenTelemetry and configure it to use Azure Monitor.
 if (builder.Configuration.GetSection("AzureMonitor").Exists()) {

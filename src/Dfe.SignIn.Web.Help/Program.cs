@@ -17,11 +17,9 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#if DEBUG
-builder.Configuration
-    .AddJsonFile("appsettings.Local.json")
-    .AddUserSecrets<Program>();
-#endif
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Configuration.AddUserSecrets<Program>();
+}
 
 builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
@@ -39,7 +37,7 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
 );
 
 // Add services to the container.
-builder.Services.AddControllersWithViews().AddRequestBodySizeLimitFilter();
+builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.AddHealthChecks();
 
 builder.Services
@@ -93,7 +91,7 @@ var app = builder.Build();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment()) {
+if (!app.Environment.IsEnvironment("Local")) {
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
@@ -101,7 +99,6 @@ if (!app.Environment.IsDevelopment()) {
 
 app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseHealthChecks();
 
 var rewriteOptions = new RewriteOptions();
@@ -110,20 +107,18 @@ app.UseRewriter(rewriteOptions);
 
 app.UseRouting();
 
-app.UseAuthorization();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}"
 );
 
-#if DEBUG
-app.MapControllerRoute(
-    name: "reloadTopics",
-    pattern: "reload",
-    defaults: new { controller = "Topic", action = "Reload" }
-);
-#endif
+if (app.Environment.IsEnvironment("Local")) {
+    app.MapControllerRoute(
+        name: "reloadTopics",
+        pattern: "reload",
+        defaults: new { controller = "Topic", action = "Reload" }
+    );
+}
 
 app.MapControllerRoute(
     name: "topic",

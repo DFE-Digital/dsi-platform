@@ -11,11 +11,9 @@ using Dfe.SignIn.WebFramework.Mvc.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#if DEBUG
-builder.Configuration
-    .AddJsonFile("appsettings.Local.json")
-    .AddUserSecrets<Program>();
-#endif
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Configuration.AddUserSecrets<Program>();
+}
 
 builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
@@ -33,7 +31,7 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
 );
 
 // Add services to the container.
-builder.Services.AddControllersWithViews().AddRequestBodySizeLimitFilter();
+builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.AddHealthChecks();
 
 builder.Services
@@ -72,7 +70,7 @@ var app = builder.Build();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment()) {
+if (!app.Environment.IsEnvironment("Local")) {
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
@@ -84,7 +82,7 @@ app.UseRouting();
 app.UseHealthChecks();
 app.UseAuthorization();
 
-if (app.Environment.IsDevelopment()) {
+if (app.Environment.IsEnvironment("Local")) {
     app.MapControllerRoute(
         name: "developerTool",
         pattern: "{controller=Developer}/{action=Index}/{id?}"

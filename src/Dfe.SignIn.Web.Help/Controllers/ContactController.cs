@@ -15,7 +15,10 @@ public sealed class ContactController(
     IInteractionDispatcher interaction
 ) : Controller
 {
-    private async Task<ContactViewModel> PrepareViewModel(ContactViewModel? viewModel = null, string? exceptionTraceId = null)
+    private async Task<ContactViewModel> PrepareViewModel(
+        ContactViewModel? viewModel = null,
+        string? exceptionTraceId = null,
+        CancellationToken cancellationToken = default)
     {
         viewModel ??= Activator.CreateInstance<ContactViewModel>();
 
@@ -26,13 +29,15 @@ public sealed class ContactController(
         viewModel.ContentHtml = topic.ContentHtml;
 
         var subjectOptionsResponse = await interaction.DispatchAsync(
-            new GetSubjectOptionsForSupportTicketRequest()
+            new GetSubjectOptionsForSupportTicketRequest(),
+            cancellationToken
         ).To<GetSubjectOptionsForSupportTicketResponse>();
 
         viewModel.SubjectOptions = subjectOptionsResponse.SubjectOptions;
 
         var applicationNamesResponse = await interaction.DispatchAsync(
-            new GetApplicationNamesForSupportTicketRequest()
+            new GetApplicationNamesForSupportTicketRequest(),
+            cancellationToken
         ).To<GetApplicationNamesForSupportTicketResponse>();
 
         viewModel.ApplicationOptions = applicationNamesResponse.Applications;

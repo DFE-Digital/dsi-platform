@@ -27,7 +27,9 @@ public sealed class HttpClientExtensionsTest
         });
 
         var client = new HttpClient(handler);
+
         var result = await client.GetFromJsonOrDefaultAsync<TestResponseModel>("https://test.com");
+
         Assert.IsNull(result);
     }
 
@@ -43,9 +45,23 @@ public sealed class HttpClientExtensionsTest
 
         var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(responseMessage));
         var client = new HttpClient(handler);
+
         var result = await client.GetFromJsonOrDefaultAsync<TestResponseModel>("https://test.com");
+
         Assert.IsNotNull(result);
         Assert.AreEqual("test", result.Value);
+    }
+
+    [TestMethod]
+    public async Task GetFromJsonOrDefaultAsync_Throws_WhenNotSuccessful()
+    {
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+
+        var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(responseMessage));
+        var client = new HttpClient(handler);
+
+        await Assert.ThrowsExactlyAsync<HttpRequestException>(()
+            => client.GetFromJsonOrDefaultAsync<TestResponseModel>("https://test.com"));
     }
 
     #endregion

@@ -1,0 +1,40 @@
+﻿@model ChangeJobTitleViewModel
+
+@{
+    ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(Url.Action(
+        nameof(HomeController.Index),
+        MvcNaming.Controller<HomeController>())
+    );
+
+    ViewData[DsiLayoutConstants.Title] = "Change your job title";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <form method="post" asp-antiforgery=true>
+            <govuk-fieldset>
+                <govuk-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">@ViewData[DsiLayoutConstants.Title]</govuk-fieldset-legend>
+
+                <p class="govuk-body">
+                    This will help approvers at your organisation verify your identity.
+                </p>
+
+                <govuk-input for=JobTitleInput input-maxlength=60 autocomplete="organization-title">
+                    <govuk-input-label class="govuk-label--s">
+                        Job title
+                    </govuk-input-label>
+                </govuk-input>
+            </govuk-fieldset>
+
+            <div class="govuk-button-group">
+                <govuk-button asp-action=@nameof(ChangeJobTitleController.PostIndex)>
+                    Change job title
+                </govuk-button>
+
+                <govuk-button asp-action=@nameof(ChangeJobTitleController.PostCancel) class="govuk-button--secondary">
+                    Cancel
+                </govuk-button>
+            </div>
+        </form>
+    </div>
+</div>

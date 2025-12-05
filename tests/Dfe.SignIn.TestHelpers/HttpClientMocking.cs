@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using Moq;
 using Moq.Protected;
@@ -98,11 +99,16 @@ public static class HttpClientMocking
                 ItExpr.IsAny<HttpRequestMessage>(),
                 ItExpr.IsAny<CancellationToken>()
             )
-            .ReturnsAsync((HttpRequestMessage req, CancellationToken _)
+            .Returns(async (HttpRequestMessage req, CancellationToken cancellationToken)
                 => {
                     string key = $"({req.Method}) {req.RequestUri}";
                     if (responseMap.TryGetValue(key, out var mapping)) {
-                        ++mapping.InvocationCount;
+                        mapping.Invocations.Add(new MappedResponseInvocation {
+                            RequestHeaders = req.Headers,
+                            Body = req.Content is not null
+                                ? await req.Content.ReadAsStringAsync(cancellationToken)
+                                : null,
+                        });
                         return new HttpResponseMessage {
                             StatusCode = mapping.Status,
                             Content = new StringContent(mapping.Body, Encoding.UTF8, "application/json"),
@@ -135,7 +141,23 @@ public sealed class MappedResponse(
     public string Body => body;
 
     /// <summary>
-    /// Gets or sets the number of times the request was invoked.
+    /// Gets the sequence of invocations.
     /// </summary>
-    public int InvocationCount { get; set; } = 0;
+    public List<MappedResponseInvocation> Invocations { get; } = [];
+}
+
+/// <summary>
+/// Represents an invocation of a mapped response.
+/// </summary>
+public sealed class MappedResponseInvocation
+{
+    /// <summary>
+    /// Gets the request headers.
+    /// </summary>
+    public required HttpRequestHeaders RequestHeaders { get; init; }
+
+    /// <summary>
+    /// Gets the body of the mapped invocation.
+    /// </summary>
+    public required string? Body { get; init; }
 }

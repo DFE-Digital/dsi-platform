@@ -1,0 +1,8 @@
+@if (TempData.GetFlashNotification() is FlashNotificationViewModel notification) {
+    <govuk-notification-banner type=@notification.Type>
+        @if (!string.IsNullOrWhiteSpace(notification.Heading)) {
+            <p class="govuk-notification-banner__heading">@notification.Heading</p>
+        }
+        <p class="govuk-body">@notification.Message</p>
+    </govuk-notification-banner>
+}
