@@ -46,6 +46,7 @@ namespace <#= NamespaceHint #>;
 <#
     }
 #>
+#pragma warning disable CS1591
 public partial class <#= Options.ContextName #> : DbContext
 {
 <#
@@ -68,7 +69,7 @@ public partial class <#= Options.ContextName #> : DbContext
     foreach (var entityType in Model.GetEntityTypes().Where(e => !e.IsSimpleManyToManyJoinEntityType()))
     {
 #>
-    public virtual DbSet<<#= entityType.Name #>> <#= entityType.GetDbSetName() #> { get; set; }
+    public virtual DbSet<<#= GetEntityName(entityType.Name) #>> <#= entityType.GetDbSetName() #> { get; set; }
 
 <#
     }
@@ -123,7 +124,7 @@ public partial class <#= Options.ContextName #> : DbContext
 
         var anyEntityTypeConfiguration = false;
 #>
-        modelBuilder.Entity<<#= entityType.Name #>>(entity =>
+        modelBuilder.Entity<<#= GetEntityName(entityType.Name) #>>(entity =>
         {
 <#
         var key = entityType.FindPrimaryKey();
@@ -338,6 +339,7 @@ public partial class <#= Options.ContextName #> : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
+#pragma warning restore CS1591
 <#
     mainEnvironment = GenerationEnvironment;
     GenerationEnvironment = new StringBuilder();
@@ -352,4 +354,12 @@ using <#= ns #>;
     WriteLine("");
 
     GenerationEnvironment.Append(mainEnvironment);
+#>
+
+<#+
+    // Helper method to append "Entity" to any name
+    string GetEntityName(string name)
+    {
+        return name + "Entity";
+    }
 #>
