@@ -30,8 +30,11 @@ public static class ContentProcessingExtensions
         services.AddSingleton<ITopicIndexAccessor, TopicMemoryCacheAccessor>();
 
         services.AddSingleton<ITopicPreProcessor, VariableSubstitutionTopicPreProcessor>(provider => {
-            var platformOptionsAccessor = provider.GetRequiredService<IOptions<PlatformOptions>>();
-            var platformOptions = platformOptionsAccessor.Value;
+            var platformOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<PlatformOptions>>();
+            var platformOptions = platformOptionsAccessor.CurrentValue;
+
+            var assetOptionsAccessor = provider.GetRequiredService<IOptionsMonitor<AssetOptions>>();
+            var assetOptions = assetOptionsAccessor.CurrentValue;
             return new VariableSubstitutionTopicPreProcessor(new VariableSubstitutionOptions {
                 Variables = {
                     ["HELP_URL"] = platformOptions.HelpUrl.ToString(),
@@ -39,6 +42,7 @@ public static class ContentProcessingExtensions
                     ["PROFILE_URL"] = platformOptions.ProfileUrl.ToString(),
                     ["SERVICES_URL"] = platformOptions.ServicesUrl.ToString(),
                     ["SUPPORT_URL"] = platformOptions.SupportUrl.ToString(),
+                    ["ASSETS_URL"] = assetOptions.VersionedBaseAddress.ToString(),
                 },
             });
         });

@@ -6,5 +6,9 @@ summary: |
 topics:
   - paths:
       - /troubleshooting/having-trouble
+      - /troubleshooting/how-to-reactivate-account
+      - /troubleshooting/not-receiving-verification-email
+      - /troubleshooting/can-not-access-service
+      - /troubleshooting/service-access-wrong-organisation
       - /contact-us
 ---
