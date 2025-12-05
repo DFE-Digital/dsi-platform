@@ -37,7 +37,7 @@ public sealed class DefaultInteractionDispatcherTests
         SomeEnumProperty = ExampleInteractorEnum.FirstValue,
     };
 
-    #region DispatchAsync<TRequest>(InteractionContext<TRequest>, CancellationToken)
+    #region DispatchAsync<TRequest>(InteractionContext<TRequest>)
 
     [TestMethod]
     public async Task DispatchAsync_Throws_WhenContextArgumentIsNull()
@@ -49,7 +49,7 @@ public sealed class DefaultInteractionDispatcherTests
         InteractionContext<ExampleInteractorWithValidationRequest> nullInteractionContext = null!;
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(async ()
-            => await interaction.DispatchAsync(nullInteractionContext, CancellationToken.None));
+            => await interaction.DispatchAsync(nullInteractionContext));
     }
 
     [TestMethod]
@@ -62,7 +62,7 @@ public sealed class DefaultInteractionDispatcherTests
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         var exception = await Assert.ThrowsExactlyAsync<MissingInteractorException>(async ()
-            => await interaction.DispatchAsync(interactionContext, CancellationToken.None));
+            => await interaction.DispatchAsync(interactionContext));
         Assert.AreEqual("Cannot resolve interactor for request type 'Dfe.SignIn.Base.Framework.UnitTests.Fakes.ExampleInteractorWithValidationRequest'.", exception.Message);
         Assert.AreEqual("Dfe.SignIn.Base.Framework.UnitTests.Fakes.ExampleInteractorWithValidationRequest", exception.RequestType);
     }
@@ -82,7 +82,7 @@ public sealed class DefaultInteractionDispatcherTests
         var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
-        await interaction.DispatchAsync(interactionContext, CancellationToken.None);
+        await interaction.DispatchAsync(interactionContext);
 
         autoMocker.Verify<IInteractionValidator, bool>(
             x => x.TryValidateRequest(
@@ -108,7 +108,7 @@ public sealed class DefaultInteractionDispatcherTests
         var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
-        await interaction.DispatchAsync(interactionContext, CancellationToken.None);
+        await interaction.DispatchAsync(interactionContext);
     }
 
     [TestMethod]
@@ -126,7 +126,7 @@ public sealed class DefaultInteractionDispatcherTests
         var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
-        await interaction.DispatchAsync(interactionContext, CancellationToken.None);
+        await interaction.DispatchAsync(interactionContext);
 
         autoMocker.Verify<IInteractor<ExampleInteractorWithValidationRequest>>(
             x => x.InvokeAsync(
@@ -163,7 +163,7 @@ public sealed class DefaultInteractionDispatcherTests
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         await Assert.ThrowsExactlyAsync<UnexpectedException>(async ()
-            => await interaction.DispatchAsync(interactionContext, CancellationToken.None));
+            => await interaction.DispatchAsync(interactionContext));
     }
 
     [TestMethod]
@@ -188,9 +188,101 @@ public sealed class DefaultInteractionDispatcherTests
         var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
 
         var exception = await Assert.ThrowsAsync<Exception>(async ()
-            => await interaction.DispatchAsync(interactionContext, CancellationToken.None))
+            => await interaction.DispatchAsync(interactionContext))
 ;
         Assert.IsInstanceOfType(exception, expectedExceptionType);
+    }
+
+    [TestMethod]
+    public async Task DispatchAsync_Throws_WhenCancellationWasAlreadyRequested()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockInteractionValidator(autoMocker);
+
+        SetupMockInteractor<ExampleInteractorWithValidationRequest>(autoMocker)
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<InteractionContext<ExampleInteractorWithValidationRequest>>(),
+                It.IsAny<CancellationToken>()
+            ));
+
+        var cancellationContext = new CancellationContext();
+        autoMocker.Use<ICancellationContext>(cancellationContext);
+
+        using var cancellationSource = new CancellationTokenSource();
+        cancellationContext.CancellationToken = cancellationSource.Token;
+        await cancellationSource.CancelAsync();
+
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
+        var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
+
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(async ()
+            => await interaction.DispatchAsync(interactionContext));
+    }
+
+    [TestMethod]
+    public async Task DispatchAsync_UpdatesInteractionContextWithCancellationToken()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockInteractionValidator(autoMocker);
+
+        SetupMockInteractor<ExampleInteractorWithValidationRequest>(autoMocker)
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<InteractionContext<ExampleInteractorWithValidationRequest>>(),
+                It.IsAny<CancellationToken>()
+            ));
+
+        var cancellationContext = new CancellationContext();
+        autoMocker.Use<ICancellationContext>(cancellationContext);
+
+        using var rootCancellationSource = new CancellationTokenSource();
+        cancellationContext.CancellationToken = rootCancellationSource.Token;
+
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
+        var interactionContext = new InteractionContext<ExampleInteractorWithValidationRequest>(FakeRequest);
+        using var nestedCancellationSource = new CancellationTokenSource();
+        interactionContext.CancellationToken = nestedCancellationSource.Token;
+
+        await interaction.DispatchAsync(interactionContext);
+
+        Assert.AreEqual(nestedCancellationSource.Token, interactionContext.CancellationToken);
+
+        // Ensure that context is correct after interaction has completed.
+        Assert.AreEqual(rootCancellationSource.Token, cancellationContext.CancellationToken);
+    }
+
+    [NonCancellable]
+    public sealed record NonCancellableRequest { }
+    public sealed record NonCancellableResponse { }
+
+    [TestMethod]
+    public async Task DispatchAsync_DoesNotThrow_WhenNonCancellableAndCancelationRequested()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockInteractionValidator(autoMocker);
+
+        SetupMockInteractor<NonCancellableRequest>(autoMocker)
+            .Setup(x => x.InvokeAsync(
+                It.IsAny<InteractionContext<NonCancellableRequest>>(),
+                It.IsAny<CancellationToken>()
+            ))
+            .ReturnsAsync(new NonCancellableResponse());
+
+        var cancellationContext = new CancellationContext();
+        autoMocker.Use<ICancellationContext>(cancellationContext);
+
+        using var rootCancellationSource = new CancellationTokenSource();
+        cancellationContext.CancellationToken = rootCancellationSource.Token;
+        await rootCancellationSource.CancelAsync();
+
+        var interaction = autoMocker.CreateInstance<DefaultInteractionDispatcher>();
+        var interactionContext = new InteractionContext<NonCancellableRequest>(new());
+
+        var response = await interaction.DispatchAsync(interactionContext);
+
+        Assert.IsInstanceOfType<NonCancellableResponse>(response);
+
+        // Ensure that context is correct after interaction has completed.
+        Assert.AreEqual(rootCancellationSource.Token, cancellationContext.CancellationToken);
     }
 
     #endregion

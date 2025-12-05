@@ -19,16 +19,14 @@ public static partial class UserEndpoints
         [FromBody] QueryUserOrganisationApiRequestBody request,
         // ---
         IClientSession scopedSession,
-        IInteractionDispatcher interaction,
-        // ---
-        CancellationToken cancellationToken = default)
+        IInteractionDispatcher interaction)
     {
         var filteredOrganisationsResponse = await interaction.DispatchAsync(
             new FilterOrganisationsForUserRequest {
                 ClientId = scopedSession.ClientId,
                 UserId = userId,
                 Filter = request.Filter,
-            }, cancellationToken
+            }
         ).To<FilterOrganisationsForUserResponse>();
 
         var organisation = filteredOrganisationsResponse.FilteredOrganisations

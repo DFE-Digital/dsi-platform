@@ -35,10 +35,9 @@ public sealed class SelectOrganisationController(
 
     [HttpGet("{clientId}/{sessionKey}")]
     public async Task<IActionResult> Index(
-        [FromRoute] string clientId, [FromRoute] string sessionKey,
-        CancellationToken cancellationToken = default)
+        [FromRoute] string clientId, [FromRoute] string sessionKey)
     {
-        var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
+        var sessionResult = await this.GetSessionAsync(clientId, sessionKey);
         if (sessionResult.Session is null) {
             return sessionResult.RedirectActionResult!;
         }
@@ -55,13 +54,13 @@ public sealed class SelectOrganisationController(
             await interaction.DispatchAsync(
                 new InvalidateSelectOrganisationSessionRequest {
                     SessionKey = sessionKey,
-                }, cancellationToken
+                }
             ).To<InvalidateSelectOrganisationSessionResponse>();
 
             var selectedOrganisation = (await interaction.DispatchAsync(
                 new GetOrganisationByIdRequest {
                     OrganisationId = session.OrganisationOptions.First().Id
-                }, cancellationToken
+                }
             ).To<GetOrganisationByIdResponse>()).Organisation;
 
             if (selectedOrganisation is null) {
@@ -79,10 +78,9 @@ public sealed class SelectOrganisationController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
         [FromRoute] string clientId, [FromRoute] string sessionKey,
-        SelectOrganisationViewModel viewModel,
-        CancellationToken cancellationToken = default)
+        SelectOrganisationViewModel viewModel)
     {
-        var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
+        var sessionResult = await this.GetSessionAsync(clientId, sessionKey);
         if (sessionResult.Session is null) {
             return sessionResult.RedirectActionResult!;
         }
@@ -111,19 +109,19 @@ public sealed class SelectOrganisationController(
         await interaction.DispatchAsync(
             new InvalidateSelectOrganisationSessionRequest {
                 SessionKey = sessionKey,
-            }, cancellationToken
+            }
         );
 
         bool didUserSelectOptionThatWasPresented = session.OrganisationOptions.Any(
             option => option.Id == viewModel.SelectedOrganisationIdInput);
         if (!didUserSelectOptionThatWasPresented) {
-            return await this.HandleInvalidSessionAsync(clientId, cancellationToken);
+            return await this.HandleInvalidSessionAsync(clientId);
         }
 
         var selectedOrganisation = (await interaction.DispatchAsync(
             new GetOrganisationByIdRequest {
                 OrganisationId = (Guid)viewModel.SelectedOrganisationIdInput!,
-            }, cancellationToken
+            }
         ).To<GetOrganisationByIdResponse>()).Organisation;
         if (selectedOrganisation is null) {
             return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
@@ -133,12 +131,9 @@ public sealed class SelectOrganisationController(
     }
 
     [HttpGet("{clientId}/{sessionKey}/sign-out")]
-    public async Task<IActionResult> SignOut(
-        string clientId,
-        string sessionKey,
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> SignOut(string clientId, string sessionKey)
     {
-        var sessionResult = await this.GetSessionAsync(clientId, sessionKey, cancellationToken);
+        var sessionResult = await this.GetSessionAsync(clientId, sessionKey);
         if (sessionResult.Session is null) {
             return sessionResult.RedirectActionResult!;
         }
@@ -174,21 +169,18 @@ public sealed class SelectOrganisationController(
         public IActionResult? RedirectActionResult { get; init; } = null;
     }
 
-    private async Task<GetSessionResult> GetSessionAsync(
-        string clientId,
-        string sessionKey,
-        CancellationToken cancellationToken = default)
+    private async Task<GetSessionResult> GetSessionAsync(string clientId, string sessionKey)
     {
         var session = (await interaction.DispatchAsync(
             new GetSelectOrganisationSessionByKeyRequest {
                 SessionKey = sessionKey,
-            }, cancellationToken
+            }
         ).To<GetSelectOrganisationSessionByKeyResponse>()).SessionData;
 
         if (session is null) {
             // Redirect when session does not exist.
             return new GetSessionResult {
-                RedirectActionResult = await this.HandleInvalidSessionAsync(clientId, cancellationToken),
+                RedirectActionResult = await this.HandleInvalidSessionAsync(clientId),
             };
         }
 
@@ -197,29 +189,25 @@ public sealed class SelectOrganisationController(
             await interaction.DispatchAsync(
                 new InvalidateSelectOrganisationSessionRequest {
                     SessionKey = sessionKey,
-                }, cancellationToken
+                }
             );
             return new GetSessionResult {
-                RedirectActionResult = await this.HandleInvalidSessionAsync(session.ClientId, cancellationToken),
+                RedirectActionResult = await this.HandleInvalidSessionAsync(session.ClientId),
             };
         }
 
         return new GetSessionResult { Session = session };
     }
 
-    private async Task<IActionResult> HandleInvalidSessionAsync(
-        string? clientId,
-        CancellationToken cancellationToken = default)
+    private async Task<IActionResult> HandleInvalidSessionAsync(string? clientId)
     {
         return this.View("InvalidSessionError", new InvalidSessionViewModel {
-            ReturnUrl = await this.GetServiceHomeUrlAsync(clientId, cancellationToken)
+            ReturnUrl = await this.GetServiceHomeUrlAsync(clientId)
                 ?? platformOptionsAccessor.Value.ServicesUrl,
         });
     }
 
-    private async Task<Uri?> GetServiceHomeUrlAsync(
-        string? clientId,
-        CancellationToken cancellationToken = default)
+    private async Task<Uri?> GetServiceHomeUrlAsync(string? clientId)
     {
         if (string.IsNullOrEmpty(clientId)) {
             return null;
@@ -229,7 +217,7 @@ public sealed class SelectOrganisationController(
             var response = await interaction.DispatchAsync(
                 new GetApplicationByClientIdRequest {
                     ClientId = clientId,
-                }, cancellationToken
+                }
             ).To<GetApplicationByClientIdResponse>();
             return response.Application.ServiceHomeUrl;
         }

@@ -24,13 +24,17 @@ public sealed class InitiateChangeEmailAddressNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var userProfile = await interaction.DispatchAsync(new GetUserProfileRequest {
-            UserId = context.Request.UserId,
-        }, cancellationToken).To<GetUserProfileResponse>();
+        var userProfile = await interaction.DispatchAsync(
+            new GetUserProfileRequest {
+                UserId = context.Request.UserId,
+            }
+        ).To<GetUserProfileResponse>();
 
-        var existingUserStatus = await interaction.DispatchAsync(new GetUserStatusRequest {
-            EmailAddress = context.Request.NewEmailAddress,
-        }, cancellationToken).To<GetUserStatusResponse>();
+        var existingUserStatus = await interaction.DispatchAsync(
+            new GetUserStatusRequest {
+                EmailAddress = context.Request.NewEmailAddress,
+            }
+        ).To<GetUserStatusResponse>();
 
         // Check if email address is already associated with a user account.
         if (existingUserStatus.UserExists) {
@@ -44,12 +48,14 @@ public sealed class InitiateChangeEmailAddressNodeRequester(
             }
 
             // The user is attempting to use the email address of an existing user account.
-            await interaction.DispatchAsync(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangeEmail,
-                EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
-                Message = $"Request to change email from {userProfile.EmailAddress} to existing user {context.Request.NewEmailAddress}",
-                UserId = context.Request.UserId,
-            }, CancellationToken.None);
+            await interaction.DispatchAsync(
+                new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.ChangeEmail,
+                    EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
+                    Message = $"Request to change email from {userProfile.EmailAddress} to existing user {context.Request.NewEmailAddress}",
+                    UserId = context.Request.UserId,
+                }
+            );
 
             context.AddValidationError(
                 "Please enter a valid new email address",
@@ -60,12 +66,14 @@ public sealed class InitiateChangeEmailAddressNodeRequester(
 
         await actionLimiter.LimitAndThrowAsync(context.Request);
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeEmail,
-            EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
-            Message = $"Request to change email from {userProfile.EmailAddress} to {context.Request.NewEmailAddress}",
-            UserId = context.Request.UserId,
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeEmail,
+                EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
+                Message = $"Request to change email from {userProfile.EmailAddress} to {context.Request.NewEmailAddress}",
+                UserId = context.Request.UserId,
+            }
+        );
 
         await this.DeleteAnyExistingVerificationCodeAsync(context.Request, cancellationToken);
         await this.CreateNewVerificationCodeAsync(context.Request);

@@ -18,14 +18,14 @@ public sealed class HomeController(
 ) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Index()
     {
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
         var pendingChangeEmailAddressResponse = await interaction.DispatchAsync(
             new GetPendingChangeEmailAddressRequest {
                 UserId = userProfileFeature.UserId,
-            }, cancellationToken
+            }
         ).To<GetPendingChangeEmailAddressResponse>();
 
         return this.View(new HomeViewModel {

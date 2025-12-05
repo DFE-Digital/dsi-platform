@@ -30,19 +30,19 @@ public sealed class ChangeEmailController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
-        [FromQuery] bool? resend, ChangeEmailViewModel viewModel,
-        CancellationToken cancellationToken = default)
+        [FromQuery] bool? resend,
+        ChangeEmailViewModel viewModel)
     {
         bool hideResendVerificationBanner = false;
 
         try {
-            await this.MapInteractionRequest<InitiateChangeEmailAddressRequest>(viewModel)
+            await interaction.MapRequestFromViewModel<InitiateChangeEmailAddressRequest>(this, viewModel)
                 .Use(request => request with {
                     ClientId = oidcOptionsAccessor.CurrentValue.ClientId,
                     UserId = this.User.GetUserId(),
                     IsSelfInvoked = true,
                 })
-                .InvokeAsync(interaction.DispatchAsync, cancellationToken);
+                .DispatchAsync();
 
             if (resend == true) {
                 this.SetFlashSuccess(
@@ -63,7 +63,7 @@ public sealed class ChangeEmailController(
             var timePeriod = TimeSpan.FromSeconds(options.TimePeriodInSeconds).Humanize();
             string reason = $"Wait {timePeriod} before trying again.";
 
-            var pendingChange = await this.GetPendingChangeEmailAddress(this.User.GetUserId(), cancellationToken);
+            var pendingChange = await this.GetPendingChangeEmailAddress(this.User.GetUserId());
             if (pendingChange is not null) {
                 reason = $"Wait {timePeriod} before raising another request, or enter your verification code below.";
             }
@@ -84,28 +84,26 @@ public sealed class ChangeEmailController(
     }
 
     [HttpGet("verify")]
-    public Task<IActionResult> VerificationCode(
-        CancellationToken cancellationToken = default)
+    public Task<IActionResult> VerificationCode()
     {
-        return this.VerificationCodeAnonymous(this.User.GetUserId(), cancellationToken);
+        return this.VerificationCodeAnonymous(this.User.GetUserId());
     }
 
     [AllowAnonymous]
     [HttpGet("{userId}/verify")]
     public async Task<IActionResult> VerificationCodeAnonymous(
-        [FromRoute] Guid userId,
-        CancellationToken cancellationToken = default)
+        [FromRoute] Guid userId)
     {
         if (!this.ModelState.IsValid) {
             return this.BadRequest();
         }
 
-        return await this.VerificationCodeHelper(userId, cancellationToken);
+        return await this.VerificationCodeHelper(userId);
     }
 
-    private async Task<IActionResult> VerificationCodeHelper(Guid userId, CancellationToken cancellationToken)
+    private async Task<IActionResult> VerificationCodeHelper(Guid userId)
     {
-        var pendingChange = await this.GetPendingChangeEmailAddress(userId, cancellationToken);
+        var pendingChange = await this.GetPendingChangeEmailAddress(userId);
         if (pendingChange is null) {
             return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
         }
@@ -122,16 +120,16 @@ public sealed class ChangeEmailController(
     [HttpPost("{userId}/verify")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostVerificationCode(
-        [FromRoute] Guid userId, VerificationCodeViewModel viewModel,
-        CancellationToken cancellationToken = default)
+        [FromRoute] Guid userId,
+        VerificationCodeViewModel viewModel)
     {
         try {
-            await this.MapInteractionRequest<ConfirmChangeEmailAddressRequest>(viewModel)
+            await interaction.MapRequestFromViewModel<ConfirmChangeEmailAddressRequest>(this, viewModel)
                 .Use(request => request with { UserId = userId })
-                .InvokeAsync(interaction.DispatchAsync, cancellationToken);
+                .DispatchAsync();
 
             if (!this.ModelState.IsValid) {
-                return await this.VerificationCodeHelper(userId, cancellationToken);
+                return await this.VerificationCodeHelper(userId);
             }
 
             return this.RedirectToAction(nameof(Complete));
@@ -169,13 +167,12 @@ public sealed class ChangeEmailController(
 
     [HttpPost("cancel")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostCancel(
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> PostCancel()
     {
         await interaction.DispatchAsync(
             new CancelPendingChangeEmailAddressRequest {
                 UserId = this.User.GetUserId(),
-            }, cancellationToken
+            }
         );
 
         this.SetFlashNotification(
@@ -186,13 +183,12 @@ public sealed class ChangeEmailController(
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
     }
 
-    private async Task<PendingChangeEmailAddress?> GetPendingChangeEmailAddress(
-        Guid userId, CancellationToken cancellationToken)
+    private async Task<PendingChangeEmailAddress?> GetPendingChangeEmailAddress(Guid userId)
     {
         var pendingChangeEmailAddressResponse = await interaction.DispatchAsync(
             new GetPendingChangeEmailAddressRequest {
                 UserId = userId,
-            }, cancellationToken
+            }
         ).To<GetPendingChangeEmailAddressResponse>();
 
         return pendingChangeEmailAddressResponse.PendingChangeEmailAddress;

@@ -25,7 +25,7 @@ public sealed class FilterOrganisationsForUserUseCase(
         if (context.Request.Filter.Type == OrganisationFilterType.AnyOf) {
             return new() {
                 FilteredOrganisations = await RetrieveOrganisationsById(
-                    context.Request.Filter.OrganisationIds, cancellationToken
+                    context.Request.Filter.OrganisationIds
                 ),
             };
         }
@@ -34,13 +34,12 @@ public sealed class FilterOrganisationsForUserUseCase(
 
         return new() {
             FilteredOrganisations = await this.RetrieveOrganisationsAssociatedWithUser(
-                context.Request, predicate, cancellationToken),
+                context.Request, predicate),
         };
     }
 
     private static Task<IEnumerable<Organisation>> RetrieveOrganisationsById(
-        IEnumerable<Guid> organisationIds,
-        CancellationToken cancellationToken = default)
+        IEnumerable<Guid> organisationIds)
     {
         // This will require a mechanism to retrieve many organisations by ID.
         throw new NotImplementedException();
@@ -66,12 +65,11 @@ public sealed class FilterOrganisationsForUserUseCase(
 
     private async Task<IEnumerable<Organisation>> RetrieveOrganisationsAssociatedWithUser(
         FilterOrganisationsForUserRequest request,
-        Func<Organisation, bool> organisationPredicate,
-        CancellationToken cancellationToken = default)
+        Func<Organisation, bool> organisationPredicate)
     {
-        var userOrganisations = (await this.GetOrganisationsAssociatedWithUserAsync(
-            request.UserId, cancellationToken
-        )).Where(organisationPredicate).ToArray();
+        var userOrganisations = (await this.GetOrganisationsAssociatedWithUserAsync(request.UserId))
+            .Where(organisationPredicate)
+            .ToArray();
 
         if (userOrganisations.Length == 0) {
             // There are no organisations associated with the user.
@@ -89,7 +87,7 @@ public sealed class FilterOrganisationsForUserUseCase(
             return userOrganisations;
         }
 
-        var application = await this.GetClientApplicationAsync(request.ClientId, cancellationToken);
+        var application = await this.GetClientApplicationAsync(request.ClientId);
 
         // Automatically apply filtering based upon whether the service is ID-only or role based.
         if (application.IsIdOnlyService) {
@@ -100,7 +98,7 @@ public sealed class FilterOrganisationsForUserUseCase(
         }
 
         var userAssociationWithApplication = await this.GetUserAssociationWithApplicationAsync(
-            request.UserId, application.Id, cancellationToken);
+            request.UserId, application.Id);
         if (!userAssociationWithApplication.Any()) {
             // User is not associated with the application at all.
             if (request.Filter.Association == OrganisationFilterAssociation.Auto) {
@@ -122,41 +120,35 @@ public sealed class FilterOrganisationsForUserUseCase(
             .Where(organisation => associatedOrganisationIds.Contains(organisation.Id));
     }
 
-    private async Task<IEnumerable<Organisation>> GetOrganisationsAssociatedWithUserAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
+    private async Task<IEnumerable<Organisation>> GetOrganisationsAssociatedWithUserAsync(Guid userId)
     {
         var response = await interaction.DispatchAsync(
             new GetOrganisationsAssociatedWithUserRequest {
                 UserId = userId,
-            }, cancellationToken
+            }
         ).To<GetOrganisationsAssociatedWithUserResponse>();
 
         return response.Organisations;
     }
 
-    private async Task<Application> GetClientApplicationAsync(
-        string clientId,
-        CancellationToken cancellationToken = default)
+    private async Task<Application> GetClientApplicationAsync(string clientId)
     {
         var response = await interaction.DispatchAsync(
             new GetApplicationByClientIdRequest {
                 ClientId = clientId,
-            }, cancellationToken
+            }
         ).To<GetApplicationByClientIdResponse>();
 
         return response.Application;
     }
 
     private async Task<IEnumerable<UserApplicationMapping>> GetUserAssociationWithApplicationAsync(
-        Guid userId,
-        Guid applicationId,
-        CancellationToken cancellationToken = default)
+        Guid userId, Guid applicationId)
     {
         var response = await interaction.DispatchAsync(
             new GetApplicationsAssociatedWithUserRequest {
                 UserId = userId,
-            }, cancellationToken
+            }
         ).To<GetApplicationsAssociatedWithUserResponse>();
 
         return response.UserApplicationMappings

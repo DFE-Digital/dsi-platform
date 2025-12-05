@@ -34,15 +34,12 @@ public sealed class InteractionHandlerTests
         var mockExceptionSerializer = autoMocker.GetMock<IExceptionJsonSerializer>();
 
         PingRequest? capturedRequest = null;
-        CancellationToken? capturedCancellationToken = null;
-        autoMocker.CaptureRequest<PingRequest>((ctx, cancellationToken) => {
+        autoMocker.CaptureInteractionContext<PingRequest>(ctx => {
             capturedRequest = ctx.Request;
-            capturedCancellationToken = cancellationToken;
         });
 
         var mockHttpContext = CreateMockHttpContext(autoMocker);
         var fakeRequest = new PingRequest { Value = 123 };
-        var fakeCancellationTokenSource = new CancellationTokenSource();
 
         await InteractionHandlerExtensions.InteractionHandler<PingRequest, PingResponse>(
             mockHttpContext.Object,
@@ -50,13 +47,10 @@ public sealed class InteractionHandlerTests
             // ---
             mockLogger.Object,
             mockExceptionSerializer.Object,
-            autoMocker.GetMock<IInteractionDispatcher>().Object,
-            // ---
-            fakeCancellationTokenSource.Token
+            autoMocker.GetMock<IInteractionDispatcher>().Object
         );
 
         Assert.AreSame(fakeRequest, capturedRequest);
-        Assert.AreEqual(fakeCancellationTokenSource.Token, capturedCancellationToken);
     }
 
     [TestMethod]
@@ -77,9 +71,7 @@ public sealed class InteractionHandlerTests
             // ---
             mockLogger.Object,
             mockExceptionSerializer.Object,
-            autoMocker.GetMock<IInteractionDispatcher>().Object,
-            // ---
-            CancellationToken.None
+            autoMocker.GetMock<IInteractionDispatcher>().Object
         );
 
         autoMocker.GetMock<HttpResponse>().VerifySet(x => x.StatusCode = It.IsAny<int>(), Times.Never);
@@ -107,9 +99,7 @@ public sealed class InteractionHandlerTests
                 // ---
                 mockLogger.Object,
                 mockExceptionSerializer.Object,
-                autoMocker.GetMock<IInteractionDispatcher>().Object,
-                // ---
-                CancellationToken.None
+                autoMocker.GetMock<IInteractionDispatcher>().Object
             ));
     }
 
@@ -139,9 +129,7 @@ public sealed class InteractionHandlerTests
             // ---
             mockLogger.Object,
             mockExceptionSerializer.Object,
-            autoMocker.GetMock<IInteractionDispatcher>().Object,
-            // ---
-            CancellationToken.None
+            autoMocker.GetMock<IInteractionDispatcher>().Object
         );
 
         autoMocker.GetMock<HttpResponse>().VerifySet(x => x.StatusCode = 400, Times.Once);
@@ -172,9 +160,7 @@ public sealed class InteractionHandlerTests
             // ---
             mockLogger.Object,
             mockExceptionSerializer.Object,
-            autoMocker.GetMock<IInteractionDispatcher>().Object,
-            // ---
-            CancellationToken.None
+            autoMocker.GetMock<IInteractionDispatcher>().Object
         );
 
         Assert.HasCount(1, capturedLogs);
@@ -207,9 +193,7 @@ public sealed class InteractionHandlerTests
             // ---
             mockLogger.Object,
             mockExceptionSerializer.Object,
-            autoMocker.GetMock<IInteractionDispatcher>().Object,
-            // ---
-            CancellationToken.None
+            autoMocker.GetMock<IInteractionDispatcher>().Object
         );
 
         autoMocker.GetMock<HttpResponse>().VerifySet(x => x.StatusCode = 500, Times.Once);
@@ -240,9 +224,7 @@ public sealed class InteractionHandlerTests
             // ---
             mockLogger.Object,
             mockExceptionSerializer.Object,
-            autoMocker.GetMock<IInteractionDispatcher>().Object,
-            // ---
-            CancellationToken.None
+            autoMocker.GetMock<IInteractionDispatcher>().Object
         );
 
         Assert.HasCount(1, capturedLogs);

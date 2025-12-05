@@ -37,8 +37,7 @@ var fakeResponse = new CreateSelectOrganisationSessionApiResponse {
 
 autoMocker.GetMock<IInteractionDispatcher>()
     .Setup(x => x.DispatchAsync(
-        It.IsAny<InteractionContext<CreateSelectOrganisationSessionApiRequest>>(),
-        It.IsAny<CancellationToken>()
+        It.IsAny<InteractionContext<CreateSelectOrganisationSessionApiRequest>>()
     ))
     .ReturnsAsync(fakeResponse);
 ```

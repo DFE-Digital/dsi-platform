@@ -88,6 +88,7 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.

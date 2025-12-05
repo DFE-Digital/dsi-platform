@@ -1,3 +1,5 @@
+using Dfe.SignIn.Base.Framework;
+
 namespace Dfe.SignIn.Core.Contracts.Audit;
 
 /// <summary>
@@ -9,6 +11,7 @@ namespace Dfe.SignIn.Core.Contracts.Audit;
 ///     <item><see cref="WriteToAuditResponse"/></item>
 ///   </list>
 /// </remarks>
+[NonCancellable]
 public sealed record WriteToAuditRequest
 {
     /// <summary>

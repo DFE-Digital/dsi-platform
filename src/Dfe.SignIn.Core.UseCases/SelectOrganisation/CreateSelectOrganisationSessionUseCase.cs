@@ -36,7 +36,7 @@ public sealed class CreateSelectOrganisationSessionUseCase(
                 ClientId = context.Request.ClientId,
                 UserId = context.Request.UserId,
                 Filter = context.Request.Filter,
-            }, cancellationToken
+            }
         ).To<FilterOrganisationsForUserResponse>();
 
         var filteredOptions = filteredOrganisationsResponse.FilteredOrganisations

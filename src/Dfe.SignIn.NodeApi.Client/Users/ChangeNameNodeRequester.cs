@@ -32,20 +32,24 @@ public sealed class ChangeNameNodeRequester(
             response.EnsureSuccessStatusCode();
         }
         catch {
-            await interaction.DispatchAsync(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangeName,
-                Message = $"Failed to change name to {context.Request.GivenName} {context.Request.Surname}",
-                UserId = context.Request.UserId,
-                WasFailure = true,
-            }, CancellationToken.None);
+            await interaction.DispatchAsync(
+                new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.ChangeName,
+                    Message = $"Failed to change name to {context.Request.GivenName} {context.Request.Surname}",
+                    UserId = context.Request.UserId,
+                    WasFailure = true,
+                }
+            );
             throw;
         }
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeName,
-            Message = $"Successfully changed name to {context.Request.GivenName} {context.Request.Surname}",
-            UserId = context.Request.UserId,
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeName,
+                Message = $"Successfully changed name to {context.Request.GivenName} {context.Request.Surname}",
+                UserId = context.Request.UserId,
+            }
+        );
 
         return new ChangeNameResponse();
     }

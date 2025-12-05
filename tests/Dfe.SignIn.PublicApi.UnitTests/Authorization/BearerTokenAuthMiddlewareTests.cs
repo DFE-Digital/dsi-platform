@@ -139,8 +139,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
                 Configuration = new() {
@@ -164,8 +163,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Throws<ApplicationNotFoundException>();
 
@@ -184,8 +182,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
                 Configuration = new() {
@@ -209,8 +206,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
                 Configuration = new() {
@@ -234,8 +230,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
                 Configuration = new() {
@@ -259,8 +254,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
                 Configuration = new() {
@@ -284,8 +278,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
                 Configuration = new() {
@@ -308,8 +301,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
                 Configuration = new() {
@@ -332,8 +324,7 @@ public sealed class BearerTokenAuthMiddlewareTests
 
         this.mockInteraction
             .Setup(b => b.DispatchAsync(
-                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>(),
-                It.IsAny<CancellationToken>()
+                It.IsAny<InteractionContext<GetApplicationApiConfigurationRequest>>()
             ))
             .Returns(InteractionTask.FromResult(new GetApplicationApiConfigurationResponse {
                 Configuration = new() {
