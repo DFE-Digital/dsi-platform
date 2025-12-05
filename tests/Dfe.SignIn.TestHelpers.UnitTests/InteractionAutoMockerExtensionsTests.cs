@@ -472,7 +472,7 @@ public sealed class InteractionAutoMockerExtensionsTests
         var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
             => await mockInteraction.Object.DispatchAsync(new ExampleRequest()));
         Assert.HasCount(1, exception.ValidationResults);
-        Assert.AreEqual("Invalid value.", exception.ValidationResults.First().ErrorMessage);
+        Assert.AreEqual("Invalid value", exception.ValidationResults.First().ErrorMessage);
         Assert.AreEqual("Value", exception.ValidationResults.First().MemberNames.FirstOrDefault());
 
         // Other requests do not throw.
@@ -503,7 +503,7 @@ public sealed class InteractionAutoMockerExtensionsTests
         var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
             => await mockInteraction.Object.DispatchAsync(fakeRequest));
         Assert.HasCount(1, exception.ValidationResults);
-        Assert.AreEqual("Invalid value.", exception.ValidationResults.First().ErrorMessage);
+        Assert.AreEqual("Invalid value", exception.ValidationResults.First().ErrorMessage);
         Assert.AreEqual("Value", exception.ValidationResults.First().MemberNames.FirstOrDefault());
 
         // Other requests do not throw.
@@ -540,7 +540,7 @@ public sealed class InteractionAutoMockerExtensionsTests
         var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
             => await mockInteraction.Object.DispatchAsync(fakeRequestA));
         Assert.HasCount(1, exception.ValidationResults);
-        Assert.AreEqual("Invalid value.", exception.ValidationResults.First().ErrorMessage);
+        Assert.AreEqual("Invalid value", exception.ValidationResults.First().ErrorMessage);
         Assert.AreEqual("Value", exception.ValidationResults.First().MemberNames.FirstOrDefault());
 
         // Other requests do not throw.

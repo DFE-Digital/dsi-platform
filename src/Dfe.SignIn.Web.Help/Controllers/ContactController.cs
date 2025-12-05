@@ -57,8 +57,8 @@ public sealed class ContactController(
             return this.View("Success");
         }
 
-        await this.MapInteractionRequest<RaiseSupportTicketRequest>(viewModel)
-            .InvokeAsync(interaction.DispatchAsync);
+        await interaction.MapRequestFromViewModel<RaiseSupportTicketRequest>(this, viewModel)
+            .DispatchAsync();
 
         if (!this.ModelState.IsValid) {
             return this.View("Index", await this.PrepareViewModel(viewModel));

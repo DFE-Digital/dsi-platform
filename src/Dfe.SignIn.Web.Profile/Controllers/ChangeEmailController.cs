@@ -36,13 +36,13 @@ public sealed class ChangeEmailController(
         bool hideResendVerificationBanner = false;
 
         try {
-            await this.MapInteractionRequest<InitiateChangeEmailAddressRequest>(viewModel)
+            await interaction.MapRequestFromViewModel<InitiateChangeEmailAddressRequest>(this, viewModel)
                 .Use(request => request with {
                     ClientId = oidcOptionsAccessor.CurrentValue.ClientId,
                     UserId = this.User.GetUserId(),
                     IsSelfInvoked = true,
                 })
-                .InvokeAsync(interaction.DispatchAsync);
+                .DispatchAsync();
 
             if (resend == true) {
                 this.SetFlashSuccess(
@@ -124,9 +124,9 @@ public sealed class ChangeEmailController(
         VerificationCodeViewModel viewModel)
     {
         try {
-            await this.MapInteractionRequest<ConfirmChangeEmailAddressRequest>(viewModel)
+            await interaction.MapRequestFromViewModel<ConfirmChangeEmailAddressRequest>(this, viewModel)
                 .Use(request => request with { UserId = userId })
-                .InvokeAsync(interaction.DispatchAsync);
+                .DispatchAsync();
 
             if (!this.ModelState.IsValid) {
                 return await this.VerificationCodeHelper(userId);

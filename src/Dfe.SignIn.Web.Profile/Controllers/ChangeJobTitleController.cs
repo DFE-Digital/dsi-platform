@@ -32,11 +32,11 @@ public sealed class ChangeJobTitleController(
     public async Task<IActionResult> PostIndex(
         ChangeJobTitleViewModel viewModel)
     {
-        await this.MapInteractionRequest<ChangeJobTitleRequest>(viewModel)
+        await interaction.MapRequestFromViewModel<ChangeJobTitleRequest>(this, viewModel)
             .Use(request => request with {
                 UserId = this.User.GetUserId(),
             })
-            .InvokeAsync(interaction.DispatchAsync);
+            .DispatchAsync();
 
         if (!this.ModelState.IsValid) {
             return this.Index();

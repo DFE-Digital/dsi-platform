@@ -54,12 +54,12 @@ public sealed partial class ChangePasswordController(
                 this, ["https://graph.microsoft.com/.default"]);
         }
 
-        await this.MapInteractionRequest<SelfChangePasswordRequest>(viewModel)
+        await interaction.MapRequestFromViewModel<SelfChangePasswordRequest>(this, viewModel)
             .Use(request => request with {
                 UserId = userProfileFeature.UserId,
                 GraphAccessToken = graphAccessToken,
             })
-            .InvokeAsync(interaction.DispatchAsync);
+            .DispatchAsync();
 
         if (!this.ModelState.IsValid) {
             return await this.Index();

@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.Base.Framework;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Moq.AutoMock;
 
 namespace Dfe.SignIn.WebFramework.Mvc.UnitTests;
 
@@ -54,45 +55,71 @@ public sealed class ControllerInteractionExtensionsTests
         public required int Foo { get; init; }
     }
 
-    #region MapInteractionRequest<TRequest>(Controller, object)
+    #region MapRequestFromViewModel<TRequest>(IInteractionDispatcher, Controller, object)
 
     [TestMethod]
-    public void MapInteractionRequest_Throws_WhenControllerArgumentIsNull()
+    public void MapRequestFromViewModel_Throws_WhenInteractionArgumentIsNull()
     {
+        var mockController = new Mock<Controller>();
         var fakeViewModel = new FakeViewModel();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(null!, fakeViewModel));
+            => ControllerInteractionExtensions.MapRequestFromViewModel<FakeRequest>(
+                interaction: null!,
+                controller: mockController.Object,
+                viewModel: fakeViewModel
+            ));
     }
 
     [TestMethod]
-    public void MapInteractionRequest_Throws_WhenViewModelArgumentIsNull()
+    public void MapRequestFromViewModel_Throws_WhenControllerArgumentIsNull()
     {
+        var mockInteraction = new Mock<IInteractionDispatcher>();
+        var fakeViewModel = new FakeViewModel();
+
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ControllerInteractionExtensions.MapRequestFromViewModel<FakeRequest>(
+                interaction: mockInteraction.Object,
+                controller: null!,
+                viewModel: fakeViewModel
+            ));
+    }
+
+    [TestMethod]
+    public void MapRequestFromViewModel_Throws_WhenViewModelArgumentIsNull()
+    {
+        var mockInteraction = new Mock<IInteractionDispatcher>();
         var mockController = new Mock<Controller>();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, null!));
+            => ControllerInteractionExtensions.MapRequestFromViewModel<FakeRequest>(
+                interaction: mockInteraction.Object,
+                controller: mockController.Object,
+                viewModel: null!
+            ));
     }
 
     [TestMethod]
-    public async Task MapInteractionRequest_MapsPropertiesAsExpected()
+    public async Task MapRequestFromViewModel_MapsPropertiesAsExpected()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
 
         FakeRequest? capturedRequest = null;
-        InteractionTask capturer(FakeRequest request)
-        {
-            capturedRequest = request;
-            return InteractionTask.FromResult(new FakeResponse());
-        }
+        autoMocker.CaptureRequest<FakeRequest>(req => capturedRequest = req);
 
         var fakeViewModel = new FakeViewModel {
             ViewModelPropertyA = "abc",
             ViewModelPropertyB = "123",
         };
 
-        await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync(capturer);
+        await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync();
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("abc", capturedRequest.RequestPropertyA, "Property of same type");
@@ -101,39 +128,38 @@ public sealed class ControllerInteractionExtensionsTests
     }
 
     [TestMethod]
-    public async Task MapInteractionRequest_MapsNullProperties()
+    public async Task MapRequestFromViewModel_MapsNullProperties()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
 
         FakeComplexRequest? capturedRequest = null;
-        InteractionTask capturer(FakeComplexRequest request)
-        {
-            capturedRequest = request;
-            return InteractionTask.FromResult(new FakeResponse());
-        }
+        autoMocker.CaptureRequest<FakeComplexRequest>(req => capturedRequest = req);
 
         var fakeViewModel = new FakeComplexViewModel {
             ViewModelPropertyA = null,
         };
 
-        await ControllerInteractionExtensions.MapInteractionRequest<FakeComplexRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync(capturer);
+        await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeComplexRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync();
 
         Assert.IsNotNull(capturedRequest);
         Assert.IsNull(capturedRequest.RequestPropertyA);
     }
 
     [TestMethod]
-    public async Task MapInteractionRequest_MapsComplexProperty()
+    public async Task MapRequestFromViewModel_MapsComplexProperty()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
 
         FakeComplexRequest? capturedRequest = null;
-        InteractionTask capturer(FakeComplexRequest request)
-        {
-            capturedRequest = request;
-            return InteractionTask.FromResult(new FakeResponse());
-        }
+        autoMocker.CaptureRequest<FakeComplexRequest>(req => capturedRequest = req);
 
         var fakeViewModel = new FakeComplexViewModel {
             ViewModelPropertyA = new() {
@@ -141,8 +167,13 @@ public sealed class ControllerInteractionExtensionsTests
             },
         };
 
-        await ControllerInteractionExtensions.MapInteractionRequest<FakeComplexRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync(capturer);
+        await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeComplexRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync();
 
         Assert.IsNotNull(capturedRequest?.RequestPropertyA?.Nested);
         Assert.AreEqual(123, capturedRequest.RequestPropertyA.Nested.Foo);
@@ -233,11 +264,80 @@ public sealed class ControllerInteractionExtensionsTests
 
     #endregion
 
+    #region WithCancellation(CancellationToken)
+
+    [TestMethod]
+    public async Task WithCancellation_UpdatesInteractionContext()
+    {
+        var autoMocker = new AutoMocker();
+        var mockController = new Mock<Controller>();
+
+        var fakeViewModel = new FakeViewModel {
+            ViewModelPropertyA = "abc",
+            ViewModelPropertyB = "123",
+        };
+
+        using var cancellationSource = new CancellationTokenSource();
+
+        InteractionContext<FakeRequest>? capturedInteractionContext = null;
+        autoMocker.CaptureInteractionContext<FakeRequest>(ctx => capturedInteractionContext = ctx);
+
+        await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .WithCancellation(cancellationSource.Token)
+            .DispatchAsync();
+
+        Assert.IsNotNull(capturedInteractionContext);
+        Assert.AreEqual(cancellationSource.Token, capturedInteractionContext.CancellationToken);
+    }
+
+    #endregion
+
+    #region IgnoreCache(bool)
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public async Task IgnoreCache_UpdatesInteractionContext(bool hintIgnore)
+    {
+        var autoMocker = new AutoMocker();
+        var mockController = new Mock<Controller>();
+
+        var fakeViewModel = new FakeViewModel {
+            ViewModelPropertyA = "abc",
+            ViewModelPropertyB = "123",
+        };
+
+        using var cancellationSource = new CancellationTokenSource();
+
+        InteractionContext<FakeRequest>? capturedInteractionContext = null;
+        autoMocker.CaptureInteractionContext<FakeRequest>(ctx => capturedInteractionContext = ctx);
+
+        await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .IgnoreCache(hintIgnore)
+            .DispatchAsync();
+
+        Assert.IsNotNull(capturedInteractionContext);
+        Assert.AreEqual(hintIgnore, capturedInteractionContext.IgnoreCacheHint);
+    }
+
+    #endregion
+
     #region Use(Func<TRequest, TRequest>)
 
     [TestMethod]
     public void Use_Throws_WhenOverrideDelegateArgumentIsNull()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
 
         var fakeViewModel = new FakeViewModel {
@@ -246,35 +346,40 @@ public sealed class ControllerInteractionExtensionsTests
             ViewModelPropertyC = "ignored",
         };
 
-        var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
-
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => builder.Use(null!));
+            => ControllerInteractionExtensions.MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .Use(null!));
     }
 
     [TestMethod]
     public async Task Use_OverridesExpectedValues()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
 
         FakeRequest? capturedRequest = null;
-        InteractionTask capturer(FakeRequest request)
-        {
-            capturedRequest = request;
-            return InteractionTask.FromResult(new FakeResponse());
-        }
+        autoMocker.CaptureRequest<FakeRequest>(req => capturedRequest = req);
 
         var fakeViewModel = new FakeViewModel {
             ViewModelPropertyA = "abc",
             ViewModelPropertyB = "123",
         };
 
-        await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
+        await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
             .Use(request => request with {
                 RequestPropertyB = 456,
                 RequestPropertyC = "overridden",
             })
-            .InvokeAsync(capturer);
+            .DispatchAsync();
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("abc", capturedRequest.RequestPropertyA, "Original property value");
@@ -284,171 +389,160 @@ public sealed class ControllerInteractionExtensionsTests
 
     #endregion
 
-    #region InvokeAsync<TResponse>(InteractionDispatcher<TRequest>, CancellationToken)
+    #region DispatchAsync()
 
     [TestMethod]
-    public async Task InvokeAsync_TResponse_Throws_WhenDispatchArgumentIsNull()
+    public async Task DispatchAsync_TResponse_ReturnsNull_WhenHasValidationResults()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
 
-        var fakeViewModel = new FakeViewModel {
-            ViewModelPropertyA = "abc",
-            ViewModelPropertyB = "123",
-            ViewModelPropertyC = "ignored",
-        };
-
-        var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
-
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
-            => builder.InvokeAsync<FakeResponse>(null!));
-    }
-
-    [TestMethod]
-    public async Task InvokeAsync_TResponse_ReturnsNull_WhenHasValidationResults()
-    {
-        var mockController = new Mock<Controller>();
+        autoMocker.MockValidationError<FakeRequest>(nameof(FakeRequest.RequestPropertyA));
 
         var fakeViewModel = new FakeViewModel {
             ViewModelPropertyA = "abc",
             ViewModelPropertyB = "123",
         };
 
-        var validationResults = new ValidationResult[] {
-            new("Example error", [nameof(FakeRequest.RequestPropertyA)]),
-        };
-        var fakeException = new InvalidRequestException(Guid.Empty, validationResults);
-
-        var response = await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync<FakeResponse>(_ => throw fakeException);
+        var response = await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync();
 
         Assert.IsNull(response);
     }
 
     [TestMethod]
-    public async Task InvokeAsync_TResponse_ReturnsExpectedResponse()
+    public async Task DispatchAsync_TResponse_ReturnsExpectedResponse()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
+
+        var fakeResponse = new FakeResponse();
+        autoMocker.MockResponse<FakeRequest>(fakeResponse);
 
         var fakeViewModel = new FakeViewModel {
             ViewModelPropertyA = "abc",
             ViewModelPropertyB = "123",
         };
 
-        var fakeResponse = new FakeResponse();
-
-        var response = await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync<FakeResponse>(_ => InteractionTask.FromResult(fakeResponse));
+        var response = await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync();
 
         Assert.AreSame(fakeResponse, response);
     }
 
-    #endregion
-
-    #region InvokeAsync(InteractionDispatcher<TRequest>, CancellationToken)
-
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenDispatchArgumentIsNull()
+    public async Task DispatchAsync_ThrowsOtherExceptions()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
-
-        var fakeViewModel = new FakeViewModel {
-            ViewModelPropertyA = "abc",
-            ViewModelPropertyB = "123",
-            ViewModelPropertyC = "ignored",
-        };
-
-        var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
-
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
-            => builder.InvokeAsync(null!));
-    }
-
-    [TestMethod]
-    public async Task InvokeAsync_ThrowsOtherExceptions()
-    {
-        var mockController = new Mock<Controller>();
-
-        var fakeViewModel = new FakeViewModel {
-            ViewModelPropertyA = "abc",
-            ViewModelPropertyB = "123",
-        };
 
         var fakeException = new UnexpectedException();
-
-        var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
-
-        var exception = await Assert.ThrowsExactlyAsync<UnexpectedException>(()
-            => builder.InvokeAsync(_ => throw fakeException));
-
-        Assert.AreSame(fakeException, exception);
-    }
-
-    [TestMethod]
-    public async Task InvokeAsync_ThrowsInvalidRequestException_WhenNoValidationResults()
-    {
-        var mockController = new Mock<Controller>();
+        autoMocker.MockThrows<FakeRequest>(fakeException);
 
         var fakeViewModel = new FakeViewModel {
             ViewModelPropertyA = "abc",
             ViewModelPropertyB = "123",
         };
+
+        var exception = await Assert.ThrowsExactlyAsync<UnexpectedException>(async ()
+            => await ControllerInteractionExtensions.MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync());
+
+        Assert.AreSame(fakeException, exception);
+    }
+
+    [TestMethod]
+    public async Task DispatchAsync_ThrowsInvalidRequestException_WhenNoValidationResults()
+    {
+        var autoMocker = new AutoMocker();
+        var mockController = new Mock<Controller>();
 
         var fakeException = new InvalidRequestException();
-
-        var builder = ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel);
-
-        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(()
-            => builder.InvokeAsync(_ => throw fakeException));
-
-        Assert.AreSame(fakeException, exception);
-    }
-
-    [TestMethod]
-    public async Task InvokeAsync_MapsErrorsToViewModel_WhenHasValidationResults()
-    {
-        var mockController = new Mock<Controller>();
+        autoMocker.MockThrows<FakeRequest>(fakeException);
 
         var fakeViewModel = new FakeViewModel {
             ViewModelPropertyA = "abc",
             ViewModelPropertyB = "123",
         };
 
-        var validationResults = new ValidationResult[] {
-            new("Example error 1", [nameof(FakeRequest.RequestPropertyA)]),
-            new("Example error 2", [nameof(FakeRequest.RequestPropertyB)]),
-        };
-        var fakeException = new InvalidRequestException(Guid.Empty, validationResults);
+        var exception = await Assert.ThrowsExactlyAsync<InvalidRequestException>(async ()
+            => await ControllerInteractionExtensions.MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync());
 
-        await ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-            .InvokeAsync(_ => throw fakeException);
+        Assert.AreSame(fakeException, exception);
+    }
+
+    [TestMethod]
+    public async Task DispatchAsync_MapsErrorsToViewModel_WhenHasValidationResults()
+    {
+        var autoMocker = new AutoMocker();
+        var mockController = new Mock<Controller>();
+
+        autoMocker.MockThrows<FakeRequest>(new InvalidRequestException(Guid.Empty, [
+            new("Invalid value A", [nameof(FakeRequest.RequestPropertyA)]),
+            new("Invalid value B", [nameof(FakeRequest.RequestPropertyB)]),
+        ]));
+
+        var fakeViewModel = new FakeViewModel {
+            ViewModelPropertyA = "abc",
+            ViewModelPropertyB = "123",
+        };
+
+        await ControllerInteractionExtensions
+            .MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync();
 
         var modelState = mockController.Object.ModelState;
         Assert.IsFalse(modelState.IsValid);
         Assert.AreEqual(2, modelState.ErrorCount);
-        Assert.AreEqual("Example error 1", modelState.First(x => x.Key == nameof(FakeViewModel.ViewModelPropertyA)).Value!.Errors[0].ErrorMessage);
-        Assert.AreEqual("Example error 2", modelState.First(x => x.Key == nameof(FakeViewModel.ViewModelPropertyB)).Value!.Errors[0].ErrorMessage);
+        Assert.AreEqual("Invalid value A", modelState.First(x => x.Key == nameof(FakeViewModel.ViewModelPropertyA)).Value!.Errors[0].ErrorMessage);
+        Assert.AreEqual("Invalid value B", modelState.First(x => x.Key == nameof(FakeViewModel.ViewModelPropertyB)).Value!.Errors[0].ErrorMessage);
     }
 
     [TestMethod]
-    public async Task InvokeAsync_Throws_WhenHasUnmappedProperties()
+    public async Task DispatchAsync_Throws_WhenHasUnmappedProperties()
     {
+        var autoMocker = new AutoMocker();
         var mockController = new Mock<Controller>();
+
+        autoMocker.MockValidationError<FakeRequest>("UnmappedProperty");
 
         var fakeViewModel = new FakeViewModel {
             ViewModelPropertyA = "abc",
             ViewModelPropertyB = "123",
         };
 
-        var validationResults = new ValidationResult[] {
-            new("Example error", ["UnmappedProperty"]),
-        };
-        var fakeException = new InvalidRequestException(Guid.Empty, validationResults);
+        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(async ()
+            => await ControllerInteractionExtensions.MapRequestFromViewModel<FakeRequest>(
+                autoMocker.Get<IInteractionDispatcher>(),
+                mockController.Object,
+                fakeViewModel
+            )
+            .DispatchAsync());
 
-        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(()
-            => ControllerInteractionExtensions.MapInteractionRequest<FakeRequest>(mockController.Object, fakeViewModel)
-                .InvokeAsync(_ => throw fakeException));
-
-        Assert.AreEqual("Unable to map validation result 'UnmappedProperty' with message 'Example error'.", exception.Message);
+        Assert.AreEqual("Unable to map validation result 'UnmappedProperty' with message 'Invalid value'.", exception.Message);
     }
 
     #endregion

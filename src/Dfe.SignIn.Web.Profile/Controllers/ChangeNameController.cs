@@ -33,11 +33,11 @@ public sealed class ChangeNameController(
     public async Task<IActionResult> PostIndex(
         ChangeNameViewModel viewModel)
     {
-        await this.MapInteractionRequest<ChangeNameRequest>(viewModel)
+        await interaction.MapRequestFromViewModel<ChangeNameRequest>(this, viewModel)
             .Use(request => request with {
                 UserId = this.User.GetUserId(),
             })
-            .InvokeAsync(interaction.DispatchAsync);
+            .DispatchAsync();
 
         if (!this.ModelState.IsValid) {
             return this.Index();

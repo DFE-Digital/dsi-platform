@@ -215,7 +215,7 @@ public static class InteractionAutoMockerExtensions
         where TRequest : class
     {
         MockThrows<TRequest>(autoMocker, new InvalidRequestException(Guid.Empty, [
-            new("Invalid value.", [requestPropertyName])
+            new("Invalid value", [requestPropertyName])
         ]));
     }
 
@@ -230,7 +230,7 @@ public static class InteractionAutoMockerExtensions
         where TRequest : class
     {
         MockThrows(autoMocker, request, new InvalidRequestException(Guid.Empty, [
-            new("Invalid value.", [requestPropertyName])
+            new("Invalid value", [requestPropertyName])
         ]));
     }
 
@@ -245,7 +245,7 @@ public static class InteractionAutoMockerExtensions
         where TRequest : class
     {
         MockThrowsExactly(autoMocker, request, new InvalidRequestException(Guid.Empty, [
-            new("Invalid value.", [requestPropertyName])
+            new("Invalid value", [requestPropertyName])
         ]));
     }
 
