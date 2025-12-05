@@ -64,7 +64,7 @@ namespace <#= NamespaceHint #>;
         }
     }
 #>
-public partial class <#= EntityType.Name #>
+public partial class <#= GetEntityName(EntityType.Name)#>
 {
 <#
     var firstProperty = true;
@@ -120,7 +120,7 @@ public partial class <#= EntityType.Name #>
             }
         }
 
-        var targetType = navigation.TargetEntityType.Name;
+        var targetType = GetEntityName(navigation.TargetEntityType.Name);
         if (navigation.IsCollection)
         {
 #>
@@ -151,7 +151,7 @@ public partial class <#= EntityType.Name #>
             }
         }
 #>
-    public virtual ICollection<<#= skipNavigation.TargetEntityType.Name #>> <#= skipNavigation.Name #> { get; set; } = new List<<#= skipNavigation.TargetEntityType.Name #>>();
+    public virtual ICollection<<#= GetEntityName(skipNavigation.TargetEntityType.Name) #>> <#= skipNavigation.Name #> { get; set; } = new List<<#= GetEntityName(skipNavigation.TargetEntityType.Name) #>>();
 <#
     }
 #>
@@ -170,4 +170,12 @@ using <#= ns #>;
     WriteLine("");
 
     GenerationEnvironment.Append(previousOutput);
+#>
+
+<#+
+    // Helper method to append "Entity" to any name
+    string GetEntityName(string name)
+    {
+        return name + "Entity";
+    }
 #>
