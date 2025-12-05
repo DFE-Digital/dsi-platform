@@ -32,6 +32,7 @@ $govuk-new-organisation-colours: true;
 @import "pages/task-list";
 @import "pages/password";
 @import "components/_custom_grid_and_cell";
+@import "../components/selection-list.scss";
 
 html,
 body {

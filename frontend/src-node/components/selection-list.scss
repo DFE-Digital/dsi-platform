@@ -1,0 +1,8 @@
+.app-selection-list {
+    margin: govuk-spacing(3) 0;
+}
+
+.app-selection-list__actions {
+    @extend .govuk-button-group;
+    text-align: right;
+}
