@@ -22,15 +22,19 @@ public sealed class CancelPendingChangeEmailAddressNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var userProfile = await interaction.DispatchAsync(new GetUserProfileRequest {
-            UserId = context.Request.UserId,
-        }, cancellationToken).To<GetUserProfileResponse>();
+        var userProfile = await interaction.DispatchAsync(
+            new GetUserProfileRequest {
+                UserId = context.Request.UserId,
+            }
+        ).To<GetUserProfileResponse>();
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeEmail,
-            EventName = AuditChangeEmailEventNames.CancelChangeEmail,
-            Message = $"Cancel change email request from {userProfile.EmailAddress} (id: {context.Request.UserId})",
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeEmail,
+                EventName = AuditChangeEmailEventNames.CancelChangeEmail,
+                Message = $"Cancel change email request from {userProfile.EmailAddress} (id: {context.Request.UserId})",
+            }
+        );
 
         string endpoint = $"usercodes/{context.Request.UserId}/changeemail";
         var response = await directoriesClient.DeleteAsync(endpoint, cancellationToken);

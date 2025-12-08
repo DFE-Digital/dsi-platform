@@ -15,9 +15,7 @@ public static partial class SelectOrganisationEndpoints
         [FromBody] CreateSelectOrganisationSessionApiRequestBody request,
         // ---
         IClientSession session,
-        IInteractionDispatcher interaction,
-        // ---
-        CancellationToken cancellationToken = default)
+        IInteractionDispatcher interaction)
     {
         var response = await interaction.DispatchAsync(
             new CreateSelectOrganisationSessionRequest {
@@ -27,7 +25,7 @@ public static partial class SelectOrganisationEndpoints
                 Filter = request.Filter,
                 AllowCancel = request.AllowCancel,
                 CallbackUrl = request.CallbackUrl,
-            }, cancellationToken
+            }
         ).To<CreateSelectOrganisationSessionResponse>();
 
         return new CreateSelectOrganisationSessionApiResponse {

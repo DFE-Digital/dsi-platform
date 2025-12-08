@@ -26,7 +26,7 @@ public sealed class ConfirmChangeEmailAddressNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var pendingChange = await this.GetPendingChangeEmailAddressAsync(context.Request.UserId, cancellationToken);
+        var pendingChange = await this.GetPendingChangeEmailAddressAsync(context.Request.UserId);
 
         await this.ValidatePendingChangeAsync(context, pendingChange);
 
@@ -43,12 +43,12 @@ public sealed class ConfirmChangeEmailAddressNodeRequester(
         return new ConfirmChangeEmailAddressResponse();
     }
 
-    private async Task<PendingChangeEmailAddress> GetPendingChangeEmailAddressAsync(
-        Guid userId, CancellationToken cancellationToken)
+    private async Task<PendingChangeEmailAddress> GetPendingChangeEmailAddressAsync(Guid userId)
     {
         var pendingChangeEmailAddressResponse = await interaction.DispatchAsync(
-            new GetPendingChangeEmailAddressRequest { UserId = userId },
-            cancellationToken
+            new GetPendingChangeEmailAddressRequest {
+                UserId = userId,
+            }
         ).To<GetPendingChangeEmailAddressResponse>();
 
         return pendingChangeEmailAddressResponse.PendingChangeEmailAddress
@@ -83,16 +83,19 @@ public sealed class ConfirmChangeEmailAddressNodeRequester(
         string formattedExpiryTime = pendingChange.ExpiryTimeUtc.ToString(
             "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeEmail,
-            EventName = AuditChangeEmailEventNames.EnteredExpiredCode,
-            Message = $"Verification code {pendingChange.VerificationCode} expired at {formattedExpiryTime}",
-            UserId = pendingChange.UserId,
-            WasFailure = true,
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeEmail,
+                EventName = AuditChangeEmailEventNames.EnteredExpiredCode,
+                Message = $"Verification code {pendingChange.VerificationCode} expired at {formattedExpiryTime}",
+                UserId = pendingChange.UserId,
+                WasFailure = true,
+            }
+        );
     }
 
-    private async Task ChangeEmailAsync(PendingChangeEmailAddress pendingChange, CancellationToken cancellationToken)
+    private async Task ChangeEmailAsync(
+        PendingChangeEmailAddress pendingChange, CancellationToken cancellationToken)
     {
         var response = await directoriesClient.PatchAsJsonAsync($"users/{pendingChange.UserId}", new {
             email = pendingChange.NewEmailAddress,
@@ -117,29 +120,34 @@ public sealed class ConfirmChangeEmailAddressNodeRequester(
 
     private async Task WriteAuditSuccessfullyChangedEmailAsync(PendingChangeEmailAddress pendingChange)
     {
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeEmail,
-            Message = $"Successfully changed email to {pendingChange.NewEmailAddress}",
-            UserId = pendingChange.UserId,
-            CustomProperties = [
-                new("editedFields", new object[] {
-                    new {
-                        name = "new_email",
-                        newValue = pendingChange.NewEmailAddress,
-                    },
-                }),
-            ],
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeEmail,
+                Message = $"Successfully changed email to {pendingChange.NewEmailAddress}",
+                UserId = pendingChange.UserId,
+                CustomProperties = [
+                    new("editedFields", new object[] {
+                        new {
+                            name = "new_email",
+                            newValue = pendingChange.NewEmailAddress,
+                        },
+                    }),
+                ],
+            }
+        );
     }
 
-    private async Task WriteAuditFailedToChangeEmailAsync(PendingChangeEmailAddress pendingChange, string errorMessage)
+    private async Task WriteAuditFailedToChangeEmailAsync(
+        PendingChangeEmailAddress pendingChange, string errorMessage)
     {
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeEmail,
-            EventName = AuditChangeEmailEventNames.EmailChangeFailed,
-            Message = $"Failed changed email to {pendingChange.NewEmailAddress} - {errorMessage}",
-            UserId = pendingChange.UserId,
-            WasFailure = true,
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeEmail,
+                EventName = AuditChangeEmailEventNames.EmailChangeFailed,
+                Message = $"Failed changed email to {pendingChange.NewEmailAddress} - {errorMessage}",
+                UserId = pendingChange.UserId,
+                WasFailure = true,
+            }
+        );
     }
 }

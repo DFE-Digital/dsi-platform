@@ -13,8 +13,6 @@ public interface IInteractionDispatcher
     /// </summary>
     /// <typeparam name="TRequest">The type of request.</typeparam>
     /// <param name="context">Context of the interaction.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used by other
-    /// objects or threads to receive notice of cancellation.</param>
     /// <returns>
     ///   <para>The interaction response.</para>
     /// </returns>
@@ -34,8 +32,7 @@ public interface IInteractionDispatcher
     ///   <para>If an unexpected exception occurs whilst processing the interaction.</para>
     /// </exception>
     /// <exception cref="OperationCanceledException" />
-    InteractionTask DispatchAsync<TRequest>(
-        InteractionContext<TRequest> context, CancellationToken cancellationToken = default)
+    InteractionTask DispatchAsync<TRequest>(InteractionContext<TRequest> context)
         where TRequest : class;
 }
 
@@ -121,25 +118,30 @@ public struct InteractionTask(Task<object> task)
 /// </summary>
 /// <param name="interactorResolver">A service that resolves concrete interactor implementations.</param>
 /// <param name="interactionValidator">A service for validating interaction requests and responses.</param>
+/// <param name="cancellationContext">A service for accessing the cancellation token.</param>
 public sealed class DefaultInteractionDispatcher(
     IInteractorResolver interactorResolver,
-    IInteractionValidator interactionValidator
+    IInteractionValidator interactionValidator,
+    ICancellationContext cancellationContext
 ) : IInteractionDispatcher
 {
     /// <inheritdoc/>
-    public InteractionTask DispatchAsync<TRequest>(
-        InteractionContext<TRequest> context, CancellationToken cancellationToken = default)
+    public InteractionTask DispatchAsync<TRequest>(InteractionContext<TRequest> context)
         where TRequest : class
     {
         ExceptionHelpers.ThrowIfArgumentNull(context, nameof(context));
 
-        return new InteractionTask(this.DoDispatchAsync(context, cancellationToken));
+        return new InteractionTask(this.DoDispatchAsync(context));
     }
 
     private async Task<object> DoDispatchAsync<TRequest>(
-        InteractionContext<TRequest> context, CancellationToken cancellationToken = default)
+        InteractionContext<TRequest> context)
         where TRequest : class
     {
+        // The following method MUST be called inside this `async` function rather than
+        // the `DispatchAsync` function.
+        this.UpdateCancellationContext(context);
+
         var interactor = interactorResolver.ResolveInteractor<TRequest>()
             ?? throw new MissingInteractorException(
                 $"Cannot resolve interactor for request type '{typeof(TRequest)}'.",
@@ -149,7 +151,7 @@ public sealed class DefaultInteractionDispatcher(
         try {
             interactionValidator.TryValidateRequest(context.Request, context.ValidationResults);
 
-            return await interactor.InvokeAsync(context, cancellationToken);
+            return await interactor.InvokeAsync(context, cancellationContext.CancellationToken);
         }
         catch (InvalidRequestException ex) {
             ThrowUnexpectedException(ex, ex.InvocationId != context.InvocationId);
@@ -164,6 +166,20 @@ public sealed class DefaultInteractionDispatcher(
             ThrowUnexpectedException(ex, ex is not InteractionException and not OperationCanceledException);
             throw; // Keep compiler happy.
         }
+    }
+
+    private void UpdateCancellationContext<TRequest>(InteractionContext<TRequest> context)
+        where TRequest : class
+    {
+        if (Attribute.IsDefined(typeof(TRequest), typeof(NonCancellableAttribute))) {
+            cancellationContext.CancellationToken = CancellationToken.None;
+        }
+        else if (context.CancellationToken is not null) {
+            cancellationContext.CancellationToken = context.CancellationToken.Value;
+        }
+
+        cancellationContext.CancellationToken.ThrowIfCancellationRequested();
+        context.CancellationToken = cancellationContext.CancellationToken;
     }
 
     private static void ThrowUnexpectedException(Exception ex, bool isInternal)

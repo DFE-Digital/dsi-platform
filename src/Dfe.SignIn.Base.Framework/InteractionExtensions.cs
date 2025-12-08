@@ -24,6 +24,7 @@ public static class InteractionExtensions
 
         services.AddOptions();
 
+        services.TryAddSingleton<ICancellationContext, CancellationContext>();
         services.TryAddSingleton<IInteractionValidator, InteractionValidator>();
         services.TryAddSingleton<IInteractionDispatcher, DefaultInteractionDispatcher>();
         services.TryAddSingleton<IInteractorResolver, ServiceProviderInteractorResolver>();

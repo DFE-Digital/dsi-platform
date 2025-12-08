@@ -48,7 +48,7 @@ public sealed class StandardSelectOrganisationUserFlow(
             request = options.PrepareSelectOrganisationRequest(request);
         }
 
-        var selectOrganisationResponse = await interaction.DispatchAsync(request, cancellationToken)
+        var selectOrganisationResponse = await interaction.DispatchAsync(request)
             .To<CreateSelectOrganisationSessionApiResponse>();
 
         if (selectOrganisationResponse.HasOptions) {

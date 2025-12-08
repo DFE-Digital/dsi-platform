@@ -31,14 +31,13 @@ public sealed class ChangeNameController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
-        ChangeNameViewModel viewModel,
-        CancellationToken cancellationToken = default)
+        ChangeNameViewModel viewModel)
     {
-        await this.MapInteractionRequest<ChangeNameRequest>(viewModel)
+        await interaction.MapRequestFromViewModel<ChangeNameRequest>(this, viewModel)
             .Use(request => request with {
                 UserId = this.User.GetUserId(),
             })
-            .InvokeAsync(interaction.DispatchAsync, cancellationToken);
+            .DispatchAsync();
 
         if (!this.ModelState.IsValid) {
             return this.Index();

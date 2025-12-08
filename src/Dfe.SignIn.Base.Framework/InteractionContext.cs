@@ -25,6 +25,11 @@ public class InteractionContext<TRequest>(TRequest request)
     /// </summary>
     public bool IgnoreCacheHint { get; set; } = false;
 
+    /// <summary>
+    /// Gets or sets the cancellation token.
+    /// </summary>
+    public CancellationToken? CancellationToken { get; set; }
+
 #pragma warning disable IDE0028 // A mutable collection type is required here.
     /// <summary>
     /// Gets the list of any validation results that have accumulated during the invocation

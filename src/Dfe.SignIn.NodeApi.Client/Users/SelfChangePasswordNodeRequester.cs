@@ -30,7 +30,7 @@ public sealed class SelfChangePasswordNodeRequester(
                 await graphApiChangeUserPassword.ChangePassword(context);
             }
             else {
-                await this.CheckCurrentPasswordAsync(context, cancellationToken);
+                await this.CheckCurrentPasswordAsync(context);
 
                 var response = await directoriesClient.PostAsJsonAsync($"/users/{context.Request.UserId}/changepassword", new {
                     password = context.Request.NewPassword,
@@ -39,31 +39,36 @@ public sealed class SelfChangePasswordNodeRequester(
             }
         }
         catch {
-            await interaction.DispatchAsync(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangePassword,
-                Message = "Failed changed password",
-                UserId = context.Request.UserId,
-                WasFailure = true,
-            }, CancellationToken.None);
+            await interaction.DispatchAsync(
+                new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.ChangePassword,
+                    Message = "Failed changed password",
+                    UserId = context.Request.UserId,
+                    WasFailure = true,
+                }
+            );
             throw;
         }
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangePassword,
-            Message = "Successfully changed password",
-            UserId = context.Request.UserId,
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangePassword,
+                Message = "Successfully changed password",
+                UserId = context.Request.UserId,
+            }
+        );
 
         return new SelfChangePasswordResponse();
     }
 
     private async Task CheckCurrentPasswordAsync(
-        InteractionContext<SelfChangePasswordRequest> context,
-        CancellationToken cancellationToken)
+        InteractionContext<SelfChangePasswordRequest> context)
     {
-        var profile = await interaction.DispatchAsync(new GetUserProfileRequest {
-            UserId = context.Request.UserId,
-        }, cancellationToken).To<GetUserProfileResponse>();
+        var profile = await interaction.DispatchAsync(
+            new GetUserProfileRequest {
+                UserId = context.Request.UserId,
+            }
+        ).To<GetUserProfileResponse>();
 
         try {
             var response = await directoriesClient.PostAsJsonAsync($"users/authenticate", new {
@@ -88,13 +93,15 @@ public sealed class SelfChangePasswordNodeRequester(
             nameof(context.Request.CurrentPassword)
         );
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangePassword,
-            EventName = AuditChangePasswordEventNames.IncorrectPassword,
-            Message = $"Failed changed password - Incorrect current password",
-            UserId = context.Request.UserId,
-            WasFailure = true,
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangePassword,
+                EventName = AuditChangePasswordEventNames.IncorrectPassword,
+                Message = $"Failed changed password - Incorrect current password",
+                UserId = context.Request.UserId,
+                WasFailure = true,
+            }
+        );
 
         context.ThrowIfHasValidationErrors();
     }

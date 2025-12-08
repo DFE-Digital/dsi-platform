@@ -57,22 +57,24 @@ public sealed partial class RaiseSupportTicketByEmailUseCase(
             ? $"{context.Request.Message}{Environment.NewLine}(TraceId: {context.Request.ExceptionTraceId})"
             : context.Request.Message;
 
-        await interaction.DispatchAsync(new SendEmailNotificationRequest {
-            RecipientEmailAddress = options.SupportEmailAddress,
-            TemplateId = options.EmailTemplateId,
-            Personalisation = new() {
-                ["name"] = context.Request.FullName,
-                ["email"] = context.Request.EmailAddress,
-                ["orgName"] = context.Request.OrganisationName,
-                ["urn"] = context.Request.OrganisationUrn ?? "",
-                ["service"] = context.Request.ApplicationName ?? "",
-                ["type"] = context.Request.SubjectCode,
-                ["message"] = supportEmailMessage,
-                ["showAdditionalInfoHeader"] = !string.IsNullOrWhiteSpace(context.Request.CustomSummary),
-                ["typeAdditionalInfo"] = context.Request.CustomSummary ?? "",
-                ["helpUrl"] = options.ContactUrl,
+        await interaction.DispatchAsync(
+            new SendEmailNotificationRequest {
+                RecipientEmailAddress = options.SupportEmailAddress,
+                TemplateId = options.EmailTemplateId,
+                Personalisation = new() {
+                    ["name"] = context.Request.FullName,
+                    ["email"] = context.Request.EmailAddress,
+                    ["orgName"] = context.Request.OrganisationName,
+                    ["urn"] = context.Request.OrganisationUrn ?? "",
+                    ["service"] = context.Request.ApplicationName ?? "",
+                    ["type"] = context.Request.SubjectCode,
+                    ["message"] = supportEmailMessage,
+                    ["showAdditionalInfoHeader"] = !string.IsNullOrWhiteSpace(context.Request.CustomSummary),
+                    ["typeAdditionalInfo"] = context.Request.CustomSummary ?? "",
+                    ["helpUrl"] = options.ContactUrl,
+                }
             }
-        }, cancellationToken);
+        );
 
         return new RaiseSupportTicketResponse();
     }
@@ -87,8 +89,9 @@ public sealed partial class RaiseSupportTicketByEmailUseCase(
 
     private async Task ValidateSubjectCodeAsync(InteractionContext<RaiseSupportTicketRequest> context)
     {
-        var subjectOptionsResponse = await interaction.DispatchAsync(new GetSubjectOptionsForSupportTicketRequest())
-            .To<GetSubjectOptionsForSupportTicketResponse>();
+        var subjectOptionsResponse = await interaction.DispatchAsync(
+            new GetSubjectOptionsForSupportTicketRequest()
+        ).To<GetSubjectOptionsForSupportTicketResponse>();
 
         if (!subjectOptionsResponse.SubjectOptions.Any(option => option.Code == context.Request.SubjectCode)) {
             context.AddValidationError("Invalid selection", nameof(RaiseSupportTicketRequest.SubjectCode));

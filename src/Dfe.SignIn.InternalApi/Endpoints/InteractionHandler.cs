@@ -24,14 +24,12 @@ public static class InteractionHandlerExtensions
         // ---
         ILogger<LoggerContext> logger,
         IExceptionJsonSerializer exceptionSerializer,
-        IInteractionDispatcher interaction,
-        // ---
-        CancellationToken cancellationToken = default)
+        IInteractionDispatcher interaction)
         where TRequest : class
         where TResponse : class
     {
         try {
-            var interactionTask = interaction.DispatchAsync(request, cancellationToken);
+            var interactionTask = interaction.DispatchAsync(request);
             var response = await interactionTask.To<TResponse>();
             return new InteractionResponse<TResponse> {
                 Type = response.GetType().FullName!,

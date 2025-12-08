@@ -11,6 +11,12 @@ using Microsoft.Extensions.Hosting;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
+builder.UseMiddleware((context, next) => {
+    var cancellationContext = context.InstanceServices.GetRequiredService<ICancellationContext>();
+    cancellationContext.CancellationToken = context.CancellationToken;
+    return next();
+});
+
 builder.Configuration
 #if DEBUG
     .AddUserSecrets<Program>()
