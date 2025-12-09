@@ -1,10 +1,10 @@
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests;
 
 [TestClass]
-public class OrganisationsUnitOfWorkTests
+public class UnitOfWorkTestsOrganisations
 {
     [TestMethod]
-    public void OrganisationsUnitOfWork_CanBeConstructed()
+    public void UnitOfWorkOrganisations_CanBeConstructed()
     {
         var dbContext = new DbOrganisationsContext();
 

@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests;
 
 [TestClass]
-public class DirectoriesUnitOfWorkTests
+public class UnitOfWorkTestsDirectories
 {
     [TestMethod]
-    public void DirectoriesUnitOfWork_CanBeConstructed()
+    public void UnitOfWorkDirectories_CanBeConstructed()
     {
         var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
             .UseInMemoryDatabase("Dirs")

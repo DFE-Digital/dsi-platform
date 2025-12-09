@@ -49,9 +49,9 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
 /// <summary>
 /// A unit of work for the Directories database.
 /// </summary>
-public interface IDirectoriesUnitOfWork : IUnitOfWork { }
+public interface IUnitOfWorkDirectories : IUnitOfWork { }
 
 /// <summary>
 /// A unit of work for the Organisations database.
 /// </summary>
-public interface IOrganisationsUnitOfWork : IUnitOfWork { }
+public interface IUnitOfWorkOrganisations : IUnitOfWork { }

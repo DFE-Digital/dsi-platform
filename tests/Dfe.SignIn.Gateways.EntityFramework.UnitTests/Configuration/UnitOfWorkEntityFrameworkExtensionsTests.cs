@@ -37,7 +37,7 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
 
         Assert.ThrowsExactly<ArgumentNullException>(() => {
             ServiceCollection services = null!;
-            services.AddEntityFrameworkUnitOfWorkServices(this.configMock.Object, true, true);
+            services.AddUnitOfWorkEntityFrameworkServices(this.configMock.Object, true, true);
         });
     }
 
@@ -47,7 +47,7 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
         Assert.ThrowsExactly<ArgumentNullException>(() => {
             var services = new ServiceCollection();
             IConfiguration config = null!;
-            services.AddEntityFrameworkUnitOfWorkServices(config, true, true);
+            services.AddUnitOfWorkEntityFrameworkServices(config, true, true);
         });
     }
 
@@ -58,7 +58,7 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
 
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-        EntityFrameworkUnitOfWorkServiceExtensions.AddEntityFrameworkUnitOfWorkServices(
+        UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
             services,
             this.configMock.Object,
             addDirectoriesUnitOfWork: true,
@@ -79,7 +79,7 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
         var services = new ServiceCollection();
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-        EntityFrameworkUnitOfWorkServiceExtensions.AddEntityFrameworkUnitOfWorkServices(
+        UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
             services,
             this.configMock.Object,
             addDirectoriesUnitOfWork: false,

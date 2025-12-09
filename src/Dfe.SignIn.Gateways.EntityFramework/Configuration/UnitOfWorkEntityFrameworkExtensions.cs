@@ -10,7 +10,7 @@ namespace Dfe.SignIn.Gateways.EntityFramework.Configuration;
 /// <summary>
 /// Extension methods for setting up the Entity Framework Unit Of Work.
 /// </summary>
-public static class EntityFrameworkUnitOfWorkServiceExtensions
+public static class UnitOfWorkEntityFrameworkExtensions
 {
     /// <summary>
     /// Adds the required configuration for using Entity Framework Core, unit of work implementation.
@@ -27,7 +27,7 @@ public static class EntityFrameworkUnitOfWorkServiceExtensions
     ///   <para>- or -</para>
     ///   <para>If <paramref name="section"/> is null.</para>
     /// </exception>
-    public static IServiceCollection AddEntityFrameworkUnitOfWorkServices(this IServiceCollection services, IConfiguration section, bool addDirectoriesUnitOfWork, bool addOrganisationsUnitOfWork)
+    public static IServiceCollection AddUnitOfWorkEntityFrameworkServices(this IServiceCollection services, IConfiguration section, bool addDirectoriesUnitOfWork, bool addOrganisationsUnitOfWork)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(section, nameof(section));
@@ -37,13 +37,13 @@ public static class EntityFrameworkUnitOfWorkServiceExtensions
             services.Decorate<IInteractionDispatcher, ProtectTransactionInteractionDispatcher>();
         }
 
-        AddUnitOfWork<DbDirectoriesContext, DirectoriesUnitOfWork, IDirectoriesUnitOfWork>(
+        AddUnitOfWork<DbDirectoriesContext, DirectoriesUnitOfWork, IUnitOfWorkDirectories>(
             services,
             section,
             "Directories",
             addDirectoriesUnitOfWork);
 
-        AddUnitOfWork<DbOrganisationsContext, OrganisationsUnitOfWork, IOrganisationsUnitOfWork>(
+        AddUnitOfWork<DbOrganisationsContext, OrganisationsUnitOfWork, IUnitOfWorkOrganisations>(
             services,
             section,
             "Organisations",
