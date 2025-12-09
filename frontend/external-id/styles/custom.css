@@ -1,0 +1,287 @@
+/**
+ * Microsoft suggest that the @font-face feature does not work however this
+ * may be an outdated comment since the following seems to trigger a CORS
+ * error in the browser which could be resolved by amending the CORS policy
+ * where our font is hosted (in our CDN).
+ */
+
+@font-face {
+  font-family: GDS Transport;
+  font-style: normal;
+  font-weight: 400;
+  src:
+    url(https://dev-cdn.signin.education.gov.uk/gds-upgrade/fonts/light-94a07e06a1-v2.woff2) format("woff2"),
+    url(https://dev-cdn.signin.education.gov.uk/gds-upgrade/fonts/light-f591b13f7d-v2.woff) format("woff");
+  font-display: fallback;
+}
+
+/**
+ * The following styles are derived from the GDS design system; however,
+ * some of these selectors are stripped out of the CSS when they are
+ * uploaded into the Entra portal. Microsoft only allow specific CSS
+ * selectors.
+ *
+ * In several cases the !important syntax is required to override styles
+ * where we can't use CSS selectors with better specificity.
+ */
+
+html,
+body {
+  font-size: 19px;
+  font-size: 1.1875rem;
+  line-height: 1.3157894737;
+}
+
+a {
+  font-family:
+    GDS Transport,
+    arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-decoration: underline;
+  text-decoration-thickness: max(1px, 0.0625rem);
+  text-underline-offset: 0.1578em;
+}
+
+a:hover {
+  text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+  -webkit-text-decoration-skip-ink: none;
+  text-decoration-skip-ink: none;
+  -webkit-text-decoration-skip: none;
+  text-decoration-skip: none;
+}
+
+a:focus {
+  outline: 3px solid transparent;
+  background-color: #fd0;
+  box-shadow:
+    0 -2px #fd0,
+    0 4px #0b0c0c;
+  text-decoration: none;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+a:link {
+  color: #1d70b8 !important;
+}
+
+a:visited {
+  color: #4c2c92 !important;
+}
+
+a:hover {
+  color: #003078 !important;
+}
+
+a:active,
+a:focus {
+  color: #0b0c0c !important;
+}
+
+.ext-header {
+  background: black;
+  color: white;
+}
+
+.ext-footer {
+  font-family:
+    GDS Transport,
+    arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.1428571429;
+  padding-top: 25px;
+  padding-bottom: 15px;
+  border-top: 1px solid #b1b4b6;
+  color: #0b0c0c;
+  background-color: #f3f2f1 !important;
+}
+
+.ext-footer-content {
+  color: inherit !important;
+  font-size: inherit !important;
+}
+
+.ext-title {
+  margin-bottom: 30px;
+  font-size: 36px;
+  font-size: 2.25rem;
+  line-height: 1.1111111111;
+}
+
+.ext-button.ext-primary {
+  font-family: "GDS Transport", arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.1875;
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  margin-top: 0;
+  margin-right: 0;
+  margin-left: 0;
+  /* Disabled because causes buttons to overlap text fields on create user interface. */
+  /* margin-bottom: 22px; */
+  padding: 8px 10px 7px;
+  border: 2px solid transparent;
+  border-radius: 0;
+  color: #ffffff;
+  background-color: #00703c;
+  box-shadow: 0 2px 0 #002d18;
+  text-align: center;
+  vertical-align: top;
+  cursor: pointer;
+}
+
+.ext-button.ext-primary:link,
+.ext-button.ext-primary:visited,
+.ext-button.ext-primary:active,
+.ext-button.ext-primary:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.ext-button.ext-primary:hover {
+  background-color: #005a30;
+}
+
+.ext-button.ext-primary:active {
+  top: 2px;
+}
+
+.ext-button.ext-primary:focus {
+  border-color: #ffdd00;
+  outline: 3px solid transparent;
+  box-shadow: inset 0 0 0 1px #ffdd00;
+}
+
+.ext-button.ext-primary:focus {
+  border-color: #ffdd00;
+  color: #0b0c0c;
+  background-color: #ffdd00;
+  box-shadow: 0 2px 0 #0b0c0c;
+}
+
+.ext-button.ext-primary::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  bottom: -4px;
+  left: -2px;
+  background: transparent;
+}
+
+.ext-button.ext-primary:active::before {
+  top: -4px;
+}
+
+.ext-button.ext-secondary {
+  font-family: "GDS Transport", arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.1875;
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  margin-top: 0;
+  margin-right: 0;
+  margin-left: 0;
+  /* Disabled because causes buttons to overlap text fields on create user interface. */
+  /* margin-bottom: 22px; */
+  padding: 8px 10px 7px;
+  border: 2px solid transparent;
+  border-radius: 0;
+  color: #0b0c0c;
+  background-color: #f3f2f1;
+  box-shadow: 0 2px 0 #929191;
+  text-align: center;
+  vertical-align: top;
+  cursor: pointer;
+}
+
+.ext-button.ext-secondary:link,
+.ext-button.ext-secondary:visited,
+.ext-button.ext-secondary:active,
+.ext-button.ext-secondary:hover {
+  color: #0b0c0c;
+  text-decoration: none;
+}
+
+.ext-button.ext-secondary:hover {
+  background-color: #dbdad9;
+}
+
+.ext-button.ext-secondary:active {
+  top: 2px;
+}
+
+.ext-button.ext-secondary:focus {
+  border-color: #ffdd00;
+  outline: 3px solid transparent;
+  box-shadow: inset 0 0 0 1px #ffdd00;
+}
+
+.ext-button.ext-secondary:focus {
+  border-color: #ffdd00;
+  color: #0b0c0c;
+  background-color: #ffdd00;
+  box-shadow: 0 2px 0 #0b0c0c;
+}
+
+.ext-button.ext-secondary::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  bottom: -4px;
+  left: -2px;
+  background: transparent;
+}
+
+.ext-button.ext-secondary:active::before {
+  top: -4px;
+}
+
+.ext-input.ext-text-box {
+  font-family:
+    GDS Transport,
+    arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.25;
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.5rem;
+  margin-top: 0;
+  padding: 5px;
+  border: 2px solid #0b0c0c;
+  border-radius: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.ext-input.ext-text-box:focus {
+  outline: 3px solid #fd0;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 2px;
+}
+
+.ext-input.ext-text-box:disabled {
+  opacity: 0.5;
+  color: inherit;
+  background-color: transparent;
+  cursor: not-allowed;
+}
