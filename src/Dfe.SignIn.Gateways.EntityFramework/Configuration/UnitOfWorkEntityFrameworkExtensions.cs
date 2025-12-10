@@ -40,13 +40,13 @@ public static class UnitOfWorkEntityFrameworkExtensions
         AddUnitOfWork<DbDirectoriesContext, DirectoriesUnitOfWork, IUnitOfWorkDirectories>(
             services,
             section,
-            "Directories",
+            "Directories:ConnectionString",
             addDirectoriesUnitOfWork);
 
         AddUnitOfWork<DbOrganisationsContext, OrganisationsUnitOfWork, IUnitOfWorkOrganisations>(
             services,
             section,
-            "Organisations",
+            "Organisations:ConnectionString",
             addOrganisationsUnitOfWork);
 
         return services;

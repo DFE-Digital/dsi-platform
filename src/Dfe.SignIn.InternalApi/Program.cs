@@ -53,7 +53,7 @@ builder.Services
     .AddInteractionCaching(builder.Configuration)
     .AddUseCasesUser(builder.Configuration)
     .AddUnitOfWorkEntityFrameworkServices(
-        builder.Configuration.GetRequiredSection("Databases"),
+        builder.Configuration.GetRequiredSection("EntityFramework"),
         addDirectoriesUnitOfWork: true,
         addOrganisationsUnitOfWork: false
     );
