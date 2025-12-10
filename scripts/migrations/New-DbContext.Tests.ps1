@@ -4,35 +4,19 @@ BeforeAll {
 
 Describe "New-DbContext" {
     BeforeAll {
-
         function Invoke-TestDbContext {
-            param(
-                [string[]]$Tables = @()
-            )
-
             & $Cmdlet `
                 -ConnectionString "Server=.;Database=.;User ID=.;Password=.;TrustServerCertificate=True;" `
-                -EntityPath "./src/Dfe.SignIn.Core.Entities/Directories" `
-                -ProjectPath "./src/Dfe.SignIn.Gateways.EntityFramework" `
-                -ModelOutputDir "../Dfe.SignIn.Core.Entities/Directories" `
-                -ContextOutputDir "./" `
-                -ModelNamespace "Dfe.SignIn.Core.Entities.Directories" `
-                -ContextNamespace "Dfe.SignIn.Gateways.EntityFramework" `
-                -ContextName "DbDirectoriesContext" `
-                -Tables $Tables
+                -Context "directories"
         }
 
         Mock dotnet {}
         Mock Write-Host {}
-
-        Mock Get-ChildItem {}
-        Mock Rename-Item {}
-        Mock Test-Path { $false }
     }
 
     Context "1. EF Scaffold Command" {
         It "builds and executes the correct dotnet ef command" {
-            Invoke-TestDbContext -Tables @()
+            Invoke-TestDbContext
 
             Should -Invoke dotnet -ParameterFilter {
                 $args[0] -ceq "ef" -and `
@@ -55,29 +39,30 @@ Describe "New-DbContext" {
                     $args[17] -ceq "--no-onconfiguring"
             } -Times 1 -Exactly
         }
-
-        It "includes --table arguments for each table supplied" {
-            Invoke-TestDbContext -Tables @("TableA", "TableB", "TableC")
-
-            Should -Invoke dotnet -ParameterFilter {
-                $args -contains "--table" -and `
-                    $args -contains "TableA" -and `
-                    $args -contains "--table" -and `
-                    $args -contains "TableB" -and `
-                    $args -contains "--table" -and `
-                    $args -contains "TableC"
-            } -Times 1 -Exactly
-        }
     }
 
     Context "2. Rename Model Files to *Entity.cs*" {
         BeforeEach {
+            $entityPath = "./src/Dfe.SignIn.Core.Entities/Directories"
             $renamed = [System.Collections.Generic.List[string]]::new()
+            $deleted = [System.Collections.Generic.List[string]]::new()
 
             $generatedFiles = @(
-                [PSCustomObject]@{ Name = "User.cs"; FullName = "$EntityPath/User.cs" },
-                [PSCustomObject]@{ Name = "Role.cs"; FullName = "$EntityPath/Role.cs" },
-                [PSCustomObject]@{ Name = "UserEntity.cs"; FullName = "$EntityPath/UserEntity.cs" }
+                [PSCustomObject]@{
+                    Name          = "User.cs";
+                    DirectoryName = $entityPath;
+                    FullName      = "$($entityPath)/User.cs"
+                },
+                [PSCustomObject]@{
+                    Name          = "Role.cs";
+                    DirectoryName = $entityPath;
+                    FullName      = "$($entityPath)/Role.cs"
+                },
+                [PSCustomObject]@{
+                    Name          = "UserEntity.cs";
+                    DirectoryName = $entityPath;
+                    FullName      = "$($entityPath)/UserEntity.cs"
+                }
             )
 
             Mock Get-ChildItem {
@@ -88,11 +73,28 @@ Describe "New-DbContext" {
                 param ($Path, $NewName)
                 $renamed.Add("$Path -> $NewName")
             }
+
+            Mock Test-Path {
+                param($Path)
+                return $Path -like "*UserEntity.cs"
+            }
+
+            Mock Remove-Item {
+                param($Path)
+                $deleted.Add($Path)
+            }
+
             Mock Write-Host {}
         }
 
-        It "renames only files that do not already end with Entity.cs" {
-            Invoke-TestDbContext -Tables @()
+        It "deletes a file with the suffix Entity.cs" {
+            Invoke-TestDbContext
+
+            $deleted | Should -Contain "$EntityPath/UserEntity.cs"
+        }
+
+        It "renames files that do not already end with Entity.cs" {
+            Invoke-TestDbContext
 
             $renamed | Should -Contain "$EntityPath/User.cs -> UserEntity.cs"
             $renamed | Should -Contain "$EntityPath/Role.cs -> RoleEntity.cs"
@@ -102,7 +104,7 @@ Describe "New-DbContext" {
 
     Context "3. dotnet format" {
         It "is executed exactly once at the end" {
-            Invoke-TestDbContext -Tables @()
+            Invoke-TestDbContext
 
             Should -Invoke dotnet -Times 1 -ParameterFilter {
                 $args[0] -eq "format"
