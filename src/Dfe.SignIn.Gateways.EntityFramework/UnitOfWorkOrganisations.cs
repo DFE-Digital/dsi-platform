@@ -6,7 +6,14 @@ namespace Dfe.SignIn.Gateways.EntityFramework;
 /// <summary>
 /// A partial class representing the Entity Framework database context for organisations.
 /// </summary>
-public partial class DbOrganisationsContext : DbContext { }
+public partial class DbOrganisationsContext : DbContext
+{
+    /// <inheritdoc/>
+    public DbOrganisationsContext(DbContextOptions<DbOrganisationsContext> options)
+        : base(options)
+    {
+    }
+}
 
 /// <summary>
 /// Represents a Unit of Work specifically for the <see cref="DbOrganisationsContext"/>.
@@ -14,14 +21,15 @@ public partial class DbOrganisationsContext : DbContext { }
 /// management for the organisations database.
 /// </summary>
 /// <remarks>
-/// This class implements <see cref="IUnitOfWorkOrganisations"/> as a marker interface
-/// to allow dependency injection to distinguish it from other UnitOfWork implementations.
-/// It is a thin wrapper around <see cref="EntityFrameworkUnitOfWork"/> and does not add additional logic.
+///   <para>This class implements <see cref="IUnitOfWorkOrganisations"/> as a marker interface
+///   to allow dependency injection to distinguish it from other UnitOfWork implementations.
+///   It is a thin wrapper around <see cref="EntityFrameworkUnitOfWork"/> and does not add
+///   additional logic.</para>
 /// </remarks>
-public class OrganisationsUnitOfWork : EntityFrameworkUnitOfWork, IUnitOfWorkOrganisations
+public sealed class UnitOfWorkOrganisations : EntityFrameworkUnitOfWork, IUnitOfWorkOrganisations
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="OrganisationsUnitOfWork"/> class
+    /// Initializes a new instance of the <see cref="UnitOfWorkOrganisations"/> class
     /// using the specified <see cref="DbOrganisationsContext"/>.
     /// </summary>
     /// <param name="db">
@@ -30,5 +38,5 @@ public class OrganisationsUnitOfWork : EntityFrameworkUnitOfWork, IUnitOfWorkOrg
     /// <param name="transactionContext">
     ///   The Entity Framework core transaction context.
     /// </param>
-    public OrganisationsUnitOfWork(DbOrganisationsContext db, IEntityFrameworkTransactionContext transactionContext) : base(db, transactionContext) { }
+    public UnitOfWorkOrganisations(DbOrganisationsContext db, IEntityFrameworkTransactionContext transactionContext) : base(db, transactionContext) { }
 }

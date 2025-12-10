@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests;
 
 [TestClass]
-public class UnitOfWorkTestsDirectories
+public sealed class UnitOfWorkDirectoriesTests
 {
     [TestMethod]
     public void UnitOfWorkDirectories_CanBeConstructed()
@@ -14,10 +14,10 @@ public class UnitOfWorkTestsDirectories
 
         var dbContext = new DbDirectoriesContext(options);
 
-        var uow = new DirectoriesUnitOfWork(dbContext, new EntityFrameworkTransactionContext());
+        var uow = new UnitOfWorkDirectories(dbContext, new EntityFrameworkTransactionContext());
 
         Assert.IsNotNull(uow);
-        Assert.IsInstanceOfType(uow, typeof(DirectoriesUnitOfWork));
+        Assert.IsInstanceOfType(uow, typeof(UnitOfWorkDirectories));
         Assert.IsInstanceOfType(uow, typeof(EntityFrameworkUnitOfWork));
     }
 }

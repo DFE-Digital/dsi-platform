@@ -6,7 +6,7 @@ using Moq;
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests;
 
 [TestClass]
-public sealed class EfUnitOfWorkTests
+public sealed class EntityFrameworkUnitOfWorkTests
 {
     private Mock<DbContext> mockContext = null!;
     private Mock<DatabaseFacade> mockDatabase = null!;

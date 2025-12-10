@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests;
 
 [TestClass]
-public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
+public sealed class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
 {
 
     public sealed class TestDbContext : DbContext
@@ -51,7 +51,7 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
     {
         var repo = this.uow.Repository<Hat>();
         var entity = new Hat { Id = 1, Colour = "Red" };
-        await repo.AddAsync(entity);
+        await this.uow.AddAsync(entity);
         await this.uow.SaveChangesAsync();
 
         var retrieved = await repo.Where(x => x.Id == 1).FirstOrDefaultAsync();
@@ -60,31 +60,14 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
     }
 
     [TestMethod]
-    public async Task CanUpdateEntity()
-    {
-        var repo = this.uow.Repository<Hat>();
-        var entity = new Hat { Id = 2, Colour = "Blue" };
-        await repo.AddAsync(entity);
-        await this.uow.SaveChangesAsync();
-
-        entity.Colour = "Green";
-        repo.Update(entity);
-        await this.uow.SaveChangesAsync();
-
-        var updated = await repo.Where(x => x.Id == 2).FirstOrDefaultAsync();
-        Assert.IsNotNull(updated);
-        Assert.AreEqual("Green", updated.Colour);
-    }
-
-    [TestMethod]
     public async Task CanDeleteEntity()
     {
         var repo = this.uow.Repository<Hat>();
         var entity = new Hat { Id = 3, Colour = "Yellow" };
-        await repo.AddAsync(entity);
+        await this.uow.AddAsync(entity);
         await this.uow.SaveChangesAsync();
 
-        repo.Delete(entity);
+        this.uow.Remove(entity);
         await this.uow.SaveChangesAsync();
 
         var deleted = await repo.Where(x => x.Id == 3).FirstOrDefaultAsync();
@@ -94,7 +77,6 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
     [TestMethod]
     public async Task Skip_WorksCorrectly()
     {
-        var repo = this.uow.Repository<Hat>();
         var entities = new List<Hat>
         {
             new() { Id = 1, Colour = "Red" },
@@ -103,15 +85,17 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
         };
 
         foreach (var e in entities) {
-            await repo.AddAsync(e);
+            await this.uow.AddAsync(e);
         }
 
         await this.uow.SaveChangesAsync();
 
-        repo.Skip(1);
-        var results = await repo.ToListAsync();
+        var results = await this.uow.Repository<Hat>()
+                        .OrderBy(x => x.Id)
+                        .Skip(1)
+                        .ToListAsync();
 
-        Assert.AreEqual(2, results.Count);
+        Assert.HasCount(2, results);
         Assert.AreEqual(2, results[0].Id);
         Assert.AreEqual(3, results[1].Id);
     }
@@ -119,7 +103,6 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
     [TestMethod]
     public async Task Take_WorksCorrectly()
     {
-        var repo = this.uow.Repository<Hat>();
         var entities = new List<Hat>
         {
             new() { Id = 1, Colour = "Red" },
@@ -128,15 +111,17 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
         };
 
         foreach (var e in entities) {
-            await repo.AddAsync(e);
+            await this.uow.AddAsync(e);
         }
 
         await this.uow.SaveChangesAsync();
 
-        repo.Take(2);
-        var results = await repo.ToListAsync();
+        var results = await this.uow.Repository<Hat>()
+                                .OrderBy(x => x.Id)
+                                .Take(2)
+                                .ToListAsync();
 
-        Assert.AreEqual(2, results.Count);
+        Assert.HasCount(2, results);
         Assert.AreEqual(1, results[0].Id);
         Assert.AreEqual(2, results[1].Id);
     }
@@ -144,7 +129,6 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
     [TestMethod]
     public async Task OrderBy_WorksCorrectly()
     {
-        var repo = this.uow.Repository<Hat>();
         var entities = new List<Hat>
         {
             new() { Id = 1, Colour = "Red" },
@@ -153,15 +137,16 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
         };
 
         foreach (var e in entities) {
-            await repo.AddAsync(e);
+            await this.uow.AddAsync(e);
         }
 
         await this.uow.SaveChangesAsync();
 
-        repo.OrderBy(e => e.Colour);
-        var results = await repo.ToListAsync();
+        var results = await this.uow.Repository<Hat>()
+                                    .OrderBy(x => x.Colour)
+                                    .ToListAsync();
 
-        Assert.AreEqual(3, results.Count);
+        Assert.HasCount(3, results);
         Assert.AreEqual("Blue", results[0].Colour);
         Assert.AreEqual("Green", results[1].Colour);
         Assert.AreEqual("Red", results[2].Colour);
@@ -180,7 +165,7 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
         };
 
         foreach (var e in entities) {
-            await repo.AddAsync(e);
+            await this.uow.AddAsync(e);
         }
 
         await this.uow.SaveChangesAsync();
@@ -191,7 +176,7 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
             .Take(2)
             .ToListAsync();
 
-        Assert.AreEqual(2, results.Count);
+        Assert.HasCount(2, results);
         Assert.IsTrue(results.All(e => e.Id > 4));
         Assert.AreEqual("Orange", results[0].Colour);
         Assert.AreEqual("Black", results[1].Colour);
@@ -211,7 +196,7 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
     {
         var repo = this.uow.Repository<Hat>();
         var entity = new Hat { Id = 8, Colour = "Brown" };
-        await repo.AddAsync(entity);
+        await this.uow.AddAsync(entity);
         var result = await this.uow.SaveChangesAsync();
 
         Assert.AreEqual(1, result);
@@ -229,13 +214,13 @@ public class EntityFrameworkRepositoryAndUnitOfWorkInMemoryTests
             Colour = "Magenta",
             Owner = new Person { Id = 1, Name = "Alice" }
         };
-        await repo.AddAsync(hat);
+        await this.uow.AddAsync(hat);
         await this.uow.SaveChangesAsync();
 
         repo.Include(h => h.Owner);
         var results = await repo.ToListAsync();
 
-        Assert.AreEqual(1, results.Count);
+        Assert.HasCount(1, results);
         Assert.IsNotNull(results[0].Owner);
         Assert.AreEqual("Alice", results[0].Owner!.Name);
     }

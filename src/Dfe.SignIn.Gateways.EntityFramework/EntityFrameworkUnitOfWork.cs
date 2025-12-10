@@ -11,7 +11,6 @@ public abstract class EntityFrameworkUnitOfWork : IUnitOfWork
 {
     private readonly DbContext dbContext;
     private readonly IEntityFrameworkTransactionContext transactionContext;
-    private readonly Dictionary<Type, object> repositories = [];
 
     /// <summary>
     /// Creates a new <see cref="EntityFrameworkUnitOfWork"/> using the provided <see cref="DbContext"/>.
@@ -25,32 +24,41 @@ public abstract class EntityFrameworkUnitOfWork : IUnitOfWork
     }
 
     /// <summary>
-    /// Returns an <see cref="IRepository{TEntity}"/> instance for the specified entity type.
-    /// This method ensures that only one repository is created per entity type by
-    /// storing and reusing instances in an internal dictionary.
+    /// Returns an <see cref="IQueryable{TEntity}"/> representing the underlying
+    /// Entity Framework Core <see cref="DbSet{TEntity}"/> for the specified entity type.
     /// </summary>
-    /// <typeparam name="TEntity">The type of entity the repository operates on.</typeparam>
+    /// <typeparam name="TEntity">
+    /// The entity type for which the queryable repository is requested.
+    /// </typeparam>
     /// <returns>
-    ///   <para>A cached or newly created <see cref="IRepository{TEntity}"/> instance for the entity type.</para>
+    ///   <para>An <see cref="IQueryable{TEntity}"/> that can be used to query and modify
+    ///   entities of type <typeparamref name="TEntity"/>.
+    ///   Changes made to tracked entities are persisted when the unit of work
+    ///   is committed.</para>
     /// </returns>
-    /// <remarks>
-    ///   <para>
-    ///     The internal dictionary maps entity types to repository instances. This allows
-    ///     the unit of work to provide a single shared repository per entity type,
-    ///     ensuring that all repositories operate on the same <see cref="DbContext"/> instance.
-    ///   </para>
-    /// </remarks>
-    public IRepository<TEntity> Repository<TEntity>() where TEntity : class
+    public IQueryable<TEntity> Repository<TEntity>() where TEntity : class
     {
-        var entityType = typeof(TEntity);
-        if (this.repositories.TryGetValue(entityType, out var repo)) {
-            return (IRepository<TEntity>)repo;
-        }
+        return this.dbContext.Set<TEntity>();
+    }
 
-        var newRepo = new EntityFrameworkRepository<TEntity>(this.dbContext);
-        this.repositories[entityType] = newRepo;
+    /// <inheritdoc />
+    /// <remarks>
+    ///   <para>This method queues an insert operation by adding the entity to the DbContext.
+    ///    No database interaction occurs until <see cref="SaveChangesAsync"/> is called.</para>
+    /// </remarks>
+    public async Task AddAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class
+    {
+        await this.dbContext.Set<TEntity>().AddAsync(entity, cancellationToken);
+    }
 
-        return newRepo;
+    /// <inheritdoc />
+    /// <remarks>
+    ///   <para>This method queues a delete operation by marking the entity as deleted in the DbContext.
+    ///   No database interaction occurs until <see cref="SaveChangesAsync"/> is called.</para>
+    /// </remarks>
+    public void Remove<TEntity>(TEntity entity) where TEntity : class
+    {
+        this.dbContext.Set<TEntity>().Remove(entity);
     }
 
     /// <inheritdoc />

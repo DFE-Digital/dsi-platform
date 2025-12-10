@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Dfe.SignIn.Core.Entities.Directories;
 
 #pragma warning disable CS1591
+[ExcludeFromCodeCoverage]
 public partial class InvitationEntity
 {
     public Guid Id { get; set; }
@@ -47,7 +50,7 @@ public partial class InvitationEntity
 
     public string? ApproverEmail { get; set; }
 
-    public string? OrgName { get; set; }
+    public string? OrganisationName { get; set; }
 
     public string? CodeMetaData { get; set; }
 

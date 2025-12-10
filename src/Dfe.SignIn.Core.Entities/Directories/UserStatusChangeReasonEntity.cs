@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Dfe.SignIn.Core.Entities.Directories;
 
 #pragma warning disable CS1591
+[ExcludeFromCodeCoverage]
 public partial class UserStatusChangeReasonEntity
 {
     public Guid Id { get; set; }

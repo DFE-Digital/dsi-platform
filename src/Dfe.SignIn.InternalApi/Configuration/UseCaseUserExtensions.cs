@@ -21,7 +21,6 @@ public static class UseCaseUserExtensions
         this IServiceCollection services, IConfigurationRoot configuration)
     {
         services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
-        services.AddInteractor<GetUserProfileUseCase>();
 
         services
             .Configure<BlockedEmailAddressOptions>(options => {

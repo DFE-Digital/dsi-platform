@@ -17,7 +17,6 @@
     <ProjectReference Include="..\Dfe.SignIn.Core.Contracts\Dfe.SignIn.Core.Contracts.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.Interfaces\Dfe.SignIn.Core.Interfaces.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.Public\Dfe.SignIn.Core.Public.csproj" />
-    <ProjectReference Include="..\Dfe.SignIn.Core.Entities\Dfe.SignIn.Core.Entities.csproj" />
   </ItemGroup>
 
 </Project>

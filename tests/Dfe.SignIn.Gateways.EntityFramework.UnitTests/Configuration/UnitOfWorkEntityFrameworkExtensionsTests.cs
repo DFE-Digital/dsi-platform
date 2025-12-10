@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +8,7 @@ using Moq;
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests.Configuration;
 
 [TestClass]
-public class EntityFrameworkUnitOfWorkExtensionsTests
+public sealed class EntityFrameworkUnitOfWorkExtensionsTests
 {
     private Mock<IConfiguration> configMock = null!;
     private Mock<IConfigurationSection> directoriesSectionMock = null!;
@@ -24,15 +25,15 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
         this.organisationsSectionMock = new Mock<IConfigurationSection>();
         this.organisationsSectionMock.Setup(s => s.Value).Returns("Server=.;Database=Orgs;Trusted_Connection=True;");
 
-        this.configMock.Setup(c => c.GetSection("Directories"))
-        .Returns(this.directoriesSectionMock.Object);
+        this.configMock.Setup(c => c.GetSection("Directories:ConnectionString"))
+            .Returns(this.directoriesSectionMock.Object);
 
-        this.configMock.Setup(c => c.GetSection("Organisations"))
+        this.configMock.Setup(c => c.GetSection("Organisations:ConnectionString"))
             .Returns(this.organisationsSectionMock.Object);
     }
 
     [TestMethod]
-    public void AddEntityFrameworkUnitOfWork_Throws_WhenServicesNull()
+    public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenServicesNull()
     {
 
         Assert.ThrowsExactly<ArgumentNullException>(() => {
@@ -42,7 +43,7 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
     }
 
     [TestMethod]
-    public void AddEntityFrameworkUnitOfWork_Throws_WhenSectionNull()
+    public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenSectionNull()
     {
         Assert.ThrowsExactly<ArgumentNullException>(() => {
             var services = new ServiceCollection();
@@ -52,7 +53,30 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
     }
 
     [TestMethod]
-    public void AddEntityFrameworkUnitOfWorkServices_Registers_TransactionDecorator_And_TransactionContext()
+    public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenMissingConnectionString()
+    {
+        var missingSection = new Mock<IConfigurationSection>();
+        missingSection.Setup(s => s.Value).Returns((string?)null);
+
+        this.configMock
+            .Setup(c => c.GetSection("Directories:ConnectionString"))
+            .Returns(missingSection.Object);
+
+        Assert.ThrowsExactly<InvalidOperationException>(() => {
+            var services = new ServiceCollection();
+
+            services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
+
+            UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
+                services,
+                this.configMock.Object,
+                addDirectoriesUnitOfWork: true,
+                addOrganisationsUnitOfWork: false);
+        });
+    }
+
+    [TestMethod]
+    public void AddUnitOfWorkEntityFrameworkServices_Registers_TransactionDecorator_And_TransactionContext()
     {
         var services = new ServiceCollection();
 
@@ -74,7 +98,7 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
     }
 
     [TestMethod]
-    public void AddEntityFrameworkUnitOfWorkServices_DoesNotRegister_Decorator_IfNoUoWEnabled()
+    public void AddUnitOfWorkEntityFrameworkServices_DoesNotRegister_Decorator_IfNoUoWEnabled()
     {
         var services = new ServiceCollection();
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
@@ -92,47 +116,47 @@ public class EntityFrameworkUnitOfWorkExtensionsTests
         Assert.IsNull(provider.GetService<IEntityFrameworkTransactionContext>());
     }
 
-    // [TestMethod]
-    // public void AddEntityFrameworkUnitOfWorkServices_Registers_Directories_UoW_And_Context()
-    // {
-    //     var services = new ServiceCollection();
-    //     services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
+    [TestMethod]
+    public void AddUnitOfWorkEntityFrameworkServices_Registers_Directories_UoW_And_Context()
+    {
+        var services = new ServiceCollection();
+        services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-    //     EntityFrameworkUnitOfWorkServiceExtensions.AddEntityFrameworkUnitOfWorkServices(
-    //         services,
-    //         this.configMock.Object,
-    //         addDirectoriesUnitOfWork: true,
-    //         addOrganisationsUnitOfWork: false);
+        UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
+            services,
+            this.configMock.Object,
+            addDirectoriesUnitOfWork: true,
+            addOrganisationsUnitOfWork: false);
 
-    //     var provider = services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
 
-    //     Assert.IsNotNull(provider.GetService<DbDirectoriesContext>());
+        Assert.IsNotNull(provider.GetService<DbDirectoriesContext>());
 
-    //     Assert.IsInstanceOfType(
-    //         provider.GetRequiredService<IDirectoriesUnitOfWork>(),
-    //         typeof(DirectoriesUnitOfWork));
-    // }
+        Assert.IsInstanceOfType(
+            provider.GetRequiredService<IUnitOfWorkDirectories>(),
+            typeof(UnitOfWorkDirectories));
+    }
 
-    // [TestMethod]
-    // public void AddEntityFrameworkUnitOfWorkServices_Registers_Organisations_UoW_And_Context()
-    // {
-    //     var services = new ServiceCollection();
-    //     services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
+    [TestMethod]
+    public void AddUnitOfWorkEntityFrameworkServices_RegistersExpectedServices()
+    {
+        var services = new ServiceCollection();
+        services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-    //     EntityFrameworkUnitOfWorkServiceExtensions.AddEntityFrameworkUnitOfWorkServices(
-    //         services,
-    //         this.configMock.Object,
-    //         addDirectoriesUnitOfWork: false,
-    //         addOrganisationsUnitOfWork: true);
+        UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
+            services,
+            this.configMock.Object,
+            addDirectoriesUnitOfWork: true,
+            addOrganisationsUnitOfWork: false);
 
-    //     var provider = services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
 
-    //     Assert.IsNotNull(provider.GetService<DbOrganisationsContext>());
+        var timeProvider = provider.GetRequiredService<TimeProvider>();
+        Assert.AreEqual(TimeProvider.System, timeProvider);
 
-    //     Assert.IsInstanceOfType(
-    //         provider.GetRequiredService<IOrganisationsUnitOfWork>(),
-    //         typeof(OrganisationsUnitOfWork));
-    // }
+        var interceptor = provider.GetRequiredService<TimestampInterceptor>();
+        Assert.IsNotNull(interceptor);
+    }
 
     private sealed class FakeDispatcher : IInteractionDispatcher
     {

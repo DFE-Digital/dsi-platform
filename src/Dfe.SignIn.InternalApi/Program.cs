@@ -1,7 +1,6 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.Audit;
-using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -51,12 +50,7 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services
     .AddInteractionFramework()
     .AddInteractionCaching(builder.Configuration)
-    .AddUseCasesUser(builder.Configuration)
-    .AddUnitOfWorkEntityFrameworkServices(
-        builder.Configuration.GetRequiredSection("EntityFramework"),
-        addDirectoriesUnitOfWork: true,
-        addOrganisationsUnitOfWork: false
-    );
+    .AddUseCasesUser(builder.Configuration);
 
 builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))

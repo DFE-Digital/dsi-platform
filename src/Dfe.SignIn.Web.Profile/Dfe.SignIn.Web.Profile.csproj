@@ -32,7 +32,6 @@
     <ProjectReference Include="..\Dfe.SignIn.NodeApi.Client\Dfe.SignIn.NodeApi.Client.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.WebFramework\Dfe.SignIn.WebFramework.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.WebFramework.Mvc\Dfe.SignIn.WebFramework.Mvc.csproj" />
-    <ProjectReference Include="..\Dfe.SignIn.InternalApi.Client\Dfe.SignIn.InternalApi.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

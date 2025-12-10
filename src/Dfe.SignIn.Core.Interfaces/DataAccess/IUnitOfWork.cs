@@ -8,15 +8,40 @@ namespace Dfe.SignIn.Core.Interfaces.DataAccess;
 public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {
     /// <summary>
-    /// Gets a repository instance for the specified entity type.
+    /// Returns a queryable source for the specified entity type.
     /// </summary>
     /// <typeparam name="TEntity">
-    /// The entity type for which the repository is requested.
+    /// The entity type to be queried.
     /// </typeparam>
     /// <returns>
-    ///   <para>An <see cref="IRepository{TEntity}"/> instance used to query or modify entities.</para>
+    /// An <see cref="IQueryable{TEntity}"/> that can be used to query or modify
+    /// instances of <typeparamref name="TEntity"/>.
     /// </returns>
-    IRepository<TEntity> Repository<TEntity>() where TEntity : class;
+    IQueryable<TEntity> Repository<TEntity>() where TEntity : class;
+
+    /// <summary>
+    /// Asynchronously adds the specified entity to the current unit of work.
+    /// </summary>
+    /// <typeparam name="TEntity">
+    /// The type of the entity being added.
+    /// </typeparam>
+    /// <param name="entity">The entity instance to add.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// </returns>
+    Task AddAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class;
+
+    /// <summary>
+    /// Marks the specified entity for deletion in the current unit of work.
+    /// </summary>
+    /// <typeparam name="TEntity">
+    /// The type of the entity being removed.
+    /// </typeparam>
+    /// <param name="entity">
+    /// The entity instance to remove.
+    /// </param>
+    void Remove<TEntity>(TEntity entity) where TEntity : class;
 
     /// <summary>
     /// Persists all pending changes to the database.

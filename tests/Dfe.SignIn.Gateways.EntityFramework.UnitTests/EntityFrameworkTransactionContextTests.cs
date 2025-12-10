@@ -1,7 +1,7 @@
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests;
 
 [TestClass]
-public class EntityFrameworkTransactionContextTests
+public sealed class EntityFrameworkTransactionContextTests
 {
     [TestMethod]
     public void InsideTransaction_ShouldBeFalse_Initially()

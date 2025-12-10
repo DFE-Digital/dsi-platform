@@ -1,12 +1,6 @@
 using Dfe.SignIn.Core.Interfaces.DataAccess;
-using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Gateways.EntityFramework;
-
-/// <summary>
-/// A partial class representing the Entity Framework database context for organisations.
-/// </summary>
-public partial class DbDirectoriesContext : DbContext { }
 
 /// <summary>
 /// Represents a Unit of Work specifically for the <see cref="DbDirectoriesContext"/>.
@@ -14,14 +8,15 @@ public partial class DbDirectoriesContext : DbContext { }
 /// management for the directories database.
 /// </summary>
 /// <remarks>
-/// This class implements <see cref="IUnitOfWorkDirectories"/> as a marker interface
-/// to allow dependency injection to distinguish it from other UnitOfWork implementations.
-/// It is a thin wrapper around <see cref="EntityFrameworkUnitOfWork"/> and does not add additional logic.
+///   <para>This class implements <see cref="IUnitOfWorkDirectories"/> as a marker interface
+///   to allow dependency injection to distinguish it from other UnitOfWork implementations.
+///   It is a thin wrapper around <see cref="EntityFrameworkUnitOfWork"/> and does not add
+///   additional logic.</para>
 /// </remarks>
-public class DirectoriesUnitOfWork : EntityFrameworkUnitOfWork, IUnitOfWorkDirectories
+public sealed class UnitOfWorkDirectories : EntityFrameworkUnitOfWork, IUnitOfWorkDirectories
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DirectoriesUnitOfWork"/> class
+    /// Initializes a new instance of the <see cref="UnitOfWorkDirectories"/> class
     /// using the specified <see cref="DbDirectoriesContext"/>.
     /// </summary>
     /// <param name="db">
@@ -30,5 +25,5 @@ public class DirectoriesUnitOfWork : EntityFrameworkUnitOfWork, IUnitOfWorkDirec
     /// <param name="transactionContext">
     ///   The Entity Framework core transaction context.
     /// </param>
-    public DirectoriesUnitOfWork(DbDirectoriesContext db, IEntityFrameworkTransactionContext transactionContext) : base(db, transactionContext) { }
+    public UnitOfWorkDirectories(DbDirectoriesContext db, IEntityFrameworkTransactionContext transactionContext) : base(db, transactionContext) { }
 }

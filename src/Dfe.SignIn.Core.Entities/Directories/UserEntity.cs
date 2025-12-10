@@ -1,15 +1,18 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Dfe.SignIn.Core.Entities.Directories;
 
 #pragma warning disable CS1591
+[ExcludeFromCodeCoverage]
 public partial class UserEntity
 {
     public Guid Sub { get; set; }
 
     public string Email { get; set; } = null!;
 
-    public string GivenName { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
 
-    public string FamilyName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
 
     public string Password { get; set; } = null!;
 
@@ -42,8 +45,6 @@ public partial class UserEntity
     public bool IsInternalUser { get; set; }
 
     public DateTime? EntraDeferUntil { get; set; }
-
-    public bool IsTestUser { get; set; }
 
     public virtual ICollection<UserPasswordPolicyEntity> UserPasswordPolicies { get; set; } = [];
 

@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Dfe.SignIn.Gateways.EntityFramework.Configuration;
 
@@ -27,23 +28,29 @@ public static class UnitOfWorkEntityFrameworkExtensions
     ///   <para>- or -</para>
     ///   <para>If <paramref name="section"/> is null.</para>
     /// </exception>
-    public static IServiceCollection AddUnitOfWorkEntityFrameworkServices(this IServiceCollection services, IConfiguration section, bool addDirectoriesUnitOfWork, bool addOrganisationsUnitOfWork)
+    public static IServiceCollection AddUnitOfWorkEntityFrameworkServices(
+        this IServiceCollection services,
+        IConfiguration section,
+        bool addDirectoriesUnitOfWork,
+        bool addOrganisationsUnitOfWork)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(section, nameof(section));
 
         if (addDirectoriesUnitOfWork || addOrganisationsUnitOfWork) {
+            services.TryAddSingleton(TimeProvider.System);
             services.AddScoped<IEntityFrameworkTransactionContext, EntityFrameworkTransactionContext>();
             services.Decorate<IInteractionDispatcher, ProtectTransactionInteractionDispatcher>();
+            services.AddScoped<TimestampInterceptor>();
         }
 
-        AddUnitOfWork<DbDirectoriesContext, DirectoriesUnitOfWork, IUnitOfWorkDirectories>(
+        AddUnitOfWork<IUnitOfWorkDirectories, UnitOfWorkDirectories, DbDirectoriesContext>(
             services,
             section,
             "Directories:ConnectionString",
             addDirectoriesUnitOfWork);
 
-        AddUnitOfWork<DbOrganisationsContext, OrganisationsUnitOfWork, IUnitOfWorkOrganisations>(
+        AddUnitOfWork<IUnitOfWorkOrganisations, UnitOfWorkOrganisations, DbOrganisationsContext>(
             services,
             section,
             "Organisations:ConnectionString",
@@ -52,14 +59,14 @@ public static class UnitOfWorkEntityFrameworkExtensions
         return services;
     }
 
-    private static void AddUnitOfWork<TContext, TUnitOfWork, TUnitOfWorkInterface>(
+    private static void AddUnitOfWork<TUnitOfWorkContract, TUnitOfWorkConcrete, TDbContext>(
         IServiceCollection services,
         IConfiguration section,
         string configKey,
         bool register)
-        where TContext : DbContext
-        where TUnitOfWork : EntityFrameworkUnitOfWork, TUnitOfWorkInterface
-        where TUnitOfWorkInterface : class, IUnitOfWork
+        where TDbContext : DbContext
+        where TUnitOfWorkConcrete : EntityFrameworkUnitOfWork, TUnitOfWorkContract
+        where TUnitOfWorkContract : class, IUnitOfWork
     {
         if (!register) {
             return;
@@ -69,10 +76,12 @@ public static class UnitOfWorkEntityFrameworkExtensions
             .GetRequiredSection(configKey)
             .Value ?? throw new InvalidOperationException($"Missing connection string {configKey}.");
 
-        services.AddDbContext<TContext>(options => {
+        services.AddDbContext<TDbContext>((sp, options) => {
+            var timestampInterceptor = sp.GetRequiredService<TimestampInterceptor>();
             options.UseSqlServer(connectionString);
+            options.AddInterceptors(timestampInterceptor);
         });
 
-        services.AddScoped<TUnitOfWorkInterface, TUnitOfWork>();
+        services.AddScoped<TUnitOfWorkContract, TUnitOfWorkConcrete>();
     }
 }

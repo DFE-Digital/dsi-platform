@@ -13,7 +13,7 @@ namespace migrations;
 ///   <see cref="DbDirectoriesContext"/> at design time, without requiring the application’s
 ///   dependency injection.</para>
 /// </remarks>
-public class DirectoriesDbContextFactory : IDesignTimeDbContextFactory<DbDirectoriesContext>
+public sealed class DirectoriesDbContextFactory : IDesignTimeDbContextFactory<DbDirectoriesContext>
 {
 
     /// <summary>

@@ -7,8 +7,6 @@ namespace Dfe.SignIn.Gateways.EntityFramework;
 /// is inside a transaction, and throws an exception if so.  This prevents nested Entity Framework Core
 /// transactions, which are not supported.
 /// </summary>
-/// <param name="inner"></param>
-/// <param name="transactionContext"></param>
 public sealed class ProtectTransactionInteractionDispatcher(
     IInteractionDispatcher inner,
     IEntityFrameworkTransactionContext transactionContext

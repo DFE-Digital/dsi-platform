@@ -9,7 +9,6 @@ using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
-using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Services;
@@ -83,9 +82,6 @@ builder.Services
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient([NodeApiName.Directories], tokenCredential);
-
-builder.Services.Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApi"));
-builder.Services.SetupInternalApiClient(tokenCredential);
 
 builder.Services
     .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))

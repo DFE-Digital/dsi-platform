@@ -13,7 +13,7 @@ namespace migrations;
 ///   <see cref="DbOrganisationsContext"/> at design time, without requiring the application’s
 ///   dependency injection.</para>
 /// </remarks>
-public class OrganisationsDbContextFactory : IDesignTimeDbContextFactory<DbOrganisationsContext>
+public sealed class OrganisationsDbContextFactory : IDesignTimeDbContextFactory<DbOrganisationsContext>
 {
     /// <summary>
     /// Creates a new instance of <see cref="DbOrganisationsContext"/> with design-time configuration.
