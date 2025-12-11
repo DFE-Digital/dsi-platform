@@ -58,8 +58,8 @@ public sealed class GetUserProfileNodeRequesterTests
         Assert.IsNotNull(response);
         Assert.IsTrue(response.IsEntra);
         Assert.IsTrue(response.IsInternalUser);
-        Assert.AreEqual("Bob", response.GivenName);
-        Assert.AreEqual("Robinson", response.Surname);
+        Assert.AreEqual("Bob", response.FirstName);
+        Assert.AreEqual("Robinson", response.LastName);
         Assert.AreEqual("Software Engineer", response.JobTitle);
         Assert.AreEqual("bob.robinson@example.com", response.EmailAddress);
     }

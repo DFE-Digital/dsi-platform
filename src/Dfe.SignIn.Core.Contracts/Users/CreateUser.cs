@@ -28,16 +28,16 @@ public sealed record CreateUserRequest
     public required string EmailAddress { get; init; }
 
     /// <summary>
-    /// Gets the given name of the user.
+    /// Gets the first name of the user.
     /// </summary>
     [MinLength(1)]
-    public required string GivenName { get; init; }
+    public required string FirstName { get; init; }
 
     /// <summary>
-    /// Gets the surname of the user.
+    /// Gets the last name of the user.
     /// </summary>
     [MinLength(1)]
-    public required string Surname { get; init; }
+    public required string LastName { get; init; }
 }
 
 /// <summary>

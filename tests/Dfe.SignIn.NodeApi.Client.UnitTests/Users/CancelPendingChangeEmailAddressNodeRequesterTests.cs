@@ -30,8 +30,8 @@ public sealed class CancelPendingChangeEmailAddressNodeRequesterTests
             new GetUserProfileResponse {
                 IsEntra = false,
                 IsInternalUser = false,
-                GivenName = "Alex",
-                Surname = "Johnson",
+                FirstName = "Alex",
+                LastName = "Johnson",
                 JobTitle = "Software Engineer",
                 EmailAddress = "alex.johnson@example.com",
             }

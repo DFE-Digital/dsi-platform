@@ -143,8 +143,8 @@ public class TokenIssuanceStartHandlerTests
             new AutoLinkEntraUserToDsiRequest {
                 EntraUserId = new Guid("21892c65-88df-4268-b025-d06f51c52404"),
                 EmailAddress = "jo.bradford@example.com",
-                GivenName = "Jo",
-                Surname = "Bradford",
+                FirstName = "Jo",
+                LastName = "Bradford",
             },
             new AutoLinkEntraUserToDsiResponse {
                 UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),

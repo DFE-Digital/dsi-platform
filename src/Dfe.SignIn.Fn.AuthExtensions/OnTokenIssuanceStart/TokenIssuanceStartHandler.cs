@@ -30,8 +30,8 @@ public sealed class TokenIssuanceStartHandler(
             new AutoLinkEntraUserToDsiRequest {
                 EntraUserId = @event.Data.AuthenticationContext.User.Id,
                 EmailAddress = @event.Data.AuthenticationContext.User.Mail,
-                GivenName = @event.Data.AuthenticationContext.User.GivenName,
-                Surname = @event.Data.AuthenticationContext.User.Surname,
+                FirstName = @event.Data.AuthenticationContext.User.GivenName,
+                LastName = @event.Data.AuthenticationContext.User.Surname,
             }
         ).To<AutoLinkEntraUserToDsiResponse>();
 

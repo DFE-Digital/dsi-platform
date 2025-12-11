@@ -72,8 +72,8 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
             new LinkEntraUserToDsiRequest {
                 DsiUserId = userStatusResponse.UserId.Value,
                 EntraUserId = request.EntraUserId,
-                GivenName = request.GivenName,
-                Surname = request.Surname,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
             }
         ).To<LinkEntraUserToDsiResponse>();
 
@@ -99,8 +99,8 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
             new CreateUserRequest {
                 EntraUserId = request.EntraUserId,
                 EmailAddress = request.EmailAddress,
-                GivenName = request.GivenName,
-                Surname = request.Surname,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
             }
         ).To<CreateUserResponse>();
 
