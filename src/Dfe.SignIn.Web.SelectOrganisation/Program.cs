@@ -32,6 +32,7 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
+builder.Services.ConfigureDsiAntiforgeryCookie();
 builder.Services.AddHealthChecks();
 
 builder.Services

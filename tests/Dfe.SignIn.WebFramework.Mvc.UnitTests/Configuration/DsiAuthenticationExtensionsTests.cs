@@ -95,7 +95,7 @@ public sealed class DsiAuthenticationExtensionsTests
         var optionsAccessor = provider.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
         var options = optionsAccessor.Get(CookieAuthenticationDefaults.AuthenticationScheme);
 
-        Assert.AreEqual("Auth", options.Cookie.Name);
+        Assert.AreEqual("dsi-auth", options.Cookie.Name);
         Assert.AreEqual(CookieSecurePolicy.Always, options.Cookie.SecurePolicy);
         Assert.AreEqual(SameSiteMode.Lax, options.Cookie.SameSite);
         Assert.IsTrue(options.Cookie.HttpOnly);
