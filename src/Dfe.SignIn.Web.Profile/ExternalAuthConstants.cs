@@ -18,5 +18,5 @@ public static class ExternalAuthConstants
     /// <summary>
     /// The name of the external auth cookie.
     /// </summary>
-    public const string CookieName = "ExternalAuth";
+    public const string CookieName = "dsi-external-auth";
 }
