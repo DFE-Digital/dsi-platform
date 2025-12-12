@@ -27,12 +27,12 @@ public interface IUserProfileFeature
     /// <summary>
     /// Gets or sets the first name of the user.
     /// </summary>
-    string GivenName { get; set; }
+    string FirstName { get; set; }
 
     /// <summary>
     /// Gets or sets the last name of the user.
     /// </summary>
-    string Surname { get; set; }
+    string LastName { get; set; }
 
     /// <summary>
     /// Gets or sets the email address of the user.
@@ -61,10 +61,10 @@ public sealed class UserProfileFeature : IUserProfileFeature
     public required bool IsInternalUser { get; set; }
 
     /// <inheritdoc/>
-    public required string GivenName { get; set; }
+    public required string FirstName { get; set; }
 
     /// <inheritdoc/>
-    public required string Surname { get; set; }
+    public required string LastName { get; set; }
 
     /// <inheritdoc/>
     public required string EmailAddress { get; set; }
@@ -103,8 +103,8 @@ public sealed class UserProfileMiddleware(
                 UserId = userId,
                 IsEntra = profileResponse.IsEntra,
                 IsInternalUser = profileResponse.IsInternalUser,
-                GivenName = profileResponse.GivenName,
-                Surname = profileResponse.Surname,
+                FirstName = profileResponse.FirstName,
+                LastName = profileResponse.LastName,
                 EmailAddress = profileResponse.EmailAddress,
                 JobTitle = profileResponse.JobTitle,
             });

@@ -23,8 +23,8 @@ public sealed class ChangeNameController(
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
         return this.View("Index", new ChangeNameViewModel {
-            FirstNameInput = userProfileFeature.GivenName,
-            LastNameInput = userProfileFeature.Surname,
+            FirstNameInput = userProfileFeature.FirstName,
+            LastNameInput = userProfileFeature.LastName,
         });
     }
 

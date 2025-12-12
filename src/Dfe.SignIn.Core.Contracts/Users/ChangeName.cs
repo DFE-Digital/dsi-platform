@@ -29,7 +29,7 @@ public sealed record ChangeNameRequest
     [Required(ErrorMessage = "Enter a first name")]
     [RegularExpression(StringPatterns.PersonNamePattern, ErrorMessage = "Enter a valid first name")]
     [MaxLength(60, ErrorMessage = "Enter a name with no more than 60 characters")]
-    public required string GivenName { get; init; }
+    public required string FirstName { get; init; }
 
     /// <summary>
     /// The user's last name.
@@ -37,7 +37,7 @@ public sealed record ChangeNameRequest
     [Required(ErrorMessage = "Enter a last name")]
     [RegularExpression(StringPatterns.PersonNamePattern, ErrorMessage = "Enter a valid last name")]
     [MaxLength(60, ErrorMessage = "Enter a name with no more than 60 characters")]
-    public required string Surname { get; init; }
+    public required string LastName { get; init; }
 }
 
 /// <summary>

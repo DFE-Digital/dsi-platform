@@ -24,8 +24,8 @@ public sealed class ChangeNameControllerTests
             UserId = Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             IsEntra = false,
             IsInternalUser = false,
-            GivenName = "Alex",
-            Surname = "Johnson",
+            FirstName = "Alex",
+            LastName = "Johnson",
             EmailAddress = "alex.johnson@example.com",
             JobTitle = "Software Developer",
         });
@@ -78,7 +78,7 @@ public sealed class ChangeNameControllerTests
     public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.MockValidationError<ChangeNameRequest>(nameof(ChangeNameRequest.GivenName));
+        autoMocker.MockValidationError<ChangeNameRequest>(nameof(ChangeNameRequest.FirstName));
 
         var controller = CreateController(autoMocker);
 
@@ -102,8 +102,8 @@ public sealed class ChangeNameControllerTests
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual(Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
-        Assert.AreEqual("Bob", capturedRequest.GivenName);
-        Assert.AreEqual("Clarkson", capturedRequest.Surname);
+        Assert.AreEqual("Bob", capturedRequest.FirstName);
+        Assert.AreEqual("Clarkson", capturedRequest.LastName);
     }
 
     [TestMethod]

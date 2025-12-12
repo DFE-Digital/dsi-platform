@@ -55,8 +55,8 @@ public sealed class UserProfileMiddlewareTests
             new GetUserProfileResponse {
                 IsEntra = true,
                 IsInternalUser = true,
-                GivenName = "Alex",
-                Surname = "Johnson",
+                FirstName = "Alex",
+                LastName = "Johnson",
                 EmailAddress = "alex.johnson@example.com",
                 JobTitle = "Software Engineer",
             }
@@ -78,8 +78,8 @@ public sealed class UserProfileMiddlewareTests
         Assert.AreEqual(Guid.Parse("dbb88cbb-c9e6-4d78-843f-d761d14444c8"), userProfileFeature.UserId);
         Assert.IsTrue(userProfileFeature.IsEntra);
         Assert.IsTrue(userProfileFeature.IsInternalUser);
-        Assert.AreEqual("Alex", userProfileFeature.GivenName);
-        Assert.AreEqual("Johnson", userProfileFeature.Surname);
+        Assert.AreEqual("Alex", userProfileFeature.FirstName);
+        Assert.AreEqual("Johnson", userProfileFeature.LastName);
         Assert.AreEqual("alex.johnson@example.com", userProfileFeature.EmailAddress);
         Assert.AreEqual("Software Engineer", userProfileFeature.JobTitle);
     }

@@ -41,8 +41,8 @@ public sealed class InitiateChangeEmailAddressNodeRequesterTests
             new GetUserProfileResponse {
                 IsEntra = false,
                 IsInternalUser = false,
-                GivenName = "Alex",
-                Surname = "Cooper",
+                FirstName = "Alex",
+                LastName = "Cooper",
                 EmailAddress = "alex.cooper@example.com",
             }
         );

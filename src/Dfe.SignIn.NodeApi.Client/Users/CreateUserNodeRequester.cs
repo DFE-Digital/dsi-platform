@@ -28,8 +28,8 @@ public sealed class CreateUserNodeRequester(
 
         var response = await directoriesClient.PostAsJsonAsync("users", new CreateUserRequestDto {
             Email = context.Request.EmailAddress,
-            FirstName = context.Request.GivenName,
-            LastName = context.Request.Surname,
+            FirstName = context.Request.FirstName,
+            LastName = context.Request.LastName,
             Password = null,
             EntraOid = context.Request.EntraUserId,
         }, CancellationToken.None);
@@ -49,7 +49,7 @@ public sealed class CreateUserNodeRequester(
         try {
             var response = await searchClient.PostAsJsonAsync($"users/update-index", new UpdateUserInSearchIndexRequestDto {
                 Id = userId,
-            })!;
+            });
             response.EnsureSuccessStatusCode();
             logger.LogInformation(
                 "Updated search index for user '{UserId}'.",

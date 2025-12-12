@@ -10,12 +10,12 @@ public sealed class ChangeNameViewModel
     /// <summary>
     /// Gets or sets the first name of the user.
     /// </summary>
-    [MapTo<ChangeNameRequest>(nameof(ChangeNameRequest.GivenName))]
+    [MapTo<ChangeNameRequest>(nameof(ChangeNameRequest.FirstName))]
     public string? FirstNameInput { get; set; }
 
     /// <summary>
     /// Gets or sets the last name of the user.
     /// </summary>
-    [MapTo<ChangeNameRequest>(nameof(ChangeNameRequest.Surname))]
+    [MapTo<ChangeNameRequest>(nameof(ChangeNameRequest.LastName))]
     public string? LastNameInput { get; set; }
 }

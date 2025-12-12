@@ -29,7 +29,7 @@ public sealed class HomeController(
         ).To<GetPendingChangeEmailAddressResponse>();
 
         return this.View(new HomeViewModel {
-            FullName = $"{userProfileFeature.GivenName} {userProfileFeature.Surname}",
+            FullName = $"{userProfileFeature.FirstName} {userProfileFeature.LastName}",
             JobTitle = userProfileFeature.JobTitle,
             EmailAddress = userProfileFeature.EmailAddress,
             PendingEmailAddress = pendingChangeEmailAddressResponse.PendingChangeEmailAddress?.NewEmailAddress,

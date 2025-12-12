@@ -24,8 +24,8 @@ public sealed class HomeControllerTests
             UserId = Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             IsEntra = false,
             IsInternalUser = false,
-            GivenName = "Alex",
-            Surname = "Johnson",
+            FirstName = "Alex",
+            LastName = "Johnson",
             EmailAddress = "alex.johnson@example.com",
             JobTitle = "Software Developer",
         });

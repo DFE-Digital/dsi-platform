@@ -42,8 +42,8 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
         var response = await interactor.InvokeAsync(new LinkEntraUserToDsiRequest {
             DsiUserId = new Guid("17a2a6cb-05a6-4603-b91e-06dde2a58a6a"),
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
-            GivenName = "Jo",
-            Surname = "Bradford",
+            FirstName = "Jo",
+            LastName = "Bradford",
         });
 
         Assert.IsNotNull(response);
@@ -61,8 +61,8 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
             => interactor.InvokeAsync(new LinkEntraUserToDsiRequest {
                 DsiUserId = new Guid("17a2a6cb-05a6-4603-b91e-06dde2a58a6a"),
                 EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
-                GivenName = "Jo",
-                Surname = "Bradford",
+                FirstName = "Jo",
+                LastName = "Bradford",
             }));
     }
 
@@ -82,8 +82,8 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
             => interactor.InvokeAsync(new LinkEntraUserToDsiRequest {
                 DsiUserId = new Guid("17a2a6cb-05a6-4603-b91e-06dde2a58a6a"),
                 EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
-                GivenName = "Jo",
-                Surname = "Bradford",
+                FirstName = "Jo",
+                LastName = "Bradford",
             }));
         Assert.AreEqual("Response mismatch.", exception.Message);
     }

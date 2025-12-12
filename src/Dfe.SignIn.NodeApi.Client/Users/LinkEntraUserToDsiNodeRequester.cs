@@ -25,8 +25,8 @@ public sealed class LinkEntraUserToDsiNodeRequester(
 
         var requestBody = new LinkToEntraRequestDto {
             EntraOid = context.Request.EntraUserId,
-            FirstName = context.Request.GivenName,
-            LastName = context.Request.Surname,
+            FirstName = context.Request.FirstName,
+            LastName = context.Request.LastName,
         };
 
         var responseMessage = await directoriesClient.PostAsJsonAsync(endpoint, requestBody, CancellationToken.None);

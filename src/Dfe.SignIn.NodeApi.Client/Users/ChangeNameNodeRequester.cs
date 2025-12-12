@@ -25,8 +25,8 @@ public sealed class ChangeNameNodeRequester(
 
         try {
             var response = await directoriesClient.PatchAsJsonAsync($"users/{context.Request.UserId}", new {
-                given_name = context.Request.GivenName,
-                family_name = context.Request.Surname,
+                given_name = context.Request.FirstName,
+                family_name = context.Request.LastName,
             }, CancellationToken.None);
 
             response.EnsureSuccessStatusCode();
@@ -35,7 +35,7 @@ public sealed class ChangeNameNodeRequester(
             await interaction.DispatchAsync(
                 new WriteToAuditRequest {
                     EventCategory = AuditEventCategoryNames.ChangeName,
-                    Message = $"Failed to change name to {context.Request.GivenName} {context.Request.Surname}",
+                    Message = $"Failed to change name to {context.Request.FirstName} {context.Request.LastName}",
                     UserId = context.Request.UserId,
                     WasFailure = true,
                 }
@@ -46,7 +46,7 @@ public sealed class ChangeNameNodeRequester(
         await interaction.DispatchAsync(
             new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeName,
-                Message = $"Successfully changed name to {context.Request.GivenName} {context.Request.Surname}",
+                Message = $"Successfully changed name to {context.Request.FirstName} {context.Request.LastName}",
                 UserId = context.Request.UserId,
             }
         );
