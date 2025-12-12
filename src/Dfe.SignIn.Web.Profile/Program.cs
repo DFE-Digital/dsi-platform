@@ -48,6 +48,7 @@ builder.Services
     .AddDsiAuthorizationHandlers();
 
 builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
+builder.Services.ConfigureDsiAntiforgeryCookie();
 builder.Services.AddHealthChecks();
 
 builder.Services

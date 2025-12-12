@@ -69,6 +69,16 @@ public static partial class DsiAuthenticationExtensions
                 options.SaveTokens = true;
                 options.ResponseType = OpenIdConnectResponseType.Code;
 
+                options.CorrelationCookie.Name = "dsi-correlation-id-";
+                options.CorrelationCookie.HttpOnly = true;
+                options.CorrelationCookie.IsEssential = true;
+                options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+
+                options.NonceCookie.Name = "dsi-nonce-";
+                options.NonceCookie.HttpOnly = true;
+                options.NonceCookie.IsEssential = true;
+                options.NonceCookie.SecurePolicy = CookieSecurePolicy.Always;
+
                 options.Events.OnRemoteFailure = context => {
                     string? errorCode = context.Request.Query["error"];
                     if (SessionExpiredErrorCodeRegex().IsMatch(errorCode ?? "")) {
@@ -87,7 +97,7 @@ public static partial class DsiAuthenticationExtensions
                 };
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => {
-                options.Cookie.Name = "Auth";
+                options.Cookie.Name = "dsi-auth";
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.HttpOnly = true;
