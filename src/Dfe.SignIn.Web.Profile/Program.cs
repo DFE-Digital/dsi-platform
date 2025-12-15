@@ -20,17 +20,20 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsEnvironment("Local"))
+{
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-builder.WebHost.ConfigureKestrel((context, options) => {
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
 
 // Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
+if (builder.Configuration.GetSection("AzureMonitor").Exists())
+{
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
@@ -65,10 +68,12 @@ var azureTokenCredential = new DefaultAzureCredential();
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsEnvironment("Local"))
+{
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 }
-else {
+else
+{
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
@@ -87,6 +92,10 @@ builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
     .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
+
+builder.Services.Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApi"));
+builder.Services.SetupInternalApiClient(tokenCredential);
+
 builder.Services
     .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
     .AddGovNotify()
@@ -106,7 +115,8 @@ app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsEnvironment("Local")) {
+if (!app.Environment.IsEnvironment("Local"))
+{
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
