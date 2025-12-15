@@ -16,5 +16,6 @@ public static partial class InteractionEndpoints
     {
         app.Map<AutoLinkEntraUserToDsiRequest, AutoLinkEntraUserToDsiResponse>();
         app.Map<CheckIsBlockedEmailAddressRequest, CheckIsBlockedEmailAddressResponse>();
+        app.Map<GetUserProfileRequest, GetUserProfileResponse>();
     }
 }
