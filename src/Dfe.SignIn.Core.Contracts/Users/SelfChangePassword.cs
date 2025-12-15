@@ -44,6 +44,7 @@ public sealed partial record SelfChangePasswordRequest : IValidatableObject
     /// </summary>
     [Required(ErrorMessage = "Please enter your new password")]
     [MinLength(8, ErrorMessage = "Please create a more secure password")]
+    [MaxLength(64, ErrorMessage = "Maximum length of password is 64 characters")]
     public required string NewPassword { get; init; }
 
     /// <summary>
