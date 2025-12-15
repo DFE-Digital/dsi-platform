@@ -25,7 +25,7 @@ public static class UserSessionExtensions
     /// <summary>
     /// The name of the session cookie.
     /// </summary>
-    public const string SessionCookieName = "Session";
+    public const string SessionCookieName = "dsi-session";
 
     /// <summary>
     /// Adds the fundemental user session configuration.
