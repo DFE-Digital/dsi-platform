@@ -61,8 +61,8 @@ public sealed class CreateUserNodeRequesterTests
         var response = await interactor.InvokeAsync(new CreateUserRequest {
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
             EmailAddress = "jo.bradford@example.com",
-            GivenName = "Jo",
-            Surname = "Bradford",
+            FirstName = "Jo",
+            LastName = "Bradford",
         });
 
         Assert.IsNotNull(response);
@@ -83,8 +83,8 @@ public sealed class CreateUserNodeRequesterTests
             interactor.InvokeAsync(new CreateUserRequest {
                 EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
                 EmailAddress = "jo.bradford@example.com",
-                GivenName = "Jo",
-                Surname = "Bradford",
+                FirstName = "Jo",
+                LastName = "Bradford",
             }));
     }
 
@@ -97,8 +97,8 @@ public sealed class CreateUserNodeRequesterTests
         await interactor.InvokeAsync(new CreateUserRequest {
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
             EmailAddress = "jo.bradford@example.com",
-            GivenName = "Jo",
-            Surname = "Bradford",
+            FirstName = "Jo",
+            LastName = "Bradford",
         });
 
         Assert.Contains("Information: Updated search index for user '17a2a6cb-05a6-4603-b91e-06dde2a58a6a'.", capturedLogs);
@@ -118,8 +118,8 @@ public sealed class CreateUserNodeRequesterTests
         await interactor.InvokeAsync(new CreateUserRequest {
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
             EmailAddress = "jo.bradford@example.com",
-            GivenName = "Jo",
-            Surname = "Bradford",
+            FirstName = "Jo",
+            LastName = "Bradford",
         });
 
         Assert.Contains("Error: Unable to update search index for user '17a2a6cb-05a6-4603-b91e-06dde2a58a6a'.", capturedLogs);

@@ -10,8 +10,8 @@ public sealed class AutoLinkEntraUserToDsiUseCaseTests
     private static readonly AutoLinkEntraUserToDsiRequest FakeRequest = new() {
         EntraUserId = new Guid("c64bc171-ceef-4656-b22d-43918c14210f"),
         EmailAddress = "jo.bradford@example.com",
-        GivenName = "Jo",
-        Surname = "Bradford",
+        FirstName = "Jo",
+        LastName = "Bradford",
     };
 
     [TestMethod]
@@ -135,8 +135,8 @@ public sealed class AutoLinkEntraUserToDsiUseCaseTests
             new LinkEntraUserToDsiRequest {
                 DsiUserId = new Guid("cfc50de5-d4d5-42c4-b27c-ac2130f47ef2"),
                 EntraUserId = new Guid("c64bc171-ceef-4656-b22d-43918c14210f"),
-                GivenName = "Jo",
-                Surname = "Bradford",
+                FirstName = "Jo",
+                LastName = "Bradford",
             },
             new LinkEntraUserToDsiResponse()
         );
@@ -232,8 +232,8 @@ public sealed class AutoLinkEntraUserToDsiUseCaseTests
             new CreateUserRequest {
                 EntraUserId = new Guid("c64bc171-ceef-4656-b22d-43918c14210f"),
                 EmailAddress = "jo.bradford@example.com",
-                GivenName = "Jo",
-                Surname = "Bradford",
+                FirstName = "Jo",
+                LastName = "Bradford",
             },
             new CreateUserResponse {
                 UserId = new Guid("2bc34d3e-8b9f-4c28-a400-84eb6e6b6bda"),

@@ -28,8 +28,8 @@ public sealed class GetUserProfileNodeRequester(
         return new GetUserProfileResponse {
             IsEntra = response.IsEntra,
             IsInternalUser = response.IsInternalUser,
-            GivenName = response.FirstName,
-            Surname = response.LastName,
+            FirstName = response.FirstName,
+            LastName = response.LastName,
             JobTitle = !string.IsNullOrWhiteSpace(response.JobTitle) ? response.JobTitle : null,
             EmailAddress = response.EmailAddress,
         };

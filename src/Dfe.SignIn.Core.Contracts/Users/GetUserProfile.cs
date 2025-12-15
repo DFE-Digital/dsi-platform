@@ -40,16 +40,16 @@ public sealed record GetUserProfileResponse
     public required bool IsInternalUser { get; init; }
 
     /// <summary>
-    /// The given name of the user.
+    /// The first name of the user.
     /// </summary>
     [RegularExpression(StringPatterns.PersonNamePattern)]
-    public required string GivenName { get; init; }
+    public required string FirstName { get; init; }
 
     /// <summary>
-    /// The surname of the user.
+    /// The last name of the user.
     /// </summary>
     [RegularExpression(StringPatterns.PersonNamePattern)]
-    public required string Surname { get; init; }
+    public required string LastName { get; init; }
 
     /// <summary>
     /// The job title of the user when set; otherwise, null.

@@ -53,8 +53,8 @@ public sealed class ChangeNameNodeRequesterTests
 
         var response = await interactor.InvokeAsync(new ChangeNameRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
-            GivenName = "Bob",
-            Surname = "Robinson",
+            FirstName = "Bob",
+            LastName = "Robinson",
         });
 
         Assert.IsNotNull(response);
@@ -78,8 +78,8 @@ public sealed class ChangeNameNodeRequesterTests
         await Assert.ThrowsExactlyAsync<HttpRequestException>(()
             => interactor.InvokeAsync(new ChangeNameRequest {
                 UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
-                GivenName = "Bob",
-                Surname = "Robinson",
+                FirstName = "Bob",
+                LastName = "Robinson",
             }));
     }
 
@@ -96,8 +96,8 @@ public sealed class ChangeNameNodeRequesterTests
 
         await interactor.InvokeAsync(new ChangeNameRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
-            GivenName = "Bob",
-            Surname = "Robinson",
+            FirstName = "Bob",
+            LastName = "Robinson",
         });
 
         Assert.IsNotNull(capturedWriteToAudit);
@@ -123,8 +123,8 @@ public sealed class ChangeNameNodeRequesterTests
         await Assert.ThrowsExactlyAsync<HttpRequestException>(()
             => interactor.InvokeAsync(new ChangeNameRequest {
                 UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
-                GivenName = "Bob",
-                Surname = "Robinson",
+                FirstName = "Bob",
+                LastName = "Robinson",
             }));
 
         Assert.IsNotNull(capturedWriteToAudit);
