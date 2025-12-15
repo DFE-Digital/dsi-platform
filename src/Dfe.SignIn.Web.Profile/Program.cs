@@ -87,6 +87,10 @@ builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
     .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
     .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
+
+builder.Services.Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApi"));
+builder.Services.SetupInternalApiClient(tokenCredential);
+
 builder.Services
     .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
     .AddGovNotify()
