@@ -10,10 +10,31 @@
 }
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-two-thirds">   
         <form method="post" asp-antiforgery=true>
             <govuk-fieldset>
                 <govuk-fieldset-legend is-page-heading="true" class="govuk-fieldset__legend--l">@ViewData[DsiLayoutConstants.Title]</govuk-fieldset-legend>
+
+                <p class="govuk-body">Enter a new password for your DfE Sign-in account.</p>
+                <p class="govuk-body">Your password must:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>Be a minimum of 8 characters</li>
+                </ul>
+
+                <p class="govuk-body">Your password must include three of the four character types:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>Uppercase letters</li>
+                    <li>Lowercase letters</li>
+                    <li>Numbers</li>
+                    <li>Symbols</li>
+                </ul>
+
+                <p class="govuk-body">Symbols allowed:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>@@ ^ &amp; * - _ ! + = [ ] { } | \ : ' , . ? / ` ~ " ( ) ; &lt; &gt;</li>
+                </ul>
+
+                <p class="govuk-body">Blank spaces may be used.</p>
 
                 <govuk-input for=CurrentPasswordInput class="app-password-toggle" input-class="govuk-!-width-three-quarters" type="password" autocomplete="current-password">
                     <govuk-input-label class="govuk-label--s">
