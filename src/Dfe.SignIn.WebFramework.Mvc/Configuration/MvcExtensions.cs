@@ -25,6 +25,12 @@ public static class MvcExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(builder, nameof(builder));
 
+        builder.AddCookieTempDataProvider(options => {
+            options.Cookie.Name = "dsi-temp-data";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        });
+
         return builder.AddMvcOptions(options => {
             options.Filters.Add<RequestBodySizeLimitFilter>();
             options.ModelBinderProviders.Insert(0, new TrimStringModelBinderProvider());
