@@ -13,7 +13,7 @@ public interface ISelectOrganisationSessionRepository
     /// <param name="sessionKey">Unique key that identifies the session.</param>
     /// <returns>
     ///   <para>The <see cref="SelectOrganisationSessionData"/> instance when the session
-    ///   exists; otherwise, a value of <c>null</c>.</para>
+    ///   exists; otherwise, a value of null.</para>
     /// </returns>
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="sessionKey"/> is null or empty.</para>

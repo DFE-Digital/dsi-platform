@@ -67,9 +67,12 @@ public sealed record RaiseSupportTicketRequest : IValidatableObject
     public required string Message { get; init; }
 
     /// <summary>
-    /// Trace identifier captured when an exception occurs.  When a user follows the support
-    /// link from an error page, this value is included so support can correlate logs and aid debugging.
+    /// The trace identifier that was captured when an exception occurs.
     /// </summary>
+    /// <remarks>
+    ///   <para>This can be included when a user follows a the support link from an error page,
+    ///   this value is included so support can correlate logs and aid debugging.</para>
+    /// </remarks>
     public string? ExceptionTraceId { get; init; }
 
     /// <inheritdoc/>

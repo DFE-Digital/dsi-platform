@@ -7,7 +7,7 @@ namespace Dfe.SignIn.Core.Contracts.Applications;
 public sealed record ApplicationApiConfiguration
 {
     /// <summary>
-    /// Gets the unique client ID of the service application.
+    /// The unique client ID of the service application.
     /// </summary>
     public required string ClientId { get; init; }
 

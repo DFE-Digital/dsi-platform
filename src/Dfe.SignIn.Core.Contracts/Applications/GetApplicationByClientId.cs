@@ -16,7 +16,7 @@ namespace Dfe.SignIn.Core.Contracts.Applications;
 public sealed record GetApplicationByClientIdRequest
 {
     /// <summary>
-    /// Gets the unique client identifier of the application.
+    /// The unique client identifier of the application.
     /// </summary>
     public required string ClientId { get; init; }
 }
@@ -27,7 +27,7 @@ public sealed record GetApplicationByClientIdRequest
 public sealed record GetApplicationByClientIdResponse
 {
     /// <summary>
-    /// Gets a model representing information about the application.
+    /// A model representing information about the application.
     /// </summary>
     public required Application Application { get; init; }
 }

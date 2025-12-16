@@ -6,17 +6,17 @@ namespace Dfe.SignIn.PublicApi.Contracts.Organisations;
 public sealed record OrganisationDetails
 {
     /// <summary>
-    /// Gets the unique value that identifies the organisation.
+    /// The unique value that identifies the organisation.
     /// </summary>
     public required Guid Id { get; init; }
 
     /// <summary>
-    /// Gets the name of the organisation.
+    /// The name of the organisation.
     /// </summary>
     public required string Name { get; init; }
 
     /// <summary>
-    /// Gets the legal name of the organisation.
+    /// The legal name of the organisation.
     /// </summary>
     public string? LegalName { get; init; }
 

@@ -14,7 +14,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 public sealed record GetOrganisationsAssociatedWithUserRequest
 {
     /// <summary>
-    /// Gets the unique identifier of the user.
+    /// The unique identifier of the user.
     /// </summary>
     public required Guid UserId { get; init; }
 }
@@ -25,8 +25,7 @@ public sealed record GetOrganisationsAssociatedWithUserRequest
 public sealed record GetOrganisationsAssociatedWithUserResponse
 {
     /// <summary>
-    /// Gets a list of zero-or-more models representing the organisations that are
-    /// associated with a particular user.
+    /// An enumerable collection of organisations that are associated with the user.
     /// </summary>
     public required IEnumerable<Organisation> Organisations { get; init; }
 }

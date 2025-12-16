@@ -16,18 +16,18 @@ namespace Dfe.SignIn.Core.Contracts.SelectOrganisation;
 public sealed record FilterOrganisationsForUserRequest
 {
     /// <summary>
-    /// Gets the unique DfE Sign-in client ID of the application.
+    /// The unique DfE Sign-in client ID of the application.
     /// </summary>
     [MinLength(1)]
     public required string ClientId { get; init; }
 
     /// <summary>
-    /// Gets the unique identifier of the user.
+    /// The unique identifier of the user.
     /// </summary>
     public required Guid UserId { get; init; }
 
     /// <summary>
-    /// Gets the organisation filtering specification.
+    /// The organisation filtering specification.
     /// </summary>
     public OrganisationFilter Filter { get; init; } = new OrganisationFilter();
 }
@@ -38,7 +38,7 @@ public sealed record FilterOrganisationsForUserRequest
 public sealed record FilterOrganisationsForUserResponse
 {
     /// <summary>
-    /// Gets the enumerable collection of filtered organisations.
+    /// The enumerable collection of filtered organisations.
     /// </summary>
     public required IEnumerable<Organisation> FilteredOrganisations { get; init; }
 }

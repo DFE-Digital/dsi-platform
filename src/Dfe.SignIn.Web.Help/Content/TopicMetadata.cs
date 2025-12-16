@@ -7,25 +7,25 @@ namespace Dfe.SignIn.Web.Help.Content;
 public sealed record TopicMetadata
 {
     /// <summary>
-    /// Gets the date that the topic was last updated.
+    /// The date that the topic was last updated.
     /// </summary>
     /// <remarks>
-    ///   <para>A value of <c>null</c> indicates that no date has been given.</para>
+    ///   <para>A value of null indicates that no date has been given.</para>
     /// </remarks>
     public DateTime? Updated { get; init; } = null;
 
     /// <summary>
-    /// Gets the optional caption of the topic.
+    /// The optional caption of the topic.
     /// </summary>
     public string? Caption { get; init; }
 
     /// <summary>
-    /// Gets the title of the topic.
+    /// The title of the topic.
     /// </summary>
     public required string Title { get; init; }
 
     /// <summary>
-    /// Gets a shorter title that can be used for navigation link text.
+    /// A shorter title that can be used for navigation link text.
     /// </summary>
     /// <remarks>
     ///   <para>Assumes the value of <see cref="Title"/> when not specified.</para>
@@ -38,7 +38,7 @@ public sealed record TopicMetadata
     public string? Summary { get; init; }
 
     /// <summary>
-    /// Gets a value indicating if the topic is a global topic.
+    /// A value indicating if the topic is a global topic.
     /// </summary>
     /// <remarks>
     ///   <para>Global "non-help" topics such as the "Cookies" page are presented within
@@ -49,7 +49,7 @@ public sealed record TopicMetadata
     public bool IsGlobal { get; init; } = false;
 
     /// <summary>
-    /// Gets the ordered enumerable collection of topic listings.
+    /// The ordered enumerable collection of topic listings.
     /// </summary>
     public IEnumerable<TopicListing> Topics { get; init; } = [];
 }
@@ -60,12 +60,12 @@ public sealed record TopicMetadata
 public sealed record TopicListing
 {
     /// <summary>
-    /// Gets the heading of the topic listing.
+    /// The heading of the topic listing.
     /// </summary>
     public string Heading { get; set; } = "Topics in this section";
 
     /// <summary>
-    /// Gets the list of topic paths.
+    /// The list of topic paths.
     /// </summary>
     /// <remarks>
     ///   <para>Topic paths are always absolute; for example:</para>

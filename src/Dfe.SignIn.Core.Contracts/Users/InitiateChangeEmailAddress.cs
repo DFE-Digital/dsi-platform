@@ -36,7 +36,7 @@ public sealed record InitiateChangeEmailAddressRequest : IKeyedRequest
     public required string NewEmailAddress { get; init; }
 
     /// <summary>
-    /// Indicates if the request is being self-invoked by the account holder.
+    /// A value indicating if the request is being self-invoked by the user.
     /// </summary>
     public required bool IsSelfInvoked { get; init; }
 

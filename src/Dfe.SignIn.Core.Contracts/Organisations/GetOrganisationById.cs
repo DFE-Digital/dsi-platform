@@ -12,7 +12,7 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 public sealed record GetOrganisationByIdRequest
 {
     /// <summary>
-    /// Gets the unique identifier of the organisation.
+    /// The unique identifier of the organisation.
     /// </summary>
     public required Guid OrganisationId { get; init; }
 }
@@ -23,8 +23,8 @@ public sealed record GetOrganisationByIdRequest
 public sealed record GetOrganisationByIdResponse
 {
     /// <summary>
-    /// Gets a model representing the organisation when the organisation was found;
-    /// otherwise, a value of <c>null</c>.
+    /// A model representing the organisation when the organisation was found;
+    /// otherwise, a value of null.
     /// </summary>
     public required Organisation? Organisation { get; init; }
 }

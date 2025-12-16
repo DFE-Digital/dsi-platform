@@ -82,7 +82,7 @@ public interface IHttpRequest
     /// </summary>
     /// <param name="key">Name of the value.</param>
     /// <returns>
-    ///   <para>The value when present; otherwise, a value of <c>null</c>.</para>
+    ///   <para>The value when present; otherwise, a value of null.</para>
     /// </returns>
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="key"/> is null or empty.</para>

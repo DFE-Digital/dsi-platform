@@ -34,7 +34,7 @@ public interface IInteractionLimiter
 public sealed record InteractionLimiterResult
 {
     /// <summary>
-    /// Gets a value indicating whether the interaction was rejected by the limiter.
+    /// A value indicating whether the interaction was rejected by the limiter.
     /// </summary>
     public bool WasRejected { get; init; }
 }

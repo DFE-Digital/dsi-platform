@@ -20,7 +20,7 @@ public sealed record GetSubjectOptionsForSupportTicketRequest
 public sealed record GetSubjectOptionsForSupportTicketResponse
 {
     /// <summary>
-    /// Gets the enumerable collection of subject options.
+    /// The enumerable collection of subject options.
     /// </summary>
     public required IEnumerable<SubjectOptionForSupportTicket> SubjectOptions { get; init; }
 }
@@ -31,12 +31,12 @@ public sealed record GetSubjectOptionsForSupportTicketResponse
 public sealed record SubjectOptionForSupportTicket
 {
     /// <summary>
-    /// Gets the unique code representing the subject option.
+    /// The unique code representing the subject option.
     /// </summary>
     public required string Code { get; init; }
 
     /// <summary>
-    /// Gets a description of the subject option.
+    /// A description of the subject option.
     /// </summary>
     public required string Description { get; init; }
 }

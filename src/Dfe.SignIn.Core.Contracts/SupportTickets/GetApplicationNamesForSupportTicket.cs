@@ -24,7 +24,7 @@ public sealed record GetApplicationNamesForSupportTicketRequest : IKeyedRequest
 public sealed record GetApplicationNamesForSupportTicketResponse
 {
     /// <summary>
-    /// Gets the enumerable collection of applications.
+    /// The enumerable collection of applications.
     /// </summary>
     public required IEnumerable<ApplicationNameForSupportTicket> Applications { get; init; }
 }
@@ -35,7 +35,7 @@ public sealed record GetApplicationNamesForSupportTicketResponse
 public sealed record ApplicationNameForSupportTicket
 {
     /// <summary>
-    /// Gets the name of the service application.
+    /// The name of the service application.
     /// </summary>
     public required string Name { get; init; }
 }

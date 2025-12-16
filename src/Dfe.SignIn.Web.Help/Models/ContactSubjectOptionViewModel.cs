@@ -6,12 +6,12 @@ namespace Dfe.SignIn.Web.Help.Models;
 public sealed record ContactSubjectOptionViewModel
 {
     /// <summary>
-    /// Gets the unique value that identifies the subject.
+    /// The unique value that identifies the subject.
     /// </summary>
     public required string Value { get; init; }
 
     /// <summary>
-    /// Gets the user friendly text of the subject.
+    /// The user friendly text of the subject.
     /// </summary>
     public required string Text { get; init; }
 }

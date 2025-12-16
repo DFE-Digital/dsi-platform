@@ -13,7 +13,7 @@ public interface IActiveOrganisationProvider
     /// </summary>
     /// <param name="context">The HTTP context.</param>
     /// <param name="organisation">The organisation that is to become active; or, a value
-    /// of <c>null</c> if no organisation is to be active.</param>
+    /// of null if no organisation is to be active.</param>
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
@@ -24,8 +24,8 @@ public interface IActiveOrganisationProvider
     /// </summary>
     /// <param name="context">The HTTP context.</param>
     /// <returns>
-    ///   <para>A value of <c>null</c> indicates that the active organisation state is
-    ///   yet to be initialized for the user.</para>
+    ///   <para>A value of null indicates that the active organisation state is yet to
+    ///   be initialized for the user.</para>
     ///   <para>A <see cref="ActiveOrganisationState"/> is returned when the active
     ///   organisation state has been initialized for the user. This state represents one
     ///   of the following scenarios:</para>
@@ -49,11 +49,11 @@ public interface IActiveOrganisationProvider
 public sealed record ActiveOrganisationState
 {
     /// <summary>
-    /// Gets the organisation when one is active; otherwise, a value of <c>null</c> to
-    /// indicate that no organisation is active for the user.
+    /// The organisation when one is active; otherwise, a value of null to indicate
+    /// that no organisation is active for the user.
     /// </summary>
     /// <remarks>
-    ///   <para>This can be a value of <c>null</c> when:</para>
+    ///   <para>This can be a value of null when:</para>
     ///   <list type="bullet">
     ///     <item>No organisation is active because the user is not a member of any
     ///     organisation and is unable to make a selection.</item>

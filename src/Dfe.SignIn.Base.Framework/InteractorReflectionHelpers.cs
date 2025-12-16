@@ -93,14 +93,12 @@ public static class InteractorReflectionHelpers
 public sealed record InteractorTypeDescriptor
 {
     /// <summary>
-    /// Gets the interactor contract type; for example,
-    /// <c>IInteractor&lt;ExampleRequest, ExampleResponse&gt;</c>.
+    /// The interactor contract type; for example, <c>IInteractor&lt;ExampleRequest, ExampleResponse&gt;</c>.
     /// </summary>
     public required Type ContractType { get; init; }
 
     /// <summary>
-    /// Gets the interactor concrete implementation type; for example,
-    /// <c>GetExampleUseCase</c> or <c>GetExampleApiRequester</c>.
+    /// The interactor concrete implementation type; for example, <c>GetExampleUseCase</c> or <c>GetExampleApiRequester</c>.
     /// </summary>
     public required Type ConcreteType { get; init; }
 }

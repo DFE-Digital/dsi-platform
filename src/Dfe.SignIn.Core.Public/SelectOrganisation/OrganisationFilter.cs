@@ -8,19 +8,19 @@ namespace Dfe.SignIn.Core.Public.SelectOrganisation;
 public sealed record OrganisationFilter
 {
     /// <summary>
-    /// Gets a value specifying the type of filtering to be used.
+    /// A value specifying the type of filtering to be used.
     /// </summary>
     [EnumDataType(typeof(OrganisationFilterType))]
     public OrganisationFilterType Type { get; init; } = OrganisationFilterType.Associated;
 
     /// <summary>
-    /// Gets a value specifying the type of association to be used when filtering.
+    /// A value specifying the type of association to be used when filtering.
     /// </summary>
     [EnumDataType(typeof(OrganisationFilterAssociation))]
     public OrganisationFilterAssociation Association { get; init; } = OrganisationFilterAssociation.Auto;
 
     /// <summary>
-    /// Gets the list of unique organisation identifiers to specify when applicable.
+    /// The list of unique organisation identifiers to specify when applicable.
     /// </summary>
     public IEnumerable<Guid> OrganisationIds { get; init; } = [];
 }

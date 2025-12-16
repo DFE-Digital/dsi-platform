@@ -16,12 +16,12 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 public sealed record GetUserStatusRequest : IValidatableObject
 {
     /// <summary>
-    /// Gets the unique ID of the user in the Entra tenant.
+    /// The unique ID of the user in the Entra tenant.
     /// </summary>
     public Guid? EntraUserId { get; init; }
 
     /// <summary>
-    /// Gets the email address of the user.
+    /// The email address of the user.
     /// </summary>
     /// <value>
     /// A well formed email address.
@@ -55,18 +55,18 @@ public sealed record GetUserStatusResponse
     public required bool UserExists { get; init; }
 
     /// <summary>
-    /// Gets the unique ID of the user.
+    /// The unique ID of the user.
     /// </summary>
     /// <remarks>
-    ///   <para>Has a value of <c>null</c> when <see cref="UserExists"/> is <c>false</c>.</para>
+    ///   <para>Has a value of null when <see cref="UserExists"/> is false.</para>
     /// </remarks>
     public Guid? UserId { get; init; }
 
     /// <summary>
-    /// Gets a value indicating the status of the user account.
+    /// A value indicating the status of the user account.
     /// </summary>
     /// <remarks>
-    ///   <para>Has a value of <c>null</c> when <see cref="UserExists"/> is <c>false</c>.</para>
+    ///   <para>Has a value of null when <see cref="UserExists"/> is false.</para>
     /// </remarks>
     public AccountStatus? AccountStatus { get; init; }
 }

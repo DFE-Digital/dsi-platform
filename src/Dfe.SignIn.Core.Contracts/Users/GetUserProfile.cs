@@ -30,12 +30,12 @@ public sealed record GetUserProfileRequest
 public sealed record GetUserProfileResponse
 {
     /// <summary>
-    /// Gets a value indicating if the user is in Entra.
+    /// A value indicating if the user is in Entra.
     /// </summary>
     public required bool IsEntra { get; init; }
 
     /// <summary>
-    /// Gets a value indicating if the user is an internal team member.
+    /// A value indicating if the user is an internal team member.
     /// </summary>
     public required bool IsInternalUser { get; init; }
 

@@ -19,7 +19,7 @@ namespace Dfe.SignIn.Core.Contracts.Applications;
 public sealed record GetApplicationApiConfigurationRequest : IKeyedRequest
 {
     /// <summary>
-    /// Gets the unique client identifier of the application.
+    /// The unique client identifier of the application.
     /// </summary>
     public required string ClientId { get; init; }
 
@@ -33,7 +33,7 @@ public sealed record GetApplicationApiConfigurationRequest : IKeyedRequest
 public sealed record GetApplicationApiConfigurationResponse
 {
     /// <summary>
-    /// Gets the API client configuration for the application.
+    /// The API client configuration for the application.
     /// </summary>
     public required ApplicationApiConfiguration Configuration { get; init; }
 }

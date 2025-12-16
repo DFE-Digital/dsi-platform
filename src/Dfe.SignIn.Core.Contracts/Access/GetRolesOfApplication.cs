@@ -12,7 +12,7 @@ namespace Dfe.SignIn.Core.Contracts.Access;
 public sealed record GetRolesOfApplicationRequest
 {
     /// <summary>
-    /// Gets the unique identifier of the application.
+    /// The unique identifier of the application.
     /// </summary>
     public required Guid ApplicationId { get; init; }
 }
@@ -23,7 +23,7 @@ public sealed record GetRolesOfApplicationRequest
 public sealed record GetRolesOfApplicationResponse
 {
     /// <summary>
-    /// Gets the enumerable collection of application roles.
+    /// An enumerable collection of application roles.
     /// </summary>
     public required IEnumerable<ApplicationRole> Roles { get; init; }
 }

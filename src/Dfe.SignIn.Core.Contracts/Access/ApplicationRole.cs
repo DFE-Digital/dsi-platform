@@ -8,32 +8,32 @@ namespace Dfe.SignIn.Core.Contracts.Access;
 public sealed record ApplicationRole
 {
     /// <summary>
-    /// Gets the unique value that identifies the role.
+    /// The unique value that identifies the role.
     /// </summary>
     public required Guid Id { get; init; }
 
     /// <summary>
-    /// Gets the parent role.
+    /// The parent role.
     /// </summary>
     public ApplicationRole? Parent { get; init; } = null;
 
     /// <summary>
-    /// Gets the code of the role.
+    /// The code of the role.
     /// </summary>
     public required string Code { get; init; }
 
     /// <summary>
-    /// Gets the name of the role.
+    /// The name of the role.
     /// </summary>
     public required string Name { get; init; }
 
     /// <summary>
-    /// Gets the numeric identifier of the role.
+    /// The numeric identifier of the role.
     /// </summary>
     public required int NumericId { get; init; }
 
     /// <summary>
-    /// Gets a value indicating the status of the role.
+    /// A value indicating the status of the role.
     /// </summary>
     [EnumDataType(typeof(ApplicationRoleStatus))]
     public required ApplicationRoleStatus Status { get; init; }

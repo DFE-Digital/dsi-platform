@@ -96,9 +96,9 @@ public interface ISelectOrganisationEvents
     /// <remarks>
     ///   <para>The handler can choose to do something with the confirmed selection; and
     ///   then should redirect the user to a suitable page.</para>
-    ///   <para><paramref name="organisation"/> is <c>null</c> when the user is to
-    ///   proceed without selecting an organisation. For example, the user is unable
-    ///   to select an organisation.</para>
+    ///   <para><paramref name="organisation"/> is null when the user is to proceed
+    ///   without selecting an organisation. For example, the user is unable to select
+    ///   an organisation.</para>
     /// </remarks>
     /// <param name="context">An abstraction representing the HTTP context.</param>
     /// <param name="organisation">Represents the selected organisation.</param>

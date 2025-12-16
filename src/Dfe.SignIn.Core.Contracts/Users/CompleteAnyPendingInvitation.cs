@@ -15,7 +15,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 public sealed record CompleteAnyPendingInvitationRequest
 {
     /// <summary>
-    /// Gets the email address of the user.
+    /// The email address of the user.
     /// </summary>
     /// <value>
     /// A well formed email address.
@@ -24,7 +24,7 @@ public sealed record CompleteAnyPendingInvitationRequest
     public required string EmailAddress { get; init; }
 
     /// <summary>
-    /// Gets the unique ID of the user in the Entra tenant.
+    /// The unique ID of the user in the Entra tenant.
     /// </summary>
     public required Guid EntraUserId { get; init; }
 }
@@ -35,16 +35,16 @@ public sealed record CompleteAnyPendingInvitationRequest
 public sealed record CompleteAnyPendingInvitationResponse
 {
     /// <summary>
-    /// Gets a value indicating if an existing invitation was completed.
+    /// A value indicating if an existing invitation was completed.
     /// </summary>
     [MemberNotNullWhen(true, nameof(UserId))]
     public required bool WasCompleted { get; init; }
 
     /// <summary>
-    /// Gets the unique ID of the user in DfE Sign-in.
+    /// The unique ID of the user in DfE Sign-in.
     /// </summary>
     /// <remarks>
-    ///   <para>Has a value of <c>null</c> if <see cref="WasCompleted"/> is <c>false</c>.</para>
+    ///   <para>Has a value of null if <see cref="WasCompleted"/> is false.</para>
     /// </remarks>
     public Guid? UserId { get; init; }
 }

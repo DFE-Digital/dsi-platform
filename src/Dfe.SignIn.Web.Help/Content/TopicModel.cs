@@ -9,17 +9,17 @@ namespace Dfe.SignIn.Web.Help.Content;
 public sealed record TopicModel
 {
     /// <summary>
-    /// Gets the path of the topic.
+    /// The path of the topic.
     /// </summary>
     public required string Path { get; init; }
 
     /// <summary>
-    /// Gets the metadata of the topic.
+    /// The metadata of the topic.
     /// </summary>
     public required TopicMetadata Metadata { get; init; }
 
     /// <summary>
-    /// Gets the HTML representation of the topic.
+    /// A HTML representation of the topic.
     /// </summary>
     public required string ContentHtml { get; init; }
 }
