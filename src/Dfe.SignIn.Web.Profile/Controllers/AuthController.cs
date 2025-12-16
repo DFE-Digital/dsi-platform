@@ -14,7 +14,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/")]
 public sealed class AuthController(IInteractionDispatcher interaction) : Controller
 {
-    [Authorize]
+    [AllowAnonymous]
     [HttpGet("signout")]
     public new Task<IActionResult> SignOut()
     {
