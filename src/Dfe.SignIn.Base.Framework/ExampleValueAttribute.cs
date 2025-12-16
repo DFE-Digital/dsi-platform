@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Base.Framework;
 ///   user interfaces such as Swagger.</para>
 /// </remarks>
 /// <param name="value">The example value.</param>
-[AttributeUsage(AttributeTargets.Property)]
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
 public sealed class ExampleValueAttribute(string value) : Attribute
 {
     /// <summary>

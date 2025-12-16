@@ -3,6 +3,37 @@ namespace Dfe.SignIn.Core.Contracts.UnitTests;
 [TestClass]
 public sealed class StringPatternsTests
 {
+    #region GetExampleValue(string)
+
+    [TestMethod]
+    public void GetExampleValue_ReturnsNull_WhenPatternArgumentIsNull()
+    {
+        string? result = StringPatterns.GetExampleValue(null);
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void GetExampleValue_ReturnsNull_WhenPatternIsNotRecognised()
+    {
+        string? result = StringPatterns.GetExampleValue("A pattern that does not exist!");
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    [DataRow(StringPatterns.PersonNamePattern, "Alex Johnson")]
+    [DataRow(StringPatterns.EmailAddressPattern, "alex.johnson@example.com")]
+    [DataRow(StringPatterns.JobTitlePattern, "Software Developer")]
+    public void GetExampleValue_ReturnsExpectedExampleValue(string pattern, string exampleValue)
+    {
+        string? result = StringPatterns.GetExampleValue(pattern);
+
+        Assert.AreEqual(exampleValue, result);
+    }
+
+    #endregion
+
     [TestMethod]
     [DataRow("Bob", true)]
     [DataRow("_Test", true)]
