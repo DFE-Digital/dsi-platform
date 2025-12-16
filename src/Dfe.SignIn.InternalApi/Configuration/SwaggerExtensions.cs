@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.InternalApi.Contracts;
+using Dfe.SignIn.InternalApi.Swagger;
 using Microsoft.OpenApi.Models;
 
 namespace Dfe.SignIn.InternalApi.Configuration;
@@ -60,6 +61,9 @@ public static class SwaggerExtensions
 
             // Use nicer syntax for generics in schema IDs.
             config.CustomSchemaIds(NamingHelpers.NiceifySchemaId);
+
+            // Enable example values from `SwaggerExampleValueAttribute` annotations.
+            config.SchemaFilter<SwaggerExampleValueSchemaFilter>();
 
             // Include XML comments for 'SignIn.Core.Contracts.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(CoreContractsAssembly)));
