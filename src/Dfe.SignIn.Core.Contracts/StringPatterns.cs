@@ -44,8 +44,7 @@ public static partial class StringPatterns
     private const string NamePattern = @"[\p{L}\p{N}_][\p{L}\p{N}_'-]*( [\p{L}\p{N}][\p{L}\p{N} _'-]*)*";
 
     /// <summary>
-    /// Regular expression pattern which can be used to verify the name of a person.
-    /// Suitable for first name, last name, or full name.
+    /// Regular expression pattern which can be used to verify the first name of a person.
     /// </summary>
     [ExampleValue("Alex")]
     public const string FirstNamePattern = $"^(?<first>{NamePattern})$";
@@ -54,8 +53,7 @@ public static partial class StringPatterns
     public static partial Regex FirstNameRegex();
 
     /// <summary>
-    /// Regular expression pattern which can be used to verify the name of a person.
-    /// Suitable for first name, last name, or full name.
+    /// Regular expression pattern which can be used to verify the last name of a person.
     /// </summary>
     [ExampleValue("Johnson")]
     public const string LastNamePattern = $"^(?<last>{NamePattern})$";
@@ -64,8 +62,7 @@ public static partial class StringPatterns
     public static partial Regex LastNameRegex();
 
     /// <summary>
-    /// Regular expression pattern which can be used to verify the name of a person.
-    /// Suitable for first name, last name, or full name.
+    /// Regular expression pattern which can be used to verify the full name of a person.
     /// </summary>
     [ExampleValue("Alex Johnson")]
     public const string FullNamePattern = $"^(?<full>{NamePattern})$";
