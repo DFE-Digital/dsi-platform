@@ -41,16 +41,37 @@ public static partial class StringPatterns
         return value;
     }
 
+    private const string NamePattern = @"[\p{L}\p{N}_][\p{L}\p{N}_'-]*( [\p{L}\p{N}][\p{L}\p{N} _'-]*)*";
+
+    /// <summary>
+    /// Regular expression pattern which can be used to verify the name of a person.
+    /// Suitable for first name, last name, or full name.
+    /// </summary>
+    [ExampleValue("Alex")]
+    public const string FirstNamePattern = $"^(?<first>{NamePattern})$";
+
+    [GeneratedRegex(FirstNamePattern)]
+    public static partial Regex FirstNameRegex();
+
+    /// <summary>
+    /// Regular expression pattern which can be used to verify the name of a person.
+    /// Suitable for first name, last name, or full name.
+    /// </summary>
+    [ExampleValue("Johnson")]
+    public const string LastNamePattern = $"^(?<last>{NamePattern})$";
+
+    [GeneratedRegex(LastNamePattern)]
+    public static partial Regex LastNameRegex();
+
     /// <summary>
     /// Regular expression pattern which can be used to verify the name of a person.
     /// Suitable for first name, last name, or full name.
     /// </summary>
     [ExampleValue("Alex Johnson")]
-    public const string PersonNamePattern
-        = @"^[\p{L}\p{N}_][\p{L}\p{N}_'-]*( [\p{L}\p{N}][\p{L}\p{N} _'-]*)*$";
+    public const string FullNamePattern = $"^(?<full>{NamePattern})$";
 
-    [GeneratedRegex(PersonNamePattern)]
-    public static partial Regex PersonNameRegex();
+    [GeneratedRegex(FullNamePattern)]
+    public static partial Regex FullNameRegex();
 
     /// <summary>
     /// Regular expression pattern which can be used to verify an email address.

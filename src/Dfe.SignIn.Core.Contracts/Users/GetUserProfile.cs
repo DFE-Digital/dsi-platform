@@ -42,13 +42,13 @@ public sealed record GetUserProfileResponse
     /// <summary>
     /// The first name of the user.
     /// </summary>
-    [RegularExpression(StringPatterns.PersonNamePattern)]
+    [RegularExpression(StringPatterns.FirstNamePattern)]
     public required string FirstName { get; init; }
 
     /// <summary>
     /// The last name of the user.
     /// </summary>
-    [RegularExpression(StringPatterns.PersonNamePattern)]
+    [RegularExpression(StringPatterns.LastNamePattern)]
     public required string LastName { get; init; }
 
     /// <summary>

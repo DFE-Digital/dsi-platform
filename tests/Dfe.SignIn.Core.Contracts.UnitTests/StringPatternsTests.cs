@@ -22,7 +22,9 @@ public sealed class StringPatternsTests
     }
 
     [TestMethod]
-    [DataRow(StringPatterns.PersonNamePattern, "Alex Johnson")]
+    [DataRow(StringPatterns.FirstNamePattern, "Alex")]
+    [DataRow(StringPatterns.LastNamePattern, "Johnson")]
+    [DataRow(StringPatterns.FullNamePattern, "Alex Johnson")]
     [DataRow(StringPatterns.EmailAddressPattern, "alex.johnson@example.com")]
     [DataRow(StringPatterns.JobTitlePattern, "Software Developer")]
     public void GetExampleValue_ReturnsExpectedExampleValue(string pattern, string exampleValue)
@@ -42,9 +44,39 @@ public sealed class StringPatternsTests
     [DataRow("", false)]
     [DataRow(" ", false)]
     [DataRow(" Bob ", false)]
+    public void FirstNameRegex_WorksAsExpected(string input, bool expectedResult)
+    {
+        bool result = StringPatterns.FirstNameRegex().IsMatch(input);
+
+        Assert.AreEqual(expectedResult, result);
+    }
+
+    [TestMethod]
+    [DataRow("Bob", true)]
+    [DataRow("_Test", true)]
+    [DataRow("Alex Johnson", true)]
+    [DataRow("Alex-bob O'John-son", true)]
+    [DataRow("", false)]
+    [DataRow(" ", false)]
+    [DataRow(" Bob ", false)]
+    public void LastNameRegex_WorksAsExpected(string input, bool expectedResult)
+    {
+        bool result = StringPatterns.LastNameRegex().IsMatch(input);
+
+        Assert.AreEqual(expectedResult, result);
+    }
+
+    [TestMethod]
+    [DataRow("Bob", true)]
+    [DataRow("_Test", true)]
+    [DataRow("Alex Johnson", true)]
+    [DataRow("Alex-bob O'John-son", true)]
+    [DataRow("", false)]
+    [DataRow(" ", false)]
+    [DataRow(" Bob ", false)]
     public void PersonNameRegex_WorksAsExpected(string input, bool expectedResult)
     {
-        bool result = StringPatterns.PersonNameRegex().IsMatch(input);
+        bool result = StringPatterns.FullNameRegex().IsMatch(input);
 
         Assert.AreEqual(expectedResult, result);
     }
