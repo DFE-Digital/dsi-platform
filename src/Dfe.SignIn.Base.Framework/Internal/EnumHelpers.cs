@@ -21,9 +21,7 @@ public static class EnumHelpers
     public static TEnum MapEnum<TEnum>(object? input)
         where TEnum : struct, Enum
     {
-        if (input == null) {
-            throw new ArgumentNullException(nameof(input), $"Cannot map null to non-nullable enum {typeof(TEnum).Name}");
-        }
+        ExceptionHelpers.ThrowIfArgumentNull(input!, typeof(TEnum).Name);
 
         // Determine the type of input and attempt to map it to the enum:
         // - If input is a string, parse it as the enum name (case-insensitive).
