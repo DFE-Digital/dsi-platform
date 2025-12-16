@@ -22,7 +22,7 @@ public static partial class TopicPathHelpers
     ///   <para>The transformed title; for example, "Multifactor authentication".</para>
     ///   <para>A default title when <paramref name="topicPath"/> is an empty string.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicPath"/> is null.</para>
     /// </exception>
     public static string TopicPathToTitle(string topicPath)
@@ -48,7 +48,7 @@ public static partial class TopicPathHelpers
     /// <returns>
     ///   <para>The slug when one is present; otherwise, a value of null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicPath"/> is null.</para>
     /// </exception>
     public static string? SlugFromPath(string topicPath)
@@ -72,7 +72,7 @@ public static partial class TopicPathHelpers
     /// <returns>
     ///   <para>The parent topic path if the topic has a parent; otherwise, null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicPath"/> is null.</para>
     /// </exception>
     public static string? GetParentTopicPath(string topicPath)
@@ -113,7 +113,7 @@ public static partial class TopicPathHelpers
     /// <returns>
     ///   <para>The resolved topic path.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicPath"/> is null.</para>
     /// </exception>
     public static string ResolveTopicPath(string topicPath)

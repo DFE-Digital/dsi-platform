@@ -23,7 +23,7 @@ public static class ControllerInteractionExtensions
     ///   <para>A <see cref="IMappedInteractionContextBuilder{TRequest}"/> for building
     ///   the mapped interaction request.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="interaction"/> is null.</para>
     ///   <para>- or </para>
     ///   <para>If <paramref name="controller"/> is null.</para>
@@ -58,7 +58,7 @@ public static class ControllerInteractionExtensions
     /// <param name="controller">The controller initiating the interaction.</param>
     /// <param name="viewModelType">The type of view model containing input data.</param>
     /// <param name="validationResults">The enumerable collection of validation results.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="controller"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="viewModelType"/> is null.</para>
@@ -90,7 +90,7 @@ public static class ControllerInteractionExtensions
     /// <param name="controller">The controller initiating the interaction.</param>
     /// <param name="viewModel">The view model containing input data.</param>
     /// <param name="validationResults">The enumerable collection of validation results.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="controller"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="viewModel"/> is null.</para>
@@ -131,7 +131,7 @@ public interface IMappedInteractionContextBuilder<TRequest>
     /// <returns>
     ///   <para>The <see cref="IMappedInteractionContextBuilder{TRequest}"/> instance for chained calls.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="overrideDelegate"/> is null.</para>
     /// </exception>
     IMappedInteractionContextBuilder<TRequest> Use(Func<TRequest, TRequest> overrideDelegate);

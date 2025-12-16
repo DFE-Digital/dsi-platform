@@ -18,7 +18,7 @@ public static class MvcExtensions
     /// <returns>
     /// The same <see cref="IMvcBuilder"/> instance, allowing fluent configuration chaining.
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>Thrown if <paramref name="builder"/> is null.</para>
     /// </exception>
     public static IMvcBuilder AddDsiMvcExtensions(this IMvcBuilder builder)

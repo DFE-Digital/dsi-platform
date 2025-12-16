@@ -19,7 +19,7 @@ public static class ControllerExtensions
     /// <returns>
     ///   <para>The action result for the view.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="controller"/> is null.</para>
     /// </exception>
     public static IActionResult ErrorView(this Controller controller, string? viewName = null, ErrorViewModel? model = null)

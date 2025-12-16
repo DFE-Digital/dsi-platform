@@ -12,7 +12,7 @@ public interface IInteractionLimiter
     /// <returns>
     ///   <para>A result indicating whether the action was rejected.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="request"/> is null.</para>
     /// </exception>
     Task<InteractionLimiterResult> LimitActionAsync(IKeyedRequest request);
@@ -22,7 +22,7 @@ public interface IInteractionLimiter
     /// <see cref="LimitActionAsync(IKeyedRequest)"/> is not limited.
     /// </summary>
     /// <param name="request">The request containing a unique key for limiting.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="request"/> is null.</para>
     /// </exception>
     Task ResetLimitAsync(IKeyedRequest request);
@@ -49,7 +49,7 @@ public static class InteractionLimiterExtensions
     /// </summary>
     /// <param name="limiter">The interaction limiter instance.</param>
     /// <param name="request">The keyed request to limit.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="limiter"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="request"/> is null.</para>

@@ -36,7 +36,7 @@ public interface ISelectOrganisationUserFlow
     /// <param name="context">The HTTP context.</param>
     /// <param name="cancellationToken">A cancellation token that can be used by other
     /// objects or threads to receive notice of cancellation.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
     /// <exception cref="InvalidOperationException">

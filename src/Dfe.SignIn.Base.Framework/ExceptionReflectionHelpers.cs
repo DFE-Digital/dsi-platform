@@ -46,11 +46,8 @@ internal static class ExceptionReflectionHelpers
     /// <returns>
     ///   <para>The exception type when found; otherwise, a value of null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="fullName"/> is null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="fullName"/> is empty string.</para>
+    ///   <para>If <paramref name="fullName"/> is null or empty.</para>
     /// </exception>
     public static Type? GetExceptionTypeByFullName(string fullName)
     {
@@ -75,7 +72,7 @@ internal static class ExceptionReflectionHelpers
     /// <returns>
     ///   <para>A value of true if the property can be serialized; otherwise, false.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="property"/> is null.</para>
     /// </exception>
     [SuppressMessage("csharpsquid", "S3011",
@@ -111,7 +108,7 @@ internal static class ExceptionReflectionHelpers
     /// <returns>
     ///   <para>An enumerable collection of zero or more properties.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="exceptionType"/> is null.</para>
     /// </exception>
     public static IEnumerable<PropertyInfo> GetSerializableExceptionProperties(Type exceptionType)

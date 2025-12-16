@@ -22,7 +22,7 @@ public static partial class NamingHelpers
     /// <returns>
     ///   <para>The niceified schema ID which conforms to Open API identifier syntax.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="type"/> is null.</para>
     /// </exception>
     public static string NiceifySchemaId(Type type)

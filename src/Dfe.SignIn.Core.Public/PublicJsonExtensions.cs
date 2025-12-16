@@ -19,7 +19,7 @@ public static class PublicJsonExtensions
     /// <returns>
     ///   <para>The service collection.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
     public static IServiceCollection ConfigureExternalModelJsonSerialization(this IServiceCollection services)

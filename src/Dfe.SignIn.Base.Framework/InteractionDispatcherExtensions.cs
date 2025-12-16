@@ -16,7 +16,7 @@ public static class InteractionDispatcherExtensions
     ///   options such as cancellation tokens and cache hints before dispatching the
     ///   interaction.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="interaction"/> is null.</para>
     /// </exception>
     public static IInteractionContextBuilder Build(this IInteractionDispatcher interaction)
@@ -25,7 +25,7 @@ public static class InteractionDispatcherExtensions
     /// <inheritdoc cref="IInteractionDispatcher.DispatchAsync"/>
     /// <param name="interaction">The <see cref="IInteractionDispatcher"/> instance.</param>
     /// <param name="request">Request model of the interaction.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="interaction"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="request"/> is null.</para>
@@ -89,7 +89,7 @@ public interface IInteractionContextBuilder
 
     /// <inheritdoc cref="IInteractionDispatcher.DispatchAsync"/>
     /// <param name="request">Request model of the interaction.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="request"/> is null.</para>
     /// </exception>
     InteractionTask DispatchAsync<TRequest>(TRequest request)
@@ -107,7 +107,7 @@ public sealed class InteractionContextBuilder : IInteractionContextBuilder
     /// </summary>
     /// <param name="interaction">The <see cref="IInteractionDispatcher"/> instance
     /// used to dispatch interactions.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="interaction"/> is null.</para>
     /// </exception>
     public InteractionContextBuilder(IInteractionDispatcher interaction)

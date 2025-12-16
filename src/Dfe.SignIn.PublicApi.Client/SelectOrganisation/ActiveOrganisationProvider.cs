@@ -14,7 +14,7 @@ public interface IActiveOrganisationProvider
     /// <param name="context">The HTTP context.</param>
     /// <param name="organisation">The organisation that is to become active; or, a value
     /// of <c>null</c> if no organisation is to be active.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
     Task SetActiveOrganisationAsync(IHttpContext context, OrganisationDetails? organisation);
@@ -37,7 +37,7 @@ public interface IActiveOrganisationProvider
     ///     <item>An organisation is active for the user.</item>
     ///   </list>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
     Task<ActiveOrganisationState?> GetActiveOrganisationStateAsync(IHttpContext context);

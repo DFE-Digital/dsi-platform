@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
     /// <returns>
     ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="credential"/> is null.</para>

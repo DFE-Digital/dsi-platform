@@ -13,13 +13,10 @@ public interface ISomeService
     /// <returns>
     ///   <para>Output string.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="input"/> is null.</para>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="input"/> is null or empty.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="anotherInput"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="input"/> is an empty string.</para>
     /// </exception>
     string Invoke(string input, string anotherInput);
 }

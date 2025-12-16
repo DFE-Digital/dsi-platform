@@ -15,13 +15,10 @@ public interface ITopicMarkdownProcessor
     /// <returns>
     ///   <para>A model representing the processed topic.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="topicPath"/> is null.</para>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="topicPath"/> is null or empty.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="markdown"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="topicPath"/> is an empty string.</para>
     /// </exception>
     /// <exception cref="OperationCanceledException" />
     Task<TopicModel> ProcessMarkdownAsync(string topicPath, string markdown, CancellationToken cancellationToken = default);

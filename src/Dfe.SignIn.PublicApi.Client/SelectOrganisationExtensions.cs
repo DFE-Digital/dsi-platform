@@ -20,7 +20,7 @@ public static class SelectOrganisationExtensions
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
     public static IServiceCollection SetupSelectOrganisationFeatures(this IServiceCollection services)

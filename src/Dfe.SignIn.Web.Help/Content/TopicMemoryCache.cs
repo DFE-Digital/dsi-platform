@@ -15,7 +15,7 @@ public sealed class TopicMemoryCache : ITopicIndex
     /// Initializes a new instance of the <see cref="TopicMemoryCache"/> class.
     /// </summary>
     /// <param name="topics">The enumerable collection of topics.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topics"/> is null.</para>
     /// </exception>
     public TopicMemoryCache(IEnumerable<TopicModel> topics)

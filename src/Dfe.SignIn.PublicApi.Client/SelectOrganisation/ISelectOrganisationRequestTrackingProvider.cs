@@ -28,7 +28,7 @@ public interface ISelectOrganisationRequestTrackingProvider
     /// </remarks>
     /// <param name="context">The HTTP context.</param>
     /// <param name="requestId">A unique value identifying the request.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
     Task SetTrackedRequestAsync(IHttpContext context, Guid? requestId);
@@ -42,7 +42,7 @@ public interface ISelectOrganisationRequestTrackingProvider
     ///   <para>A value of <c>true</c> if the given "select organisation" request is
     ///   valid for the current user; otherwise, a value of <c>false</c>.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
     Task<bool> IsTrackingRequestAsync(IHttpContext context, Guid requestId);

@@ -13,7 +13,7 @@ public interface ICacheEntrySerializer
     /// <returns>
     ///   <para>The JSON encoded representation of the cache entry data.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="entry"/> is null.</para>
     /// </exception>
     string Serialize<T>(T entry) where T : class;
@@ -26,7 +26,7 @@ public interface ICacheEntrySerializer
     /// <returns>
     ///   <para>The deserialized data of a cache entry.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="entryJson"/> is null.</para>
     /// </exception>
     /// <exception cref="ArgumentException">

@@ -17,11 +17,8 @@ public interface ITopicFileReader
     /// <returns>
     ///   <para>A task that resolves to the array of topic file paths.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="contentFilesPath"/> is null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="contentFilesPath"/> is an empty string.</para>
+    ///   <para>If <paramref name="contentFilesPath"/> is null or empty.</para>
     /// </exception>
     /// <exception cref="OperationCanceledException" />
     Task<string[]> DiscoverAllAsync(string contentFilesPath, CancellationToken cancellationToken = default);
@@ -35,11 +32,8 @@ public interface ITopicFileReader
     /// <returns>
     ///   <para>A task that resolves to the read markdown encoded topic content.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="topicFilePath"/> is null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="topicFilePath"/> is an empty string.</para>
+    ///   <para>If <paramref name="topicFilePath"/> is null or empty.</para>
     /// </exception>
     /// <exception cref="FileNotFoundException">
     ///   <para>If the topic file was not found.</para>

@@ -14,7 +14,7 @@ public static class SecurityHeaderPolicyExtensions
     /// Use the standard security header policy for the DfE Sign-in platform.
     /// </summary>
     /// <param name="builder">The builder to register the middleware on.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="builder"/> is null.</para>
     /// </exception>
     public static void UseDsiSecurityHeaderPolicy(this IApplicationBuilder builder)

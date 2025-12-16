@@ -15,7 +15,7 @@ public static class ActiveOrganisationProviderExtensions
     /// </summary>
     /// <param name="provider">The <see cref="IActiveOrganisationProvider"/> instance.</param>
     /// <param name="context">The HTTP context.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="provider"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="context"/> is null.</para>

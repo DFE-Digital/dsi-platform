@@ -27,7 +27,7 @@ public interface IInteractionCache<TRequest>
     /// </summary>
     /// <param name="request">The interaction request model.</param>
     /// <param name="response">The response.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="request"/> is a value of null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="response"/> is a value of null.</para>
@@ -49,7 +49,7 @@ public interface IInteractionCache<TRequest>
     ///   <para>- or -</para>
     ///   <para>A value of null indicating that no response is cached.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="request"/> is null.</para>
     /// </exception>
     /// <exception cref="InvalidOperationException">
@@ -63,11 +63,8 @@ public interface IInteractionCache<TRequest>
     /// Removes an interaction response from the cache.
     /// </summary>
     /// <param name="key">The unique key representing the cache entry.</param>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="key"/> is a value of null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    ///   <para>If <paramref name="key"/> is null or empty.</para>
     /// </exception>
     Task RemoveAsync(string key);
 }

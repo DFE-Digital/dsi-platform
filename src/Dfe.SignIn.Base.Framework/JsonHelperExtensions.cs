@@ -40,7 +40,7 @@ public static class JsonHelperExtensions
     /// <returns>
     ///   <para>The service collection.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
     public static IServiceCollection ConfigureDfeSignInJsonSerializerOptions(this IServiceCollection services)

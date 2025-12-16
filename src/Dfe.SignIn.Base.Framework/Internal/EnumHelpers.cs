@@ -13,8 +13,11 @@ public static class EnumHelpers
     /// <typeparam name="TEnum">The enum type to map to.</typeparam>
     /// <param name="input">The input value (string or numeric) to map.</param>
     /// <returns>The mapped enum value.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="input"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="input"/> does not correspond to a valid enum value.</exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="input"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="input"/> does not correspond to a valid enum value.</para>
+    /// </exception>
     public static TEnum MapEnum<TEnum>(object? input)
         where TEnum : struct, Enum
     {

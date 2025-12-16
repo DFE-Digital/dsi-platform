@@ -15,7 +15,7 @@ public static class EndpointExtensions
     /// General setup of endpoints.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
     public static void SetupEndpoints(this IServiceCollection services)

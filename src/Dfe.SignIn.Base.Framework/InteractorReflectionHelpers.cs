@@ -24,7 +24,7 @@ public static class InteractorReflectionHelpers
     /// <returns>
     ///   <para>An enumerable collection of interactor type descriptors.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="assembly"/> is null</para>
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverInteractorTypesInAssembly(Assembly assembly)
@@ -51,7 +51,7 @@ public static class InteractorReflectionHelpers
     /// <returns>
     ///   <para>An enumerable collection of interactor type descriptors.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="assembly"/> is null.</para>
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverAnnotatedInteractorsInAssembly<TAttribute>(Assembly assembly)
@@ -78,7 +78,7 @@ public static class InteractorReflectionHelpers
     /// <returns>
     ///   <para>An enumerable collection of interactor type descriptors.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="assembly"/> is null.</para>
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverApiRequesterTypesInAssembly(Assembly assembly)

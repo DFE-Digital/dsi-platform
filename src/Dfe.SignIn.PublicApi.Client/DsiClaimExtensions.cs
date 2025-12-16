@@ -18,7 +18,7 @@ public static class DsiClaimExtensions
     ///   <para>The claims identity representing the primary user identity when found;
     ///   otherwise, a value of null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
     public static ClaimsIdentity? GetPrimaryIdentity(this ClaimsPrincipal user)
@@ -37,7 +37,7 @@ public static class DsiClaimExtensions
     /// <returns>
     ///   <para>The unique identifier of the user in DfE Sign-in.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
     /// <exception cref="MissingClaimException">
@@ -60,7 +60,7 @@ public static class DsiClaimExtensions
     ///   <para>A value of <c>true</c> if the "dsi_user_id" claim exists; otherwise, a
     ///   value of <c>false</c>.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="user"/> is null.</para>
     /// </exception>
     public static bool TryGetDsiUserId(this ClaimsPrincipal user, out Guid? userId)

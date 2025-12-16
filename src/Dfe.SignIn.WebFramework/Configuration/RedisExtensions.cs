@@ -29,7 +29,7 @@ public static class RedisExtensions
     /// <returns>
     ///   <para>The service collection instance for chaining.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="cacheStoreKey"/> is null.</para>

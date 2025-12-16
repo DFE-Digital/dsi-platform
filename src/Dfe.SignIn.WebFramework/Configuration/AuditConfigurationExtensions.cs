@@ -12,7 +12,7 @@ public static class AuditConfigurationExtensions
     /// Setup auditing context for frontend and API applications.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
     public static void SetupAuditContext(this IServiceCollection services)

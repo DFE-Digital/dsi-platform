@@ -18,7 +18,7 @@ public sealed class MapToAttribute<TRequest> : Attribute
     /// <param name="requestPropertyName">The name of the property in the request model to map to.</param>
     /// <param name="flags">Optional flags that control how the mapping behaves.</param>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="requestPropertyName"/> is null or an empty string.</para>
+    ///   <para>If <paramref name="requestPropertyName"/> is null or empty.</para>
     /// </exception>
     public MapToAttribute(string requestPropertyName, RequestMappingOptions flags = RequestMappingOptions.Everything)
     {
@@ -97,8 +97,8 @@ internal static class RequestMappingHelpers
     ///   <para>A read-only dictionary mapping request property names to <see cref="RequestPropertyMapping"/>
     ///   instances that describe how each view model property maps to the request.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="viewModelType"/> is null or an empty string.</para>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="viewModelType"/> is null or empty.</para>
     /// </exception>
     public static IReadOnlyDictionary<string, RequestPropertyMapping> GetMappings<TRequest>(Type viewModelType)
         where TRequest : class

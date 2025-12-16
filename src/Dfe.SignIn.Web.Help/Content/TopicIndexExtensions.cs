@@ -11,7 +11,7 @@ public static class TopicIndexExtensions
     /// <returns>
     ///   <para>The topic when found; otherwise, a value of null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicIndex"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="topicPath"/> is null.</para>
@@ -35,7 +35,7 @@ public static class TopicIndexExtensions
     ///   <para>The parent topic when one exists; otherwise, a value of null indicating
     ///   that the given topic is the root topic.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicIndex"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="topic"/> is null.</para>
@@ -55,7 +55,7 @@ public static class TopicIndexExtensions
     /// <returns>
     ///   <para>An unordered enumerable collection of zero-or-more child topics.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicIndex"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="topic"/> is null.</para>
@@ -75,7 +75,7 @@ public static class TopicIndexExtensions
     /// <returns>
     ///   <para>The ordered collection of zero-or-more ancestor topics.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicIndex"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="topic"/> is null.</para>

@@ -14,7 +14,7 @@ public static class HmacKeyNormalizer
     /// </summary>
     /// <param name="keyBytes">The original key as a byte array.</param>
     /// <returns>A byte array that is at least 32 bytes long.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the provided keyBytes is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the provided keyBytes is null.</exception>
     public static byte[] NormalizeHmacSha256Key(byte[] keyBytes)
     {
         ExceptionHelpers.ThrowIfArgumentNull(keyBytes, nameof(keyBytes));
