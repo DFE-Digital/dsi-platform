@@ -1,3 +1,6 @@
+const tabId = Number(window.localStorage.getItem('session-timeout:next-id'));
+window.localStorage.setItem('session-timeout:next-id', tabId + 1);
+
 function initSessionTimeoutElement(element) {
   const sessionDurationInMinutes = parseInt(element.dataset.sessionDurationInMinutes);
   const notifyRemainingMinutes = parseInt(element.dataset.notifyRemainingMinutes);
@@ -42,10 +45,22 @@ function initSessionTimeoutElement(element) {
       const totalSecondsRemaining = Math.round((timeout - Date.now()) / 1000 - allowanceInSeconds);
 
       if (totalSecondsRemaining <= 0) {
-        location.href = endSessionUrl;
         clearInterval(intervalId);
         timerElement.style.display = "none";
         timeoutNowElement.style.display = "";
+
+        window.localStorage.setItem('session-timeout:closer', tabId);
+        setTimeout(() => {
+          // Allow one tab to lead; and then all of the others can follow shortly after.
+          // Avoid scenario where all tabs initiate the sign out.
+          if (tabId === Number(window.localStorage.getItem('session-timeout:closer'))) {
+            location.href = endSessionUrl;
+          }
+          else {
+            // Close the other non-leader tabs a short while later.
+            setTimeout(() => location.href = timeoutUrl, 2000);
+          }
+        }, 1000);
       }
       else {
         let minutesRemaining = Math.floor(totalSecondsRemaining / 60);
