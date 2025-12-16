@@ -7,7 +7,7 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Dfe.SignIn.PublicApi.Swagger;
+namespace Dfe.SignIn.InternalApi.Swagger;
 
 /// <summary>
 /// Schema filter which populates the example value from a <see cref="ExampleValueAttribute"/>

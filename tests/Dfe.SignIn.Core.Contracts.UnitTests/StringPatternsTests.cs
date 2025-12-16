@@ -3,6 +3,69 @@ namespace Dfe.SignIn.Core.Contracts.UnitTests;
 [TestClass]
 public sealed class StringPatternsTests
 {
+    #region GetExampleValue(string)
+
+    [TestMethod]
+    public void GetExampleValue_ReturnsNull_WhenPatternArgumentIsNull()
+    {
+        string? result = StringPatterns.GetExampleValue(null);
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void GetExampleValue_ReturnsNull_WhenPatternIsNotRecognised()
+    {
+        string? result = StringPatterns.GetExampleValue("A pattern that does not exist!");
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    [DataRow(StringPatterns.FirstNamePattern, "Alex")]
+    [DataRow(StringPatterns.LastNamePattern, "Johnson")]
+    [DataRow(StringPatterns.FullNamePattern, "Alex Johnson")]
+    [DataRow(StringPatterns.EmailAddressPattern, "alex.johnson@example.com")]
+    [DataRow(StringPatterns.JobTitlePattern, "Software Developer")]
+    public void GetExampleValue_ReturnsExpectedExampleValue(string pattern, string exampleValue)
+    {
+        string? result = StringPatterns.GetExampleValue(pattern);
+
+        Assert.AreEqual(exampleValue, result);
+    }
+
+    #endregion
+
+    [TestMethod]
+    [DataRow("Bob", true)]
+    [DataRow("_Test", true)]
+    [DataRow("Alex Johnson", true)]
+    [DataRow("Alex-bob O'John-son", true)]
+    [DataRow("", false)]
+    [DataRow(" ", false)]
+    [DataRow(" Bob ", false)]
+    public void FirstNameRegex_WorksAsExpected(string input, bool expectedResult)
+    {
+        bool result = StringPatterns.FirstNameRegex().IsMatch(input);
+
+        Assert.AreEqual(expectedResult, result);
+    }
+
+    [TestMethod]
+    [DataRow("Bob", true)]
+    [DataRow("_Test", true)]
+    [DataRow("Alex Johnson", true)]
+    [DataRow("Alex-bob O'John-son", true)]
+    [DataRow("", false)]
+    [DataRow(" ", false)]
+    [DataRow(" Bob ", false)]
+    public void LastNameRegex_WorksAsExpected(string input, bool expectedResult)
+    {
+        bool result = StringPatterns.LastNameRegex().IsMatch(input);
+
+        Assert.AreEqual(expectedResult, result);
+    }
+
     [TestMethod]
     [DataRow("Bob", true)]
     [DataRow("_Test", true)]
@@ -13,7 +76,7 @@ public sealed class StringPatternsTests
     [DataRow(" Bob ", false)]
     public void PersonNameRegex_WorksAsExpected(string input, bool expectedResult)
     {
-        bool result = StringPatterns.PersonNameRegex().IsMatch(input);
+        bool result = StringPatterns.FullNameRegex().IsMatch(input);
 
         Assert.AreEqual(expectedResult, result);
     }

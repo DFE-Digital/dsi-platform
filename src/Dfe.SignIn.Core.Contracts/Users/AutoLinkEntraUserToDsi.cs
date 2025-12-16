@@ -34,13 +34,15 @@ public sealed record AutoLinkEntraUserToDsiRequest
     /// <summary>
     /// The first name of the user.
     /// </summary>
-    [MinLength(1)]
+    [Required]
+    [RegularExpression(StringPatterns.FirstNamePattern)]
     public required string FirstName { get; init; }
 
     /// <summary>
     /// The last name of the user.
     /// </summary>
-    [MinLength(1)]
+    [Required]
+    [RegularExpression(StringPatterns.LastNamePattern)]
     public required string LastName { get; init; }
 }
 
