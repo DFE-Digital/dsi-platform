@@ -21,7 +21,7 @@ public sealed class TopicViewModel
     /// Gets or sets the date that the topic was last updated.
     /// </summary>
     /// <remarks>
-    ///   <para>A value of <c>null</c> indicates that no date has been given.</para>
+    ///   <para>A value of null indicates that no date has been given.</para>
     /// </remarks>
     public DateTime? Updated { get; set; } = null;
 

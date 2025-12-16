@@ -11,7 +11,7 @@ public static class BearerTokenAuthExtensions
     /// Register bearer token auth middleware into application.
     /// </summary>
     /// <param name="builder">The builder to register the middleware on.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="builder"/> is null.</para>
     /// </exception>
     public static void UseBearerTokenAuthMiddleware(this IApplicationBuilder builder)

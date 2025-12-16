@@ -14,7 +14,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 public sealed record CheckIsBlockedEmailAddressRequest
 {
     /// <summary>
-    /// Gets the email address that is to be checked.
+    /// The email address that is to be checked.
     /// </summary>
     /// <value>
     /// A well formed email address.
@@ -29,7 +29,7 @@ public sealed record CheckIsBlockedEmailAddressRequest
 public sealed record CheckIsBlockedEmailAddressResponse
 {
     /// <summary>
-    /// Gets a value indicating whether the email address has been blocked.
+    /// A value indicating whether the email address has been blocked.
     /// </summary>
     public bool IsBlocked { get; init; }
 }

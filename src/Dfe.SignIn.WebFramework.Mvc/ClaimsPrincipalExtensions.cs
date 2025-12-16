@@ -16,7 +16,7 @@ public static class ClaimsPrincipalExtensions
     /// <returns>
     ///   <para>A value of true when the user ID is present; otherwise, false.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="principal"/> is null.</para>
     /// </exception>
     public static bool TryGetUserId(this ClaimsPrincipal principal, out Guid? userId)
@@ -37,7 +37,7 @@ public static class ClaimsPrincipalExtensions
     /// <returns>
     ///   <para>The user ID.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="principal"/> is null.</para>
     /// </exception>
     /// <exception cref="InvalidOperationException">

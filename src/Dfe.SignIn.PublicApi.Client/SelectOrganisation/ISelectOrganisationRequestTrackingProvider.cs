@@ -23,12 +23,12 @@ public interface ISelectOrganisationRequestTrackingProvider
     /// Sets the unique ID of the tracked "select organisation" request.
     /// </summary>
     /// <remarks>
-    ///   <para>Tracking can be cleared by specifying a value of <c>null</c> for the
+    ///   <para>Tracking can be cleared by specifying a value of null for the
     ///   <paramref name="requestId"/> parameter.</para>
     /// </remarks>
     /// <param name="context">The HTTP context.</param>
     /// <param name="requestId">A unique value identifying the request.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
     Task SetTrackedRequestAsync(IHttpContext context, Guid? requestId);
@@ -39,10 +39,10 @@ public interface ISelectOrganisationRequestTrackingProvider
     /// <param name="context">The HTTP context.</param>
     /// <param name="requestId">A unique value identifying a request.</param>
     /// <returns>
-    ///   <para>A value of <c>true</c> if the given "select organisation" request is
-    ///   valid for the current user; otherwise, a value of <c>false</c>.</para>
+    ///   <para>A value of true if the given "select organisation" request is valid for
+    ///   the current user; otherwise, a value of false.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
     Task<bool> IsTrackingRequestAsync(IHttpContext context, Guid requestId);

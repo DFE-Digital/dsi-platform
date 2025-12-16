@@ -20,7 +20,7 @@ public interface ITopicIndex
     /// <returns>
     ///   <para>The topic when found; otherwise, a value of null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicPath"/> is null.</para>
     /// </exception>
     TopicModel? GetTopic(string topicPath);
@@ -33,7 +33,7 @@ public interface ITopicIndex
     ///   <para>The parent topic when one exists; otherwise, a value of null indicating
     ///   that the given topic is the root topic.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicPath"/> is null.</para>
     /// </exception>
     TopicModel? GetParentTopic(string topicPath);
@@ -45,7 +45,7 @@ public interface ITopicIndex
     /// <returns>
     ///   <para>An unordered enumerable collection of zero-or-more child topics.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="topicPath"/> is null.</para>
     /// </exception>
     IEnumerable<TopicModel> GetChildTopics(string topicPath);

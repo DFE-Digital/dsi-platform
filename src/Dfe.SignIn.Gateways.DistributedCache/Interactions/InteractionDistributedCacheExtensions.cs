@@ -22,7 +22,7 @@ public static class InteractionDistributedCacheExtensions
     /// <returns>
     ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
     public static IServiceCollection AddDistributedInteractionCache<TRequest, TResponse>(

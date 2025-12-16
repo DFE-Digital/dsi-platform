@@ -12,7 +12,7 @@ namespace Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 /// </summary>
 /// <param name="cache">The distributed cache.</param>
 /// <param name="serializer">A service for serializing session data.</param>
-/// <exception cref="ArgumentNullException">
+/// <exception cref="ArgumentException">
 ///   <para>If <paramref name="cache"/> is null.</para>
 ///   <para>- or -</para>
 ///   <para>If <paramref name="serializer"/> is null.</para>

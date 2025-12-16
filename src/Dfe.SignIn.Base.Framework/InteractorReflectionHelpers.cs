@@ -24,7 +24,7 @@ public static class InteractorReflectionHelpers
     /// <returns>
     ///   <para>An enumerable collection of interactor type descriptors.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="assembly"/> is null</para>
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverInteractorTypesInAssembly(Assembly assembly)
@@ -51,7 +51,7 @@ public static class InteractorReflectionHelpers
     /// <returns>
     ///   <para>An enumerable collection of interactor type descriptors.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="assembly"/> is null.</para>
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverAnnotatedInteractorsInAssembly<TAttribute>(Assembly assembly)
@@ -78,7 +78,7 @@ public static class InteractorReflectionHelpers
     /// <returns>
     ///   <para>An enumerable collection of interactor type descriptors.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="assembly"/> is null.</para>
     /// </exception>
     public static IEnumerable<InteractorTypeDescriptor> DiscoverApiRequesterTypesInAssembly(Assembly assembly)
@@ -93,14 +93,12 @@ public static class InteractorReflectionHelpers
 public sealed record InteractorTypeDescriptor
 {
     /// <summary>
-    /// Gets the interactor contract type; for example,
-    /// <c>IInteractor&lt;ExampleRequest, ExampleResponse&gt;</c>.
+    /// The interactor contract type; for example, <c>IInteractor&lt;ExampleRequest, ExampleResponse&gt;</c>.
     /// </summary>
     public required Type ContractType { get; init; }
 
     /// <summary>
-    /// Gets the interactor concrete implementation type; for example,
-    /// <c>GetExampleUseCase</c> or <c>GetExampleApiRequester</c>.
+    /// The interactor concrete implementation type; for example, <c>GetExampleUseCase</c> or <c>GetExampleApiRequester</c>.
     /// </summary>
     public required Type ConcreteType { get; init; }
 }

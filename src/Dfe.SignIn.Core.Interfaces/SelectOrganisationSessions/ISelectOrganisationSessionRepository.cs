@@ -13,13 +13,10 @@ public interface ISelectOrganisationSessionRepository
     /// <param name="sessionKey">Unique key that identifies the session.</param>
     /// <returns>
     ///   <para>The <see cref="SelectOrganisationSessionData"/> instance when the session
-    ///   exists; otherwise, a value of <c>null</c>.</para>
+    ///   exists; otherwise, a value of null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="sessionKey"/> is null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="sessionKey"/> is an empty string.</para>
+    ///   <para>If <paramref name="sessionKey"/> is null or empty.</para>
     /// </exception>
     Task<SelectOrganisationSessionData?> RetrieveAsync(string sessionKey);
 
@@ -28,13 +25,10 @@ public interface ISelectOrganisationSessionRepository
     /// </summary>
     /// <param name="sessionKey">Unique key that identifies the session.</param>
     /// <param name="sessionData">The session data.</param>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="sessionKey"/> is null.</para>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="sessionKey"/> is null or empty.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="sessionData"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="sessionKey"/> is an empty string.</para>
     /// </exception>
     Task StoreAsync(string sessionKey, SelectOrganisationSessionData sessionData);
 
@@ -51,11 +45,8 @@ public interface ISelectOrganisationSessionRepository
     ///   already been invalidated.</para>
     /// </remarks>
     /// <param name="sessionKey">Unique key that identifies the session.</param>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="sessionKey"/> is null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="sessionKey"/> is an empty string.</para>
+    ///   <para>If <paramref name="sessionKey"/> is null or empty.</para>
     /// </exception>
     Task InvalidateAsync(string sessionKey);
 }

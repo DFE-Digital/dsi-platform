@@ -13,14 +13,15 @@ public static class EnumHelpers
     /// <typeparam name="TEnum">The enum type to map to.</typeparam>
     /// <param name="input">The input value (string or numeric) to map.</param>
     /// <returns>The mapped enum value.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="input"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="input"/> does not correspond to a valid enum value.</exception>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="input"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="input"/> does not correspond to a valid enum value.</para>
+    /// </exception>
     public static TEnum MapEnum<TEnum>(object? input)
         where TEnum : struct, Enum
     {
-        if (input == null) {
-            throw new ArgumentNullException(nameof(input), $"Cannot map null to non-nullable enum {typeof(TEnum).Name}");
-        }
+        ExceptionHelpers.ThrowIfArgumentNull(input!, typeof(TEnum).Name);
 
         // Determine the type of input and attempt to map it to the enum:
         // - If input is a string, parse it as the enum name (case-insensitive).

@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Core.Public.SelectOrganisation;
 public sealed record SelectOrganisationPrompt
 {
     /// <summary>
-    /// Gets the heading text for the "select organisation" user interface.
+    /// The heading text for the "select organisation" user interface.
     /// </summary>
     /// <remarks>
     ///   <para>The heading text should be short and concise and is likely presented
@@ -19,7 +19,7 @@ public sealed record SelectOrganisationPrompt
     public required string Heading { get; init; }
 
     /// <summary>
-    /// Gets the hint text for the "select organisation" user interface.
+    /// The hint text for the "select organisation" user interface.
     /// </summary>
     /// <remarks>
     ///   <para>This is the grey text that appears below the heading text.</para>

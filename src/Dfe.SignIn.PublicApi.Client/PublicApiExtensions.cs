@@ -18,7 +18,7 @@ public static class PublicApiExtensions
     /// Setup client to the DfE Sign-in Public API.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
     public static IServiceCollection SetupDfePublicApiClient(this IServiceCollection services)

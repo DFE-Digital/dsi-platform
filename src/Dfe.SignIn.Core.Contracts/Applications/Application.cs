@@ -6,43 +6,43 @@ namespace Dfe.SignIn.Core.Contracts.Applications;
 public sealed record Application
 {
     /// <summary>
-    /// Gets the unique value that identifies the service application.
+    /// The unique value that identifies the service application.
     /// </summary>
     public required Guid Id { get; init; }
 
     /// <summary>
-    /// Gets the unique client ID of the service application.
+    /// The unique client ID of the service application.
     /// </summary>
     public required string ClientId { get; init; }
 
     /// <summary>
-    /// Gets the name of the service application.
+    /// The name of the service application.
     /// </summary>
     public required string Name { get; init; }
 
     /// <summary>
-    /// Gets a description of the application.
+    /// A description of the application.
     /// </summary>
     public string? Description { get; init; }
 
     /// <summary>
-    /// Gets the home URL of the service.
+    /// The home URL of the service.
     /// </summary>
     public Uri? ServiceHomeUrl { get; init; }
 
     /// <summary>
-    /// Gets a boolean value indicating if this is an external service.
+    /// A boolean value indicating if this is an external service.
     /// </summary>
     public required bool IsExternalService { get; init; }
 
     /// <summary>
-    /// Gets a boolean value indicating if this is an ID-only service.
+    /// A boolean value indicating if this is an ID-only service.
     /// </summary>
     public required bool IsIdOnlyService { get; init; }
 
     /// <summary>
-    /// Gets a boolean value hinting that the service should be hidden on the
-    /// "My Services" page if possible. Role based services are not hidden.
+    /// A boolean value hinting that the service should be hidden on the "My Services"
+    /// page if possible. Role based services are not hidden.
     /// </summary>
     public required bool IsHiddenService { get; init; }
 }

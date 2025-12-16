@@ -12,7 +12,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 public sealed record GetApplicationsAssociatedWithUserRequest
 {
     /// <summary>
-    /// Gets the unique identifier of the user.
+    /// The unique identifier of the user.
     /// </summary>
     public required Guid UserId { get; init; }
 }
@@ -23,7 +23,7 @@ public sealed record GetApplicationsAssociatedWithUserRequest
 public sealed record GetApplicationsAssociatedWithUserResponse
 {
     /// <summary>
-    /// Gets the enumerable collection of user application mappings.
+    /// An enumerable collection of user application mappings.
     /// </summary>
     public required IEnumerable<UserApplicationMapping> UserApplicationMappings { get; init; }
 }

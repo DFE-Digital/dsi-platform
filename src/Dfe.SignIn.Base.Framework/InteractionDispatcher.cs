@@ -16,7 +16,7 @@ public interface IInteractionDispatcher
     /// <returns>
     ///   <para>The interaction response.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>
     /// </exception>
     /// <exception cref="InvalidRequestException">

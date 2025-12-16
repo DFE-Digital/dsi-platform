@@ -13,15 +13,12 @@ public static class HttpRequestExtensions
     /// <param name="request">The HTTP request.</param>
     /// <param name="key">Name of the value.</param>
     /// <returns>
-    ///   <para>The value when present; otherwise, a value of <c>null</c>.</para>
+    ///   <para>The value when present; otherwise, a value of null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="request"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="key"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    ///   <para>If <paramref name="key"/> is null or empty.</para>
     /// </exception>
     /// <exception cref="KeyNotFoundException">
     ///   <para>If there was no query parameter for the given key.</para>

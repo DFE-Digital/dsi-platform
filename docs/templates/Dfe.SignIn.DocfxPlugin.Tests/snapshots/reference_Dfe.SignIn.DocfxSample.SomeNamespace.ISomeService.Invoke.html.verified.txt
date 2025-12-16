@@ -153,17 +153,11 @@
         <ul class="app-cards app-cards--details">
             <li class="app-cards__card">
               <h4 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-                <span class="parametertype"><a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.argumentnullexception">ArgumentNullException</a></span>
-              </h4>
-              <div class="app-cards__summary"><p>If <code class="paramref">input</code> is null.</p>
-<p>- or -</p>
-<p>If <code class="paramref">anotherInput</code> is null.</p></div>
-            </li>
-            <li class="app-cards__card">
-              <h4 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
                 <span class="parametertype"><a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.argumentexception">ArgumentException</a></span>
               </h4>
-              <div class="app-cards__summary"><p>If <code class="paramref">input</code> is an empty string.</p></div>
+              <div class="app-cards__summary"><p>If <code class="paramref">input</code> is null or empty.</p>
+<p>- or -</p>
+<p>If <code class="paramref">anotherInput</code> is null.</p></div>
             </li>
         </ul>
 

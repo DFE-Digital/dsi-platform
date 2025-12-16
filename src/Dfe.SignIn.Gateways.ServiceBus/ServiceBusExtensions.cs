@@ -24,7 +24,7 @@ public static class ServiceBusExtensions
     ///   <para>A value of null indicating that the configuration section was
     ///   not present.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="configuration"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="sectionName"/> is null or empty.</para>
@@ -166,7 +166,7 @@ public static class ServiceBusExtensions
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="configuration"/> is null.</para>

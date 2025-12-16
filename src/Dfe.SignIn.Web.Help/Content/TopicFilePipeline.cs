@@ -17,11 +17,8 @@ public interface ITopicFilePipeline
     /// <returns>
     ///   <para>A task that resolves to the array of loaded topics.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="contentFilesPath"/> is null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="contentFilesPath"/> is an empty string.</para>
+    ///   <para>If <paramref name="contentFilesPath"/> is null or empty.</para>
     /// </exception>
     /// <exception cref="FileNotFoundException">
     ///   <para>If one or more topic files were not found.</para>
@@ -40,15 +37,10 @@ public interface ITopicFilePipeline
     /// <returns>
     ///   <para>A task that resolve to the loaded topic model.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="contentFilesPath"/> is null.</para>
-    ///   <para>- or -</para>
-    ///   <para>If <paramref name="topicFilePath"/> is null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="contentFilesPath"/> is an empty string.</para>
+    ///   <para>If <paramref name="contentFilesPath"/> is null or empty.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="topicFilePath"/> is an empty string.</para>
+    ///   <para>If <paramref name="topicFilePath"/> is null or empty.</para>
     /// </exception>
     /// <exception cref="FileNotFoundException">
     ///   <para>If the specified file was not found.</para>

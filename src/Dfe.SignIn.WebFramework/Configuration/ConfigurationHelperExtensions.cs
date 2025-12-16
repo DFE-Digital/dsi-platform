@@ -18,13 +18,10 @@ public static class ConfigurationHelperExtensions
     /// <returns>
     ///   <para>The JSON encoded data when present; otherwise, a value null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="section"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="key"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    ///   <para>If <paramref name="key"/> is null or empty.</para>
     /// </exception>
     public static T? GetJson<T>(this IConfiguration section, string key)
         where T : class
@@ -47,13 +44,10 @@ public static class ConfigurationHelperExtensions
     /// <returns>
     ///   <para>The JSON encoded list of elements when present; otherwise, an empty list.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="section"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="key"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    ///   <para>If <paramref name="key"/> is null or empty.</para>
     /// </exception>
     public static List<T> GetJsonList<T>(this IConfiguration section, string key)
     {
@@ -68,13 +62,10 @@ public static class ConfigurationHelperExtensions
     /// <returns>
     ///   <para>The JSON encoded list of strings when present; otherwise, an empty list.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="section"/> is null.</para>
     ///   <para>- or -</para>
-    ///   <para>If <paramref name="key"/> is null.</para>
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    ///   <para>If <paramref name="key"/> is null or empty.</para>
     /// </exception>
     public static List<string> GetJsonList(this IConfiguration section, string key)
     {

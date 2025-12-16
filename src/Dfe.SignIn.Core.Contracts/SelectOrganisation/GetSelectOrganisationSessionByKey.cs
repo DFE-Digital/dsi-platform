@@ -14,7 +14,7 @@ namespace Dfe.SignIn.Core.Contracts.SelectOrganisation;
 public sealed record GetSelectOrganisationSessionByKeyRequest
 {
     /// <summary>
-    /// Gets the unique key of the session.
+    /// The unique key of the session.
     /// </summary>
     [MinLength(1)]
     public required string SessionKey { get; init; }
@@ -26,7 +26,7 @@ public sealed record GetSelectOrganisationSessionByKeyRequest
 public sealed record GetSelectOrganisationSessionByKeyResponse
 {
     /// <summary>
-    /// Gets the "select organisation" session data if any was found.
+    /// The "select organisation" session data if any was found.
     /// </summary>
     /// <remarks>
     ///   <para>Session data will not be found when:</para>

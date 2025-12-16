@@ -18,7 +18,7 @@ public static class AspNetCoreMiddlewareExtensions
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
     public static IServiceCollection SetupSelectOrganisationMiddleware(this IServiceCollection services)
@@ -46,7 +46,7 @@ public static class AspNetCoreMiddlewareExtensions
     ///   </list>
     /// </remarks>
     /// <param name="app">The application builder.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="app"/> is null.</para>
     /// </exception>
     public static void UseSelectOrganisationMiddleware(this IApplicationBuilder app)

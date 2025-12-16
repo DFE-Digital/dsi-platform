@@ -8,33 +8,33 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 public sealed record Organisation
 {
     /// <summary>
-    /// Gets the unique value that identifies the organisation.
+    /// The unique value that identifies the organisation.
     /// </summary>
     public required Guid Id { get; init; }
 
     /// <summary>
-    /// Gets the status of the organisation.
+    /// The status of the organisation.
     /// </summary>
     public required OrganisationStatus Status { get; init; }
 
     /// <summary>
-    /// Gets the name of the organisation.
+    /// The name of the organisation.
     /// </summary>
     public required string Name { get; init; }
 
     /// <summary>
-    /// Gets the legal name of the organisation.
+    /// The legal name of the organisation.
     /// </summary>
     public string? LegalName { get; init; }
 
     /// <summary>
-    /// Gets the category of the organisation
+    /// The category of the organisation
     /// </summary>
     /// <seealso cref="EstablishmentType"/>
     public OrganisationCategory Category { get; init; }
 
     /// <summary>
-    /// Gets the establishment type of the organisation.
+    /// The establishment type of the organisation.
     /// </summary>
     /// <remarks>
     ///   <para>This property is applicable when <see cref="Category"/> is set to
@@ -44,118 +44,118 @@ public sealed record Organisation
     public EstablishmentType? EstablishmentType { get; set; }
 
     /// <summary>
-    /// Gets the establishment number of the organisation.
+    /// The establishment number of the organisation.
     /// </summary>
     /// <seealso cref="EstablishmentType"/>
     public string? EstablishmentNumber { get; set; }
 
     /// <summary>
-    /// Gets the urn of the organisation.
+    /// The URN of the organisation.
     /// </summary>
     public string? Urn { get; set; }
 
     /// <summary>
-    /// Gets the uid of the organisation.
+    /// The UID of the organisation.
     /// </summary>
     public string? Uid { get; set; }
 
     /// <summary>
-    /// Gets the upin of the organisation.
+    /// The UPIN of the organisation.
     /// </summary>
     public string? Upin { get; set; }
 
     /// <summary>
-    /// Gets the ukprn of the organisation.
+    /// The UKPRN of the organisation.
     /// </summary>
     public string? Ukprn { get; set; }
 
     /// <summary>
-    /// Gets the closed on of the organisation.
+    /// Indicates when the organisation was closed.
     /// </summary>
     public DateOnly? ClosedOn { get; set; }
 
     /// <summary>
-    /// Gets the address of the organisation.
+    /// The address of the organisation.
     /// </summary>
     public string? Address { get; set; }
 
     /// <summary>
-    /// Gets the source system of the organisation.
+    /// The source system of the organisation.
     /// </summary>
     public string? SourceSystem { get; set; }
 
     /// <summary>
-    /// Gets the provider type name of the organisation.
+    /// The provider type name of the organisation.
     /// </summary>
     public string? ProviderTypeName { get; set; }
 
     /// <summary>
-    /// Gets the provider type code of the organisation.
+    /// The provider type code of the organisation.
     /// </summary>
     public int? ProviderTypeCode { get; set; }
 
     /// <summary>
-    /// Gets the GIAS provider type of the organisation.
+    /// The GIAS provider type of the organisation.
     /// </summary>
     public string? GIASProviderType { get; set; }
 
     /// <summary>
-    /// Gets the PIMS provider type of the organisation.
+    /// The PIMS provider type of the organisation.
     /// </summary>
     public string? PIMSProviderType { get; set; }
 
     /// <summary>
-    /// Gets the PIMS provider type code of the organisation.
+    /// The PIMS provider type code of the organisation.
     /// </summary>
     public int? PIMSProviderTypeCode { get; set; }
 
     /// <summary>
-    /// Gets the PIMS status name of the organisation.
+    /// The PIMS status name of the organisation.
     /// </summary>
     public string? PIMSStatusName { get; set; }
 
     /// <summary>
-    /// Gets the PIMS status of the organisation.
+    /// The PIMS status of the organisation.
     /// </summary>
     public int? PIMSStatus { get; set; }
 
     /// <summary>
-    /// Gets the GIAS status name of the organisation.
+    /// The GIAS status name of the organisation.
     /// </summary>
     public string? GIASStatusName { get; set; }
 
     /// <summary>
-    /// Gets the GIAS status of the organisation.
+    /// The GIAS status of the organisation.
     /// </summary>
     public int? GIASStatus { get; set; }
 
     /// <summary>
-    /// Gtes the master provider status name of the organisation.
+    /// The master provider status name of the organisation.
     /// </summary>
     public string? MasterProviderStatusName { get; set; }
 
     /// <summary>
-    /// Gets the master provider status code of the organisation.
+    /// The master provider status code of the organisation.
     /// </summary>
     public int? MasterProviderStatusCode { get; set; }
 
     /// <summary>
-    /// Gets the opened on of the organisation.
+    /// Indicates when the organisation was opened.
     /// </summary>
     public string? OpenedOn { get; set; }
 
     /// <summary>
-    /// Gets the district administrative name of the organisation.
+    /// The district administrative name of the organisation.
     /// </summary>
     public string? DistrictAdministrativeName { get; set; }
 
     /// <summary>
-    /// Gets the district administrative code of the organisation.
+    /// The district administrative code of the organisation.
     /// </summary>
     public string? DistrictAdministrativeCode { get; set; }
 
     /// <summary>
-    /// Gets the is on apar of the organisation.
+    /// Indicates if the organisation is on APAR.
     /// </summary>
     public string? IsOnAPAR { get; set; }
 }

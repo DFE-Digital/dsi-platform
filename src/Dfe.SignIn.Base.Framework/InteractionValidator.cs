@@ -15,7 +15,7 @@ public interface IInteractionValidator
     /// <returns>
     ///   <para>A value of <c>true</c> if the model is valid; otherwise, a value of <c>false</c>.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="requestModel"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="validationResults"/> is null.</para>
@@ -30,7 +30,7 @@ public interface IInteractionValidator
     /// <returns>
     ///   <para>A value of <c>true</c> if the model is valid; otherwise, a value of <c>false</c>.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="responseModel"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="validationResults"/> is null.</para>

@@ -6,12 +6,12 @@ namespace Dfe.SignIn.Core.Public.SelectOrganisation;
 public sealed record SelectOrganisationOption
 {
     /// <summary>
-    /// Gets the unique identifier of the organisation.
+    /// The unique identifier of the organisation.
     /// </summary>
     public required Guid Id { get; init; }
 
     /// <summary>
-    /// Gets the name of the organisation for presentation purposes.
+    /// The name of the organisation for presentation purposes.
     /// </summary>
     public required string Name { get; init; }
 }

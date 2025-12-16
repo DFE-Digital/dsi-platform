@@ -52,7 +52,7 @@ public sealed record FailedInteractionResponse
     ///   <para>An <see cref="InteractionResponse{TResponse}"/> instance containing
     ///   the serialized exception details.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="exception"/> is null.</para>
     ///   <para>- or -</para>
     ///   <para>If <paramref name="exceptionSerializer"/> is null.</para>

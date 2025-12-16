@@ -22,7 +22,7 @@ public interface IExceptionJsonSerializer
     /// <returns>
     ///   <para>A <see cref="JsonElement"/> containing the serialized exception data.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="exception"/> is null.</para>
     /// </exception>
     JsonElement SerializeExceptionToJson(Exception exception);

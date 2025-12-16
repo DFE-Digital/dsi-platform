@@ -32,7 +32,7 @@ public interface IHttpContext
     /// Signs in with the new <see cref="ClaimsPrincipal"/> instance.
     /// </summary>
     /// <param name="newPrincipal">New claims principal representing the user.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="newPrincipal"/> is null.</para>
     /// </exception>
     Task SignInAsync(ClaimsPrincipal newPrincipal);
@@ -82,13 +82,10 @@ public interface IHttpRequest
     /// </summary>
     /// <param name="key">Name of the value.</param>
     /// <returns>
-    ///   <para>The value when present; otherwise, a value of <c>null</c>.</para>
+    ///   <para>The value when present; otherwise, a value of null.</para>
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <para>If <paramref name="key"/> is null.</para>
-    /// </exception>
     /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="key"/> is an empty string.</para>
+    ///   <para>If <paramref name="key"/> is null or empty.</para>
     /// </exception>
     string? GetQuery(string key);
 }
@@ -104,7 +101,7 @@ public interface IHttpResponse
     /// <param name="location">The URL to redirect the client to. This must be
     /// properly encoded for use in http headers where only ASCII characters
     /// are allowed.</param>
-    /// <exception cref="ArgumentNullException">
+    /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="location" /> is null.</para>
     /// </exception>
     void Redirect(string location);

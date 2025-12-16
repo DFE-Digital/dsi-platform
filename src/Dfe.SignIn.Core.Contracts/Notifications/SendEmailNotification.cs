@@ -14,19 +14,19 @@ namespace Dfe.SignIn.Core.Contracts.Notifications;
 public sealed record SendEmailNotificationRequest
 {
     /// <summary>
-    /// Gets the recipients email address.
+    /// The recipients email address.
     /// </summary>
     [Required, EmailAddress]
     public required string RecipientEmailAddress { get; init; }
 
     /// <summary>
-    /// Gets the ID of the email template.
+    /// The ID of the email template.
     /// </summary>
     [Required(AllowEmptyStrings = false)]
     public required string TemplateId { get; init; }
 
     /// <summary>
-    /// Gets the dictionary of template personalisation key/value pairs.
+    /// A dictionary of template personalisation key/value pairs.
     /// </summary>
     public Dictionary<string, dynamic> Personalisation { get; init; } = [];
 }
