@@ -1,6 +1,12 @@
 {
   "recommendations": [
+    "editorconfig.editorconfig",
     "ms-azuretools.vscode-azurefunctions",
-    "ms-dotnettools.csharp"
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "ms-vscode.powershell",
+    "prettier.prettier-vscode",
+    "redis.redis-for-vscode",
+    "sonarsource.sonarlint-vscode"
   ]
 }
