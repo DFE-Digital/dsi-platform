@@ -79,6 +79,12 @@ public static partial class DsiAuthenticationExtensions
                 options.NonceCookie.IsEssential = true;
                 options.NonceCookie.SecurePolicy = CookieSecurePolicy.Always;
 
+                options.Events.OnRedirectToIdentityProviderForSignOut = context => {
+                    var oidcOptionsAccessor = context.HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<ApplicationOidcOptions>>();
+                    context.ProtocolMessage.ClientId = oidcOptionsAccessor.CurrentValue.ClientId;
+                    return Task.CompletedTask;
+                };
+
                 options.Events.OnRemoteFailure = context => {
                     string? errorCode = context.Request.Query["error"];
                     if (SessionExpiredErrorCodeRegex().IsMatch(errorCode ?? "")) {
