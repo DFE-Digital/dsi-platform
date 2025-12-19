@@ -58,7 +58,7 @@
                     </govuk-input-label>
                 </govuk-input>
 
-                <govuk-select for=SubjectCodeInput select-class="govuk-!-width-three-quarters" data-target="typeOtherMessageGroup" select-data-option="other" select-data-clear="true">
+                <govuk-select for=SubjectCodeInput select-class="govuk-!-width-three-quarters app-toggle-content" select-data-toggle-target="typeOtherMessageGroup" select-data-toggle-option="other" select-data-toggle-clear-inputs="true">
                     <govuk-select-label class="govuk-label--s">
                         What do you need help with?
                     </govuk-select-label>
@@ -68,7 +68,7 @@
                     }
                 </govuk-select>
 
-                <div id="typeOtherMessageGroup" class="show-when-js-disabled js-hidden">
+                <div id="typeOtherMessageGroup">
                     <govuk-character-count for=CustomSummaryInput textarea-class="govuk-!-width-three-quarters" rows=3 max-length=200>
                         <govuk-character-count-label class="govuk-label--s">
                             Give us a short summary of your issue

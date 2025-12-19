@@ -18,3 +18,4 @@ GOVUKFrontend.initAll();
 require("./components/auth-action");
 require("./components/password-toggle");
 require("./components/session-timeout");
+require("./components/toggle-content");
