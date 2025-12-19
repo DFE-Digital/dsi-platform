@@ -22,5 +22,5 @@ function togglePasswordVisibilityOnClick(event) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll('.app-password-toggle').forEach(initPasswordToggleElement);
+  document.querySelectorAll(".app-password-toggle").forEach(initPasswordToggleElement);
 });
