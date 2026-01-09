@@ -19,3 +19,12 @@ require("./components/auth-action");
 require("./components/password-toggle");
 require("./components/session-timeout");
 require("./components/toggle-content");
+
+
+//-----------------------------------------------------------------------------
+// Feedback
+//-----------------------------------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", function () {
+  window.appFrontendLoaded = true;
+});
