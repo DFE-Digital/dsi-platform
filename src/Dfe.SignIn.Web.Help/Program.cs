@@ -6,6 +6,7 @@ using Dfe.SignIn.Core.UseCases.SupportTickets;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.GovNotify;
+using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Help.Configuration;
 using Dfe.SignIn.Web.Help.Content;
@@ -36,6 +37,8 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Applications:AuthenticatedHttpClientOptions")
 );
 
+IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Applications];
+
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.ConfigureDsiAntiforgeryCookie();
@@ -60,7 +63,8 @@ builder.Services
     .SetupFrontendAssets();
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Applications], tokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
+    .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault")
     .AddDistributedInteractionCache<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>(options => {
         options.DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
     });

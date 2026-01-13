@@ -1,8 +1,7 @@
-using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
-namespace Dfe.SignIn.WebFramework.UnitTests.Configuration;
+namespace Dfe.SignIn.Base.Framework.UnitTests;
 
 [TestClass]
 public sealed class ConfigurationHelperExtensionsTests

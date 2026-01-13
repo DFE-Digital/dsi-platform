@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.SelectOrganisation.Configuration;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -35,6 +36,8 @@ builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.ConfigureDsiAntiforgeryCookie();
 builder.Services.AddHealthChecks();
 
+IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
+
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
     .ConfigureExternalModelJsonSerialization();
@@ -50,7 +53,8 @@ builder.Services
     .SetupFrontendAssets();
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations], tokenCredential);
+    .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
+    .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
 
 builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.SelectOrganisationSessions,

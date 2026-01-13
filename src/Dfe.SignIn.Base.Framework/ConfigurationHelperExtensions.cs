@@ -1,8 +1,7 @@
 using System.Text.Json;
-using Dfe.SignIn.Base.Framework;
 using Microsoft.Extensions.Configuration;
 
-namespace Dfe.SignIn.WebFramework.Configuration;
+namespace Dfe.SignIn.Base.Framework;
 
 /// <summary>
 /// Extensions to help with configuring applications.
