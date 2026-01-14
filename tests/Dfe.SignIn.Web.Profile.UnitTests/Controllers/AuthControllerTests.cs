@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Web.Profile.Controllers;
+using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
 
@@ -19,6 +21,12 @@ public sealed class AuthControllerTests
     {
         var controller = autoMocker.CreateInstance<AuthController>();
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+
+        autoMocker.GetMock<IOptionsMonitor<PlatformOptions>>()
+            .Setup(x => x.CurrentValue)
+            .Returns(new PlatformOptions {
+                ServicesUrl = new Uri("http://services.localhost"),
+            });
 
         var mockUrlHelper = new Mock<IUrlHelper>();
         mockUrlHelper
@@ -66,7 +74,7 @@ public sealed class AuthControllerTests
         var result = await controller.SignOut();
 
         var signOutResult = TypeAssert.IsType<SignOutResult>(result);
-        Assert.IsNull(signOutResult.Properties?.RedirectUri);
+        Assert.AreEqual("http://services.localhost/", signOutResult.Properties?.RedirectUri);
         Assert.Contains(OpenIdConnectDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
         Assert.Contains(CookieAuthenticationDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
     }
@@ -147,7 +155,7 @@ public sealed class AuthControllerTests
         var result = await controller.Timeout();
 
         var signOutResult = TypeAssert.IsType<SignOutResult>(result);
-        Assert.AreEqual("/", signOutResult.Properties?.RedirectUri);
+        Assert.AreEqual("http://services.localhost/", signOutResult.Properties?.RedirectUri);
         Assert.Contains(OpenIdConnectDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
         Assert.Contains(CookieAuthenticationDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
     }

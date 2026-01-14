@@ -1,10 +1,12 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Web.Profile.Controllers;
 
@@ -12,13 +14,18 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 /// The controller for handling user authentication.
 /// </summary>
 [Route("/")]
-public sealed class AuthController(IInteractionDispatcher interaction) : Controller
+public sealed class AuthController(
+    IInteractionDispatcher interaction,
+    IOptionsMonitor<PlatformOptions> platformOptionsAccessor
+) : Controller
 {
     [AllowAnonymous]
     [HttpGet("signout")]
     public new Task<IActionResult> SignOut()
     {
-        return this.SignOutHelper();
+        var platformOptions = platformOptionsAccessor.CurrentValue;
+
+        return this.SignOutHelper(platformOptions.ServicesUrl.ToString());
     }
 
     [AllowAnonymous]
@@ -33,7 +40,7 @@ public sealed class AuthController(IInteractionDispatcher interaction) : Control
     public async Task<IActionResult> Timeout()
     {
         if (this.User.Identity?.IsAuthenticated == true) {
-            return await this.SignOutHelper("/");
+            return await this.SignOut();
         }
 
         return this.View("Auth/SessionTimeout");
