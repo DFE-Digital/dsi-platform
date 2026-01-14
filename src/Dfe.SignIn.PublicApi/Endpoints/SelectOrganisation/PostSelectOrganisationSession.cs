@@ -23,7 +23,7 @@ public static partial class SelectOrganisationEndpoints
             EventName = "Test",
             Message = "Creating select organisation session.",
             UserId = request.UserId,
-        }, CancellationToken.None);
+        });
 
         var response = await interaction.DispatchAsync(
             new CreateSelectOrganisationSessionRequest {
