@@ -29,7 +29,7 @@ public static class ConfigurationHelperExtensions
         ExceptionHelpers.ThrowIfArgumentNullOrEmpty(key, nameof(key));
 
         string? json = section[key];
-        return !string.IsNullOrWhiteSpace(json)
+        return (json is not null && !string.IsNullOrWhiteSpace(json))
             ? JsonSerializer.Deserialize<T>(json)
             : section.GetSection(key)?.Get<T>();
     }
