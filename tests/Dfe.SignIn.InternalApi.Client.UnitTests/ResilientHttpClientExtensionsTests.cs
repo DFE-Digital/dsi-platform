@@ -11,6 +11,26 @@ public sealed class ResilientHttpClientExtensionsTests
     #region SendAsync(HttpClient, HttpMethod, IConfigurationRoot, string, TRequest, CancellationToken)
 
     [TestMethod]
+    public async Task SendAsJsonAsync_Throws_WhenMethodIsNullAsync()
+    {
+        using var client = new HttpClient();
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () =>
+            await client.SendAsJsonAsync(null!, "http://mock.localhost/", new { Name = "Test" })
+        );
+    }
+
+    [TestMethod]
+    public async Task SendAsJsonAsync_Throws_WhenRequestUriIsNullAsync()
+    {
+        using var client = new HttpClient();
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () =>
+            await client.SendAsJsonAsync(HttpMethod.Get, null!, new { Name = "Test" })
+        );
+    }
+
+    [TestMethod]
     public async Task SendAsJsonAsync_WithContent()
     {
         HttpRequestMessage? capturedRequest = null;

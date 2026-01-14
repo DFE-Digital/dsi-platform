@@ -1,5 +1,6 @@
 
 using System.Net.Http.Json;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.InternalApi.Client;
 
@@ -21,6 +22,13 @@ public static class ResilientHttpClientExtensions
     /// <param name="resiliencePipelineName">The resilience pipeline to apply.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns><para>The <see cref="HttpResponseMessage"/> from the request.</para></returns>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="httpClient"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="httpMethod"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="requestUri"/> is null.</para>
+    /// </exception>
     public static async Task<HttpResponseMessage> SendAsJsonAsync<TRequest>(
         this HttpClient httpClient,
         HttpMethod httpMethod,
@@ -29,6 +37,9 @@ public static class ResilientHttpClientExtensions
         string? resiliencePipelineName,
         CancellationToken cancellationToken = default)
     {
+        ExceptionHelpers.ThrowIfArgumentNull(httpClient, nameof(httpClient));
+        ExceptionHelpers.ThrowIfArgumentNull(httpMethod, nameof(httpMethod));
+        ExceptionHelpers.ThrowIfArgumentNullOrEmpty(requestUri, nameof(requestUri));
 
         var httpRequest = new HttpRequestMessage(httpMethod, requestUri);
 

@@ -27,7 +27,7 @@ public sealed class ChangeNameNodeRequester(
             var response = await directoriesClient.SendAsJsonAsync(HttpMethod.Patch, $"users/{context.Request.UserId}", new {
                 given_name = context.Request.FirstName,
                 family_name = context.Request.LastName,
-            }, "ChangeNameRequest", CancellationToken.None);
+            }, nameof(ChangeNameRequest), CancellationToken.None);
 
             response.EnsureSuccessStatusCode();
         }
