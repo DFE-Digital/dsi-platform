@@ -32,6 +32,11 @@ body {
   line-height: 1.3157894737;
 }
 
+/**
+  * <a> selectors will be phased out by Microsoft in a future update;
+  * review and remove if no longer needed.
+*/
+
 a {
   font-family:
     GDS Transport,
@@ -77,6 +82,54 @@ a:hover {
 
 a:active,
 a:focus {
+  color: #0b0c0c !important;
+}
+
+.ext-link {
+  font-family:
+    GDS Transport,
+    arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-decoration: underline;
+  text-decoration-thickness: max(1px, 0.0625rem);
+  text-underline-offset: 0.1578em;
+}
+
+.ext-link:hover {
+  text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+  -webkit-text-decoration-skip-ink: none;
+  text-decoration-skip-ink: none;
+  -webkit-text-decoration-skip: none;
+  text-decoration-skip: none;
+}
+
+.ext-link:focus {
+  outline: 3px solid transparent;
+  background-color: #fd0;
+  box-shadow:
+    0 -2px #fd0,
+    0 4px #0b0c0c;
+  text-decoration: none;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.ext-link:link {
+  color: #1d70b8 !important;
+}
+
+.ext-link:visited {
+  color: #4c2c92 !important;
+}
+
+.ext-link:hover {
+  color: #003078 !important;
+}
+
+.ext-link:active,
+.ext-link:focus {
   color: #0b0c0c !important;
 }
 
