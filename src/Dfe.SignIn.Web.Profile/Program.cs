@@ -9,6 +9,7 @@ using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
+using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Services;
@@ -71,6 +72,8 @@ else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
+IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
+
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
@@ -82,8 +85,8 @@ builder.Services
     .SetupFrontendAssets();
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Directories], tokenCredential);
-
+    .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
+    .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
 builder.Services
     .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
     .AddGovNotify()

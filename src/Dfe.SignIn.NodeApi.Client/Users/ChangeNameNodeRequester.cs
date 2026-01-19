@@ -1,7 +1,7 @@
-using System.Net.Http.Json;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.InternalApi.Client;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.NodeApi.Client.Users;
@@ -24,10 +24,10 @@ public sealed class ChangeNameNodeRequester(
         context.ThrowIfHasValidationErrors();
 
         try {
-            var response = await directoriesClient.PatchAsJsonAsync($"users/{context.Request.UserId}", new {
+            var response = await directoriesClient.SendAsJsonAsync(HttpMethod.Patch, $"users/{context.Request.UserId}", new {
                 given_name = context.Request.FirstName,
                 family_name = context.Request.LastName,
-            }, CancellationToken.None);
+            }, nameof(ChangeNameRequest), CancellationToken.None);
 
             response.EnsureSuccessStatusCode();
         }

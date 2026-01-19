@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.Azure.Functions.Worker;
@@ -18,6 +19,7 @@ builder.UseMiddleware((context, next) => {
 });
 
 builder.Configuration
+    .AddJsonFile("appsettings.json")
 #if DEBUG
     .AddUserSecrets<Program>()
 #endif
@@ -42,14 +44,17 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions")
 );
 
-builder.Services
-    .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([
+IEnumerable<NodeApiName> requiredNodeApiNames = [
         NodeApiName.Access,
         NodeApiName.Directories,
         NodeApiName.Organisations,
         NodeApiName.Search,
-    ], tokenCredential);
+    ];
+
+builder.Services
+    .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
+    .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
+    .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
 
 builder.Services
     .Configure<BlockedEmailAddressOptions>(options => {

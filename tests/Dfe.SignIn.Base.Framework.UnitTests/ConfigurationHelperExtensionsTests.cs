@@ -1,8 +1,8 @@
-using Dfe.SignIn.WebFramework.Configuration;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
-namespace Dfe.SignIn.WebFramework.UnitTests.Configuration;
+namespace Dfe.SignIn.Base.Framework.UnitTests;
 
 [TestClass]
 public sealed class ConfigurationHelperExtensionsTests
@@ -67,6 +67,37 @@ public sealed class ConfigurationHelperExtensionsTests
         var section = new ConfigurationBuilder().Build();
 
         var result = ConfigurationHelperExtensions.GetJson<FakeJsonObject>(section, "ExampleKey");
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void GetJson_ReturnsDeserializedObject_WhenJsonValueExists()
+    {
+        var payload = new { Name = "Test" };
+        var json = JsonSerializer.Serialize(payload);
+
+        var section = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Test"] = json
+            })
+            .Build();
+
+        var result = ConfigurationHelperExtensions.GetJson<Dictionary<string, string?>>(section, "Test");
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Test", result["Name"]);
+    }
+
+    [TestMethod]
+    public void GetJson_ReturnsNull_WhenJsonValueIsEmptyString()
+    {
+        var section = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Test"] = " "
+            })
+            .Build();
+
+        var result = ConfigurationHelperExtensions.GetJson<Dictionary<string, string?>>(section, "Test");
 
         Assert.IsNull(result);
     }

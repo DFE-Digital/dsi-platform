@@ -5,6 +5,7 @@ using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Configuration;
@@ -34,6 +35,8 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions")
 );
 
+IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
+
 // Add services to the container.
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
@@ -45,7 +48,8 @@ builder.Services
     .SetupAuditContext();
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient([NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations], tokenCredential);
+    .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
+    .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
 
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();

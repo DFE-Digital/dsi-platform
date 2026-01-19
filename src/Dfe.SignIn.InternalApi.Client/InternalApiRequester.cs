@@ -32,7 +32,12 @@ public sealed class InternalApiRequester<TRequest>(
 
         string endpointPath = NamingHelpers.GetEndpointPath<TRequest>();
 
-        var responseMessage = await client.PostAsJsonAsync(endpointPath, context.Request, cancellationToken);
+        var responseMessage = await client.SendAsJsonAsync(
+            HttpMethod.Post,
+            endpointPath,
+            context.Request,
+            cancellationToken
+        );
 
         if (responseMessage.StatusCode is HttpStatusCode.OK) {
             var response = (await responseMessage.Content.ReadFromJsonAsync<InteractionResponse>(cancellationToken))!;

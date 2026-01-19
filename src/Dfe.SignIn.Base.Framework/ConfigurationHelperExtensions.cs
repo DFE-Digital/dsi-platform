@@ -1,8 +1,7 @@
 using System.Text.Json;
-using Dfe.SignIn.Base.Framework;
 using Microsoft.Extensions.Configuration;
 
-namespace Dfe.SignIn.WebFramework.Configuration;
+namespace Dfe.SignIn.Base.Framework;
 
 /// <summary>
 /// Extensions to help with configuring applications.
@@ -30,7 +29,7 @@ public static class ConfigurationHelperExtensions
         ExceptionHelpers.ThrowIfArgumentNullOrEmpty(key, nameof(key));
 
         string? json = section[key];
-        return !string.IsNullOrWhiteSpace(json)
+        return (json is not null && !string.IsNullOrWhiteSpace(json))
             ? JsonSerializer.Deserialize<T>(json)
             : section.GetSection(key)?.Get<T>();
     }
