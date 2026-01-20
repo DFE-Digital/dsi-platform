@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
@@ -17,9 +16,6 @@ public sealed class WriteToAuditWithServiceBus(
     [FromKeyedServices(ServiceBusExtensions.AuditSenderKey)] ServiceBusSender sender
 ) : Interactor<WriteToAuditRequest, WriteToAuditResponse>
 {
-    private static readonly JsonSerializerOptions DoubleSerializeOptions = new() {
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    };
 
     /// <inheritdoc/>
     public override async Task<WriteToAuditResponse> InvokeAsync(
@@ -29,10 +25,6 @@ public sealed class WriteToAuditWithServiceBus(
         var auditContext = contextAccessor.BuildAuditContext();
 
         string json = SerializeMessageBody(auditContext, context.Request);
-
-        // Triple serialize to workaround issue in existing system.
-        json = JsonSerializer.Serialize(new string[] { json }, DoubleSerializeOptions);
-        json = JsonSerializer.Serialize(json, DoubleSerializeOptions);
 
         var message = new ServiceBusMessage(json);
         await sender.SendMessageAsync(message, CancellationToken.None);
