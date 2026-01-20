@@ -25,7 +25,7 @@ param (
     [string]$ConnectionString,
 
     [Parameter(Mandatory)]
-    [ValidateSet("directories", "organisations")]
+    [ValidateSet("directories", "organisations", "audit")]
     [string]$Context
 )
 
@@ -42,6 +42,10 @@ $profiles = @{
 
     "organisations" = @{
         Tables = @()
+    }
+
+    "audit"         = @{
+        Tables = @("AuditLogs", "AuditLogMeta")
     }
 }
 

@@ -55,8 +55,8 @@ builder.Services
     .AddUnitOfWorkEntityFrameworkServices(
         builder.Configuration.GetRequiredSection("EntityFramework"),
         addDirectoriesUnitOfWork: true,
-        addOrganisationsUnitOfWork: false
-    );
+        addOrganisationsUnitOfWork: false,
+        addAuditUnitOfWork: false);
 
 builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
