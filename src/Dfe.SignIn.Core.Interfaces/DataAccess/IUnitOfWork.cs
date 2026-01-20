@@ -80,3 +80,8 @@ public interface IUnitOfWorkDirectories : IUnitOfWork { }
 /// A unit of work for the Organisations database.
 /// </summary>
 public interface IUnitOfWorkOrganisations : IUnitOfWork { }
+
+/// <summary>
+/// A unit of work for the Audit database.
+/// </summary>
+public interface IUnitOfWorkAudit : IUnitOfWork { }

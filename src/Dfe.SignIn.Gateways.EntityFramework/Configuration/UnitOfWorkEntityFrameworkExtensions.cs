@@ -21,6 +21,7 @@ public static class UnitOfWorkEntityFrameworkExtensions
     /// <param name="section">Configuration section.</param>
     /// <param name="addDirectoriesUnitOfWork">Register Directories unit of work.</param>
     /// <param name="addOrganisationsUnitOfWork">Register Organisations unit of work.</param>
+    /// <param name="addAuditUnitOfWork">Register Audit unit of work.</param>
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
@@ -33,12 +34,13 @@ public static class UnitOfWorkEntityFrameworkExtensions
         this IServiceCollection services,
         IConfiguration section,
         bool addDirectoriesUnitOfWork,
-        bool addOrganisationsUnitOfWork)
+        bool addOrganisationsUnitOfWork,
+        bool addAuditUnitOfWork)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(section, nameof(section));
 
-        if (addDirectoriesUnitOfWork || addOrganisationsUnitOfWork) {
+        if (addDirectoriesUnitOfWork || addOrganisationsUnitOfWork || addAuditUnitOfWork) {
             services.TryAddSingleton(TimeProvider.System);
             services.AddScoped<IEntityFrameworkTransactionContext, EntityFrameworkTransactionContext>();
             services.Decorate<IInteractionDispatcher, ProtectTransactionInteractionDispatcher>();
@@ -56,6 +58,12 @@ public static class UnitOfWorkEntityFrameworkExtensions
             section,
             "Organisations",
             addOrganisationsUnitOfWork);
+
+        AddUnitOfWork<IUnitOfWorkAudit, UnitOfWorkAudit, DbAuditContext>(
+            services,
+            section,
+            "Audit",
+            addAuditUnitOfWork);
 
         return services;
     }

@@ -37,7 +37,9 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
             services.AddUnitOfWorkEntityFrameworkServices(
                 this.configMock,
                 addDirectoriesUnitOfWork: true,
-                addOrganisationsUnitOfWork: true);
+                addOrganisationsUnitOfWork: true,
+                addAuditUnitOfWork: true
+            );
         });
     }
 
@@ -50,7 +52,9 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
             services.AddUnitOfWorkEntityFrameworkServices(
                 config,
                 addDirectoriesUnitOfWork: true,
-                addOrganisationsUnitOfWork: true);
+                addOrganisationsUnitOfWork: true,
+                addAuditUnitOfWork: true
+            );
         });
     }
 
@@ -81,7 +85,9 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         services.AddUnitOfWorkEntityFrameworkServices(
             brokenConfiguration,
             addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false));
+            addOrganisationsUnitOfWork: false,
+            addAuditUnitOfWork: false
+        ));
 
         Assert.AreEqual($"Section 'Directories:{missingKey}' not found in configuration.", ex.Message);
     }
@@ -95,7 +101,8 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         services.AddUnitOfWorkEntityFrameworkServices(
             this.configMock,
             addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false);
+            addOrganisationsUnitOfWork: false,
+            addAuditUnitOfWork: false);
 
         var provider = services.BuildServiceProvider();
 
@@ -115,7 +122,8 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         services.AddUnitOfWorkEntityFrameworkServices(
             this.configMock,
             addDirectoriesUnitOfWork: false,
-            addOrganisationsUnitOfWork: false);
+            addOrganisationsUnitOfWork: false,
+            addAuditUnitOfWork: false);
 
         var provider = services.BuildServiceProvider();
 
@@ -134,7 +142,8 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         services.AddUnitOfWorkEntityFrameworkServices(
             this.configMock,
             addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false);
+            addOrganisationsUnitOfWork: false,
+            addAuditUnitOfWork: false);
 
         var provider = services.BuildServiceProvider();
 
@@ -154,7 +163,8 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         services.AddUnitOfWorkEntityFrameworkServices(
             this.configMock,
             addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false);
+            addOrganisationsUnitOfWork: false,
+            addAuditUnitOfWork: false);
 
         var provider = services.BuildServiceProvider();
 
