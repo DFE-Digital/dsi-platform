@@ -36,14 +36,6 @@ public sealed class WriteToAuditWithServiceBusTests
             .Callback(captureMessage);
     }
 
-    private static string ApplyTripleDeserializationWorkaround(BinaryData json)
-    {
-        // Triple deserialize to workaround issue in existing system.
-        string jsonWorkaround1 = JsonSerializer.Deserialize<string>(json)!;
-        string[] jsonWorkaround2 = JsonSerializer.Deserialize<string[]>(jsonWorkaround1)!;
-        return jsonWorkaround2[0];
-    }
-
     [TestMethod]
     public async Task SendsExpectedMessage_WhenMinimumRequestSent()
     {
@@ -61,8 +53,7 @@ public sealed class WriteToAuditWithServiceBusTests
 
         Assert.IsNotNull(capturedMessage);
 
-        var body = JsonSerializer.Deserialize<JsonElement>(ApplyTripleDeserializationWorkaround(capturedMessage.Body));
-
+        var body = JsonSerializer.Deserialize<JsonElement>(capturedMessage.Body);
         Assert.AreEqual("FakeApplication", body.GetProperty("application").GetString());
         Assert.AreEqual("b1e26154-9b8a-4399-8662-5b4c1ffc01c3", body.GetProperty("userId").GetString());
         Assert.AreEqual("Login", body.GetProperty("type").GetString());
@@ -92,7 +83,7 @@ public sealed class WriteToAuditWithServiceBusTests
 
         Assert.IsNotNull(capturedMessage);
 
-        var body = JsonSerializer.Deserialize<JsonElement>(ApplyTripleDeserializationWorkaround(capturedMessage.Body));
+        var body = JsonSerializer.Deserialize<JsonElement>(capturedMessage.Body);
 
         Assert.AreEqual(expectedSuccessValue, body.GetProperty("meta").GetProperty("success").GetBoolean());
     }
@@ -119,7 +110,7 @@ public sealed class WriteToAuditWithServiceBusTests
 
         Assert.IsNotNull(capturedMessage);
 
-        var body = JsonSerializer.Deserialize<JsonElement>(ApplyTripleDeserializationWorkaround(capturedMessage.Body));
+        var body = JsonSerializer.Deserialize<JsonElement>(capturedMessage.Body);
 
         Assert.AreEqual("FakeApplication", body.GetProperty("application").GetString());
         Assert.AreEqual("127.0.0.1", body.GetProperty("requestIp").GetString());
@@ -152,7 +143,7 @@ public sealed class WriteToAuditWithServiceBusTests
 
         Assert.IsNotNull(capturedMessage);
 
-        var body = JsonSerializer.Deserialize<JsonElement>(ApplyTripleDeserializationWorkaround(capturedMessage.Body));
+        var body = JsonSerializer.Deserialize<JsonElement>(capturedMessage.Body);
 
         Assert.AreEqual("7290572c-efef-4f96-b814-735d1e1ad059", body.GetProperty("userId").GetString());
     }
