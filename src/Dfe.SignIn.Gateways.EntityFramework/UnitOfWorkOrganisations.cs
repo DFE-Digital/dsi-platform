@@ -4,18 +4,6 @@ using Microsoft.EntityFrameworkCore;
 namespace Dfe.SignIn.Gateways.EntityFramework;
 
 /// <summary>
-/// A partial class representing the Entity Framework database context for organisations.
-/// </summary>
-public partial class DbOrganisationsContext : DbContext
-{
-    /// <inheritdoc/>
-    public DbOrganisationsContext(DbContextOptions<DbOrganisationsContext> options)
-        : base(options)
-    {
-    }
-}
-
-/// <summary>
 /// Represents a Unit of Work specifically for the <see cref="DbOrganisationsContext"/>.
 /// Inherits from <see cref="EntityFrameworkUnitOfWork"/> to provide repository access and transaction
 /// management for the organisations database.
