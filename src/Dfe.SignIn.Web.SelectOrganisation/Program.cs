@@ -36,7 +36,8 @@ builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.ConfigureDsiAntiforgeryCookie();
 builder.Services.AddHealthChecks();
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()

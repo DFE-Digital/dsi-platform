@@ -5,6 +5,7 @@ using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.Authorization;
@@ -35,7 +36,8 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions")
 );
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
 
 // Add services to the container.
 builder.Services
@@ -60,9 +62,13 @@ builder.Services
     .AddInteractionFramework()
     .AddInteractionCaching(builder.Configuration);
 
-var azureTokenCredential = new DefaultAzureCredential();
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
 builder.Services
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
+    .AddAuditingWithServiceBus(builder.Configuration);
 
 builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.SelectOrganisationSessions,
