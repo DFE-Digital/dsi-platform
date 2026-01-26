@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -77,6 +78,13 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
             }
         ).To<LinkEntraUserToDsiResponse>();
 
+        await interaction.DispatchAsync(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.Auth,
+            EventName = AuditAuthEventNames.LinkToExistingUser,
+            Message = $"Linked Entra account with existing DfE Sign-In user {request.EmailAddress}",
+            UserId = userStatusResponse.UserId,
+        });
+
         return userStatusResponse.UserId.Value;
     }
 
@@ -91,6 +99,13 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
         ).To<CompleteAnyPendingInvitationResponse>();
 
         if (completeAnyPendingInvitationResponse.UserId is not null) {
+            await interaction.DispatchAsync(new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.Auth,
+                EventName = AuditAuthEventNames.LinkToInvitedUser,
+                Message = $"Linked Entra account with pending DfE Sign-In invitation {request.EmailAddress}",
+                UserId = completeAnyPendingInvitationResponse.UserId,
+            });
+
             return completeAnyPendingInvitationResponse.UserId.Value;
         }
 
@@ -103,6 +118,13 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
                 LastName = request.LastName,
             }
         ).To<CreateUserResponse>();
+
+        await interaction.DispatchAsync(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.Auth,
+            EventName = AuditAuthEventNames.LinkToNewUser,
+            Message = $"Linked Entra account with new DfE Sign-In user {request.EmailAddress}",
+            UserId = createUserResponse.UserId,
+        });
 
         return createUserResponse.UserId;
     }
