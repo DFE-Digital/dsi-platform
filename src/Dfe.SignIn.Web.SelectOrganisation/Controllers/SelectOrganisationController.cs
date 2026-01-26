@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.Core.Public.SelectOrganisation;
@@ -68,6 +69,16 @@ public sealed class SelectOrganisationController(
                 return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
             }
 
+            await interaction.DispatchAsync(
+                new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.SelectOrganisation,
+                    EventName = AuditSelectOrganisationEventNames.Selection,
+                    Message = $"Automatically selected only option '{selectedOrganisation.Name}'",
+                    UserId = session.UserId,
+                    OrganisationId = selectedOrganisation.Id,
+                }
+            );
+
             return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
         }
 
@@ -126,6 +137,16 @@ public sealed class SelectOrganisationController(
         if (selectedOrganisation is null) {
             return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
         }
+
+        await interaction.DispatchAsync(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.SelectOrganisation,
+                EventName = AuditSelectOrganisationEventNames.Selection,
+                Message = $"Selected organisation '{selectedOrganisation.Name}'",
+                UserId = session.UserId,
+                OrganisationId = selectedOrganisation.Id,
+            }
+        );
 
         return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
     }

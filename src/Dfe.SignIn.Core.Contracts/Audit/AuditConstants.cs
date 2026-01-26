@@ -16,6 +16,11 @@ public static class AuditEventCategoryNames
     public const string SignOut = "Sign-out";
 
     /// <summary>
+    /// An event that is raised when a user is selecting an organisation.
+    /// </summary>
+    public const string SelectOrganisation = "select-organisation";
+
+    /// <summary>
     /// An event that is raised by the support team.
     /// </summary>
     /// <seealso cref="AuditSupportEventNames"/>
@@ -63,6 +68,17 @@ public static class AuditAuthEventNames
     /// Indicates that a new user was created and linked.
     /// </summary>
     public const string LinkToNewUser = "link-to-new-user";
+}
+
+/// <summary>
+/// Event names for the <see cref="AuditEventCategoryNames.SelectOrganisation"/> audit event category.
+/// </summary>
+public static class AuditSelectOrganisationEventNames
+{
+    /// <summary>
+    /// Indicates that an organisation was selected.
+    /// </summary>
+    public const string Selection = "selection";
 }
 
 /// <summary>
