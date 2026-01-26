@@ -61,6 +61,11 @@ on:
         default: false
         type: boolean
 
+      no_trigger_deploy:
+        description: Do not trigger deployment
+        default: false
+        type: boolean
+
   #push: # Useful for debugging; please comment out again before PR.
 
 env:
@@ -234,7 +239,7 @@ jobs:
     name: Deploy
     uses: ./.github/workflows/image-deploy.yml
     needs: [prepare, checks-passed]
-    if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_docker_images != '[]' }}
+    if: ${{ !cancelled() && !failure() && needs.prepare.outputs.build_docker_images != '[]' && !github.event.inputs.no_trigger_deploy }}
     strategy:
       fail-fast: false # Continue with other triggers even when some deployment triggers fail.
       matrix:
