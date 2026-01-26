@@ -72,7 +72,8 @@ else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Directories];
 
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
