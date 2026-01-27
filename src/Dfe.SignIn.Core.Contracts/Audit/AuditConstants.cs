@@ -6,6 +6,11 @@ namespace Dfe.SignIn.Core.Contracts.Audit;
 public static class AuditEventCategoryNames
 {
     /// <summary>
+    /// An event that is raised when a user is authenticating with the system.
+    /// </summary>
+    public const string Auth = "auth";
+
+    /// <summary>
     /// An event that is raised when a user signs out.
     /// </summary>
     public const string SignOut = "Sign-out";
@@ -37,6 +42,27 @@ public static class AuditEventCategoryNames
     /// </summary>
     /// <seealso cref="AuditChangePasswordEventNames"/>
     public const string ChangePassword = "change-password";
+}
+
+/// <summary>
+/// Event names for the <see cref="AuditEventCategoryNames.Auth"/> audit event category.
+/// </summary>
+public static class AuditAuthEventNames
+{
+    /// <summary>
+    /// Indicates that an existing user was linked.
+    /// </summary>
+    public const string LinkToExistingUser = "link-to-existing-user";
+
+    /// <summary>
+    /// Indicates that a pending invitation was completed and linked.
+    /// </summary>
+    public const string LinkToInvitedUser = "link-to-invited-user";
+
+    /// <summary>
+    /// Indicates that a new user was created and linked.
+    /// </summary>
+    public const string LinkToNewUser = "link-to-new-user";
 }
 
 /// <summary>
