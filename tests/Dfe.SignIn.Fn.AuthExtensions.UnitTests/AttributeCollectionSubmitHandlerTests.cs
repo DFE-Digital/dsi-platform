@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionSubmit;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,11 @@ public class AttributeCollectionSubmitHandlerTests
         },
     };
 
+    private static void SetupMockInteractionValidationResults(AutoMocker autoMocker)
+    {
+        autoMocker.Use<IInteractionValidator>(new InteractionValidator(autoMocker));
+    }
+
     [TestMethod]
     [DataRow("", "Invalid event type ''.")]
     [DataRow("microsoft.graph.invalidEvent", "Invalid event type 'microsoft.graph.invalidEvent'.")]
@@ -40,6 +46,7 @@ public class AttributeCollectionSubmitHandlerTests
         string eventType, string expectedMessage)
     {
         var autoMocker = new AutoMocker();
+        SetupMockInteractionValidationResults(autoMocker);
         var handler = autoMocker.CreateInstance<AttributeCollectionSubmitHandler>();
 
         var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
@@ -58,6 +65,7 @@ public class AttributeCollectionSubmitHandlerTests
         string calloutDataType, string expectedMessage)
     {
         var autoMocker = new AutoMocker();
+        SetupMockInteractionValidationResults(autoMocker);
         var handler = autoMocker.CreateInstance<AttributeCollectionSubmitHandler>();
 
         var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
@@ -75,6 +83,7 @@ public class AttributeCollectionSubmitHandlerTests
     public async Task Throws_WhenGivenNameAttributeHasWrongType()
     {
         var autoMocker = new AutoMocker();
+        SetupMockInteractionValidationResults(autoMocker);
         var handler = autoMocker.CreateInstance<AttributeCollectionSubmitHandler>();
 
         var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
@@ -97,9 +106,40 @@ public class AttributeCollectionSubmitHandlerTests
     }
 
     [TestMethod]
+    public async Task ReturnsValidationError_WhenGivenNameIsInvalid()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockInteractionValidationResults(autoMocker);
+        var handler = autoMocker.CreateInstance<AttributeCollectionSubmitHandler>();
+
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
+                UserSignUpInfo = FakeEvent.Data.UserSignUpInfo with {
+                    Attributes = FakeEvent.Data.UserSignUpInfo.Attributes with {
+                        GivenName = FakeEvent.Data.UserSignUpInfo.Attributes.GivenName with {
+                            Value = "[Jo]",
+                        },
+                    },
+                },
+            },
+        });
+
+        var result = await handler.Run(fakeRequest);
+
+        var okResult = TypeAssert.IsType<OkObjectResult>(result);
+        var response = TypeAssert.IsType<ResponseObject>(okResult.Value);
+        var data = TypeAssert.IsType<AttributeCollectionSubmitEventResponseData>(response.Data);
+        Assert.HasCount(1, data.Actions);
+        var showValidationErrorAction = TypeAssert.IsType<ShowValidationErrorAction>(data.Actions[0]);
+        Assert.AreEqual("Please fix the below errors to proceed.", showValidationErrorAction.Message);
+        Assert.AreEqual("Enter a valid first name", showValidationErrorAction.AttributeErrors["givenName"]);
+    }
+
+    [TestMethod]
     public async Task Throws_WhenSurnameAttributeHasWrongType()
     {
         var autoMocker = new AutoMocker();
+        SetupMockInteractionValidationResults(autoMocker);
         var handler = autoMocker.CreateInstance<AttributeCollectionSubmitHandler>();
 
         var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
@@ -122,9 +162,40 @@ public class AttributeCollectionSubmitHandlerTests
     }
 
     [TestMethod]
+    public async Task ReturnsValidationError_WhenSurnameIsInvalid()
+    {
+        var autoMocker = new AutoMocker();
+        SetupMockInteractionValidationResults(autoMocker);
+        var handler = autoMocker.CreateInstance<AttributeCollectionSubmitHandler>();
+
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
+                UserSignUpInfo = FakeEvent.Data.UserSignUpInfo with {
+                    Attributes = FakeEvent.Data.UserSignUpInfo.Attributes with {
+                        Surname = FakeEvent.Data.UserSignUpInfo.Attributes.Surname with {
+                            Value = "[Bradford]",
+                        },
+                    },
+                },
+            },
+        });
+
+        var result = await handler.Run(fakeRequest);
+
+        var okResult = TypeAssert.IsType<OkObjectResult>(result);
+        var response = TypeAssert.IsType<ResponseObject>(okResult.Value);
+        var data = TypeAssert.IsType<AttributeCollectionSubmitEventResponseData>(response.Data);
+        Assert.HasCount(1, data.Actions);
+        var showValidationErrorAction = TypeAssert.IsType<ShowValidationErrorAction>(data.Actions[0]);
+        Assert.AreEqual("Please fix the below errors to proceed.", showValidationErrorAction.Message);
+        Assert.AreEqual("Enter a valid last name", showValidationErrorAction.AttributeErrors["surname"]);
+    }
+
+    [TestMethod]
     public async Task ReturnsActionToModifyDisplayName()
     {
         var autoMocker = new AutoMocker();
+        SetupMockInteractionValidationResults(autoMocker);
         var handler = autoMocker.CreateInstance<AttributeCollectionSubmitHandler>();
 
         var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent);
