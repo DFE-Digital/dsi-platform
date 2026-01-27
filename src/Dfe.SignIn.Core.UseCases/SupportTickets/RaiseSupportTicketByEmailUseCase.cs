@@ -89,12 +89,20 @@ public sealed partial class RaiseSupportTicketByEmailUseCase(
 
     private async Task ValidateSubjectCodeAsync(InteractionContext<RaiseSupportTicketRequest> context)
     {
+        string propertyName = nameof(RaiseSupportTicketRequest.SubjectCode);
+
+        // Don't proceed with validation if a validation error has already occurred
+        // for the subject code request property.
+        if (context.ValidationResults.Any(result => result.MemberNames.Contains(propertyName))) {
+            return;
+        }
+
         var subjectOptionsResponse = await interaction.DispatchAsync(
             new GetSubjectOptionsForSupportTicketRequest()
         ).To<GetSubjectOptionsForSupportTicketResponse>();
 
         if (!subjectOptionsResponse.SubjectOptions.Any(option => option.Code == context.Request.SubjectCode)) {
-            context.AddValidationError("Invalid selection", nameof(RaiseSupportTicketRequest.SubjectCode));
+            context.AddValidationError("Invalid selection", propertyName);
         }
     }
 }
