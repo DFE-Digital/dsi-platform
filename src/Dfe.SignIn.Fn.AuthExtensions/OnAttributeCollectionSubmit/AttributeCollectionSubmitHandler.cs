@@ -64,8 +64,9 @@ public sealed class AttributeCollectionSubmitHandler(
         return ResponseAction(new ShowValidationErrorAction {
             Message = "Please fix the below errors to proceed.",
             AttributeErrors = validationResults
-                .Where(result => AttributeNameMappings.ContainsKey(result.MemberNames.First()))
-                .Select(result => (key: AttributeNameMappings[result.MemberNames.First()], message: result.ErrorMessage))
+                .GroupBy(result => result.MemberNames.First())
+                .Where(group => AttributeNameMappings.ContainsKey(group.Key))
+                .Select(group => (key: AttributeNameMappings[group.Key], message: group.First().ErrorMessage))
                 .ToDictionary(entry => entry.key, entry => entry.message ?? "Invalid value."),
         });
     }

@@ -106,7 +106,10 @@ public class AttributeCollectionSubmitHandlerTests
     }
 
     [TestMethod]
-    public async Task ReturnsValidationError_WhenGivenNameIsInvalid()
+    [DataRow("[Jo]", "Enter a valid first name")]
+    [DataRow("A very very long name exceeding sixty characters with brackets", "Enter a name with no more than 60 characters")]
+    [DataRow("[Jo] A very long name exceeding sixty characters with brackets", null)]
+    public async Task ReturnsValidationError_WhenGivenNameIsInvalid(string inputValue, string? expectedError)
     {
         var autoMocker = new AutoMocker();
         SetupMockInteractionValidationResults(autoMocker);
@@ -117,7 +120,7 @@ public class AttributeCollectionSubmitHandlerTests
                 UserSignUpInfo = FakeEvent.Data.UserSignUpInfo with {
                     Attributes = FakeEvent.Data.UserSignUpInfo.Attributes with {
                         GivenName = FakeEvent.Data.UserSignUpInfo.Attributes.GivenName with {
-                            Value = "[Jo]",
+                            Value = inputValue,
                         },
                     },
                 },
@@ -132,7 +135,10 @@ public class AttributeCollectionSubmitHandlerTests
         Assert.HasCount(1, data.Actions);
         var showValidationErrorAction = TypeAssert.IsType<ShowValidationErrorAction>(data.Actions[0]);
         Assert.AreEqual("Please fix the below errors to proceed.", showValidationErrorAction.Message);
-        Assert.AreEqual("Enter a valid first name", showValidationErrorAction.AttributeErrors["givenName"]);
+
+        if (expectedError is not null) {
+            Assert.AreEqual(expectedError, showValidationErrorAction.AttributeErrors["givenName"]);
+        }
     }
 
     [TestMethod]
@@ -162,7 +168,10 @@ public class AttributeCollectionSubmitHandlerTests
     }
 
     [TestMethod]
-    public async Task ReturnsValidationError_WhenSurnameIsInvalid()
+    [DataRow("[Bradford]", "Enter a valid last name")]
+    [DataRow("A very very long name exceeding sixty characters with brackets", "Enter a name with no more than 60 characters")]
+    [DataRow("[Bradford] Long name exceeding sixty characters with brackets", null)]
+    public async Task ReturnsValidationError_WhenSurnameIsInvalid(string inputValue, string? expectedError)
     {
         var autoMocker = new AutoMocker();
         SetupMockInteractionValidationResults(autoMocker);
@@ -173,7 +182,7 @@ public class AttributeCollectionSubmitHandlerTests
                 UserSignUpInfo = FakeEvent.Data.UserSignUpInfo with {
                     Attributes = FakeEvent.Data.UserSignUpInfo.Attributes with {
                         Surname = FakeEvent.Data.UserSignUpInfo.Attributes.Surname with {
-                            Value = "[Bradford]",
+                            Value = inputValue,
                         },
                     },
                 },
@@ -188,7 +197,10 @@ public class AttributeCollectionSubmitHandlerTests
         Assert.HasCount(1, data.Actions);
         var showValidationErrorAction = TypeAssert.IsType<ShowValidationErrorAction>(data.Actions[0]);
         Assert.AreEqual("Please fix the below errors to proceed.", showValidationErrorAction.Message);
-        Assert.AreEqual("Enter a valid last name", showValidationErrorAction.AttributeErrors["surname"]);
+
+        if (expectedError is not null) {
+            Assert.AreEqual(expectedError, showValidationErrorAction.AttributeErrors["surname"]);
+        }
     }
 
     [TestMethod]
