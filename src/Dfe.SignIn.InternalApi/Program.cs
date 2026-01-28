@@ -1,6 +1,9 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
+using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -56,10 +59,19 @@ builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
     .SetupAuditContext();
 
-// Setup Service Bus integration if needed...
-// var azureTokenCredential = new DefaultAzureCredential();
-// builder.Services
-//     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
+builder.Services
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
+
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
+}
+else {
+    builder.Services.AddAuditingWithServiceBus(builder.Configuration);
+}
 
 var app = builder.Build();
 

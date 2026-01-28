@@ -61,7 +61,10 @@ builder.Services
         builder.Configuration.GetRequiredSection("GeneralRedisCache"))
     .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(builder.Configuration);
 
-var azureTokenCredential = new DefaultAzureCredential();
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
