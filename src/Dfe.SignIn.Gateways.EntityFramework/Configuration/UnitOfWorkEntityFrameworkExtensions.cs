@@ -1,6 +1,7 @@
 
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,19 +50,19 @@ public static class UnitOfWorkEntityFrameworkExtensions
         AddUnitOfWork<IUnitOfWorkDirectories, UnitOfWorkDirectories, DbDirectoriesContext>(
             services,
             section,
-            "Directories:ConnectionString",
+            "Directories",
             addDirectoriesUnitOfWork);
 
         AddUnitOfWork<IUnitOfWorkOrganisations, UnitOfWorkOrganisations, DbOrganisationsContext>(
             services,
             section,
-            "Organisations:ConnectionString",
+            "Organisations",
             addOrganisationsUnitOfWork);
 
         AddUnitOfWork<IUnitOfWorkAudit, UnitOfWorkAudit, DbAuditContext>(
             services,
             section,
-            "Audit:ConnectionString",
+            "Audit",
             addAuditUnitOfWork);
 
         return services;
@@ -80,13 +81,37 @@ public static class UnitOfWorkEntityFrameworkExtensions
             return;
         }
 
-        var connectionString = section
-            .GetRequiredSection(configKey)
-            .Value ?? throw new InvalidOperationException($"Missing connection string {configKey}.");
+        var dbHost = section
+            .GetRequiredSection($"{configKey}:Host")
+            .Value ?? throw new InvalidOperationException($"Missing connection string {configKey}:Host.");
+
+        var dbName = section
+            .GetRequiredSection($"{configKey}:Name")
+            .Value ?? throw new InvalidOperationException($"Missing connection string {configKey}:Database.");
+
+        var dbUsername = section
+            .GetRequiredSection($"{configKey}:Username")
+            .Value ?? throw new InvalidOperationException($"Missing connection string {configKey}:Username.");
+
+        var dbPassword = section
+            .GetRequiredSection($"{configKey}:Password")
+            .Value ?? throw new InvalidOperationException($"Missing connection string {configKey}:Password.");
+
+        var connectionBuilder = new SqlConnectionStringBuilder {
+            DataSource = dbHost,
+            InitialCatalog = dbName,
+            UserID = dbUsername,
+            Password = dbPassword,
+            Encrypt = true,
+            TrustServerCertificate = true,
+            ConnectTimeout = 15,
+        };
 
         services.AddDbContext<TDbContext>((sp, options) => {
             var timestampInterceptor = sp.GetRequiredService<TimestampInterceptor>();
-            options.UseSqlServer(connectionString);
+            options.UseSqlServer(connectionBuilder.ConnectionString, sqlOptions => {
+                sqlOptions.EnableRetryOnFailure();
+            });
             options.AddInterceptors(timestampInterceptor);
         });
 
