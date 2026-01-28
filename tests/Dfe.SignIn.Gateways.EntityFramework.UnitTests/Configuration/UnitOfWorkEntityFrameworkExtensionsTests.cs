@@ -3,42 +3,41 @@ using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests.Configuration;
 
 [TestClass]
 public sealed class EntityFrameworkUnitOfWorkExtensionsTests
 {
-    private Mock<IConfiguration> configMock = null!;
-    private Mock<IConfigurationSection> directoriesSectionMock = null!;
-    private Mock<IConfigurationSection> organisationsSectionMock = null!;
+    private IConfiguration configMock = null!;
 
     [TestInitialize]
     public void Setup()
     {
-        this.configMock = new Mock<IConfiguration>();
+        this.configMock = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Directories:Host"] = "localhost",
+                ["Directories:Name"] = "Dirs",
+                ["Directories:Username"] = "sa",
+                ["Directories:Password"] = "password",
 
-        this.directoriesSectionMock = new Mock<IConfigurationSection>();
-        this.directoriesSectionMock.Setup(s => s.Value).Returns("Server=.;Database=Dirs;Trusted_Connection=True;");
-
-        this.organisationsSectionMock = new Mock<IConfigurationSection>();
-        this.organisationsSectionMock.Setup(s => s.Value).Returns("Server=.;Database=Orgs;Trusted_Connection=True;");
-
-        this.configMock.Setup(c => c.GetSection("Directories:ConnectionString"))
-            .Returns(this.directoriesSectionMock.Object);
-
-        this.configMock.Setup(c => c.GetSection("Organisations:ConnectionString"))
-            .Returns(this.organisationsSectionMock.Object);
+                ["Organisations:Host"] = "localhost",
+                ["Organisations:Name"] = "Orgs",
+                ["Organisations:Username"] = "sa",
+                ["Organisations:Password"] = "password",
+            })
+            .Build();
     }
 
     [TestMethod]
     public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenServicesNull()
     {
-
         Assert.ThrowsExactly<ArgumentNullException>(() => {
             ServiceCollection services = null!;
-            services.AddUnitOfWorkEntityFrameworkServices(this.configMock.Object, true, true);
+            services.AddUnitOfWorkEntityFrameworkServices(
+                this.configMock,
+                addDirectoriesUnitOfWork: true,
+                addOrganisationsUnitOfWork: true);
         });
     }
 
@@ -48,43 +47,53 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         Assert.ThrowsExactly<ArgumentNullException>(() => {
             var services = new ServiceCollection();
             IConfiguration config = null!;
-            services.AddUnitOfWorkEntityFrameworkServices(config, true, true);
+            services.AddUnitOfWorkEntityFrameworkServices(
+                config,
+                addDirectoriesUnitOfWork: true,
+                addOrganisationsUnitOfWork: true);
         });
     }
 
     [TestMethod]
-    public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenMissingConnectionString()
+    [DataRow("Host")]
+    [DataRow("Name")]
+    [DataRow("Username")]
+    [DataRow("Password")]
+    public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenMissingRequiredConfigValue(string missingKey)
     {
-        var missingSection = new Mock<IConfigurationSection>();
-        missingSection.Setup(s => s.Value).Returns((string?)null);
+        var configData = new Dictionary<string, string?> {
+            ["Directories:Host"] = "localhost",
+            ["Directories:Name"] = "Dirs",
+            ["Directories:Username"] = "sa",
+            ["Directories:Password"] = "password",
+        };
 
-        this.configMock
-            .Setup(c => c.GetSection("Directories:ConnectionString"))
-            .Returns(missingSection.Object);
+        configData[$"Directories:{missingKey}"] = null;
 
-        Assert.ThrowsExactly<InvalidOperationException>(() => {
-            var services = new ServiceCollection();
+        var brokenConfiguration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configData)
+            .Build();
 
-            services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
+        var services = new ServiceCollection();
+        services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-            UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
-                services,
-                this.configMock.Object,
-                addDirectoriesUnitOfWork: true,
-                addOrganisationsUnitOfWork: false);
-        });
+        var ex = Assert.ThrowsExactly<InvalidOperationException>(() =>
+        services.AddUnitOfWorkEntityFrameworkServices(
+            brokenConfiguration,
+            addDirectoriesUnitOfWork: true,
+            addOrganisationsUnitOfWork: false));
+
+        Assert.AreEqual($"Section 'Directories:{missingKey}' not found in configuration.", ex.Message);
     }
 
     [TestMethod]
     public void AddUnitOfWorkEntityFrameworkServices_Registers_TransactionDecorator_And_TransactionContext()
     {
         var services = new ServiceCollection();
-
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-        UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
-            services,
-            this.configMock.Object,
+        services.AddUnitOfWorkEntityFrameworkServices(
+            this.configMock,
             addDirectoriesUnitOfWork: true,
             addOrganisationsUnitOfWork: false);
 
@@ -103,16 +112,16 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         var services = new ServiceCollection();
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-        UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
-            services,
-            this.configMock.Object,
+        services.AddUnitOfWorkEntityFrameworkServices(
+            this.configMock,
             addDirectoriesUnitOfWork: false,
             addOrganisationsUnitOfWork: false);
 
         var provider = services.BuildServiceProvider();
-        var dispatcher = provider.GetRequiredService<IInteractionDispatcher>();
 
+        var dispatcher = provider.GetRequiredService<IInteractionDispatcher>();
         Assert.IsInstanceOfType(dispatcher, typeof(FakeDispatcher));
+
         Assert.IsNull(provider.GetService<IEntityFrameworkTransactionContext>());
     }
 
@@ -122,9 +131,8 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         var services = new ServiceCollection();
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-        UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
-            services,
-            this.configMock.Object,
+        services.AddUnitOfWorkEntityFrameworkServices(
+            this.configMock,
             addDirectoriesUnitOfWork: true,
             addOrganisationsUnitOfWork: false);
 
@@ -143,9 +151,8 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         var services = new ServiceCollection();
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-        UnitOfWorkEntityFrameworkExtensions.AddUnitOfWorkEntityFrameworkServices(
-            services,
-            this.configMock.Object,
+        services.AddUnitOfWorkEntityFrameworkServices(
+            this.configMock,
             addDirectoriesUnitOfWork: true,
             addOrganisationsUnitOfWork: false);
 

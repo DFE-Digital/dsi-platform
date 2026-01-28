@@ -1,6 +1,7 @@
 
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,18 +48,54 @@ public static class UnitOfWorkEntityFrameworkExtensions
         AddUnitOfWork<IUnitOfWorkDirectories, UnitOfWorkDirectories, DbDirectoriesContext>(
             services,
             section,
-            "Directories:ConnectionString",
+            "Directories",
             addDirectoriesUnitOfWork);
 
         AddUnitOfWork<IUnitOfWorkOrganisations, UnitOfWorkOrganisations, DbOrganisationsContext>(
             services,
             section,
-            "Organisations:ConnectionString",
+            "Organisations",
             addOrganisationsUnitOfWork);
 
         return services;
     }
 
+    /// <summary>
+    /// Adds a specific Entity Framework Core unit of work implementation to the dependency
+    /// injection <see cref="IServiceCollection"/>. Configures the corresponding <typeparamref name="TDbContext"/>
+    /// with a SQL Server connection string derived from configuration and attaches a <see cref="TimestampInterceptor"/>
+    /// to automatically manage CreatedAt and UpdatedAt timestamps.
+    /// </summary>
+    /// <typeparam name="TUnitOfWorkContract">
+    /// The interface type representing the unit of work contract.
+    /// </typeparam>
+    /// <typeparam name="TUnitOfWorkConcrete">
+    /// The concrete implementation type of the unit of work. Must inherit from
+    /// <see cref="EntityFrameworkUnitOfWork"/> and implement <typeparamref name="TUnitOfWorkContract"/>.
+    /// </typeparam>
+    /// <typeparam name="TDbContext">
+    /// The type of <see cref="DbContext"/> associated with this unit of work.
+    /// </typeparam>
+    /// <param name="services">
+    /// The <see cref="IServiceCollection"/> to register the unit of work and DbContext with.
+    /// </param>
+    /// <param name="section">
+    /// The <see cref="IConfiguration"/> section containing the connection settings for this unit of work.
+    /// Must contain keys: <c>Host</c>, <c>Name</c>, <c>Username</c>, and <c>Password</c>.
+    /// </param>
+    /// <param name="configKey">
+    /// The configuration prefix key (e.g., "Directories" or "Organisations") used to locate the correct
+    /// settings within <paramref name="section"/>.
+    /// </param>
+    /// <param name="register">
+    /// If <c>true</c>, the unit of work and DbContext will be registered.
+    /// If <c>false</c>, the method returns immediately without registering.
+    /// </param>
+    /// <exception cref="InvalidOperationException">
+    ///   <para>Thrown if any required configuration value
+    ///   (<c>Host</c>, <c>Name</c>, <c>Username</c>, <c>Password</c>)
+    ///   is missing for the specified <paramref name="configKey"/>.</para>
+    /// </exception>
     private static void AddUnitOfWork<TUnitOfWorkContract, TUnitOfWorkConcrete, TDbContext>(
         IServiceCollection services,
         IConfiguration section,
@@ -72,13 +109,29 @@ public static class UnitOfWorkEntityFrameworkExtensions
             return;
         }
 
-        var connectionString = section
-            .GetRequiredSection(configKey)
-            .Value ?? throw new InvalidOperationException($"Missing connection string {configKey}.");
+        var dbHost = section.GetRequiredSection($"{configKey}:Host").Value;
+
+        var dbName = section.GetRequiredSection($"{configKey}:Name").Value;
+
+        var dbUsername = section.GetRequiredSection($"{configKey}:Username").Value;
+
+        var dbPassword = section.GetRequiredSection($"{configKey}:Password").Value;
+
+        var connectionBuilder = new SqlConnectionStringBuilder {
+            DataSource = dbHost,
+            InitialCatalog = dbName,
+            UserID = dbUsername,
+            Password = dbPassword,
+            Encrypt = true,
+            TrustServerCertificate = true,
+            ConnectTimeout = 15,
+        };
 
         services.AddDbContext<TDbContext>((sp, options) => {
             var timestampInterceptor = sp.GetRequiredService<TimestampInterceptor>();
-            options.UseSqlServer(connectionString);
+            options.UseSqlServer(connectionBuilder.ConnectionString, sqlOptions => {
+                sqlOptions.EnableRetryOnFailure();
+            });
             options.AddInterceptors(timestampInterceptor);
         });
 
