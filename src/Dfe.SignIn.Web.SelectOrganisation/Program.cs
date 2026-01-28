@@ -1,9 +1,11 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.SelectOrganisation.Configuration;
@@ -65,6 +67,14 @@ builder.Services
 
 builder.Services
     .AddInteractionFramework();
+
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
+builder.Services
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
+    .AddAuditingWithServiceBus(builder.Configuration);
 
 // TEMP: Add mocked interactors.
 builder.Services.AddInteractors(
