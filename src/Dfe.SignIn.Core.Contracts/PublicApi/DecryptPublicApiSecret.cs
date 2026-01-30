@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Dfe.SignIn.Core.Contracts.PublicApi;
 
 /// <summary>
@@ -14,6 +16,7 @@ public sealed record DecryptPublicApiSecretRequest
     /// <summary>
     /// The ApiSecret that needs to be decrypted.
     /// </summary>
+    [Required]
     public required string EncryptedApiSecret { get; init; }
 }
 
