@@ -1,6 +1,5 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.Users;
-using Dfe.SignIn.WebFramework.Configuration;
 
 namespace Dfe.SignIn.InternalApi.Configuration;
 
@@ -21,6 +20,7 @@ public static class UseCaseUserExtensions
         this IServiceCollection services, IConfigurationRoot configuration)
     {
         services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
+        services.AddInteractor<GetUserProfileUseCase>();
 
         services
             .Configure<BlockedEmailAddressOptions>(options => {
