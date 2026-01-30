@@ -86,6 +86,19 @@ aside {
   }
 }
 
+.app-related-actions {
+  border-top: 1px solid map.get($govuk-colours, "blue");
+  border-bottom: 1px solid map.get($govuk-colours, "blue");
+  padding-top: 15px;
+  margin-top: govuk-spacing(6);
+}
+
+.app-related-actions__heading {
+  @extend .govuk-heading-m;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
 .pull-left {
   @include govuk-media-query(tablet) {
     float: left;
