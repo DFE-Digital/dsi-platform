@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.PublicApi;
 using Dfe.SignIn.NodeApi.Client.Applications.Models;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +11,7 @@ namespace Dfe.SignIn.NodeApi.Client.Applications;
 /// </summary>
 [ApiRequester, NodeApi(NodeApiName.Applications)]
 public sealed class GetApplicationApiConfigurationNodeRequester(
+    IInteractionDispatcher interaction,
     [FromKeyedServices(NodeApiName.Applications)] HttpClient applicationsClient
 ) : Interactor<GetApplicationApiConfigurationRequest, GetApplicationApiConfigurationResponse>
 {
@@ -25,10 +27,16 @@ public sealed class GetApplicationApiConfigurationNodeRequester(
             cancellationToken
         ) ?? throw new ApplicationNotFoundException(null, context.Request.ClientId);
 
+        var apiSecretResponse = await interaction.DispatchAsync(
+            new DecryptPublicApiSecretRequest {
+                EncryptedApiSecret = response.RelyingParty.ApiSecret ?? string.Empty
+            }
+        ).To<DecryptedPublicApiSecretResponse>();
+
         return new GetApplicationApiConfigurationResponse {
             Configuration = new() {
                 ClientId = response.RelyingParty.ClientId,
-                ApiSecret = response.RelyingParty.ApiSecret ?? "",
+                ApiSecret = apiSecretResponse.ApiSecret
             }
         };
     }
