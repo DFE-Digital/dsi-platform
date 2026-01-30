@@ -13,8 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Dfe.SignIn.Base.Framework\Dfe.SignIn.Base.Framework.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.Contracts\Dfe.SignIn.Core.Contracts.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.Entities\Dfe.SignIn.Core.Entities.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.Interfaces\Dfe.SignIn.Core.Interfaces.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.Public\Dfe.SignIn.Core.Public.csproj" />
   </ItemGroup>

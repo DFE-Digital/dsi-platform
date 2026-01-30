@@ -31,6 +31,7 @@
     <ProjectReference Include="..\Dfe.SignIn.Core.Public\Dfe.SignIn.Core.Public.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.UseCases\Dfe.SignIn.Core.UseCases.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Gateways.DistributedCache\Dfe.SignIn.Gateways.DistributedCache.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Gateways.EntityFramework\Dfe.SignIn.Gateways.EntityFramework.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Gateways.ServiceBus\Dfe.SignIn.Gateways.ServiceBus.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.InternalApi.Contracts\Dfe.SignIn.InternalApi.Contracts.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.NodeApi.Client\Dfe.SignIn.NodeApi.Client.csproj" />
