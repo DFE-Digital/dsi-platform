@@ -1,16 +1,35 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.PublicApi;
 using Dfe.SignIn.NodeApi.Client.Applications;
 using Dfe.SignIn.NodeApi.Client.Applications.Models;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
+using Moq;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Applications;
 
 [TestClass]
 public sealed class GetApplicationApiConfigurationNodeRequesterTests
 {
+    private Mock<IInteractionDispatcher> mockInteraction = null!;
+
+    [TestInitialize]
+    public void Setup()
+    {
+        this.mockInteraction = new Mock<IInteractionDispatcher>();
+
+        this.mockInteraction
+            .Setup(b => b.DispatchAsync(
+                It.IsAny<InteractionContext<DecryptPublicApiSecretRequest>>()
+            ))
+            .Returns(InteractionTask.FromResult(new DecryptedPublicApiSecretResponse {
+                ApiSecret = "mock-api-secret"
+            }));
+    }
+
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
@@ -49,7 +68,7 @@ public sealed class GetApplicationApiConfigurationNodeRequesterTests
             BaseAddress = new Uri("http://applications.localhost")
         };
 
-        var controller = new GetApplicationApiConfigurationNodeRequester(applicationsClient);
+        var controller = new GetApplicationApiConfigurationNodeRequester(this.mockInteraction.Object, applicationsClient);
 
         var response = await controller.InvokeAsync(new GetApplicationApiConfigurationRequest {
             ClientId = "mock-client-id"
@@ -59,7 +78,7 @@ public sealed class GetApplicationApiConfigurationNodeRequesterTests
 
         Assert.AreEqual(response.Configuration, new ApplicationApiConfiguration {
             ClientId = mockDto.RelyingParty.ClientId,
-            ApiSecret = mockDto.RelyingParty.ApiSecret!,
+            ApiSecret = mockDto.RelyingParty.ApiSecret,
         });
     }
 
@@ -75,7 +94,7 @@ public sealed class GetApplicationApiConfigurationNodeRequesterTests
             BaseAddress = new Uri("http://applications.localhost")
         };
 
-        var controller = new GetApplicationApiConfigurationNodeRequester(applicationsClient);
+        var controller = new GetApplicationApiConfigurationNodeRequester(this.mockInteraction.Object, applicationsClient);
 
         await Assert.ThrowsExactlyAsync<ApplicationNotFoundException>(()
             => controller.InvokeAsync(new GetApplicationApiConfigurationRequest {
