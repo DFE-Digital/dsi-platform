@@ -31,7 +31,9 @@ public sealed class DecryptApiSecretUseCase(
             InteractionContext<DecryptPublicApiSecretRequest> context,
             CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(context.Request.EncryptedApiSecret) || !context.Request.EncryptedApiSecret.StartsWith("ENC:0:")) {
+        context.ThrowIfHasValidationErrors();
+
+        if (!context.Request.EncryptedApiSecret.StartsWith("ENC:0:")) {
             return Task.FromResult(new DecryptedPublicApiSecretResponse {
                 ApiSecret = context.Request.EncryptedApiSecret ?? string.Empty
             });

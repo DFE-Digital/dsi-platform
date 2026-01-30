@@ -27,6 +27,8 @@ public sealed class EncryptApiSecretUseCase(
             InteractionContext<EncryptPublicApiSecretRequest> context,
             CancellationToken cancellationToken = default)
     {
+        context.ThrowIfHasValidationErrors();
+
         var encrypted = AesGcmV1EncryptionProvider.Encrypt(
             optionsAccessor.Value.EncryptionKeyBytes,
             Encoding.UTF8.GetBytes(context.Request.ApiSecret));
