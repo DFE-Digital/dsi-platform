@@ -401,5 +401,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-# Devops
-!azure-pipelines/artifacts
+# GitHub workflows
+/build.sln

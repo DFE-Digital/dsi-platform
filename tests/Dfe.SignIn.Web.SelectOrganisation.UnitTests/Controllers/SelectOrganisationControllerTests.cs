@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.Core.Public;
@@ -285,6 +286,29 @@ public sealed class SelectOrganisationControllerTests
     }
 
     [TestMethod]
+    public async Task Index_WritesToAudit_WhenUserHasOneOption()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSession(autoMocker, FakeSessionWithOneOption);
+
+        var capturedWriteToAudit = new List<WriteToAuditRequest>();
+        autoMocker.CaptureRequest<WriteToAuditRequest>(capturedWriteToAudit.Add);
+
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        await controller.Index("mock-client", "091889d2-1210-4dc0-8cec-be7975598916");
+
+        var expectedAuditRequest = new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.SelectOrganisation,
+            EventName = AuditSelectOrganisationEventNames.Selection,
+            Message = "Automatically selected only option 'Fake Organisation A'",
+            UserId = FakeUserId,
+            OrganisationId = FakeOrganisationA.Id,
+        };
+        Assert.Contains(expectedAuditRequest, capturedWriteToAudit);
+    }
+
+    [TestMethod]
     public async Task Index_PresentsOptionsToUser_WhenUserHasMultipleOptions()
     {
         var autoMocker = CreateAutoMocker();
@@ -535,6 +559,32 @@ public sealed class SelectOrganisationControllerTests
         AssertQueryParameter(callbackParams, CallbackParamNames.RequestId, "491127e6-6a02-4abe-9479-a38508482727");
         AssertQueryParameter(callbackParams, CallbackParamNames.Type, CallbackTypes.Selection);
         AssertQueryParameter(callbackParams, CallbackParamNames.Selection, "3c44b79a-991f-4068-b8d9-a761d651146f");
+    }
+
+    [TestMethod]
+    public async Task PostIndex_WritesToAudit_WhenUserSelectsOption()
+    {
+        var autoMocker = CreateAutoMocker();
+        MockSession(autoMocker, FakeSessionWithMultipleOptions);
+
+        var capturedWriteToAudit = new List<WriteToAuditRequest>();
+        autoMocker.CaptureRequest<WriteToAuditRequest>(capturedWriteToAudit.Add);
+
+        var controller = autoMocker.CreateInstance<SelectOrganisationController>();
+
+        var inputViewModel = Activator.CreateInstance<SelectOrganisationViewModel>();
+        inputViewModel.SelectedOrganisationIdInput = new Guid("3c44b79a-991f-4068-b8d9-a761d651146f");
+
+        await controller.PostIndex("mock-client", "091889d2-1210-4dc0-8cec-be7975598916", inputViewModel);
+
+        var expectedAuditRequest = new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.SelectOrganisation,
+            EventName = AuditSelectOrganisationEventNames.Selection,
+            Message = "Selected organisation 'Fake Organisation A'",
+            UserId = FakeUserId,
+            OrganisationId = FakeOrganisationA.Id,
+        };
+        Assert.Contains(expectedAuditRequest, capturedWriteToAudit);
     }
 
     #endregion

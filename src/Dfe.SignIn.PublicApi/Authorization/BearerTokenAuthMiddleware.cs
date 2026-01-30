@@ -54,7 +54,7 @@ public sealed class BearerTokenAuthMiddleware(
             await SendErrorResponseAsync("jwt expired", context, StatusCodes.Status403Forbidden);
             return;
         }
-        catch {
+        catch (SecurityTokenException) {
             await SendErrorResponseAsync("Your client is not authorized to use this api", context, StatusCodes.Status403Forbidden);
             return;
         }

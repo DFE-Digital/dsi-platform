@@ -61,7 +61,10 @@ builder.Services
         builder.Configuration.GetRequiredSection("GeneralRedisCache"))
     .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(builder.Configuration);
 
-var azureTokenCredential = new DefaultAzureCredential();
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
@@ -72,7 +75,8 @@ else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Directories];
 
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))

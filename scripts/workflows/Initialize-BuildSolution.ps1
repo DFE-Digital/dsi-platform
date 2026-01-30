@@ -34,7 +34,7 @@ $ErrorActionPreference = "Stop"
 $path = Resolve-Path "."
 
 Write-Host "`nCreating build.sln..."
-dotnet new sln --name build --output $path
+Copy-Item -Path ./solutions/blank.sln -Destination ./build.sln
 
 Write-Host "Adding projects..."
 $sourceProjectPaths = $Projects.SourceProjects | ForEach-Object {

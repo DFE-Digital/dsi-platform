@@ -64,6 +64,22 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
 
         var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
 
+        var context = new InteractionContext<RaiseSupportTicketRequest>(FakeRequest);
+        context.AddValidationError("Invalid input", nameof(RaiseSupportTicketRequest.SubjectCode));
+
+        return Assert.ThrowsExactlyAsync<InvalidRequestException>(()
+            => interactor.InvokeAsync(context));
+    }
+
+    [TestMethod]
+    public Task Throws_WhenUnknownSubjectCodeIsProvided()
+    {
+        var autoMocker = new AutoMocker();
+        SetupOptions(autoMocker);
+        SetupSubjectOptionsResponse(autoMocker);
+
+        var interactor = autoMocker.CreateInstance<RaiseSupportTicketByEmailUseCase>();
+
         return Assert.ThrowsExactlyAsync<InvalidRequestException>(()
             => interactor.InvokeAsync(FakeRequest with {
                 SubjectCode = "unexpected",

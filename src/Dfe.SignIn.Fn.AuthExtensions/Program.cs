@@ -1,6 +1,9 @@
+using Azure.Identity;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Fn.AuthExtensions.Configuration;
+using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -39,21 +42,25 @@ builder.Services
     .Configure<AuditOptions>(options => options.ApplicationName ??= "AuthExtensions")
     .SetupAuditContext();
 
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
+builder.Services
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
+    .AddAuditingWithServiceBus(builder.Configuration);
+
 // Get token credential for making API requests to Node APIs.
-var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+var apiTokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions")
 );
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [
-        NodeApiName.Access,
-        NodeApiName.Directories,
-        NodeApiName.Organisations,
-        NodeApiName.Search,
-    ];
+    NodeApiName.Access,  NodeApiName.Directories,  NodeApiName.Organisations, NodeApiName.Search];
 
 builder.Services
     .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, apiTokenCredential)
     .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
 
 builder.Services

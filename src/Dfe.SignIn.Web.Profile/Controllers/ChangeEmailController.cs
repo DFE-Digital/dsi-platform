@@ -18,7 +18,8 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 public sealed class ChangeEmailController(
     IOptionsMonitor<ApplicationOidcOptions> oidcOptionsAccessor,
     IOptionsMonitor<DistributedCacheInteractionLimiterOptions> limiterOptions,
-    IInteractionDispatcher interaction
+    IInteractionDispatcher interaction,
+    ILogger<ChangeEmailController> logger
 ) : Controller
 {
     [HttpGet]
@@ -137,10 +138,12 @@ public sealed class ChangeEmailController(
         catch (NoPendingChangeEmailException) {
             return this.RedirectToAction(nameof(Index));
         }
-        catch (FailedToUpdateAuthenticationMethodException) {
+        catch (FailedToUpdateAuthenticationMethodException ex) {
+            logger.LogError(ex, "Partially failed to change email address.");
             return this.ErrorView("ErrorUpdateAuthenticationMethod");
         }
-        catch {
+        catch (Exception ex) {
+            logger.LogError(ex, "Failed to change email address.");
             return this.ErrorView("ErrorUpdateEmailAddress");
         }
     }

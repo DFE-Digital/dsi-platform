@@ -16,15 +16,6 @@ Describe "Initialize-BuildSolution" {
     }
 
     Context "when no projects are given" {
-        It "should create solution" {
-            & $Cmdlet -Projects @{}
-
-            Should -Invoke dotnet -ParameterFilter {
-                $args[0] -ceq 'new' -and `
-                    $args[1] -ceq 'sln'
-            } -Times 1 -Exactly
-        }
-
         It "should not attempt to add projects to solution" {
             & $Cmdlet -Projects @{}
 
@@ -37,18 +28,6 @@ Describe "Initialize-BuildSolution" {
     }
 
     Context "when source and test projects are given" {
-        It "should create solution" {
-            & $Cmdlet -Projects @{
-                SourceProjects = @( 'Dfe.SignIn.PublicApi' )
-                TestProjects   = @( 'Dfe.SignIn.PublicApi.UnitTests' )
-            }
-
-            Should -Invoke dotnet -ParameterFilter {
-                $args[0] -ceq 'new' -and `
-                    $args[1] -ceq 'sln'
-            } -Times 1 -Exactly
-        }
-
         It "should add source project to solution" {
             & $Cmdlet -Projects @{
                 SourceProjects = @( 'Dfe.SignIn.PublicApi' )

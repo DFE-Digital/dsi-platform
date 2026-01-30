@@ -1,9 +1,12 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.SelectOrganisation.Configuration;
@@ -36,7 +39,8 @@ builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.ConfigureDsiAntiforgeryCookie();
 builder.Services.AddHealthChecks();
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
@@ -65,10 +69,19 @@ builder.Services
 builder.Services
     .AddInteractionFramework();
 
-// TEMP: Add mocked interactors.
-builder.Services.AddInteractors(
-    InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly)
-);
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
+builder.Services
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
+
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
+}
+else {
+    builder.Services.AddAuditingWithServiceBus(builder.Configuration);
+}
 
 var app = builder.Build();
 

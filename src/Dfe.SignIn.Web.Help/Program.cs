@@ -37,7 +37,8 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Applications:AuthenticatedHttpClientOptions")
 );
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Applications];
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Applications];
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
