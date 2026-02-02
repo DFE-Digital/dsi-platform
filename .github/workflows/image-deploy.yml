@@ -8,6 +8,11 @@ on:
         required: true
         type: string
 
+      deployment_branch:
+        description: Deployment branch
+        default: main
+        type: string
+
       project_name:
         description: Project name
         required: true
@@ -64,6 +69,7 @@ jobs:
       - name: Deploy image for '${{ inputs.project_name }}'
         env:
           AZURE_PIPELINE_ID: ${{ inputs.azure_pipeline_id }}
+          BRANCH: ${{ inputs.deployment_branch }}
           PROJECT_NAME: ${{ inputs.project_name }}
           REPOSITORY_NAME: ${{ inputs.repository_name }}
           TAG_NAME: ${{ inputs.tag_name }}
@@ -73,6 +79,7 @@ jobs:
             -Token "$env:AZURE_DEVOPS_TOKEN" `
             -ProjectUrl "${{ vars.AZURE_DEVOPS_PROJECT_URL }}" `
             -PipelineId "$env:AZURE_PIPELINE_ID" `
+            -Branch "$env:BRANCH" `
             -TemplateParameters @{
               projectName = "$env:PROJECT_NAME"
               repositoryName = "$env:REPOSITORY_NAME"

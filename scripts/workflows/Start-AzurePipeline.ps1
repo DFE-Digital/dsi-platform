@@ -16,6 +16,9 @@
 .PARAMETER PipelineId
     The ID of the pipeline to run.
 
+.PARAMETER Branch
+    Name of the branch of the pipeline that is to be used (e.g. main).
+
 .PARAMETER TemplateParameters
     An object with key/value template parameters.
 
@@ -45,11 +48,19 @@ param (
     [Parameter(Mandatory = $true)]
     [string] $PipelineId,
 
+    [string] $Branch = "main",
+
     [Parameter(Mandatory = $true)]
     [PSCustomObject] $TemplateParameters
 )
 
 $ErrorActionPreference = "Stop"
+
+if (!$Branch) {
+    $Branch = "main"
+}
+
+Write-Host "`nTriggering pipeline for devops branch: $Branch"
 
 $authBytes = [Text.Encoding]::ASCII.GetBytes(":$Token")
 $base64Auth = [Convert]::ToBase64String($authBytes)
@@ -59,6 +70,13 @@ $headers = @{
 }
 
 $body = @{
+    resources          = @{
+        repositories = @{
+            self = @{
+                refName = "refs/heads/$Branch"
+            }
+        }
+    }
     templateParameters = $TemplateParameters
 } | ConvertTo-Json -Depth 5
 
