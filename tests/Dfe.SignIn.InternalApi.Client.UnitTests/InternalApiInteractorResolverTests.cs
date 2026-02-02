@@ -43,7 +43,7 @@ public sealed class InternalApiInteractorResolverTests
         var mockInnerResolver = new Mock<IInteractorResolver>();
 
         var provider = new ServiceCollection()
-            .AddKeyedSingleton(ServiceCollectionExtensions.InternalApiKey, new Mock<HttpClient>().Object)
+            .AddKeyedSingleton(InternalApiServiceCollectionExtensions.InternalApiKey, new Mock<HttpClient>().Object)
             .AddSingleton(new Mock<IOptionsMonitor<JsonSerializerOptions>>().Object)
             .AddSingleton(new Mock<IExceptionJsonSerializer>().Object)
             .BuildServiceProvider();

@@ -8,7 +8,7 @@ using Moq;
 namespace Dfe.SignIn.NodeApi.Client.UnitTests;
 
 [TestClass]
-public sealed class ServiceCollectionExtensionsTests
+public sealed class NodeApiServiceCollectionExtensionsTests
 {
     private static IConfiguration GetMockApiConfiguration()
     {
@@ -88,7 +88,7 @@ public sealed class ServiceCollectionExtensionsTests
     public void SetupNodeApiClient_Throws_WhenServicesArgumentIsNull()
     {
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceCollectionExtensions.SetupNodeApiClient(
+            => NodeApiServiceCollectionExtensions.SetupNodeApiClient(
                 services: null!,
                 apiNames: [],
                 apiConfiguration: GetMockApiConfiguration(),
@@ -102,7 +102,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceCollectionExtensions.SetupNodeApiClient(
+            => NodeApiServiceCollectionExtensions.SetupNodeApiClient(
                 services,
                 apiNames: null!,
                 apiConfiguration: GetMockApiConfiguration(),
@@ -116,7 +116,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceCollectionExtensions.SetupNodeApiClient(
+            => NodeApiServiceCollectionExtensions.SetupNodeApiClient(
                 services,
                 apiNames: [],
                 apiConfiguration: GetMockApiConfiguration(),
@@ -129,7 +129,7 @@ public sealed class ServiceCollectionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        var result = ServiceCollectionExtensions.SetupNodeApiClient(
+        var result = NodeApiServiceCollectionExtensions.SetupNodeApiClient(
             services,
             [NodeApiName.Directories],
             apiConfiguration: GetMockApiConfiguration(),

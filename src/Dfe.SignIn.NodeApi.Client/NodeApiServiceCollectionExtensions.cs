@@ -12,9 +12,9 @@ namespace Dfe.SignIn.NodeApi.Client;
 /// <summary>
 /// Extensions for adding Node.js API client services to a service collection.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static class NodeApiServiceCollectionExtensions
 {
-    private static readonly Assembly ThisAssembly = typeof(ServiceCollectionExtensions).Assembly;
+    private static readonly Assembly ThisAssembly = typeof(NodeApiServiceCollectionExtensions).Assembly;
 
     /// <summary>
     /// Determines whether all of the middle-tier APIs that are required by an

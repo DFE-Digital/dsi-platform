@@ -6,7 +6,7 @@ using Moq;
 namespace Dfe.SignIn.InternalApi.Client.UnitTests;
 
 [TestClass]
-public sealed class ServiceCollectionExtensionsTests
+public sealed class InternalApiServiceCollectionExtensionsTests
 {
     #region SetupInternalApiClient(IServiceCollection, TokenCredential)
 
@@ -14,7 +14,7 @@ public sealed class ServiceCollectionExtensionsTests
     public void SetupInternalApiClient_Throws_WhenServicesArgumentIsNull()
     {
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceCollectionExtensions.SetupInternalApiClient(
+            => InternalApiServiceCollectionExtensions.SetupInternalApiClient(
                 services: null!,
                 credential: new Mock<TokenCredential>().Object
             ));
@@ -26,7 +26,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceCollectionExtensions.SetupInternalApiClient(
+            => InternalApiServiceCollectionExtensions.SetupInternalApiClient(
                 services,
                 credential: null!
             ));
@@ -39,7 +39,7 @@ public sealed class ServiceCollectionExtensionsTests
 
         services.AddInteractionFramework();
 
-        var result = ServiceCollectionExtensions.SetupInternalApiClient(
+        var result = InternalApiServiceCollectionExtensions.SetupInternalApiClient(
             services,
             credential: new Mock<TokenCredential>().Object
         );
