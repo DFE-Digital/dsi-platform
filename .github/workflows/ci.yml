@@ -61,6 +61,11 @@ on:
         default: false
         type: boolean
 
+      deployment_branch:
+        description: Deployment branch
+        default: main
+        type: string
+
       no_trigger_deploy:
         description: Do not trigger deployment
         default: false
@@ -251,6 +256,7 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     with:
       azure_pipeline_id: ${{ vars.AZURE_PIPELINE_ID_DEPLOY }}
+      deployment_branch: ${{ github.event.inputs.deployment_branch }}
       project_name: ${{ matrix.image.project }}
       repository_name: ${{ matrix.image.repository }}
       tag_name: ${{ github.run_id }}
