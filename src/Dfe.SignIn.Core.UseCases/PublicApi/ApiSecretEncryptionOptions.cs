@@ -11,12 +11,12 @@ public sealed class ApiSecretEncryptionOptions : IOptions<ApiSecretEncryptionOpt
     /// <summary>
     /// The encryption key used for encrypting and decrypting ApiSecrets.
     /// </summary>
-    public required string EncryptionKey { get; set; }
+    public required string Key { get; set; }
 
     /// <summary>
     /// The encryption key as a byte array.
     /// </summary>
-    public byte[] EncryptionKeyBytes => Encoding.UTF8.GetBytes(this.EncryptionKey);
+    public byte[] EncryptionKeyBytes => Encoding.UTF8.GetBytes(this.Key);
 
     ApiSecretEncryptionOptions IOptions<ApiSecretEncryptionOptions>.Value => this;
 }

@@ -10,7 +10,7 @@ public static class PublicApiHelpers
     public static EncryptApiSecretUseCase CreateEncryptionUseCase(string key)
     {
         var options = Options.Create(new ApiSecretEncryptionOptions {
-            EncryptionKey = key
+            Key = key
         });
 
         return new EncryptApiSecretUseCase(options);
@@ -28,7 +28,7 @@ public static class PublicApiHelpers
     public static DecryptApiSecretUseCase CreateDecryptionUseCase(string key)
     {
         var options = Options.Create(new ApiSecretEncryptionOptions {
-            EncryptionKey = key
+            Key = key
         });
 
         return new DecryptApiSecretUseCase(options);
