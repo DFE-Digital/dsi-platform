@@ -1,6 +1,7 @@
 using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
@@ -9,6 +10,20 @@ namespace Dfe.SignIn.NodeApi.Client.UnitTests;
 [TestClass]
 public sealed class ServiceCollectionExtensionsTests
 {
+    private static IConfiguration GetMockApiConfiguration()
+    {
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["InternalApi:BaseAddress"] = "http://internal-api.localhost",
+                ["InternalApi:ClientId"] = "fake-client-id",
+                ["InternalApi:Tenant"] = "fake-tenant",
+                ["InternalApi:ClientSecret"] = "fake-client-secret",
+                ["InternalApi:HostUrl"] = "http://host.localhost",
+                ["InternalApi:Resource"] = "00000000-0000-0000-0000-000000000000",
+            })
+            .Build();
+    }
+
     #region AreAllRequiredApisAvailable(InteractorTypeDescriptor, IEnumerable<NodeApiName>)
 
     [TestMethod]
@@ -76,6 +91,7 @@ public sealed class ServiceCollectionExtensionsTests
             => ServiceCollectionExtensions.SetupNodeApiClient(
                 services: null!,
                 apiNames: [],
+                apiConfiguration: GetMockApiConfiguration(),
                 credential: new Mock<TokenCredential>().Object
             ));
     }
@@ -89,6 +105,7 @@ public sealed class ServiceCollectionExtensionsTests
             => ServiceCollectionExtensions.SetupNodeApiClient(
                 services,
                 apiNames: null!,
+                apiConfiguration: GetMockApiConfiguration(),
                 credential: new Mock<TokenCredential>().Object
             ));
     }
@@ -102,6 +119,7 @@ public sealed class ServiceCollectionExtensionsTests
             => ServiceCollectionExtensions.SetupNodeApiClient(
                 services,
                 apiNames: [],
+                apiConfiguration: GetMockApiConfiguration(),
                 credential: null!
             ));
     }
@@ -114,7 +132,8 @@ public sealed class ServiceCollectionExtensionsTests
         var result = ServiceCollectionExtensions.SetupNodeApiClient(
             services,
             [NodeApiName.Directories],
-                credential: new Mock<TokenCredential>().Object
+            apiConfiguration: GetMockApiConfiguration(),
+            credential: new Mock<TokenCredential>().Object
         );
 
         Assert.AreSame(services, result);

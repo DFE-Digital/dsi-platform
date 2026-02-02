@@ -29,9 +29,9 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
-// Get token credential for making API requests to Node APIs.
+// Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
-    builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions")
+    builder.Configuration.GetRequiredSection("InternalApiClient")
 );
 
 // Add services to the container.
@@ -56,8 +56,7 @@ builder.Services
     .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
     .SetupFrontendAssets();
 builder.Services
-    .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient(requiredNodeApiNames, tokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
     .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
 
 builder.Services
