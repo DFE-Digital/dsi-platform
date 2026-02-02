@@ -55,8 +55,6 @@ Describe "Start-AzurePipeline" {
 
             $capturedBody = $captured['Body'] | ConvertFrom-Json -Depth 5
 
-            Write-Host $capturedBody
-
             $captured['Method'] | Should -Be 'Post'
             $captured.Headers["Content-Type"]  | Should -Be "application/json"
             $captured.Headers["Authorization"] | Should -Be "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$Token")))"
