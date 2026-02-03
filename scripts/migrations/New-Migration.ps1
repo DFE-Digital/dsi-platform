@@ -18,7 +18,7 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)]
-    [ValidateSet("directories", "organisations")]
+    [ValidateSet("directories", "organisations", "audit")]
     [string]$Context,
 
     [Parameter(Mandatory)]
