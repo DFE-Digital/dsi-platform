@@ -82,8 +82,6 @@ public partial class DbOrganisationsContext : DbContext
 
     public virtual DbSet<UserServiceRoleEntity> UserServiceRoles { get; set; }
 
-    public virtual DbSet<VwCognitiveSearchEntity> VwCognitiveSearches { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new CognitiveSearchEntityConfiguration());
@@ -120,7 +118,6 @@ public partial class DbOrganisationsContext : DbContext
         modelBuilder.ApplyConfiguration(new UserServiceIdentifierEntityConfiguration());
         modelBuilder.ApplyConfiguration(new UserServiceRequestEntityConfiguration());
         modelBuilder.ApplyConfiguration(new UserServiceRoleEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new VwCognitiveSearchEntityConfiguration());
 
         modelBuilder.HasSequence("numeric_id_sequence")
             .StartsAt(50000L)
