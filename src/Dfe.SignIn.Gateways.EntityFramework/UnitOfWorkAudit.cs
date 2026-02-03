@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
 
 namespace Dfe.SignIn.Gateways.EntityFramework;
@@ -13,6 +14,7 @@ namespace Dfe.SignIn.Gateways.EntityFramework;
 ///   It is a thin wrapper around <see cref="EntityFrameworkUnitOfWork"/> and does not add
 ///   additional logic.</para>
 /// </remarks>
+[ExcludeFromCodeCoverage]
 public sealed class UnitOfWorkAudit : EntityFrameworkUnitOfWork, IUnitOfWorkAudit
 {
     /// <summary>

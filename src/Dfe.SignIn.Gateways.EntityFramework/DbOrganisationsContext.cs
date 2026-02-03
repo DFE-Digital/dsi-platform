@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration.Organisations;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Dfe.SignIn.Gateways.EntityFramework;
 
 #pragma warning disable CS1591
+[ExcludeFromCodeCoverage]
 public partial class DbOrganisationsContext : DbContext
 {
     public DbOrganisationsContext(DbContextOptions<DbOrganisationsContext> options)
