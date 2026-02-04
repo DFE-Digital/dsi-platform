@@ -8,7 +8,7 @@ namespace Dfe.SignIn.InternalApi.Client;
 ///   does not specify a pipeline override, and exposes the key used to store
 ///   per-request pipeline overrides in <see cref="HttpRequestMessage.Options"/>.</para>
 /// </remarks>
-public sealed class ResilientHttpMessageHandlerOptions
+public static class ResilientHttpMessageHandlerOptions
 {
     /// <summary>
     /// The <see cref="HttpRequestOptionsKey{TValue}"/> used to store or retrieve

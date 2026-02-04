@@ -65,14 +65,13 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
     [DataRow("Password")]
     public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenMissingRequiredConfigValue(string missingKey)
     {
-        var configData = new Dictionary<string, string?> {
-            ["Directories:Host"] = "localhost",
-            ["Directories:Name"] = "Dirs",
-            ["Directories:Username"] = "sa",
-            ["Directories:Password"] = "password",
-        };
-
-        configData[$"Directories:{missingKey}"] = null;
+        var configData = new Dictionary<string, string?>([
+            new("Directories:Host", "localhost"),
+            new("Directories:Name", "Dirs"),
+            new("Directories:Username", "sa"),
+            new("Directories:Password", "password"),
+            new($"Directories:{missingKey}", null),
+        ]);
 
         var brokenConfiguration = new ConfigurationBuilder()
             .AddInMemoryCollection(configData)

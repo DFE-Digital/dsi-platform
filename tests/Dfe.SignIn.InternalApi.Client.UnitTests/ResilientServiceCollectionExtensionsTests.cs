@@ -75,13 +75,13 @@ public sealed class ResilientServiceCollectionExtensionsTests
 
     private static IConfigurationRoot BuildValidConfiguration()
     {
-        var data = new Dictionary<string, string?> {
-            ["HttpResiliency:InternalApiDefault:Timeout"] = "5",
-            ["HttpResiliency:InternalApiDefault:Retry:MaxRetryAttempts"] = "3",
-            ["HttpResiliency:InternalApiDefault:Retry:Delay"] = "200",
-            ["HttpResiliency:InternalApiDefault:Retry:UseJitter"] = "true",
-            ["HttpResiliency:InternalApiDefault:Retry:BackoffType"] = "Exponential"
-        };
+        var data = new Dictionary<string, string?>([
+            new("HttpResiliency:InternalApiDefault:Timeout", "5"),
+            new("HttpResiliency:InternalApiDefault:Retry:MaxRetryAttempts", "3"),
+            new("HttpResiliency:InternalApiDefault:Retry:Delay", "200"),
+            new("HttpResiliency:InternalApiDefault:Retry:UseJitter", "true"),
+            new("HttpResiliency:InternalApiDefault:Retry:BackoffType", "Exponential"),
+        ]);
 
         return new ConfigurationBuilder()
             .AddInMemoryCollection(data)
