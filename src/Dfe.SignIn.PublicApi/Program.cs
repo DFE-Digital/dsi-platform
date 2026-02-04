@@ -63,11 +63,7 @@ builder.Services
     .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
     .SetupInternalApiClient(tokenCredential)
     .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
-    .SetupResilientHttpClient(
-        requiredNodeApiNames
-            .Select(api => api.ToString())
-            .Append(InternalApiServiceCollectionExtensions.InternalApiKey),
-        builder.Configuration, "NodeApiDefault");
+    .SetupResiliencePipelines(builder.Configuration);
 
 builder.Services
     .AddInteractionCaching(builder.Configuration);

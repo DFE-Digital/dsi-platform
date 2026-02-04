@@ -1,4 +1,3 @@
-
 using Dfe.SignIn.Base.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,14 +14,10 @@ namespace Dfe.SignIn.InternalApi.Client;
 public static class ResilientServiceCollectionExtensions
 {
     /// <summary>
-    /// Configures HTTP clients for the specified httpClientNames to use
-    /// a resilient message handler and registers named resilience pipelines
-    /// based on the provided configuration section.
+    /// Registers named resilience pipelines based on the provided configuration section.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to which HTTP clients and pipelines are added.</param>
-    /// <param name="httpClientNames">A collection of string values representing already registered HttpClients.</param>
     /// <param name="configurationRoot">The configuration root.</param>
-    /// <param name="defaultStrategyName">The name of the default resilience pipeline to use.</param>
     /// <returns><para>The updated <see cref="IServiceCollection"/>.</para></returns>
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
@@ -30,27 +25,18 @@ public static class ResilientServiceCollectionExtensions
     ///   <para>If <paramref name="configurationRoot"/> is null.</para>
     /// </exception>
     /// <exception cref="InvalidOperationException">
-    /// <para>Thrown if the <paramref name="configurationRoot"/> does not contain
-    /// any resilience strategies.</para>
+    ///   <para>Thrown if the <paramref name="configurationRoot"/> does not contain
+    ///   any resilience strategies.</para>
     /// </exception>
-    public static IServiceCollection SetupResilientHttpClient(
+    public static IServiceCollection SetupResiliencePipelines(
         this IServiceCollection services,
-        IEnumerable<string> httpClientNames,
-        IConfigurationRoot configurationRoot,
-        string defaultStrategyName)
+        IConfigurationRoot configurationRoot)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(configurationRoot, nameof(configurationRoot));
-        ExceptionHelpers.ThrowIfArgumentNullOrWhiteSpace(defaultStrategyName, nameof(defaultStrategyName));
-
-        services.AddTransient<ResilientHttpMessageHandler>();
 
         var resilienceStrategy = configurationRoot.GetJson<Dictionary<string, ResilientHttpOptions>>("HttpResiliency")
             ?? throw new InvalidOperationException("HttpResiliency configuration section is empty.");
-
-        foreach (var apiName in httpClientNames) {
-            services.AddHttpClient(apiName).AddHttpMessageHandler<ResilientHttpMessageHandler>();
-        }
 
         foreach (var (strategyName, strategyOptions) in resilienceStrategy) {
             services.AddResiliencePipeline<string, HttpResponseMessage>(strategyName, builder => {
@@ -58,10 +44,6 @@ public static class ResilientServiceCollectionExtensions
                 builder.AddRetry(RetryPredicates.DefaultHttpRetryOptions(strategyOptions.Retry));
             });
         }
-
-        services.AddSingleton(new ResilientHttpMessageHandlerOptions {
-            DefaultStrategyName = defaultStrategyName
-        });
 
         return services;
     }

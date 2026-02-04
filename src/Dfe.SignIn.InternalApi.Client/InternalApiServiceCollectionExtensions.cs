@@ -51,10 +51,13 @@ public static class InternalApiServiceCollectionExtensions
                     Proxy = new WebProxy(apiOptions.ProxyUrl)
                 };
             })
-            .AddHttpMessageHandler((provider) => {
+            .AddHttpMessageHandler(provider => {
                 var apiOptions = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
                 string[] scopes = [$"{apiOptions.Resource}/.default"];
                 return ActivatorUtilities.CreateInstance<AuthenticatedHttpClientHandler>(provider, credential, scopes);
+            })
+            .AddHttpMessageHandler(provider => {
+                return ActivatorUtilities.CreateInstance<ResilientHttpMessageHandler>(provider, "InternalApiDefault");
             });
 
         services.AddKeyedSingleton(InternalApiKey, (provider, key) => {

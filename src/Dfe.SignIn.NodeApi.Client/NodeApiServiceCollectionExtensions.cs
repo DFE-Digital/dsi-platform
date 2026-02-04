@@ -88,6 +88,9 @@ public static class NodeApiServiceCollectionExtensions
                 var options = GetNodeApiOptions(provider, apiName);
                 string[] scopes = [$"{options.Resource}/.default"];
                 return ActivatorUtilities.CreateInstance<AuthenticatedHttpClientHandler>(provider, credential, scopes);
+            })
+            .AddHttpMessageHandler(provider => {
+                return ActivatorUtilities.CreateInstance<ResilientHttpMessageHandler>(provider, "NodeApiDefault");
             });
 
             // endpoints can use the httpClient via
