@@ -44,14 +44,14 @@ public sealed class ConfigurationHelperExtensionsTests
     public void GetJson_ReturnsJsonEncodedData()
     {
         var section = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ExampleKey"] = /*lang=json,strict*/ """
+            .AddInMemoryCollection([
+                new("ExampleKey", /*lang=json,strict*/ """
                 {
                     "Values": [ "one", "two" ],
                     "Foo": 42
                 }
-                """,
-            })
+                """),
+            ])
             .Build();
 
         var result = ConfigurationHelperExtensions.GetJson<FakeJsonObject>(section, "ExampleKey");
@@ -78,9 +78,9 @@ public sealed class ConfigurationHelperExtensionsTests
         var json = JsonSerializer.Serialize(payload);
 
         var section = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["Test"] = json
-            })
+            .AddInMemoryCollection([
+                new("Test", json),
+            ])
             .Build();
 
         var result = ConfigurationHelperExtensions.GetJson<Dictionary<string, string?>>(section, "Test");
@@ -92,9 +92,9 @@ public sealed class ConfigurationHelperExtensionsTests
     public void GetJson_ReturnsNull_WhenJsonValueIsEmptyString()
     {
         var section = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["Test"] = " "
-            })
+            .AddInMemoryCollection([
+                new("Test", " "),
+            ])
             .Build();
 
         var result = ConfigurationHelperExtensions.GetJson<Dictionary<string, string?>>(section, "Test");
@@ -106,10 +106,10 @@ public sealed class ConfigurationHelperExtensionsTests
     public void GetJson_ReturnsValue_WhenNotJson()
     {
         var section = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ExampleKey:0"] = "one",
-                ["ExampleKey:1"] = "two",
-            })
+            .AddInMemoryCollection([
+                new("ExampleKey:0", "one"),
+                new("ExampleKey:1", "two"),
+            ])
             .Build();
 
         var result = ConfigurationHelperExtensions.GetJson<string[]>(section, "ExampleKey");
@@ -151,16 +151,16 @@ public sealed class ConfigurationHelperExtensionsTests
     public void GetJsonList_ReturnsJsonEncodedData()
     {
         var section = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ExampleKey"] = /*lang=json,strict*/ """
+            .AddInMemoryCollection([
+                new("ExampleKey", /*lang=json,strict*/ """
                 [
                     {
                         "Values": [ "one", "two" ],
                         "Foo": 42
                     }
                 ]
-                """,
-            })
+                """),
+            ])
             .Build();
 
         var result = ConfigurationHelperExtensions.GetJsonList<FakeJsonObject>(section, "ExampleKey");
@@ -215,14 +215,14 @@ public sealed class ConfigurationHelperExtensionsTests
     public void GetJsonList_string_ReturnsJsonEncodedData()
     {
         var section = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ExampleKey"] = /*lang=json,strict*/ """
+            .AddInMemoryCollection([
+                new("ExampleKey", /*lang=json,strict*/ """
                 [
                     "one",
                     "two"
                 ]
-                """,
-            })
+                """),
+            ])
             .Build();
 
         var result = ConfigurationHelperExtensions.GetJsonList(section, "ExampleKey");

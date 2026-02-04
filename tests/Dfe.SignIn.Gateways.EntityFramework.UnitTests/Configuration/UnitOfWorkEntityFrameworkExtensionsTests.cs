@@ -15,17 +15,17 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
     public void Setup()
     {
         this.configMock = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["Directories:Host"] = "localhost",
-                ["Directories:Name"] = "Dirs",
-                ["Directories:Username"] = "sa",
-                ["Directories:Password"] = "password",
+            .AddInMemoryCollection([
+                new("Directories:Host", "localhost"),
+                new("Directories:Name", "Dirs"),
+                new("Directories:Username", "sa"),
+                new("Directories:Password", "password"),
 
-                ["Organisations:Host"] = "localhost",
-                ["Organisations:Name"] = "Orgs",
-                ["Organisations:Username"] = "sa",
-                ["Organisations:Password"] = "password",
-            })
+                new("Organisations:Host", "localhost"),
+                new("Organisations:Name", "Orgs"),
+                new("Organisations:Username", "sa"),
+                new("Organisations:Password", "password"),
+            ])
             .Build();
     }
 
