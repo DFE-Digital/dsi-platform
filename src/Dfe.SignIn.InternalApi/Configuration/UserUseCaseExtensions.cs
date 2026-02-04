@@ -6,7 +6,7 @@ namespace Dfe.SignIn.InternalApi.Configuration;
 /// <summary>
 /// Extension methods for setting up "User" use cases.
 /// </summary>
-public static class UseCaseUserExtensions
+public static class UserUseCaseExtensions
 {
     /// <summary>
     /// Adds use case interactors.
@@ -16,9 +16,17 @@ public static class UseCaseUserExtensions
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
-    public static IServiceCollection AddUseCasesUser(
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="services"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="configuration"/> is null.</para>
+    /// </exception>
+    public static IServiceCollection AddUserUseCases(
         this IServiceCollection services, IConfigurationRoot configuration)
     {
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
+
         services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
         services.AddInteractor<GetUserProfileUseCase>();
 
