@@ -70,8 +70,9 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
             new("Directories:Name", "Dirs"),
             new("Directories:Username", "sa"),
             new("Directories:Password", "password"),
-            new($"Directories:{missingKey}", null),
         ]);
+
+        configData.Remove($"Directories:{missingKey}");
 
         var brokenConfiguration = new ConfigurationBuilder()
             .AddInMemoryCollection(configData)
@@ -81,12 +82,12 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
         var ex = Assert.ThrowsExactly<InvalidOperationException>(() =>
-        services.AddUnitOfWorkEntityFrameworkServices(
-            brokenConfiguration,
-            addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false,
-            addAuditUnitOfWork: false
-        ));
+            services.AddUnitOfWorkEntityFrameworkServices(
+                brokenConfiguration,
+                addDirectoriesUnitOfWork: true,
+                addOrganisationsUnitOfWork: false,
+                addAuditUnitOfWork: false
+            ));
 
         Assert.AreEqual($"Section 'Directories:{missingKey}' not found in configuration.", ex.Message);
     }
