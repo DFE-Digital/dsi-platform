@@ -24,24 +24,24 @@ namespace Dfe.SignIn.Core.UseCases.PublicApi;
 /// </param>
 public sealed class DecryptApiSecretUseCase(
     IOptions<ApiSecretEncryptionOptions> optionsAccessor
-) : Interactor<DecryptPublicApiSecretRequest, DecryptedPublicApiSecretResponse>
+) : Interactor<DecryptApiSecretRequest, DecryptApiSecretResponse>
 {
     /// <inheritdoc/>
-    public override Task<DecryptedPublicApiSecretResponse> InvokeAsync(
-            InteractionContext<DecryptPublicApiSecretRequest> context,
+    public override Task<DecryptApiSecretResponse> InvokeAsync(
+            InteractionContext<DecryptApiSecretRequest> context,
             CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
 
         if (!context.Request.EncryptedApiSecret.StartsWith("ENC:0:")) {
-            return Task.FromResult(new DecryptedPublicApiSecretResponse {
+            return Task.FromResult(new DecryptApiSecretResponse {
                 ApiSecret = context.Request.EncryptedApiSecret ?? string.Empty
             });
         }
         byte[] encryptedBase64Bytes = Convert.FromBase64String(context.Request.EncryptedApiSecret[6..]);
         var decrypted = AesGcmV1EncryptionProvider.Decrypt(optionsAccessor.Value.EncryptionKeyBytes, encryptedBase64Bytes);
 
-        return Task.FromResult(new DecryptedPublicApiSecretResponse {
+        return Task.FromResult(new DecryptApiSecretResponse {
             ApiSecret = Encoding.UTF8.GetString(decrypted)
         });
     }
