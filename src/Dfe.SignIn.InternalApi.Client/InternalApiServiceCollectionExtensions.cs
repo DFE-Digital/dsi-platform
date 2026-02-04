@@ -47,7 +47,7 @@ public static class InternalApiServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler((provider) => {
                 var apiOptions = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
                 return new HttpClientHandler {
-                    UseProxy = apiOptions.UseProxy,
+                    UseProxy = apiOptions.UseProxy && apiOptions.BaseAddress.Host != "localhost",
                     Proxy = new WebProxy(apiOptions.ProxyUrl)
                 };
             })

@@ -80,7 +80,7 @@ public static class NodeApiServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler((provider) => {
                 var options = GetNodeApiOptions(provider, apiName);
                 return new HttpClientHandler {
-                    UseProxy = options.UseProxy,
+                    UseProxy = options.UseProxy && options.BaseAddress.Host != "localhost",
                     Proxy = new WebProxy(options.ProxyUrl)
                 };
             })
