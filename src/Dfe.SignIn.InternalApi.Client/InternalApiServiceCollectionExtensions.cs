@@ -9,7 +9,7 @@ namespace Dfe.SignIn.InternalApi.Client;
 /// <summary>
 /// Extensions for adding internal API client services to a service collection.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static class InternalApiServiceCollectionExtensions
 {
     /// <summary>
     /// The unique service key for the internal API <see cref="HttpClient"/>.

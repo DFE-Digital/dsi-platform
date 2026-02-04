@@ -15,7 +15,7 @@ namespace Dfe.SignIn.InternalApi.Client;
 /// </summary>
 /// <typeparam name="TRequest">The type of request.</typeparam>
 public sealed class InternalApiRequester<TRequest>(
-    [FromKeyedServices(ServiceCollectionExtensions.InternalApiKey)] HttpClient client,
+    [FromKeyedServices(InternalApiServiceCollectionExtensions.InternalApiKey)] HttpClient client,
     IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IExceptionJsonSerializer exceptionSerializer
 ) : IInteractor<TRequest>

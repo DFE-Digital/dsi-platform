@@ -51,16 +51,15 @@ builder.Services
     .AddAuditingWithServiceBus(builder.Configuration);
 
 // Get token credential for making API requests to Node APIs.
-var apiTokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
-    builder.Configuration.GetRequiredSection("NodeApiClient:Apis:Access:AuthenticatedHttpClientOptions")
+var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+    builder.Configuration.GetRequiredSection("InternalApiClient")
 );
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [
     NodeApiName.Access,  NodeApiName.Directories,  NodeApiName.Organisations, NodeApiName.Search];
 
 builder.Services
-    .Configure<NodeApiClientOptions>(builder.Configuration.GetRequiredSection("NodeApiClient"))
-    .SetupNodeApiClient(requiredNodeApiNames, apiTokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
     .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
 
 builder.Services

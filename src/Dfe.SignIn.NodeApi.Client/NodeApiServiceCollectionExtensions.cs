@@ -3,6 +3,7 @@ using System.Reflection;
 using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.InternalApi.Client;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -11,9 +12,9 @@ namespace Dfe.SignIn.NodeApi.Client;
 /// <summary>
 /// Extensions for adding Node.js API client services to a service collection.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static class NodeApiServiceCollectionExtensions
 {
-    private static readonly Assembly ThisAssembly = typeof(ServiceCollectionExtensions).Assembly;
+    private static readonly Assembly ThisAssembly = typeof(NodeApiServiceCollectionExtensions).Assembly;
 
     /// <summary>
     /// Determines whether all of the middle-tier APIs that are required by an
@@ -40,6 +41,7 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     /// <param name="services">The collection to add services to.</param>
     /// <param name="apiNames">Indicates which mid-tier APIs are required.</param>
+    /// <param name="apiConfiguration">Configuration section for internal APIs.</param>
     /// <param name="credential">Credential providing tokens for Node API requests.</param>
     /// <returns>
     ///   <para>The <see cref="IServiceCollection"/> so that additional calls can be chained.</para>
@@ -54,11 +56,21 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection SetupNodeApiClient(
         this IServiceCollection services,
         IEnumerable<NodeApiName> apiNames,
+        IConfiguration apiConfiguration,
         TokenCredential credential)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(apiNames, nameof(apiNames));
         ExceptionHelpers.ThrowIfArgumentNull(credential, nameof(credential));
+
+        services.Configure<NodeApiClientOptions>(options => {
+            options.Apis = apiNames.Select(apiName => {
+                var api = Activator.CreateInstance<InternalApiClientOptions>();
+                apiConfiguration.Bind(api);
+                apiConfiguration.GetRequiredSection(apiName.ToString()).Bind(api);
+                return (key: apiName, options: api);
+            }).ToDictionary(entry => entry.key.ToString(), entry => entry.options);
+        });
 
         foreach (var apiName in apiNames) {
             services.AddHttpClient(apiName.ToString(), (provider, client) => {
@@ -68,13 +80,13 @@ public static class ServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler((provider) => {
                 var options = GetNodeApiOptions(provider, apiName);
                 return new HttpClientHandler {
-                    UseProxy = options.AuthenticatedHttpClientOptions.UseProxy,
-                    Proxy = new WebProxy(options.AuthenticatedHttpClientOptions.ProxyUrl)
+                    UseProxy = options.UseProxy,
+                    Proxy = new WebProxy(options.ProxyUrl)
                 };
             })
             .AddHttpMessageHandler((provider) => {
                 var options = GetNodeApiOptions(provider, apiName);
-                string[] scopes = [$"{options.AuthenticatedHttpClientOptions.Resource}/.default"];
+                string[] scopes = [$"{options.Resource}/.default"];
                 return ActivatorUtilities.CreateInstance<AuthenticatedHttpClientHandler>(provider, credential, scopes);
             });
 
@@ -95,7 +107,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static NodeApiOptions GetNodeApiOptions(IServiceProvider provider, NodeApiName apiName)
+    private static InternalApiClientOptions GetNodeApiOptions(IServiceProvider provider, NodeApiName apiName)
     {
         return provider.GetRequiredService<IOptions<NodeApiClientOptions>>()
             .Value.Apis[apiName.ToString()];

@@ -3,7 +3,7 @@
 	<Property Name="sonar.host.url">https://sonarcloud.io</Property>
 
 	<!-- analysis exclusions -->
-	<Property Name="sonar.exclusions">docs/templates/dsi/**,**/snapshots/**,frontend/**,**/Configuration/**/*Extensions.cs</Property>
+	<Property Name="sonar.exclusions">docs/templates/dsi/**,**/snapshots/**,frontend/**,**/Configuration/**/*Extensions.cs,**/*ServiceCollectionExtensions.cs</Property>
 
 	<!-- coverage reporting -->
 	<Property Name="sonar.coverageReportPaths">CoverageReport/SonarQube.xml</Property>
