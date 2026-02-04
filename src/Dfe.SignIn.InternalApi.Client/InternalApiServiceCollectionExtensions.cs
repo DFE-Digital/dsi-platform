@@ -63,7 +63,7 @@ public static class InternalApiServiceCollectionExtensions
             return client!;
         });
 
-        services.Decorate<IInteractorResolver, InternalApiInteractorResolver>();
+        services.AddTransient(typeof(IInteractor<>), typeof(InternalApiRequester<>));
 
         return services;
     }
