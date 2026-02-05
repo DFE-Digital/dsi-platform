@@ -32,6 +32,7 @@ public static class MvcExtensions
         });
 
         return builder.AddMvcOptions(options => {
+            options.Filters.Add<LogAntiforgeryFailureFilter>();
             options.Filters.Add<RequestBodySizeLimitFilter>();
             options.ModelBinderProviders.Insert(0, new TrimStringModelBinderProvider());
         });
