@@ -36,6 +36,9 @@ public sealed class MvcExtensionsTests
         Assert.IsTrue(options.ModelBinderProviders.Any(provider
             => provider is TrimStringModelBinderProvider
         ));
+        Assert.IsTrue(options.Filters.Any(filter
+            => filter is TypeFilterAttribute tfa && tfa.ImplementationType == typeof(LogAntiforgeryFailureFilter)
+        ));
     }
 
     [TestMethod]
