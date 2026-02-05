@@ -1,4 +1,3 @@
-using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
@@ -32,12 +31,6 @@ builder.WebHost.ConfigureKestrel((context, options) => {
 if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
-
-var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
-builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
-var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
-
-builder.Services.AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
