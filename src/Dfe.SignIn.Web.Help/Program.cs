@@ -37,9 +37,7 @@ var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
-var token = await azureTokenCredential.GetTokenAsync(azureTokenCredential.CreateTokenOptions(new Dictionary<string, object>()), CancellationToken.None);
-
-// builder.Services.AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
+builder.Services.AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(

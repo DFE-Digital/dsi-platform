@@ -1,5 +1,4 @@
 using Azure.Core;
-using Azure.Security.KeyVault.Keys;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Microsoft.AspNetCore.DataProtection;
@@ -76,7 +75,7 @@ public static class DataProtectionExtensions
                 throw new InvalidOperationException($"Unsupported data protection strategy: {options.Strategy}");
         }
 
-        ConfigureKeyVaultProtection(dataProtectionBuilder, options.KeyVault, tokenCredential);
+        // ConfigureKeyVaultProtection(dataProtectionBuilder, options.KeyVault, tokenCredential);
 
         return services;
     }
@@ -112,21 +111,21 @@ public static class DataProtectionExtensions
         builder.PersistKeysToAzureBlobStorage(new Uri(options.StorageAccountUri), tokenCredential);
     }
 
-    /// <summary>
-    /// Optionally configures Azure Key Vault encryption for the Data Protection keys.
-    /// </summary>
-    /// <param name="builder">The Data Protection builder.</param>
-    /// <param name="options">The Key Vault options, including Vault URI and key name. If null, no Key Vault encryption is applied.</param>
-    /// <param name="tokenCredential">The Azure token credential for authentication.</param>
-    private static void ConfigureKeyVaultProtection(IDataProtectionBuilder builder, KeyVaultOptions? options, TokenCredential tokenCredential)
-    {
-        if (options is null) {
-            return;
-        }
+    // /// <summary>
+    // /// Optionally configures Azure Key Vault encryption for the Data Protection keys.
+    // /// </summary>
+    // /// <param name="builder">The Data Protection builder.</param>
+    // /// <param name="options">The Key Vault options, including Vault URI and key name. If null, no Key Vault encryption is applied.</param>
+    // /// <param name="tokenCredential">The Azure token credential for authentication.</param>
+    // private static void ConfigureKeyVaultProtection(IDataProtectionBuilder builder, KeyVaultOptions? options, TokenCredential tokenCredential)
+    // {
+    //     if (options is null) {
+    //         return;
+    //     }
 
-        var keyClient = new KeyClient(new Uri(options.VaultUri), tokenCredential);
-        var key = keyClient.GetKey(options.KeyName).Value;
+    //     var keyClient = new KeyClient(new Uri(options.VaultUri), tokenCredential);
+    //     var key = keyClient.GetKey(options.KeyName).Value;
 
-        builder.ProtectKeysWithAzureKeyVault(key.Id.ToString(), tokenCredential);
-    }
+    //     builder.ProtectKeysWithAzureKeyVault(key.Id.ToString(), tokenCredential);
+    // }
 }
