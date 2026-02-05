@@ -100,6 +100,12 @@ builder.Services
 
 var app = builder.Build();
 
+var serverId = Random.Shared.Next(1, 1000000).ToString();
+app.Use(async (context, next) => {
+    context.Response.Headers["x-dsi-server"] = serverId;
+    await next();
+});
+
 app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
