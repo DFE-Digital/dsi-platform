@@ -5,23 +5,19 @@ namespace Dfe.SignIn.InternalApi.Client;
 
 /// <summary>
 /// A <see cref="DelegatingHandler"/> that applies resilience policies to outgoing HTTP requests.
-/// <para>
-///   This handler integrates with the Microsoft Resilience pipeline system to apply
-///   timeouts, retries, and other resilience strategies on a per-request or per-client basis.
-/// </para>
 /// </summary>
-/// <param name="resiliencePipelineProvider">
-/// Provides access to the registered resilience pipelines. Used to resolve a pipeline by name for a specific HTTP request.
-///</param>
-/// <param name="resilientHttpMessageHandlerOptions">
-/// Options for the handler, including the default pipeline name.
-/// </param>
+/// <remarks>
+///   <para>This handler integrates with the Microsoft Resilience pipeline system to apply
+///   timeouts, retries, and other resilience strategies on a per-request or per-client basis.</para>
+/// </remarks>
+/// <param name="resiliencePipelineProvider">Provides access to the registered resilience pipelines.
+/// Used to resolve a pipeline by name for a specific HTTP request.</param>
+/// <param name="defaultStrategyName">Name of the default resilience strategy.</param>
 public sealed class ResilientHttpMessageHandler(
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
-    ResilientHttpMessageHandlerOptions resilientHttpMessageHandlerOptions
+    string defaultStrategyName
 ) : DelegatingHandler
 {
-
     /// <summary>
     /// Sends an HTTP request applying the configured resilience policies.
     /// </summary>
@@ -42,7 +38,9 @@ public sealed class ResilientHttpMessageHandler(
     /// Resolves the <see cref="ResiliencePipeline{HttpResponseMessage}"/> to use for the given request.
     /// </summary>
     /// <param name="request">The HTTP request message for which to resolve the pipeline.</param>
-    /// <returns><para>The resolved <see cref="ResiliencePipeline{HttpResponseMessage}"/> to execute.</para></returns>
+    /// <returns>
+    ///   <para>The resolved <see cref="ResiliencePipeline{HttpResponseMessage}"/> to execute.</para>
+    /// </returns>
     private (ResiliencePipeline<HttpResponseMessage> pipeline, string strategyName) ResolvePipelineStrategyOrDefault(HttpRequestMessage request)
     {
         if (request.Options.TryGetValue(ResilientHttpMessageHandlerOptions.RequestedResiliencePipeline, out var pipelineStrategyName)) {
@@ -51,8 +49,7 @@ public sealed class ResilientHttpMessageHandler(
             }
         }
 
-        return (
-            resiliencePipelineProvider.GetPipeline<HttpResponseMessage>(resilientHttpMessageHandlerOptions.DefaultStrategyName),
-            resilientHttpMessageHandlerOptions.DefaultStrategyName);
+        var defaultPipeline = resiliencePipelineProvider.GetPipeline<HttpResponseMessage>(defaultStrategyName);
+        return (defaultPipeline, defaultStrategyName);
     }
 }

@@ -66,9 +66,9 @@ public sealed class InteractionCachingExtensionsTests
     private static IConfigurationRoot GetFakeConfiguration()
     {
         return new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["InteractionsRedisCache:ConnectionString"] = "fake-connection-string",
-            })
+            .AddInMemoryCollection([
+                new("InteractionsRedisCache:ConnectionString", "fake-connection-string"),
+            ])
             .Build();
     }
 

@@ -13,14 +13,14 @@ public sealed class NodeApiServiceCollectionExtensionsTests
     private static IConfiguration GetMockApiConfiguration()
     {
         return new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["InternalApi:BaseAddress"] = "http://internal-api.localhost",
-                ["InternalApi:ClientId"] = "fake-client-id",
-                ["InternalApi:Tenant"] = "fake-tenant",
-                ["InternalApi:ClientSecret"] = "fake-client-secret",
-                ["InternalApi:HostUrl"] = "http://host.localhost",
-                ["InternalApi:Resource"] = "00000000-0000-0000-0000-000000000000",
-            })
+            .AddInMemoryCollection([
+                new("InternalApi:BaseAddress", "http://internal-api.localhost"),
+                new("InternalApi:ClientId", "fake-client-id"),
+                new("InternalApi:Tenant", "fake-tenant"),
+                new("InternalApi:ClientSecret", "fake-client-secret"),
+                new("InternalApi:HostUrl", "http://host.localhost"),
+                new("InternalApi:Resource", "00000000-0000-0000-0000-000000000000"),
+            ])
             .Build();
     }
 

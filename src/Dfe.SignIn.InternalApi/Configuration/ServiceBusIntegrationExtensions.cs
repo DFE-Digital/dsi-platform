@@ -33,7 +33,11 @@ public static class ServiceBusIntegrationExtensions
         ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
         ExceptionHelpers.ThrowIfArgumentNull(tokenCredential, nameof(tokenCredential));
 
-        var serviceBusSection = configuration.GetRequiredSection("ServiceBus");
+        var serviceBusSection = configuration.GetSection("ServiceBus");
+        if (!serviceBusSection.Exists()) {
+            return services;
+        }
+
         var options = Activator.CreateInstance<ServiceBusOptions>();
         serviceBusSection.Bind(options);
 

@@ -54,10 +54,10 @@ public sealed class ServiceBusExtensionsTests
     public void GetServiceBusTopicOptions_ReturnsExpectedOptions()
     {
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["TestTopic:TopicName"] = "test_topic",
-                ["TestTopic:SubscriptionName"] = "test_subscription",
-            })
+            .AddInMemoryCollection([
+                new("TestTopic:TopicName", "test_topic"),
+                new("TestTopic:SubscriptionName", "test_subscription"),
+            ])
             .Build();
 
         var result = ServiceBusExtensions.GetServiceBusTopicOptions(configuration, "TestTopic");
@@ -241,9 +241,9 @@ public sealed class ServiceBusExtensionsTests
         var services = new ServiceCollection();
 
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ServiceBus:AuditTopic:TopicName"] = "test_topic",
-            })
+            .AddInMemoryCollection([
+                new("ServiceBus:AuditTopic:TopicName", "test_topic"),
+            ])
             .Build();
 
         var result = ServiceBusExtensions.AddAuditingWithServiceBus(services, configuration);
@@ -268,9 +268,9 @@ public sealed class ServiceBusExtensionsTests
         var services = new ServiceCollection();
 
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ServiceBus:AuditTopic:TopicName"] = "test_topic",
-            })
+            .AddInMemoryCollection([
+                new("ServiceBus:AuditTopic:TopicName", "test_topic"),
+            ])
             .Build();
 
         ServiceBusExtensions.AddAuditingWithServiceBus(services, configuration);

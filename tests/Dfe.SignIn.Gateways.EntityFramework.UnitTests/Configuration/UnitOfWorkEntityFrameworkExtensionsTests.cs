@@ -15,17 +15,17 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
     public void Setup()
     {
         this.configMock = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["Directories:Host"] = "localhost",
-                ["Directories:Name"] = "Dirs",
-                ["Directories:Username"] = "sa",
-                ["Directories:Password"] = "password",
+            .AddInMemoryCollection([
+                new("Directories:Host", "localhost"),
+                new("Directories:Name", "Dirs"),
+                new("Directories:Username", "sa"),
+                new("Directories:Password", "password"),
 
-                ["Organisations:Host"] = "localhost",
-                ["Organisations:Name"] = "Orgs",
-                ["Organisations:Username"] = "sa",
-                ["Organisations:Password"] = "password",
-            })
+                new("Organisations:Host", "localhost"),
+                new("Organisations:Name", "Orgs"),
+                new("Organisations:Username", "sa"),
+                new("Organisations:Password", "password"),
+            ])
             .Build();
     }
 
@@ -65,14 +65,14 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
     [DataRow("Password")]
     public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenMissingRequiredConfigValue(string missingKey)
     {
-        var configData = new Dictionary<string, string?> {
-            ["Directories:Host"] = "localhost",
-            ["Directories:Name"] = "Dirs",
-            ["Directories:Username"] = "sa",
-            ["Directories:Password"] = "password",
-        };
+        var configData = new Dictionary<string, string?>([
+            new("Directories:Host", "localhost"),
+            new("Directories:Name", "Dirs"),
+            new("Directories:Username", "sa"),
+            new("Directories:Password", "password"),
+        ]);
 
-        configData[$"Directories:{missingKey}"] = null;
+        configData.Remove($"Directories:{missingKey}");
 
         var brokenConfiguration = new ConfigurationBuilder()
             .AddInMemoryCollection(configData)
@@ -82,12 +82,12 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
         var ex = Assert.ThrowsExactly<InvalidOperationException>(() =>
-        services.AddUnitOfWorkEntityFrameworkServices(
-            brokenConfiguration,
-            addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false,
-            addAuditUnitOfWork: false
-        ));
+            services.AddUnitOfWorkEntityFrameworkServices(
+                brokenConfiguration,
+                addDirectoriesUnitOfWork: true,
+                addOrganisationsUnitOfWork: false,
+                addAuditUnitOfWork: false
+            ));
 
         Assert.AreEqual($"Section 'Directories:{missingKey}' not found in configuration.", ex.Message);
     }

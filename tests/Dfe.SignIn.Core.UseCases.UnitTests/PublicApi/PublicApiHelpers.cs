@@ -34,10 +34,10 @@ public static class PublicApiHelpers
         return new DecryptApiSecretUseCase(options);
     }
 
-    public static InteractionContext<DecryptPublicApiSecretRequest> CreateDecryptInteractionContext(string encrypted)
+    public static InteractionContext<DecryptApiSecretRequest> CreateDecryptInteractionContext(string encrypted)
     {
-        return new InteractionContext<DecryptPublicApiSecretRequest>(
-            new DecryptPublicApiSecretRequest {
+        return new InteractionContext<DecryptApiSecretRequest>(
+            new DecryptApiSecretRequest {
                 EncryptedApiSecret = encrypted
             }
         );

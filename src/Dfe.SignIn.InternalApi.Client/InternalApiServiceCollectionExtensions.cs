@@ -47,14 +47,17 @@ public static class InternalApiServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler((provider) => {
                 var apiOptions = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
                 return new HttpClientHandler {
-                    UseProxy = apiOptions.UseProxy,
+                    UseProxy = apiOptions.UseProxy && apiOptions.BaseAddress.Host != "localhost",
                     Proxy = new WebProxy(apiOptions.ProxyUrl)
                 };
             })
-            .AddHttpMessageHandler((provider) => {
+            .AddHttpMessageHandler(provider => {
                 var apiOptions = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
                 string[] scopes = [$"{apiOptions.Resource}/.default"];
                 return ActivatorUtilities.CreateInstance<AuthenticatedHttpClientHandler>(provider, credential, scopes);
+            })
+            .AddHttpMessageHandler(provider => {
+                return ActivatorUtilities.CreateInstance<ResilientHttpMessageHandler>(provider, "InternalApiDefault");
             });
 
         services.AddKeyedSingleton(InternalApiKey, (provider, key) => {
@@ -63,7 +66,7 @@ public static class InternalApiServiceCollectionExtensions
             return client!;
         });
 
-        services.Decorate<IInteractorResolver, InternalApiInteractorResolver>();
+        services.AddTransient(typeof(IInteractor<>), typeof(InternalApiRequester<>));
 
         return services;
     }

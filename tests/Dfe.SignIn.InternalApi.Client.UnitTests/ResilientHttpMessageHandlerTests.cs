@@ -1,4 +1,3 @@
-
 using System.Net;
 using Dfe.SignIn.InternalApi.Client.UnitTests.Fakes;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,10 +29,8 @@ public sealed class ResilientHttpMessageHandlerTests
         });
 
         services.AddSingleton(innerHandler);
-        services.AddTransient<ResilientHttpMessageHandler>();
-        services.AddSingleton(new ResilientHttpMessageHandlerOptions {
-            DefaultStrategyName = "default"
-        });
+        services.AddTransient(provider =>
+            ActivatorUtilities.CreateInstance<ResilientHttpMessageHandler>(provider, "default"));
 
         var provider = services.BuildServiceProvider();
 

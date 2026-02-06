@@ -8,10 +8,10 @@ namespace Dfe.SignIn.Core.Contracts.PublicApi;
 /// <remarks>
 ///   <para>Associated response type:</para>
 ///   <list type="bullet">
-///     <item><see cref="DecryptedPublicApiSecretResponse"/></item>
+///     <item><see cref="DecryptApiSecretResponse"/></item>
 ///   </list>
 /// </remarks>
-public sealed record DecryptPublicApiSecretRequest
+public sealed record DecryptApiSecretRequest
 {
     /// <summary>
     /// The ApiSecret that needs to be decrypted.
@@ -21,9 +21,9 @@ public sealed record DecryptPublicApiSecretRequest
 }
 
 /// <summary>
-/// Represents a response for <see cref="DecryptPublicApiSecretRequest"/>.
+/// Represents a response for <see cref="DecryptApiSecretRequest"/>.
 /// </summary>
-public sealed record DecryptedPublicApiSecretResponse
+public sealed record DecryptApiSecretResponse
 {
     /// <summary>
     /// The decrypted ApiSecret.

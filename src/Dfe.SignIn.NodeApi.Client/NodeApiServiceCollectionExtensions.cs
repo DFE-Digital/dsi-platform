@@ -80,7 +80,7 @@ public static class NodeApiServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler((provider) => {
                 var options = GetNodeApiOptions(provider, apiName);
                 return new HttpClientHandler {
-                    UseProxy = options.UseProxy,
+                    UseProxy = options.UseProxy && options.BaseAddress.Host != "localhost",
                     Proxy = new WebProxy(options.ProxyUrl)
                 };
             })
@@ -88,6 +88,9 @@ public static class NodeApiServiceCollectionExtensions
                 var options = GetNodeApiOptions(provider, apiName);
                 string[] scopes = [$"{options.Resource}/.default"];
                 return ActivatorUtilities.CreateInstance<AuthenticatedHttpClientHandler>(provider, credential, scopes);
+            })
+            .AddHttpMessageHandler(provider => {
+                return ActivatorUtilities.CreateInstance<ResilientHttpMessageHandler>(provider, "NodeApiDefault");
             });
 
             // endpoints can use the httpClient via

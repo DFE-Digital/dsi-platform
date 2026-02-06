@@ -41,6 +41,15 @@ public static class InteractionDistributedCacheExtensions
         services.TryAddSingleton<ICacheEntrySerializer, DefaultCacheEntrySerializer>();
         services.AddSingleton<IInteractionCache<TRequest>, InteractionDistributedCache<TRequest, TResponse>>();
 
+        // Open generic types cannot be decorated (eg. IInteractor<>).
+        // This means that a default fallback implementation cannot be decorated as-is (eg. InternalApiRequester<>).
+        // To workaround this the following creates an explicit registration for the closed generic type (if applicable).
+        var fallbackRegistration = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IInteractor<>));
+        var fallbackType = fallbackRegistration?.ImplementationType?.MakeGenericType(typeof(TRequest));
+        if (fallbackType is not null) {
+            services.TryAddTransient(typeof(IInteractor<TRequest>), fallbackType);
+        }
+
         services.Decorate<IInteractor<TRequest>, CachedInteractor<TRequest>>();
 
         return services;

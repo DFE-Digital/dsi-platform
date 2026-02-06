@@ -50,9 +50,9 @@ public sealed class ServiceBusIntegrationExtensionsTests
         var tokenCredential = new Mock<TokenCredential>().Object;
 
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ServiceBus:Namespace"] = "fake-fully-qualified-namespace",
-            })
+            .AddInMemoryCollection([
+                new("ServiceBus:Namespace", "fake-fully-qualified-namespace"),
+            ])
             .Build();
 
         ServiceBusIntegrationExtensions.AddServiceBusIntegration(services, configuration, tokenCredential);

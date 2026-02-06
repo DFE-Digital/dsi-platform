@@ -43,15 +43,13 @@ IEnumerable<NodeApiName> requiredNodeApiNames = [
 // Add services to the container.
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
-    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
+    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"))
+    .ConfigureDfeSignInJsonSerializerOptions();
 builder.Services
     .Configure<BearerTokenOptions>(builder.Configuration.GetRequiredSection("BearerToken"));
 builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
     .SetupAuditContext();
-builder.Services
-    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
-    .SetupResilientHttpClient(requiredNodeApiNames.Select(api => api.ToString()), builder.Configuration, "NodeApiDefault");
 
 builder.Services.SetupEndpoints();
 builder.Services.SetupSwagger();
@@ -59,7 +57,15 @@ builder.Services.SetupScopedSession();
 builder.Services.AddHealthChecks();
 
 builder.Services
-    .AddInteractionFramework()
+    .AddInteractionFramework();
+
+builder.Services
+    .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
+    .SetupInternalApiClient(tokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
+    .SetupResiliencePipelines(builder.Configuration);
+
+builder.Services
     .AddInteractionCaching(builder.Configuration);
 
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();

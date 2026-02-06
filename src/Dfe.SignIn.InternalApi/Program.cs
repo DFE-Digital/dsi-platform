@@ -53,14 +53,18 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services
     .AddInteractionFramework()
-    .AddInteractionCaching(builder.Configuration)
-    .AddUseCasesUser(builder.Configuration);
+    .AddInteractionCaching(builder.Configuration);
+
+builder.Services
+    .AddApplicationUseCases(builder.Configuration)
+    .AddPublicApiUseCases(builder.Configuration)
+    .AddUserUseCases(builder.Configuration);
 
 builder.Services
     .AddUnitOfWorkEntityFrameworkServices(
         builder.Configuration.GetRequiredSection("EntityFramework"),
         addDirectoriesUnitOfWork: true,
-        addOrganisationsUnitOfWork: false,
+        addOrganisationsUnitOfWork: true,
         addAuditUnitOfWork: false
     );
 
@@ -98,6 +102,8 @@ app.UseSwaggerUI(options => {
 app.UseHttpsRedirection();
 app.UseHealthChecks();
 
+app.UseApplicationEndpoints();
+app.UsePublicApiEndpoints();
 app.UseUserEndpoints();
 
 await app.RunAsync();

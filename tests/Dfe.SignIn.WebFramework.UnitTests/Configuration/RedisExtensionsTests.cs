@@ -13,9 +13,9 @@ public sealed class RedisExtensionsTests
     private static IConfiguration CreateFakeRedisConfiguration()
     {
         return new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ConnectionString"] = "fake-connection-string",
-            })
+            .AddInMemoryCollection([
+                new("ConnectionString", "fake-connection-string"),
+            ])
             .Build();
     }
 
