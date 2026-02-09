@@ -32,13 +32,22 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Applications];
+
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient")
 );
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [
-    NodeApiName.Applications];
+builder.Services
+    .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
+    .SetupInternalApiClient(tokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
+    .SetupResiliencePipelines(builder.Configuration)
+    .AddDistributedInteractionCache<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>(options => {
+        options.DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+    });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
@@ -62,12 +71,6 @@ builder.Services
 builder.Services
     .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
     .SetupFrontendAssets();
-builder.Services
-    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
-    .SetupResiliencePipelines(builder.Configuration)
-    .AddDistributedInteractionCache<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>(options => {
-        options.DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
-    });
 
 builder.Services.SetupContentProcessing();
 

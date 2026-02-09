@@ -34,11 +34,6 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
-// Get token credential for making API requests to internal APIs.
-var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
-    builder.Configuration.GetRequiredSection("InternalApiClient")
-);
-
 builder.Services
     .AddUserSessions(builder.Configuration)
     .AddDsiAuthentication(builder.Configuration)
@@ -55,6 +50,19 @@ builder.Services.AddHealthChecks();
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
     .AddInteractionFramework();
+
+IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
+
+// Get token credential for making API requests to internal APIs.
+var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+    builder.Configuration.GetRequiredSection("InternalApiClient")
+);
+
+builder.Services
+    .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
+    .SetupInternalApiClient(tokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
+    .SetupResiliencePipelines(builder.Configuration);
 
 builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache,
@@ -75,9 +83,6 @@ else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [
-    NodeApiName.Directories];
-
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
@@ -91,10 +96,6 @@ builder.Services
     .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
     .AddGovNotify()
     .AddInteractor<SendEmailNotificationWithGovNotifyUseCase>();
-
-builder.Services
-    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
-    .SetupResiliencePipelines(builder.Configuration);
 
 builder.Services
     .AddHttpContextAccessor()
