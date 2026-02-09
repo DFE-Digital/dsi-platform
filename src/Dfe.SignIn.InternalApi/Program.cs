@@ -58,7 +58,8 @@ builder.Services
 builder.Services
     .AddApplicationUseCases(builder.Configuration)
     .AddPublicApiUseCases(builder.Configuration)
-    .AddUserUseCases(builder.Configuration);
+    .AddUserUseCases(builder.Configuration)
+    .AddSupportTicketUseCases(builder.Configuration);
 
 builder.Services
     .AddUnitOfWorkEntityFrameworkServices(
@@ -105,5 +106,6 @@ app.UseHealthChecks();
 app.UseApplicationEndpoints();
 app.UsePublicApiEndpoints();
 app.UseUserEndpoints();
+app.UseSupportTicketEndpoints();
 
 await app.RunAsync();
