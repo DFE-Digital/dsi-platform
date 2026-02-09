@@ -29,6 +29,7 @@ public static class UserUseCaseExtensions
 
         services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
         services.AddInteractor<GetUserProfileUseCase>();
+        services.AddInteractor<ChangeJobTitleUseCase>();
 
         services
             .Configure<BlockedEmailAddressOptions>(options => {

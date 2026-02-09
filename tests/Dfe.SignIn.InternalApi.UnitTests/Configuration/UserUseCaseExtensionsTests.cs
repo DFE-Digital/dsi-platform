@@ -44,5 +44,8 @@ public sealed class UserUseCaseExtensionsTests
         Assert.IsTrue(
             services.HasInteractor<GetUserProfileRequest, GetUserProfileUseCase>()
         );
+        Assert.IsTrue(
+            services.HasInteractor<ChangeJobTitleRequest, ChangeJobTitleUseCase>()
+        );
     }
 }
