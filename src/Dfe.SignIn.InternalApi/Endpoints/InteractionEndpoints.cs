@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.PublicApi;
+using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.Core.Contracts.Users;
 
 namespace Dfe.SignIn.InternalApi.Endpoints;
@@ -38,5 +39,14 @@ public static partial class InteractionEndpoints
         app.Map<AutoLinkEntraUserToDsiRequest, AutoLinkEntraUserToDsiResponse>();
         app.Map<CheckIsBlockedEmailAddressRequest, CheckIsBlockedEmailAddressResponse>();
         app.Map<GetUserProfileRequest, GetUserProfileResponse>();
+    }
+
+    /// <summary>
+    /// Registers support ticket interaction endpoints.
+    /// </summary>
+    [ExcludeFromCodeCoverage]
+    public static void UseSupportTicketEndpoints(this WebApplication app)
+    {
+        app.Map<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
     }
 }
