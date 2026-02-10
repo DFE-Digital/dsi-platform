@@ -28,8 +28,8 @@ public static class UserUseCaseExtensions
         ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
 
         services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
-        services.AddInteractor<GetUserProfileUseCase>();
         services.AddInteractor<ChangeJobTitleUseCase>();
+        services.AddInteractor<GetUserProfileUseCase>();
 
         services
             .Configure<BlockedEmailAddressOptions>(options => {
