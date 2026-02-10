@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.PublicApi;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.Core.Contracts.Users;
@@ -21,13 +22,31 @@ public static partial class InteractionEndpoints
     }
 
     /// <summary>
+    /// Registers organisation interaction endpoints.
+    /// </summary>
+    [ExcludeFromCodeCoverage]
+    public static void UseOrganisationEndpoints(this WebApplication app)
+    {
+        app.Map<GetOrganisationByIdRequest, GetOrganisationByIdResponse>();
+    }
+
+    /// <summary>
     /// Registers public API interaction endpoints.
     /// </summary>
     [ExcludeFromCodeCoverage]
     public static void UsePublicApiEndpoints(this WebApplication app)
     {
-        app.Map<EncryptPublicApiSecretRequest, EncryptPublicApiSecretResponse>();
+        app.Map<EncryptApiSecretRequest, EncryptApiSecretResponse>();
         app.Map<DecryptApiSecretRequest, DecryptApiSecretResponse>();
+    }
+
+    /// <summary>
+    /// Registers support ticket interaction endpoints.
+    /// </summary>
+    [ExcludeFromCodeCoverage]
+    public static void UseSupportTicketEndpoints(this WebApplication app)
+    {
+        app.Map<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
     }
 
     /// <summary>
@@ -40,14 +59,5 @@ public static partial class InteractionEndpoints
         app.Map<ChangeJobTitleRequest, ChangeJobTitleResponse>();
         app.Map<CheckIsBlockedEmailAddressRequest, CheckIsBlockedEmailAddressResponse>();
         app.Map<GetUserProfileRequest, GetUserProfileResponse>();
-    }
-
-    /// <summary>
-    /// Registers support ticket interaction endpoints.
-    /// </summary>
-    [ExcludeFromCodeCoverage]
-    public static void UseSupportTicketEndpoints(this WebApplication app)
-    {
-        app.Map<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>();
     }
 }

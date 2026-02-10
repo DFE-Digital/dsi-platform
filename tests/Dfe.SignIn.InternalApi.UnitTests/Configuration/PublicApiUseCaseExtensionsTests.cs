@@ -41,7 +41,7 @@ public sealed class PublicApiUseCaseExtensionsTests
         PublicApiUseCaseExtensions.AddPublicApiUseCases(services, configuration);
 
         Assert.IsTrue(
-            services.HasInteractor<EncryptPublicApiSecretRequest, EncryptApiSecretUseCase>()
+            services.HasInteractor<EncryptApiSecretRequest, EncryptApiSecretUseCase>()
         );
         Assert.IsTrue(
             services.HasInteractor<DecryptApiSecretRequest, DecryptApiSecretUseCase>()

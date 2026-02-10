@@ -9,10 +9,10 @@ namespace Dfe.SignIn.Core.Contracts.PublicApi;
 /// <remarks>
 ///   <para>Associated response type:</para>
 ///   <list type="bullet">
-///     <item><see cref="EncryptPublicApiSecretResponse"/></item>
+///     <item><see cref="EncryptApiSecretResponse"/></item>
 ///   </list>
 /// </remarks>
-public sealed record EncryptPublicApiSecretRequest
+public sealed record EncryptApiSecretRequest
 {
     /// <summary>
     /// The ApiSecret that needs to be encrypted.
@@ -22,9 +22,9 @@ public sealed record EncryptPublicApiSecretRequest
 }
 
 /// <summary>
-/// Represents a response for <see cref="EncryptPublicApiSecretRequest"/>.
+/// Represents a response for <see cref="EncryptApiSecretRequest"/>.
 /// </summary>
-public sealed record EncryptPublicApiSecretResponse
+public sealed record EncryptApiSecretResponse
 {
     /// <summary>
     /// The encrypted ApiSecret.

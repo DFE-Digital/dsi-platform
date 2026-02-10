@@ -57,9 +57,10 @@ builder.Services
 
 builder.Services
     .AddApplicationUseCases(builder.Configuration)
+    .AddOrganisationUseCases(builder.Configuration)
     .AddPublicApiUseCases(builder.Configuration)
-    .AddUserUseCases(builder.Configuration)
-    .AddSupportTicketUseCases(builder.Configuration);
+    .AddSupportTicketUseCases(builder.Configuration)
+    .AddUserUseCases(builder.Configuration);
 
 builder.Services
     .AddUnitOfWorkEntityFrameworkServices(
@@ -104,8 +105,9 @@ app.UseHttpsRedirection();
 app.UseHealthChecks();
 
 app.UseApplicationEndpoints();
+app.UseOrganisationEndpoints();
 app.UsePublicApiEndpoints();
-app.UseUserEndpoints();
 app.UseSupportTicketEndpoints();
+app.UseUserEndpoints();
 
 await app.RunAsync();

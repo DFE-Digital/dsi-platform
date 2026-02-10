@@ -53,13 +53,13 @@ internal sealed class OrganisationEntityConfiguration : IEntityTypeConfiguration
             .HasMaxLength(25)
             .IsUnicode(false);
 
-        builder.Property(e => e.GiasproviderType)
+        builder.Property(e => e.GiasProviderType)
             .HasMaxLength(100)
             .HasColumnName("GIASProviderType");
 
-        builder.Property(e => e.Giasstatus).HasColumnName("GIASStatus");
+        builder.Property(e => e.GiasStatus).HasColumnName("GIASStatus");
 
-        builder.Property(e => e.GiasstatusName)
+        builder.Property(e => e.GiasStatusName)
             .HasMaxLength(50)
             .HasColumnName("GIASStatusName");
 
@@ -92,17 +92,17 @@ internal sealed class OrganisationEntityConfiguration : IEntityTypeConfiguration
 
         builder.Property(e => e.PhaseOfEducation).HasColumnName("phaseOfEducation");
 
-        builder.Property(e => e.PimsproviderType)
+        builder.Property(e => e.PimsProviderType)
             .HasMaxLength(100)
             .HasColumnName("PIMSProviderType");
 
-        builder.Property(e => e.PimsproviderTypeCode).HasColumnName("PIMSProviderTypeCode");
+        builder.Property(e => e.PimsProviderTypeCode).HasColumnName("PIMSProviderTypeCode");
 
-        builder.Property(e => e.Pimsstatus)
+        builder.Property(e => e.PimsStatus)
             .HasMaxLength(100)
             .HasColumnName("PIMSStatus");
 
-        builder.Property(e => e.PimsstatusName)
+        builder.Property(e => e.PimsStatusName)
             .HasMaxLength(50)
             .HasColumnName("PIMSStatusName");
 

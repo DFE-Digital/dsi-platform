@@ -245,9 +245,9 @@ public sealed class SelectOrganisationControllerTests
         var autoMocker = CreateAutoMocker();
         MockSession(autoMocker, FakeSessionWithOneOptionWhereOrganisationDoesNotExist);
 
-        autoMocker.MockResponseWhere<GetOrganisationByIdRequest>(
+        autoMocker.MockThrowsWhere<GetOrganisationByIdRequest>(
             request => request.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015"),
-            new GetOrganisationByIdResponse { Organisation = null }
+            new OrganisationNotFoundException()
         );
 
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();
@@ -515,9 +515,9 @@ public sealed class SelectOrganisationControllerTests
         var autoMocker = CreateAutoMocker();
         MockSession(autoMocker, FakeSessionWithOneOptionWhereOrganisationDoesNotExist);
 
-        autoMocker.MockResponseWhere<GetOrganisationByIdRequest>(
+        autoMocker.MockThrowsWhere<GetOrganisationByIdRequest>(
             request => request.OrganisationId == new Guid("1d219e73-c674-4f8c-b982-d673ab02f015"),
-            new GetOrganisationByIdResponse { Organisation = null }
+            new OrganisationNotFoundException()
         );
 
         var controller = autoMocker.CreateInstance<SelectOrganisationController>();

@@ -8,6 +8,10 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 ///   <list type="bullet">
 ///     <item><see cref="GetOrganisationByIdResponse"/></item>
 ///   </list>
+///   <para>Throws <see cref="OrganisationNotFoundException"/></para>
+///   <list type="bullet">
+///     <item>When the organisation was not found.</item>
+///   </list>
 /// </remarks>
 public sealed record GetOrganisationByIdRequest
 {
@@ -23,8 +27,7 @@ public sealed record GetOrganisationByIdRequest
 public sealed record GetOrganisationByIdResponse
 {
     /// <summary>
-    /// A model representing the organisation when the organisation was found;
-    /// otherwise, a value of null.
+    /// A model representing the organisation.
     /// </summary>
-    public required Organisation? Organisation { get; init; }
+    public required Organisation Organisation { get; init; }
 }

@@ -20,11 +20,11 @@ namespace Dfe.SignIn.Core.UseCases.PublicApi;
 /// </param>
 public sealed class EncryptApiSecretUseCase(
     IOptions<ApiSecretEncryptionOptions> optionsAccessor
-) : Interactor<EncryptPublicApiSecretRequest, EncryptPublicApiSecretResponse>
+) : Interactor<EncryptApiSecretRequest, EncryptApiSecretResponse>
 {
     /// <inheritdoc/>
-    public override Task<EncryptPublicApiSecretResponse> InvokeAsync(
-            InteractionContext<EncryptPublicApiSecretRequest> context,
+    public override Task<EncryptApiSecretResponse> InvokeAsync(
+            InteractionContext<EncryptApiSecretRequest> context,
             CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
@@ -35,7 +35,7 @@ public sealed class EncryptApiSecretUseCase(
 
         var base64Encrypted = Convert.ToBase64String(encrypted);
 
-        return Task.FromResult(new EncryptPublicApiSecretResponse {
+        return Task.FromResult(new EncryptApiSecretResponse {
             EncryptedApiSecret = $"ENC:0:{base64Encrypted}"
         });
     }
