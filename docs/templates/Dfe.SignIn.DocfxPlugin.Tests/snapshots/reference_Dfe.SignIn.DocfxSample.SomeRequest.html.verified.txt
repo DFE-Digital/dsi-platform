@@ -6,14 +6,14 @@
 
 
 
-    <title>Namespace Dfe.SignIn.DocfxSample.SomeNamespace
+    <title>Class SomeRequest
  | DfE Sign-in Sample</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1d70b8">
-    <meta name="title" content="Namespace Dfe.SignIn.DocfxSample.SomeNamespace
+    <meta name="title" content="Class SomeRequest
  | DfE Sign-in Sample ">
 
-
+    <meta name="description" content="An example type of request contract.">
     <meta property="docfx:navrel" content="../toc.json">
     <meta property="docfx:tocrel" content="toc.json">
     <meta property="docfx:rel" content="../">
@@ -87,50 +87,90 @@
     <div class="govuk-width-container app-width-container">
         <nav class="govuk-breadcrumbs" aria-label="Breadcrumb"><ol class="govuk-breadcrumbs__list"><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.html">Dfe.&#8203;SignIn</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.DocfxSample.html">DocfxSample</a></li></ol></nav>
 
-        <!--PLACEHOLDER:CAPTION-->
+        <div class="app-page-caption" aria-hidden="true">Namespace DocfxSample</div>
 
         <main class="govuk-main-wrapper govuk-!-margin-top-2" id="main-content">
             <div class="govuk-grid-row" id="wrapper">
                 <div class="govuk-grid-column-one-third govuk-!-display-none-print">
-                    <!--PLACEHOLDER:SIDENAV-->
+                    <nav class="app-subnav"><h2 class="govuk-visually-hidden">Namespace DocfxSample</h2><a class="govuk-button govuk-button--secondary" href="../reference/Dfe.SignIn.DocfxSample.html" role="button">Back to Namespace</a><h3 class="app-subnav__theme">Classes</h3><ul class="app-subnav__section"><li class="app-subnav__section-item"><a class="app-subnav__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="../reference/Dfe.SignIn.DocfxSample.ExampleClass.html">ExampleClass</a></li><li class="app-subnav__section-item"><a class="app-subnav__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="../reference/Dfe.SignIn.DocfxSample.SomeException.html">SomeException</a></li><li class="app-subnav__section-item app-subnav__section-item--current"><a class="app-subnav__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="../reference/Dfe.SignIn.DocfxSample.SomeRequest.html">SomeRequest</a></li><li class="app-subnav__section-item"><a class="app-subnav__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="../reference/Dfe.SignIn.DocfxSample.SomeResponse.html">SomeResponse</a></li></ul></nav>
                 </div>
-                <div class="govuk-grid-column-three-quarters" id="pageContent">
-                    <article class="govuk-body app-article-content app-article-content--namespace" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace">
+                <div class="govuk-grid-column-two-thirds" id="pageContent">
+                    <article class="govuk-body app-article-content app-article-content--class" data-uid="Dfe.SignIn.DocfxSample.SomeRequest">
 
-  <h1 class="govuk-heading-l" id="Dfe_SignIn_DocfxSample_SomeNamespace" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace" class="text-break">Namespace Dfe.&#8203;SignIn.&#8203;DocfxSample.&#8203;SomeNamespace
+
+
+  <h1 class="govuk-heading-l" id="Dfe_SignIn_DocfxSample_SomeRequest" data-uid="Dfe.SignIn.DocfxSample.SomeRequest"><span class="govuk-caption-l govuk-visually-hidden">Namespace DocfxSample</span>Class SomeRequest
 </h1>
-
-  <div class="markdown summary"></div>
+  <div class="markdown summary">An example type of request contract.</div>
   <div class="markdown conceptual"></div>
-  <div class="markdown remarks"></div>
+
+  <h2 class="govuk-heading-m govuk-visually-hidden" id="Dfe_SignIn_DocfxSample_SomeRequest_syntax">Syntax</h2>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[AssociatedResponse(typeof(SomeResponse))]
+[Throws(typeof(SomeException))]
+public sealed record SomeRequest : IEquatable&lt;SomeRequest&gt;</code></pre>
+  </div>
+
+    <div class="interaction-response">
+      <h2 class="govuk-heading-m">Interaction Response</h2>
+      <ul class="app-cards app-cards--details">
+          <li class="app-cards__card">
+            <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+              <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeResponse.html">SomeResponse</a>
+            </h3>
+          </li>
+      </ul>
+    </div>
+
+    <div class="interaction-exceptions">
+      <h2 class="govuk-heading-m">Interaction Exceptions</h2>
+      <ul class="app-cards app-cards--details">
+          <li class="app-cards__card">
+            <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+              <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeException.html">SomeException</a>
+            </h3>
+          </li>
+      </ul>
+    </div>
+
+    <div class="implements">
+      <h2 class="govuk-heading-m">Implements</h2>
+      <ul class="app-link-blob">
+          <li class="app-link-blob__item"><a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeRequest.html">SomeRequest</a>&gt;</li>
+      </ul>
+    </div>
 
 
-    <h2 class="govuk-heading-m" id="classes">
-Classes
-</h2>
-
-      <div class="app-cards">
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.AnotherClass.html">AnotherClass</a>
-          </h3>
-          <div class="app-cards__summary">An example class.</div>
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.SomeService.html">SomeService</a>
-          </h3>
-          <div class="app-cards__summary">A concrete implementation of <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.html">ISomeService</a>.</div>
-      </div>
 
 
-    <h2 class="govuk-heading-m" id="interfaces">
-Interfaces
-</h2>
 
-      <div class="app-cards">
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.html">ISomeService</a>
-          </h3>
-          <div class="app-cards__summary">An example class.</div>
-      </div>
+
+
+
+
+    <div class="inheritedMembers">
+      <h2 class="govuk-heading-m">Inherited Members</h2>
+      <ul class="app-link-blob">
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.&#8203;Equals(&#8203;object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.&#8203;Equals(&#8203;object, object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.&#8203;GetHashCode(&#8203;)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.&#8203;GetType(&#8203;)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.&#8203;ReferenceEquals(&#8203;object, object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.&#8203;ToString(&#8203;)&#8203;</a>
+          </li>
+      </ul>
+    </div>
 
 
 

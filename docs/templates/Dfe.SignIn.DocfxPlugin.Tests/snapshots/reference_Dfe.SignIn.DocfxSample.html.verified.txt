@@ -65,7 +65,7 @@
                     <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
                         Menu
                     </button>
-                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item govuk-service-navigation__item--active"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.DocfxSample.html">Code Reference</a></li></ul>
+                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item govuk-service-navigation__item--active"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.html">Code Reference</a></li></ul>
                 </nav>
             </div>
         </div>
@@ -85,7 +85,7 @@
     </div>
 
     <div class="govuk-width-container app-width-container">
-        <!--PLACEHOLDER:CRUMBS-->
+        <nav class="govuk-breadcrumbs" aria-label="Breadcrumb"><ol class="govuk-breadcrumbs__list"><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.html">Dfe.&#8203;SignIn</a></li></ol></nav>
 
         <!--PLACEHOLDER:CAPTION-->
 
@@ -127,6 +127,18 @@ Classes
             <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.ExampleClass.html">ExampleClass</a>
           </h3>
           <div class="app-cards__summary">An example class.</div>
+          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeException.html">SomeException</a>
+          </h3>
+          <div class="app-cards__summary">An example exception that can be thrown.</div>
+          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeRequest.html">SomeRequest</a>
+          </h3>
+          <div class="app-cards__summary">An example type of request contract.</div>
+          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeResponse.html">SomeResponse</a>
+          </h3>
+          <div class="app-cards__summary">An example type of response contract.</div>
       </div>
 
 

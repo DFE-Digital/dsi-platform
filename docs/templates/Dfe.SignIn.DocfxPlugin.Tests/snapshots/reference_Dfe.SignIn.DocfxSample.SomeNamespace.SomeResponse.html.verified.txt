@@ -6,11 +6,11 @@
 
 
 
-    <title>Namespace Dfe.SignIn.DocfxSample.SomeNamespace
+    <title>Class SomeResponse
  | DfE Sign-in Sample</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1d70b8">
-    <meta name="title" content="Namespace Dfe.SignIn.DocfxSample.SomeNamespace
+    <meta name="title" content="Class SomeResponse
  | DfE Sign-in Sample ">
 
 
@@ -65,7 +65,7 @@
                     <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
                         Menu
                     </button>
-                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item govuk-service-navigation__item--active"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.html">Code Reference</a></li></ul>
+                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.html">Code Reference</a></li></ul>
                 </nav>
             </div>
         </div>
@@ -85,7 +85,7 @@
     </div>
 
     <div class="govuk-width-container app-width-container">
-        <nav class="govuk-breadcrumbs" aria-label="Breadcrumb"><ol class="govuk-breadcrumbs__list"><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.html">Dfe.&#8203;SignIn</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.DocfxSample.html">DocfxSample</a></li></ol></nav>
+        <!--PLACEHOLDER:CRUMBS-->
 
         <!--PLACEHOLDER:CAPTION-->
 
@@ -95,42 +95,60 @@
                     <!--PLACEHOLDER:SIDENAV-->
                 </div>
                 <div class="govuk-grid-column-three-quarters" id="pageContent">
-                    <article class="govuk-body app-article-content app-article-content--namespace" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace">
+                    <article class="govuk-body app-article-content app-article-content--class" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace.SomeResponse">
 
-  <h1 class="govuk-heading-l" id="Dfe_SignIn_DocfxSample_SomeNamespace" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace" class="text-break">Namespace Dfe.&#8203;SignIn.&#8203;DocfxSample.&#8203;SomeNamespace
+
+
+  <h1 class="govuk-heading-l" id="Dfe_SignIn_DocfxSample_SomeNamespace_SomeResponse" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace.SomeResponse">Class SomeResponse
 </h1>
-
   <div class="markdown summary"></div>
   <div class="markdown conceptual"></div>
-  <div class="markdown remarks"></div>
+
+  <h2 class="govuk-heading-m govuk-visually-hidden" id="Dfe_SignIn_DocfxSample_SomeNamespace_SomeResponse_syntax">Syntax</h2>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed record SomeResponse : IEquatable&lt;SomeResponse&gt;</code></pre>
+  </div>
 
 
-    <h2 class="govuk-heading-m" id="classes">
-Classes
-</h2>
 
-      <div class="app-cards">
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.AnotherClass.html">AnotherClass</a>
-          </h3>
-          <div class="app-cards__summary">An example class.</div>
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.SomeService.html">SomeService</a>
-          </h3>
-          <div class="app-cards__summary">A concrete implementation of <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.html">ISomeService</a>.</div>
-      </div>
+    <div class="implements">
+      <h2 class="govuk-heading-m">Implements</h2>
+      <ul class="app-link-blob">
+          <li class="app-link-blob__item"><a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.SomeResponse.html">SomeResponse</a>&gt;</li>
+      </ul>
+    </div>
 
 
-    <h2 class="govuk-heading-m" id="interfaces">
-Interfaces
-</h2>
 
-      <div class="app-cards">
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.html">ISomeService</a>
-          </h3>
-          <div class="app-cards__summary">An example class.</div>
-      </div>
+
+
+
+
+
+
+    <div class="inheritedMembers">
+      <h2 class="govuk-heading-m">Inherited Members</h2>
+      <ul class="app-link-blob">
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.&#8203;Equals(&#8203;object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.&#8203;Equals(&#8203;object, object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.&#8203;GetHashCode(&#8203;)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.&#8203;GetType(&#8203;)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.&#8203;ReferenceEquals(&#8203;object, object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.&#8203;ToString(&#8203;)&#8203;</a>
+          </li>
+      </ul>
+    </div>
 
 
 

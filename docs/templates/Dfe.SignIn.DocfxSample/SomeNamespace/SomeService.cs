@@ -1,3 +1,5 @@
+using Dfe.SignIn.Base.Framework;
+
 namespace Dfe.SignIn.DocfxSample.SomeNamespace;
 
 /// <summary>

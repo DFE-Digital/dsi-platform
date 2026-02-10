@@ -6,11 +6,11 @@
 
 
 
-    <title>Namespace Dfe.SignIn.DocfxSample.SomeNamespace
+    <title>Property ResponseType
  | DfE Sign-in Sample</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1d70b8">
-    <meta name="title" content="Namespace Dfe.SignIn.DocfxSample.SomeNamespace
+    <meta name="title" content="Property ResponseType
  | DfE Sign-in Sample ">
 
 
@@ -85,52 +85,53 @@
     </div>
 
     <div class="govuk-width-container app-width-container">
-        <nav class="govuk-breadcrumbs" aria-label="Breadcrumb"><ol class="govuk-breadcrumbs__list"><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.html">Dfe.&#8203;SignIn</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.DocfxSample.html">DocfxSample</a></li></ol></nav>
+        <nav class="govuk-breadcrumbs" aria-label="Breadcrumb"><ol class="govuk-breadcrumbs__list"><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.html">Dfe.&#8203;SignIn</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.Base.Framework.html">Base.&#8203;Framework</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.Base.Framework.AssociatedResponseAttribute.html">AssociatedResponseAttribute</a></li></ol></nav>
 
-        <!--PLACEHOLDER:CAPTION-->
+        <div class="app-page-caption" aria-hidden="true">Class AssociatedResponseAttribute</div>
 
         <main class="govuk-main-wrapper govuk-!-margin-top-2" id="main-content">
             <div class="govuk-grid-row" id="wrapper">
                 <div class="govuk-grid-column-one-third govuk-!-display-none-print">
-                    <!--PLACEHOLDER:SIDENAV-->
+                    <nav class="app-subnav"><h2 class="govuk-visually-hidden">Class AssociatedResponseAttribute</h2><a class="govuk-button govuk-button--secondary" href="../reference/Dfe.SignIn.Base.Framework.AssociatedResponseAttribute.html" role="button">Back to Class</a><h3 class="app-subnav__theme">Constructors</h3><ul class="app-subnav__section"><li class="app-subnav__section-item"><a class="app-subnav__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="../reference/Dfe.SignIn.Base.Framework.AssociatedResponseAttribute.-ctor.html">AssociatedResponseAttribute</a></li></ul><h3 class="app-subnav__theme">Properties</h3><ul class="app-subnav__section"><li class="app-subnav__section-item app-subnav__section-item--current"><a class="app-subnav__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="../reference/Dfe.SignIn.Base.Framework.AssociatedResponseAttribute.ResponseType.html">ResponseType</a></li></ul></nav>
                 </div>
-                <div class="govuk-grid-column-three-quarters" id="pageContent">
-                    <article class="govuk-body app-article-content app-article-content--namespace" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace">
+                <div class="govuk-grid-column-two-thirds" id="pageContent">
+                    <article class="govuk-body app-article-content app-article-content--property" data-uid="Dfe.SignIn.Base.Framework.AssociatedResponseAttribute.ResponseType*">
 
-  <h1 class="govuk-heading-l" id="Dfe_SignIn_DocfxSample_SomeNamespace" data-uid="Dfe.SignIn.DocfxSample.SomeNamespace" class="text-break">Namespace Dfe.&#8203;SignIn.&#8203;DocfxSample.&#8203;SomeNamespace
+
+
+
+  <h1 class="govuk-heading-l" id="Dfe_SignIn_Base_Framework_AssociatedResponseAttribute_ResponseType_" data-uid="Dfe.SignIn.Base.Framework.AssociatedResponseAttribute.ResponseType*"><span class="govuk-caption-l govuk-visually-hidden">Class AssociatedResponseAttribute</span>Property ResponseType
 </h1>
-
   <div class="markdown summary"></div>
   <div class="markdown conceptual"></div>
-  <div class="markdown remarks"></div>
 
 
-    <h2 class="govuk-heading-m" id="classes">
-Classes
-</h2>
 
-      <div class="app-cards">
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.AnotherClass.html">AnotherClass</a>
-          </h3>
-          <div class="app-cards__summary">An example class.</div>
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.SomeService.html">SomeService</a>
-          </h3>
-          <div class="app-cards__summary">A concrete implementation of <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.html">ISomeService</a>.</div>
-      </div>
+      <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible govuk-!-margin-bottom-4">
+
+  
+      <div class="markdown summary"></div>
+      <div class="markdown conceptual"></div>
+      <h3 class="govuk-heading-m declaration">Declaration</h3>
+
+        <div class="codewrapper">
+          <pre><code class="lang-csharp hljs">public Type ResponseType { get; }</code></pre>
+        </div>
 
 
-    <h2 class="govuk-heading-m" id="interfaces">
-Interfaces
-</h2>
 
-      <div class="app-cards">
-          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
-            <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.DocfxSample.SomeNamespace.ISomeService.html">ISomeService</a>
-          </h3>
-          <div class="app-cards__summary">An example class.</div>
-      </div>
+
+
+          <h2 class="govuk-heading-m">Property Value</h2>
+          <p>Type: <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></p>
+        
+
+
+
+
+
+
+
 
 
 

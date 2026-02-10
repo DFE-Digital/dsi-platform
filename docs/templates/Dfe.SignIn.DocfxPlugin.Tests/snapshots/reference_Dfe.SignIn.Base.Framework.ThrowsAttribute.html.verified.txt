@@ -1,0 +1,340 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="govuk-template govuk-template--rebranded">
+
+<head>
+    <meta charset="utf-8">
+
+
+
+    <title>Class ThrowsAttribute
+ | DfE Sign-in Sample</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#1d70b8">
+    <meta name="title" content="Class ThrowsAttribute
+ | DfE Sign-in Sample ">
+
+
+    <meta property="docfx:navrel" content="../toc.json">
+    <meta property="docfx:tocrel" content="toc.json">
+    <meta property="docfx:rel" content="../">
+
+
+    <link rel="stylesheet" href="http://localhost:8081/styles/main.css">
+    <link rel="stylesheet" href="http://localhost:8081/styles/docs.css">
+
+    <link rel="icon" sizes="48x48" href="http://localhost:8081/assets/rebrand/images/favicon.ico">
+
+    <link rel="icon" sizes="any" href="http://localhost:8081/assets/rebrand/images/favicon.svg" type="image/svg+xml">
+    <link rel="mask-icon" href="http://localhost:8081/assets/rebrand/images/govuk-icon-mask.svg" color="#1d70b8">
+    <link rel="apple-touch-icon" href="http://localhost:8081/assets/rebrand/images/govuk-icon-180.png">
+    <link rel="manifest" href="http://localhost:8081/assets/rebrand/manifest.json">
+
+    <meta property="og:image" content="http://localhost:8081/images/opengraph-image.png">
+</head>
+
+<body class="govuk-template__body">
+    <script>
+        document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
+    </script>
+    <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
+    <header class="govuk-header govuk-header--full-width-border" data-module="govuk-header">
+        <div class="govuk-header__container govuk-width-container app-width-container">
+            <div class="govuk-header__logo">
+                 <a href="https://www.gov.uk/government/organisations/department-for-education" class="govuk-header__link govuk-header__link--homepage">
+                    <img src="http://localhost:8081/assets/images/department-for-education_white.png" alt="Department for Education" class="govuk-header__logotype">
+                </a>
+            </div>
+            <div class="app-site-search" id="app-search" data-hint="Search (type &#39;/&#39; to search)" data-focused-hint="Search" data-no-results="No results found">
+                <input type="text" class="app-site-search__input" autocomplete="off" aria-autocomplete="none">
+                <div class="app-site-search__results-wrapper">
+                    <div class="app-site-search__results"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="govuk-service-navigation" data-module="govuk-service-navigation">
+        <div class="govuk-width-container app-width-container">
+            <div class="govuk-service-navigation__container">
+                 <span class="govuk-service-navigation__service-name">
+                    <a href="../" class="govuk-service-navigation__link">
+                        DfE Sign-in Sample
+                    </a>
+                </span>
+                <nav class="govuk-service-navigation__wrapper" aria-label="Menu">
+                    <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
+                        Menu
+                    </button>
+                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item govuk-service-navigation__item--active"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.html">Code Reference</a></li></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="govuk-width-container app-width-container">
+        <div class="govuk-phase-banner">
+                <p class="govuk-phase-banner__content">
+                    <strong class="govuk-tag govuk-phase-banner__content__tag">
+                        Beta
+                    </strong>
+                    <span class="govuk-phase-banner__text">
+                        This is a new service – your <a class="govuk-link" href="#" target="_blank">feedback</a> will help us to improve it.
+                    </span>
+                </p>
+        </div>
+    </div>
+
+    <div class="govuk-width-container app-width-container">
+        <nav class="govuk-breadcrumbs" aria-label="Breadcrumb"><ol class="govuk-breadcrumbs__list"><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.html">Dfe.&#8203;SignIn</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.Base.Framework.html">Base.&#8203;Framework</a></li></ol></nav>
+
+        <div class="app-page-caption" aria-hidden="true">Namespace Base.&#8203;Framework</div>
+
+        <main class="govuk-main-wrapper govuk-!-margin-top-2" id="main-content">
+            <div class="govuk-grid-row" id="wrapper">
+                <div class="govuk-grid-column-one-third govuk-!-display-none-print">
+                    <nav class="app-subnav"><h2 class="govuk-visually-hidden">Namespace Base.Framework</h2><a class="govuk-button govuk-button--secondary" href="../reference/Dfe.SignIn.Base.Framework.html" role="button">Back to Namespace</a><h3 class="app-subnav__theme">Classes</h3><ul class="app-subnav__section"><li class="app-subnav__section-item"><a class="app-subnav__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="../reference/Dfe.SignIn.Base.Framework.AssociatedResponseAttribute.html">AssociatedResponseAttribute</a></li><li class="app-subnav__section-item app-subnav__section-item--current"><a class="app-subnav__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="../reference/Dfe.SignIn.Base.Framework.ThrowsAttribute.html">ThrowsAttribute</a></li></ul></nav>
+                </div>
+                <div class="govuk-grid-column-two-thirds" id="pageContent">
+                    <article class="govuk-body app-article-content app-article-content--class" data-uid="Dfe.SignIn.Base.Framework.ThrowsAttribute">
+
+
+
+  <h1 class="govuk-heading-l" id="Dfe_SignIn_Base_Framework_ThrowsAttribute" data-uid="Dfe.SignIn.Base.Framework.ThrowsAttribute"><span class="govuk-caption-l govuk-visually-hidden">Namespace Base.&#8203;Framework</span>Class ThrowsAttribute
+</h1>
+  <div class="markdown summary"></div>
+  <div class="markdown conceptual"></div>
+
+  <h2 class="govuk-heading-m govuk-visually-hidden" id="Dfe_SignIn_Base_Framework_ThrowsAttribute_syntax">Syntax</h2>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+public class ThrowsAttribute : Attribute</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+    <h2 class="govuk-heading-m" id="constructors">Constructors
+</h2>
+
+      <ul class="app-cards app-cards--details">
+          <li class="app-cards__card">
+            <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+              <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.Base.Framework.ThrowsAttribute.-ctor.html">ThrowsAttribute(&#8203;Type)&#8203;</a>
+            </h3>
+            <div class="app-cards__summary"></div>
+          </li>
+      </ul>
+
+
+
+    <h2 class="govuk-heading-m" id="properties">Properties
+</h2>
+
+      <ul class="app-cards app-cards--details">
+          <li class="app-cards__card">
+            <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+              <a class="govuk-link govuk-link--no-visited-state" href="Dfe.SignIn.Base.Framework.ThrowsAttribute.ExceptionType.html">ExceptionType</a>
+            </h3>
+            <div class="app-cards__summary"></div>
+          </li>
+      </ul>
+
+
+
+      <div class="inheritance">
+        <h2 class="govuk-heading-m">Inheritance</h2>
+          <div class="level0"><a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+          <div class="level1"><a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute">Attribute</a></div>
+        <div class="level2">
+          <span class="xref">ThrowsAttribute</span>
+        </div>
+      </div>
+
+    <div class="inheritedMembers">
+      <h2 class="govuk-heading-m">Inherited Members</h2>
+      <ul class="app-link-blob">
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.equals">Attribute.&#8203;Equals(&#8203;object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattribute#system-attribute-getcustomattribute(system-reflection-assembly-system-type)">Attribute.&#8203;GetCustomAttribute(&#8203;Assembly, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattribute#system-attribute-getcustomattribute(system-reflection-assembly-system-type-system-boolean)">Attribute.&#8203;GetCustomAttribute(&#8203;Assembly, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattribute#system-attribute-getcustomattribute(system-reflection-memberinfo-system-type)">Attribute.&#8203;GetCustomAttribute(&#8203;MemberInfo, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattribute#system-attribute-getcustomattribute(system-reflection-memberinfo-system-type-system-boolean)">Attribute.&#8203;GetCustomAttribute(&#8203;MemberInfo, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattribute#system-attribute-getcustomattribute(system-reflection-module-system-type)">Attribute.&#8203;GetCustomAttribute(&#8203;Module, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattribute#system-attribute-getcustomattribute(system-reflection-module-system-type-system-boolean)">Attribute.&#8203;GetCustomAttribute(&#8203;Module, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattribute#system-attribute-getcustomattribute(system-reflection-parameterinfo-system-type)">Attribute.&#8203;GetCustomAttribute(&#8203;ParameterInfo, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattribute#system-attribute-getcustomattribute(system-reflection-parameterinfo-system-type-system-boolean)">Attribute.&#8203;GetCustomAttribute(&#8203;ParameterInfo, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-assembly)">Attribute.&#8203;GetCustomAttributes(&#8203;Assembly)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-assembly-system-boolean)">Attribute.&#8203;GetCustomAttributes(&#8203;Assembly, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-assembly-system-type)">Attribute.&#8203;GetCustomAttributes(&#8203;Assembly, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-assembly-system-type-system-boolean)">Attribute.&#8203;GetCustomAttributes(&#8203;Assembly, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-memberinfo)">Attribute.&#8203;GetCustomAttributes(&#8203;MemberInfo)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-memberinfo-system-boolean)">Attribute.&#8203;GetCustomAttributes(&#8203;MemberInfo, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-memberinfo-system-type)">Attribute.&#8203;GetCustomAttributes(&#8203;MemberInfo, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-memberinfo-system-type-system-boolean)">Attribute.&#8203;GetCustomAttributes(&#8203;MemberInfo, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-module)">Attribute.&#8203;GetCustomAttributes(&#8203;Module)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-module-system-boolean)">Attribute.&#8203;GetCustomAttributes(&#8203;Module, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-module-system-type)">Attribute.&#8203;GetCustomAttributes(&#8203;Module, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-module-system-type-system-boolean)">Attribute.&#8203;GetCustomAttributes(&#8203;Module, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-parameterinfo)">Attribute.&#8203;GetCustomAttributes(&#8203;ParameterInfo)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-parameterinfo-system-boolean)">Attribute.&#8203;GetCustomAttributes(&#8203;ParameterInfo, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-parameterinfo-system-type)">Attribute.&#8203;GetCustomAttributes(&#8203;ParameterInfo, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.getcustomattributes#system-attribute-getcustomattributes(system-reflection-parameterinfo-system-type-system-boolean)">Attribute.&#8203;GetCustomAttributes(&#8203;ParameterInfo, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.gethashcode">Attribute.&#8203;GetHashCode(&#8203;)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefaultattribute">Attribute.&#8203;IsDefaultAttribute(&#8203;)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefined#system-attribute-isdefined(system-reflection-assembly-system-type)">Attribute.&#8203;IsDefined(&#8203;Assembly, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefined#system-attribute-isdefined(system-reflection-assembly-system-type-system-boolean)">Attribute.&#8203;IsDefined(&#8203;Assembly, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefined#system-attribute-isdefined(system-reflection-memberinfo-system-type)">Attribute.&#8203;IsDefined(&#8203;MemberInfo, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefined#system-attribute-isdefined(system-reflection-memberinfo-system-type-system-boolean)">Attribute.&#8203;IsDefined(&#8203;MemberInfo, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefined#system-attribute-isdefined(system-reflection-module-system-type)">Attribute.&#8203;IsDefined(&#8203;Module, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefined#system-attribute-isdefined(system-reflection-module-system-type-system-boolean)">Attribute.&#8203;IsDefined(&#8203;Module, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefined#system-attribute-isdefined(system-reflection-parameterinfo-system-type)">Attribute.&#8203;IsDefined(&#8203;ParameterInfo, Type)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.isdefined#system-attribute-isdefined(system-reflection-parameterinfo-system-type-system-boolean)">Attribute.&#8203;IsDefined(&#8203;ParameterInfo, Type, bool)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.match">Attribute.&#8203;Match(&#8203;object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.attribute.typeid">Attribute.&#8203;TypeId</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.&#8203;Equals(&#8203;object, object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.&#8203;GetType(&#8203;)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.&#8203;MemberwiseClone(&#8203;)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.&#8203;ReferenceEquals(&#8203;object, object)&#8203;</a>
+          </li>
+          <li class="app-link-blob__item">
+              <a class="govuk-link govuk-link--no-visited-state" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.&#8203;ToString(&#8203;)&#8203;</a>
+          </li>
+      </ul>
+    </div>
+
+
+
+
+
+                    </article>
+                </div>
+            </div>
+        </main>
+
+    </div>
+    <footer class="govuk-footer">
+        <div class="govuk-width-container app-width-container">
+            <svg focusable="false" role="presentation" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 64 60" height="30" width="32" fill="currentcolor" class="govuk-footer__crown">
+            <g>
+                <circle cx="20" cy="17.6" r="3.7"></circle>
+                <circle cx="10.2" cy="23.5" r="3.7"></circle>
+                <circle cx="3.7" cy="33.2" r="3.7"></circle>
+                <circle cx="31.7" cy="30.6" r="3.7"></circle>
+                <circle cx="43.3" cy="17.6" r="3.7"></circle>
+                <circle cx="53.2" cy="23.5" r="3.7"></circle>
+                <circle cx="59.7" cy="33.2" r="3.7"></circle>
+                <circle cx="31.7" cy="30.6" r="3.7"></circle>
+                <path d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"></path>
+            </g>
+            </svg>
+            <div class="govuk-footer__meta">
+                <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+                    <svg aria-hidden="true" focusable="false" class="govuk-footer__licence-logo" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 483.2 195.7" height="17" width="41">
+                    <path fill="currentColor" d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"></path>
+                    </svg>
+                    <span class="govuk-footer__licence-description">
+                    All content is available under the
+                    <a class="govuk-footer__link" href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">Open Government Licence v3.&#8203;0</a>, except where otherwise stated
+                    </span>
+                </div>
+                <div class="govuk-footer__meta-item">
+                    <a class="govuk-footer__link govuk-footer__copyright-logo" href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/">
+                    © Crown copyright
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="http://localhost:8081/scripts/main.min.js"></script>
+    <script src="http://localhost:8081/scripts/docs.min.js"></script>
+</body>
+
+</html>
