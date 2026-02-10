@@ -44,6 +44,11 @@ public static class InteractionHandlerExtensions
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
             return FailedInteractionResponse.FromException(ex, exceptionSerializer);
         }
+        catch (NotFoundInteractionException ex) {
+            logger.LogWarning(ex, "Resource not found.");
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            return FailedInteractionResponse.FromException(ex, exceptionSerializer);
+        }
         catch (Exception ex) {
             logger.LogError(ex, "An error occurred whilst processing internal API request.");
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -63,11 +68,19 @@ public static class InteractionHandlerExtensions
         where TResponse : class
     {
         string path = NamingHelpers.GetEndpointPath<TRequest>();
-        app.MapPost(path, InteractionHandler<TRequest, TResponse>)
+
+        var builder = app.MapPost(path, InteractionHandler<TRequest, TResponse>)
             .RequireAuthorization()
             .Produces<InteractionResponse<TResponse>>(StatusCodes.Status200OK)
             .Produces<FailedInteractionResponse>(StatusCodes.Status400BadRequest)
             .Produces<FailedInteractionResponse>(StatusCodes.Status500InternalServerError)
             .Produces(StatusCodes.Status401Unauthorized);
+
+        var throwsAttributes = Attribute
+            .GetCustomAttributes(typeof(TRequest), typeof(ThrowsAttribute), inherit: true)
+            .Cast<ThrowsAttribute>();
+        if (throwsAttributes.Any(attribute => typeof(NotFoundInteractionException).IsAssignableFrom(attribute.ExceptionType))) {
+            builder.Produces<FailedInteractionResponse>(StatusCodes.Status404NotFound);
+        }
     }
 }

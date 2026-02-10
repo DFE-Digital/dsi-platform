@@ -5,7 +5,7 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// <summary>
 /// The exception thrown when a requested organisation was not found.
 /// </summary>
-public sealed class OrganisationNotFoundException : InteractionException
+public sealed class OrganisationNotFoundException : NotFoundInteractionException
 {
     /// <summary>
     /// Creates an instance of the <see cref="OrganisationNotFoundException"/> from an organisation ID.

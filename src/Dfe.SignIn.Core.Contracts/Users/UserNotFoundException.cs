@@ -5,7 +5,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// <summary>
 /// The exception thrown when a requested user account was not found.
 /// </summary>
-public sealed class UserNotFoundException : InteractionException
+public sealed class UserNotFoundException : NotFoundInteractionException
 {
     /// <summary>
     /// Creates an instance of the <see cref="UserNotFoundException"/> from a user ID.
