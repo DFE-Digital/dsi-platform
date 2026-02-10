@@ -51,23 +51,27 @@ public sealed class SelectOrganisationController(
 
         // If there is only one option; invoke the callback right away.
         if (session.OrganisationOptions.Count() == 1) {
-            // Invalidate the session since it is being handled now.
-            await interaction.DispatchAsync(
-                new InvalidateSelectOrganisationSessionRequest {
-                    SessionKey = sessionKey,
-                }
-            ).To<InvalidateSelectOrganisationSessionResponse>();
+            return await this.HandleOnlyOneOption(sessionKey, session);
+        }
 
+        return this.View(this.PrepareViewModel(clientId, sessionKey, session));
+    }
+
+    private async Task<IActionResult> HandleOnlyOneOption(string sessionKey, SelectOrganisationSessionData session)
+    {
+        // Invalidate the session since it is being handled now.
+        await interaction.DispatchAsync(
+            new InvalidateSelectOrganisationSessionRequest {
+                SessionKey = sessionKey,
+            }
+        ).To<InvalidateSelectOrganisationSessionResponse>();
+
+        try {
             var selectedOrganisation = (await interaction.DispatchAsync(
                 new GetOrganisationByIdRequest {
                     OrganisationId = session.OrganisationOptions.First().Id
                 }
             ).To<GetOrganisationByIdResponse>()).Organisation;
-
-            if (selectedOrganisation is null) {
-                // The organisation does not exist; maybe it was deleted.
-                return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
-            }
 
             await interaction.DispatchAsync(
                 new WriteToAuditRequest {
@@ -81,8 +85,10 @@ public sealed class SelectOrganisationController(
 
             return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
         }
-
-        return this.View(this.PrepareViewModel(clientId, sessionKey, session));
+        catch (OrganisationNotFoundException) {
+            // The organisation does not exist; maybe it was deleted.
+            return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
+        }
     }
 
     [HttpPost("{clientId}/{sessionKey}")]
@@ -129,26 +135,28 @@ public sealed class SelectOrganisationController(
             return await this.HandleInvalidSessionAsync(clientId);
         }
 
-        var selectedOrganisation = (await interaction.DispatchAsync(
-            new GetOrganisationByIdRequest {
-                OrganisationId = (Guid)viewModel.SelectedOrganisationIdInput!,
-            }
-        ).To<GetOrganisationByIdResponse>()).Organisation;
-        if (selectedOrganisation is null) {
+        try {
+            var selectedOrganisation = (await interaction.DispatchAsync(
+                new GetOrganisationByIdRequest {
+                    OrganisationId = (Guid)viewModel.SelectedOrganisationIdInput!,
+                }
+            ).To<GetOrganisationByIdResponse>()).Organisation;
+
+            await interaction.DispatchAsync(
+                new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.SelectOrganisation,
+                    EventName = AuditSelectOrganisationEventNames.Selection,
+                    Message = $"Selected organisation '{selectedOrganisation.Name}'",
+                    UserId = session.UserId,
+                    OrganisationId = selectedOrganisation.Id,
+                }
+            );
+
+            return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
+        }
+        catch (OrganisationNotFoundException) {
             return this.RedirectToErrorCallback(session, SelectOrganisationErrorCode.InvalidSelection);
         }
-
-        await interaction.DispatchAsync(
-            new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.SelectOrganisation,
-                EventName = AuditSelectOrganisationEventNames.Selection,
-                Message = $"Selected organisation '{selectedOrganisation.Name}'",
-                UserId = session.UserId,
-                OrganisationId = selectedOrganisation.Id,
-            }
-        );
-
-        return this.RedirectToSelectionCallback(session, selectedOrganisation.Id);
     }
 
     [HttpGet("{clientId}/{sessionKey}/sign-out")]
