@@ -37,6 +37,20 @@ builder.Services
 builder.Services
     .AddInteractionFramework();
 
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Access,  NodeApiName.Directories,  NodeApiName.Organisations, NodeApiName.Search];
+
+// Get token credential for making API requests to Node APIs.
+var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+    builder.Configuration.GetRequiredSection("InternalApiClient")
+);
+
+builder.Services
+    .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
+    .SetupInternalApiClient(tokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
+    .SetupResiliencePipelines(builder.Configuration);
+
 builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetSection("Audit"))
     .Configure<AuditOptions>(options => options.ApplicationName ??= "AuthExtensions")
@@ -49,18 +63,6 @@ var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOption
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
     .AddAuditingWithServiceBus(builder.Configuration);
-
-// Get token credential for making API requests to Node APIs.
-var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
-    builder.Configuration.GetRequiredSection("InternalApiClient")
-);
-
-IEnumerable<NodeApiName> requiredNodeApiNames = [
-    NodeApiName.Access,  NodeApiName.Directories,  NodeApiName.Organisations, NodeApiName.Search];
-
-builder.Services
-    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
-    .SetupResiliencePipelines(builder.Configuration);
 
 builder.Services
     .Configure<BlockedEmailAddressOptions>(options => {

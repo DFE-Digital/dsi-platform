@@ -32,13 +32,13 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
+IEnumerable<NodeApiName> requiredNodeApiNames = [
+    NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
+
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient")
 );
-
-IEnumerable<NodeApiName> requiredNodeApiNames = [
-    NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
 
 // Add services to the container.
 builder.Services
