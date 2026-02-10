@@ -16,10 +16,10 @@ public static class PublicApiHelpers
         return new EncryptApiSecretUseCase(options);
     }
 
-    public static InteractionContext<EncryptPublicApiSecretRequest> CreateEncryptionInteractionContext(string apiSecret)
+    public static InteractionContext<EncryptApiSecretRequest> CreateEncryptionInteractionContext(string apiSecret)
     {
-        return new InteractionContext<EncryptPublicApiSecretRequest>(
-            new EncryptPublicApiSecretRequest {
+        return new InteractionContext<EncryptApiSecretRequest>(
+            new EncryptApiSecretRequest {
                 ApiSecret = apiSecret
             }
         );
