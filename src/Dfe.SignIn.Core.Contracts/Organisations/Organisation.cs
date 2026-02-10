@@ -97,37 +97,37 @@ public sealed record Organisation
     /// <summary>
     /// The GIAS provider type of the organisation.
     /// </summary>
-    public string? GIASProviderType { get; set; }
+    public string? GiasProviderType { get; set; }
 
     /// <summary>
     /// The PIMS provider type of the organisation.
     /// </summary>
-    public string? PIMSProviderType { get; set; }
+    public string? PimsProviderType { get; set; }
 
     /// <summary>
     /// The PIMS provider type code of the organisation.
     /// </summary>
-    public int? PIMSProviderTypeCode { get; set; }
+    public int? PimsProviderTypeCode { get; set; }
 
     /// <summary>
     /// The PIMS status name of the organisation.
     /// </summary>
-    public string? PIMSStatusName { get; set; }
+    public string? PimsStatusName { get; set; }
 
     /// <summary>
     /// The PIMS status of the organisation.
     /// </summary>
-    public int? PIMSStatus { get; set; }
+    public int? PimsStatus { get; set; }
 
     /// <summary>
     /// The GIAS status name of the organisation.
     /// </summary>
-    public string? GIASStatusName { get; set; }
+    public string? GiasStatusName { get; set; }
 
     /// <summary>
     /// The GIAS status of the organisation.
     /// </summary>
-    public int? GIASStatus { get; set; }
+    public int? GiasStatus { get; set; }
 
     /// <summary>
     /// The master provider status name of the organisation.
@@ -157,5 +157,5 @@ public sealed record Organisation
     /// <summary>
     /// Indicates if the organisation is on APAR.
     /// </summary>
-    public string? IsOnAPAR { get; set; }
+    public string? IsOnApar { get; set; }
 }

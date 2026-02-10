@@ -58,15 +58,15 @@ public partial class OrganisationEntity
 
     public string? ProviderTypeName { get; set; }
 
-    public string? GiasproviderType { get; set; }
+    public string? GiasProviderType { get; set; }
 
-    public string? PimsproviderType { get; set; }
+    public string? PimsProviderType { get; set; }
 
     public int? ProviderTypeCode { get; set; }
 
-    public int? PimsproviderTypeCode { get; set; }
+    public int? PimsProviderTypeCode { get; set; }
 
-    public string? Pimsstatus { get; set; }
+    public int? PimsStatus { get; set; }
 
     public string? OpenedOn { get; set; }
 
@@ -76,11 +76,11 @@ public partial class OrganisationEntity
 
     public string? DistrictAdministrativeCode1 { get; set; }
 
-    public string? PimsstatusName { get; set; }
+    public string? PimsStatusName { get; set; }
 
-    public int? Giasstatus { get; set; }
+    public int? GiasStatus { get; set; }
 
-    public string? GiasstatusName { get; set; }
+    public string? GiasStatusName { get; set; }
 
     public int? MasterProviderStatusCode { get; set; }
 
