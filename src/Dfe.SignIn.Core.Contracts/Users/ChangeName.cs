@@ -1,20 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to change the name of a user.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="ChangeNameResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="UserNotFoundException"/></para>
-///   <list type="bullet">
-///     <item>When the user account was not found.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(ChangeNameResponse))]
+[Throws(typeof(UserNotFoundException))]
 public sealed record ChangeNameRequest
 {
     /// <summary>

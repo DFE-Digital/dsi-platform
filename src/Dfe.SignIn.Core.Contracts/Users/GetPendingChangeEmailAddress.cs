@@ -6,20 +6,9 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// <summary>
 /// Represents a request for a user to change their email address.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetPendingChangeEmailAddressResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="UserNotFoundException"/></para>
-///   <list type="bullet">
-///     <item>When the user account was not found.</item>
-///   </list>
-///   <para>Throws <see cref="NoPendingChangeEmailException"/></para>
-///   <list type="bullet">
-///     <item>When there is no pending 'change email' request.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetPendingChangeEmailAddressResponse))]
+[Throws(typeof(UserNotFoundException))]
+[Throws(typeof(NoPendingChangeEmailException))]
 public sealed record GetPendingChangeEmailAddressRequest
 {
     /// <summary>

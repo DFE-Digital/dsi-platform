@@ -1,16 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 
 /// <summary>
 /// Request to raise a support ticket.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="RaiseSupportTicketResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(RaiseSupportTicketResponse))]
 public sealed record RaiseSupportTicketRequest : IValidatableObject
 {
     /// <summary>

@@ -1,16 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to link an Entra user to DfE Sign-in.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="LinkEntraUserToDsiResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(LinkEntraUserToDsiResponse))]
 public sealed record LinkEntraUserToDsiRequest
 {
     /// <summary>

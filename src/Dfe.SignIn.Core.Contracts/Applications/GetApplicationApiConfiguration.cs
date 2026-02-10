@@ -6,16 +6,8 @@ namespace Dfe.SignIn.Core.Contracts.Applications;
 /// Request to get the Public API client configuration for an application by its
 /// unique client identifier.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetApplicationApiConfigurationResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="ApplicationNotFoundException"/></para>
-///   <list type="bullet">
-///     <item>When attempting to access an application that does not exist.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetApplicationApiConfigurationResponse))]
+[Throws(typeof(ApplicationNotFoundException))]
 public sealed record GetApplicationApiConfigurationRequest : IKeyedRequest
 {
     /// <summary>

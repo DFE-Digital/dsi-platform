@@ -1,17 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.SelectOrganisation;
 
 /// <summary>
 /// Represents a request to invalidate a "select organisation" session.
 /// </summary>
-/// <remarks>
-///   <para>Does nothing if the session does not exist.</para>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="InvalidateSelectOrganisationSessionResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(InvalidateSelectOrganisationSessionResponse))]
 public sealed record InvalidateSelectOrganisationSessionRequest
 {
     /// <summary>

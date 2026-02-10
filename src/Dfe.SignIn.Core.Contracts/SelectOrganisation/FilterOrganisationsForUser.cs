@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Public.SelectOrganisation;
 
@@ -7,12 +8,7 @@ namespace Dfe.SignIn.Core.Contracts.SelectOrganisation;
 /// <summary>
 /// Represents a request to filter organisations for a user.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="FilterOrganisationsForUserResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(FilterOrganisationsForUserResponse))]
 public sealed record FilterOrganisationsForUserRequest
 {
     /// <summary>

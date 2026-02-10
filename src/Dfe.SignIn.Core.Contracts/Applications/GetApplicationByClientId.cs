@@ -1,18 +1,12 @@
+using Dfe.SignIn.Base.Framework;
+
 namespace Dfe.SignIn.Core.Contracts.Applications;
 
 /// <summary>
 /// Request to get an application by its unique client identifier.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetApplicationByClientIdResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="ApplicationNotFoundException"/></para>
-///   <list type="bullet">
-///     <item>When attempting to access an application that does not exist.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetApplicationByClientIdResponse))]
+[Throws(typeof(ApplicationNotFoundException))]
 public sealed record GetApplicationByClientIdRequest
 {
     /// <summary>

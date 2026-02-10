@@ -1,20 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to automatically link an Entra user to DfE Sign-in.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="AutoLinkEntraUserToDsiResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="CannotLinkInactiveUserException"/></para>
-///   <list type="bullet">
-///     <item>When attempting to link an inactive user account.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(AutoLinkEntraUserToDsiResponse))]
+[Throws(typeof(CannotLinkInactiveUserException))]
 public sealed record AutoLinkEntraUserToDsiRequest
 {
     /// <summary>

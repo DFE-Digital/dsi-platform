@@ -1,17 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to complete any pending invitation associated with a user.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="CompleteAnyPendingInvitationResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(CompleteAnyPendingInvitationResponse))]
 public sealed record CompleteAnyPendingInvitationRequest
 {
     /// <summary>

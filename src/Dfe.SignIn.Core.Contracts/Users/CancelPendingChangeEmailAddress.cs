@@ -1,18 +1,12 @@
+using Dfe.SignIn.Base.Framework;
+
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to cancel a previous user request to change their email address.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="CancelPendingChangeEmailAddressResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="UserNotFoundException"/></para>
-///   <list type="bullet">
-///     <item>When the user account was not found.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(CancelPendingChangeEmailAddressResponse))]
+[Throws(typeof(UserNotFoundException))]
 public sealed record CancelPendingChangeEmailAddressRequest
 {
     /// <summary>

@@ -1,16 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to check whether an email address would be blocked.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="CheckIsBlockedEmailAddressResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(CheckIsBlockedEmailAddressResponse))]
 public sealed record CheckIsBlockedEmailAddressRequest
 {
     /// <summary>

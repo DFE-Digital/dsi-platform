@@ -5,13 +5,8 @@ namespace Dfe.SignIn.Core.Contracts.Audit;
 /// <summary>
 /// Request to write an audit entry, including metadata and contextual information.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="WriteToAuditResponse"/></item>
-///   </list>
-/// </remarks>
 [NonCancellable]
+[AssociatedResponse(typeof(WriteToAuditResponse))]
 public sealed record WriteToAuditRequest
 {
     /// <summary>

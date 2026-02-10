@@ -1,15 +1,12 @@
+using Dfe.SignIn.Base.Framework;
+
 namespace Dfe.SignIn.Core.Contracts.SupportTickets;
 
 /// <summary>
 /// Request to get the list of subject options which can be chosen from when a
 /// user is raising a support ticket.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetSubjectOptionsForSupportTicketResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetSubjectOptionsForSupportTicketResponse))]
 public sealed record GetSubjectOptionsForSupportTicketRequest
 {
 }
