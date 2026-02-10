@@ -39,7 +39,7 @@ internal static class OrganisationHelpers
             PimsProviderType = entity.PimsProviderType,
             PimsProviderTypeCode = entity.PimsProviderTypeCode,
             PimsStatusName = entity.PimsStatusName,
-            PimsStatus = entity.PimsStatus,
+            PimsStatus = entity.PimsStatus is not null ? int.Parse(entity.PimsStatus) : null,
             GiasStatus = entity.GiasStatus,
             GiasStatusName = entity.GiasStatusName,
             MasterProviderStatusCode = entity.MasterProviderStatusCode,

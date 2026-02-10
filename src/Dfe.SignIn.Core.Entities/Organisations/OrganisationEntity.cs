@@ -66,7 +66,7 @@ public partial class OrganisationEntity
 
     public int? PimsProviderTypeCode { get; set; }
 
-    public int? PimsStatus { get; set; }
+    public string? PimsStatus { get; set; }
 
     public string? OpenedOn { get; set; }
 
