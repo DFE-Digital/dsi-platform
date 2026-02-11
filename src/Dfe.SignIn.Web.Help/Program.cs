@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
@@ -35,6 +36,10 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 IEnumerable<NodeApiName> requiredNodeApiNames = [
     NodeApiName.Applications];
 
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient")
@@ -47,7 +52,8 @@ builder.Services
     .SetupResiliencePipelines(builder.Configuration)
     .AddDistributedInteractionCache<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>(options => {
         options.DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
-    });
+    })
+    .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddDsiMvcExtensions();

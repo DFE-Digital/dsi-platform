@@ -20,6 +20,10 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Redis" />
+    <PackageReference Include="Azure.Core" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" />
+    <PackageReference Include="Azure.Identity" />
     <PackageReference Include="GovUk.Frontend.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
