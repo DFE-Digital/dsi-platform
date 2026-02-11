@@ -60,5 +60,6 @@ public static partial class InteractionEndpoints
         app.Map<CheckIsBlockedEmailAddressRequest, CheckIsBlockedEmailAddressResponse>();
         app.Map<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>();
         app.Map<GetUserProfileRequest, GetUserProfileResponse>();
+        app.Map<GetUserStatusRequest, GetUserStatusResponse>();
     }
 }

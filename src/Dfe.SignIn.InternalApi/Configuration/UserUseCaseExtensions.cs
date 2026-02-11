@@ -31,6 +31,7 @@ public static class UserUseCaseExtensions
         services.AddInteractor<ChangeJobTitleUseCase>();
         services.AddInteractor<GetOrganisationsAssociatedWithUserUseCase>();
         services.AddInteractor<GetUserProfileUseCase>();
+        services.AddInteractor<GetUserStatusUseCase>();
 
         services
             .Configure<BlockedEmailAddressOptions>(options => {
