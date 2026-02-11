@@ -13,6 +13,15 @@ public sealed class ChangeJobTitleUseCaseTests
 
     private static readonly Guid ExistingChangedUserId = Guid.Parse("3ed6826f-6854-4adf-b65f-5b2ace7c8691");
 
+    [TestMethod]
+    public Task Throws_WhenRequestIsInvalid()
+    {
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
+            ChangeJobTitleRequest,
+            ChangeJobTitleUseCase
+        >();
+    }
+
     private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync(AutoMocker autoMocker)
     {
         var ctx = autoMocker.UseInMemoryDirectoriesDb();
