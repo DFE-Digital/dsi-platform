@@ -33,7 +33,7 @@ public sealed class SwaggerExceptionSchemaFilter : ISchemaFilter
         }
 
         bool isNotFoundResponse = context.Type.GetGenericTypeDefinition() == typeof(NotFoundInteractionResponse<>);
-        var requestType = context.Type.GenericTypeArguments.First();
+        var requestType = context.Type.GenericTypeArguments[0];
 
         var throwsAttributes = Attribute
             .GetCustomAttributes(requestType, typeof(ThrowsAttribute), inherit: true)
@@ -41,9 +41,9 @@ public sealed class SwaggerExceptionSchemaFilter : ISchemaFilter
             .Where(x => (isNotFoundResponse && typeof(NotFoundInteractionException).IsAssignableFrom(x.ExceptionType))
                 || (!isNotFoundResponse && !typeof(NotFoundInteractionException).IsAssignableFrom(x.ExceptionType)));
 
-        var exceptionSchemas = throwsAttributes.Select(x => this.CreateSchemaForExceptionType(x.ExceptionType));
+        var exceptionSchemas = throwsAttributes.Select(x => CreateSchemaForExceptionType(x.ExceptionType));
         if (!isNotFoundResponse) {
-            exceptionSchemas = exceptionSchemas.Append(this.CreateSchemaForExceptionType(typeof(UnexpectedException)));
+            exceptionSchemas = exceptionSchemas.Append(CreateSchemaForExceptionType(typeof(UnexpectedException)));
         }
 
         schema.Properties["exception"] = exceptionSchemas.Count() > 1
@@ -51,7 +51,7 @@ public sealed class SwaggerExceptionSchemaFilter : ISchemaFilter
             : exceptionSchemas.First();
     }
 
-    private OpenApiSchema CreateSchemaForExceptionType(Type exceptionType)
+    private static OpenApiSchema CreateSchemaForExceptionType(Type exceptionType)
     {
         var exceptionSchema = new OpenApiSchema {
             Type = "object",
