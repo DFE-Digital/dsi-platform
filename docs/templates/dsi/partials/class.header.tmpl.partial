@@ -9,6 +9,36 @@
   <pre><code class="lang-csharp hljs">{{syntax.content.0.value}}</code></pre>
 </div>
 
+{{#interactionResponse.0}}
+  <div class="interaction-response">
+    <h2 class="govuk-heading-m">{{__global.interactionResponse}}</h2>
+    <ul class="app-cards app-cards--details">
+      {{#interactionResponse}}
+        <li class="app-cards__card">
+          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+            <xref uid="{{.}}" altProperty="fullName" displayProperty="nameWithType"/>
+          </h3>
+        </li>
+      {{/interactionResponse}}
+    </ul>
+  </div>
+{{/interactionResponse.0}}
+
+{{#interactionExceptions.0}}
+  <div class="interaction-exceptions">
+    <h2 class="govuk-heading-m">{{__global.interactionExceptions}}</h2>
+    <ul class="app-cards app-cards--details">
+      {{#interactionExceptions}}
+        <li class="app-cards__card">
+          <h3 class="govuk-heading-s app-cards__title govuk-!-margin-bottom-2">
+            <xref uid="{{.}}" altProperty="fullName" displayProperty="nameWithType"/>
+          </h3>
+        </li>
+      {{/interactionExceptions}}
+    </ul>
+  </div>
+{{/interactionExceptions.0}}
+
 {{#implements.0}}
   <div class="implements">
     <h2 class="govuk-heading-m">{{__global.implements}}</h2>

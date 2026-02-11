@@ -25,6 +25,14 @@ exports.transform = function (model) {
   }
 
   if (model.type === "class") {
+    model.interactionResponse = (model.attributes ?? [])
+      .filter(attribute => attribute.type === 'Dfe.SignIn.Base.Framework.AssociatedResponseAttribute')
+      .map(attribute => attribute.arguments[0].value);
+
+    model.interactionExceptions = (model.attributes ?? [])
+      .filter(attribute => attribute.type === 'Dfe.SignIn.Base.Framework.ThrowsAttribute')
+      .map(attribute => attribute.arguments[0].value);
+
     model.hasInheritanceSection = (model.inheritance?.length || 0) > 1
       || (model.derivedClasses?.length || 0) !== 0;
   }

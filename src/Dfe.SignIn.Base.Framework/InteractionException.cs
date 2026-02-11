@@ -29,3 +29,28 @@ public abstract class InteractionException : Exception
     protected InteractionException(string? message, Exception? innerException)
         : base(message, innerException) { }
 }
+
+/// <summary>
+/// The exception that occurs when an item was not found whilst processing an
+/// interaction (eg. use case, api request, etc).
+/// </summary>
+public abstract class NotFoundInteractionException : InteractionException
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NotFoundInteractionException"/> class.
+    /// </summary>
+    protected NotFoundInteractionException() { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NotFoundInteractionException"/> class.
+    /// </summary>
+    /// <inheritdoc/>
+    protected NotFoundInteractionException(string? message) : base(message) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NotFoundInteractionException"/> class.
+    /// </summary>
+    /// <inheritdoc/>
+    protected NotFoundInteractionException(string? message, Exception? innerException)
+        : base(message, innerException) { }
+}

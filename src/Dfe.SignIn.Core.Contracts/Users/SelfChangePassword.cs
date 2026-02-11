@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Graph;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
@@ -7,16 +8,8 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// <summary>
 /// Represents a request to change a user's password.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="SelfChangePasswordResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="UserNotFoundException"/></para>
-///   <list type="bullet">
-///     <item>When the user account was not found.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(SelfChangePasswordResponse))]
+[Throws(typeof(UserNotFoundException))]
 public sealed partial record SelfChangePasswordRequest : IValidatableObject
 {
     /// <summary>

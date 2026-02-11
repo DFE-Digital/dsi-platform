@@ -7,12 +7,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// <summary>
 /// Represents a request to get the status of a user account.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetUserStatusResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetUserStatusResponse))]
 public sealed record GetUserStatusRequest : IValidatableObject
 {
     /// <summary>

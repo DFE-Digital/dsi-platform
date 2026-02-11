@@ -1,18 +1,12 @@
+using Dfe.SignIn.Base.Framework;
+
 namespace Dfe.SignIn.Core.Contracts.Organisations;
 
 /// <summary>
 /// Request to get an organisation by its unique identifier.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetOrganisationByIdResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="OrganisationNotFoundException"/></para>
-///   <list type="bullet">
-///     <item>When the organisation was not found.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetOrganisationByIdResponse))]
+[Throws(typeof(OrganisationNotFoundException))]
 public sealed record GetOrganisationByIdRequest
 {
     /// <summary>

@@ -1,20 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to change the job title of a user.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="ChangeJobTitleResponse"/></item>
-///   </list>
-///   <para>Throws <see cref="UserNotFoundException"/></para>
-///   <list type="bullet">
-///     <item>When the user account was not found.</item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(ChangeJobTitleResponse))]
+[Throws(typeof(UserNotFoundException))]
 public sealed record ChangeJobTitleRequest
 {
     /// <summary>

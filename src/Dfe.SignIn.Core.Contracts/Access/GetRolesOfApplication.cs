@@ -1,14 +1,11 @@
+using Dfe.SignIn.Base.Framework;
+
 namespace Dfe.SignIn.Core.Contracts.Access;
 
 /// <summary>
 /// Request to get the roles that are associated with an application.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetRolesOfApplicationResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetRolesOfApplicationResponse))]
 public sealed record GetRolesOfApplicationRequest
 {
     /// <summary>

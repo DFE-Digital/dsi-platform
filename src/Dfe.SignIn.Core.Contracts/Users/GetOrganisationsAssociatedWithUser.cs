@@ -1,3 +1,4 @@
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Organisations;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
@@ -5,12 +6,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// <summary>
 /// Request to get all of the organisations that are associated with a particular user.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetOrganisationsAssociatedWithUserResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetOrganisationsAssociatedWithUserResponse))]
 public sealed record GetOrganisationsAssociatedWithUserRequest
 {
     /// <summary>

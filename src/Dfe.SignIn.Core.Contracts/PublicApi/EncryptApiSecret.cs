@@ -1,17 +1,13 @@
 
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.PublicApi;
 
 /// <summary>
 /// Request to get an ApiSecret encrypted.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="EncryptApiSecretResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(EncryptApiSecretResponse))]
 public sealed record EncryptApiSecretRequest
 {
     /// <summary>

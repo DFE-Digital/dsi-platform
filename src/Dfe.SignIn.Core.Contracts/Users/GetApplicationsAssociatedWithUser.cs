@@ -1,14 +1,11 @@
+using Dfe.SignIn.Base.Framework;
+
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Request to get all the applications that are associated with a user.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="GetApplicationsAssociatedWithUserResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(GetApplicationsAssociatedWithUserResponse))]
 public sealed record GetApplicationsAssociatedWithUserRequest
 {
     /// <summary>

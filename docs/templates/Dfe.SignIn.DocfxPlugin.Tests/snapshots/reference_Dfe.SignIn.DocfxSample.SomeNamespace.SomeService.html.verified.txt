@@ -65,7 +65,7 @@
                     <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
                         Menu
                     </button>
-                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item govuk-service-navigation__item--active"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.DocfxSample.html">Code Reference</a></li></ul>
+                    <ul class="govuk-service-navigation__list" id="navigation"><li class="govuk-service-navigation__item"><a class="govuk-service-navigation__link" href="../guide/introduction.html">Guide</a></li><li class="govuk-service-navigation__item govuk-service-navigation__item--active"><a class="govuk-service-navigation__link" href="../reference/Dfe.SignIn.html">Code Reference</a></li></ul>
                 </nav>
             </div>
         </div>
@@ -85,7 +85,7 @@
     </div>
 
     <div class="govuk-width-container app-width-container">
-        <nav class="govuk-breadcrumbs" aria-label="Breadcrumb"><ol class="govuk-breadcrumbs__list"><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.DocfxSample.html">Dfe.&#8203;SignIn.&#8203;DocfxSample</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.DocfxSample.SomeNamespace.html">SomeNamespace</a></li></ol></nav>
+        <nav class="govuk-breadcrumbs" aria-label="Breadcrumb"><ol class="govuk-breadcrumbs__list"><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.html">Dfe.&#8203;SignIn</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.DocfxSample.html">DocfxSample</a></li><li class="govuk-breadcrumbs__list-item"><a class="govuk-breadcrumbs__link" href="../reference/Dfe.SignIn.DocfxSample.SomeNamespace.html">SomeNamespace</a></li></ol></nav>
 
         <div class="app-page-caption" aria-hidden="true">Namespace SomeNamespace</div>
 
@@ -108,6 +108,8 @@
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public sealed class SomeService : ISomeService</code></pre>
   </div>
+
+
 
     <div class="implements">
       <h2 class="govuk-heading-m">Implements</h2>

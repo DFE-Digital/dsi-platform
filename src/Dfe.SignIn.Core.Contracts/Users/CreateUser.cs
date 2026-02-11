@@ -1,16 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to create a new user in DfE Sign-in.
 /// </summary>
-/// <remarks>
-///   <para>Associated response type:</para>
-///   <list type="bullet">
-///     <item><see cref="CreateUserResponse"/></item>
-///   </list>
-/// </remarks>
+[AssociatedResponse(typeof(CreateUserResponse))]
 public sealed record CreateUserRequest
 {
     /// <summary>

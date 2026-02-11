@@ -76,3 +76,18 @@ public sealed record FailedInteractionResponse
     /// </summary>
     public JsonElement Exception { get; init; }
 }
+
+/// <summary>
+/// Represents the outcome of a failed interaction response.
+/// </summary>
+/// <typeparam name="TRequest">The type of request.</typeparam>
+public record FailedInteractionResponse<TRequest>
+{
+    internal static Type RequestType => typeof(TRequest);
+}
+
+/// <summary>
+/// Represents the outcome of a 'not found' interaction response.
+/// </summary>
+/// <typeparam name="TRequest">The type of request.</typeparam>
+public sealed record NotFoundInteractionResponse<TRequest> : FailedInteractionResponse<TRequest> { }
