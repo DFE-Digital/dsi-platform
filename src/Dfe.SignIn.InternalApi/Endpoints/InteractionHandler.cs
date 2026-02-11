@@ -79,8 +79,12 @@ public static class InteractionHandlerExtensions
         var throwsAttributes = Attribute
             .GetCustomAttributes(typeof(TRequest), typeof(ThrowsAttribute), inherit: true)
             .Cast<ThrowsAttribute>();
-        if (throwsAttributes.Any(attribute => typeof(NotFoundInteractionException).IsAssignableFrom(attribute.ExceptionType))) {
-            builder.Produces<FailedInteractionResponse>(StatusCodes.Status404NotFound);
+
+        var notFoundAttribute = throwsAttributes.FirstOrDefault(x => typeof(NotFoundInteractionException).IsAssignableFrom(x.ExceptionType));
+        if (notFoundAttribute is not null) {
+            builder.Produces<NotFoundInteractionResponse<TRequest>>(StatusCodes.Status404NotFound);
         }
+
+        builder.Produces<FailedInteractionResponse<TRequest>>(StatusCodes.Status500InternalServerError);
     }
 }

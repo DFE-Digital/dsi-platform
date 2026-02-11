@@ -64,6 +64,8 @@ public static class SwaggerExtensions
 
             // Enable example values from `SwaggerExampleValueAttribute` annotations.
             config.SchemaFilter<SwaggerExampleValueSchemaFilter>();
+            // Enable filtered exception schemas.
+            config.SchemaFilter<SwaggerExceptionSchemaFilter>();
 
             // Include XML comments for 'SignIn.Core.Contracts.dll' assembly.
             config.IncludeXmlComments(GetXmlFileName(typeof(CoreContractsAssembly)));
