@@ -39,7 +39,7 @@ public sealed class BearerTokenAuthMiddleware(
             return;
         }
 
-        var clientConfiguration = await this.GetApplicationApiConfigurationAsync(context, jwt.Issuer);
+        var clientConfiguration = await GetApplicationApiConfigurationAsync(context, jwt.Issuer);
         if (clientConfiguration is null) {
             return;
         }
@@ -90,7 +90,7 @@ public sealed class BearerTokenAuthMiddleware(
         return jwt;
     }
 
-    private async Task<ApplicationApiConfiguration?> GetApplicationApiConfigurationAsync(HttpContext context, string clientId)
+    private static async Task<ApplicationApiConfiguration?> GetApplicationApiConfigurationAsync(HttpContext context, string clientId)
     {
         var interaction = context.RequestServices.GetRequiredService<IInteractionDispatcher>();
 
