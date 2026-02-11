@@ -58,20 +58,21 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient")
 );
 
+var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+
 builder.Services
     .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
     .SetupInternalApiClient(tokenCredential)
     .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
-    .SetupResiliencePipelines(builder.Configuration);
+    .SetupResiliencePipelines(builder.Configuration)
+    .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
 builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache,
         builder.Configuration.GetRequiredSection("GeneralRedisCache"))
     .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(builder.Configuration);
-
-var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
-builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
-var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
