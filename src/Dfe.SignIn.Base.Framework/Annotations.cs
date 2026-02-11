@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Base.Framework;
 ///   <para>This attribute is useful for automatically generated documentation.</para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-public class ThrowsAttribute(Type exceptionType) : Attribute
+public sealed class ThrowsAttribute(Type exceptionType) : Attribute
 {
     /// <summary>
     /// Gets the type of exception that can be thrown.
@@ -24,7 +24,7 @@ public class ThrowsAttribute(Type exceptionType) : Attribute
 ///   <para>This attribute is useful for automatically generated documentation.</para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-public class AssociatedResponseAttribute(Type responseType) : Attribute
+public sealed class AssociatedResponseAttribute(Type responseType) : Attribute
 {
     /// <summary>
     /// Gets the type of response that is associated with the request.
