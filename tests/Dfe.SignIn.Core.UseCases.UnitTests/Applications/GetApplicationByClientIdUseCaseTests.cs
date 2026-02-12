@@ -45,6 +45,18 @@ public sealed class GetApplicationByClientIdUseCaseTests
             IsIdOnlyService = true,
         });
 
+        ctx.Services.Add(new ServiceEntity {
+            Id = Guid.Parse("f8da743c-eeb7-4be4-8045-54fba2e13419"),
+            Name = "Fake Application C",
+            ClientId = "fake-app-c",
+            ClientSecret = "fake-client-secret-c",
+            Description = "The third fake example application.",
+            ServiceHome = null,
+            IsExternalService = true,
+            IsHiddenService = false,
+            IsIdOnlyService = false,
+        });
+
         await ctx.SaveChangesAsync();
     }
 
@@ -95,6 +107,21 @@ public sealed class GetApplicationByClientIdUseCaseTests
                     IsExternalService = true,
                     IsHiddenService = true,
                     IsIdOnlyService = true,
+                }
+            }
+        };
+        yield return new object[] {
+            "fake-app-c",
+            new GetApplicationByClientIdResponse {
+                Application = new() {
+                    Id = Guid.Parse("f8da743c-eeb7-4be4-8045-54fba2e13419"),
+                    ClientId = "fake-app-c",
+                    Description = "The third fake example application.",
+                    Name = "Fake Application C",
+                    ServiceHomeUrl = null,
+                    IsExternalService = true,
+                    IsHiddenService = false,
+                    IsIdOnlyService = false,
                 }
             }
         };
