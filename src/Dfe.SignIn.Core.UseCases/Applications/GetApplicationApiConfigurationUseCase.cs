@@ -23,6 +23,10 @@ public sealed class GetApplicationApiConfigurationUseCase(
         context.ThrowIfHasValidationErrors();
 
         var serviceEntity = await uowOrganisations.Repository<ServiceEntity>()
+            .Select(x => new {
+                x.ClientId,
+                x.ApiSecret,
+            })
             .SingleOrDefaultAsync(
                 entity => entity.ClientId == context.Request.ClientId,
                 cancellationToken
