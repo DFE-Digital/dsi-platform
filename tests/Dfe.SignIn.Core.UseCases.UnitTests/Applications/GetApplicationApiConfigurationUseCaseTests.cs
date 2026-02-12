@@ -24,8 +24,8 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
 
         ctx.Services.Add(new ServiceEntity {
             Id = Guid.Parse("b03e0aa5-f2a9-4926-8be0-9b996f97790d"),
-            Name = "Fake Service",
-            ClientId = "fake-service",
+            Name = "Fake Application",
+            ClientId = "fake-app",
             ClientSecret = "fake-client-secret",
             ApiSecret = "ENC:0:encrypted-api-secret",
         });
@@ -70,11 +70,11 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
 
         var response = await interactor.InvokeAsync(
             new GetApplicationApiConfigurationRequest {
-                ClientId = "fake-service",
+                ClientId = "fake-app",
             }
         );
 
-        Assert.AreEqual("fake-service", response.Configuration.ClientId);
+        Assert.AreEqual("fake-app", response.Configuration.ClientId);
         Assert.AreEqual("decrypted-api-secret", response.Configuration.ApiSecret);
     }
 }
