@@ -126,7 +126,7 @@ public sealed partial class InteractionDistributedCache<TRequest, TResponse>(
 
         string cacheKey = TransformCacheKey(request.Key);
 
-        string? responseJson = await cache.GetStringAsync(cacheKey);
+        string? responseJson = await cache.GetStringAsync(cacheKey, cancellationToken);
         if (responseJson is null) {
             return null;
         }
