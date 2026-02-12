@@ -45,6 +45,9 @@ public sealed class UserUseCaseExtensionsTests
             services.HasInteractor<CheckIsBlockedEmailAddressRequest, CheckIsBlockedEmailAddressUseCase>()
         );
         Assert.IsTrue(
+            services.HasInteractor<CreateUserRequest, CreateUserUseCase>()
+        );
+        Assert.IsTrue(
             services.HasInteractor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserUseCase>()
         );
         Assert.IsTrue(

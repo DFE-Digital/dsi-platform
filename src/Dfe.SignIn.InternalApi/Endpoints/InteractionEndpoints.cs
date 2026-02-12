@@ -59,6 +59,7 @@ public static partial class InteractionEndpoints
         app.Map<AutoLinkEntraUserToDsiRequest, AutoLinkEntraUserToDsiResponse>();
         app.Map<ChangeJobTitleRequest, ChangeJobTitleResponse>();
         app.Map<CheckIsBlockedEmailAddressRequest, CheckIsBlockedEmailAddressResponse>();
+        app.Map<CreateUserRequest, CreateUserResponse>();
         app.Map<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>();
         app.Map<GetUserProfileRequest, GetUserProfileResponse>();
         app.Map<GetUserStatusRequest, GetUserStatusResponse>();

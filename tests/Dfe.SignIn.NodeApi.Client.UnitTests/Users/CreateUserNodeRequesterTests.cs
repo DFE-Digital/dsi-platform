@@ -1,6 +1,9 @@
 using System.Net;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Search;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.Users;
+using Moq.AutoMock;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
 
@@ -26,37 +29,24 @@ public sealed class CreateUserNodeRequesterTests
                     "sub": "17a2a6cb-05a6-4603-b91e-06dde2a58a6a"
                 }
                 """),
-
-            // Search API
-            ["(POST) http://search.localhost/users/update-index"] =
-                new MappedResponse(HttpStatusCode.OK),
         };
     }
 
-    private static CreateUserNodeRequester CreateCreateUserNodeRequester(
-        Dictionary<string, MappedResponse> responseMappings,
-        List<string>? capturedLogs = null)
+    private static CreateUserNodeRequester CreateCreateUserNodeRequester(Dictionary<string, MappedResponse> responseMappings, AutoMocker autoMocker)
     {
         var directoriesHandlerMock = HttpClientMocking.GetHandlerWithMappedResponses(responseMappings);
         var directoriesClient = new HttpClient(directoriesHandlerMock.Object) {
             BaseAddress = new Uri("http://directories.localhost")
         };
 
-        var searchHandlerMock = HttpClientMocking.GetHandlerWithMappedResponses(responseMappings);
-        var searchClient = new HttpClient(searchHandlerMock.Object) {
-            BaseAddress = new Uri("http://search.localhost")
-        };
-
-        capturedLogs ??= [];
-        var mockLogger = LoggerMocking.GetMockToCaptureLogs<CreateUserNodeRequester>(capturedLogs.Add);
-
-        return new CreateUserNodeRequester(directoriesClient, searchClient, mockLogger.Object);
+        return new CreateUserNodeRequester(directoriesClient, autoMocker.Get<IInteractionDispatcher>());
     }
 
     [TestMethod]
     public async Task MakesExpectedRequestToCreateUser()
     {
-        var interactor = CreateCreateUserNodeRequester(GetNodeResponseMappingsForHappyPath());
+        var autoMocker = new AutoMocker();
+        var interactor = CreateCreateUserNodeRequester(GetNodeResponseMappingsForHappyPath(), autoMocker);
 
         var response = await interactor.InvokeAsync(new CreateUserRequest {
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
@@ -77,7 +67,8 @@ public sealed class CreateUserNodeRequesterTests
         responseMappings["(POST) http://directories.localhost/users"] =
             new MappedResponse(HttpStatusCode.InternalServerError);
 
-        var interactor = CreateCreateUserNodeRequester(responseMappings);
+        var autoMocker = new AutoMocker();
+        var interactor = CreateCreateUserNodeRequester(responseMappings, autoMocker);
 
         await Assert.ThrowsExactlyAsync<HttpRequestException>(() =>
             interactor.InvokeAsync(new CreateUserRequest {
@@ -91,8 +82,11 @@ public sealed class CreateUserNodeRequesterTests
     [TestMethod]
     public async Task MakesExpectedRequestToUpdateSearchIndex()
     {
-        var capturedLogs = new List<string>();
-        var interactor = CreateCreateUserNodeRequester(GetNodeResponseMappingsForHappyPath(), capturedLogs);
+        var autoMocker = new AutoMocker();
+        var interactor = CreateCreateUserNodeRequester(GetNodeResponseMappingsForHappyPath(), autoMocker);
+        UpdateUserInSearchIndexRequest? capturedSearchIndexRequest = null;
+
+        autoMocker.CaptureRequest<UpdateUserInSearchIndexRequest>(request => capturedSearchIndexRequest = request);
 
         await interactor.InvokeAsync(new CreateUserRequest {
             EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
@@ -101,27 +95,7 @@ public sealed class CreateUserNodeRequesterTests
             LastName = "Bradford",
         });
 
-        Assert.Contains("Information: Updated search index for user '17a2a6cb-05a6-4603-b91e-06dde2a58a6a'.", capturedLogs);
-    }
-
-    [TestMethod]
-    public async Task SucceedsButLogsError_WhenSearchIndexCouldNotBeUpdated()
-    {
-        var responseMappings = GetNodeResponseMappingsForHappyPath();
-
-        responseMappings["(POST) http://search.localhost/users/update-index"] =
-                new MappedResponse(HttpStatusCode.InternalServerError, "null");
-
-        var capturedLogs = new List<string>();
-        var interactor = CreateCreateUserNodeRequester(responseMappings, capturedLogs);
-
-        await interactor.InvokeAsync(new CreateUserRequest {
-            EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
-            EmailAddress = "jo.bradford@example.com",
-            FirstName = "Jo",
-            LastName = "Bradford",
-        });
-
-        Assert.Contains("Error: Unable to update search index for user '17a2a6cb-05a6-4603-b91e-06dde2a58a6a'.", capturedLogs);
+        Assert.IsNotNull(capturedSearchIndexRequest);
+        Assert.AreEqual(Guid.Parse("17a2a6cb-05a6-4603-b91e-06dde2a58a6a"), capturedSearchIndexRequest.UserId);
     }
 }

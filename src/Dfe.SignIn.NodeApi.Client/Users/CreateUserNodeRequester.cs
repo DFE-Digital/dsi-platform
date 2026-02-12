@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Search;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.Users.Models;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Dfe.SignIn.NodeApi.Client.Users;
 
@@ -12,11 +12,9 @@ namespace Dfe.SignIn.NodeApi.Client.Users;
 /// </summary>
 [ApiRequester]
 [NodeApi(NodeApiName.Directories)]
-[NodeApi(NodeApiName.Search)]
 public sealed class CreateUserNodeRequester(
     [FromKeyedServices(NodeApiName.Directories)] HttpClient directoriesClient,
-    [FromKeyedServices(NodeApiName.Search)] HttpClient searchClient,
-    ILogger<CreateUserNodeRequester> logger
+    IInteractionDispatcher interaction
 ) : Interactor<CreateUserRequest, CreateUserResponse>
 {
     /// <inheritdoc/>
@@ -37,31 +35,14 @@ public sealed class CreateUserNodeRequester(
 
         var user = (await response.Content.ReadFromJsonAsync<CreateUserResponseDto>(CancellationToken.None))!;
 
-        await this.UpdateUserInSearchIndexAsync(user!.Id);
+        await interaction.DispatchAsync(
+            new UpdateUserInSearchIndexRequest {
+                UserId = user!.Id
+            }
+        );
 
         return new CreateUserResponse {
             UserId = user.Id,
         };
-    }
-
-    private async Task UpdateUserInSearchIndexAsync(Guid userId)
-    {
-        try {
-            var response = await searchClient.PostAsJsonAsync($"users/update-index", new UpdateUserInSearchIndexRequestDto {
-                Id = userId,
-            });
-            response.EnsureSuccessStatusCode();
-            logger.LogInformation(
-                "Updated search index for user '{UserId}'.",
-                userId
-            );
-        }
-        catch (Exception ex) {
-            logger.LogError(
-                ex,
-                "Unable to update search index for user '{UserId}'.",
-                userId
-            );
-        }
     }
 }

@@ -5,8 +5,10 @@ using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.ServiceBus;
+using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
+using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -50,6 +52,18 @@ builder.Services.AddAuthorizationBuilder()
     )
 #endif
 ;
+
+IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Search];
+
+// Get token credential for making API requests to internal APIs.
+var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+    builder.Configuration.GetRequiredSection("InternalApiClient")
+);
+
+builder.Services
+    .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
+    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
+    .SetupResiliencePipelines(builder.Configuration);
 
 builder.Services
     .AddInteractionFramework()
