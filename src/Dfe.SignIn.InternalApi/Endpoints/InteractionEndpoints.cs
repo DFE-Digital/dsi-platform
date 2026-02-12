@@ -19,6 +19,7 @@ public static partial class InteractionEndpoints
     public static void UseApplicationEndpoints(this WebApplication app)
     {
         app.Map<GetApplicationApiConfigurationRequest, GetApplicationApiConfigurationResponse>();
+        app.Map<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>();
     }
 
     /// <summary>

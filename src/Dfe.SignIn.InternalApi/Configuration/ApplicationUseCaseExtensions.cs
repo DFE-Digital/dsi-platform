@@ -28,6 +28,7 @@ public static class ApplicationUseCaseExtensions
         ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
 
         services.AddInteractor<GetApplicationApiConfigurationUseCase>();
+        services.AddInteractor<GetApplicationByClientIdUseCase>();
 
         return services;
     }
