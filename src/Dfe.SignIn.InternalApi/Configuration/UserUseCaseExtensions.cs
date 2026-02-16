@@ -33,6 +33,7 @@ public static class UserUseCaseExtensions
         services.AddInteractor<GetOrganisationsAssociatedWithUserUseCase>();
         services.AddInteractor<GetUserProfileUseCase>();
         services.AddInteractor<GetUserStatusUseCase>();
+        services.AddInteractor<LinkEntraUserToDsiUseCase>();
 
         services
             .Configure<BlockedEmailAddressOptions>(options => {

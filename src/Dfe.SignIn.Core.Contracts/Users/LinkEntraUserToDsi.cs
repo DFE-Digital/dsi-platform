@@ -7,6 +7,9 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// Represents a request to link an Entra user to DfE Sign-in.
 /// </summary>
 [AssociatedResponse(typeof(LinkEntraUserToDsiResponse))]
+[Throws(typeof(UserNotFoundException))]
+[Throws(typeof(UserAlreadyLinkedToEntraAccountException))]
+[Throws(typeof(EntraAccountAlreadyLinkedToDifferentUserException))]
 public sealed record LinkEntraUserToDsiRequest
 {
     /// <summary>
@@ -22,13 +25,15 @@ public sealed record LinkEntraUserToDsiRequest
     /// <summary>
     /// The first name of the user.
     /// </summary>
-    [MinLength(1)]
+    [Required]
+    [RegularExpression(StringPatterns.FirstNamePattern)]
     public required string FirstName { get; init; }
 
     /// <summary>
     /// The last name of the user.
     /// </summary>
-    [MinLength(1)]
+    [Required]
+    [RegularExpression(StringPatterns.LastNamePattern)]
     public required string LastName { get; init; }
 }
 
