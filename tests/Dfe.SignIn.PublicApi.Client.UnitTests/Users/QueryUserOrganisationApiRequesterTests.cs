@@ -25,7 +25,7 @@ public sealed class QueryUserOrganisationApiRequesterTests
         mockClient
             .Setup(x => x.HttpClient)
             .Returns(new HttpClient(handlerMock.Object) {
-                BaseAddress = new Uri("/"),
+                BaseAddress = new Uri("http://api.localhost"),
             });
 
         var instance = new QueryUserOrganisationApiRequester(
@@ -39,7 +39,7 @@ public sealed class QueryUserOrganisationApiRequesterTests
             OrganisationId = new Guid("3278635c-28df-415d-b715-96104733d931"),
         });
 
-        var expectedUrl = new Uri("/v2/users/74004f34-a6c3-4144-88a1-c32b1c2bd82b/organisations/3278635c-28df-415d-b715-96104733d931/query");
+        var expectedUrl = new Uri("http://api.localhost/v2/users/74004f34-a6c3-4144-88a1-c32b1c2bd82b/organisations/3278635c-28df-415d-b715-96104733d931/query");
         Assert.AreEqual(expectedUrl, actualUrl);
     }
 }

@@ -25,7 +25,7 @@ public sealed class PublicApiPostRequesterTests
         mockClient
             .Setup(x => x.HttpClient)
             .Returns(new HttpClient(mockMessageHandler.Object) {
-                BaseAddress = new Uri("/"),
+                BaseAddress = new Uri("http://api.localhost"),
             });
         return mockClient;
     }
@@ -74,7 +74,7 @@ public sealed class PublicApiPostRequesterTests
 
         var response = await instance.InvokeAsync(new ExampleRequest());
 
-        var expectedUrl = new Uri("/some/endpoint");
+        var expectedUrl = new Uri("http://api.localhost/some/endpoint");
         Assert.AreEqual(expectedUrl, capturedUri);
         Assert.IsNotNull(response);
         Assert.AreEqual(123, response.Value);
