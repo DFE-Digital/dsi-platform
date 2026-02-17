@@ -7,7 +7,6 @@ using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Interfaces.Graph;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
-using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
@@ -93,10 +92,6 @@ builder.Services
 builder.Services
     .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
     .SetupFrontendAssets();
-builder.Services
-    .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
-    .AddGovNotify()
-    .AddInteractor<SendEmailNotificationWithGovNotifyUseCase>();
 
 builder.Services
     .AddHttpContextAccessor()
