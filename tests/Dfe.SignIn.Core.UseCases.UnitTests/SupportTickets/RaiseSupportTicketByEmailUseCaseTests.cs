@@ -169,7 +169,7 @@ public sealed class RaiseSupportTicketByEmailUseCaseTests
         Assert.AreEqual("", capturedRequest.Personalisation["urn"]);
         Assert.AreEqual("create-account", capturedRequest.Personalisation["type"]);
         Assert.AreEqual("Example Service", capturedRequest.Personalisation["service"]);
-        Assert.AreEqual(expectedMessage, capturedRequest.Personalisation["message"]);
+        Assert.AreEqual(expectedMessage, capturedRequest.Personalisation["message"].Replace("\r", ""));
         Assert.IsFalse(capturedRequest.Personalisation["showAdditionalInfoHeader"]);
         Assert.AreEqual("https://help.localhost/contact-us", capturedRequest.Personalisation["helpUrl"].ToString());
     }
