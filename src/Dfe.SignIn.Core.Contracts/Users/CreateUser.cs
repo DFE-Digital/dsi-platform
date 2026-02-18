@@ -7,6 +7,7 @@ namespace Dfe.SignIn.Core.Contracts.Users;
 /// Represents a request to create a new user in DfE Sign-in.
 /// </summary>
 [AssociatedResponse(typeof(CreateUserResponse))]
+[Throws(typeof(CannotCreateNewUserException))]
 public sealed record CreateUserRequest
 {
     /// <summary>
@@ -26,13 +27,15 @@ public sealed record CreateUserRequest
     /// <summary>
     /// The first name of the user.
     /// </summary>
-    [MinLength(1)]
+    [Required]
+    [RegularExpression(StringPatterns.FirstNamePattern)]
     public required string FirstName { get; init; }
 
     /// <summary>
     /// The last name of the user.
     /// </summary>
-    [MinLength(1)]
+    [Required]
+    [RegularExpression(StringPatterns.LastNamePattern)]
     public required string LastName { get; init; }
 }
 
