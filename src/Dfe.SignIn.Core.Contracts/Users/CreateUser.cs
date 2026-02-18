@@ -28,7 +28,6 @@ public sealed record CreateUserRequest
     /// The first name of the user.
     /// </summary>
     [Required]
-    [MinLength(1)]
     [RegularExpression(StringPatterns.FirstNamePattern)]
     public required string FirstName { get; init; }
 
@@ -36,7 +35,6 @@ public sealed record CreateUserRequest
     /// The last name of the user.
     /// </summary>
     [Required]
-    [MinLength(1)]
     [RegularExpression(StringPatterns.LastNamePattern)]
     public required string LastName { get; init; }
 }
