@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Search;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
@@ -119,5 +120,28 @@ public sealed class CreateUserUseCaseTests
         Assert.IsNotNull(matchingUser?.CreatedAt);
         Assert.IsNotNull(matchingUser?.UpdatedAt);
         Assert.AreEqual(Guid.Parse("fa70e11c-f1eb-4bab-9fa0-ff36a9620066"), matchingUser.EntraOid);
+    }
+
+    [TestMethod]
+    public async Task UpdatesUserInSearchIndex()
+    {
+        var autoMocker = new AutoMocker();
+        await SetupFakeDatabaseAsync(autoMocker);
+
+        UpdateUserInSearchIndexRequest? capturedRequest = null;
+        autoMocker.CaptureRequest<UpdateUserInSearchIndexRequest>(r => capturedRequest = r);
+
+        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+
+        var user = await interactor.InvokeAsync(
+            new CreateUserRequest {
+                EmailAddress = "joe.brown@example.com",
+                FirstName = "joe",
+                LastName = "brown",
+                EntraUserId = Guid.Parse("fa70e11c-f1eb-4bab-9fa0-ff36a9620066")
+            });
+
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual(user.UserId, capturedRequest.UserId);
     }
 }
