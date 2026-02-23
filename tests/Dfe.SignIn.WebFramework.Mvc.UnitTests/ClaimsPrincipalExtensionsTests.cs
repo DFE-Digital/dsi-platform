@@ -18,7 +18,7 @@ public sealed class ClaimsPrincipalExtensionsTests
     public void TryGetUserId_ReturnsTrue_WhenClaimIsPresent()
     {
         var principal = new ClaimsPrincipal([
-            new([
+            new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd")
             ])
         ]);
@@ -62,7 +62,7 @@ public sealed class ClaimsPrincipalExtensionsTests
     public void GetUserId_ReturnsUserId()
     {
         var principal = new ClaimsPrincipal([
-            new([
+            new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd")
             ])
         ]);
