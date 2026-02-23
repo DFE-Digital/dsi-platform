@@ -31,7 +31,7 @@ public sealed class ActiveOrganisationSessionProviderTests
         mockAbstractionContext.Setup(x => x.Inner).Returns(mockContext.Object);
 
         var user = new ClaimsPrincipal(
-            new ClaimsIdentity([
+            new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(DsiClaimTypes.SessionId, FakeSessionId),
                 new(DsiClaimTypes.UserId, FakeUserId),
             ])
