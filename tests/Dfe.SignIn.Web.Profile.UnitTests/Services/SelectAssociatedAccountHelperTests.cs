@@ -226,7 +226,7 @@ public sealed class SelectAssociatedAccountHelperTests
     {
         var autoMocker = new AutoMocker();
 
-        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity([
+        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity((IEnumerable<Claim>?)[
             new("dsi_user_id", "c59d1905-3a44-4e2b-8a32-3859a13c0c4f"),
         ]));
 
@@ -257,7 +257,7 @@ public sealed class SelectAssociatedAccountHelperTests
     {
         var autoMocker = new AutoMocker();
 
-        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity([
+        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity((IEnumerable<Claim>?)[
             new("dsi_user_id", "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
         ]));
 
@@ -294,7 +294,7 @@ public sealed class SelectAssociatedAccountHelperTests
     {
         var autoMocker = new AutoMocker();
 
-        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity([
+        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity((IEnumerable<Claim>?)[
             new("dsi_user_id", "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
         ]));
 
@@ -321,7 +321,7 @@ public sealed class SelectAssociatedAccountHelperTests
     {
         var autoMocker = new AutoMocker();
 
-        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity([
+        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity((IEnumerable<Claim>?)[
             new("dsi_user_id", "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
         ]));
 
@@ -445,7 +445,7 @@ public sealed class SelectAssociatedAccountHelperTests
     {
         var autoMocker = new AutoMocker();
 
-        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity([
+        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity((IEnumerable<Claim>?)[
             new("dsi_user_id", "ffa39281-b388-4edc-998e-afb58a63f28a"),
         ]));
 
@@ -471,7 +471,7 @@ public sealed class SelectAssociatedAccountHelperTests
         var autoMocker = new AutoMocker();
         autoMocker.Use<TimeProvider>(new MockTimeProvider(new DateTimeOffset(2025, 11, 19, 14, 11, 43, TimeSpan.Zero)));
 
-        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity([
+        var fakeUser = new ClaimsPrincipal(new ClaimsIdentity((IEnumerable<Claim>?)[
             new("dsi_user_id", "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
         ]));
 
