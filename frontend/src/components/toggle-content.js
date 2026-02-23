@@ -2,10 +2,12 @@ function initToggleContentElement(element) {
   const targetElement = document.getElementById(element.dataset.toggleTarget);
   let testShouldShowTarget;
 
-  if (element instanceof HTMLSelectElement) {
+  const tag = (element && element.tagName) ? element.tagName.toLowerCase() : '';
+
+  if (tag === 'select') {
     testShouldShowTarget = () => element.value === element.dataset.toggleOption;
   }
-  else if (element instanceof HTMLInputElement) {
+  else if (tag === 'input') {
     if (element.type == "checkbox") {
       testShouldShowTarget = () => element.checked;
     }

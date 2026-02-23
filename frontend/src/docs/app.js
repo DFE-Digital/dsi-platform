@@ -51,46 +51,44 @@ $(async () => {
     }
   });
 
-  $searchInput
-    .attr("placeholder", $search.data("hint"))
-    .focus(e => {
-      $searchInput.attr("placeholder", $search.data("focusedHint"));
-      autoShowSearchResults();
-    })
-    .blur(e => {
-      $searchInput.attr("placeholder", $search.data("hint"));
-    })
-    .keydown(e => {
-      if (e.key === "Enter" && highlightIndex !== null) {
-        window.ee = $searchResults.find(".app-site-search__item--highlight");
-        $searchResults.find(".app-site-search__item--highlight")[0].click();
-        e.preventDefault();
-      }
+$searchInput
+  .attr("placeholder", $search.data("hint"))
+  .focus(() => {
+    $searchInput.attr("placeholder", $search.data("focusedHint"));
+    autoShowSearchResults();
+  })
+  .blur(() => {
+    $searchInput.attr("placeholder", $search.data("hint"));
+  })
+  .keydown(e => {
+    if (e.key === "Enter" && highlightIndex !== null) {
+      window.ee = $searchResults.find(".app-site-search__item--highlight");
+      $searchResults.find(".app-site-search__item--highlight")[0].click();
+      e.preventDefault();
+    }
 
-      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-        if (highlightIndex === null) {
-          highlightResultByIndex(0, true);
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      if (highlightIndex === null) {
+        highlightResultByIndex(0, true);
+      } else {
+        if (e.key === "ArrowUp") {
+          highlightResultByIndex(highlightIndex - 1, true);
+        } else if (e.key === "ArrowDown") {
+          highlightResultByIndex(highlightIndex + 1, true);
         }
-        else {
-          if (e.key === "ArrowUp") {
-            highlightResultByIndex(highlightIndex - 1, true);
-          }
-          else if (e.key === "ArrowDown") {
-            highlightResultByIndex(highlightIndex + 1, true);
-          }
-        }
-        e.preventDefault();
       }
-    })
-    .on("input", (e => {
-      let delay = 0;
-      if (lastTimeoutId !== null) {
-        clearTimeout(lastTimeoutId);
-        delay = 80;
-      }
-      lastTimeoutId = setTimeout(handleSearch, delay);
-      highlightResultByIndex(null);
-    }));
+      e.preventDefault();
+    }
+  })
+  .on("input", () => {
+    let delay = 0;
+    if (lastTimeoutId !== null) {
+      clearTimeout(lastTimeoutId);
+      delay = 80;
+    }
+    lastTimeoutId = setTimeout(handleSearch, delay);
+    highlightResultByIndex(null);
+  });
 
   $search
     .keydown(e => {
@@ -100,10 +98,8 @@ $(async () => {
         hideSearchResults();
       }
     })
-    .focusout(e => {
-      if (!$search[0].contains(e.relatedTarget)) {
-        hideSearchResults();
-      }
+    .focusout(() => {
+      hideSearchResults();
     });
 
   hideSearchResults();

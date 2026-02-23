@@ -20,7 +20,7 @@
     "build:node": "npm run build:node-scripts && npm run build:node-styles",
     "build:node-scripts": "esbuild src-node/scripts/main.js --bundle --minify --sourcemap --outfile=dist/javascript/app.min.js",
     "build:node-styles": "sass src-node/styles/main.scss dist/css/main.css --style=compressed && cp dist/css/main.css dist/css/screen.css",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "devDependencies": {
     "esbuild": "^0.25.9",
