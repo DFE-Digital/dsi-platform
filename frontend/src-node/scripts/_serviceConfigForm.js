@@ -1,6 +1,5 @@
 const RESPONSE_TYPE_CODE = "code";
 const RESPONSE_TYPE_ID_TOKEN = "ID token";
-const RESPONSE_TYPE_TOKEN = "token";
 
 const FLOW_TYPE_IMPLICIT = "implicit";
 const FLOW_TYPE_AUTHORIZATION = "authorization";
@@ -92,10 +91,6 @@ $(() => {
       selectedTypes.push(RESPONSE_TYPE_ID_TOKEN);
     }
 
-    if ($("#response_types-token").is(":checked")) {
-      selectedTypes.push(RESPONSE_TYPE_TOKEN);
-    }
-
     if ($("#response_types-code").is(":checked")) {
       selectedTypes.push(RESPONSE_TYPE_CODE);
     }
@@ -107,7 +102,6 @@ $(() => {
         const order = [
           RESPONSE_TYPE_CODE,
           RESPONSE_TYPE_ID_TOKEN,
-          RESPONSE_TYPE_TOKEN,
         ];
         return order.indexOf(a) - order.indexOf(b);
       });
@@ -120,20 +114,13 @@ $(() => {
       ) {
         flowType = FLOW_TYPE_AUTHORIZATION;
       } else if (
-        (selectedTypes.includes(RESPONSE_TYPE_CODE) &&
-          selectedTypes.includes(RESPONSE_TYPE_TOKEN)) ||
-        (selectedTypes.includes(RESPONSE_TYPE_CODE) &&
-          selectedTypes.includes(RESPONSE_TYPE_ID_TOKEN))
+        selectedTypes.includes(RESPONSE_TYPE_CODE) &&
+        selectedTypes.includes(RESPONSE_TYPE_ID_TOKEN)
       ) {
         flowType = FLOW_TYPE_HYBRID;
       }
 
-      if (
-        selectedTypes.length === 1 &&
-        selectedTypes.includes(RESPONSE_TYPE_TOKEN)
-      ) {
-        warningMessage = "";
-      } else {
+      if (selectedTypes.length > 0) {
         let selectedTypesDisplay;
 
         if (selectedTypes.length > 1) {
@@ -201,7 +188,7 @@ $(() => {
   updateSections();
 
   // Event listener for the checkboxes
-  $("#response_types-id_token, #response_types-token, #response_types-code").on(
+  $("#response_types-id_token, #response_types-code").on(
     "change",
     () => {
       updateSections();
