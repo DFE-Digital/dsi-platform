@@ -33,8 +33,10 @@ body {
 }
 
 /**
-  * <a> selectors will be phased out by Microsoft in a future update;
-  * review and remove if no longer needed.
+  * HTML <a> selectors remain listed as supported in the Microsoft Entra CSS
+  * reference documentation. However, Microsoft recommends using .ext-link for
+  * internal navigation links. These selectors may still be stripped in some
+  * tenant configurations.
 */
 
 a {
@@ -72,6 +74,10 @@ a:link {
   color: #1d70b8 !important;
 }
 
+/**
+  * NOTE: a:visited is not listed in the Microsoft Entra CSS documentation
+  * and may be stripped when uploaded to the Entra portal.
+  */
 a:visited {
   color: #4c2c92 !important;
 }
@@ -82,6 +88,18 @@ a:hover {
 
 a:active,
 a:focus {
+  color: #0b0c0c !important;
+}
+
+a:focus:hover {
+  outline: 3px solid transparent;
+  background-color: #fd0;
+  box-shadow:
+    0 -2px #fd0,
+    0 4px #0b0c0c;
+  text-decoration: none;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   color: #0b0c0c !important;
 }
 
@@ -116,6 +134,11 @@ a:focus {
   box-decoration-break: clone;
 }
 
+/**
+  * NOTE: .ext-link:link, .ext-link:visited, and .ext-link:active are not
+  * explicitly listed in the Microsoft Entra CSS documentation and may be
+  * stripped when uploaded to the Entra portal.
+  */
 .ext-link:link {
   color: #1d70b8 !important;
 }
@@ -130,6 +153,18 @@ a:focus {
 
 .ext-link:active,
 .ext-link:focus {
+  color: #0b0c0c !important;
+}
+
+.ext-link:focus:hover {
+  outline: 3px solid transparent;
+  background-color: #fd0;
+  box-shadow:
+    0 -2px #fd0,
+    0 4px #0b0c0c;
+  text-decoration: none;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   color: #0b0c0c !important;
 }
 
@@ -155,7 +190,7 @@ a:focus {
   background-color: #f3f2f1 !important;
 }
 
-.ext-footer-content {
+.ext-footer-links {
   color: inherit !important;
   font-size: inherit !important;
 }
@@ -215,6 +250,13 @@ a:focus {
 }
 
 .ext-button.ext-primary:focus {
+  border-color: #ffdd00;
+  color: #0b0c0c;
+  background-color: #ffdd00;
+  box-shadow: 0 2px 0 #0b0c0c;
+}
+
+.ext-button.ext-primary:focus:hover {
   border-color: #ffdd00;
   color: #0b0c0c;
   background-color: #ffdd00;
@@ -290,6 +332,13 @@ a:focus {
   box-shadow: 0 2px 0 #0b0c0c;
 }
 
+.ext-button.ext-secondary:focus:hover {
+  border-color: #ffdd00;
+  color: #0b0c0c;
+  background-color: #ffdd00;
+  box-shadow: 0 2px 0 #0b0c0c;
+}
+
 .ext-button.ext-secondary::before {
   content: "";
   display: block;
@@ -327,6 +376,21 @@ a:focus {
 }
 
 .ext-input.ext-text-box:focus {
+  outline: 3px solid #fd0;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 2px;
+}
+
+.ext-input.ext-text-box.ext-has-error {
+  border-color: #d4351c;
+  border-width: 4px;
+}
+
+.ext-input.ext-text-box:hover {
+  border-color: #0b0c0c;
+}
+
+.ext-input.ext-text-box:focus:hover {
   outline: 3px solid #fd0;
   outline-offset: 0;
   box-shadow: inset 0 0 0 2px;
