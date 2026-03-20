@@ -60,7 +60,9 @@ jobs:
     defaults:
       run:
         shell: pwsh
-    environment: ${{ inputs.environment }}
+    environment:
+      name: ${{ inputs.environment }}
+      deployment: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
