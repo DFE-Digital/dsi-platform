@@ -32,7 +32,8 @@ public static partial class StringPatterns
     /// </returns>
     public static string? GetExampleValue(string? pattern)
     {
-        if (pattern is null) {
+        if (pattern is null)
+        {
             return null;
         }
 
@@ -41,7 +42,7 @@ public static partial class StringPatterns
         return value;
     }
 
-    private const string NamePattern = @"[\p{L}\p{N}_][\p{L}\p{N}_'-]*( [\p{L}\p{N}][\p{L}\p{N} _'-]*)*";
+    private const string NamePattern = @"[\p{L}\p{N}_][\p{L}\p{N}_'-]*( (?:-\s*)?[\p{L}\p{N}][\p{L}\p{N} _'-]*)*";
 
     /// <summary>
     /// Regular expression pattern which can be used to verify the first name of a person.
