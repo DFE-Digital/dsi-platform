@@ -17,18 +17,16 @@ namespace Microsoft.Extensions.Hosting;
 /// </summary>
 public static class Extensions
 {
-    private const string HealthEndpointPath = "/health";
-    private const string AlivenessEndpointPath = "/alive";
-
     /// <summary>
     /// Extension method to add common service defaults to the host builder.
     /// </summary>
     /// <typeparam name="TBuilder">The type of the host application builder.</typeparam>
     /// <param name="builder">The host application builder.</param>
+    /// <param name="additionalExcludedTracePaths">Additional endpoints to exclude from OpenTelemetry tracing.</param>
     /// <returns>The builder instance to allow chaining.</returns>
-    public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder, string[]? additionalExcludedTracePaths = null) where TBuilder : IHostApplicationBuilder
     {
-        builder.ConfigureOpenTelemetry();
+        builder.ConfigureOpenTelemetry(additionalExcludedTracePaths);
 
         // builder.AddDefaultHealthChecks();
 
@@ -57,9 +55,12 @@ public static class Extensions
     /// </summary>
     /// <typeparam name="TBuilder">The type of the host application builder.</typeparam>
     /// <param name="builder">The host application builder.</param>
+    /// <param name="additionalExcludedTracePaths">Additional endpoints to exclude from OpenTelemetry tracing.</param>
     /// <returns>The builder instance to allow chaining.</returns>
-    public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder, string[]? additionalExcludedTracePaths = null) where TBuilder : IHostApplicationBuilder
     {
+        string[] defaultExcludedPaths = ["/health", "/alive"];
+
         builder.Logging.AddOpenTelemetry(logging =>
         {
             logging.IncludeFormattedMessage = true;
@@ -79,8 +80,28 @@ public static class Extensions
                     .AddAspNetCoreInstrumentation(tracing =>
                         // Exclude health check requests from tracing
                         tracing.Filter = context =>
-                            !context.Request.Path.StartsWithSegments(HealthEndpointPath)
-                            && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
+                        {
+                            foreach (var path in defaultExcludedPaths)
+                            {
+                                if (context.Request.Path.StartsWithSegments(path))
+                                {
+                                    return false;
+                                }
+                            }
+
+                            if (additionalExcludedTracePaths != null)
+                            {
+                                foreach (var path in additionalExcludedTracePaths)
+                                {
+                                    if (context.Request.Path.StartsWithSegments(path))
+                                    {
+                                        return false;
+                                    }
+                                }
+                            }
+
+                            return true;
+                        }
                     )
                     // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
                     //.AddGrpcClientInstrumentation()
