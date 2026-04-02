@@ -2,6 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dfe.SignIn.Web.Help\Dfe.SignIn.Web.Help.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Web.Profile\Dfe.SignIn.Web.Profile.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Redis" />
   </ItemGroup>
 
   <PropertyGroup>

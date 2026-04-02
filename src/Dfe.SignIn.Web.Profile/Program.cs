@@ -19,19 +19,18 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
-if (builder.Environment.IsEnvironment("Local")) {
+builder.AddServiceDefaults(["/v2/healthcheck"]);
+
+if (builder.Environment.IsEnvironment("Local"))
+{
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-builder.WebHost.ConfigureKestrel((context, options) => {
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
-
-// Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
-    builder.Services.AddOpenTelemetry().UseAzureMonitor();
-}
 
 builder.Services
     .AddUserSessions(builder.Configuration)
@@ -44,7 +43,6 @@ builder.Services
 
 builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.ConfigureDsiAntiforgeryCookie();
-builder.Services.AddHealthChecks();
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
@@ -76,10 +74,12 @@ builder.Services
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsEnvironment("Local"))
+{
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 }
-else {
+else
+{
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
@@ -107,13 +107,14 @@ app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsEnvironment("Local")) {
+if (!app.Environment.IsEnvironment("Local"))
+{
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseHealthChecks();
 
 var rewriteOptions = new RewriteOptions();
