@@ -1,3 +1,5 @@
+using Dfe.SignIn.AppHost;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var redis = builder.AddRedis("infra-redis")
@@ -11,6 +13,7 @@ var frontend = builder.AddDockerfile("infra-frontend", "../../", "docker/fronten
     .WithHttpEndpoint(targetPort: 8080, name: "http");
 
 builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
+    .WithServiceConfiguration(builder.Configuration, "app-help")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Local")
     .WithEnvironment("InteractionsRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
     .WithEnvironment("Assets__BaseAddress", frontend.GetEndpoint("http"))
@@ -18,6 +21,7 @@ builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: 
     .WaitFor(redis);
 
 builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
+    .WithServiceConfiguration(builder.Configuration, "app-profile")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Local")
     .WithEnvironment("GeneralRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
     .WithEnvironment("SessionRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
