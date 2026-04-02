@@ -1,0 +1,15 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.2.1">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dfe.SignIn.Web.Help\Dfe.SignIn.Web.Help.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>03d41373-1462-4128-acae-dff999202b39</UserSecretsId>
+  </PropertyGroup>
+
+</Project>
