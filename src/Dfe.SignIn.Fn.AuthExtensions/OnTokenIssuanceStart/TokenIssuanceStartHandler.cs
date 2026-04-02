@@ -27,8 +27,7 @@ public sealed class TokenIssuanceStartHandler(
         @event.Validate();
 
         var checkLinkedResponse = await interaction.DispatchAsync(
-            new AutoLinkEntraUserToDsiRequest
-            {
+            new AutoLinkEntraUserToDsiRequest {
                 EntraUserId = @event.Data.AuthenticationContext.User.Id,
                 EmailAddress = @event.Data.AuthenticationContext.User.Mail.Trim(),
                 FirstName = @event.Data.AuthenticationContext.User.GivenName.Trim(),
@@ -36,10 +35,8 @@ public sealed class TokenIssuanceStartHandler(
             }
         ).To<AutoLinkEntraUserToDsiResponse>();
 
-        return ResponseAction(new ProvideClaimsForTokenAction
-        {
-            Claims = new()
-            {
+        return ResponseAction(new ProvideClaimsForTokenAction {
+            Claims = new() {
                 [DsiClaimTypes.UserId] = checkLinkedResponse.UserId.ToString(),
             },
         });
@@ -47,10 +44,8 @@ public sealed class TokenIssuanceStartHandler(
 
     private static OkObjectResult ResponseAction(IResponseAction action)
     {
-        return new OkObjectResult(new ResponseObject
-        {
-            Data = new TokenIssuanceStartEventResponseData
-            {
+        return new OkObjectResult(new ResponseObject {
+            Data = new TokenIssuanceStartEventResponseData {
                 Actions = [action],
             },
         });

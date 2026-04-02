@@ -10,18 +10,14 @@ namespace Dfe.SignIn.Fn.AuthExtensions.UnitTests;
 [TestClass]
 public class TokenIssuanceStartHandlerTests
 {
-    private static readonly TokenIssuanceStartEvent FakeEvent = new()
-    {
+    private static readonly TokenIssuanceStartEvent FakeEvent = new() {
         Type = "microsoft.graph.authenticationEvent.tokenIssuanceStart",
-        Data = new()
-        {
+        Data = new() {
             Type = "microsoft.graph.onTokenIssuanceStartCalloutData",
             TenantId = new Guid("2b01ae60-a8c3-4a99-9be3-a981e2861c35"),
-            AuthenticationContext = new()
-            {
+            AuthenticationContext = new() {
                 CorrelationId = "6d75195d-b584-429f-86cf-7a3046306f03",
-                User = new()
-                {
+                User = new() {
                     Id = new Guid("21892c65-88df-4268-b025-d06f51c52404"),
                     Mail = "jo.bradford@example.com",
                     DisplayName = "BRADFORD, Jo",
@@ -43,8 +39,7 @@ public class TokenIssuanceStartHandlerTests
         var autoMocker = new AutoMocker();
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 
-        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with
-        {
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
             Type = eventType,
         });
 
@@ -62,10 +57,8 @@ public class TokenIssuanceStartHandlerTests
         var autoMocker = new AutoMocker();
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 
-        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with
-        {
-            Data = FakeEvent.Data with
-            {
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
                 Type = calloutDataType,
             },
         });
@@ -81,14 +74,10 @@ public class TokenIssuanceStartHandlerTests
         var autoMocker = new AutoMocker();
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 
-        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with
-        {
-            Data = FakeEvent.Data with
-            {
-                AuthenticationContext = FakeEvent.Data.AuthenticationContext with
-                {
-                    User = FakeEvent.Data.AuthenticationContext.User with
-                    {
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
+                AuthenticationContext = FakeEvent.Data.AuthenticationContext with {
+                    User = FakeEvent.Data.AuthenticationContext.User with {
                         Mail = "abc",
                     },
                 },
@@ -107,14 +96,10 @@ public class TokenIssuanceStartHandlerTests
         var autoMocker = new AutoMocker();
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 
-        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with
-        {
-            Data = FakeEvent.Data with
-            {
-                AuthenticationContext = FakeEvent.Data.AuthenticationContext with
-                {
-                    User = FakeEvent.Data.AuthenticationContext.User with
-                    {
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
+                AuthenticationContext = FakeEvent.Data.AuthenticationContext with {
+                    User = FakeEvent.Data.AuthenticationContext.User with {
                         GivenName = "",
                     },
                 },
@@ -133,14 +118,10 @@ public class TokenIssuanceStartHandlerTests
         var autoMocker = new AutoMocker();
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 
-        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with
-        {
-            Data = FakeEvent.Data with
-            {
-                AuthenticationContext = FakeEvent.Data.AuthenticationContext with
-                {
-                    User = FakeEvent.Data.AuthenticationContext.User with
-                    {
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
+                AuthenticationContext = FakeEvent.Data.AuthenticationContext with {
+                    User = FakeEvent.Data.AuthenticationContext.User with {
                         Surname = "",
                     },
                 },
@@ -159,15 +140,13 @@ public class TokenIssuanceStartHandlerTests
         var autoMocker = new AutoMocker();
 
         autoMocker.MockResponse(
-            new AutoLinkEntraUserToDsiRequest
-            {
+            new AutoLinkEntraUserToDsiRequest {
                 EntraUserId = new Guid("21892c65-88df-4268-b025-d06f51c52404"),
                 EmailAddress = "jo.bradford@example.com",
                 FirstName = "Jo",
                 LastName = "Bradford",
             },
-            new AutoLinkEntraUserToDsiResponse
-            {
+            new AutoLinkEntraUserToDsiResponse {
                 UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),
             }
         );
@@ -192,29 +171,23 @@ public class TokenIssuanceStartHandlerTests
         var autoMocker = new AutoMocker();
 
         autoMocker.MockResponse(
-            new AutoLinkEntraUserToDsiRequest
-            {
+            new AutoLinkEntraUserToDsiRequest {
                 EntraUserId = new Guid("21892c65-88df-4268-b025-d06f51c52404"),
                 EmailAddress = "jo.bradford@example.com",
                 FirstName = "Jo",
                 LastName = "MAY - FINNEGAN",
             },
-            new AutoLinkEntraUserToDsiResponse
-            {
+            new AutoLinkEntraUserToDsiResponse {
                 UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),
             }
         );
 
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 
-        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with
-        {
-            Data = FakeEvent.Data with
-            {
-                AuthenticationContext = FakeEvent.Data.AuthenticationContext with
-                {
-                    User = FakeEvent.Data.AuthenticationContext.User with
-                    {
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
+                AuthenticationContext = FakeEvent.Data.AuthenticationContext with {
+                    User = FakeEvent.Data.AuthenticationContext.User with {
                         Mail = "jo.bradford@example.com",
                         GivenName = " Jo ",
                         Surname = " MAY - FINNEGAN ",

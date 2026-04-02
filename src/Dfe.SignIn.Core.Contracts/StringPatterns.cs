@@ -32,8 +32,7 @@ public static partial class StringPatterns
     /// </returns>
     public static string? GetExampleValue(string? pattern)
     {
-        if (pattern is null)
-        {
+        if (pattern is null) {
             return null;
         }
 
