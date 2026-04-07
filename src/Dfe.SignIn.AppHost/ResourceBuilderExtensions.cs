@@ -1,37 +1,51 @@
 using Microsoft.Extensions.Configuration;
-using Aspire.Hosting;
-using Aspire.Hosting.ApplicationModel;
 
 namespace Dfe.SignIn.AppHost;
 
+/// <summary>
+/// Provides extension methods for configuring resources.
+/// </summary>
 public static class ResourceBuilderExtensions
 {
-    public static IResourceBuilder<ProjectResource> WithServiceConfiguration(
+    /// <summary>
+    /// Configures a project resource with shared configuration settings from the application configuration.
+    /// </summary>
+    /// <param name="builder">The resource builder to configure.</param>
+    /// <param name="configuration">The application configuration containing the settings.</param>
+    /// <param name="frontendEndpoint">The frontend endpoint reference for asset base address configuration.</param>
+    /// <returns>The configured resource builder.</returns>
+    public static IResourceBuilder<ProjectResource> WithSharedConfiguration(
         this IResourceBuilder<ProjectResource> builder,
         IConfiguration configuration,
-        string serviceName)
+        EndpointReference frontendEndpoint)
     {
-        // 1. Apply Shared Settings
-        var sharedSettings = configuration.GetSection("Shared");
-        foreach (var child in sharedSettings.AsEnumerable())
-        {
-            if (child.Value != null)
-            {
-                var envKey = child.Key.Replace("Shared:", "").Replace(":", "__");
-                builder.WithEnvironment(envKey, child.Value);
-            }
-        }
+        var environment = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local";
+        var platformConfig = configuration.GetSection("Platform");
+        var securityHeaderConfig = configuration.GetSection("SecurityHeaderPolicy");
+        var internalApiConfig = configuration.GetSection("InternalApiClient");
+        var govNotifyConfig = configuration.GetSection("GovNotify");
+        var supportEmailConfig = configuration.GetSection("RaiseSupportTicketByEmail");
+        var oidcConfig = configuration.GetSection("Oidc");
+        var externalIdConfig = configuration.GetSection("ExternalId");
+        var sessionConfig = configuration.GetSection("Session");
 
-        // 2. Apply Service-Specific Settings (overrides shared if same key)
-        var serviceSettings = configuration.GetSection($"Services:{serviceName}");
-        foreach (var child in serviceSettings.AsEnumerable())
-        {
-            if (child.Value != null)
-            {
-                var envKey = child.Key.Replace($"Services:{serviceName}:", "").Replace(":", "__");
-                builder.WithEnvironment(envKey, child.Value);
-            }
-        }
+        builder
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", environment)
+            .WithEnvironment("Platform__HelpUrl", platformConfig["HelpUrl"])
+            .WithEnvironment("Platform__ProfileUrl", platformConfig["ProfileUrl"])
+            .WithEnvironment("Platform__SurveyUrl", platformConfig["SurveyUrl"])
+            .WithEnvironment("Platform__ServicesUrl", platformConfig["ServicesUrl"])
+            .WithEnvironment("InternalApiClient__BaseAddress", internalApiConfig["BaseAddress"])
+            .WithEnvironment("InternalApiClient__ClientId", internalApiConfig["ClientId"])
+            .WithEnvironment("InternalApiClient__ClientSecret", internalApiConfig["ClientSecret"])
+            .WithEnvironment("InternalApiClient__HostUrl", internalApiConfig["HostUrl"])
+            .WithEnvironment("InternalApiClient__Resource", internalApiConfig["Resource"])
+            .WithEnvironment("InternalApiClient__Tenant", internalApiConfig["Tenant"])
+            .WithEnvironment("InternalApiClient__ProxyUrl", internalApiConfig["ProxyUrl"])
+            .WithEnvironment("InternalApiClient__UseProxy", internalApiConfig["UseProxy"])
+            .WithEnvironment("InternalApiClient__Directories__BaseAddress", internalApiConfig["Directories:BaseAddress"])
+            .WithEnvironment("InternalApiClient__Applications__BaseAddress", internalApiConfig["Applications:BaseAddress"])
+            .WithEnvironment("Assets__BaseAddress", frontendEndpoint);
 
         return builder;
     }
