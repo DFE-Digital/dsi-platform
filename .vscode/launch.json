@@ -16,6 +16,15 @@
       "postDebugTask": "dfe: stop frontend assets",
     },
     {
+      "name": "Aspire Orchestration",
+      "presentation": {
+        "group": "_shared",
+      },
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/Dfe.SignIn.AppHost/Dfe.SignIn.AppHost.csproj",
+    },
+    {
       "name": "App: Help",
       "presentation": {
         "group": "apps",
