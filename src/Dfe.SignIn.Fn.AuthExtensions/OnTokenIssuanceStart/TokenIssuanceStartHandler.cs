@@ -29,9 +29,9 @@ public sealed class TokenIssuanceStartHandler(
         var checkLinkedResponse = await interaction.DispatchAsync(
             new AutoLinkEntraUserToDsiRequest {
                 EntraUserId = @event.Data.AuthenticationContext.User.Id,
-                EmailAddress = @event.Data.AuthenticationContext.User.Mail,
-                FirstName = @event.Data.AuthenticationContext.User.GivenName,
-                LastName = @event.Data.AuthenticationContext.User.Surname,
+                EmailAddress = @event.Data.AuthenticationContext.User.Mail.Trim(),
+                FirstName = @event.Data.AuthenticationContext.User.GivenName.Trim(),
+                LastName = @event.Data.AuthenticationContext.User.Surname.Trim(),
             }
         ).To<AutoLinkEntraUserToDsiResponse>();
 

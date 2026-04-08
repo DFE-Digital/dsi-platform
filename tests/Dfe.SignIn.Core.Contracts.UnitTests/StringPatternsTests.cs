@@ -56,9 +56,12 @@ public sealed class StringPatternsTests
     [DataRow("_Test", true)]
     [DataRow("Alex Johnson", true)]
     [DataRow("Alex-bob O'John-son", true)]
+    [DataRow("MAY - FINNEGAN", true)]
+    [DataRow("May - Finnegan", true)]
     [DataRow("", false)]
     [DataRow(" ", false)]
     [DataRow(" Bob ", false)]
+    [DataRow("MAY -", false)]
     public void LastNameRegex_WorksAsExpected(string input, bool expectedResult)
     {
         bool result = StringPatterns.LastNameRegex().IsMatch(input);

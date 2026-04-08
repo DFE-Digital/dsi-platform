@@ -164,4 +164,45 @@ public class TokenIssuanceStartHandlerTests
         var provideClaimsAction = TypeAssert.IsType<ProvideClaimsForTokenAction>(data.Actions[0]);
         Assert.AreEqual("d5ba1f44-1400-4c98-b834-5d5ba5b98995", provideClaimsAction.Claims[DsiClaimTypes.UserId]);
     }
+
+    [TestMethod]
+    public async Task AutomaticallyLinkEntraUserToDsi_TrimsUserAttributesBeforeDispatch()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.MockResponse(
+            new AutoLinkEntraUserToDsiRequest {
+                EntraUserId = new Guid("21892c65-88df-4268-b025-d06f51c52404"),
+                EmailAddress = "jo.bradford@example.com",
+                FirstName = "Jo",
+                LastName = "MAY - FINNEGAN",
+            },
+            new AutoLinkEntraUserToDsiResponse {
+                UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),
+            }
+        );
+
+        var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
+
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
+                AuthenticationContext = FakeEvent.Data.AuthenticationContext with {
+                    User = FakeEvent.Data.AuthenticationContext.User with {
+                        Mail = "jo.bradford@example.com",
+                        GivenName = " Jo ",
+                        Surname = " MAY - FINNEGAN ",
+                    },
+                },
+            },
+        });
+
+        var result = await handler.Run(fakeRequest);
+
+        var okResult = TypeAssert.IsType<OkObjectResult>(result);
+        var response = TypeAssert.IsType<ResponseObject>(okResult.Value);
+        var data = TypeAssert.IsType<TokenIssuanceStartEventResponseData>(response.Data);
+        Assert.HasCount(1, data.Actions);
+        var provideClaimsAction = TypeAssert.IsType<ProvideClaimsForTokenAction>(data.Actions[0]);
+        Assert.AreEqual("d5ba1f44-1400-4c98-b834-5d5ba5b98995", provideClaimsAction.Claims[DsiClaimTypes.UserId]);
+    }
 }
