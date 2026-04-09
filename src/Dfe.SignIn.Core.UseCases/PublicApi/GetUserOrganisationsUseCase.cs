@@ -31,7 +31,7 @@ public sealed class GetUserOrganisationsUseCase(
             new GetOrganisationsAssociatedWithUserRequest {
                 UserId = context.Request.UserId,
             }
-        ).To<GetOrganisationsAssociatedWithUserResponse>(cancellationToken);
+        ).To<GetOrganisationsAssociatedWithUserResponse>();
 
         // Filter out hidden orgs (status.id = 0) — these are id-only orgs not
         // visible to external API consumers.
