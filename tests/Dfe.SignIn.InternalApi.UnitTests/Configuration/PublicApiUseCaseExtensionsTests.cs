@@ -46,5 +46,8 @@ public sealed class PublicApiUseCaseExtensionsTests
         Assert.IsTrue(
             services.HasInteractor<DecryptApiSecretRequest, DecryptApiSecretUseCase>()
         );
+        Assert.IsTrue(
+            services.HasInteractor<GetUserOrganisationIdentifiersRequest, GetUserOrganisationIdentifiersUseCase>()
+        );
     }
 }
