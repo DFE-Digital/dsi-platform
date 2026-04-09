@@ -85,6 +85,15 @@ public static partial class DsiAuthenticationExtensions
                     return Task.CompletedTask;
                 };
 
+                options.Events.OnRedirectToIdentityProvider = context => {
+                    var oidcOptionsAccessor = context.HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<ApplicationOidcOptions>>();
+                    var redirectUri = oidcOptionsAccessor.CurrentValue.RedirectUri;
+                    if (!string.IsNullOrEmpty(redirectUri)) {
+                        context.ProtocolMessage.RedirectUri = redirectUri;
+                    }
+                    return Task.CompletedTask;
+                };
+
                 options.Events.OnRemoteFailure = context => {
                     string? errorCode = context.Request.Query["error"];
                     if (SessionExpiredErrorCodeRegex().IsMatch(errorCode ?? "")) {

@@ -12,6 +12,11 @@ public sealed class ApplicationOidcOptions : IOptions<ApplicationOidcOptions>
     /// </summary>
     public required string ClientId { get; set; }
 
+    /// <summary>
+    /// Gets or sets the URI to which the response will be redirected after authentication or authorization.
+    /// </summary>
+    public string? RedirectUri { get; set; }
+
     /// <inheritdoc/>
     ApplicationOidcOptions IOptions<ApplicationOidcOptions>.Value => this;
 }
