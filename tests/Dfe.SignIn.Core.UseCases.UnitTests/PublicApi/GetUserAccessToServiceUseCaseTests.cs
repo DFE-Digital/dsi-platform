@@ -1,6 +1,7 @@
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.PublicApi;
+using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.PublicApi;
 using Moq.AutoMock;
 
@@ -64,7 +65,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
                 Organisation = new Organisation {
                     Id = OrganisationId,
                     Name = "Test School",
-                    Status = Core.Public.OrganisationStatus.Open,
+                    Status = OrganisationStatus.Open,
                     LegacyId = 99L,
                     IsOnApar = "true",
                 }
