@@ -89,6 +89,8 @@ builder.Services
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
     .SetupSelectOrganisationInteractions();
 
+builder.Services.SetupUserInteractions();
+
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
 
 var app = builder.Build();
