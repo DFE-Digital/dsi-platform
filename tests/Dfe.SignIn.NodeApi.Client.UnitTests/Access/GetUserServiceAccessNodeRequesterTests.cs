@@ -1,8 +1,8 @@
+using System.Text.Json;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.NodeApi.Client.Access;
 using Dfe.SignIn.NodeApi.Client.Access.Models;
 using Dfe.SignIn.NodeApi.Client.UnitTests.Fakes;
-using System.Text.Json;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Access;
 
