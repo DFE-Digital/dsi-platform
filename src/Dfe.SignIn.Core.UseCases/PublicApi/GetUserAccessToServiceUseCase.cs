@@ -55,13 +55,13 @@ public sealed class GetUserAccessToServiceUseCase(
                 UserId = context.Request.UserId,
                 OrganisationId = context.Request.OrganisationId,
             }
-        ).To<GetUserOrganisationIdentifiersResponse>(cancellationToken);
+        ).To<GetUserOrganisationIdentifiersResponse>();
 
         var organisationTask = interaction.DispatchAsync(
             new GetOrganisationByIdRequest {
                 OrganisationId = context.Request.OrganisationId,
             }
-        ).To<GetOrganisationByIdResponse>(cancellationToken);
+        ).To<GetOrganisationByIdResponse>();
 
         await Task.WhenAll(userOrgIdentifiersTask, organisationTask);
 
