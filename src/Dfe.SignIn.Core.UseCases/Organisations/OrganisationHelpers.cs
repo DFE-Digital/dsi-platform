@@ -48,6 +48,7 @@ internal static class OrganisationHelpers
             DistrictAdministrativeName = entity.DistrictAdministrativeName,
             DistrictAdministrativeCode = entity.DistrictAdministrativeCode,
             IsOnApar = entity.IsOnApar,
+            LegacyId = entity.LegacyId,
         };
     }
 }

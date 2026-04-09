@@ -12,6 +12,7 @@ using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
+using Dfe.SignIn.PublicApi.Endpoints.Services;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
 using Dfe.SignIn.WebFramework.Configuration;
 
@@ -89,6 +90,8 @@ builder.Services
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
     .SetupSelectOrganisationInteractions();
 
+builder.Services.SetupServiceInteractions();
+
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
 
 var app = builder.Build();
@@ -107,5 +110,6 @@ app.UseBearerTokenAuthMiddleware();
 
 app.UseSelectOrganisationEndpoints();
 app.UseUserEndpoints();
+app.UseServiceEndpoints();
 
 await app.RunAsync();
