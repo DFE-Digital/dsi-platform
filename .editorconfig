@@ -152,3 +152,11 @@ dotnet_naming_rule.interface_should_be_begins_with_i.style = begins_with_i
 dotnet_naming_style.begins_with_i.required_prefix = I
 dotnet_naming_style.begins_with_i.required_suffix =
 dotnet_naming_style.begins_with_i.word_separator =
+
+
+#### Aspire ####
+
+# ServiceDefaults intentionally uses Microsoft.Extensions.Hosting namespace
+[src/Dfe.SignIn.ServiceDefaults/Extensions.cs]
+dotnet_diagnostic.IDE0130.severity = none
+dotnet_diagnostic.IDE0005.severity = none
