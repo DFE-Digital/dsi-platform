@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
-    <PackageReference Include="Humanizer.Core"/>
+    <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="Microsoft.Graph" />
     <PackageReference Include="Microsoft.Identity.Web" />
   </ItemGroup>
@@ -31,6 +31,7 @@
     <ProjectReference Include="..\Dfe.SignIn.NodeApi.Client\Dfe.SignIn.NodeApi.Client.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.WebFramework\Dfe.SignIn.WebFramework.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.WebFramework.Mvc\Dfe.SignIn.WebFramework.Mvc.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.ServiceDefaults\Dfe.SignIn.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>

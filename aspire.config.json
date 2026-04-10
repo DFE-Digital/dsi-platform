@@ -1,0 +1,6 @@
+{
+  "appHost": {
+    "language": "csharp",
+    "path": "src/Dfe.SignIn.AppHost/Dfe.SignIn.AppHost.csproj"
+  }
+}

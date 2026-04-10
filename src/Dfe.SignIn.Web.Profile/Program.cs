@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults(["/v2/healthcheck"]);
+
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
 }
@@ -51,7 +53,6 @@ builder.Services
 
 builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
 builder.Services.ConfigureDsiAntiforgeryCookie();
-builder.Services.AddHealthChecks();
 
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
@@ -118,6 +119,7 @@ if (!app.Environment.IsEnvironment("Local")) {
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
 app.UseForwardedHeaders();

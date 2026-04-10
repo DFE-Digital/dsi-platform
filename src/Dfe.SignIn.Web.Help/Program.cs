@@ -19,6 +19,8 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults(["/v2/healthcheck"]);
+
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
 }
