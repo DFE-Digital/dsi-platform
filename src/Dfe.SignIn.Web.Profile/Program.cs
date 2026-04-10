@@ -22,13 +22,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults(["/v2/healthcheck"]);
 
-if (builder.Environment.IsEnvironment("Local"))
-{
+if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-builder.WebHost.ConfigureKestrel((context, options) =>
-{
+builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
@@ -86,12 +84,10 @@ builder.Services
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
-if (builder.Environment.IsEnvironment("Local"))
-{
+if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 }
-else
-{
+else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
@@ -119,8 +115,7 @@ app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsEnvironment("Local"))
-{
+if (!app.Environment.IsEnvironment("Local")) {
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();

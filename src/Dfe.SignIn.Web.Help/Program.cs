@@ -21,20 +21,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults(["/v2/healthcheck"]);
 
-if (builder.Environment.IsEnvironment("Local"))
-{
+if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-builder.WebHost.ConfigureKestrel((context, options) =>
-{
+builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
 
 // Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists())
-{
+if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
@@ -55,8 +52,7 @@ builder.Services
     .SetupInternalApiClient(tokenCredential)
     .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
     .SetupResiliencePipelines(builder.Configuration)
-    .AddDistributedInteractionCache<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>(options =>
-    {
+    .AddDistributedInteractionCache<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>(options => {
         options.DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
     })
     .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
@@ -96,8 +92,7 @@ builder.Services
 builder.Services
     .Configure<RaiseSupportTicketByEmailOptions>(builder.Configuration.GetRequiredSection("RaiseSupportTicketByEmail"))
     .AddOptions<RaiseSupportTicketByEmailOptions>()
-        .Configure<IOptions<PlatformOptions>>((options, platformOptionsAccessor) =>
-        {
+        .Configure<IOptions<PlatformOptions>>((options, platformOptionsAccessor) => {
             options.ContactUrl = platformOptionsAccessor.Value.ContactUrl;
         });
 builder.Services
@@ -113,8 +108,7 @@ app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsEnvironment("Local"))
-{
+if (!app.Environment.IsEnvironment("Local")) {
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
@@ -135,8 +129,7 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}"
 );
 
-if (app.Environment.IsEnvironment("Local"))
-{
+if (app.Environment.IsEnvironment("Local")) {
     app.MapControllerRoute(
         name: "reloadTopics",
         pattern: "reload",

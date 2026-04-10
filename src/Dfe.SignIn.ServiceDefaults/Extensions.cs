@@ -32,8 +32,7 @@ public static class Extensions
 
         builder.Services.AddServiceDiscovery();
 
-        builder.Services.ConfigureHttpClientDefaults(http =>
-        {
+        builder.Services.ConfigureHttpClientDefaults(http => {
             // Turn on resilience by default
             // http.AddStandardResilienceHandler();
 
@@ -61,40 +60,31 @@ public static class Extensions
     {
         string[] defaultExcludedPaths = ["/health", "/alive"];
 
-        builder.Logging.AddOpenTelemetry(logging =>
-        {
+        builder.Logging.AddOpenTelemetry(logging => {
             logging.IncludeFormattedMessage = true;
             logging.IncludeScopes = true;
         });
 
         builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics =>
-            {
+            .WithMetrics(metrics => {
                 metrics.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation();
             })
-            .WithTracing(tracing =>
-            {
+            .WithTracing(tracing => {
                 tracing.AddSource(builder.Environment.ApplicationName)
                     .AddAspNetCoreInstrumentation(tracing =>
                         // Exclude health check requests from tracing
-                        tracing.Filter = context =>
-                        {
-                            foreach (var path in defaultExcludedPaths)
-                            {
-                                if (context.Request.Path.StartsWithSegments(path))
-                                {
+                        tracing.Filter = context => {
+                            foreach (var path in defaultExcludedPaths) {
+                                if (context.Request.Path.StartsWithSegments(path)) {
                                     return false;
                                 }
                             }
 
-                            if (additionalExcludedTracePaths != null)
-                            {
-                                foreach (var path in additionalExcludedTracePaths)
-                                {
-                                    if (context.Request.Path.StartsWithSegments(path))
-                                    {
+                            if (additionalExcludedTracePaths != null) {
+                                foreach (var path in additionalExcludedTracePaths) {
+                                    if (context.Request.Path.StartsWithSegments(path)) {
                                         return false;
                                     }
                                 }
@@ -117,8 +107,7 @@ public static class Extensions
     {
         var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
-        if (useOtlpExporter)
-        {
+        if (useOtlpExporter) {
             builder.Services.AddOpenTelemetry().UseOtlpExporter();
         }
 
