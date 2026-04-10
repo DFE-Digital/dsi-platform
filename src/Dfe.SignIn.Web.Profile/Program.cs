@@ -15,6 +15,7 @@ using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,17 @@ builder.WebHost.ConfigureKestrel((context, options) =>
 {
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
+});
+
+// Add OpenTelemetry and configure it to use Azure Monitor.
+if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
+    builder.Services.AddOpenTelemetry().UseAzureMonitor();
+}
+
+builder.Services.Configure<ForwardedHeadersOptions>(options => {
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 builder.Services
@@ -115,6 +127,8 @@ if (!app.Environment.IsEnvironment("Local"))
     app.UseHttpsRedirection();
 }
 
+app.UseForwardedHeaders();
+app.UseHttpsRedirection();
 app.UseHealthChecks();
 
 var rewriteOptions = new RewriteOptions();
