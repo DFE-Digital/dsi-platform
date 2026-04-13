@@ -21,6 +21,10 @@ var supportEmailConfig = builder.Configuration.GetSection("RaiseSupportTicketByE
 var oidcConfig = builder.Configuration.GetSection("Oidc");
 var externalIdConfig = builder.Configuration.GetSection("ExternalId");
 var sessionConfig = builder.Configuration.GetSection("Session");
+var bearerTokenConfig = builder.Configuration.GetSection("BearerToken");
+var publicApiSecretConfig = builder.Configuration.GetSection("PublicApiSecretEncryption");
+var selectOrgConfig = builder.Configuration.GetSection("SelectOrganisation");
+var internalApiConfig = builder.Configuration.GetSection("InternalApiClient");
 
 builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
@@ -48,6 +52,16 @@ builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfile
     .WithEnvironment("Session__DurationInMinutes", sessionConfig["DurationInMinutes"])
     .WithEnvironment("Session__NotifyRemainingMinutes", sessionConfig["NotifyRemainingMinutes"])
     .WaitFor(frontend)
+    .WaitFor(redis);
+
+builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
+    .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
+    .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
+    .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
+    .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
+    .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
+    .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
+    .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
     .WaitFor(redis);
 
 builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
