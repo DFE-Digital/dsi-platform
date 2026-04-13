@@ -17,15 +17,12 @@ public sealed class SecurityHeaderPolicyExtensionsTests
     public async Task Initialize()
     {
         this.host = await new HostBuilder()
-            .ConfigureWebHost(webBuilder =>
-            {
+            .ConfigureWebHost(webBuilder => {
                 webBuilder.UseTestServer();
                 webBuilder.ConfigureServices(services => { });
-                webBuilder.Configure(app =>
-                {
+                webBuilder.Configure(app => {
                     app.UseDsiSecurityHeaderPolicy();
-                    app.Run(context =>
-                    {
+                    app.Run(context => {
                         context.Response.Headers.Append("Server", "Test");
                         return context.Response.WriteAsync("Hello World!");
                     });
@@ -41,8 +38,7 @@ public sealed class SecurityHeaderPolicyExtensionsTests
     public async Task Cleanup()
     {
         this.client?.Dispose();
-        if (this.host is not null)
-        {
+        if (this.host is not null) {
             await this.host.StopAsync();
             this.host.Dispose();
         }
@@ -84,25 +80,21 @@ public sealed class SecurityHeaderPolicyExtensionsTests
         string header = response.Headers.GetValues("Content-Security-Policy").First();
         var policy = header
             .Split(";")
-            .Select(src =>
-            {
+            .Select(src => {
                 var srcParts = src.Trim().Split(" ").Select(part => part.Trim());
-                return new
-                {
+                return new {
                     Key = srcParts.First(),
                     Parts = srcParts.Skip(1),
                 };
             })
             .ToDictionary(e => e.Key, e => e.Parts);
 
-        foreach (string expectedValue in expectedValues)
-        {
+        foreach (string expectedValue in expectedValues) {
             string? actualValue = policy[key].FirstOrDefault(part => part == expectedValue);
             Assert.AreEqual(expectedValue, actualValue);
         }
 
-        foreach (string expectedPartialValue in expectedPartialMatches ?? [])
-        {
+        foreach (string expectedPartialValue in expectedPartialMatches ?? []) {
             string? actualValue = policy[key].FirstOrDefault(part => part.Contains(expectedPartialValue));
             Assert.IsNotNull(actualValue);
         }
