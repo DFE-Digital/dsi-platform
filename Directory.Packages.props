@@ -9,7 +9,7 @@
   <!-- .NET framework -->
   <ItemGroup>
     <!--
-      Even though projects currently target .NET SDK 8.0; newer packages are compatible:
+      Projects now target .NET SDK 10.0 and use centrally managed package versions:
       https://learn.microsoft.com/en-us/dotnet/core/versions/#net-runtime-compatibility
     -->
   </ItemGroup>
@@ -17,16 +17,16 @@
   <ItemGroup>
     <!-- Dependency injection -->
     <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.1" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
     <!-- Options -->
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.1.0" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.2" />
     <!-- Decorator pattern -->
     <PackageVersion Include="Scrutor" Version="6.1.0" />
   </ItemGroup>
@@ -50,7 +50,7 @@
   <!-- Monitoring -->
   <ItemGroup>
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.3.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.2.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
@@ -65,8 +65,8 @@
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="2.3.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.20" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.2" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.4" />
     <PackageVersion Include="System.Net.Http.Json" Version="9.0.9" />
   </ItemGroup>
@@ -77,8 +77,8 @@
     <PackageVersion Include="NetEscapades.AspNetCore.SecurityHeaders.TagHelpers" Version="1.1.0" />
     <!-- Identity -->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.3.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.21" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.21" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication" Version="2.3.0" />
     <PackageVersion Include="Microsoft.Graph" Version="5.94.0" />
     <PackageVersion Include="Microsoft.Identity.Web" Version="4.0.1" />
@@ -87,9 +87,9 @@
   <!-- Persistence -->
   <ItemGroup>
     <!-- Caching -->
-    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.2" />
     <!-- Database -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.9" />
@@ -120,7 +120,7 @@
     <!-- Microsoft testing framework -->
     <PackageVersion Include="MSTest.TestAdapter" Version="3.10.4" />
     <PackageVersion Include="MSTest.TestFramework" Version="3.10.4" />
-    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="8.0.20" />
+    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <!-- Mocking -->
     <PackageVersion Include="Moq" Version="4.20.72" />

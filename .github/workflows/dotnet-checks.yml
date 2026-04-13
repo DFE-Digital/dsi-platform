@@ -16,10 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET Core 8.x
+      - name: Setup .NET Core 10.x
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: "10.0.x"
 
       - name: Run code quality checks
         run: |
@@ -41,10 +41,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup .NET Core 8.x
+      - name: Setup .NET Core 10.x
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: "10.0.x"
 
       - name: Initialize solution for all projects
         if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'merge_group' }}
@@ -72,7 +72,7 @@ jobs:
       - name: Build project
         run: |
           dotnet build ./build.sln /maxcpucount:1 `
-            --framework net8.0 `
+            --framework net10.0 `
             /clp:NoSummary `
             /p:AutomatedRun=true
 

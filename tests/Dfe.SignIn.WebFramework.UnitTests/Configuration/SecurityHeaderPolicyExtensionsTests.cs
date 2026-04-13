@@ -3,38 +3,45 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 
 namespace Dfe.SignIn.WebFramework.UnitTests.Configuration;
 
 [TestClass]
 public sealed class SecurityHeaderPolicyExtensionsTests
 {
-    private TestServer server = null!;
+    private IHost host = null!;
     private HttpClient client = null!;
 
     [TestInitialize]
-    public void Initialize()
+    public async Task Initialize()
     {
-        var builder = new WebHostBuilder()
-            .ConfigureServices(services => { })
-            .Configure(app => {
-                app.UseDsiSecurityHeaderPolicy();
-                app.Run(context => {
-                    context.Response.Headers.Append("Server", "Test");
-                    return context.Response.WriteAsync("Hello World!");
+        this.host = await new HostBuilder()
+            .ConfigureWebHost(webBuilder => {
+                webBuilder.UseTestServer();
+                webBuilder.ConfigureServices(services => { });
+                webBuilder.Configure(app => {
+                    app.UseDsiSecurityHeaderPolicy();
+                    app.Run(context => {
+                        context.Response.Headers.Append("Server", "Test");
+                        return context.Response.WriteAsync("Hello World!");
+                    });
                 });
-            });
+            })
+            .StartAsync();
 
-        this.server = new TestServer(builder);
-        this.client = this.server.CreateClient();
+        this.client = this.host.GetTestClient();
         this.client.BaseAddress = new Uri("https://test");
     }
 
     [TestCleanup]
-    public void Cleanup()
+    public async Task Cleanup()
     {
         this.client?.Dispose();
-        this.server?.Dispose();
+        if (this.host is not null) {
+            await this.host.StopAsync();
+            this.host.Dispose();
+        }
     }
 
     [TestMethod]
