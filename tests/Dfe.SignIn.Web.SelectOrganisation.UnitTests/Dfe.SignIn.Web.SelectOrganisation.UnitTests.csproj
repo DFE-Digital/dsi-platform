@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <ProjectGuid>D37E3C80-2152-46E5-9244-F51117CE64B9</ProjectGuid>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 

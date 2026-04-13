@@ -1,5 +1,5 @@
 # --- Build and process documentation ---
-FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:ff8311847c54c04d1a14c488362807997d59b61372da5095a95f89cbcda7f9b7 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:c804b88aaca8d6b76f65998427adec3101dcbbf2e52e705e2509eb81263aab0c AS build
 
 WORKDIR /work
 
