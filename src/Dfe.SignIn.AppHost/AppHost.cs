@@ -25,10 +25,11 @@ var bearerTokenConfig = builder.Configuration.GetSection("BearerToken");
 var publicApiSecretConfig = builder.Configuration.GetSection("PublicApiSecretEncryption");
 var selectOrgConfig = builder.Configuration.GetSection("SelectOrganisation");
 var internalApiConfig = builder.Configuration.GetSection("InternalApiClient");
+var redisConnectionString = redis.Resource.ConnectionStringExpression;
 
 builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
-    .WithEnvironment("InteractionsRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
+    .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
     .WithEnvironment("RaiseSupportTicketByEmail__SupportEmailAddress", supportEmailConfig["SupportEmailAddress"])
     .WithEnvironment("RaiseSupportTicketByEmail__EmailTemplateId", supportEmailConfig["EmailTemplateId"])
@@ -37,9 +38,9 @@ builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: 
 
 builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
-    .WithEnvironment("GeneralRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
-    .WithEnvironment("SessionRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
-    .WithEnvironment("TokenRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
+    .WithEnvironment("GeneralRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("SessionRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("TokenRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("Oidc__ClientId", oidcConfig["ClientId"])
     .WithEnvironment("Oidc__ClientSecret", oidcConfig["ClientSecret"])
     .WithEnvironment("Oidc__Authority", oidcConfig["Authority"])
@@ -56,7 +57,8 @@ builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfile
 
 builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
-    .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redis.GetEndpoint("tcp"))
+    .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
     .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
     .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
