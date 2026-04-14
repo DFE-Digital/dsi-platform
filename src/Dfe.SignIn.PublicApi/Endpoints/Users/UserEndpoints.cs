@@ -15,6 +15,6 @@ public static partial class UserEndpoints
     public static void UseUserEndpoints(this WebApplication app)
     {
         app.MapPost("v2/users/{userId}/organisations/{organisationId}/query", PostQueryUserOrganisation);
-        app.MapGet("v2/users/{userId}/organisations", GetUserOrganisations);
+        app.MapGet("users/{userId}/organisations", GetUserOrganisations);
     }
 }
