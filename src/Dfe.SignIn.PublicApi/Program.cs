@@ -19,18 +19,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults(["/v2/healthcheck"]);
 
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsEnvironment("Local"))
+{
     builder.Configuration.AddUserSecrets<Program>();
 }
 builder.Configuration.AddEnvironmentVariables();
 
-builder.WebHost.ConfigureKestrel((context, options) => {
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
 
 // Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
+if (builder.Configuration.GetSection("AzureMonitor").Exists())
+{
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
@@ -77,10 +80,12 @@ var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOption
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsEnvironment("Local"))
+{
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 }
-else {
+else
+{
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
@@ -92,6 +97,7 @@ builder.Services
     .SetupSelectOrganisationInteractions();
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
+builder.Services.SetupUserInteractions();
 
 var app = builder.Build();
 
@@ -99,7 +105,8 @@ app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 app.UseSwagger();
-app.UseSwaggerUI(options => {
+app.UseSwaggerUI(options =>
+{
     options.SwaggerEndpoint("v1/swagger.json", "DfE Sign-in Public API");
 });
 
