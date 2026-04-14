@@ -14,6 +14,6 @@ public static partial class ServiceEndpoints
     [ExcludeFromCodeCoverage]
     public static void UseServiceEndpoints(this WebApplication app)
     {
-        app.MapGet("v2/services/{serviceId}/organisations/{organisationId}/users/{userId}", GetUserAccessToService);
+        app.MapGet("services/{serviceId}/organisations/{organisationId}/users/{userId}", GetUserAccessToService);
     }
 }
