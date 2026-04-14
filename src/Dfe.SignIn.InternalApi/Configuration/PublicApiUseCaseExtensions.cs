@@ -30,6 +30,7 @@ public static class PublicApiUseCaseExtensions
         services.Configure<ApiSecretEncryptionOptions>(configuration.GetRequiredSection("PublicApiSecretEncryption"));
         services.AddInteractor<EncryptApiSecretUseCase>();
         services.AddInteractor<DecryptApiSecretUseCase>();
+        services.AddInteractor<GetUserOrganisationIdentifiersUseCase>();
 
         return services;
     }
