@@ -13,8 +13,7 @@ public sealed class GetUserOrganisationsTests
 {
     private static readonly Guid FakeUserId = new("a1b2c3d4-0000-0000-0000-000000000001");
 
-    private static readonly Organisation FakeOrganisation = new()
-    {
+    private static readonly Organisation FakeOrganisation = new() {
         Id = new Guid("a1b2c3d4-0000-0000-0000-000000000010"),
         Name = "Test Organisation",
         Status = OrganisationStatus.Open,
@@ -26,8 +25,7 @@ public sealed class GetUserOrganisationsTests
         var autoMocker = new AutoMocker();
 
         autoMocker.MockResponse<GetUserOrganisationsRequest>(
-            new GetUserOrganisationsResponse
-            {
+            new GetUserOrganisationsResponse {
                 Organisations = [FakeOrganisation],
             }
         );

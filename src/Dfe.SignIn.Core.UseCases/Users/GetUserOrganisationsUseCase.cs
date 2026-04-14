@@ -27,8 +27,7 @@ public sealed class GetUserOrganisationsUseCase(
         context.ThrowIfHasValidationErrors();
 
         var result = await interaction.DispatchAsync(
-            new GetOrganisationsAssociatedWithUserRequest
-            {
+            new GetOrganisationsAssociatedWithUserRequest {
                 UserId = context.Request.UserId,
             }
         ).To<GetOrganisationsAssociatedWithUserResponse>();
@@ -39,13 +38,11 @@ public sealed class GetUserOrganisationsUseCase(
             .Where(org => org.Status != OrganisationStatus.Hidden)
             .ToList();
 
-        if (visible.Count == 0)
-        {
+        if (visible.Count == 0) {
             throw UserNotFoundException.FromUserId(context.Request.UserId);
         }
 
-        return new GetUserOrganisationsResponse
-        {
+        return new GetUserOrganisationsResponse {
             Organisations = visible,
         };
     }
