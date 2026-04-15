@@ -1,14 +1,13 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Access;
 
-namespace Dfe.SignIn.Core.Contracts.PublicApi;
+namespace Dfe.SignIn.Core.Contracts.Access;
 
 /// <summary>
 /// Request to get a user's access details for a service within an organisation.
 /// Corresponds to the public API endpoint: GET /services/{sid}/organisations/{oid}/users/{uid}
 /// </summary>
-[AssociatedResponse(typeof(GetUserAccessToServiceResponse))]
-public sealed record GetUserAccessToServiceRequest
+[AssociatedResponse(typeof(GetUserServiceAccessDetailsResponse))]
+public sealed record GetUserServiceAccessDetailsRequest
 {
     /// <summary>
     /// The unique identifier of the service.
@@ -27,9 +26,9 @@ public sealed record GetUserAccessToServiceRequest
 }
 
 /// <summary>
-/// Response model for <see cref="GetUserAccessToServiceRequest"/>.
+/// Response model for <see cref="GetUserServiceAccessDetailsRequest"/>.
 /// </summary>
-public sealed record GetUserAccessToServiceResponse
+public sealed record GetUserServiceAccessDetailsResponse
 {
     /// <summary>The unique identifier of the user.</summary>
     public required Guid UserId { get; init; }

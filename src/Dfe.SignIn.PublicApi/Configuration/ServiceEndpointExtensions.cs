@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.UseCases.PublicApi;
+using Dfe.SignIn.Core.UseCases.Users;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
@@ -18,6 +18,6 @@ public static class ServiceEndpointExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
-        services.AddInteractor<GetUserAccessToServiceUseCase>();
+        services.AddInteractor<GetUserServiceAccessDetailsUseCase>();
     }
 }

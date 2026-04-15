@@ -1,9 +1,9 @@
-using Dfe.SignIn.Core.Contracts.PublicApi;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.UseCases.PublicApi;
+using Dfe.SignIn.Core.UseCases.Users;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.Core.UseCases.UnitTests.PublicApi;
+namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
 
 [TestClass]
 public sealed class GetUserOrganisationIdentifiersUseCaseTests

@@ -1,10 +1,10 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.PublicApi;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dfe.SignIn.Core.UseCases.PublicApi;
+namespace Dfe.SignIn.Core.UseCases.Users;
 
 /// <summary>
 /// Use case for retrieving the legacy numeric and text identifiers stored on the

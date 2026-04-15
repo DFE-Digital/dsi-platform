@@ -1,9 +1,9 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Organisations;
-using Dfe.SignIn.Core.Contracts.PublicApi;
+using Dfe.SignIn.Core.Contracts.Users;
 
-namespace Dfe.SignIn.Core.UseCases.PublicApi;
+namespace Dfe.SignIn.Core.UseCases.Users;
 
 /// <summary>
 /// Use case for the public API "Get user access to service" endpoint.
@@ -21,13 +21,13 @@ namespace Dfe.SignIn.Core.UseCases.PublicApi;
 ///     (via <see cref="GetOrganisationByIdRequest"/>)</item>
 ///   </list>
 /// </remarks>
-public sealed class GetUserAccessToServiceUseCase(
+public sealed class GetUserServiceAccessDetailsUseCase(
     IInteractionDispatcher interaction
-) : Interactor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>
+) : Interactor<GetUserServiceAccessDetailsRequest, GetUserServiceAccessDetailsResponse>
 {
     /// <inheritdoc/>
-    public override async Task<GetUserAccessToServiceResponse> InvokeAsync(
-        InteractionContext<GetUserAccessToServiceRequest> context,
+    public override async Task<GetUserServiceAccessDetailsResponse> InvokeAsync(
+        InteractionContext<GetUserServiceAccessDetailsRequest> context,
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
@@ -68,7 +68,7 @@ public sealed class GetUserAccessToServiceUseCase(
         var userOrgIdentifiers = await userOrgIdentifiersTask;
         var organisation = (await organisationTask).Organisation;
 
-        return new GetUserAccessToServiceResponse {
+        return new GetUserServiceAccessDetailsResponse {
             UserId = accessResponse.Access.UserId,
             UserLegacyNumericId = userOrgIdentifiers.NumericIdentifier,
             UserLegacyTextId = userOrgIdentifiers.TextIdentifier,

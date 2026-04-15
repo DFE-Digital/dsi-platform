@@ -1,6 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 
-namespace Dfe.SignIn.Core.Contracts.PublicApi;
+namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Request to get the legacy numeric and text identifiers for a user within an organisation.

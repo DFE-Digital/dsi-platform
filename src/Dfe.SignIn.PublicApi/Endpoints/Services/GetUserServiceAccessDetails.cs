@@ -1,5 +1,5 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.PublicApi;
+using Dfe.SignIn.Core.Contracts.Access;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Services;
@@ -14,7 +14,7 @@ public static partial class ServiceEndpoints
     ///   <para>200 with the access details when the user has access.</para>
     ///   <para>404 when the user does not have access, or the organisation does not exist.</para>
     /// </returns>
-    public static async Task<Results<Ok<GetUserAccessToServiceResponse>, NotFound>> GetUserAccessToService(
+    public static async Task<Results<Ok<GetUserServiceAccessDetailsResponse>, NotFound>> GetUserServiceAccessDetails(
         Guid serviceId,
         Guid organisationId,
         Guid userId,
@@ -23,12 +23,12 @@ public static partial class ServiceEndpoints
     {
         try {
             var response = await interaction.DispatchAsync(
-                new GetUserAccessToServiceRequest {
+                new GetUserServiceAccessDetailsRequest {
                     ServiceId = serviceId,
                     OrganisationId = organisationId,
                     UserId = userId,
                 }
-            ).To<GetUserAccessToServiceResponse>();
+            ).To<GetUserServiceAccessDetailsResponse>();
 
             return TypedResults.Ok(response);
         }

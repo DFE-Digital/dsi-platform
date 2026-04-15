@@ -85,7 +85,7 @@ public static class PublicApiExtensions
 
         // The following interactor is not exposed for use in applications until the
         // request/response models have been properly designed.
-        services.AddInteractor<GetUserAccessToServiceApiRequester>();
+        services.AddInteractor<GetUserServiceAccessDetailsApiRequester>();
     }
 
     private static void AddUsersApiRequesters(IServiceCollection services)

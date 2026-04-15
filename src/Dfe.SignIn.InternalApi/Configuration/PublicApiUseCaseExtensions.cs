@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.PublicApi;
+using Dfe.SignIn.Core.UseCases.Users;
 
 namespace Dfe.SignIn.InternalApi.Configuration;
 

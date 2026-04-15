@@ -1,20 +1,20 @@
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Organisations;
-using Dfe.SignIn.Core.Contracts.PublicApi;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
-using Dfe.SignIn.Core.UseCases.PublicApi;
+using Dfe.SignIn.Core.UseCases.Users;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.Core.UseCases.UnitTests.PublicApi;
+namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
 
 [TestClass]
-public sealed class GetUserAccessToServiceUseCaseTests
+public sealed class GetUserServiceAccessDetailsUseCaseTests
 {
     private static readonly Guid UserId = Guid.Parse("a1b2c3d4-0000-0000-0000-000000000001");
     private static readonly Guid ServiceId = Guid.Parse("a1b2c3d4-0000-0000-0000-000000000002");
     private static readonly Guid OrganisationId = Guid.Parse("a1b2c3d4-0000-0000-0000-000000000003");
 
-    private static readonly GetUserAccessToServiceRequest ValidRequest = new() {
+    private static readonly GetUserServiceAccessDetailsRequest ValidRequest = new() {
         UserId = UserId,
         ServiceId = ServiceId,
         OrganisationId = OrganisationId,
@@ -32,8 +32,8 @@ public sealed class GetUserAccessToServiceUseCaseTests
     public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
-            GetUserAccessToServiceRequest,
-            GetUserAccessToServiceUseCase
+            GetUserServiceAccessDetailsRequest,
+            GetUserServiceAccessDetailsUseCase
         >();
     }
 
@@ -84,7 +84,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
             new GetUserServiceAccessResponse { Access = null }
         );
 
-        var useCase = autoMocker.CreateInstance<GetUserAccessToServiceUseCase>();
+        var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 
         await Assert.ThrowsExactlyAsync<UserServiceAccessNotFoundException>(()
             => useCase.InvokeAsync(ValidRequest));
@@ -115,7 +115,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
             OrganisationNotFoundException.FromOrganisationId(OrganisationId)
         );
 
-        var useCase = autoMocker.CreateInstance<GetUserAccessToServiceUseCase>();
+        var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 
         await Assert.ThrowsExactlyAsync<OrganisationNotFoundException>(()
             => useCase.InvokeAsync(ValidRequest));
@@ -125,7 +125,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
     public async Task ReturnsExpectedIds()
     {
         var autoMocker = SetupWithAccess();
-        var useCase = autoMocker.CreateInstance<GetUserAccessToServiceUseCase>();
+        var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 
         var response = await useCase.InvokeAsync(ValidRequest);
 
@@ -138,7 +138,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
     public async Task ReturnsUserLegacyIdentifiers()
     {
         var autoMocker = SetupWithAccess();
-        var useCase = autoMocker.CreateInstance<GetUserAccessToServiceUseCase>();
+        var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 
         var response = await useCase.InvokeAsync(ValidRequest);
 
@@ -150,7 +150,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
     public async Task ReturnsOrganisationLegacyIdAndApar()
     {
         var autoMocker = SetupWithAccess();
-        var useCase = autoMocker.CreateInstance<GetUserAccessToServiceUseCase>();
+        var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 
         var response = await useCase.InvokeAsync(ValidRequest);
 
@@ -162,7 +162,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
     public async Task ReturnsRolesFromAccessResponse()
     {
         var autoMocker = SetupWithAccess();
-        var useCase = autoMocker.CreateInstance<GetUserAccessToServiceUseCase>();
+        var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 
         var response = await useCase.InvokeAsync(ValidRequest);
 
@@ -175,7 +175,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
     public async Task ReturnsIdentifiersFromAccessResponse()
     {
         var autoMocker = SetupWithAccess();
-        var useCase = autoMocker.CreateInstance<GetUserAccessToServiceUseCase>();
+        var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 
         var response = await useCase.InvokeAsync(ValidRequest);
 
@@ -203,7 +203,7 @@ public sealed class GetUserAccessToServiceUseCaseTests
             }
         );
 
-        var useCase = autoMocker.CreateInstance<GetUserAccessToServiceUseCase>();
+        var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
         await useCase.InvokeAsync(ValidRequest);
 
         Assert.IsNotNull(capturedRequest);
