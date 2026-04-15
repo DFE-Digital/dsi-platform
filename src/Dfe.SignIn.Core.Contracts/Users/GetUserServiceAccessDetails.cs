@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Access;
 
-namespace Dfe.SignIn.Core.Contracts.Access;
+namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Request to get a user's access details for a service within an organisation.

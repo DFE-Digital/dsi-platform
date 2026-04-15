@@ -1,5 +1,5 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Access;
+using Dfe.SignIn.Core.Contracts.Users;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Services;
