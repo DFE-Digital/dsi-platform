@@ -68,16 +68,20 @@ public sealed partial class CheckIsBlockedEmailAddressUseCase(
 
         var options = optionsAccessor.CurrentValue;
 
-        string[] parts = context.Request.EmailAddress.ToLower().Split('@');
-        string name = TrimName().Replace(parts[0], "");
+        string[] parts = context.Request.EmailAddress.Split('@');
+        string localPart = parts[0];
         string domain = parts[1];
 
+        bool isBlockedDomain = options.BlockedDomains.Contains(domain, StringComparer.OrdinalIgnoreCase);
+        bool isBlockedName = options.BlockedNames.Any(blockedName =>
+            localPart.StartsWith(blockedName, StringComparison.OrdinalIgnoreCase)
+            && NameSuffix().IsMatch(localPart[blockedName.Length..]));
+
         return Task.FromResult(new CheckIsBlockedEmailAddressResponse {
-            IsBlocked = options.BlockedDomains.Contains(domain)
-                || options.BlockedNames.Contains(name),
+            IsBlocked = isBlockedDomain || isBlockedName,
         });
     }
 
-    [GeneratedRegex(@"[\d_.-]+$")]
-    private static partial Regex TrimName();
+    [GeneratedRegex(@"^[a-z0-9._-]*$", RegexOptions.IgnoreCase)]
+    private static partial Regex NameSuffix();
 }
