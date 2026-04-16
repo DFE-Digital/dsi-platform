@@ -30,7 +30,7 @@ public sealed record ApplicationRole
     /// <summary>
     /// The numeric identifier of the role.
     /// </summary>
-    public required int NumericId { get; init; }
+    public required long NumericId { get; init; }
 
     /// <summary>
     /// A value indicating the status of the role.
