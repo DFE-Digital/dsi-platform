@@ -14,7 +14,7 @@ public static partial class ApplicationEndpoints
     /// <param name="clientId">The unique client identifier of the application.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <returns>The application roles.</returns>
-    [Produces("application/json")]
+    //[Produces("application/json")]
     //[ProduceResponseType(typeof(IEnumerable<ApplicationRole>), StatusCodes.Status200OK)]
     //[ProduceResponseType(StatusCodes.Status404NotFound)]
     //[ProduceResponseType(StatusCodes.Status400BadRequest)]
