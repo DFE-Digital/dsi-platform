@@ -10,11 +10,11 @@ namespace Dfe.SignIn.NodeApi.Client.Access;
 [ApiRequester, NodeApi(NodeApiName.Access)]
 public sealed class GetServiceRolesNodeRequester(
     [FromKeyedServices(NodeApiName.Access)] HttpClient accessClient
-) : Interactor<GetRolesOfApplicationRequest, GetRolesOfApplicationResponse>
+) : Interactor<GetApplicationRolesRequest, GetApplicationRolesResponse>
 {
     /// <inheritdoc/>
-    public override async Task<GetRolesOfApplicationResponse> InvokeAsync(
-        InteractionContext<GetRolesOfApplicationRequest> context,
+    public override async Task<GetApplicationRolesResponse> InvokeAsync(
+        InteractionContext<GetApplicationRolesRequest> context,
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
@@ -24,7 +24,7 @@ public sealed class GetServiceRolesNodeRequester(
             cancellationToken
         );
 
-        return new GetRolesOfApplicationResponse {
+        return new GetApplicationRolesResponse {
             Roles = response?.Select(r => new ApplicationRole {
                 Id = r.Id,
                 Name = r.Name,
