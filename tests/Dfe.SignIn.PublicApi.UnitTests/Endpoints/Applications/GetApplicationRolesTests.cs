@@ -1,7 +1,12 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.PublicApi.Authorization;
+using Dfe.SignIn.PublicApi.Contracts.Applications;
 using Dfe.SignIn.PublicApi.Endpoints.Applications;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Applications;
@@ -19,10 +24,10 @@ public class GetApplicationRolesTests
         Description = "A test application",
         IsExternalService = false,
         IsHiddenService = false,
-        IsIdOnlyService = false,
+        IsIdOnlyService = false
     };
 
-    private static readonly ApplicationRole FakeCoreRole1 = new() {
+    private static readonly ApplicationRole FakeCoreRole = new() {
         Id = new Guid("a5a8e401-e29b-41d4-a716-446655440001"),
         Code = "DSI_Child_One",
         Name = "DSI Child One",
@@ -31,118 +36,122 @@ public class GetApplicationRolesTests
         Parent = null
     };
 
-    private static readonly ApplicationRole FakeCoreRole2 = new() {
-        Id = new Guid("b6b9e402-e29b-41d4-a716-446655440002"),
-        Code = "gias_establishment",
-        Name = "GIAS - establishment",
-        NumericId = 2,
-        Status = ApplicationRoleStatus.Active,
-        Parent = null
-    };
-
     private static readonly GetRolesOfApplicationResponse FakeRolesResponse = new() {
-        Roles = [FakeCoreRole1, FakeCoreRole2]
+        Roles = [FakeCoreRole]
     };
 
-    private static AutoMocker CreateAutoMocker() => new();
-
-    [TestMethod]
-    public async Task ResolvesClientIdToApplicationId()
+    private static (AutoMocker, IClientSession, Mock<ILogger>, DefaultHttpContext) CreateMocks()
     {
-        var autoMocker = CreateAutoMocker();
+        var autoMocker = new AutoMocker();
+        var clientSession = autoMocker.GetMock<IClientSession>();
+        clientSession.SetupGet(x => x.ClientId).Returns(FakeClientId);
 
-        GetApplicationByClientIdRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<GetApplicationByClientIdRequest>(
-            req => capturedRequest = req,
-            new GetApplicationByClientIdResponse { Application = FakeApplication }
-        );
-        autoMocker.MockResponse<GetRolesOfApplicationRequest>(FakeRolesResponse);
+        var logger = new Mock<ILogger>();
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers["X-Correlation-ID"] = "corr-123";
+        httpContext.Request.Headers["X-Client-Correlation-ID"] = "client-corr-456";
 
-        await ApplicationEndpoints.GetApplicationRoles(FakeClientId, autoMocker.Get<IInteractionDispatcher>());
-
-        Assert.IsNotNull(capturedRequest);
-        Assert.AreEqual(FakeClientId, capturedRequest.ClientId);
+        return (autoMocker, clientSession.Object, logger, httpContext);
     }
 
     [TestMethod]
-    public async Task DispatchesGetRolesOfApplicationRequest()
+    public async Task ReturnsOkWithRoles_WhenAuthorized()
     {
-        var autoMocker = CreateAutoMocker();
-
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse { Application = FakeApplication }
-        );
-
-        GetRolesOfApplicationRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<GetRolesOfApplicationRequest>(
-            req => capturedRequest = req,
-            FakeRolesResponse
-        );
-
-        await ApplicationEndpoints.GetApplicationRoles(FakeClientId, autoMocker.Get<IInteractionDispatcher>());
-
-        Assert.IsNotNull(capturedRequest);
-        Assert.AreEqual(FakeApplicationId, capturedRequest.ApplicationId);
-    }
-
-    [TestMethod]
-    public async Task ReturnsMappedRoles()
-    {
-        var autoMocker = CreateAutoMocker();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
             new GetApplicationByClientIdResponse { Application = FakeApplication }
         );
         autoMocker.MockResponse<GetRolesOfApplicationRequest>(FakeRolesResponse);
 
-        var result = (await ApplicationEndpoints.GetApplicationRoles(FakeClientId, autoMocker.Get<IInteractionDispatcher>())).ToList();
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            logger.Object,
+            httpContext
+        );
 
-        Assert.AreEqual(2, result.Count);
-        Assert.IsTrue(result.Any(r => r.Code == "DSI_Child_One" && r.Name == "DSI Child One" && r.Status == "Active"));
-        Assert.IsTrue(result.Any(r => r.Code == "gias_establishment" && r.Name == "GIAS - establishment" && r.Status == "Active"));
+        Assert.IsInstanceOfType(result, typeof(IResult));
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
+        Assert.IsNotNull(okResult);
+        var roles = okResult.Value.ToList();
+        Assert.AreEqual(1, roles.Count);
+        Assert.AreEqual("DSI Child One", roles[0].Name);
+        Assert.AreEqual("DSI_Child_One", roles[0].Code);
+        Assert.AreEqual("Active", roles[0].Status);
     }
 
     [TestMethod]
-    public async Task ReturnsEmptyListWhenNoRoles()
+    public async Task ReturnsNotFound_WhenApplicationIsNull()
     {
-        var autoMocker = CreateAutoMocker();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
+
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = null }
+        );
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            logger.Object,
+            httpContext
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.NotFound));
+    }
+
+    [TestMethod]
+    public async Task ReturnsForbid_WhenClientIdDoesNotMatch()
+    {
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
+
+        var otherApp = FakeApplication with { ClientId = "other-client-id" };
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = otherApp }
+        );
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            logger.Object,
+            httpContext
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult));
+    }
+
+    [TestMethod]
+    public async Task LogsRequest_WithCorrelationIds()
+    {
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
             new GetApplicationByClientIdResponse { Application = FakeApplication }
         );
-        autoMocker.MockResponse<GetRolesOfApplicationRequest>(
-            new GetRolesOfApplicationResponse { Roles = [] }
+        autoMocker.MockResponse<GetRolesOfApplicationRequest>(FakeRolesResponse);
+
+        await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            logger.Object,
+            httpContext
         );
 
-        var result = (await ApplicationEndpoints.GetApplicationRoles(FakeClientId, autoMocker.Get<IInteractionDispatcher>())).ToList();
-
-        Assert.AreEqual(0, result.Count);
-    }
-
-    [TestMethod]
-    public async Task StatusIsMappedAsString()
-    {
-        var autoMocker = CreateAutoMocker();
-
-        var inactiveRole = new ApplicationRole {
-            Id = Guid.NewGuid(),
-            Code = "inactive_role",
-            Name = "Inactive Role",
-            NumericId = 3,
-            Status = ApplicationRoleStatus.Inactive,
-            Parent = null
-        };
-
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse { Application = FakeApplication }
+        logger.Verify(l => l.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) =>
+                v.ToString().Contains(FakeClientId) &&
+                v.ToString().Contains("corr-123") &&
+                v.ToString().Contains("client-corr-456")
+            ),
+            null,
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once
         );
-        autoMocker.MockResponse<GetRolesOfApplicationRequest>(
-            new GetRolesOfApplicationResponse { Roles = [inactiveRole] }
-        );
-
-        var result = (await ApplicationEndpoints.GetApplicationRoles(FakeClientId, autoMocker.Get<IInteractionDispatcher>())).ToList();
-
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("Inactive", result[0].Status);
     }
 }

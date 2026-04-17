@@ -14,6 +14,12 @@ public static partial class ApplicationEndpoints
     [ExcludeFromCodeCoverage]
     public static void UseApplicationEndpoints(this WebApplication app)
     {
-        app.MapPost("services/{clientId}/roles", GetApplicationRoles);
+        app.MapGet("services/{clientId}/roles", GetApplicationRoles)
+            .WithName("GetApplicationRoles")
+            .WithTags("Applications")
+            .Produces<IEnumerable<Contracts.Applications.ApplicationRoleDto>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status403Forbidden)
+            .WithOpenApi();
     }
 }
