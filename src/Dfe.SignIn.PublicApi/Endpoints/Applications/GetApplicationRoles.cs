@@ -56,7 +56,11 @@ public static partial class ApplicationEndpoints
             throw;
         }
 
+
         var application = applicationResponse.Application;
+        if (application == null) {
+            return Results.NotFound();
+        }
 
         // TODO:
         // the old node version checks application parent id too, is this still needed??
@@ -67,10 +71,10 @@ public static partial class ApplicationEndpoints
         }
 
         var rolesResponse = await interaction.DispatchAsync(
-            new GetRolesOfApplicationRequest {
+            new GetApplicationRolesRequest {
                 ApplicationId = application.Id
             }
-        ).To<GetRolesOfApplicationResponse>();
+        ).To<GetApplicationRolesResponse>();
 
         var roles = rolesResponse.Roles
             .Select(r => new ApplicationRoleDto {

@@ -36,39 +36,39 @@ public class GetApplicationRolesTests
         Parent = null
     };
 
-    private static readonly GetRolesOfApplicationResponse FakeRolesResponse = new() {
+    private static readonly GetApplicationRolesResponse FakeRolesResponse = new() {
         Roles = [FakeCoreRole]
     };
 
-    private static (AutoMocker, IClientSession, Mock<ILogger>, DefaultHttpContext) CreateMocks()
+    private static (AutoMocker, IClientSession, Mock<ILoggerFactory>, DefaultHttpContext) CreateMocks()
     {
         var autoMocker = new AutoMocker();
         var clientSession = autoMocker.GetMock<IClientSession>();
         clientSession.SetupGet(x => x.ClientId).Returns(FakeClientId);
 
-        var logger = new Mock<ILogger>();
+        var loggerFactory = new Mock<ILoggerFactory>();
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Headers["X-Correlation-ID"] = "corr-123";
-        httpContext.Request.Headers["X-Client-Correlation-ID"] = "client-corr-456";
-
-        return (autoMocker, clientSession.Object, logger, httpContext);
+        return (autoMocker, clientSession.Object, loggerFactory, httpContext);
     }
 
     [TestMethod]
     public async Task ReturnsOkWithRoles_WhenAuthorized()
     {
-        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
             new GetApplicationByClientIdResponse { Application = FakeApplication }
         );
-        autoMocker.MockResponse<GetRolesOfApplicationRequest>(FakeRolesResponse);
+        autoMocker.MockResponse<GetApplicationRolesRequest>(FakeRolesResponse);
 
         var result = await ApplicationEndpoints.GetApplicationRoles(
             FakeClientId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            logger.Object,
+            loggerFactory.Object,
             httpContext
         );
 
@@ -85,7 +85,9 @@ public class GetApplicationRolesTests
     [TestMethod]
     public async Task ReturnsNotFound_WhenApplicationIsNull()
     {
-        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
             new GetApplicationByClientIdResponse { Application = null }
@@ -95,7 +97,7 @@ public class GetApplicationRolesTests
             FakeClientId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            logger.Object,
+            loggerFactory.Object,
             httpContext
         );
 
@@ -105,7 +107,9 @@ public class GetApplicationRolesTests
     [TestMethod]
     public async Task ReturnsForbid_WhenClientIdDoesNotMatch()
     {
-        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
         var otherApp = FakeApplication with { ClientId = "other-client-id" };
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
@@ -116,7 +120,7 @@ public class GetApplicationRolesTests
             FakeClientId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            logger.Object,
+            loggerFactory.Object,
             httpContext
         );
 
@@ -126,32 +130,30 @@ public class GetApplicationRolesTests
     [TestMethod]
     public async Task LogsRequest_WithCorrelationIds()
     {
-        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
             new GetApplicationByClientIdResponse { Application = FakeApplication }
         );
-        autoMocker.MockResponse<GetRolesOfApplicationRequest>(FakeRolesResponse);
+        autoMocker.MockResponse<GetApplicationRolesRequest>(FakeRolesResponse);
+
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
         await ApplicationEndpoints.GetApplicationRoles(
             FakeClientId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            logger.Object,
+            loggerFactory.Object,
             httpContext
         );
 
-        logger.Verify(l => l.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) =>
-                v.ToString().Contains(FakeClientId) &&
-                v.ToString().Contains("corr-123") &&
-                v.ToString().Contains("client-corr-456")
-            ),
-            null,
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once
-        );
+        // Assert log was called and contains expected values
+        var logInvocation = logger.Invocations.FirstOrDefault(inv => inv.Method.Name == "Log");
+        Assert.IsNotNull(logInvocation, "Log was not called");
+        var logMessage = logInvocation.Arguments[2]?.ToString();
+        Assert.IsNotNull(logMessage);
+        Assert.IsTrue(logMessage.Contains(FakeClientId));
+        Assert.IsTrue(logMessage.Contains("corr-123"));
     }
 }

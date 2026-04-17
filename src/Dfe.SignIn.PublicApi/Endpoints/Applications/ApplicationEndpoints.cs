@@ -15,7 +15,7 @@ public static partial class ApplicationEndpoints
     public static void UseApplicationEndpoints(this WebApplication app)
     {
         app.MapGet("services/{clientId}/roles", GetApplicationRoles)
-            .WithName("GetApplicationRoles")
+            .WithName("GetApplicationRolesRequest")
             .WithTags("Applications")
             .Produces<IEnumerable<Contracts.Applications.ApplicationRoleDto>>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound)
