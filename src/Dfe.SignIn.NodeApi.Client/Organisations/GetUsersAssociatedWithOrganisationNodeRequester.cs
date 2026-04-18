@@ -19,20 +19,20 @@ public sealed class GetUsersAssociatedWithOrganisationNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var myRequest = new HttpRequestMessage(HttpMethod.Get, $"organisations/{context.Request.OrganisationId}/users");
-        var myResponse = await organisationsClient.SendAsync(myRequest);
-        var myTextPlease = await myResponse.Content.ReadAsStringAsync();
-        Console.WriteLine(myTextPlease);
+        // var myRequest = new HttpRequestMessage(HttpMethod.Get, $"organisations/by-external-id/UKPRN-multi/10038591");
+        // var myResponse = await organisationsClient.SendAsync(myRequest);
+        // var myTextPlease = await myResponse.Content.ReadAsStringAsync();
+        // Console.WriteLine(myTextPlease);
 
-        // var response = await organisationsClient.GetFromJsonOrDefaultAsync<Models.OrganisationsAssociatedWithUserDto[]>(
-        //     $"/organisations/v2/associated-with-user/{context.Request.UserId}",
-        //     cancellationToken
-        // );
+        var response = await organisationsClient.GetFromJsonOrDefaultAsync<Models.OrganisationDto[]>(
+             $"/organisations/by-external-id/UKPRN-multi/{context.Request.Ukprn}",
+             cancellationToken
+        );
 
-        // var organisations = response?.Select(org => org.Organisation.MapToOrganisation()) ?? [];
+        var organisations = response?.Select(org => org.MapToOrganisation(Core.Public.OrganisationStatus.Open, "Establishment", null)) ?? [];
 
         return new GetUsersAssociatedWithOrganisationResponse {
-            OrganisationId = context.Request.OrganisationId
+            Organisations = organisations
         };
     }
 }

@@ -5,7 +5,7 @@ using Dfe.SignIn.Core.Public;
 
 namespace Dfe.SignIn.NodeApi.Client.Organisations.Models;
 
-internal abstract record OrganisationDto()
+public record OrganisationDto()
 {
     [JsonPropertyName("id")]
     public required Guid Id { get; init; }
@@ -85,7 +85,7 @@ internal abstract record OrganisationDto()
     [JsonPropertyName("IsOnAPAR")]
     public string? IsOnAPAR { get; set; }
 
-    protected Organisation MapToOrganisation(
+    public Organisation MapToOrganisation(
         OrganisationStatus organisationStatus,
         string organisationCategory,
         string? establishmentType)

@@ -20,7 +20,7 @@ public sealed class GetUsersAtOrganisationUseCase(
 
         var result = await interaction.DispatchAsync(
             new GetUsersAssociatedWithOrganisationRequest {
-                OrganisationId = new Guid("E6714479-04FA-4037-8E3E-EA7B37DFD50B"),
+                Ukprn = context.Request.Ukprn.ToString(),
             }
         ).To<GetUsersAssociatedWithOrganisationResponse>();
 
@@ -30,7 +30,7 @@ public sealed class GetUsersAtOrganisationUseCase(
         ).To<GetUsersAtOrganisationResponse>();
         */
 
-        var response = new GetUsersAtOrganisationResponse(context.Request.Ukprn, []);
+        var response = new GetUsersAtOrganisationResponse(result.Organisations.Count(), []);
 
         return response;
 

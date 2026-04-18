@@ -11,7 +11,7 @@ public sealed record GetUsersAssociatedWithOrganisationRequest
     /// <summary>
     /// The unique identifier of the organisation.
     /// </summary>
-    public required Guid OrganisationId { get; init; }
+    public required string Ukprn { get; init; }
 }
 
 /// <summary>
@@ -20,7 +20,7 @@ public sealed record GetUsersAssociatedWithOrganisationRequest
 public sealed record GetUsersAssociatedWithOrganisationResponse
 {
     /// <summary>
-    /// An enumerable collection of organisations that are associated with the user.
+    /// An enumerable collection of organisations that are associated with the organisation.
     /// </summary>
-    public required Guid OrganisationId { get; init; }
+    public required IEnumerable<Organisation> Organisations { get; init; }
 }
