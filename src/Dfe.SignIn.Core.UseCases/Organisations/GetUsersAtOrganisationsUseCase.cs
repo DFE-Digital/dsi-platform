@@ -26,7 +26,7 @@ public sealed class GetUsersAtOrganisationUseCase(
 
         /*
         var response = await interaction.DispatchAsync(
-            new GetUsersAtOrganisationRequest(context.Request.Ukprn)
+          organisationClient  new GetUsersAtOrganisationRequest(context.Request.Ukprn)
         ).To<GetUsersAtOrganisationResponse>();
         */
 
