@@ -10,7 +10,7 @@ namespace Dfe.SignIn.PublicApi.Endpoints.Organisations;
 public static partial class OrganisationEndpoints
 {
     /// <summary>
-    ///
+    /// Get users and their roles on the service in the bearer token at the organisation.
     /// </summary>
     /// <param name="ukprn"></param>
     /// <param name="clientSession"></param>
@@ -52,18 +52,16 @@ public static partial class OrganisationEndpoints
 
                 foreach (var userId in userIds) {
                     Console.WriteLine($"userId = {userId}");
-                }
 
-                Console.WriteLine($"First user id = {serviceResponse.UserIds.FirstOrDefault()}");
+                    // ^^^^^^^^^^^^^^^^^^^^^^^^^ get service roles for user at organisation
+                    var rolesResponse = await interaction.DispatchAsync(
+                        new GetRolesOfUserRequest {
+                            ApplicationId = application.Id,
+                            OrganisationId = responseOrgIds.OrganisationIds.FirstOrDefault(),
+                            UserId = userId
+                        }).To<GetRolesOfUserResponse>();
+                }
             }
-
-            var rolesResponse = await interaction.DispatchAsync(
-                new GetRolesOfUserRequest {
-                    ApplicationId = application.Id,
-                    OrganisationId = responseOrgIds.OrganisationIds.FirstOrDefault(),
-                    UserId = userIds.FirstOrDefault()
-                }
-            ).To<GetRolesOfUserResponse>();
 
             //return TypedResults.Ok(response);
             return TypedResults.NotFound();
