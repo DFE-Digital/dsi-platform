@@ -1,5 +1,5 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Access;
+//using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.Applications;
