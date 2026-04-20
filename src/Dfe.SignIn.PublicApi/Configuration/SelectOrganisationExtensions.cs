@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.UseCases.Applications;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
@@ -21,5 +22,7 @@ public static class SelectOrganisationExtensions
 
         services.AddInteractor<CreateSelectOrganisationSessionUseCase>();
         services.AddInteractor<FilterOrganisationsForUserUseCase>();
+
+        services.AddInteractor<GetApplicationRolesUseCase>();
     }
 }

@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dfe.SignIn.Gateways.EntityFramework\Dfe.SignIn.Gateways.EntityFramework.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.ServiceDefaults\Dfe.SignIn.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Base.Framework\Dfe.SignIn.Base.Framework.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.Contracts\Dfe.SignIn.Core.Contracts.csproj" />
