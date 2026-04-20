@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.UseCases.Organisations;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
@@ -16,6 +15,6 @@ public static class OrganisationEndpointExtensions
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
-        services.AddInteractor<GetUsersAtOrganisationUseCase>();
+        //services.AddInteractor<GetUsersAtOrganisationUseCase>();
     }
 }

@@ -10,11 +10,11 @@ namespace Dfe.SignIn.NodeApi.Client.Organisations;
 [ApiRequester, NodeApi(NodeApiName.Organisations)]
 public sealed class GetOrganisationIdsNodeRequester(
     [FromKeyedServices(NodeApiName.Organisations)] HttpClient organisationsClient
-) : Interactor<GetOrganisationIdsRequest, GetOrganisationIdsResponse>
+) : Interactor<GetOrganisationIdsByExternalIdRequest, GetOrganisationIdsByExternalIdResponse>
 {
     /// <inheritdoc/>
-    public override async Task<GetOrganisationIdsResponse> InvokeAsync(
-        InteractionContext<GetOrganisationIdsRequest> context,
+    public override async Task<GetOrganisationIdsByExternalIdResponse> InvokeAsync(
+        InteractionContext<GetOrganisationIdsByExternalIdRequest> context,
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
@@ -28,7 +28,7 @@ public sealed class GetOrganisationIdsNodeRequester(
 
         var orgIds = organisations.Select(x => x.Id);
 
-        return new GetOrganisationIdsResponse {
+        return new GetOrganisationIdsByExternalIdResponse {
             OrganisationIds = orgIds
         };
     }

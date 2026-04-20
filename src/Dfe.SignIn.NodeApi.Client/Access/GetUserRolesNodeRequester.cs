@@ -24,24 +24,15 @@ public sealed class GetServiceRolesNodeRequester(
             cancellationToken
         );
 
-        /*
-        return new GetRolesOfUserResponse {
-            Roles = response?.Select(r => new UserRole {
-                Id = r.Id,
-                Name = r.Name,
-                Code = r.Code,
-                NumericId = r.NumericId,
-                Status = r.Status.Id,
-                Parent = r.Parent != null ? new UserRole {
-                    Id = r.Parent.Id,
-                    Name = r.Parent.Name,
-                    Code = r.Parent.Code,
-                    NumericId = r.Parent.NumericId,
-                    Status = r.Parent.Status.Id
-                } : null
-            }) ?? []
-        };
-        */
+        string path = $"users/{context.Request.UserId}/services/{context.Request.ApplicationId}/organisations/{context.Request.OrganisationId}";
+        //path = $"users/{userId}/services/{serviceId}/organisations/{orgId}"
+        var myRequest = new HttpRequestMessage(HttpMethod.Get, path);
+
+        var myResponse = await accessClient.SendAsync(myRequest);
+        var myTextPlease = await myResponse.Content.ReadAsStringAsync();
+        Console.WriteLine($"GetRolesOfUserResponse {path}");
+        Console.WriteLine(myTextPlease);
+
 
         List<string> roles = [];
         return new GetRolesOfUserResponse { Roles = roles };

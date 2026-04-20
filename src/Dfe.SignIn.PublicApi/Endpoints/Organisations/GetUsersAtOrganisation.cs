@@ -9,6 +9,13 @@ namespace Dfe.SignIn.PublicApi.Endpoints.Organisations;
 
 public static partial class OrganisationEndpoints
 {
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="ukprn"></param>
+    /// <param name="clientSession"></param>
+    /// <param name="interaction"></param>
+    /// <returns></returns>
     public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound>> GetUsersAtOrganisation(
         int ukprn,
         IClientSession clientSession,
@@ -16,7 +23,7 @@ public static partial class OrganisationEndpoints
     {
         try {
 
-            // get the client name, extracted from the bearer token, and lookup client id
+            // ^^^^^^^^^^^^^^^^^^^ get the client name, extracted from the bearer token, and lookup client id
             string clientName = clientSession.ClientId;
             Console.WriteLine($"Client name = {clientName}");
             GetApplicationByClientIdResponse applicationResponse;
@@ -29,35 +36,37 @@ public static partial class OrganisationEndpoints
 
             Console.WriteLine($"Client id = {application.Id}");
 
-            // get matching organisation ids from the UKPRN or UPIN
-            GetOrganisationIdsRequest model = new() { LookupKey = "UKPRN-multi", LookupValue = ukprn.ToString() };
-            var responseOrgIds = await interaction.DispatchAsync(model).To<GetOrganisationIdsResponse>();
+            // ^^^^^^^^^^^^^^^^ get matching organisation ids from the UKPRN or UPIN
+            GetOrganisationIdsByExternalIdRequest model = new() { LookupKey = "UKPRN-multi", LookupValue = ukprn.ToString() };
+            var responseOrgIds = await interaction.DispatchAsync(model).To<GetOrganisationIdsByExternalIdResponse>();
             Console.WriteLine($"First organisation id = {responseOrgIds.OrganisationIds.FirstOrDefault()}");
 
-            // get users of service at organisation
+            // ^^^^^^^^^^^^^^^^^ get user ids of service at organisation
+            IOrderedEnumerable<Guid> userIds = Enumerable.Empty<Guid>().OrderBy(x => x);
             foreach (Guid orgId in responseOrgIds.OrganisationIds) {
                 Console.WriteLine($"organisation id = {orgId}");
 
                 GetServiceUsersAtOrganisationRequest serviceUsers = new() { OrganisationId = orgId, ApplicationId = application.Id };
                 GetServiceUsersAtOrganisationResponse serviceResponse = await interaction.DispatchAsync(serviceUsers).To<GetServiceUsersAtOrganisationResponse>();
+                userIds = serviceResponse.UserIds;
+
+                foreach (var userId in userIds) {
+                    Console.WriteLine($"userId = {userId}");
+                }
+
                 Console.WriteLine($"First user id = {serviceResponse.UserIds.FirstOrDefault()}");
             }
 
-            string serviceId = "77D6B281-9F8D-4649-84B8-87FC42EEE71D";
-            string organisationId = "5CCE9B88-D934-4130-89B9-0001B42B84FE";
-            string userId = "F448187C-26BB-4578-94FE-906F0D1BF10A";
-
             var rolesResponse = await interaction.DispatchAsync(
                 new GetRolesOfUserRequest {
-                    ApplicationId = Guid.Parse(serviceId),
-                    OrganisationId = Guid.Parse(organisationId),
-                    UserId = Guid.Parse(userId)
+                    ApplicationId = application.Id,
+                    OrganisationId = responseOrgIds.OrganisationIds.FirstOrDefault(),
+                    UserId = userIds.FirstOrDefault()
                 }
             ).To<GetRolesOfUserResponse>();
 
-            var requestModel = new GetUsersAtOrganisationRequest(ukprn);
-            var response = await interaction.DispatchAsync(requestModel).To<GetUsersAtOrganisationResponse>();
-            return TypedResults.Ok(response);
+            //return TypedResults.Ok(response);
+            return TypedResults.NotFound();
         }
         catch (NotFoundInteractionException) {
             return TypedResults.NotFound();

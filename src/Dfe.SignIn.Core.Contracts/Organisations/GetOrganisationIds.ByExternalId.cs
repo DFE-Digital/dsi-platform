@@ -3,10 +3,10 @@ using Dfe.SignIn.Base.Framework;
 namespace Dfe.SignIn.Core.Contracts.Organisations;
 
 /// <summary>
-/// Request to get all user belogning to an organisations.
+/// Request to get all organisations ids matching the UKPRN or UPIM .
 /// </summary>
-[AssociatedResponse(typeof(GetOrganisationIdsResponse))]
-public sealed record GetOrganisationIdsRequest
+[AssociatedResponse(typeof(GetOrganisationIdsByExternalIdResponse))]
+public sealed record GetOrganisationIdsByExternalIdRequest
 {
     /// <summary>
     /// Key, identifies which search to perform.
@@ -20,9 +20,9 @@ public sealed record GetOrganisationIdsRequest
 }
 
 /// <summary>
-/// Response model for request <see cref="GetOrganisationIdsRequest"/>.
+/// Response model for request <see cref="GetOrganisationIdsByExternalIdRequest"/>.
 /// </summary>
-public sealed record GetOrganisationIdsResponse
+public sealed record GetOrganisationIdsByExternalIdResponse
 {
     /// <summary>
     /// An enumerable collection of organisations ids.
