@@ -19,11 +19,6 @@ public sealed class GetUsersAssociatedWithOrganisationNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        // var myRequest = new HttpRequestMessage(HttpMethod.Get, $"organisations/by-external-id/UKPRN-multi/10038591");
-        // var myResponse = await organisationsClient.SendAsync(myRequest);
-        // var myTextPlease = await myResponse.Content.ReadAsStringAsync();
-        // Console.WriteLine(myTextPlease);
-
         var response = await organisationsClient.GetFromJsonOrDefaultAsync<Models.OrganisationDto[]>(
              $"/organisations/by-external-id/UKPRN-multi/{context.Request.Ukprn}",
              cancellationToken

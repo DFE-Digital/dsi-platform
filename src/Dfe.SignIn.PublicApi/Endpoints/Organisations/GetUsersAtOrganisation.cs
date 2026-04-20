@@ -16,10 +16,7 @@ public static partial class OrganisationEndpoints
     {
         try {
 
-            GetOrganisationIdsRequest model = new() { LookupKey = "UKPRN-multi", LookupValue = ukprn.ToString() };
-            var responseOrgIds = await interaction.DispatchAsync(model).To<GetOrganisationIdsResponse>();
-            Console.WriteLine($"First organisation id = {responseOrgIds.OrganisationIds.FirstOrDefault()}");
-
+            // get the client name, extracted from the bearer token, and lookup client id
             string clientName = clientSession.ClientId;
             Console.WriteLine($"Client name = {clientName}");
             GetApplicationByClientIdResponse applicationResponse;
@@ -31,6 +28,20 @@ public static partial class OrganisationEndpoints
             }
 
             Console.WriteLine($"Client id = {application.Id}");
+
+            // get matching organisation ids from the UKPRN or UPIN
+            GetOrganisationIdsRequest model = new() { LookupKey = "UKPRN-multi", LookupValue = ukprn.ToString() };
+            var responseOrgIds = await interaction.DispatchAsync(model).To<GetOrganisationIdsResponse>();
+            Console.WriteLine($"First organisation id = {responseOrgIds.OrganisationIds.FirstOrDefault()}");
+
+            // get users of service at organisation
+            foreach (Guid orgId in responseOrgIds.OrganisationIds) {
+                Console.WriteLine($"organisation id = {orgId}");
+
+                GetServiceUsersAtOrganisationRequest serviceUsers = new() { OrganisationId = orgId, ApplicationId = application.Id };
+                GetServiceUsersAtOrganisationResponse serviceResponse = await interaction.DispatchAsync(serviceUsers).To<GetServiceUsersAtOrganisationResponse>();
+                Console.WriteLine($"First user id = {serviceResponse.UserIds.FirstOrDefault()}");
+            }
 
             string serviceId = "77D6B281-9F8D-4649-84B8-87FC42EEE71D";
             string organisationId = "5CCE9B88-D934-4130-89B9-0001B42B84FE";
