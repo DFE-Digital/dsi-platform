@@ -27,6 +27,11 @@ var selectOrgConfig = builder.Configuration.GetSection("SelectOrganisation");
 var internalApiConfig = builder.Configuration.GetSection("InternalApiClient");
 var redisConnectionString = redis.Resource.ConnectionStringExpression;
 
+// EntityFramework configuration sections
+var efOrganisationsConfig = builder.Configuration.GetSection("EntityFramework:Organisations");
+var efDirectoriesConfig = builder.Configuration.GetSection("EntityFramework:Directories");
+var efAuditConfig = builder.Configuration.GetSection("EntityFramework:Audit");
+
 builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
     .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
@@ -64,6 +69,21 @@ builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfil
     .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
     .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
     .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
+    // EntityFramework:Organisations
+    .WithEnvironment("EntityFramework__Organisations__Username", efOrganisationsConfig["Username"])
+    .WithEnvironment("EntityFramework__Organisations__Password", efOrganisationsConfig["Password"])
+    .WithEnvironment("EntityFramework__Organisations__Name", efOrganisationsConfig["Name"])
+    .WithEnvironment("EntityFramework__Organisations__Host", efOrganisationsConfig["Host"])
+    // EntityFramework:Directories
+    .WithEnvironment("EntityFramework__Directories__Username", efDirectoriesConfig["Username"])
+    .WithEnvironment("EntityFramework__Directories__Password", efDirectoriesConfig["Password"])
+    .WithEnvironment("EntityFramework__Directories__Name", efDirectoriesConfig["Name"])
+    .WithEnvironment("EntityFramework__Directories__Host", efDirectoriesConfig["Host"])
+    // EntityFramework:Audit
+    .WithEnvironment("EntityFramework__Audit__Username", efAuditConfig["Username"])
+    .WithEnvironment("EntityFramework__Audit__Password", efAuditConfig["Password"])
+    .WithEnvironment("EntityFramework__Audit__Name", efAuditConfig["Name"])
+    .WithEnvironment("EntityFramework__Audit__Host", efAuditConfig["Host"])
     .WaitFor(redis);
 
 builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");

@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.Applications;
@@ -55,7 +54,6 @@ public static partial class ApplicationEndpoints
             logger.LogError(ex, "Unexpected error while retrieving roles for clientId {ClientId}", clientId);
             throw;
         }
-
 
         var application = applicationResponse.Application;
         if (application == null) {
