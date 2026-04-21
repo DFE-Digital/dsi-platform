@@ -64,7 +64,7 @@ public static partial class ApplicationEndpoints
         // the old node version checks application parent id too, is this still needed??
         // if so we will need to include parent application id in the GetApplicationByClientIdResponse and check it here as well
         // also the client session should also inclide the service/application id to be able to validate the parent
-        if (application.ClientId != clientSession.ClientId) {
+        if (application.ClientId != clientSession.ClientId && application.ParentId != clientSession.ApplicationId) {
             return Results.Forbid();
         }
 
