@@ -2,9 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Applications;
 
-/// <summary>
-/// Endpoints for the "get application roles" feature.
-/// </summary>
 public static partial class ApplicationEndpoints
 {
     /// <summary>
