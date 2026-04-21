@@ -60,11 +60,11 @@ public static partial class ApplicationEndpoints
             return Results.NotFound();
         }
 
-        // TODO:
-        // the old node version checks application parent id too, is this still needed??
-        // if so we will need to include parent application id in the GetApplicationByClientIdResponse and check it here as well
-        // also the client session should also inclide the service/application id to be able to validate the parent
-        if (application.ClientId != clientSession.ClientId && application.ParentId != clientSession.ApplicationId) {
+        // Node.js logic: allow if client is the application or its parent
+        // NOTE: clientSession.ApplicationId must be available for full parity with Node.js logic
+        // If not present, extend IClientSession to include ApplicationId (Guid)
+        if (application.ClientId != clientSession.ClientId &&
+            (application.ParentClientId == null || application.ParentClientId != clientSession.ClientId)) {
             return Results.Forbid();
         }
 
@@ -74,11 +74,13 @@ public static partial class ApplicationEndpoints
             }
         ).To<GetApplicationRolesResponse>();
 
+
+        // Map status to "Active" if enum value is 1, else "Inactive"
         var roles = rolesResponse.Roles
             .Select(r => new ApplicationRoleDto {
                 Name = r.Name,
                 Code = r.Code,
-                Status = r.Status.ToString()
+                Status = (int)r.Status == 1 ? "Active" : "Inactive"
             });
 
         return Results.Ok(roles);

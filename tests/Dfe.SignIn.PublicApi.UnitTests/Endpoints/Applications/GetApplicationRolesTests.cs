@@ -1,5 +1,4 @@
 using Dfe.SignIn.Base.Framework;
-//using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.Applications;
@@ -61,7 +60,8 @@ public class GetApplicationRolesTests
 
         // Simulate requester is parent of the application
         var parentClientId = "parent-client-id";
-        var appWithParent = FakeApplication with { ClientId = "child-client-id" };
+        var parentId = new Guid("660e8400-e29b-41d4-a716-446655440000");
+        var appWithParent = FakeApplication with { ClientId = "child-client-id", ParentClientId = parentClientId, ParentId = parentId };
         clientSession = autoMocker.GetMock<IClientSession>().Object;
         autoMocker.GetMock<IClientSession>().SetupGet(x => x.ClientId).Returns(parentClientId);
 
