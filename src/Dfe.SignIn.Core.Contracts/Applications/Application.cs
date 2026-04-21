@@ -49,5 +49,10 @@ public sealed record Application
     /// <summary>
     /// Parent application ID, if this application is a child of another application.
     /// </summary>
-    public Guid? ParentId { get; set; }
+    public Guid? ParentId { get; init; }
+
+    /// <summary>
+    /// Parent application client ID, if this application is a child of another application.
+    /// </summary>
+    public string? ParentClientId { get; init; }
 }
