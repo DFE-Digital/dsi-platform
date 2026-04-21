@@ -45,4 +45,9 @@ public sealed record Application
     /// page if possible. Role based services are not hidden.
     /// </summary>
     public required bool IsHiddenService { get; init; }
+
+    /// <summary>
+    /// Parent application ID, if this application is a child of another application.
+    /// </summary>
+    public Guid? ParentId { get; set; }
 }
