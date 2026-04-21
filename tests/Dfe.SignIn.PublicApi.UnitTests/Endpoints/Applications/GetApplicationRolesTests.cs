@@ -53,6 +53,221 @@ public class GetApplicationRolesTests
     }
 
     [TestMethod]
+    public async Task ReturnsOkWithRoles_WhenRequesterIsParent()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        // Simulate requester is parent of the application
+        var parentClientId = "parent-client-id";
+        var appWithParent = FakeApplication with { ClientId = "child-client-id" };
+        clientSession = autoMocker.GetMock<IClientSession>().Object;
+        autoMocker.GetMock<IClientSession>().SetupGet(x => x.ClientId).Returns(parentClientId);
+
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = appWithParent }
+        );
+        autoMocker.MockResponse<GetApplicationRolesRequest>(FakeRolesResponse);
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            "child-client-id",
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(1, okResult.Value.Count());
+    }
+
+    [TestMethod]
+    public async Task ReturnsOkWithRoles_WhenRequesterIsSelf()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        // Simulate requester is the application itself
+        autoMocker.GetMock<IClientSession>().SetupGet(x => x.ClientId).Returns(FakeClientId);
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = FakeApplication }
+        );
+        autoMocker.MockResponse<GetApplicationRolesRequest>(FakeRolesResponse);
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(1, okResult.Value.Count());
+    }
+
+    [TestMethod]
+    public async Task ReturnsEmptyArray_WhenNoRoles()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = FakeApplication }
+        );
+        autoMocker.MockResponse<GetApplicationRolesRequest>(new GetApplicationRolesResponse { Roles = [] });
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(0, okResult.Value.Count());
+    }
+
+    [TestMethod]
+    public async Task ReturnsOnlyNameCodeStatusProperties_AsStrings()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        var roles = new[]
+        {
+            new ApplicationRole { Id = Guid.NewGuid(), Name = "Role One", Code = "Role1", NumericId = 1, Status = ApplicationRoleStatus.Active },
+            new ApplicationRole { Id = Guid.NewGuid(), Name = "Role Two", Code = "Role2", NumericId = 2, Status = ApplicationRoleStatus.Inactive }
+        };
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = FakeApplication }
+        );
+        autoMocker.MockResponse<GetApplicationRolesRequest>(new GetApplicationRolesResponse { Roles = roles });
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
+        Assert.IsNotNull(okResult);
+        foreach (var role in okResult.Value) {
+            var props = role.GetType().GetProperties().Select(p => p.Name).OrderBy(x => x).ToArray();
+            CollectionAssert.AreEqual(new[] { "Code", "Name", "Status" }, props);
+            Assert.IsInstanceOfType(role.Name, typeof(string));
+            Assert.IsInstanceOfType(role.Code, typeof(string));
+            Assert.IsInstanceOfType(role.Status, typeof(string));
+        }
+    }
+
+    [TestMethod]
+    public async Task ReturnsCorrectNameAndCode_ForMultipleRoles()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        var roles = new[]
+        {
+            new ApplicationRole { Id = Guid.NewGuid(), Name = "Role One", Code = "Role1", NumericId = 1, Status = ApplicationRoleStatus.Active },
+            new ApplicationRole { Id = Guid.NewGuid(), Name = "Role Two", Code = "Role2", NumericId = 2, Status = ApplicationRoleStatus.Inactive }
+        };
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = FakeApplication }
+        );
+        autoMocker.MockResponse<GetApplicationRolesRequest>(new GetApplicationRolesResponse { Roles = roles });
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
+        Assert.IsNotNull(okResult);
+        var resultList = okResult.Value.ToList();
+        Assert.AreEqual("Role One", resultList[0].Name);
+        Assert.AreEqual("Role1", resultList[0].Code);
+        Assert.AreEqual("Role Two", resultList[1].Name);
+        Assert.AreEqual("Role2", resultList[1].Code);
+    }
+
+    [TestMethod]
+    public async Task ReturnsStatusAsInactive_IfStatusIdIsZero()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        var roles = new[]
+        {
+            new ApplicationRole { Id = Guid.NewGuid(), Name = "Role One", Code = "Role1", NumericId = 1, Status = 0 }
+        };
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = FakeApplication }
+        );
+        autoMocker.MockResponse<GetApplicationRolesRequest>(new GetApplicationRolesResponse { Roles = roles });
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual("Inactive", okResult.Value.First().Status);
+    }
+
+    [TestMethod]
+    public async Task ReturnsStatusAsInactive_IfStatusPropertyMissing()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        // Simulate missing status by using default value (0)
+        var roles = new[]
+        {
+            new ApplicationRole { Id = Guid.NewGuid(), Name = "Role One", Code = "Role1", NumericId = 1, Status = 0  }
+        };
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
+            new GetApplicationByClientIdResponse { Application = FakeApplication }
+        );
+        autoMocker.MockResponse<GetApplicationRolesRequest>(new GetApplicationRolesResponse { Roles = roles });
+
+        var result = await ApplicationEndpoints.GetApplicationRoles(
+            FakeClientId,
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual("Inactive", okResult.Value.First().Status);
+    }
+
+    [TestMethod]
     public async Task ReturnsOkWithRoles_WhenAuthorized()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
