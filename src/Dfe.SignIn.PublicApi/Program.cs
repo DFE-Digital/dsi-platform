@@ -91,7 +91,8 @@ builder.Services
         builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
     .AddSelectOrganisationSessionCache()
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
-    .SetupSelectOrganisationInteractions();
+    .SetupSelectOrganisationInteractions()
+    .SetupApplicationInteractions();
 
 builder.Services
     .AddUnitOfWorkEntityFrameworkServices(
