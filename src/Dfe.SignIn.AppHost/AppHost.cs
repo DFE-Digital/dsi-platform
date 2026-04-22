@@ -69,17 +69,14 @@ builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfil
     .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
     .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
     .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
-    // EntityFramework:Organisations
     .WithEnvironment("EntityFramework__Organisations__Username", efOrganisationsConfig["Username"])
     .WithEnvironment("EntityFramework__Organisations__Password", efOrganisationsConfig["Password"])
     .WithEnvironment("EntityFramework__Organisations__Name", efOrganisationsConfig["Name"])
     .WithEnvironment("EntityFramework__Organisations__Host", efOrganisationsConfig["Host"])
-    // EntityFramework:Directories
     .WithEnvironment("EntityFramework__Directories__Username", efDirectoriesConfig["Username"])
     .WithEnvironment("EntityFramework__Directories__Password", efDirectoriesConfig["Password"])
     .WithEnvironment("EntityFramework__Directories__Name", efDirectoriesConfig["Name"])
     .WithEnvironment("EntityFramework__Directories__Host", efDirectoriesConfig["Host"])
-    // EntityFramework:Audit
     .WithEnvironment("EntityFramework__Audit__Username", efAuditConfig["Username"])
     .WithEnvironment("EntityFramework__Audit__Password", efAuditConfig["Password"])
     .WithEnvironment("EntityFramework__Audit__Name", efAuditConfig["Name"])
