@@ -24,7 +24,7 @@ public sealed class GetRolesOfUserNodeRequester(
             cancellationToken
         );
 
-        IEnumerable<string> roles = response?.Roles?.Select(x => x.Name) ?? [];
+        IEnumerable<string> roles = response?.Roles?.Select(x => x.Code) ?? [];
 
         return new GetRolesOfUserResponse { Roles = roles };
     }

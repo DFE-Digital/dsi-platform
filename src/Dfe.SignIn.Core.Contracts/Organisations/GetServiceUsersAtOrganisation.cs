@@ -23,5 +23,5 @@ public sealed record GetServiceUsersAtOrganisationRequest
 /// Response model for request <see cref="GetServiceUsersAtOrganisationRequest"/>.
 /// </summary>
 public record GetServiceUsersAtOrganisationResponse(
-   IOrderedEnumerable<Guid> UserIds
+   IEnumerable<Guid> UserIds
 );

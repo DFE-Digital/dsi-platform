@@ -4,7 +4,6 @@ namespace Dfe.SignIn.PublicApi.Endpoints.Organisations;
 
 /// <summary>
 /// Endpoints for organisation features.
-/// sjw 3
 /// </summary>
 public static partial class OrganisationEndpoints
 {

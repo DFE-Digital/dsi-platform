@@ -22,11 +22,6 @@ public static partial class OrganisationEndpoints
         IClientSession clientSession,
         IInteractionDispatcher interaction)
     {
-
-        List<UserAtOrganisation> users = [];
-
-        var userRoles = new Dictionary<Guid, HashSet<string>>();
-
         try {
 
             var applicationId = await FetchApplicationIdFromNode(interaction, clientSession.ClientId);
@@ -39,71 +34,13 @@ public static partial class OrganisationEndpoints
                 return TypedResults.NotFound();
             }
 
-            foreach (Guid orgId in organisationIds) {
-                Console.WriteLine($"organisation id = {orgId}");
+            var userRoles = await GetUserIdsAndRoles(interaction, applicationId.Value, organisationIds);
 
-                var userIds = await FetchUserIdsFromNode(interaction, orgId, applicationId.Value);
+            var users = await GetUserDetails(interaction, userRoles);
 
-                if (userIds == null) {
-                    continue;
-                }
+            var responseModel = new GetUsersAtOrganisationResponse(ukprn.ToString(), users);
 
-                foreach (var userId in userIds) {
-
-                    if (!userRoles.TryGetValue(userId, out var value)) {
-                        value = [];
-                        userRoles[userId] = value;
-                    }
-
-                    var rolesList = await FetchUserRolesFromNode(interaction, orgId, applicationId.Value, userId);
-
-                    if (rolesList != null) {
-                        foreach (string role in rolesList) {
-                            value.Add(role);
-                        }
-                    }
-                }
-            }
-
-            int i = 0;
-            foreach (var (userId, roles) in userRoles) {
-                Console.WriteLine($"{i++} userId = {userId}");
-            }
-            Console.WriteLine("=======================================");
-
-            i = 0;
-            foreach (var (userId, roles) in userRoles) {
-                Console.WriteLine($"{i++} userId = {userId}");
-
-                Console.WriteLine($"First role = {roles?.FirstOrDefault()}");
-
-                try {
-                    var userProfile = await FetchUserProfileFromNode(interaction, userId);
-
-                    if (userProfile != null) {
-                        UserAtOrganisation user = new(
-                            userProfile.EmailAddress,
-                            userProfile.FirstName,
-                            userProfile.LastName,
-                            0,
-                            roles != null ? roles.ToList().AsReadOnly() : []
-                        );
-                        users.Add(user);
-                    }
-                    Console.WriteLine($"First name = {userProfile.FirstName}");
-                    Console.WriteLine($"Family name = {userProfile.LastName}");
-                    Console.WriteLine($"Email = {userProfile.EmailAddress}");
-                    Console.WriteLine($"User status = {userProfile.IsInternalUser}"); // must have a status coming
-                }
-                catch (Exception prob) {
-                    Console.WriteLine("************** Broken *************");
-                    Console.WriteLine(prob.GetBaseException().Message);
-                }
-            }
-
-            var responseModel = new GetUsersAtOrganisationResponse(ukprn, users);
             return TypedResults.Ok(responseModel);
-
         }
         catch (NotFoundInteractionException) {
             return TypedResults.NotFound();
@@ -150,6 +87,78 @@ public static partial class OrganisationEndpoints
     }
 
     /// <summary>
+    /// Get user ids along with the roles of the user.
+    /// </summary>
+    /// <param name="interaction"></param>
+    /// <param name="applicationId"></param>
+    /// <param name="organisationIds"></param>
+    /// <returns></returns>
+    private static async Task<Dictionary<Guid, HashSet<string>>> GetUserIdsAndRoles(IInteractionDispatcher interaction, Guid applicationId, IEnumerable<Guid> organisationIds)
+    {
+        var userRoles = new Dictionary<Guid, HashSet<string>>();
+        foreach (Guid orgId in organisationIds) {
+
+            var userIds = await FetchUserIdsFromNode(interaction, orgId, applicationId);
+
+            if (userIds == null) {
+                continue;
+            }
+
+            foreach (var userId in userIds) {
+
+                if (!userRoles.TryGetValue(userId, out var value)) {
+                    value = [];
+                    userRoles[userId] = value;
+                }
+
+                var rolesList = await FetchUserRolesFromNode(interaction, orgId, applicationId, userId);
+
+                if (rolesList != null) {
+                    foreach (string role in rolesList) {
+                        value.Add(role);
+                    }
+                }
+            }
+        }
+
+        return userRoles;
+    }
+
+    /// <summary>
+    /// Get user details, e.g. their names.
+    /// </summary>
+    /// <param name="interaction"></param>
+    /// <param name="userRoles"></param>
+    /// <returns></returns>
+    private static async Task<List<UserAtOrganisation>> GetUserDetails(IInteractionDispatcher interaction, Dictionary<Guid, HashSet<string>> userRoles)
+    {
+        List<UserAtOrganisation> users = [];
+        foreach (var (userId, roles) in userRoles) {
+
+            try {
+                var userProfile = await FetchUserProfileFromNode(interaction, userId);
+
+                if (userProfile != null) {
+                    UserAtOrganisation user = new(
+                        userProfile.EmailAddress,
+                        userProfile.FirstName,
+                        userProfile.LastName,
+                        userProfile.Status,
+                        roles != null ? roles.ToList().AsReadOnly() : []
+                    );
+                    users.Add(user);
+                }
+            }
+            catch (Exception ex) {
+                Console.WriteLine("************** Broken *************");
+                Console.WriteLine(ex.GetBaseException().Message);
+            }
+        }
+
+        return users;
+    }
+
+    /// <summary>
     /// Get user ids of service at organisation.
     /// </summary>
     /// <param name="interaction"></param>
@@ -185,7 +194,6 @@ public static partial class OrganisationEndpoints
 
         return response?.Roles;
     }
-
 
     private static async Task<GetUserProfileResponse?> FetchUserProfileFromNode(IInteractionDispatcher interaction, Guid userId)
     {

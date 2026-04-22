@@ -24,7 +24,7 @@ public sealed class GetServiceUsersAtOrganisationNodeRequester(
             cancellationToken
         );
 
-        var userIds = (response?.Select(x => x.Id) ?? []).OrderBy(x => x);
+        var userIds = response?.Select(x => x.Id) ?? [];
 
         // users for the organisation and the service
         return new GetServiceUsersAtOrganisationResponse(userIds);

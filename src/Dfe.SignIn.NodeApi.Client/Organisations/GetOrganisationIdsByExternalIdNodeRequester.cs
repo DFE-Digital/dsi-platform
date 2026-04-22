@@ -24,9 +24,7 @@ public sealed class GetOrganisationIdsNodeRequester(
              cancellationToken
         );
 
-        var organisations = response?.Select(org => org.MapToOrganisation(Core.Public.OrganisationStatus.Open, "Establishment", null)) ?? [];
-
-        var orgIds = organisations.Select(x => x.Id);
+        var orgIds = response?.Select(org => org.Id) ?? [];
 
         return new GetOrganisationIdsByExternalIdResponse {
             OrganisationIds = orgIds
