@@ -291,7 +291,7 @@ public class GetApplicationRolesTests
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
         var roles = okResult.Value!.ToList();
-        Assert.AreEqual(1, roles.Count);
+        Assert.HasCount(1, roles);
         Assert.AreEqual("DSI Child One", roles[0].Name);
         Assert.AreEqual("DSI_Child_One", roles[0].Code);
         Assert.AreEqual("Active", roles[0].Status);
@@ -347,7 +347,7 @@ public class GetApplicationRolesTests
         Assert.IsNotNull(logInvocation, "Log was not called");
         var logMessage = logInvocation.Arguments[2]?.ToString();
         Assert.IsNotNull(logMessage);
-        Assert.IsTrue(logMessage.Contains(FakeClientId));
-        Assert.IsTrue(logMessage.Contains("corr-123"));
+        Assert.Contains(FakeClientId, logMessage);
+        Assert.Contains("corr-123", logMessage);
     }
 }
