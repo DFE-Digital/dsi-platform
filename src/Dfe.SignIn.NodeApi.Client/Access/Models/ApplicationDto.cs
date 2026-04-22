@@ -1,3 +1,5 @@
+
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Access;
 
 namespace Dfe.SignIn.NodeApi.Client.Access.Models;
@@ -12,6 +14,8 @@ internal sealed record ApplicationDto
     public required DateTime AccessGrantedOn { get; init; }
 }
 
+// Excluded from code coverage because this is a pure data transfer object (DTO) with no logic.
+[ExcludeFromCodeCoverage]
 internal sealed record RoleDto
 {
     public required Guid Id { get; init; }
@@ -22,11 +26,15 @@ internal sealed record RoleDto
     public RoleDto? Parent { get; init; }
 }
 
+// Excluded from code coverage because this is a pure DTO with no logic.
+[ExcludeFromCodeCoverage]
 internal sealed record StatusDto
 {
     public required ApplicationRoleStatus Id { get; init; }
 }
 
+// Excluded from code coverage because this is a pure DTO with no logic.
+[ExcludeFromCodeCoverage]
 internal sealed record IdentifiersDto
 {
     public required string Key { get; init; }
