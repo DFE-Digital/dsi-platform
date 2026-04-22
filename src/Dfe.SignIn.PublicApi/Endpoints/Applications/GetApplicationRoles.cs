@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Applications;
 
+/// <summary>
+/// A collection of endpoints related to service applications, including retrieving application roles.
+/// </summary>
 public static partial class ApplicationEndpoints
 {
     /// <summary>
@@ -60,9 +63,6 @@ public static partial class ApplicationEndpoints
             return Results.NotFound();
         }
 
-        // Node.js logic: allow if client is the application or its parent
-        // NOTE: clientSession.ApplicationId must be available for full parity with Node.js logic
-        // If not present, extend IClientSession to include ApplicationId (Guid)
         if (application.ClientId != clientSession.ClientId &&
             (application.ParentClientId == null || application.ParentClientId != clientSession.ClientId)) {
             return Results.Forbid();
@@ -74,13 +74,11 @@ public static partial class ApplicationEndpoints
             }
         ).To<GetApplicationRolesResponse>();
 
-
-        // Map status to "Active" if enum value is 1, else "Inactive"
         var roles = rolesResponse.Roles
             .Select(r => new ApplicationRoleDto {
                 Name = r.Name,
                 Code = r.Code,
-                Status = (int)r.Status == 1 ? "Active" : "Inactive"
+                Status = r.Status == ApplicationRoleStatus.Active ? "Active" : "Inactive"
             });
 
         return Results.Ok(roles);

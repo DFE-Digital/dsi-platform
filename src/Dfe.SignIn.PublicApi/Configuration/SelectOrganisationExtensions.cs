@@ -1,5 +1,4 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.UseCases.Applications;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
@@ -16,13 +15,13 @@ public static class SelectOrganisationExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
-    public static void SetupSelectOrganisationInteractions(this IServiceCollection services)
+    public static IServiceCollection SetupSelectOrganisationInteractions(this IServiceCollection services)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddInteractor<CreateSelectOrganisationSessionUseCase>();
         services.AddInteractor<FilterOrganisationsForUserUseCase>();
 
-        services.AddInteractor<GetApplicationRolesUseCase>();
+        return services;
     }
 }
