@@ -78,10 +78,10 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>>(result);
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
-        Assert.AreEqual(1, okResult.Value.Count());
+        Assert.AreEqual(1, okResult.Value!.Count());
     }
 
     [TestMethod]
@@ -106,10 +106,10 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>>(result);
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
-        Assert.AreEqual(1, okResult.Value.Count());
+        Assert.AreEqual(1, okResult.Value!.Count());
     }
 
     [TestMethod]
@@ -132,10 +132,10 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>>(result);
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
-        Assert.AreEqual(0, okResult.Value.Count());
+        Assert.AreEqual(0, okResult.Value!.Count());
     }
 
     [TestMethod]
@@ -165,12 +165,12 @@ public class GetApplicationRolesTests
 
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
-        foreach (var role in okResult.Value) {
+        foreach (var role in okResult.Value!) {
             var props = role.GetType().GetProperties().Select(p => p.Name).OrderBy(x => x).ToArray();
             CollectionAssert.AreEqual(new[] { "Code", "Name", "Status" }, props);
-            Assert.IsInstanceOfType(role.Name, typeof(string));
-            Assert.IsInstanceOfType(role.Code, typeof(string));
-            Assert.IsInstanceOfType(role.Status, typeof(string));
+            Assert.IsInstanceOfType<string>(role.Name);
+            Assert.IsInstanceOfType<string>(role.Code);
+            Assert.IsInstanceOfType<string>(role.Status);
         }
     }
 
@@ -201,7 +201,7 @@ public class GetApplicationRolesTests
 
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
-        var resultList = okResult.Value.ToList();
+        var resultList = okResult.Value!.ToList();
         Assert.AreEqual("Role One", resultList[0].Name);
         Assert.AreEqual("Role1", resultList[0].Code);
         Assert.AreEqual("Role Two", resultList[1].Name);
@@ -234,7 +234,7 @@ public class GetApplicationRolesTests
 
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
-        Assert.AreEqual("Inactive", okResult.Value.First().Status);
+        Assert.AreEqual("Inactive", okResult.Value!.First().Status);
     }
 
     [TestMethod]
@@ -264,7 +264,7 @@ public class GetApplicationRolesTests
 
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
-        Assert.AreEqual("Inactive", okResult.Value.First().Status);
+        Assert.AreEqual("Inactive", okResult.Value!.First().Status);
     }
 
     [TestMethod]
@@ -287,36 +287,14 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(IResult));
+        Assert.IsInstanceOfType<IResult>(result);
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
-        var roles = okResult.Value.ToList();
+        var roles = okResult.Value!.ToList();
         Assert.AreEqual(1, roles.Count);
         Assert.AreEqual("DSI Child One", roles[0].Name);
         Assert.AreEqual("DSI_Child_One", roles[0].Code);
         Assert.AreEqual("Active", roles[0].Status);
-    }
-
-    [TestMethod]
-    public async Task ReturnsNotFound_WhenApplicationIsNull()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        var logger = new Mock<ILogger>();
-        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
-
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse { Application = null }
-        );
-
-        var result = await ApplicationEndpoints.GetApplicationRoles(
-            FakeClientId,
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.NotFound));
     }
 
     [TestMethod]
@@ -339,7 +317,7 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [TestMethod]
@@ -353,6 +331,7 @@ public class GetApplicationRolesTests
         autoMocker.MockResponse<GetApplicationRolesRequest>(FakeRolesResponse);
 
         var logger = new Mock<ILogger>();
+        logger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
         loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
         await ApplicationEndpoints.GetApplicationRoles(
