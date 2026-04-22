@@ -2,6 +2,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Applications;
 
+/// <summary>
+/// A collection of endpoints related to service applications, including retrieving application roles.
+/// </summary>
 public static partial class ApplicationEndpoints
 {
     /// <summary>
