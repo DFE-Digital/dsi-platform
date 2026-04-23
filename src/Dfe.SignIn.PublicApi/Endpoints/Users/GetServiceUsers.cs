@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.PublicApi.Authorization;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Users;
@@ -34,24 +36,132 @@ public static partial class UserEndpoints
             clientCorrelationId
         );
 
-        // Extract pagination parameters from query string
-        var page = 1;
-        var pageSize = 25;
-        if (httpContext.Request.Query.TryGetValue("page", out var pageValues) && int.TryParse(pageValues, out var parsedPage)) {
-            page = parsedPage;
-        }
-        if (httpContext.Request.Query.TryGetValue("pageSize", out var pageSizeValues) && int.TryParse(pageSizeValues, out var parsedPageSize)) {
-            pageSize = parsedPageSize;
+        //// 1. Extract query parameters
+        //var pageStr = ExtractParam(httpContext, "page", "1");
+        //var pageSizeStr = ExtractParam(httpContext, "pageSize", "25");
+        //var status = ExtractParam(httpContext, "status");
+        //var from = ExtractParam(httpContext, "from");
+        //var to = ExtractParam(httpContext, "to");
+
+        //// 2. Validate page/pageSize
+        //if (!int.TryParse(pageStr, out var page)) {
+        //    return Results.BadRequest($"{pageStr} is not a valid value for page. Expected a number");
+        //}
+        //if (!int.TryParse(pageSizeStr, out var pageSize)) {
+        //    return Results.BadRequest($"{pageSizeStr} is not a valid value for pageSize. Expected a number");
+        //}
+
+        //DateTime? fromDate = null;
+        //DateTime? toDate = null;
+        //string? dateRange = null;
+        //string? warning = null;
+        //const int duration = 90;
+
+        //// 3. Filtered path validation
+        //if (!string.IsNullOrEmpty(status) || !string.IsNullOrEmpty(from) || !string.IsNullOrEmpty(to)) {
+        //    if (!string.IsNullOrEmpty(status) && status != "0" && status != "1") {
+        //        return Results.BadRequest("Status is not valid. Should be either 0 or 1.");
+        //    }
+
+        //    if (!string.IsNullOrEmpty(to)) {
+        //        if (!DateTime.TryParse(to, out var parsedTo)) {
+        //            return Results.BadRequest("To date is not a valid date.");
+        //        }
+        //        toDate = parsedTo.ToUniversalTime();
+        //    }
+
+        //    if (!string.IsNullOrEmpty(from)) {
+        //        if (!DateTime.TryParse(from, out var parsedFrom)) {
+        //            return Results.BadRequest("From date is not a valid date.");
+        //        }
+        //        fromDate = parsedFrom.ToUniversalTime();
+        //    }
+
+        //    if (fromDate.HasValue && toDate.HasValue) {
+        //        if (IsFutureDate(fromDate.Value) && IsFutureDate(toDate.Value)) {
+        //            return Results.BadRequest("Date range should not be in the future");
+        //        }
+
+        //        if (fromDate.Value > toDate.Value) {
+        //            return Results.BadRequest("From date greater than to date");
+        //        }
+
+        //        var timeDifference = toDate.Value - fromDate.Value;
+        //        if (Math.Abs(timeDifference.TotalDays) > duration) {
+        //            return Results.BadRequest($"Only {duration} days are allowed between dates");
+        //        }
+        //    }
+        //    else if (fromDate.HasValue || toDate.HasValue) {
+        //        var selectedDate = fromDate ?? toDate;
+        //        if (selectedDate.HasValue && IsFutureDate(selectedDate.Value)) {
+        //            return Results.BadRequest("Date range should not be in the future");
+        //        }
+        //    }
+
+        //    // 4. Date auto-fill (findDateRange)
+        //    var isWarning = false;
+        //    (fromDate, toDate, isWarning) = FindDateRange(toDate, fromDate, duration);
+
+        //    if (isWarning) {
+        //        warning = $"Only {duration} days of data can be fetched";
+        //    }
+
+        //    if (fromDate.HasValue && toDate.HasValue) {
+        //        dateRange = $"Users between {fromDate.Value:ddd, dd MMM yyyy HH:mm:ss} GMT and {toDate.Value:ddd, dd MMM yyyy HH:mm:ss} GMT";
+        //    }
+        //}
+
+        // 5. Resolve clientId to Application
+        var applicationResponse = await interaction.DispatchAsync(
+            new GetApplicationByClientIdRequest { ClientId = clientSession.ClientId }
+        ).To<GetApplicationByClientIdResponse>();
+
+        if (applicationResponse.Application == null) {
+            return Results.NotFound();
         }
 
-        // Call the use case (Interactor)
+        // 6. Call the use case
         var response = await interaction.DispatchAsync(
-            new Core.Contracts.Users.GetServiceUsersRequest {
-                PageNumber = page,
-                PageSize = pageSize
+            new GetServiceUsersRequest {
+                ApplicationId = applicationResponse.Application.Id,
+                //PageNumber = page,
+                //PageSize = pageSize,
+                //Status = status,
+                //DateFrom = fromDate,
+                //DateTo = toDate
             }
-        ).To<Core.Contracts.Users.GetServiceUsersResponse>();
+        ).To<GetServiceUsersResponse>();
 
         return Results.Ok(response);
     }
+
+    //private static string? ExtractParam(HttpContext context, string name, string? defaultValue = null)
+    //{
+    //    var key = context.Request.Query.Keys.FirstOrDefault(k => k.Equals(name, StringComparison.OrdinalIgnoreCase));
+    //    return key != null ? context.Request.Query[key].ToString() : defaultValue;
+    //}
+
+    //private static bool IsFutureDate(DateTime date)
+    //{
+    //    return date > DateTime.UtcNow;
+    //}
+
+    //private static (DateTime?, DateTime?, bool) FindDateRange(DateTime? toDate, DateTime? fromDate, int duration)
+    //{
+    //    var isWarning = false;
+    //    if (toDate.HasValue && !fromDate.HasValue) {
+    //        fromDate = toDate.Value.AddDays(-duration);
+    //        isWarning = true;
+    //    }
+    //    else if (!toDate.HasValue && fromDate.HasValue) {
+    //        toDate = fromDate.Value.AddDays(duration);
+    //        isWarning = true;
+    //    }
+    //    else if (!toDate.HasValue && !fromDate.HasValue) {
+    //        toDate = DateTime.UtcNow;
+    //        fromDate = toDate.Value.AddDays(-duration);
+    //        isWarning = true;
+    //    }
+    //    return (fromDate, toDate, isWarning);
+    //}
 }
