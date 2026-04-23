@@ -92,7 +92,8 @@ builder.Services
     .AddSelectOrganisationSessionCache()
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
     .SetupSelectOrganisationInteractions()
-    .SetupApplicationInteractions();
+    .SetupApplicationInteractions()
+    .SetupUserInteractions();
 
 builder.Services
     .AddUnitOfWorkEntityFrameworkServices(
