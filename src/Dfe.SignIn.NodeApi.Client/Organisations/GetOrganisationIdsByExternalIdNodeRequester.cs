@@ -24,7 +24,7 @@ public sealed class GetOrganisationIdsNodeRequester(
              cancellationToken
         );
 
-        var orgIds = response?.Select(org => org.Id) ?? [];
+        var orgIds = response?.Select(org => org.Id);
 
         return new GetOrganisationIdsByExternalIdResponse {
             OrganisationIds = orgIds

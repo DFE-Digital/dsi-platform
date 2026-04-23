@@ -27,5 +27,5 @@ public sealed record GetOrganisationIdsByExternalIdResponse
     /// <summary>
     /// An enumerable collection of organisations ids.
     /// </summary>
-    public required IEnumerable<Guid> OrganisationIds { get; init; }
+    public required IEnumerable<Guid>? OrganisationIds { get; init; }
 }
