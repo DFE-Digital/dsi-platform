@@ -80,7 +80,7 @@ public static partial class ApplicationEndpoints
             .Select(r => new ApplicationRoleDto {
                 Name = r.Name,
                 Code = r.Code,
-                Status = r.Status == ApplicationRoleStatus.Active ? "Active" : "Inactive"
+                Status = r.Status.ToString()
             });
 
         return Results.Ok(roles);
