@@ -1,20 +1,20 @@
-using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.Core.Contracts.Users;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Users;
 
-/// <summary>
-/// Endpoints for user feature.
-/// </summary>
 public static partial class UserEndpoints
 {
-    /// <summary>
-    /// Registers all endpoints for user features.
-    /// </summary>
-    /// <param name="app">The application instance.</param>
-    [ExcludeFromCodeCoverage]
-    public static void UseUserEndpoints(this WebApplication app)
+    public static void UseUserEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("v2/users/{userId}/organisations/{organisationId}/query", PostQueryUserOrganisation);
-        app.MapGet("/users", GetServiceUsers);
+        app.MapGet("/users", GetServiceUsers)
+            .WithName("GetServiceUsersRequest")
+            .WithTags("Users")
+            .Produces<GetServiceUsersResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
     }
 }
