@@ -19,46 +19,37 @@ public static partial class OrganisationEndpoints
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
     public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
-        int ukprn,
+        string ukprn,
         IClientSession clientSession,
         IInteractionDispatcher interaction)
     {
-        try
-        {
+        try {
 
             var applicationId = await FetchApplicationIdFromNode(interaction, clientSession.ClientId);
-            if (applicationId == null)
-            {
+            if (applicationId == null) {
                 return TypedResults.NotFound();
             }
 
-            var organisationIds = await FetchOrganisationIdsFromNode(interaction, ukprn.ToString());
-            if (organisationIds == null || !organisationIds.Any())
-            {
+            var organisationIds = await FetchOrganisationIdsFromNode(interaction, ukprn);
+            if (organisationIds == null || !organisationIds.Any()) {
                 return TypedResults.NotFound();
             }
 
             var userRoles = await GetUserIdsAndRoles(interaction, applicationId.Value, organisationIds);
 
-            var users = await GetUserNameandEmailandStatus(interaction, userRoles);
+            var users = await GetNameandEmailandStatusOfUsers(interaction, userRoles);
 
             var responseModel = new GetUsersAtOrganisationResponse(ukprn.ToString(), users);
 
             return TypedResults.Ok(responseModel);
         }
-        catch (NotFoundInteractionException ex)
-        {
-            Console.WriteLine(ex.GetBaseException().Message);
-
+        catch (NotFoundInteractionException) {
             return TypedResults.NotFound();
         }
-        catch (Exception ex)
-        {
-            // ideally log error
-            Console.WriteLine(ex.GetBaseException().Message);
+        catch (Exception) {
+
             return TypedResults.InternalServerError(
-                new ProblemDetails
-                {
+                new ProblemDetails {
                     Title = "Internal Server Error",
                     Detail = "Something unexpected happened while processing your request.",
                     Status = StatusCodes.Status500InternalServerError
@@ -109,31 +100,25 @@ public static partial class OrganisationEndpoints
     private static async Task<Dictionary<Guid, HashSet<string>>> GetUserIdsAndRoles(IInteractionDispatcher interaction, Guid applicationId, IEnumerable<Guid> organisationIds)
     {
         var userRoles = new Dictionary<Guid, HashSet<string>>();
-        foreach (Guid orgId in organisationIds)
-        {
+        foreach (Guid orgId in organisationIds) {
 
             var userIds = await FetchUserIdsFromNode(interaction, orgId, applicationId);
 
-            if (userIds == null)
-            {
+            if (userIds == null) {
                 continue;
             }
 
-            foreach (var userId in userIds)
-            {
+            foreach (var userId in userIds) {
 
-                if (!userRoles.TryGetValue(userId, out var value))
-                {
+                if (!userRoles.TryGetValue(userId, out var value)) {
                     value = [];
                     userRoles[userId] = value;
                 }
 
                 var rolesList = await FetchUserRolesFromNode(interaction, orgId, applicationId, userId);
 
-                if (rolesList != null)
-                {
-                    foreach (string role in rolesList)
-                    {
+                if (rolesList != null) {
+                    foreach (string role in rolesList) {
                         value.Add(role);
                     }
                 }
@@ -149,18 +134,15 @@ public static partial class OrganisationEndpoints
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="userRoles">Service roles codes for users.</param>
     /// <returns>User names, email addresses, and statuses</returns>
-    private static async Task<List<UserAtOrganisation>> GetUserNameandEmailandStatus(IInteractionDispatcher interaction, Dictionary<Guid, HashSet<string>> userRoles)
+    private static async Task<List<UserAtOrganisation>> GetNameandEmailandStatusOfUsers(IInteractionDispatcher interaction, Dictionary<Guid, HashSet<string>> userRoles)
     {
         List<UserAtOrganisation> users = [];
-        foreach (var (userId, roles) in userRoles)
-        {
+        foreach (var (userId, roles) in userRoles) {
 
-            try
-            {
+            try {
                 var userProfile = await FetchUserProfileFromNode(interaction, userId);
 
-                if (userProfile != null)
-                {
+                if (userProfile != null) {
                     UserAtOrganisation user = new(
                         userProfile.EmailAddress,
                         userProfile.FirstName,
@@ -171,8 +153,7 @@ public static partial class OrganisationEndpoints
                     users.Add(user);
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 // should really check for 404 but catching NotFoundInteractionException does not work
                 Console.WriteLine(ex.GetBaseException().Message);
             }
@@ -193,13 +174,11 @@ public static partial class OrganisationEndpoints
         GetServiceUsersAtOrganisationRequest serviceUsersRequest = new() { OrganisationId = organisationId, ApplicationId = applicationId };
         var response = await interaction.DispatchAsync(serviceUsersRequest).To<GetServiceUsersAtOrganisationResponse>();
 
-        IEnumerable<Guid>? userIds = response?.UserIds;
-
-        return userIds;
+        return response?.UserIds;
     }
 
     /// <summary>
-    /// Get user service roles for user at organisation.
+    /// Get service roles of a user at organisation.
     /// </summary>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="organisationId">Unique identifier of the organisation.</param>

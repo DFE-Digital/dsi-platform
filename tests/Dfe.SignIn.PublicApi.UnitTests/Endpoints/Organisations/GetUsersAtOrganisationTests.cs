@@ -13,7 +13,7 @@ namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Organisations;
 [TestClass]
 public sealed class GetUsersAtOrganisationTests
 {
-    private static readonly int FakeUkprn = 10000001;
+    private static readonly string FakeUkprn = "10000001";
     private static readonly Guid FakeApplicationId = new("a1b2c3d4-e5f6-4789-a1b2-c3d4e5f6a1b2");
     private static readonly Guid FakeOrganisationId1 = new("b2c3d4e5-f6a1-47b2-c3d4-e5f6a1b2c3d4");
     private static readonly Guid FakeOrganisationId2 = new("c3d4e5f6-a1b2-47c3-d4e5-f6a1b2c3d4e5");
@@ -22,8 +22,7 @@ public sealed class GetUsersAtOrganisationTests
 
     private const string FakeApplicationClientId = "test-service-client";
 
-    private static readonly GetUserProfileResponse FakeUserProfile1 = new()
-    {
+    private static readonly GetUserProfileResponse FakeUserProfile1 = new() {
         IsEntra = false,
         IsInternalUser = false,
         EmailAddress = "user1@example.com",
@@ -44,8 +43,7 @@ public sealed class GetUsersAtOrganisationTests
 
     private static Application CreateFakeApplication()
     {
-        return new()
-        {
+        return new() {
             Id = FakeApplicationId,
             ClientId = FakeApplicationClientId,
             Name = "Test App",
@@ -61,8 +59,7 @@ public sealed class GetUsersAtOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse
-            {
+            new GetApplicationByClientIdResponse {
                 Application = null,
             }
         );
@@ -82,15 +79,13 @@ public sealed class GetUsersAtOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse
-            {
+            new GetApplicationByClientIdResponse {
                 Application = CreateFakeApplication(),
             }
         );
 
         autoMocker.MockResponse<GetOrganisationIdsByExternalIdRequest>(
-            new GetOrganisationIdsByExternalIdResponse
-            {
+            new GetOrganisationIdsByExternalIdResponse {
                 OrganisationIds = [],
             }
         );
@@ -110,15 +105,13 @@ public sealed class GetUsersAtOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse
-            {
+            new GetApplicationByClientIdResponse {
                 Application = CreateFakeApplication(),
             }
         );
 
         autoMocker.MockResponse<GetOrganisationIdsByExternalIdRequest>(
-            new GetOrganisationIdsByExternalIdResponse
-            {
+            new GetOrganisationIdsByExternalIdResponse {
                 OrganisationIds = null,
             }
         );
@@ -138,15 +131,13 @@ public sealed class GetUsersAtOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse
-            {
+            new GetApplicationByClientIdResponse {
                 Application = CreateFakeApplication(),
             }
         );
 
         autoMocker.MockResponse<GetOrganisationIdsByExternalIdRequest>(
-            new GetOrganisationIdsByExternalIdResponse
-            {
+            new GetOrganisationIdsByExternalIdResponse {
                 OrganisationIds = [FakeOrganisationId1],
             }
         );
@@ -156,8 +147,7 @@ public sealed class GetUsersAtOrganisationTests
         );
 
         autoMocker.MockResponse<GetRolesOfUserRequest>(
-            new GetRolesOfUserResponse
-            {
+            new GetRolesOfUserResponse {
                 Roles = ["Admin", "Viewer"],
             }
         );
@@ -186,15 +176,13 @@ public sealed class GetUsersAtOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse
-            {
+            new GetApplicationByClientIdResponse {
                 Application = CreateFakeApplication(),
             }
         );
 
         autoMocker.MockResponse<GetOrganisationIdsByExternalIdRequest>(
-            new GetOrganisationIdsByExternalIdResponse
-            {
+            new GetOrganisationIdsByExternalIdResponse {
                 OrganisationIds = [FakeOrganisationId1],
             }
         );
@@ -223,15 +211,13 @@ public sealed class GetUsersAtOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse
-            {
+            new GetApplicationByClientIdResponse {
                 Application = CreateFakeApplication(),
             }
         );
 
         autoMocker.MockResponse<GetOrganisationIdsByExternalIdRequest>(
-            new GetOrganisationIdsByExternalIdResponse
-            {
+            new GetOrganisationIdsByExternalIdResponse {
                 OrganisationIds = [FakeOrganisationId1, FakeOrganisationId2],
             }
         );
@@ -241,8 +227,7 @@ public sealed class GetUsersAtOrganisationTests
         );
 
         autoMocker.MockResponse<GetRolesOfUserRequest>(
-            new GetRolesOfUserResponse
-            {
+            new GetRolesOfUserResponse {
                 Roles = ["Admin"],
             }
         );
@@ -270,15 +255,13 @@ public sealed class GetUsersAtOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse
-            {
+            new GetApplicationByClientIdResponse {
                 Application = CreateFakeApplication(),
             }
         );
 
         autoMocker.MockResponse<GetOrganisationIdsByExternalIdRequest>(
-            new GetOrganisationIdsByExternalIdResponse
-            {
+            new GetOrganisationIdsByExternalIdResponse {
                 OrganisationIds = [FakeOrganisationId1],
             }
         );
@@ -289,8 +272,7 @@ public sealed class GetUsersAtOrganisationTests
 
         var rolesList = new[] { "Admin", "Editor", "Viewer" };
         autoMocker.MockResponse<GetRolesOfUserRequest>(
-            new GetRolesOfUserResponse
-            {
+            new GetRolesOfUserResponse {
                 Roles = rolesList,
             }
         );
@@ -324,15 +306,13 @@ public sealed class GetUsersAtOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
-            new GetApplicationByClientIdResponse
-            {
+            new GetApplicationByClientIdResponse {
                 Application = CreateFakeApplication(),
             }
         );
 
         autoMocker.MockResponse<GetOrganisationIdsByExternalIdRequest>(
-            new GetOrganisationIdsByExternalIdResponse
-            {
+            new GetOrganisationIdsByExternalIdResponse {
                 OrganisationIds = [FakeOrganisationId1],
             }
         );
@@ -342,8 +322,7 @@ public sealed class GetUsersAtOrganisationTests
         );
 
         autoMocker.MockResponse<GetRolesOfUserRequest>(
-            new GetRolesOfUserResponse
-            {
+            new GetRolesOfUserResponse {
                 Roles = ["Admin"],
             }
         );
