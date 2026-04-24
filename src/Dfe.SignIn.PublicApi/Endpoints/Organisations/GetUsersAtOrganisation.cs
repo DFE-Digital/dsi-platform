@@ -18,31 +18,24 @@ public static partial class OrganisationEndpoints
     /// <param name="clientSession">The client session for the current request.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
-    public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound<ProblemDetails>, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
+    public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
         int ukprn,
         IClientSession clientSession,
         IInteractionDispatcher interaction)
     {
-        try {
+        try
+        {
 
             var applicationId = await FetchApplicationIdFromNode(interaction, clientSession.ClientId);
-            if (applicationId == null) {
-                return TypedResults.NotFound(
-                    new ProblemDetails {
-                        Title = "Not Found",
-                        Detail = $"Application with clientId '{clientSession.ClientId}' not found.",
-                        Status = StatusCodes.Status404NotFound
-                    });
+            if (applicationId == null)
+            {
+                return TypedResults.NotFound();
             }
 
             var organisationIds = await FetchOrganisationIdsFromNode(interaction, ukprn.ToString());
-            if (organisationIds == null || !organisationIds.Any()) {
-                return TypedResults.NotFound(
-                    new ProblemDetails {
-                        Title = "Not Found",
-                        Detail = $"Organisation with UKPRN '{ukprn}' not found.",
-                        Status = StatusCodes.Status404NotFound
-                    });
+            if (organisationIds == null || !organisationIds.Any())
+            {
+                return TypedResults.NotFound();
             }
 
             var userRoles = await GetUserIdsAndRoles(interaction, applicationId.Value, organisationIds);
@@ -53,21 +46,19 @@ public static partial class OrganisationEndpoints
 
             return TypedResults.Ok(responseModel);
         }
-        catch (NotFoundInteractionException ex) {
+        catch (NotFoundInteractionException ex)
+        {
             Console.WriteLine(ex.GetBaseException().Message);
 
-            return TypedResults.NotFound(
-                new ProblemDetails {
-                    Title = "Not Found",
-                    Detail = " GetUsersAtOrganisation returns not found.",
-                    Status = StatusCodes.Status404NotFound
-                });
+            return TypedResults.NotFound();
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             // ideally log error
             Console.WriteLine(ex.GetBaseException().Message);
             return TypedResults.InternalServerError(
-                new ProblemDetails {
+                new ProblemDetails
+                {
                     Title = "Internal Server Error",
                     Detail = "Something unexpected happened while processing your request.",
                     Status = StatusCodes.Status500InternalServerError
@@ -118,25 +109,31 @@ public static partial class OrganisationEndpoints
     private static async Task<Dictionary<Guid, HashSet<string>>> GetUserIdsAndRoles(IInteractionDispatcher interaction, Guid applicationId, IEnumerable<Guid> organisationIds)
     {
         var userRoles = new Dictionary<Guid, HashSet<string>>();
-        foreach (Guid orgId in organisationIds) {
+        foreach (Guid orgId in organisationIds)
+        {
 
             var userIds = await FetchUserIdsFromNode(interaction, orgId, applicationId);
 
-            if (userIds == null) {
+            if (userIds == null)
+            {
                 continue;
             }
 
-            foreach (var userId in userIds) {
+            foreach (var userId in userIds)
+            {
 
-                if (!userRoles.TryGetValue(userId, out var value)) {
+                if (!userRoles.TryGetValue(userId, out var value))
+                {
                     value = [];
                     userRoles[userId] = value;
                 }
 
                 var rolesList = await FetchUserRolesFromNode(interaction, orgId, applicationId, userId);
 
-                if (rolesList != null) {
-                    foreach (string role in rolesList) {
+                if (rolesList != null)
+                {
+                    foreach (string role in rolesList)
+                    {
                         value.Add(role);
                     }
                 }
@@ -155,12 +152,15 @@ public static partial class OrganisationEndpoints
     private static async Task<List<UserAtOrganisation>> GetUserNameandEmailandStatus(IInteractionDispatcher interaction, Dictionary<Guid, HashSet<string>> userRoles)
     {
         List<UserAtOrganisation> users = [];
-        foreach (var (userId, roles) in userRoles) {
+        foreach (var (userId, roles) in userRoles)
+        {
 
-            try {
+            try
+            {
                 var userProfile = await FetchUserProfileFromNode(interaction, userId);
 
-                if (userProfile != null) {
+                if (userProfile != null)
+                {
                     UserAtOrganisation user = new(
                         userProfile.EmailAddress,
                         userProfile.FirstName,
@@ -171,7 +171,8 @@ public static partial class OrganisationEndpoints
                     users.Add(user);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 // should really check for 404 but catching NotFoundInteractionException does not work
                 Console.WriteLine(ex.GetBaseException().Message);
             }
