@@ -153,9 +153,8 @@ public static partial class OrganisationEndpoints
                     users.Add(user);
                 }
             }
-            catch (Exception ex) {
-                // should really check for 404 but catching NotFoundInteractionException does not work
-                Console.WriteLine(ex.GetBaseException().Message);
+            catch (Exception) {
+                // overlook the exception
             }
         }
 
