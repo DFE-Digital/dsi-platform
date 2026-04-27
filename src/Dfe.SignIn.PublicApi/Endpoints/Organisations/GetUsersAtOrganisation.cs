@@ -12,14 +12,14 @@ namespace Dfe.SignIn.PublicApi.Endpoints.Organisations;
 public static partial class OrganisationEndpoints
 {
     /// <summary>
-    /// Get users and their roles on the service in the bearer token at the organisation.
+    /// Get users and their roles on the current service at an organisation or organisations.
     /// </summary>
-    /// <param name="ukprn">The UKPRN of the organisation.</param>
+    /// <param name="externalId">The UKPRN or UPIN of the organisation.</param>
     /// <param name="clientSession">The client session for the current request.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
     public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
-        string ukprn,
+        string externalId,
         IClientSession clientSession,
         IInteractionDispatcher interaction)
     {
@@ -32,7 +32,13 @@ public static partial class OrganisationEndpoints
             }
 
             // look for organisations matching UKPRN
-            var organisationIds = await FetchOrganisationIdsByUkprnFromNode(interaction, ukprn);
+            bool isUkprn = true;
+            var organisationIds = await FetchOrganisationIdsByUkprnFromNode(interaction, externalId);
+
+            if (organisationIds == null || !organisationIds.Any()) {
+                isUkprn = false;
+                organisationIds = await FetchOrganisationIdsByUpinFromNode(interaction, externalId);
+            }
 
             if (organisationIds == null || !organisationIds.Any()) {
                 return TypedResults.NotFound();
@@ -45,7 +51,11 @@ public static partial class OrganisationEndpoints
             var users = await GetNameandEmailandStatusOfUsers(interaction, userRoles);
 
             // populate the model
-            var responseModel = new GetUsersAtOrganisationResponse(ukprn, users);
+            var responseModel = new GetUsersAtOrganisationResponse {
+                IsUkprn = isUkprn,
+                ExternalId = externalId,
+                Users = users
+            };
 
             return TypedResults.Ok(responseModel);
         }
@@ -93,6 +103,22 @@ public static partial class OrganisationEndpoints
         var response = await interaction.DispatchAsync(request).To<GetOrganisationIdsByExternalIdResponse>();
         IEnumerable<Guid>? organisationIds = response?.OrganisationIds;
 
+        return organisationIds;
+    }
+
+    /// <summary>
+    /// Get matching organisation ids from the UPIN.
+    /// Usually, a UPIN will usually be linked to a single organisation, but not always.
+    /// </summary>
+    /// <param name="interaction">Service to dispatch interaction requests.</param>
+    /// <param name="upin">The UPIN of the organisation.</param>
+    /// <returns>Organisation ids.</returns>
+    private static async Task<IEnumerable<Guid>?> FetchOrganisationIdsByUpinFromNode(IInteractionDispatcher interaction, string upin)
+    {
+        // look for a matching UPIN
+        GetOrganisationIdsByExternalIdRequest request = new() { LookupKey = "UPIN-multi", LookupValue = upin };
+        var response = await interaction.DispatchAsync(request).To<GetOrganisationIdsByExternalIdResponse>();
+        IEnumerable<Guid>? organisationIds = response?.OrganisationIds;
         return organisationIds;
     }
 

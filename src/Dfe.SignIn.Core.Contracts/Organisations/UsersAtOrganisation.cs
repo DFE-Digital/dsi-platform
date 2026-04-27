@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Organisations;
@@ -14,15 +15,37 @@ public record GetUsersAtOrganisationRequest(
 /// <summary>
 /// Represents the response containing users associated with an organisation.
 /// </summary>
-/// <param name="Ukprn">
-/// The UK Provider Reference Number (UKPRN) identifying the organisation.
-/// </param>
-/// <param name="Users">
-/// A read-only list of users that belong to the organisation.
-/// </param>
-public record GetUsersAtOrganisationResponse(
-    string Ukprn,
-    IReadOnlyList<UserAtOrganisation> Users);
+public class GetUsersAtOrganisationResponse
+{
+    /// <summary>
+    /// True if a UKPRN is being expressed, false if UPIN is being shown.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsUkprn { get; set; }
+
+    /// <summary>
+    /// The value of the UKPRN or UPIN.
+    /// </summary>
+    [JsonIgnore]
+    public string? ExternalId { get; set; }
+
+    /// <summary>
+    /// Ukprn label.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? Ukprn => this.IsUkprn ? this.ExternalId : null;
+
+    /// <summary>
+    /// Upin label
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? Upin => !this.IsUkprn ? this.ExternalId : null;
+
+    /// <summary>
+    /// List of users that belong to the organisation.
+    /// </summary>
+    public IReadOnlyList<UserAtOrganisation>? Users { get; set; }
+}
 
 /// <summary>
 /// Represents a user associated with an organisation.
