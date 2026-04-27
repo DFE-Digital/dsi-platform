@@ -20,7 +20,7 @@ public sealed class GetOrganisationIdsNodeRequester(
         context.ThrowIfHasValidationErrors();
 
         var response = await organisationsClient.GetFromJsonOrDefaultAsync<Models.OrganisationDto[]>(
-             $"/organisations/by-external-id/UKPRN-multi/{context.Request.LookupValue}",
+             $"/organisations/by-external-id/{context.Request.LookupKey}/{context.Request.LookupValue}",
              cancellationToken
         );
 
