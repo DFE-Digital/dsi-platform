@@ -1,10 +1,10 @@
 using Dfe.SignIn.Base.Framework;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Dfe.SignIn.Core.Contracts.SelectOrganisation;
 using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
