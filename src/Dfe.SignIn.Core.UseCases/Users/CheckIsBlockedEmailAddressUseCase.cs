@@ -74,7 +74,7 @@ public sealed partial class CheckIsBlockedEmailAddressUseCase(
 
         bool isBlockedDomain = options.BlockedDomains.Contains(domain, StringComparer.OrdinalIgnoreCase);
         bool isBlockedName = options.BlockedNames.Any(blockedName =>
-            localPart.StartsWith(blockedName, StringComparison.OrdinalIgnoreCase)
+            localPart.Equals(blockedName, StringComparison.OrdinalIgnoreCase)
             && NameSuffix().IsMatch(localPart[blockedName.Length..]));
 
         return Task.FromResult(new CheckIsBlockedEmailAddressResponse {
