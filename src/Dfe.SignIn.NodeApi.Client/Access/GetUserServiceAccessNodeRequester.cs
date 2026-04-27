@@ -35,13 +35,13 @@ public sealed class GetUserServiceAccessNodeRequester(
                 UserId = dto.UserId,
                 ServiceId = dto.ServiceId,
                 OrganisationId = dto.OrganisationId,
-                Roles = dto.Roles.Select(r => new UserServiceRole {
+                Roles = (dto.Roles ?? []).Select(r => new UserServiceRole {
                     Id = r.Id,
                     Name = r.Name,
                     Code = r.Code,
                     NumericId = r.NumericId,
                 }),
-                Identifiers = dto.Identifiers.Select(i => new UserServiceIdentifier {
+                Identifiers = (dto.Identifiers ?? []).Select(i => new UserServiceIdentifier {
                     Key = i.Key,
                     Value = i.Value,
                 }),
