@@ -5,10 +5,10 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// <summary>
 /// Request and response models for getting users at an organisation.
 /// </summary>
-/// <param name="Ukprn"></param>
+/// <param name="ExternalId"></param>
 [AssociatedResponse(typeof(GetUsersAtOrganisationResponse))]
 public record GetUsersAtOrganisationRequest(
-    int Ukprn
+    string ExternalId
 );
 
 /// <summary>

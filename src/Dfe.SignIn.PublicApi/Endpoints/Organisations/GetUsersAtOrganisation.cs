@@ -25,21 +25,27 @@ public static partial class OrganisationEndpoints
     {
         try {
 
+            // get the application id from the session
             var applicationId = await FetchApplicationIdFromNode(interaction, clientSession.ClientId);
             if (applicationId == null) {
                 return TypedResults.NotFound();
             }
 
-            var organisationIds = await FetchOrganisationIdsFromNode(interaction, ukprn);
+            // look for organisations matching UKPRN
+            var organisationIds = await FetchOrganisationIdsByUkprnFromNode(interaction, ukprn);
+
             if (organisationIds == null || !organisationIds.Any()) {
                 return TypedResults.NotFound();
             }
 
+            // find user ids and the user roles for the organisation and service
             var userRoles = await GetUserIdsAndRoles(interaction, applicationId.Value, organisationIds);
 
+            // get user names and their email address and statuses
             var users = await GetNameandEmailandStatusOfUsers(interaction, userRoles);
 
-            var responseModel = new GetUsersAtOrganisationResponse(ukprn.ToString(), users);
+            // populate the model
+            var responseModel = new GetUsersAtOrganisationResponse(ukprn, users);
 
             return TypedResults.Ok(responseModel);
         }
@@ -75,16 +81,16 @@ public static partial class OrganisationEndpoints
 
     /// <summary>
     /// Get matching organisation ids from the UKPRN.
-    /// Usually, a UKPRN will be linked to a single organisation, but not always.
+    /// Usually, a UKPRN will usually be linked to a single organisation, but not always.
     /// </summary>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
-    /// <param name="ukprn"></param>
+    /// <param name="ukprn">The UKPRN of the organisation.</param>
     /// <returns>Organisation ids.</returns>
-    private static async Task<IEnumerable<Guid>?> FetchOrganisationIdsFromNode(IInteractionDispatcher interaction, string ukprn)
+    private static async Task<IEnumerable<Guid>?> FetchOrganisationIdsByUkprnFromNode(IInteractionDispatcher interaction, string ukprn)
     {
-        GetOrganisationIdsByExternalIdRequest request = new() { LookupKey = "UKPRN-multi", LookupValue = ukprn.ToString() };
+        // look for a matching UKPRN
+        GetOrganisationIdsByExternalIdRequest request = new() { LookupKey = "UKPRN-multi", LookupValue = ukprn };
         var response = await interaction.DispatchAsync(request).To<GetOrganisationIdsByExternalIdResponse>();
-
         IEnumerable<Guid>? organisationIds = response?.OrganisationIds;
 
         return organisationIds;
@@ -154,7 +160,7 @@ public static partial class OrganisationEndpoints
                 }
             }
             catch (Exception) {
-                // overlook the exception
+                // overlook the exception that occurs when there are no matches
             }
         }
 
