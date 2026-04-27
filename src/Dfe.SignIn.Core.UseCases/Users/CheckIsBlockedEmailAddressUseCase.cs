@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
 using Microsoft.Extensions.Options;
@@ -73,15 +72,22 @@ public sealed partial class CheckIsBlockedEmailAddressUseCase(
         string domain = parts[1];
 
         bool isBlockedDomain = options.BlockedDomains.Contains(domain, StringComparer.OrdinalIgnoreCase);
-        bool isBlockedName = options.BlockedNames.Any(blockedName =>
-            localPart.Equals(blockedName, StringComparison.OrdinalIgnoreCase)
-            && NameSuffix().IsMatch(localPart[blockedName.Length..]));
+        bool isBlockedName = options.BlockedNames.Any(blockedName => {
+            if (!localPart.StartsWith(blockedName, StringComparison.OrdinalIgnoreCase)) {
+                return false;
+            }
+
+            if (localPart.Length == blockedName.Length) {
+                return true;
+            }
+
+            char nextChar = localPart[blockedName.Length];
+            return char.IsDigit(nextChar)
+                || nextChar is '.' or '-' or '_';
+        });
 
         return Task.FromResult(new CheckIsBlockedEmailAddressResponse {
             IsBlocked = isBlockedDomain || isBlockedName,
         });
     }
-
-    [GeneratedRegex(@"^[a-z0-9._-]*$", RegexOptions.IgnoreCase)]
-    private static partial Regex NameSuffix();
 }

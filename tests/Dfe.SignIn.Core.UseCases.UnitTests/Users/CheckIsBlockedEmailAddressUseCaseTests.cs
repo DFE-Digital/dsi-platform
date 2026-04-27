@@ -29,6 +29,7 @@ public sealed class CheckIsBlockedEmailAddressUseCaseTests
                 BlockedNames = [
                     "admin",
                     "staff",
+                    "pat",
                 ],
             });
     }
@@ -36,6 +37,9 @@ public sealed class CheckIsBlockedEmailAddressUseCaseTests
     [TestMethod]
     [DataRow("alex.hunter@example.com")]
     [DataRow("xadmin@example.com")]
+    [DataRow("staffmember@example.com")]
+    [DataRow("patrick@example.com")]
+    [DataRow("peter@example.com")]
     public async Task ReturnsExpectedResponse_WhenEmailAddressIsPermitted(string emailAddress)
     {
         var autoMocker = new AutoMocker();
@@ -57,6 +61,10 @@ public sealed class CheckIsBlockedEmailAddressUseCaseTests
     [DataRow("admin_test@example.com")]
     [DataRow("ADMIN@example.com")]
     [DataRow("staff@example.com")]
+    [DataRow("STAFF@example.com")]
+    [DataRow("pat@example.com")]
+    [DataRow("pat123@example.com")]
+    [DataRow("pat.test@example.com")]
     [DataRow("alex.hunter@blocked.com")]
     [DataRow("alex.hunter@BLOCKED.COM")]
     [DataRow("alex.hunter@blocked.other.com")]
