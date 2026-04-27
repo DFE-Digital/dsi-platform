@@ -16,15 +16,13 @@ public sealed class QueryUserOrganisationTests
 {
     private static readonly Guid FakeUserId = new("6c843439-4633-4369-af49-f8b04b2529bc");
 
-    private static readonly Organisation FakeOrganisation1 = new()
-    {
+    private static readonly Organisation FakeOrganisation1 = new() {
         Id = new Guid("ad55df19-3d10-4089-b15f-bba6f546009f"),
         Name = "Example Organisation 1",
         Status = OrganisationStatus.Open,
     };
 
-    private static readonly Organisation FakeOrganisation2 = new()
-    {
+    private static readonly Organisation FakeOrganisation2 = new() {
         Id = new Guid("e27df6e3-84ab-40ab-84b2-4a85a7fa11cd"),
         Name = "Example Organisation 2",
         Status = OrganisationStatus.Open,
@@ -32,10 +30,8 @@ public sealed class QueryUserOrganisationTests
 
     private static readonly QueryUserOrganisationApiRequestBody FakeMinimalRequest = new();
 
-    private static readonly QueryUserOrganisationApiRequestBody FakeDetailedRequest = new()
-    {
-        Filter = new OrganisationFilter
-        {
+    private static readonly QueryUserOrganisationApiRequestBody FakeDetailedRequest = new() {
+        Filter = new OrganisationFilter {
             Association = OrganisationFilterAssociation.AssignedToUser,
             OrganisationIds = [],
             Type = OrganisationFilterType.Associated,
@@ -70,8 +66,7 @@ public sealed class QueryUserOrganisationTests
         FilterOrganisationsForUserRequest? capturedRequest = null;
         autoMocker.CaptureRequest<FilterOrganisationsForUserRequest>(
             request => capturedRequest = request,
-            new FilterOrganisationsForUserResponse
-            {
+            new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = [],
             }
         );
@@ -96,8 +91,7 @@ public sealed class QueryUserOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<FilterOrganisationsForUserRequest>(
-            new FilterOrganisationsForUserResponse
-            {
+            new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = [],
             }
         );
@@ -121,8 +115,7 @@ public sealed class QueryUserOrganisationTests
         var autoMocker = CreateAutoMocker();
 
         autoMocker.MockResponse<FilterOrganisationsForUserRequest>(
-            new FilterOrganisationsForUserResponse
-            {
+            new FilterOrganisationsForUserResponse {
                 FilteredOrganisations = [
                     FakeOrganisation1,
                     FakeOrganisation2,

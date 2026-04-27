@@ -12,23 +12,19 @@ namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
 [TestClass]
 public sealed class PostSelectOrganisationSessionTests
 {
-    private static readonly CreateSelectOrganisationSessionApiRequest FakePublicApiMinimalRequest = new()
-    {
+    private static readonly CreateSelectOrganisationSessionApiRequest FakePublicApiMinimalRequest = new() {
         CallbackUrl = new Uri("https://example.localhost/callback"),
         UserId = new Guid("6c843439-4633-4369-af49-f8b04b2529bc"),
     };
-    private static readonly CreateSelectOrganisationSessionApiRequest FakePublicApiRequest = new()
-    {
+    private static readonly CreateSelectOrganisationSessionApiRequest FakePublicApiRequest = new() {
         CallbackUrl = new Uri("https://example.localhost/callback"),
         UserId = new Guid("6c843439-4633-4369-af49-f8b04b2529bc"),
-        Filter = new OrganisationFilter
-        {
+        Filter = new OrganisationFilter {
             Association = OrganisationFilterAssociation.AssignedToUser,
             OrganisationIds = [],
             Type = OrganisationFilterType.Associated,
         },
-        Prompt = new SelectOrganisationPrompt
-        {
+        Prompt = new SelectOrganisationPrompt {
             Heading = "Which organisation?",
             Hint = "Select one option.",
         },
@@ -50,8 +46,7 @@ public sealed class PostSelectOrganisationSessionTests
         [FakePublicApiRequest],
     ];
 
-    private static readonly CreateSelectOrganisationSessionResponse FakeResponse = new()
-    {
+    private static readonly CreateSelectOrganisationSessionResponse FakeResponse = new() {
         RequestId = new Guid("fba90ce7-b5d0-4f94-ae00-63a8d21bde93"),
         HasOptions = true,
         Url = new Uri("https://select-organisation.localhost"),
