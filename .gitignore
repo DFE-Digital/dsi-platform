@@ -404,6 +404,10 @@ FodyWeavers.xsd
 
 # GitHub workflows
 /build.sln
-src/Dfe.SignIn.AppHost/appsettings.Development.json
 .gitignore
-src/Dfe.SignIn.AppHost/appsettings.tran.json
+
+# Environment-specific appsettings (Development, Local, tran, etc.)
+**/appsettings.*.json
+
+# Graphify output
+graphify-out/

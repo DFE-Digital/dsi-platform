@@ -92,4 +92,4 @@ builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfil
 
 builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
 
-builder.Build().Run();
+await builder.Build().RunAsync();
