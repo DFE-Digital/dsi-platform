@@ -132,7 +132,7 @@ public static partial class UserEndpoints
             return Results.Problem("An unexpected error occurred while retrieving application roles.");
         }
 
-        if (applicationResponse.Application == null) {
+        if (applicationResponse?.Application == null) {
             return Results.NotFound();
         }
 

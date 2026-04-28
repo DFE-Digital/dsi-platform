@@ -7,6 +7,7 @@ public static partial class UserEndpoints
     public static void UseUserEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("v2/users/{userId}/organisations/{organisationId}/query", PostQueryUserOrganisation);
+
         app.MapGet("/users", GetServiceUsers)
             .WithName("GetServiceUsersRequest")
             .WithTags("Users")
