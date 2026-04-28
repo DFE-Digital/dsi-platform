@@ -57,7 +57,6 @@ public class GetServiceUsersTests
         });
     }
 
-
     [TestMethod]
     public async Task Returns400_WhenPageIsNotANumber()
     {
@@ -98,14 +97,12 @@ public class GetServiceUsersTests
     public async Task Returns404_WhenApplicationNotFound()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        //MockApplicationLookup(autoMocker, null);
 
-        //autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse {
-        //    Application = null
-        //});
+        var mockClientSession = autoMocker.GetMock<IClientSession>();
+        mockClientSession.SetupGet(x => x.ClientId).Returns("fake-client-id");
 
         var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
+            mockClientSession.Object,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext
