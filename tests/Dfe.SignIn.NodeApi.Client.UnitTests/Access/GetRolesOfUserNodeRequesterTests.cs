@@ -89,12 +89,11 @@ public sealed class GetRolesOfUserNodeRequesterTests
                 new MappedResponse(HttpStatusCode.InternalServerError),
         });
 
-        await Assert.ThrowsExactlyAsync<HttpRequestException>(()
-            => interactor.InvokeAsync(new GetRolesOfUserRequest
-            {
-                UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
-                ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
-                OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),
-            }));
+        await Assert.ThrowsExactlyAsync<HttpRequestException>(() => interactor.InvokeAsync(new GetRolesOfUserRequest
+        {
+            UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
+            ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
+            OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),
+        }));
     }
 }
