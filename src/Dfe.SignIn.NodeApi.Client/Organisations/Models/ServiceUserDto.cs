@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Dfe.SignIn.NodeApi.Client.Organisations.Models;
 
 /// <summary>
 /// Represents a service user, including identity, status, organisation, and role information.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public record ServiceUserDto
 {
     /// <summary>
@@ -29,6 +32,7 @@ public record ServiceUserDto
 /// <summary>
 /// Represents an organisation associated with a service user.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public record ServiceUserOrganisationDto
 {
     /// <summary>
@@ -45,6 +49,7 @@ public record ServiceUserOrganisationDto
 /// <summary>
 /// Represents a role assigned to a service user.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public record ServicUserRoleDto
 {
     /// <summary>
