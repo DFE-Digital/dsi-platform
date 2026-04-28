@@ -60,7 +60,7 @@ public sealed class GetUsersAtOrganisationTests
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(
             new GetApplicationByClientIdResponse {
-                Application = null,
+                Application = CreateFakeApplication(),
             }
         );
 
@@ -122,7 +122,7 @@ public sealed class GetUsersAtOrganisationTests
             autoMocker.Get<IInteractionDispatcher>()
         );
 
-        Assert.IsInstanceOfType(result.Result, typeof(NotFound));
+        Assert.IsInstanceOfType<NotFound>(result.Result);
     }
 
     [TestMethod]
@@ -202,7 +202,7 @@ public sealed class GetUsersAtOrganisationTests
         var okResult = (Ok<GetUsersAtOrganisationResponse>)result.Result;
         Assert.IsNotNull(okResult.Value);
         Assert.AreEqual(FakeUkprn.ToString(), okResult.Value.Ukprn);
-        Assert.AreEqual(0, okResult.Value.Users.Count);
+        Assert.AreEqual(0, okResult?.Value?.Users?.Count);
     }
 
     [TestMethod]
@@ -291,13 +291,13 @@ public sealed class GetUsersAtOrganisationTests
 
         var okResult = (Ok<GetUsersAtOrganisationResponse>)result.Result;
         Assert.IsNotNull(okResult.Value);
-        Assert.AreEqual(1, okResult.Value.Users.Count);
+        Assert.AreEqual(1, okResult?.Value?.Users?.Count);
 
-        var user = okResult.Value.Users.First();
-        Assert.AreEqual(FakeUserProfile1.FirstName, user.FirstName);
-        Assert.AreEqual(FakeUserProfile1.LastName, user.LastName);
-        Assert.AreEqual(FakeUserProfile1.EmailAddress, user.Email);
-        Assert.AreEqual(3, user.Roles.Count);
+        var user = okResult?.Value?.Users?.First();
+        Assert.AreEqual(FakeUserProfile1.FirstName, user?.FirstName);
+        Assert.AreEqual(FakeUserProfile1.LastName, user?.LastName);
+        Assert.AreEqual(FakeUserProfile1.EmailAddress, user?.Email);
+        Assert.HasCount(3, user?.Roles ?? []);
     }
 
     [TestMethod]
@@ -338,10 +338,10 @@ public sealed class GetUsersAtOrganisationTests
         );
 
         var okResult = (Ok<GetUsersAtOrganisationResponse>)result.Result;
-        var user = okResult.Value!.Users[0];
+        var user = okResult?.Value?.Users?[0];
 
-        Assert.AreEqual(FakeUserProfile1.EmailAddress, user.Email);
-        Assert.AreEqual(FakeUserProfile1.FirstName, user.FirstName);
-        Assert.AreEqual(FakeUserProfile1.LastName, user.LastName);
+        Assert.AreEqual(FakeUserProfile1.EmailAddress, user?.Email);
+        Assert.AreEqual(FakeUserProfile1.FirstName, user?.FirstName);
+        Assert.AreEqual(FakeUserProfile1.LastName, user?.LastName);
     }
 }
