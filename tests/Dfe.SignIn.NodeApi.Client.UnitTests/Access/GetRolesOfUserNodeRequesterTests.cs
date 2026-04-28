@@ -28,37 +28,6 @@ public sealed class GetRolesOfUserNodeRequesterTests
         return new GetRolesOfUserNodeRequester(accessClient);
     }
 
-    private static Dictionary<string, MappedResponse> GetNodeResponseMappingsForHappyPath()
-    {
-        return new()
-        {
-            // Access API
-            ["(GET) http://access.localhost/users/51a50a75-e4fa-4b6e-9c72-581538ee5258/services/edd75704-0839-4f2a-be51-a6ecaf584019/organisations/c173ec59-6670-4aca-b433-61c949a6f370"] =
-                new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
-                {
-                    "userId": "51a50a75-e4fa-4b6e-9c72-581538ee5258",
-                    "serviceId": "edd75704-0839-4f2a-be51-a6ecaf584019",
-                    "organisationId": "c173ec59-6670-4aca-b433-61c949a6f370",
-                    "roles": [
-                        {
-                            "id": "a1b2c3d4-e5f6-47a8-9b0c-d1e2f3a4b5c6",
-                            "name": "Administrator",
-                            "code": "ADMIN",
-                            "numericId": 1
-                        },
-                        {
-                            "id": "b2c3d4e5-f6a7-48b9-ac1d-e2f3a4b5c6d7",
-                            "name": "Editor",
-                            "code": "EDITOR",
-                            "numericId": 2
-                        }
-                    ],
-                    "identifiers": []
-                }
-                """),
-        };
-    }
-
     [TestMethod]
     public async Task ReturnsEmptyRoles_WhenRolesPropertyIsNull()
     {
