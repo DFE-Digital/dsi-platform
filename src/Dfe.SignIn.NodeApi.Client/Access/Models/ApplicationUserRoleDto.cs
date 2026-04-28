@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Dfe.SignIn.NodeApi.Client.Access.Models;
 
 /// <summary>
@@ -27,6 +29,7 @@ namespace Dfe.SignIn.NodeApi.Client.Access.Models;
 /// <param name="Identifiers">
 /// Additional identifiers associated with the user.
 /// </param>
+[ExcludeFromCodeCoverage]
 public record ApplicationUserRoleDto(
     Guid UserId,
     string UserLegacyNumericId,
@@ -56,6 +59,7 @@ public record ApplicationUserRoleDto(
 /// <param name="Status">
 /// The current status of the role.
 /// </param>
+[ExcludeFromCodeCoverage]
 public record UserRoleDto(
     Guid Id,
     string Name,
@@ -70,6 +74,7 @@ public record UserRoleDto(
 /// <param name="Id">
 /// The numeric identifier of the role status.
 /// </param>
+[ExcludeFromCodeCoverage]
 public record UserRoleStatusDto(
     int Id
 );
@@ -77,4 +82,5 @@ public record UserRoleStatusDto(
 /// <summary>
 /// Represents an identifier associated with a user or organisation.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public record Identifier();
