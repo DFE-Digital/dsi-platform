@@ -4,7 +4,6 @@ using Dfe.SignIn.NodeApi.Client.Organisations;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Organisations;
 
-[ExcludeFromCodeCoverage(Justification = "Continually getting unresolvable whitespace errors")]
 [TestClass]
 public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
 {
