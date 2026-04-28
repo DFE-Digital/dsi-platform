@@ -43,6 +43,8 @@ public static partial class UserEndpoints
         //var from = ExtractParam(httpContext, "from");
         //var to = ExtractParam(httpContext, "to");
 
+        var clientId = clientSession.ClientId;
+
         // 2. Validate page/pageSize
         if (!int.TryParse(pageStr, out var page)) {
             return Results.BadRequest($"{pageStr} is not a valid value for page. Expected a number");
@@ -112,9 +114,23 @@ public static partial class UserEndpoints
         //}
 
         // 5. Resolve clientId to Application
-        var applicationResponse = await interaction.DispatchAsync(
-            new GetApplicationByClientIdRequest { ClientId = clientSession.ClientId }
-        ).To<GetApplicationByClientIdResponse>();
+
+        GetApplicationByClientIdResponse applicationResponse;
+
+        try {
+            applicationResponse = await interaction.DispatchAsync(
+                new GetApplicationByClientIdRequest {
+                    ClientId = clientId
+                }
+            ).To<GetApplicationByClientIdResponse>();
+        }
+        catch (ApplicationNotFoundException) {
+            return Results.NotFound($"Application with clientId '{clientId}' not found.");
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "Unexpected error while retrieving roles for clientId {ClientId}", clientId);
+            return Results.Problem("An unexpected error occurred while retrieving application roles.");
+        }
 
         if (applicationResponse.Application == null) {
             return Results.NotFound();
