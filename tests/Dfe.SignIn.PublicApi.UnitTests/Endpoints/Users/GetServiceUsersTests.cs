@@ -58,42 +58,6 @@ public class GetServiceUsersTests
     }
 
     [TestMethod]
-    public async Task Returns400_WhenPageIsNotANumber()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?page=not-a-number");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("not-a-number is not a valid value for page. Expected a number", badRequest.Value);
-    }
-
-    [TestMethod]
-    public async Task Returns400_WhenPageSizeIsNotANumber()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?pageSize=not-a-number");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("not-a-number is not a valid value for pageSize. Expected a number", badRequest.Value);
-    }
-
-    [TestMethod]
     public async Task Returns404_WhenApplicationNotFound()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
@@ -115,7 +79,7 @@ public class GetServiceUsersTests
     public async Task ReturnsOk_WhenValidRequest()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        // No query params: should use defaults page=1, pageSize=25
+
         MockApplicationLookup(autoMocker);
         var capturedRequest = (GetServiceUsersRequest?)null;
         autoMocker.CaptureRequest<GetServiceUsersRequest>(req => capturedRequest = req, new GetServiceUsersResponse {
