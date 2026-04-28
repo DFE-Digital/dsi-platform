@@ -20,8 +20,7 @@ public sealed class GetServiceUsersAtOrganisationNodeRequesterTests
         Dictionary<string, MappedResponse> responseMappings)
     {
         var organisationsHandlerMock = HttpClientMocking.GetHandlerWithMappedResponses(responseMappings);
-        var organisationsClient = new HttpClient(organisationsHandlerMock.Object)
-        {
+        var organisationsClient = new HttpClient(organisationsHandlerMock.Object) {
             BaseAddress = new Uri("http://organisations.localhost")
         };
 
@@ -30,8 +29,7 @@ public sealed class GetServiceUsersAtOrganisationNodeRequesterTests
 
     private static Dictionary<string, MappedResponse> GetNodeResponseMappingsForHappyPath()
     {
-        return new()
-        {
+        return new() {
             // Organisations API
             ["(GET) http://organisations.localhost/organisations/c173ec59-6670-4aca-b433-61c949a6f370/services/edd75704-0839-4f2a-be51-a6ecaf584019/users"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
@@ -89,16 +87,14 @@ public sealed class GetServiceUsersAtOrganisationNodeRequesterTests
     [TestMethod]
     public async Task ReturnsEmptyUserIds_WhenNoUsersFound()
     {
-        var interactor = CreateGetServiceUsersAtOrganisationNodeRequester(new()
-        {
+        var interactor = CreateGetServiceUsersAtOrganisationNodeRequester(new() {
             ["(GET) http://organisations.localhost/organisations/c173ec59-6670-4aca-b433-61c949a6f370/services/edd75704-0839-4f2a-be51-a6ecaf584019/users"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 []
                 """),
         });
 
-        var response = await interactor.InvokeAsync(new GetServiceUsersAtOrganisationRequest
-        {
+        var response = await interactor.InvokeAsync(new GetServiceUsersAtOrganisationRequest {
             OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),
             ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
         });
@@ -111,16 +107,14 @@ public sealed class GetServiceUsersAtOrganisationNodeRequesterTests
     [TestMethod]
     public async Task ReturnsEmptyUserIds_WhenResponseIsNull()
     {
-        var interactor = CreateGetServiceUsersAtOrganisationNodeRequester(new()
-        {
+        var interactor = CreateGetServiceUsersAtOrganisationNodeRequester(new() {
             ["(GET) http://organisations.localhost/organisations/c173ec59-6670-4aca-b433-61c949a6f370/services/edd75704-0839-4f2a-be51-a6ecaf584019/users"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 null
                 """),
         });
 
-        var response = await interactor.InvokeAsync(new GetServiceUsersAtOrganisationRequest
-        {
+        var response = await interactor.InvokeAsync(new GetServiceUsersAtOrganisationRequest {
             OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),
             ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
         });
@@ -133,8 +127,7 @@ public sealed class GetServiceUsersAtOrganisationNodeRequesterTests
     [TestMethod]
     public async Task ReturnsSingleUser_WhenOnlyOneUserFound()
     {
-        var interactor = CreateGetServiceUsersAtOrganisationNodeRequester(new()
-        {
+        var interactor = CreateGetServiceUsersAtOrganisationNodeRequester(new() {
             ["(GET) http://organisations.localhost/organisations/c173ec59-6670-4aca-b433-61c949a6f370/services/edd75704-0839-4f2a-be51-a6ecaf584019/users"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 [
@@ -154,8 +147,7 @@ public sealed class GetServiceUsersAtOrganisationNodeRequesterTests
                 """),
         });
 
-        var response = await interactor.InvokeAsync(new GetServiceUsersAtOrganisationRequest
-        {
+        var response = await interactor.InvokeAsync(new GetServiceUsersAtOrganisationRequest {
             OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),
             ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
         });
@@ -170,15 +162,13 @@ public sealed class GetServiceUsersAtOrganisationNodeRequesterTests
     [TestMethod]
     public async Task Throws_WhenRequestFails()
     {
-        var interactor = CreateGetServiceUsersAtOrganisationNodeRequester(new()
-        {
+        var interactor = CreateGetServiceUsersAtOrganisationNodeRequester(new() {
             ["(GET) http://organisations.localhost/organisations/c173ec59-6670-4aca-b433-61c949a6f370/services/edd75704-0839-4f2a-be51-a6ecaf584019/users"] =
                 new MappedResponse(HttpStatusCode.InternalServerError),
         });
 
         await Assert.ThrowsExactlyAsync<HttpRequestException>(()
-            => interactor.InvokeAsync(new GetServiceUsersAtOrganisationRequest
-            {
+            => interactor.InvokeAsync(new GetServiceUsersAtOrganisationRequest {
                 OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),
                 ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
             }));
