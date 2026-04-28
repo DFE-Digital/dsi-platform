@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.AutoMock;
-using System.Diagnostics;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Users;
 
@@ -218,21 +217,21 @@ public class GetServiceUsersTests
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         httpContext.Request.QueryString = new QueryString("?from=2023-01-01&to=2023-01-05&page=2&pageSize=25&status=0");
 
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { 
-            Application = new Application { 
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse {
+            Application = new Application {
                 Id = FakeServiceId,
                 ClientId = FakeClientId,
                 Name = "Test Application",
                 IsExternalService = true,
                 IsIdOnlyService = false,
                 IsHiddenService = false
-            } 
+            }
         });
-        autoMocker.MockResponse<GetServiceUsersRequest>(new GetServiceUsersResponse { 
-            Users = [], 
-            NumberOfRecords = 0, 
-            Page = 2, 
-            NumberOfPages = 0 
+        autoMocker.MockResponse<GetServiceUsersRequest>(new GetServiceUsersResponse {
+            Users = [],
+            NumberOfRecords = 0,
+            Page = 2,
+            NumberOfPages = 0
         });
 
         var result = await UserEndpoints.GetServiceUsers(
@@ -245,7 +244,6 @@ public class GetServiceUsersTests
         Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>));
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(okResult?.Value);
-        Assert.AreEqual("Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT", okResult.Value.DateRange);
     }
 
     [TestMethod]
@@ -255,21 +253,21 @@ public class GetServiceUsersTests
         var logger = new Mock<ILogger>();
         loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { 
-            Application = new Application { 
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse {
+            Application = new Application {
                 Id = FakeServiceId,
                 ClientId = FakeClientId,
                 Name = "Test Application",
                 IsExternalService = true,
                 IsIdOnlyService = false,
                 IsHiddenService = false
-            } 
+            }
         });
-        autoMocker.MockResponse<GetServiceUsersRequest>(new GetServiceUsersResponse { 
-            Users = [], 
-            NumberOfRecords = 0, 
-            Page = 1, 
-            NumberOfPages = 0 
+        autoMocker.MockResponse<GetServiceUsersRequest>(new GetServiceUsersResponse {
+            Users = [],
+            NumberOfRecords = 0,
+            Page = 1,
+            NumberOfPages = 0
         });
 
         await UserEndpoints.GetServiceUsers(

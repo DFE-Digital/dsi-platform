@@ -1,5 +1,8 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Access;
+using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +13,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for retrieving all service users with pagination and optional filters.
 /// </summary>
 public sealed class GetServiceUsersUseCase(
-    IUnitOfWorkOrganisations uowOrganisations,
-    IUnitOfWorkDirectories uowDirectories
+    IUnitOfWorkOrganisations uowOrganisations
 ) : Interactor<GetServiceUsersRequest, GetServiceUsersResponse>
 {
     /// <inheritdoc/>
@@ -21,160 +23,160 @@ public sealed class GetServiceUsersUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var userServicesQuery = uowOrganisations.Repository<UserServiceEntity>()
-            .Include(x => x.Organisation)
-            .Where(x => x.ServiceId == context.Request.ApplicationId);
+        var applicationId = context.Request.ApplicationId;
+        var pageSize = context.Request.PageSize;
+        var pageNumber = context.Request.PageNumber;
 
-        //var totalRecords = await userServicesQuery.CountAsync(cancellationToken);
-        //var totalPages = (int)Math.Ceiling(totalRecords / (double)request.PageSize);
+        // 2. Query UserServices (Organisations DB)
+        var userServicesQuery =
+            from us in uowOrganisations.Repository<UserServiceEntity>()
+            join u in uowOrganisations.Repository<UserEntity>() on us.UserId equals u.Sub
+            join org in uowOrganisations.Repository<OrganisationEntity>() on us.OrganisationId equals org.Id
+            where us.ServiceId == applicationId
+            select new { UserService = us, Organisation = org, User = u };
+
+        var totalRecords = await userServicesQuery.CountAsync(cancellationToken);
+        var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
 
         var userServices = await userServicesQuery
-            .OrderBy(us => us.CreatedAt)
-            //.Skip((request.PageNumber - 1) * request.PageSize)
-            //.Take(request.PageSize)
+            .OrderBy(us => us.UserService.UserId)
+            .ThenBy(us => us.UserService.OrganisationId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        return new GetServiceUsersResponse();
+        var userIds = userServices.Select(us => us.UserService.UserId).Distinct().ToList();
 
-        //var request = context.Request;
+        // 4. Query Service Roles (Organisations DB)
+        var userServiceRoles = await uowOrganisations.Repository<UserServiceRoleEntity>()
+            .Include(usr => usr.Role)
+            .Where(usr => usr.ServiceId == applicationId && userIds.Contains(usr.UserId))
+            .ToListAsync(cancellationToken);
 
-        //// 1. Resolve ServiceId from ClientId
-        //var service = await uowOrganisations.Repository<ServiceEntity>()
-        //    .FirstOrDefaultAsync(s => s.ClientId == request.ClientId, cancellationToken);
+        var userOrganisationRoles = await uowOrganisations.Repository<UserOrganisationEntity>()
+            .Where(uor => userIds.Contains(uor.UserId))
+            .Select(x => new {
+                x.UserId,
+                x.OrganisationId,
+                x.RoleId
+            })
+            .ToListAsync(cancellationToken);
 
-        //if (service == null) {
-        //    return new GetServiceUsersResponse {
-        //        Users = [],
-        //        NumberOfRecords = 0,
-        //        Page = request.PageNumber,
-        //        NumberOfPages = 0
-        //    };
-        //}
+        // 5. Map and Join
+        var mappedUsers = userServices.Select(userService => {
+            var userServiceRolesForOrganisation = userServiceRoles
+                .Where(usr => usr.UserId == userService.UserService.UserId && usr.OrganisationId == userService.UserService.OrganisationId)
+                .Select(usr => new ServiceUserRoleDto {
+                    Id = usr.Role?.Id.ToString() ?? string.Empty,
+                    Name = usr.Role?.Name ?? string.Empty,
+                    Code = usr.Role?.Code ?? string.Empty,
+                    NumericId = usr.Role?.NumericId.ToString() ?? string.Empty,
+                    Status = usr.Role?.Status ?? (int)ApplicationRoleStatus.Inactive //todo: is this the correct default?
+                })
+                .ToList();
 
-        //// 2. Query UserServices (Organisations DB)
-        //var userServicesQuery = uowOrganisations.Repository<UserServiceEntity>()
-        //    .Include(us => us.Organisation)
-        //    .Where(us => us.ServiceId == service.Id);
+            var userOrganisationRole = userOrganisationRoles
+                .Where(x => x.OrganisationId == userService.UserService.OrganisationId)
+                .Where(x => x.UserId == userService.UserService.UserId)
+                .Select(x => OrganisationRoles.FromId(x.RoleId))
+                .FirstOrDefault();
 
-        //if (!string.IsNullOrEmpty(request.Status)) {
-        //    if (short.TryParse(request.Status, out var statusValue)) {
-        //        userServicesQuery = userServicesQuery.Where(us => us.Status == statusValue);
-        //    }
-        //}
+            var org = userService.Organisation;
+            var user = userService.User;
+            var us = userService.UserService;
 
-        //if (request.DateFrom.HasValue) {
-        //    userServicesQuery = userServicesQuery.Where(us => us.CreatedAt >= request.DateFrom.Value);
-        //}
-        //if (request.DateTo.HasValue) {
-        //    userServicesQuery = userServicesQuery.Where(us => us.CreatedAt <= request.DateTo.Value);
-        //}
+            var organisationDto = org != null ? new ServiceUserOrganisationDto {
+                Id = org.Id,
+                OrganisationId = org.Id,
+                UserId = us.UserId,
+                UserStatus = user.Status,
+                UserCreatedAt = ToUtc(user.CreatedAt),
+                UserUpdatedAt = ToUtc(user.UpdatedAt),
+                CreatedAt = ToUtc(org.CreatedAt),
+                UpdatedAt = ToUtc(org.UpdatedAt),
+                Name = org.Name ?? string.Empty,
+                Category = org.Category,
+                Type = org.Type,
+                Urn = org.Urn,
+                Uid = org.Uid,
+                Ukprn = org.Ukprn,
+                EstablishmentNumber = org.EstablishmentNumber,
+                Status = org.Status,
+                ClosedOn = org.ClosedOn,
+                Address = org.Address,
+                PhaseOfEducation = org.PhaseOfEducation,
+                StatutoryLowAge = org.StatutoryLowAge,
+                StatutoryHighAge = org.StatutoryHighAge,
+                Telephone = org.Telephone,
+                RegionCode = org.RegionCode,
+                LegacyId = org.LegacyId.ToString(),
+                CompanyRegistrationNumber = org.CompanyRegistrationNumber,
+                DistrictAdministrative_name = org.DistrictAdministrativeName,
+                MasteringCode = org.MasteringCode,
+                ProviderProfileID = org.ProviderProfileId,
+                SourceSystem = org.SourceSystem,
+                UPIN = org.Upin,
+                ProviderTypeName = org.ProviderTypeName,
+                GIASProviderType = org.GiasProviderType,
+                PIMSProviderType = org.PimsProviderType,
+                ProviderTypeCode = org.ProviderTypeCode,
+                PIMSProviderTypeCode = org.PimsProviderTypeCode,
+                PIMSStatus = org.PimsStatus,
+                OpenedOn = org.OpenedOn,
+                DistrictAdministrativeName = org.DistrictAdministrativeName1,
+                DistrictAdministrativeCode = org.DistrictAdministrativeCode,
+                DistrictAdministrative_code = org.DistrictAdministrativeCode1,
+                PIMSStatusName = org.PimsStatusName,
+                GIASStatus = org.GiasStatus,
+                GIASStatusName = org.GiasStatusName,
+                MasterProviderStatusCode = org.MasterProviderStatusCode,
+                MasterProviderStatusName = org.MasterProviderStatusName,
+                LegalName = org.LegalName,
+                IsOnAPAR = org.IsOnApar,
+                LocalAuthorityId = org.LocalAuthorityId,
+                LocalAuthorityCode = org.LocalAuthorityCode,
+                LocalAuthorityName = org.LocalAuthorityName
+            } : null;
 
-        //var totalRecords = await userServicesQuery.CountAsync(cancellationToken);
-        //var totalPages = (int)Math.Ceiling(totalRecords / (double)request.PageSize);
+            var dto = new ServiceUserDto {
+                ApprovedAt = ToUtc(user.CreatedAt),
+                UpdatedAt = ToUtc(user.UpdatedAt),
+                Organisation = organisationDto,
+                Roles = userServiceRolesForOrganisation,
+                RoleName = userOrganisationRole?.Name ?? string.Empty,
+                RoleId = userOrganisationRole?.Id ?? null,
+                UserId = us.UserId,
+                Email = user.Email ?? string.Empty,
+                FamilyName = user.LastName ?? string.Empty,
+                GivenName = user.FirstName ?? string.Empty,
+                UserStatus = user.Status
+            };
+            return dto;
+        }).ToList();
 
-        //var userServices = await userServicesQuery
-        //    .OrderBy(us => us.CreatedAt)
-        //    .Skip((request.PageNumber - 1) * request.PageSize)
-        //    .Take(request.PageSize)
-        //    .ToListAsync(cancellationToken);
+        if (userIds.Count > 0 && mappedUsers.All(u => string.IsNullOrEmpty(u.Email))) {
+            return new GetServiceUsersResponse {
+                Users = [],
+                NumberOfRecords = 0,
+                Page = pageNumber,
+                NumberOfPages = 0
+            };
+        }
 
-        //if (userServices.Count == 0) {
-        //    return new GetServiceUsersResponse {
-        //        Users = [],
-        //        NumberOfRecords = totalRecords,
-        //        Page = !string.IsNullOrEmpty(request.Status) || request.DateFrom.HasValue || request.DateTo.HasValue ? 0 : request.PageNumber,
-        //        NumberOfPages = totalPages
-        //    };
-        //}
-
-        //var userIds = userServices.Select(us => us.UserId).Distinct().ToList();
-
-        //// 3. Query User Profiles (Directories DB)
-        //var userProfiles = await uowDirectories.Repository<UserEntity>()
-        //    .Where(u => userIds.Contains(u.Sub))
-        //    .ToListAsync(cancellationToken);
-
-        //// 4. Query Service Roles (Organisations DB)
-        //var userServiceRoles = await uowOrganisations.Repository<UserServiceRoleEntity>()
-        //    .Include(usr => usr.Role)
-        //    .Where(usr => usr.ServiceId == service.Id && userIds.Contains(usr.UserId))
-        //    .ToListAsync(cancellationToken);
-
-        //// 5. Map and Join
-        //var mappedUsers = userServices.Select(userService => {
-        //    var profile = userProfiles.FirstOrDefault(u => u.Sub == userService.UserId);
-
-        //    var rolesForUserOrg = userServiceRoles
-        //        .Where(usr => usr.UserId == userService.UserId && usr.OrganisationId == userService.OrganisationId)
-        //        .Select(usr => new ServiceUserRoleDto {
-        //            Id = usr.Role.Id.ToString(),
-        //            Name = usr.Role.Name,
-        //            Code = usr.Role.Code,
-        //            NumericId = usr.Role.NumericId.ToString(),
-        //            Status = usr.Role.Status
-        //        })
-        //        .ToList();
-
-        //    var dto = new ServiceUserDto {
-        //        UserId = userService.UserId,
-        //        ApprovedAt = ToUtc(userService.CreatedAt),
-        //        UpdatedAt = ToUtc(userService.UpdatedAt),
-        //        Organisation = userService.Organisation != null ? new ServiceUserOrganisationDto {
-        //            Id = userService.Organisation.Id,
-        //            Name = userService.Organisation.Name,
-        //            Category = userService.Organisation.Category,
-        //            Type = userService.Organisation.Type,
-        //            Urn = userService.Organisation.Urn,
-        //            Uid = userService.Organisation.Uid,
-        //            Ukprn = userService.Organisation.Ukprn,
-        //            EstablishmentNumber = userService.Organisation.EstablishmentNumber,
-        //            Status = userService.Organisation.Status,
-        //            ClosedOn = userService.Organisation.ClosedOn,
-        //            Address = userService.Organisation.Address,
-        //            Telephone = userService.Organisation.Telephone,
-        //            StatutoryLowAge = userService.Organisation.StatutoryLowAge,
-        //            StatutoryHighAge = userService.Organisation.StatutoryHighAge,
-        //            LegacyId = userService.Organisation.LegacyId,
-        //            CompanyRegistrationNumber = userService.Organisation.CompanyRegistrationNumber,
-        //            PhaseOfEducation = userService.Organisation.PhaseOfEducation,
-        //            ProviderProfileId = userService.Organisation.ProviderProfileId,
-        //            SourceSystem = userService.Organisation.SourceSystem
-        //        } : null,
-        //        Roles = rolesForUserOrg,
-        //        RoleName = rolesForUserOrg.FirstOrDefault()?.Name,
-        //        RoleId = rolesForUserOrg.FirstOrDefault()?.Id,
-        //        Email = profile?.Email ?? string.Empty,
-        //        FamilyName = profile?.LastName,
-        //        GivenName = profile?.FirstName,
-        //        UserStatus = profile?.Status.ToString()
-        //    };
-
-        //    return dto;
-        //}).ToList();
-
-        //if (userIds.Count > 0 && mappedUsers.All(u => string.IsNullOrEmpty(u.Email))) {
-        //    return new GetServiceUsersResponse {
-        //        Users = [],
-        //        NumberOfRecords = 0,
-        //        Page = 0,
-        //        NumberOfPages = 0
-        //    };
-        //}
-
-        //return new GetServiceUsersResponse {
-        //    Users = mappedUsers,
-        //    NumberOfRecords = totalRecords,
-        //    Page = request.PageNumber,
-        //    NumberOfPages = totalPages
-        //};
+        return new GetServiceUsersResponse {
+            Users = mappedUsers,
+            NumberOfRecords = totalRecords,
+            Page = pageNumber,
+            NumberOfPages = totalPages
+        };
     }
 
-    //private static DateTime ToUtc(DateTime date)
-    //{
-    //    return date.Kind == DateTimeKind.Unspecified
-    //        ? DateTime.SpecifyKind(date, DateTimeKind.Utc)
-    //        : date.ToUniversalTime();
-    //}
+    private static DateTime ToUtc(DateTime date)
+    {
+        return date.Kind == DateTimeKind.Unspecified
+            ? DateTime.SpecifyKind(date, DateTimeKind.Utc)
+            : date.ToUniversalTime();
+    }
 
     //private static DateTime? ToUtc(DateTime? date)
     //{
