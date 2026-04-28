@@ -12,7 +12,7 @@ internal sealed class UserEntityConfiguration : IEntityTypeConfiguration<UserEnt
     {
         builder
             .ToTable("user")
-            .HasNoKey();
+            .HasKey(e => e.Sub);
 
         builder.Property(e => e.Sub)
                 .ValueGeneratedNever()

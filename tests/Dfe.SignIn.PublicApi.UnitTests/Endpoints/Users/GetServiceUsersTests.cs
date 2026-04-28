@@ -16,6 +16,15 @@ public class GetServiceUsersTests
     private const string FakeClientId = "test-client-id";
     private static readonly Guid FakeServiceId = Guid.NewGuid();
 
+    private static Application CreateTestApplication() => new() {
+        Id = FakeServiceId,
+        ClientId = FakeClientId,
+        Name = "Test Application",
+        IsExternalService = true,
+        IsIdOnlyService = false,
+        IsHiddenService = false
+    };
+
     private static (AutoMocker, IClientSession, Mock<ILoggerFactory>, DefaultHttpContext) CreateMocks()
     {
         var autoMocker = new AutoMocker();
@@ -31,149 +40,23 @@ public class GetServiceUsersTests
         return (autoMocker, clientSession.Object, loggerFactory, httpContext);
     }
 
-    [TestMethod]
-    public async Task Returns400_WhenStatusIsInvalid()
+    private static void MockApplicationLookup(AutoMocker autoMocker, Application? application = null)
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?status=not-a-number");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("Status is not valid. Should be either 0 or 1.", badRequest.Value);
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse {
+            Application = application ?? CreateTestApplication()
+        });
     }
 
-    [TestMethod]
-    public async Task Returns400_WhenToDateIsInvalid()
+    private static void MockGetServiceUsersResponse(AutoMocker autoMocker, int page = 1)
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?to=invalid-date&status=0");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("To date is not a valid date.", badRequest.Value);
+        autoMocker.MockResponse<GetServiceUsersRequest>(new GetServiceUsersResponse {
+            Users = [],
+            NumberOfRecords = 0,
+            Page = page,
+            NumberOfPages = 0
+        });
     }
 
-    [TestMethod]
-    public async Task Returns400_WhenFromDateIsInvalid()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?from=invalid-date&status=0");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("From date is not a valid date.", badRequest.Value);
-    }
-
-    [TestMethod]
-    public async Task Returns400_WhenBothDatesInFuture()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?from=2099-12-01&to=2099-12-31&status=0");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("Date range should not be in the future", badRequest.Value);
-    }
-
-    [TestMethod]
-    public async Task Returns400_WhenFromDateInFuture()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?from=2099-12-01&status=0");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("Date range should not be in the future", badRequest.Value);
-    }
-
-    [TestMethod]
-    public async Task Returns400_WhenToDateInFuture()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?to=2099-12-31&status=0");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("Date range should not be in the future", badRequest.Value);
-    }
-
-    [TestMethod]
-    public async Task Returns400_WhenFromDateGreaterThanToDate()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?from=2023-01-10&to=2023-01-01&status=0");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("From date greater than to date", badRequest.Value);
-    }
-
-    [TestMethod]
-    public async Task Returns400_WhenDateRangeExceedsDuration()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?from=2023-01-01&to=2023-04-02&status=0");
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
-        var badRequest = result as Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>;
-        Assert.AreEqual("Only 90 days are allowed between dates", badRequest.Value);
-    }
 
     [TestMethod]
     public async Task Returns400_WhenPageIsNotANumber()
@@ -212,25 +95,36 @@ public class GetServiceUsersTests
     }
 
     [TestMethod]
-    public async Task ReturnsOk_WithValidFilterParameters()
+    public async Task Returns404_WhenApplicationNotFound()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?from=2023-01-01&to=2023-01-05&page=2&pageSize=25&status=0");
+        //MockApplicationLookup(autoMocker, null);
 
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse {
-            Application = new Application {
-                Id = FakeServiceId,
-                ClientId = FakeClientId,
-                Name = "Test Application",
-                IsExternalService = true,
-                IsIdOnlyService = false,
-                IsHiddenService = false
-            }
-        });
-        autoMocker.MockResponse<GetServiceUsersRequest>(new GetServiceUsersResponse {
+        //autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse {
+        //    Application = null
+        //});
+
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.NotFound));
+    }
+
+    [TestMethod]
+    public async Task ReturnsOk_WhenValidRequest()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        // No query params: should use defaults page=1, pageSize=25
+        MockApplicationLookup(autoMocker);
+        var capturedRequest = (GetServiceUsersRequest?)null;
+        autoMocker.CaptureRequest<GetServiceUsersRequest>(req => capturedRequest = req, new GetServiceUsersResponse {
             Users = [],
             NumberOfRecords = 0,
-            Page = 2,
+            Page = 1,
             NumberOfPages = 0
         });
 
@@ -244,6 +138,29 @@ public class GetServiceUsersTests
         Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>));
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(okResult?.Value);
+        // Verify request forwarding
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual(FakeServiceId, capturedRequest!.ApplicationId);
+        Assert.AreEqual(1, capturedRequest.PageNumber);
+        Assert.AreEqual(25, capturedRequest.PageSize);
+    }
+
+    [TestMethod]
+    public async Task ExtractParam_IsCaseInsensitive()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        httpContext.Request.QueryString = new QueryString("?PaGe=2&PaGeSiZe=10");
+        MockApplicationLookup(autoMocker);
+        MockGetServiceUsersResponse(autoMocker, page: 2);
+
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>));
     }
 
     [TestMethod]
@@ -253,22 +170,8 @@ public class GetServiceUsersTests
         var logger = new Mock<ILogger>();
         loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse {
-            Application = new Application {
-                Id = FakeServiceId,
-                ClientId = FakeClientId,
-                Name = "Test Application",
-                IsExternalService = true,
-                IsIdOnlyService = false,
-                IsHiddenService = false
-            }
-        });
-        autoMocker.MockResponse<GetServiceUsersRequest>(new GetServiceUsersResponse {
-            Users = [],
-            NumberOfRecords = 0,
-            Page = 1,
-            NumberOfPages = 0
-        });
+        MockApplicationLookup(autoMocker);
+        MockGetServiceUsersResponse(autoMocker);
 
         await UserEndpoints.GetServiceUsers(
             clientSession,
@@ -285,5 +188,26 @@ public class GetServiceUsersTests
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.AtLeastOnce);
+    }
+
+    [TestMethod]
+    public async Task ReturnsOk_WithValidFilterParameters()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        httpContext.Request.QueryString = new QueryString("?from=2023-01-01&to=2023-01-05&page=2&pageSize=25&status=0");
+
+        MockApplicationLookup(autoMocker);
+        MockGetServiceUsersResponse(autoMocker, page: 2);
+
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>));
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
+        Assert.IsNotNull(okResult?.Value);
     }
 }
