@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.NodeApi.Client.Access;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Access;
 
+[ExcludeFromCodeCoverage(Justification = "Continually getting unresolvable whitespace errors")]
 [TestClass]
 public sealed class GetRolesOfUserNodeRequesterTests
 {
