@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.NodeApi.Client.Access;
@@ -20,8 +19,7 @@ public sealed class GetRolesOfUserNodeRequesterTests
         Dictionary<string, MappedResponse> responseMappings)
     {
         var accessHandlerMock = HttpClientMocking.GetHandlerWithMappedResponses(responseMappings);
-        var accessClient = new HttpClient(accessHandlerMock.Object)
-        {
+        var accessClient = new HttpClient(accessHandlerMock.Object) {
             BaseAddress = new Uri("http://access.localhost")
         };
 
@@ -31,8 +29,7 @@ public sealed class GetRolesOfUserNodeRequesterTests
     [TestMethod]
     public async Task ReturnsEmptyRoles_WhenRolesPropertyIsNull()
     {
-        var interactor = CreateGetRolesOfUserNodeRequester(new()
-        {
+        var interactor = CreateGetRolesOfUserNodeRequester(new() {
             ["(GET) http://access.localhost/users/51a50a75-e4fa-4b6e-9c72-581538ee5258/services/edd75704-0839-4f2a-be51-a6ecaf584019/organisations/c173ec59-6670-4aca-b433-61c949a6f370"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 {
@@ -45,8 +42,7 @@ public sealed class GetRolesOfUserNodeRequesterTests
                 """),
         });
 
-        var response = await interactor.InvokeAsync(new GetRolesOfUserRequest
-        {
+        var response = await interactor.InvokeAsync(new GetRolesOfUserRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
             ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
             OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),
@@ -60,16 +56,14 @@ public sealed class GetRolesOfUserNodeRequesterTests
     [TestMethod]
     public async Task ReturnsEmptyRoles_WhenResponseIsNull()
     {
-        var interactor = CreateGetRolesOfUserNodeRequester(new()
-        {
+        var interactor = CreateGetRolesOfUserNodeRequester(new() {
             ["(GET) http://access.localhost/users/51a50a75-e4fa-4b6e-9c72-581538ee5258/services/edd75704-0839-4f2a-be51-a6ecaf584019/organisations/c173ec59-6670-4aca-b433-61c949a6f370"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 null
                 """),
         });
 
-        var response = await interactor.InvokeAsync(new GetRolesOfUserRequest
-        {
+        var response = await interactor.InvokeAsync(new GetRolesOfUserRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
             ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
             OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),
@@ -83,14 +77,12 @@ public sealed class GetRolesOfUserNodeRequesterTests
     [TestMethod]
     public async Task Throws_WhenRequestFails()
     {
-        var interactor = CreateGetRolesOfUserNodeRequester(new()
-        {
+        var interactor = CreateGetRolesOfUserNodeRequester(new() {
             ["(GET) http://access.localhost/users/51a50a75-e4fa-4b6e-9c72-581538ee5258/services/edd75704-0839-4f2a-be51-a6ecaf584019/organisations/c173ec59-6670-4aca-b433-61c949a6f370"] =
                 new MappedResponse(HttpStatusCode.InternalServerError),
         });
 
-        await Assert.ThrowsExactlyAsync<HttpRequestException>(() => interactor.InvokeAsync(new GetRolesOfUserRequest
-        {
+        await Assert.ThrowsExactlyAsync<HttpRequestException>(() => interactor.InvokeAsync(new GetRolesOfUserRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
             ApplicationId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
             OrganisationId = new Guid("c173ec59-6670-4aca-b433-61c949a6f370"),

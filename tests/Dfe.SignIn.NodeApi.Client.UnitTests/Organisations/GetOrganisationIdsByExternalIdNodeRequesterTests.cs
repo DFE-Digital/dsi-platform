@@ -20,8 +20,7 @@ public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
         Dictionary<string, MappedResponse> responseMappings)
     {
         var organisationsHandlerMock = HttpClientMocking.GetHandlerWithMappedResponses(responseMappings);
-        var organisationsClient = new HttpClient(organisationsHandlerMock.Object)
-        {
+        var organisationsClient = new HttpClient(organisationsHandlerMock.Object) {
             BaseAddress = new Uri("http://organisations.localhost")
         };
 
@@ -30,8 +29,7 @@ public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
 
     private static Dictionary<string, MappedResponse> GetNodeResponseMappingsForHappyPath()
     {
-        return new()
-        {
+        return new() {
             // Organisations API
             ["(GET) http://organisations.localhost/organisations/by-external-id/UKPRN/12345678"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
@@ -57,8 +55,7 @@ public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
         var responseMappings = GetNodeResponseMappingsForHappyPath();
         var interactor = CreateGetOrganisationIdsNodeRequester(responseMappings);
 
-        var response = await interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest
-        {
+        var response = await interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest {
             LookupKey = "UKPRN",
             LookupValue = "12345678",
         });
@@ -75,16 +72,14 @@ public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
     [TestMethod]
     public async Task ReturnsEmptyOrganisationIds_WhenNoOrganisationsFound()
     {
-        var interactor = CreateGetOrganisationIdsNodeRequester(new()
-        {
+        var interactor = CreateGetOrganisationIdsNodeRequester(new() {
             ["(GET) http://organisations.localhost/organisations/by-external-id/UKPRN/99999999"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 []
                 """),
         });
 
-        var response = await interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest
-        {
+        var response = await interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest {
             LookupKey = "UKPRN",
             LookupValue = "99999999",
         });
@@ -97,16 +92,14 @@ public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
     [TestMethod]
     public async Task ReturnsEmptyOrganisationIds_WhenResponseIsNull()
     {
-        var interactor = CreateGetOrganisationIdsNodeRequester(new()
-        {
+        var interactor = CreateGetOrganisationIdsNodeRequester(new() {
             ["(GET) http://organisations.localhost/organisations/by-external-id/UPIN/87654321"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 null
                 """),
         });
 
-        var response = await interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest
-        {
+        var response = await interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest {
             LookupKey = "UPIN",
             LookupValue = "87654321",
         });
@@ -118,8 +111,7 @@ public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
     [TestMethod]
     public async Task ReturnsSingleOrganisationId_WhenOnlyOneOrganisationFound()
     {
-        var interactor = CreateGetOrganisationIdsNodeRequester(new()
-        {
+        var interactor = CreateGetOrganisationIdsNodeRequester(new() {
             ["(GET) http://organisations.localhost/organisations/by-external-id/UKPRN/11111111"] =
                 new MappedResponse(HttpStatusCode.OK, /*lang=json,strict*/ """
                 [
@@ -132,8 +124,7 @@ public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
                 """),
         });
 
-        var response = await interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest
-        {
+        var response = await interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest {
             LookupKey = "UKPRN",
             LookupValue = "11111111",
         });
@@ -148,15 +139,13 @@ public sealed class GetOrganisationIdsByExternalIdNodeRequesterTests
     [TestMethod]
     public async Task Throws_WhenRequestFails()
     {
-        var interactor = CreateGetOrganisationIdsNodeRequester(new()
-        {
+        var interactor = CreateGetOrganisationIdsNodeRequester(new() {
             ["(GET) http://organisations.localhost/organisations/by-external-id/UKPRN/99999999"] =
                 new MappedResponse(HttpStatusCode.InternalServerError),
         });
 
         await Assert.ThrowsExactlyAsync<HttpRequestException>(()
-            => interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest
-            {
+            => interactor.InvokeAsync(new GetOrganisationIdsByExternalIdRequest {
                 LookupKey = "UKPRN",
                 LookupValue = "99999999",
             }));
