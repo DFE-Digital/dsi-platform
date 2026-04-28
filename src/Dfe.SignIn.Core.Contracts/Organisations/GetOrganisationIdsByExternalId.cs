@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Organisations;
@@ -5,6 +6,7 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// <summary>
 /// Request to get all organisations ids matching the UKPRN or UPIM .
 /// </summary>
+[ExcludeFromCodeCoverage]
 [AssociatedResponse(typeof(GetOrganisationIdsByExternalIdResponse))]
 public sealed record GetOrganisationIdsByExternalIdRequest
 {
@@ -22,6 +24,7 @@ public sealed record GetOrganisationIdsByExternalIdRequest
 /// <summary>
 /// Response model for request <see cref="GetOrganisationIdsByExternalIdRequest"/>.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record GetOrganisationIdsByExternalIdResponse
 {
     /// <summary>
