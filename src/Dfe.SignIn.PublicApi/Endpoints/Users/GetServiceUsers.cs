@@ -37,19 +37,19 @@ public static partial class UserEndpoints
         );
 
         //// 1. Extract query parameters
-        //var pageStr = ExtractParam(httpContext, "page", "1");
-        //var pageSizeStr = ExtractParam(httpContext, "pageSize", "25");
+        var pageStr = ExtractParam(httpContext, "page", "1");
+        var pageSizeStr = ExtractParam(httpContext, "pageSize", "25");
         //var status = ExtractParam(httpContext, "status");
         //var from = ExtractParam(httpContext, "from");
         //var to = ExtractParam(httpContext, "to");
 
-        //// 2. Validate page/pageSize
-        //if (!int.TryParse(pageStr, out var page)) {
-        //    return Results.BadRequest($"{pageStr} is not a valid value for page. Expected a number");
-        //}
-        //if (!int.TryParse(pageSizeStr, out var pageSize)) {
-        //    return Results.BadRequest($"{pageSizeStr} is not a valid value for pageSize. Expected a number");
-        //}
+        // 2. Validate page/pageSize
+        if (!int.TryParse(pageStr, out var page)) {
+            return Results.BadRequest($"{pageStr} is not a valid value for page. Expected a number");
+        }
+        if (!int.TryParse(pageSizeStr, out var pageSize)) {
+            return Results.BadRequest($"{pageSizeStr} is not a valid value for pageSize. Expected a number");
+        }
 
         //DateTime? fromDate = null;
         //DateTime? toDate = null;
@@ -124,8 +124,8 @@ public static partial class UserEndpoints
         var response = await interaction.DispatchAsync(
             new GetServiceUsersRequest {
                 ApplicationId = applicationResponse.Application.Id,
-                //PageNumber = page,
-                //PageSize = pageSize,
+                PageNumber = page,
+                PageSize = pageSize,
                 //Status = status,
                 //DateFrom = fromDate,
                 //DateTo = toDate
@@ -135,11 +135,11 @@ public static partial class UserEndpoints
         return Results.Ok(response);
     }
 
-    //private static string? ExtractParam(HttpContext context, string name, string? defaultValue = null)
-    //{
-    //    var key = context.Request.Query.Keys.FirstOrDefault(k => k.Equals(name, StringComparison.OrdinalIgnoreCase));
-    //    return key != null ? context.Request.Query[key].ToString() : defaultValue;
-    //}
+    private static string? ExtractParam(HttpContext context, string name, string? defaultValue = null)
+    {
+        var key = context.Request.Query.Keys.FirstOrDefault(k => k.Equals(name, StringComparison.OrdinalIgnoreCase));
+        return key != null ? context.Request.Query[key].ToString() : defaultValue;
+    }
 
     //private static bool IsFutureDate(DateTime date)
     //{
