@@ -89,7 +89,7 @@ public sealed record ServiceUserOrganisationDto
     public string? Category { get; init; }
 
     [JsonPropertyName("DistrictAdministrative_name")]
-    public string? DistrictAdministrative_name { get; init; }
+    public string? DistrictAdministrativeNameAlt { get; init; }
 
     [JsonPropertyName("masteringCode")]
     public string? MasteringCode { get; init; }
@@ -101,25 +101,25 @@ public sealed record ServiceUserOrganisationDto
     public string? SourceSystem { get; init; }
 
     [JsonPropertyName("UPIN")]
-    public string? UPIN { get; init; }
+    public string? Upin { get; init; }
 
     [JsonPropertyName("ProviderTypeName")]
     public string? ProviderTypeName { get; init; }
 
     [JsonPropertyName("GIASProviderType")]
-    public string? GIASProviderType { get; init; }
+    public string? GiasProviderType { get; init; }
 
     [JsonPropertyName("PIMSProviderType")]
-    public string? PIMSProviderType { get; init; }
+    public string? PimsProviderType { get; init; }
 
     [JsonPropertyName("ProviderTypeCode")]
     public int? ProviderTypeCode { get; init; }
 
     [JsonPropertyName("PIMSProviderTypeCode")]
-    public int? PIMSProviderTypeCode { get; init; }
+    public int? PimsProviderTypeCode { get; init; }
 
     [JsonPropertyName("PIMSStatus")]
-    public string? PIMSStatus { get; init; }
+    public string? PimsStatus { get; init; }
 
     [JsonPropertyName("OpenedOn")]
     public string? OpenedOn { get; init; }
@@ -131,16 +131,16 @@ public sealed record ServiceUserOrganisationDto
     public string? DistrictAdministrativeCode { get; init; }
 
     [JsonPropertyName("DistrictAdministrative_code")]
-    public string? DistrictAdministrative_code { get; init; }
+    public string? DistrictAdministrativeCodeAlt { get; init; }
 
     [JsonPropertyName("PIMSStatusName")]
-    public string? PIMSStatusName { get; init; }
+    public string? PimsStatusName { get; init; }
 
     [JsonPropertyName("GIASStatus")]
-    public int? GIASStatus { get; init; }
+    public int? GiasStatus { get; init; }
 
     [JsonPropertyName("GIASStatusName")]
-    public string? GIASStatusName { get; init; }
+    public string? GiasStatusName { get; init; }
 
     [JsonPropertyName("MasterProviderStatusCode")]
     public int? MasterProviderStatusCode { get; init; }
@@ -359,7 +359,7 @@ public sealed record ServiceUserDto
 /// <summary>
 /// Response containing a paginated list of service users.
 /// </summary>
-public sealed record GetServiceUsersResponse
+public sealed record GetServiceUsersResponse()
 {
     /// <summary>
     /// The list of service users for the requested page.
@@ -384,4 +384,27 @@ public sealed record GetServiceUsersResponse
     /// </summary>
     [JsonPropertyName("numberOfPages")]
     public required int NumberOfPages { get; init; }
+
+    /// <summary>
+    /// Returns an empty response for a given page number, used when there are no records to return.
+    /// </summary>
+    /// <param name="pageNumber">The page number for which the empty response is generated.</param>
+    /// <returns>An empty <see cref="GetServiceUsersResponse"/> instance.</returns>
+    public static GetServiceUsersResponse Empty(int pageNumber) => new() {
+        Users = [],
+        NumberOfRecords = 0,
+        Page = pageNumber,
+        NumberOfPages = 0
+    };
+
+    public static GetServiceUsersResponse FromUsers(
+        IReadOnlyList<ServiceUserDto> users,
+        int totalRecords,
+        int pageNumber,
+        int pageSize) => new() {
+            Users = users,
+            NumberOfRecords = totalRecords,
+            Page = pageNumber,
+            NumberOfPages = (int)Math.Ceiling(totalRecords / (double)pageSize)
+        };
 }
