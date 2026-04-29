@@ -7,6 +7,30 @@ on:
         required: true
 
 jobs:
+  vulnerability-scan:
+    name: Vulnerability scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core 10.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Check for vulnerable NuGet packages
+        run: |
+          $output = dotnet list package --vulnerable --include-transitive 2>&1
+          Write-Host $output
+          if ($output -match "has the following vulnerable packages") {
+            Write-Error "Vulnerable NuGet packages detected. Please update the affected packages or add a Dependabot exception."
+            exit 1
+          }
+
   quality:
     runs-on: ubuntu-latest
     defaults:
