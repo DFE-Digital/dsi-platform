@@ -25,7 +25,12 @@ jobs:
       - name: Check for vulnerable NuGet packages
         run: |
           $output = dotnet list package --vulnerable --include-transitive 2>&1
+          $exitCode = $LASTEXITCODE
           Write-Host $output
+          if ($exitCode -ne 0) {
+            Write-Error "Failed to run 'dotnet list package --vulnerable --include-transitive'."
+            exit $exitCode
+          }
           if ($output -match "has the following vulnerable packages") {
             Write-Error "Vulnerable NuGet packages detected. Please update the affected packages or add a Dependabot exception."
             exit 1
