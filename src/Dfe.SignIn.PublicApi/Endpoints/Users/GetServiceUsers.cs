@@ -64,7 +64,6 @@ public static partial class UserEndpoints
             return Results.NotFound();
         }
 
-        // 6. Call the use case
         var response = await interaction.DispatchAsync(
             new GetServiceUsersRequest {
                 ApplicationId = applicationResponse.Application.Id,
