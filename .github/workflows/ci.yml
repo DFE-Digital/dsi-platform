@@ -162,6 +162,35 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  vulnerability-scan:
+    name: NuGet vulnerability scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core 10.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Check for vulnerable NuGet packages
+        run: |
+          $output = dotnet list package --vulnerable --include-transitive 2>&1
+          $exitCode = $LASTEXITCODE
+          Write-Host $output
+          if ($exitCode -ne 0) {
+            Write-Error "Failed to run 'dotnet list package --vulnerable --include-transitive'."
+            exit $exitCode
+          }
+          if ($output -match "has the following vulnerable packages") {
+            Write-Error "Vulnerable NuGet packages detected. Please update the affected packages or raise a Dependabot PR."
+            exit 1
+          }
+
   docs-templates-checks:
     name: Docs templates checks
     uses: ./.github/workflows/docs-templates-checks.yml
@@ -217,6 +246,7 @@ jobs:
       - prepare
       - powershell-checks
       - dotnet-checks
+      - vulnerability-scan
       - image-build
       - dotnet-packages
       - docs-templates-checks
@@ -229,6 +259,7 @@ jobs:
             '${{ needs.prepare.result }}'
             '${{ needs.powershell-checks.result }}'
             '${{ needs.dotnet-checks.result }}'
+            '${{ needs.vulnerability-scan.result }}'
             '${{ needs.image-build.result }}'
             '${{ needs.dotnet-packages.result }}'
             '${{ needs.docs-templates-checks.result }}'
