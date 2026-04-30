@@ -23,21 +23,6 @@ public sealed record GetServiceUsersRequest
     /// The number of records per page.
     /// </summary>
     public required int PageSize { get; init; }
-
-    ///// <summary>
-    ///// The user status to filter by (e.g., "0" or "1").
-    ///// </summary>
-    //public string? Status { get; init; }
-
-    ///// <summary>
-    ///// The start date for the user retrieval range.
-    ///// </summary>
-    //public DateTime? DateFrom { get; init; }
-
-    ///// <summary>
-    ///// The end date for the user retrieval range.
-    ///// </summary>
-    //public DateTime? DateTo { get; init; }
 }
 
 /// <summary>
@@ -51,25 +36,45 @@ public sealed record ServiceUserOrganisationDto
     [JsonPropertyName("id")]
     public required Guid Id { get; init; }
 
+    /// <summary>
+    /// The unique identifier of the organisation (alternate property).
+    /// </summary>
     [JsonPropertyName("organisation_id")]
     public required Guid OrganisationId { get; init; }
 
-    // --- Added fields to match JSON contract ---
+    /// <summary>
+    /// The unique identifier of the user associated with the organisation.
+    /// </summary>
     [JsonPropertyName("user_id")]
     public Guid? UserId { get; init; }
 
+    /// <summary>
+    /// The status of the user associated with the organisation.
+    /// </summary>
     [JsonPropertyName("user_status")]
     public int? UserStatus { get; init; }
 
+    /// <summary>
+    /// The date the user was created.
+    /// </summary>
     [JsonPropertyName("user_createdAt")]
     public DateTime? UserCreatedAt { get; init; }
 
+    /// <summary>
+    /// The date the user was last updated.
+    /// </summary>
     [JsonPropertyName("user_updatedAt")]
     public DateTime? UserUpdatedAt { get; init; }
 
+    /// <summary>
+    /// The date the organisation record was created.
+    /// </summary>
     [JsonPropertyName("createdAt")]
     public DateTime? CreatedAt { get; init; }
 
+    /// <summary>
+    /// The date the organisation record was last updated.
+    /// </summary>
     [JsonPropertyName("updatedAt")]
     public DateTime? UpdatedAt { get; init; }
 
@@ -79,6 +84,9 @@ public sealed record ServiceUserOrganisationDto
     [JsonPropertyName("name")]
     public required string Name { get; init; }
 
+    /// <summary>
+    /// The region code of the organisation.
+    /// </summary>
     [JsonPropertyName("regionCode")]
     public string? RegionCode { get; set; }
 
@@ -88,78 +96,153 @@ public sealed record ServiceUserOrganisationDto
     [JsonPropertyName("Category")]
     public string? Category { get; init; }
 
+    /// <summary>
+    /// The alternate district administrative name.
+    /// </summary>
     [JsonPropertyName("DistrictAdministrative_name")]
     public string? DistrictAdministrativeNameAlt { get; init; }
 
+    /// <summary>
+    /// The mastering code of the organisation.
+    /// </summary>
     [JsonPropertyName("masteringCode")]
     public string? MasteringCode { get; init; }
 
+    /// <summary>
+    /// The provider profile ID.
+    /// </summary>
     [JsonPropertyName("ProviderProfileID")]
     public string? ProviderProfileID { get; init; }
 
+    /// <summary>
+    /// The source system of the organisation data.
+    /// </summary>
     [JsonPropertyName("SourceSystem")]
     public string? SourceSystem { get; init; }
 
+    /// <summary>
+    /// The UPIN (Unique Provider Identification Number).
+    /// </summary>
     [JsonPropertyName("UPIN")]
     public string? Upin { get; init; }
 
+    /// <summary>
+    /// The provider type name from GIAS.
+    /// </summary>
     [JsonPropertyName("ProviderTypeName")]
     public string? ProviderTypeName { get; init; }
 
+    /// <summary>
+    /// The provider type from GIAS.
+    /// </summary>
     [JsonPropertyName("GIASProviderType")]
     public string? GiasProviderType { get; init; }
 
+    /// <summary>
+    /// The provider type from PIMS.
+    /// </summary>
     [JsonPropertyName("PIMSProviderType")]
     public string? PimsProviderType { get; init; }
 
+    /// <summary>
+    /// The provider type code.
+    /// </summary>
     [JsonPropertyName("ProviderTypeCode")]
     public int? ProviderTypeCode { get; init; }
 
+    /// <summary>
+    /// The provider type code from PIMS.
+    /// </summary>
     [JsonPropertyName("PIMSProviderTypeCode")]
     public int? PimsProviderTypeCode { get; init; }
 
+    /// <summary>
+    /// The status from PIMS.
+    /// </summary>
     [JsonPropertyName("PIMSStatus")]
     public string? PimsStatus { get; init; }
 
+    /// <summary>
+    /// The date the organisation was opened.
+    /// </summary>
     [JsonPropertyName("OpenedOn")]
     public string? OpenedOn { get; init; }
 
+    /// <summary>
+    /// The district administrative name.
+    /// </summary>
     [JsonPropertyName("DistrictAdministrativeName")]
     public string? DistrictAdministrativeName { get; init; }
 
+    /// <summary>
+    /// The district administrative code.
+    /// </summary>
     [JsonPropertyName("DistrictAdministrativeCode")]
     public string? DistrictAdministrativeCode { get; init; }
 
+    /// <summary>
+    /// The alternate district administrative code.
+    /// </summary>
     [JsonPropertyName("DistrictAdministrative_code")]
     public string? DistrictAdministrativeCodeAlt { get; init; }
 
+    /// <summary>
+    /// The status name from PIMS.
+    /// </summary>
     [JsonPropertyName("PIMSStatusName")]
     public string? PimsStatusName { get; init; }
 
+    /// <summary>
+    /// The status from GIAS.
+    /// </summary>
     [JsonPropertyName("GIASStatus")]
     public int? GiasStatus { get; init; }
 
+    /// <summary>
+    /// The status name from GIAS.
+    /// </summary>
     [JsonPropertyName("GIASStatusName")]
     public string? GiasStatusName { get; init; }
 
+    /// <summary>
+    /// The master provider status code.
+    /// </summary>
     [JsonPropertyName("MasterProviderStatusCode")]
     public int? MasterProviderStatusCode { get; init; }
 
+    /// <summary>
+    /// The master provider status name.
+    /// </summary>
     [JsonPropertyName("MasterProviderStatusName")]
     public string? MasterProviderStatusName { get; init; }
 
+    /// <summary>
+    /// The legal name of the organisation.
+    /// </summary>
     [JsonPropertyName("LegalName")]
     public string? LegalName { get; init; }
 
+    /// <summary>
+    /// Indicates if the organisation is on APAR.
+    /// </summary>
     [JsonPropertyName("IsOnAPAR")]
     public string? IsOnAPAR { get; init; }
 
+    /// <summary>
+    /// The local authority ID.
+    /// </summary>
     [JsonPropertyName("localAuthorityId")]
     public Guid? LocalAuthorityId { get; init; }
 
+    /// <summary>
+    /// The local authority code.
+    /// </summary>
     [JsonPropertyName("localAuthorityCode")]
     public string? LocalAuthorityCode { get; init; }
 
+    /// <summary>
+    /// The local authority name.
+    /// </summary>
     [JsonPropertyName("localAuthorityName")]
     public string? LocalAuthorityName { get; init; }
 
@@ -170,19 +253,19 @@ public sealed record ServiceUserOrganisationDto
     public string? Type { get; init; }
 
     /// <summary>
-    /// The URN of the organisation.
+    /// The URN (Unique Reference Number) of the organisation.
     /// </summary>
     [JsonPropertyName("URN")]
     public string? Urn { get; init; }
 
     /// <summary>
-    /// The UID of the organisation.
+    /// The UID (Unique Identifier) of the organisation.
     /// </summary>
     [JsonPropertyName("UID")]
     public string? Uid { get; init; }
 
     /// <summary>
-    /// The UKPRN of the organisation.
+    /// The UKPRN (UK Provider Reference Number) of the organisation.
     /// </summary>
     [JsonPropertyName("UKPRN")]
     public string? Ukprn { get; init; }
@@ -253,6 +336,9 @@ public sealed record ServiceUserOrganisationDto
 /// </summary>
 public sealed record ServiceUserRoleDto
 {
+    /// <summary>
+    /// The unique identifier of the role.
+    /// </summary>
     /// <summary>
     /// The unique identifier of the role.
     /// </summary>
@@ -397,6 +483,14 @@ public sealed record GetServiceUsersResponse()
         NumberOfPages = 0
     };
 
+    /// <summary>
+    /// Returns a response containing the provided list of service users and pagination details.
+    /// </summary>
+    /// <param name="users">The list of service users.</param>
+    /// <param name="totalRecords">The total number of records available.</param>
+    /// <param name="pageNumber">The current page number (1-based).</param>
+    /// <param name="pageSize">The number of records per page.</param>
+    /// <returns>A <see cref="GetServiceUsersResponse"/> instance containing the provided users and pagination details.</returns>
     public static GetServiceUsersResponse FromUsers(
         IReadOnlyList<ServiceUserDto> users,
         int totalRecords,
