@@ -18,6 +18,7 @@ public sealed class GetServiceUsersUseCase(
     IUnitOfWorkOrganisations uowOrganisations
 ) : Interactor<GetServiceUsersRequest, GetServiceUsersResponse>
 {
+    /// <inheritdoc/>
     public override async Task<GetServiceUsersResponse> InvokeAsync(
         InteractionContext<GetServiceUsersRequest> context,
         CancellationToken cancellationToken = default)
@@ -30,10 +31,11 @@ public sealed class GetServiceUsersUseCase(
 
         var query = uowOrganisations.Repository<UserServiceEntity>()
             .AsNoTracking()
-            .Include(us => us.User)
-            .Include(us => us.Organisation)
-            .Where(us => us.ServiceId == applicationId && us.User != null && us.Organisation != null);
-
+            .Include(x => x.User)
+            .Include(x => x.Organisation)
+            .Where(x => x.ServiceId == applicationId)
+            .Where(x => x.User != null)
+            .Where(x => x.Organisation != null);
 
         var totalRecords = await query.CountAsync(cancellationToken);
         if (totalRecords == 0) {
@@ -41,8 +43,8 @@ public sealed class GetServiceUsersUseCase(
         }
 
         var pagedEntities = await query
-            .OrderBy(us => us.UserId)
-            .ThenBy(us => us.OrganisationId)
+            .OrderBy(x => x.UserId)
+            .ThenBy(x => x.OrganisationId)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .AsSplitQuery()
@@ -75,8 +77,9 @@ public sealed class GetServiceUsersUseCase(
     {
         var roles = await uowOrganisations.Repository<UserServiceRoleEntity>()
             .AsNoTracking()
-            .Include(usr => usr.Role)
-            .Where(usr => usr.ServiceId == appId && userIds.Contains(usr.UserId))
+            .Include(x => x.Role)
+            .Where(x => x.ServiceId == appId)
+            .Where(x => userIds.Contains(x.UserId))
             .ToListAsync(ct);
 
         return roles.ToLookup(
@@ -95,7 +98,7 @@ public sealed class GetServiceUsersUseCase(
     {
         var orgRoles = await uowOrganisations.Repository<UserOrganisationEntity>()
             .AsNoTracking()
-            .Where(uor => userIds.Contains(uor.UserId))
+            .Where(x => userIds.Contains(x.UserId))
             .Select(x => new { x.UserId, x.OrganisationId, x.RoleId })
             .ToListAsync(ct);
 
