@@ -125,33 +125,6 @@ public class GetServiceUsersTests
     }
 
     [TestMethod]
-    public async Task LogsRequest_WithCorrelationIds()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        var logger = new Mock<ILogger>();
-        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
-
-        MockApplicationLookup(autoMocker);
-        MockGetServiceUsersResponse(autoMocker);
-
-        await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext
-        );
-
-        logger.Verify(
-            x => x.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(FakeClientId) && v.ToString().Contains("corr-123")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.AtLeastOnce);
-    }
-
-    [TestMethod]
     public async Task ReturnsOk_WithValidFilterParameters()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();

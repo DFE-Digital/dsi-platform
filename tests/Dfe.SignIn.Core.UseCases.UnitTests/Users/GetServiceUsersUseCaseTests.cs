@@ -64,14 +64,21 @@ public class GetServiceUsersUseCaseTests
             UpdatedAt = DateTime.UtcNow
         };
 
-    private static UserServiceRoleEntity CreateUserServiceRole(Guid roleId, RoleEntity role = null)
-        => new() {
+    private static UserServiceRoleEntity CreateUserServiceRole(Guid roleId, RoleEntity? role = null)
+    {
+        var entity = new UserServiceRoleEntity {
             UserId = UserId,
             OrganisationId = OrgId,
             ServiceId = ServiceId,
             RoleId = roleId,
-            Role = role
         };
+
+        if (role != null) {
+            entity.Role = role;
+        }
+
+        return entity;
+    }
 
     private static GetServiceUsersRequest CreateRequest(int pageNumber = 1, int pageSize = 25)
         => new() {
