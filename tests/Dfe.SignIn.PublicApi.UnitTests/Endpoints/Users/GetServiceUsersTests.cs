@@ -101,7 +101,7 @@ public class GetServiceUsersTests
         Assert.IsNotNull(okResult?.Value);
         // Verify request forwarding
         Assert.IsNotNull(capturedRequest);
-        Assert.AreEqual(FakeServiceId, capturedRequest!.ApplicationId);
+        Assert.AreEqual(FakeServiceId, capturedRequest.ApplicationId);
         Assert.AreEqual(1, capturedRequest.PageNumber);
         Assert.AreEqual(25, capturedRequest.PageSize);
     }
