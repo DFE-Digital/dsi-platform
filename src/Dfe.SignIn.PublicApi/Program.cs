@@ -9,6 +9,7 @@ using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
+using Dfe.SignIn.NodeApi.Client.Users;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Endpoints.Organisations;
@@ -36,7 +37,7 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
 }
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [
-    NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
+    NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations, NodeApiName.Directories];
 
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
@@ -91,6 +92,8 @@ builder.Services
     .AddSelectOrganisationSessionCache()
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
     .SetupSelectOrganisationInteractions();
+
+builder.Services.AddInteractor<GetUserProfileNodeRequester>();
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
 
