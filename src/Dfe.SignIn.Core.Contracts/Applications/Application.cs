@@ -52,7 +52,7 @@ public sealed record Application
     public Guid? ParentId { get; init; }
 
     /// <summary>
-    /// Parent application client ID, if this application is a child of another application.
+    /// The unique client identifier (e.g., "GIAS") of the parent application, if this application is a child of another application.
     /// </summary>
     public string? ParentClientId { get; init; }
 }

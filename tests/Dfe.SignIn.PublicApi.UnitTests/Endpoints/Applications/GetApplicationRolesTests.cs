@@ -78,7 +78,7 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>>(result);
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
         Assert.AreEqual(1, okResult.Value!.Count());
@@ -106,7 +106,7 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>>(result);
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
         Assert.AreEqual(1, okResult.Value!.Count());
@@ -132,7 +132,7 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>>(result);
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
         Assert.AreEqual(0, okResult.Value!.Count());
@@ -168,9 +168,9 @@ public class GetApplicationRolesTests
         foreach (var role in okResult.Value!) {
             var props = role.GetType().GetProperties().Select(p => p.Name).OrderBy(x => x).ToArray();
             CollectionAssert.AreEqual(new[] { "Code", "Name", "Status" }, props);
-            Assert.IsInstanceOfType(role.Name, typeof(string));
-            Assert.IsInstanceOfType(role.Code, typeof(string));
-            Assert.IsInstanceOfType(role.Status, typeof(string));
+            Assert.IsInstanceOfType<string>(role.Name);
+            Assert.IsInstanceOfType<string>(role.Code);
+            Assert.IsInstanceOfType<string>(role.Status);
         }
     }
 
@@ -287,11 +287,11 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(IResult));
+        Assert.IsInstanceOfType<IResult>(result);
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<IEnumerable<ApplicationRoleDto>>;
         Assert.IsNotNull(okResult);
         var roles = okResult.Value!.ToList();
-        Assert.AreEqual(1, roles.Count);
+        Assert.HasCount(1, roles);
         Assert.AreEqual("DSI Child One", roles[0].Name);
         Assert.AreEqual("DSI_Child_One", roles[0].Code);
         Assert.AreEqual("Active", roles[0].Status);
@@ -317,7 +317,7 @@ public class GetApplicationRolesTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [TestMethod]
@@ -331,6 +331,7 @@ public class GetApplicationRolesTests
         autoMocker.MockResponse<GetApplicationRolesRequest>(FakeRolesResponse);
 
         var logger = new Mock<ILogger>();
+        logger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
         loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
         await ApplicationEndpoints.GetApplicationRoles(
@@ -346,7 +347,7 @@ public class GetApplicationRolesTests
         Assert.IsNotNull(logInvocation, "Log was not called");
         var logMessage = logInvocation.Arguments[2]?.ToString();
         Assert.IsNotNull(logMessage);
-        Assert.IsTrue(logMessage.Contains(FakeClientId));
-        Assert.IsTrue(logMessage.Contains("corr-123"));
+        Assert.Contains(FakeClientId, logMessage);
+        Assert.Contains("corr-123", logMessage);
     }
 }

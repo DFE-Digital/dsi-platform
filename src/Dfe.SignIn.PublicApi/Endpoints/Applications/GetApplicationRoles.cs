@@ -33,13 +33,15 @@ public static partial class ApplicationEndpoints
         var correlationId = Activity.Current?.TraceId.ToString();
         var clientCorrelationId = httpContext.Request.Headers["x-correlation-id"].FirstOrDefault();
 
-        logger.LogInformation(
-            "{ClientId} is attempting to get service roles for: {RequestedClientId} (correlationId: {CorrelationId}, clientCorrelationId: {ClientCorrelationId})",
-            clientSession.ClientId,
-            clientId,
-            correlationId,
-            clientCorrelationId
-        );
+        if (logger.IsEnabled(LogLevel.Information)) {
+            logger.LogInformation(
+                "{ClientId} is attempting to get service roles for: {RequestedClientId} (correlationId: {CorrelationId}, clientCorrelationId: {ClientCorrelationId})",
+                clientSession.ClientId,
+                clientId,
+                correlationId,
+                clientCorrelationId
+            );
+        }
 
         GetApplicationByClientIdResponse applicationResponse;
 
@@ -55,7 +57,7 @@ public static partial class ApplicationEndpoints
         }
         catch (Exception ex) {
             logger.LogError(ex, "Unexpected error while retrieving roles for clientId {ClientId}", clientId);
-            throw;
+            return Results.Problem("An unexpected error occurred while retrieving application roles.");
         }
 
         var application = applicationResponse.Application;
@@ -78,7 +80,7 @@ public static partial class ApplicationEndpoints
             .Select(r => new ApplicationRoleDto {
                 Name = r.Name,
                 Code = r.Code,
-                Status = r.Status == ApplicationRoleStatus.Active ? "Active" : "Inactive"
+                Status = r.Status.ToString()
             });
 
         return Results.Ok(roles);
