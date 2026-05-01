@@ -251,4 +251,160 @@ public class GetServiceUsersTests
 
         Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
     }
+    [TestMethod]
+    public async Task ReturnsBadRequest_WhenBothDatesAreInFuture()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var future = DateTimeOffset.UtcNow.AddDays(2);
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            from: future,
+            to: future.AddDays(1)
+        );
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+    }
+
+    [TestMethod]
+    public async Task ReturnsBadRequest_WhenOnlyToDateIsInFuture()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var future = DateTimeOffset.UtcNow.AddDays(2);
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            to: future
+        );
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+    }
+
+    [TestMethod]
+    public async Task ReturnsNotFound_WhenApplicationIsNull()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        // Application is null in response
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { Application = null });
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.NotFound));
+    }
+
+    [TestMethod]
+    public async Task ReturnsProblem_WhenApplicationLookupThrowsUnexpectedException()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        autoMocker.MockThrows<GetApplicationByClientIdRequest>(new Exception("fail"));
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult));
+    }
+
+    [TestMethod]
+    public async Task ReturnsOk_SetsWarning_WhenOnlyFromDateProvided()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        MockApplicationLookup(autoMocker);
+        MockGetServiceUsersResponse(autoMocker);
+        var from = DateTimeOffset.UtcNow.AddDays(-10);
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            from: from
+        );
+        var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
+        Assert.IsNotNull(ok);
+        Assert.IsTrue(ok.Value?.Warning?.Contains("90 days") ?? false);
+    }
+
+    [TestMethod]
+    public async Task ReturnsOk_SetsWarning_WhenOnlyToDateProvided()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        MockApplicationLookup(autoMocker);
+        MockGetServiceUsersResponse(autoMocker);
+        var to = DateTimeOffset.UtcNow.AddDays(-1);
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            to: to
+        );
+        var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
+        Assert.IsNotNull(ok);
+        Assert.IsTrue(ok.Value?.Warning?.Contains("90 days") ?? false);
+    }
+
+    [TestMethod]
+    public async Task ReturnsOk_NoWarning_WhenBothDatesProvided()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        MockApplicationLookup(autoMocker);
+        MockGetServiceUsersResponse(autoMocker);
+        var from = DateTimeOffset.UtcNow.AddDays(-10);
+        var to = DateTimeOffset.UtcNow.AddDays(-5);
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            from: from,
+            to: to
+        );
+        var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
+        Assert.IsNotNull(ok);
+        Assert.IsNull(ok.Value?.Warning);
+    }
+
+    [TestMethod]
+    public async Task ReturnsOk_SetsDateRange_WhenBothDatesProvided()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        MockApplicationLookup(autoMocker);
+        MockGetServiceUsersResponse(autoMocker);
+        var from = DateTimeOffset.UtcNow.AddDays(-10);
+        var to = DateTimeOffset.UtcNow.AddDays(-5);
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            from: from,
+            to: to
+        );
+        var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
+        Assert.IsNotNull(ok);
+        Assert.IsNotNull(ok.Value?.DateRange);
+    }
+
+    [TestMethod]
+    public async Task ReturnsOk_NullDateRange_WhenNoDatesProvided()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        MockApplicationLookup(autoMocker);
+        MockGetServiceUsersResponse(autoMocker);
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext
+        );
+        var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
+        Assert.IsNotNull(ok);
+        Assert.IsNull(ok.Value?.DateRange);
+    }
 }
