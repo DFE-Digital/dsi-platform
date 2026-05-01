@@ -3,9 +3,11 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
+using Dfe.SignIn.Core.UseCases.Applications;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
@@ -94,6 +96,15 @@ builder.Services
     .SetupSelectOrganisationInteractions();
 
 builder.Services.AddInteractor<GetUserProfileNodeRequester>();
+builder.Services.AddInteractor<GetApplicationByClientIdUseCase>();
+
+builder.Services
+    .AddUnitOfWorkEntityFrameworkServices(
+        builder.Configuration.GetRequiredSection("EntityFramework"),
+        addDirectoriesUnitOfWork: true,
+        addOrganisationsUnitOfWork: true,
+        addAuditUnitOfWork: false
+    );
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
 

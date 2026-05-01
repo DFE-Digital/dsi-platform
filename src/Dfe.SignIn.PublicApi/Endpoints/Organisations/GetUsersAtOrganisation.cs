@@ -44,7 +44,7 @@ public static partial class OrganisationEndpoints
         try {
 
             // get the application id from the session
-            var applicationId = await FetchApplicationIdFromNode(interaction, clientSession.ClientId);
+            var applicationId = await FetchApplicationIdFromEntityFramework(interaction, clientSession.ClientId);
             if (applicationId == null) {
                 return TypedResults.NotFound();
             }
@@ -99,7 +99,25 @@ public static partial class OrganisationEndpoints
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="clientName">The application/service/client name.</param>
     /// <returns>The application id of the service.</returns>
+#pragma warning disable IDE0051 // Remove unused private members
     private static async Task<Guid?> FetchApplicationIdFromNode(IInteractionDispatcher interaction, string clientName)
+#pragma warning restore IDE0051 // Remove unused private members
+    {
+        GetApplicationByClientIdRequest request = new() { ClientId = clientName };
+        var response = await interaction.DispatchAsync(request).To<GetApplicationByClientIdResponse>();
+
+        var application = response.Application;
+
+        return application?.Id;
+    }
+
+    /// <summary>
+    /// Use the client name, extracted from the bearer token, to lookup the client id
+    /// </summary>
+    /// <param name="interaction">Service to dispatch interaction requests.</param>
+    /// <param name="clientName">The application/service/client name.</param>
+    /// <returns>The application id of the service.</returns>
+    private static async Task<Guid?> FetchApplicationIdFromEntityFramework(IInteractionDispatcher interaction, string clientName)
     {
         GetApplicationByClientIdRequest request = new() { ClientId = clientName };
         var response = await interaction.DispatchAsync(request).To<GetApplicationByClientIdResponse>();
