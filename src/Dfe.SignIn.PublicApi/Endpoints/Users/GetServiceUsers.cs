@@ -17,8 +17,11 @@ public static partial class UserEndpoints
     /// <summary>
     /// Get the service users for a given service (client).
     /// </summary>
-    /// <param name="page"></param>
-    /// <param name="pageSize"></param>
+    /// <param name="status">The status filter for the users.</param>
+    /// <param name="from">The start date for the date range filter.</param>
+    /// <param name="to">The end date for the date range filter.</param>
+    /// <param name="page">The page number for pagination.</param>
+    /// <param name="pageSize">The number of items per page for pagination.</param>
     /// <param name="clientSession">The client session for the current request.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
@@ -39,12 +42,14 @@ public static partial class UserEndpoints
         var correlationId = Activity.Current?.TraceId.ToString();
         var clientCorrelationId = httpContext.Request.Headers["x-correlation-id"].FirstOrDefault();
 
-        logger.LogInformation(
-            "{ClientId} is attempting to get service users (correlationId: {CorrelationId}, clientCorrelationId: {ClientCorrelationId})",
-            clientSession.ClientId,
-            correlationId,
-            clientCorrelationId
-        );
+        if (logger.IsEnabled(LogLevel.Information)) {
+            logger.LogInformation(
+                "{ClientId} is attempting to get service users (correlationId: {CorrelationId}, clientCorrelationId: {ClientCorrelationId})",
+                clientSession.ClientId,
+                correlationId,
+                clientCorrelationId
+            );
+        }
 
         // Validate page/pageSize
         if (page < 1 || pageSize < 1) {

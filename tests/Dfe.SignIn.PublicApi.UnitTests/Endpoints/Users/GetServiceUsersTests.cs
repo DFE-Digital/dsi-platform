@@ -72,7 +72,7 @@ public class GetServiceUsersTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.NotFound));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.NotFound>(result);
     }
 
     [TestMethod]
@@ -96,10 +96,10 @@ public class GetServiceUsersTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>>(result);
+
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(okResult?.Value);
-        // Verify request forwarding
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual(FakeServiceId, capturedRequest.ApplicationId);
         Assert.AreEqual(1, capturedRequest.PageNumber);
@@ -121,7 +121,7 @@ public class GetServiceUsersTests
             httpContext
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>>(result);
     }
 
     [TestMethod]
@@ -152,10 +152,10 @@ public class GetServiceUsersTests
             pageSize: 25
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>>(result);
+
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(okResult?.Value);
-
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual(FakeServiceId, capturedRequest.ApplicationId);
         Assert.AreEqual(0, capturedRequest.UserStatus);
@@ -183,7 +183,7 @@ public class GetServiceUsersTests
             pageSize: pageSize
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
     }
 
     [TestMethod]
@@ -199,7 +199,7 @@ public class GetServiceUsersTests
             status: 2
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
     }
 
     [TestMethod]
@@ -216,7 +216,7 @@ public class GetServiceUsersTests
             to: new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero)
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
     }
 
     [TestMethod]
@@ -233,7 +233,7 @@ public class GetServiceUsersTests
             to: new DateTimeOffset(2023, 4, 2, 0, 0, 0, TimeSpan.Zero)
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
     }
 
     [TestMethod]
@@ -249,13 +249,14 @@ public class GetServiceUsersTests
             from: DateTimeOffset.UtcNow.AddDays(1)
         );
 
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
     }
     [TestMethod]
     public async Task ReturnsBadRequest_WhenBothDatesAreInFuture()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         var future = DateTimeOffset.UtcNow.AddDays(2);
+
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
@@ -264,7 +265,8 @@ public class GetServiceUsersTests
             from: future,
             to: future.AddDays(1)
         );
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
     }
 
     [TestMethod]
@@ -272,6 +274,7 @@ public class GetServiceUsersTests
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         var future = DateTimeOffset.UtcNow.AddDays(2);
+
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
@@ -279,22 +282,24 @@ public class GetServiceUsersTests
             httpContext,
             to: future
         );
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
     }
 
     [TestMethod]
     public async Task ReturnsNotFound_WhenApplicationIsNull()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        // Application is null in response
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { Application = null });
+
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext
         );
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.NotFound));
+
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.NotFound>(result);
     }
 
     [TestMethod]
@@ -302,13 +307,15 @@ public class GetServiceUsersTests
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         autoMocker.MockThrows<GetApplicationByClientIdRequest>(new Exception("fail"));
+
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext
         );
-        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult));
+
+        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
     }
 
     [TestMethod]
@@ -317,6 +324,7 @@ public class GetServiceUsersTests
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
+
         var from = DateTimeOffset.UtcNow.AddDays(-10);
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
@@ -325,6 +333,7 @@ public class GetServiceUsersTests
             httpContext,
             from: from
         );
+
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(ok);
         Assert.IsTrue(ok.Value?.Warning?.Contains("90 days") ?? false);
@@ -336,6 +345,7 @@ public class GetServiceUsersTests
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
+
         var to = DateTimeOffset.UtcNow.AddDays(-1);
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
@@ -344,6 +354,7 @@ public class GetServiceUsersTests
             httpContext,
             to: to
         );
+
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(ok);
         Assert.IsTrue(ok.Value?.Warning?.Contains("90 days") ?? false);
@@ -355,6 +366,7 @@ public class GetServiceUsersTests
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
+
         var from = DateTimeOffset.UtcNow.AddDays(-10);
         var to = DateTimeOffset.UtcNow.AddDays(-5);
         var result = await UserEndpoints.GetServiceUsers(
@@ -365,6 +377,7 @@ public class GetServiceUsersTests
             from: from,
             to: to
         );
+
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(ok);
         Assert.IsNull(ok.Value?.Warning);
@@ -376,6 +389,7 @@ public class GetServiceUsersTests
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
+
         var from = DateTimeOffset.UtcNow.AddDays(-10);
         var to = DateTimeOffset.UtcNow.AddDays(-5);
         var result = await UserEndpoints.GetServiceUsers(
@@ -386,6 +400,7 @@ public class GetServiceUsersTests
             from: from,
             to: to
         );
+
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(ok);
         Assert.IsNotNull(ok.Value?.DateRange);
@@ -397,12 +412,14 @@ public class GetServiceUsersTests
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
+
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext
         );
+
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(ok);
         Assert.IsNull(ok.Value?.DateRange);
