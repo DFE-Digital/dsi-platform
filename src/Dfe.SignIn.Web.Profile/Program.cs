@@ -60,7 +60,7 @@ builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
     .AddInteractionFramework();
 
-builder.Services.AddScoped<IClaimsTransformation, ApplicationClaimTransformation>();
+builder.Services.AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>();
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
 

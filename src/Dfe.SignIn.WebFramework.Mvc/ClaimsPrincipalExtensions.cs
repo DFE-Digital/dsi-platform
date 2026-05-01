@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Access;
 
 namespace Dfe.SignIn.WebFramework.Mvc;
 
@@ -50,5 +51,21 @@ public static class ClaimsPrincipalExtensions
         var claim = principal.FindFirst(ClaimTypes.NameIdentifier)
              ?? throw new InvalidOperationException("Missing user ID.");
         return new Guid(claim.Value);
+    }
+
+    /// <summary>
+    /// Determines if the user has the approver claim.
+    /// </summary>
+    /// <param name="principal">The claims principal.</param>
+    /// <returns>
+    ///   <para>if the approver claim is present.</para>
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    ///   <para>If the <see cref="ClaimTypes.NameIdentifier"/> claim is missing.</para>
+    /// </exception>
+    public static bool HasApproverClaim(this ClaimsPrincipal principal)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(principal, nameof(principal));
+        return principal.Claims.Any(x => x.Type == ApplicationRoles.Approver);
     }
 }

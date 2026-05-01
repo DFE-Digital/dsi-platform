@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace Dfe.SignIn.Web.Profile;
 
-public class ApplicationClaimTransformation(IInteractionDispatcher interaction) : IClaimsTransformation
+public class ApplicationClaimsTransformation(IInteractionDispatcher interaction) : IClaimsTransformation
 {
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
@@ -18,8 +18,10 @@ public class ApplicationClaimTransformation(IInteractionDispatcher interaction) 
         var response = await interaction.DispatchAsync(new IsOrganisationApproverRequest(principal.GetUserId()))
             .To<IsOrganisationApproverResponse>();
 
-        if (!identity.HasClaim(c => c.Type == "is_approver")) {
-            identity.AddClaim(new Claim("is_approver", response.IsApprover.ToString()));
+        if (response.IsApprover) {
+            if (!identity.HasClaim(c => c.Type == ApplicationRoles.Approver)) {
+                identity.AddClaim(new Claim(ApplicationRoles.Approver, string.Empty));
+            }
         }
 
         return principal;
