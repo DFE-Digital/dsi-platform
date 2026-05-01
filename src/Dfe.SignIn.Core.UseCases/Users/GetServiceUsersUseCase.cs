@@ -39,15 +39,15 @@ public sealed class GetServiceUsersUseCase(
 
         // Apply optional filters
         if (context.Request.UserStatus.HasValue) {
-            query = query.Where(x => x.Status == (short)context.Request.UserStatus.Value);
+            query = query.Where(x => x.User!.Status == (short)context.Request.UserStatus.Value);
         }
 
         if (context.Request.DateFrom.HasValue) {
-            query = query.Where(x => x.CreatedAt >= context.Request.DateFrom.Value);
+            query = query.Where(x => x.User!.UpdatedAt >= context.Request.DateFrom.Value);
         }
 
         if (context.Request.DateTo.HasValue) {
-            query = query.Where(x => x.CreatedAt <= context.Request.DateTo.Value);
+            query = query.Where(x => x.User!.UpdatedAt <= context.Request.DateTo.Value);
         }
 
         var totalRecords = await query.CountAsync(cancellationToken);

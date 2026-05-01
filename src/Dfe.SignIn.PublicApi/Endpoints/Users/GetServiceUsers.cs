@@ -51,37 +51,43 @@ public static partial class UserEndpoints
             return Results.BadRequest("page and pageSize must be greater than 0.");
         }
 
-        // Validate status
-        if (status.HasValue && status != 0 && status != 1) {
-            return Results.BadRequest("Status is not valid. Should be either 0 or 1.");
-        }
-
-        // Validate dates
-        var fromDate = from;
-        var toDate = to;
-
-        if (fromDate.HasValue && toDate.HasValue) {
-            if (fromDate.Value > DateTime.UtcNow && toDate.Value > DateTime.UtcNow) {
-                return Results.BadRequest("Date range should not be in the future.");
-            }
-            if (fromDate.Value > toDate.Value) {
-                return Results.BadRequest("From date greater than to date.");
-            }
-            var daysDifference = (toDate.Value - fromDate.Value).TotalDays;
-            if (daysDifference > MaxDateRangeDays) {
-                return Results.BadRequest($"Only {MaxDateRangeDays} days are allowed between dates.");
-            }
-        }
-        else if (fromDate.HasValue || toDate.HasValue) {
-            var selectedDate = fromDate ?? toDate;
-            if (selectedDate!.Value > DateTime.UtcNow) {
-                return Results.BadRequest("Date range should not be in the future.");
-            }
-        }
-
-        // Fill in missing date bounds (mirrors Node findDateRange), set warning if inferred
+        DateTimeOffset? fromDate = null;
+        DateTimeOffset? toDate = null;
         bool isWarning = false;
-        (fromDate, toDate, isWarning) = FindDateRange(fromDate, toDate);
+
+        if (status.HasValue || from.HasValue || to.HasValue) {
+
+            // Validate status
+            if (status.HasValue && status != 0 && status != 1) {
+                return Results.BadRequest("Status is not valid. Should be either 0 or 1.");
+            }
+
+            // Validate dates
+            fromDate = from;
+            toDate = to;
+
+            if (fromDate.HasValue && toDate.HasValue) {
+                if (fromDate.Value > DateTime.UtcNow && toDate.Value > DateTime.UtcNow) {
+                    return Results.BadRequest("Date range should not be in the future.");
+                }
+                if (fromDate.Value > toDate.Value) {
+                    return Results.BadRequest("From date greater than to date.");
+                }
+                var daysDifference = (toDate.Value - fromDate.Value).TotalDays;
+                if (daysDifference > MaxDateRangeDays) {
+                    return Results.BadRequest($"Only {MaxDateRangeDays} days are allowed between dates.");
+                }
+            }
+            else if (fromDate.HasValue || toDate.HasValue) {
+                var selectedDate = fromDate ?? toDate;
+                if (selectedDate!.Value > DateTime.UtcNow) {
+                    return Results.BadRequest("Date range should not be in the future.");
+                }
+            }
+
+            // Fill in missing date bounds (mirrors Node findDateRange), set warning if inferred
+            (fromDate, toDate, isWarning) = FindDateRange(fromDate, toDate);
+        }
 
         var clientId = clientSession.ClientId;
 
