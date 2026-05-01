@@ -128,20 +128,127 @@ public class GetServiceUsersTests
     public async Task ReturnsOk_WithValidFilterParameters()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        httpContext.Request.QueryString = new QueryString("?from=2023-01-01&to=2023-01-05&page=2&pageSize=25&status=0");
+        var from = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var to = new DateTimeOffset(2023, 1, 5, 0, 0, 0, TimeSpan.Zero);
+        var capturedRequest = (GetServiceUsersRequest?)null;
 
         MockApplicationLookup(autoMocker);
-        MockGetServiceUsersResponse(autoMocker, page: 2);
+        autoMocker.CaptureRequest<GetServiceUsersRequest>(req => capturedRequest = req, new GetServiceUsersResponse {
+            Users = [],
+            NumberOfRecords = 0,
+            Page = 2,
+            NumberOfPages = 0
+        });
 
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
-            httpContext
+            httpContext,
+            status: 0,
+            from: from,
+            to: to,
+            page: 2,
+            pageSize: 25
         );
 
         Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>));
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
         Assert.IsNotNull(okResult?.Value);
+
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual(FakeServiceId, capturedRequest.ApplicationId);
+        Assert.AreEqual(0, capturedRequest.UserStatus);
+        Assert.AreEqual(from, capturedRequest.DateFrom);
+        Assert.AreEqual(to, capturedRequest.DateTo);
+        Assert.AreEqual(2, capturedRequest.PageNumber);
+        Assert.AreEqual(25, capturedRequest.PageSize);
+    }
+
+    [TestMethod]
+    [DataRow(0, 25)]
+    [DataRow(1, 0)]
+    [DataRow(-1, 25)]
+    [DataRow(1, -10)]
+    public async Task ReturnsBadRequest_WhenPagingIsInvalid(int page, int pageSize)
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            page: page,
+            pageSize: pageSize
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+    }
+
+    [TestMethod]
+    public async Task ReturnsBadRequest_WhenStatusIsInvalid()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            status: 2
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+    }
+
+    [TestMethod]
+    public async Task ReturnsBadRequest_WhenFromDateIsGreaterThanToDate()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            from: new DateTimeOffset(2023, 1, 5, 0, 0, 0, TimeSpan.Zero),
+            to: new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero)
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+    }
+
+    [TestMethod]
+    public async Task ReturnsBadRequest_WhenDateRangeExceeds90Days()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            from: new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            to: new DateTimeOffset(2023, 4, 2, 0, 0, 0, TimeSpan.Zero)
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
+    }
+
+    [TestMethod]
+    public async Task ReturnsBadRequest_WhenDateIsInFuture()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+
+        var result = await UserEndpoints.GetServiceUsers(
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext,
+            from: DateTimeOffset.UtcNow.AddDays(1)
+        );
+
+        Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>));
     }
 }
