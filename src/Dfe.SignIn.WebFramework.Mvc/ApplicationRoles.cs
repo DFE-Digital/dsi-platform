@@ -9,6 +9,6 @@ public static class ApplicationRoles
     /// <summary>
     /// string representation of the approver role
     /// </summary>
-    public static string Approver = "Approver";
+    public static readonly string Approver = "Approver";
 }
 
