@@ -37,6 +37,19 @@ public sealed class GetServiceUsersUseCase(
             .Where(x => x.User != null)
             .Where(x => x.Organisation != null);
 
+        // Apply optional filters
+        if (context.Request.UserStatus.HasValue) {
+            query = query.Where(x => x.Status == (short)context.Request.UserStatus.Value);
+        }
+
+        if (context.Request.DateFrom.HasValue) {
+            query = query.Where(x => x.CreatedAt >= context.Request.DateFrom.Value);
+        }
+
+        if (context.Request.DateTo.HasValue) {
+            query = query.Where(x => x.CreatedAt <= context.Request.DateTo.Value);
+        }
+
         var totalRecords = await query.CountAsync(cancellationToken);
         if (totalRecords == 0) {
             return GetServiceUsersResponse.Empty(pageNumber);

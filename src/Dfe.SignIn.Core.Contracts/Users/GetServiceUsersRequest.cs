@@ -23,6 +23,21 @@ public sealed record GetServiceUsersRequest
     /// The number of records per page.
     /// </summary>
     public required int PageSize { get; init; }
+
+    /// <summary>
+    /// Optional filter by user status (0 = inactive, 1 = active).
+    /// </summary>
+    public int? UserStatus { get; init; }
+
+    /// <summary>
+    /// Optional start of date range filter (inclusive), applied against CreatedAt.
+    /// </summary>
+    public DateTimeOffset? DateFrom { get; init; }
+
+    /// <summary>
+    /// Optional end of date range filter (inclusive), applied against CreatedAt.
+    /// </summary>
+    public DateTimeOffset? DateTo { get; init; }
 }
 
 /// <summary>
@@ -470,6 +485,21 @@ public sealed record GetServiceUsersResponse()
     /// </summary>
     [JsonPropertyName("numberOfPages")]
     public required int NumberOfPages { get; init; }
+
+    /// <summary>
+    /// The date range applied to the query, if applicable (e.g., "2024-01-01 to 2024-01-31"), used when the response is filtered by a date range.
+    /// This provides clarity on the actual date range used in the query, especially if it was truncated due to exceeding maximum allowed range.
+    /// </summary>
+    [JsonPropertyName("dateRange")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? DateRange { get; init; }
+
+    /// <summary>
+    /// The warning message to include in the response, if applicable (e.g., when the date range is truncated due to exceeding maximum allowed range).
+    /// </summary>
+    [JsonPropertyName("warning")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Warning { get; init; }
 
     /// <summary>
     /// Returns an empty response for a given page number, used when there are no records to return.

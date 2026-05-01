@@ -12,6 +12,8 @@ namespace Dfe.SignIn.PublicApi.Endpoints.Users;
 /// </summary>
 public static partial class UserEndpoints
 {
+    private const int MaxDateRangeDays = 90;
+
     /// <summary>
     /// Get the service users for a given service (client).
     /// </summary>
@@ -27,6 +29,9 @@ public static partial class UserEndpoints
         IInteractionDispatcher interaction,
         ILoggerFactory loggerFactory,
         HttpContext httpContext,
+        [FromQuery] int? status = null,
+        [FromQuery] DateTimeOffset? from = null,
+        [FromQuery] DateTimeOffset? to = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25)
     {
@@ -40,6 +45,43 @@ public static partial class UserEndpoints
             correlationId,
             clientCorrelationId
         );
+
+        // Validate page/pageSize
+        if (page < 1 || pageSize < 1) {
+            return Results.BadRequest("page and pageSize must be greater than 0.");
+        }
+
+        // Validate status
+        if (status.HasValue && status != 0 && status != 1) {
+            return Results.BadRequest("Status is not valid. Should be either 0 or 1.");
+        }
+
+        // Validate dates
+        var fromDate = from;
+        var toDate = to;
+
+        if (fromDate.HasValue && toDate.HasValue) {
+            if (fromDate.Value > DateTime.UtcNow && toDate.Value > DateTime.UtcNow) {
+                return Results.BadRequest("Date range should not be in the future.");
+            }
+            if (fromDate.Value > toDate.Value) {
+                return Results.BadRequest("From date greater than to date.");
+            }
+            var daysDifference = (toDate.Value - fromDate.Value).TotalDays;
+            if (daysDifference > MaxDateRangeDays) {
+                return Results.BadRequest($"Only {MaxDateRangeDays} days are allowed between dates.");
+            }
+        }
+        else if (fromDate.HasValue || toDate.HasValue) {
+            var selectedDate = fromDate ?? toDate;
+            if (selectedDate!.Value > DateTime.UtcNow) {
+                return Results.BadRequest("Date range should not be in the future.");
+            }
+        }
+
+        // Fill in missing date bounds (mirrors Node findDateRange), set warning if inferred
+        bool isWarning = false;
+        (fromDate, toDate, isWarning) = FindDateRange(fromDate, toDate);
 
         var clientId = clientSession.ClientId;
 
@@ -69,9 +111,36 @@ public static partial class UserEndpoints
                 ApplicationId = applicationResponse.Application.Id,
                 PageNumber = page,
                 PageSize = pageSize,
+                UserStatus = status,
+                DateFrom = fromDate,
+                DateTo = toDate,
             }
         ).To<GetServiceUsersResponse>();
 
-        return Results.Ok(response);
+        string? dateRange = (fromDate.HasValue && toDate.HasValue)
+            ? $"Users between {fromDate.Value:R} and {toDate.Value:R}"
+            : null;
+
+        string? warning = isWarning
+            ? $"Only {MaxDateRangeDays} days of data can be fetched"
+            : null;
+
+        return Results.Ok(response with { DateRange = dateRange, Warning = warning });
+    }
+
+    private static (DateTimeOffset? fromDate, DateTimeOffset? toDate, bool isWarning) FindDateRange(
+        DateTimeOffset? fromDate, DateTimeOffset? toDate)
+    {
+        if (toDate.HasValue && !fromDate.HasValue) {
+            return (toDate.Value.AddDays(-MaxDateRangeDays), toDate, true);
+        }
+        if (fromDate.HasValue && !toDate.HasValue) {
+            return (fromDate, fromDate.Value.AddDays(MaxDateRangeDays), true);
+        }
+        if (!fromDate.HasValue && !toDate.HasValue) {
+            var now = DateTime.UtcNow;
+            return (now.AddDays(-MaxDateRangeDays), now, true);
+        }
+        return (fromDate, toDate, false);
     }
 }
