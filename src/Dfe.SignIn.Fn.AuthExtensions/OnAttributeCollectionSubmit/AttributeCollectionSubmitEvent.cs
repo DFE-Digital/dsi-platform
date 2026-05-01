@@ -62,19 +62,19 @@ public sealed record UserSignUpInfo
 public sealed record UserSignUpInfoAttributes
 {
     [JsonPropertyName("givenName")]
-    public required UserSignUpInfoAttribute<string> GivenName { get; init; }
+    public required UserSignUpInfoAttribute<string> FirstName { get; init; }
 
     [JsonPropertyName("surname")]
-    public required UserSignUpInfoAttribute<string> Surname { get; init; }
+    public required UserSignUpInfoAttribute<string> LastName { get; init; }
 
     private const string StringDirectoryAttributeType = "microsoft.graph.stringDirectoryAttributeValue";
 
     public void Validate()
     {
-        if (this.GivenName?.Type != StringDirectoryAttributeType) {
+        if (this.FirstName?.Type != StringDirectoryAttributeType) {
             throw new ValidationException("Invalid value for attribute 'givenName'.");
         }
-        if (this.Surname?.Type != StringDirectoryAttributeType) {
+        if (this.LastName?.Type != StringDirectoryAttributeType) {
             throw new ValidationException("Invalid value for attribute 'surname'.");
         }
     }

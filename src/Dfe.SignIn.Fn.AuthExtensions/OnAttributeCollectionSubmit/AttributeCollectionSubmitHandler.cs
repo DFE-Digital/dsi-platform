@@ -27,10 +27,10 @@ public sealed class AttributeCollectionSubmitHandler(
 
         @event.Validate();
 
-        string givenName = @event.Data.UserSignUpInfo.Attributes.GivenName.Value;
-        string surname = @event.Data.UserSignUpInfo.Attributes.Surname.Value;
+        string firstName = @event.Data.UserSignUpInfo.Attributes.FirstName.Value;
+        string lastName = @event.Data.UserSignUpInfo.Attributes.LastName.Value;
 
-        var validationResult = this.ValidateNameInputs(givenName, surname);
+        var validationResult = this.ValidateNameInputs(firstName, lastName);
         if (validationResult is not null) {
             return validationResult;
         }
@@ -47,14 +47,14 @@ public sealed class AttributeCollectionSubmitHandler(
         [nameof(ChangeNameRequest.LastName)] = "surname",
     };
 
-    private OkObjectResult? ValidateNameInputs(string givenName, string surname)
+    private OkObjectResult? ValidateNameInputs(string firstName, string lastName)
     {
         var validationResults = new List<ValidationResult>();
 
         bool isValid = interactionValidator.TryValidateRequest(new ChangeNameRequest {
             UserId = Guid.NewGuid(), // ID is not needed for validation.
-            FirstName = givenName,
-            LastName = surname,
+            FirstName = firstName,
+            LastName = lastName,
         }, validationResults);
 
         if (isValid) {

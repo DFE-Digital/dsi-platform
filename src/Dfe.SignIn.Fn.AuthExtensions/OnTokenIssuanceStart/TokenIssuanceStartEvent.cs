@@ -72,11 +72,11 @@ public sealed record UserContext
 
     [JsonPropertyName("givenName")]
     [MinLength(1)]
-    public required string GivenName { get; init; }
+    public required string FirstName { get; init; }
 
     [JsonPropertyName("surname")]
     [MinLength(1)]
-    public required string Surname { get; init; }
+    public required string LastName { get; init; }
 
     [JsonPropertyName("userPrincipalName")]
     public required string UserPrincipalName { get; init; }
