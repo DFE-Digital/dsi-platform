@@ -9,6 +9,10 @@ public class ApplicationClaimsTransformation(IInteractionDispatcher interaction)
 {
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
+        if (principal.Identity is null) {
+            return principal;
+        }
+
         if (!principal.Identity.IsAuthenticated) {
             return principal;
         }
