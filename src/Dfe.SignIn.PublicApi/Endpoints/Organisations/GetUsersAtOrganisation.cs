@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Applications;
@@ -17,12 +18,29 @@ public static partial class OrganisationEndpoints
     /// <param name="externalId">The UKPRN or UPIN of the organisation.</param>
     /// <param name="clientSession">The client session for the current request.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
+    /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
+    /// <param name="httpContext">The current HTTP context, used to access headers and request information.</param>
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
     public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
         string externalId,
         IClientSession clientSession,
-        IInteractionDispatcher interaction)
+        IInteractionDispatcher interaction,
+        ILoggerFactory loggerFactory,
+        HttpContext httpContext)
     {
+        var logger = loggerFactory.CreateLogger(nameof(OrganisationEndpoints));
+
+        var correlationId = Activity.Current?.TraceId.ToString();
+        var clientCorrelationId = httpContext.Request.Headers["x-correlation-id"].FirstOrDefault();
+
+        logger.LogInformation(
+            "{ClientId} is attempting to get users at organisation for ukprn/upin: {RequestedExternalId} (correlationId: {CorrelationId}, clientCorrelationId: {ClientCorrelationId})",
+            clientSession.ClientId,
+            externalId,
+            correlationId,
+            clientCorrelationId
+        );
+
         try {
 
             // get the application id from the session
@@ -48,7 +66,7 @@ public static partial class OrganisationEndpoints
             var userRoles = await GetUserIdsAndRoles(interaction, applicationId.Value, organisationIds);
 
             // get user names and their email address and statuses
-            var users = await GetNameandEmailandStatusOfUsers(interaction, userRoles);
+            var users = await GetNameandEmailandStatusOfUsers(interaction, userRoles, logger);
 
             // populate the model
             var responseModel = new GetUsersAtOrganisationResponse {
@@ -62,7 +80,9 @@ public static partial class OrganisationEndpoints
         catch (NotFoundInteractionException) {
             return TypedResults.NotFound();
         }
-        catch (Exception) {
+        catch (Exception ex) {
+
+            logger.LogError(ex, "Unexpected error while retrieving organisation users for ukprn/upin {RequestedExternalId}", externalId);
 
             return TypedResults.InternalServerError(
                 new ProblemDetails {
@@ -119,6 +139,7 @@ public static partial class OrganisationEndpoints
         GetOrganisationIdsByExternalIdRequest request = new() { LookupKey = "UPIN-multi", LookupValue = upin };
         var response = await interaction.DispatchAsync(request).To<GetOrganisationIdsByExternalIdResponse>();
         IEnumerable<Guid>? organisationIds = response?.OrganisationIds;
+
         return organisationIds;
     }
 
@@ -165,8 +186,11 @@ public static partial class OrganisationEndpoints
     /// </summary>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="userRoles">Service roles codes for users.</param>
+    /// <param name="logger">For logging when exception is raised.</param>
     /// <returns>User names, email addresses, and statuses</returns>
-    private static async Task<List<UserAtOrganisation>> GetNameandEmailandStatusOfUsers(IInteractionDispatcher interaction, Dictionary<Guid, HashSet<string>> userRoles)
+    private static async Task<List<UserAtOrganisation>> GetNameandEmailandStatusOfUsers(IInteractionDispatcher interaction,
+        Dictionary<Guid, HashSet<string>> userRoles,
+        ILogger logger)
     {
         List<UserAtOrganisation> users = [];
         foreach (var (userId, roles) in userRoles) {
@@ -185,8 +209,9 @@ public static partial class OrganisationEndpoints
                     users.Add(user);
                 }
             }
-            catch (Exception) {
+            catch (Exception ex) {
                 // overlook the exception that occurs when there are no matches
+                logger.LogWarning(ex, "Unexpected error while retrieving user profile for clientId {UserId}", userId);
             }
         }
 
