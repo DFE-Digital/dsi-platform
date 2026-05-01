@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Access;
 
 namespace Dfe.SignIn.WebFramework.Mvc;
 
