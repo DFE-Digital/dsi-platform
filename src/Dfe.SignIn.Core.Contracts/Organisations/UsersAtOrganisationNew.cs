@@ -35,7 +35,7 @@ public class GetUsersAtOrganisationResponseNew
 /// <param name="UserStatus">
 /// The numeric status code representing the user's current state.
 /// </param>
-/// <param name="Roles">
+/// <param name="Role">
 /// A read-only list of roles assigned to the user within the organisation.
 /// </param>
 public record UserAtOrganisationNew(
@@ -44,4 +44,4 @@ public record UserAtOrganisationNew(
     string FirstName,
     string LastName,
     int UserStatus,
-    string Role);
+    string? Role);

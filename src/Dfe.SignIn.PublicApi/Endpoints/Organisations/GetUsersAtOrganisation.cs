@@ -21,7 +21,7 @@ public static partial class OrganisationEndpoints
     /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
     /// <param name="httpContext">The current HTTP context, used to access headers and request information.</param>
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
-    public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
+    public static async Task<Results<Ok<GetUsersAtOrganisationResponseNew>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
         string externalId,
         IClientSession clientSession,
         IInteractionDispatcher interaction,
@@ -45,7 +45,7 @@ public static partial class OrganisationEndpoints
 
             GetUsersAtOrganisationRequestNew request = new(clientSession.ClientId, externalId);
 
-            var response = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseNew>();
+            GetUsersAtOrganisationResponseNew response = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseNew>();
 
             /*
 
@@ -82,7 +82,7 @@ public static partial class OrganisationEndpoints
             };
             */
 
-            return TypedResults.NotFound();
+            return TypedResults.Ok(response);
         }
         catch (NotFoundInteractionException ex) {
             logger.LogWarning(ex, "Organisation missing");

@@ -44,18 +44,17 @@ public sealed class GetUsersAtOrganisationUseCase(
                     on usr.RoleId equals r.Id
                     into roleGroup
                 from r in roleGroup.DefaultIfEmpty()    // LEFT JOIN Role
-                where s.ClientId == context.Request.
+                where s.ClientId == context.Request.ClientId
                     && o.Ukprn == context.Request.ExternalId
-                select new {
+                select new UserAtOrganisationNew(
                     u.Sub,
                     u.FirstName,
                     u.LastName,
                     u.Email,
                     u.Status,
-                    RoleCode = r != null ? r.Code : null
-                };
+                    r.Code);
 
-        var results = await query.ToListAsync();
+        List<UserAtOrganisationNew> results = await query.ToListAsync();
 
         //var roles = await uowOrganisations
         //    .Repository<UserServiceEntity>()
@@ -73,6 +72,8 @@ public sealed class GetUsersAtOrganisationUseCase(
         //        "Nobby"))
         //    .ToListAsync(cancellationToken);
 
-        return new GetUsersAtOrganisationResponseNew();
+        GetUsersAtOrganisationResponseNew responseModel = new() { Users = results };
+
+        return responseModel;
     }
 }
