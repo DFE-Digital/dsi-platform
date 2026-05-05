@@ -3,16 +3,32 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.PublicApi.Authorization;
-using Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
+using Dfe.SignIn.PublicApi.Configuration;
 
-namespace Dfe.SignIn.PublicApi.Endpoints.Users;
+namespace Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
 
 /// <summary>
 /// Endpoints for service users, migrated from Node.js getServiceUsers.
 /// </summary>
-public static partial class UserEndpoints
+public static class GetServiceUsersEndpoint
 {
-    private const int MaxDateRangeDays = 90;
+    /// <summary>
+    /// Configures the HTTP endpoint for retrieving service users in the specified web application.
+    /// </summary>
+    /// <remarks>This method registers a GET endpoint at '/users' that returns a list of service users. The
+    /// endpoint is documented with OpenAPI metadata and supports both successful and bad request responses. Use this
+    /// method during application startup to enable user-related API routes.</remarks>
+    /// <param name="app">The endpoint route builder to which the user retrieval endpoint is added.</param>
+    public static void Map(IEndpointRouteBuilder app)
+    {
+        app.MapGet("/users", GetServiceUsers)
+            .WithName("GetServiceUsersRequest")
+            .WithTags("Users")
+            .Produces<GetServiceUsersResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithValidationFilter<GetServiceUsersQuery>()
+            .WithOpenApi();
+    }
 
     /// <summary>
     /// Get the service users for a given service (client).
@@ -89,7 +105,7 @@ public static partial class UserEndpoints
             : null;
 
         string? warning = isWarning
-            ? $"Only {MaxDateRangeDays} days of data can be fetched"
+            ? $"Only {GetServiceUsersConstants.MaxDateRangeDays} days of data can be fetched"
             : null;
 
         return Results.Ok(response with { DateRange = dateRange, Warning = warning });
@@ -99,15 +115,18 @@ public static partial class UserEndpoints
         DateTimeOffset? fromDate, DateTimeOffset? toDate)
     {
         if (toDate.HasValue && !fromDate.HasValue) {
-            return (toDate.Value.AddDays(-MaxDateRangeDays), toDate, true);
+            return (toDate.Value.AddDays(-GetServiceUsersConstants.MaxDateRangeDays), toDate, true);
         }
+
         if (fromDate.HasValue && !toDate.HasValue) {
-            return (fromDate, fromDate.Value.AddDays(MaxDateRangeDays), true);
+            return (fromDate, fromDate.Value.AddDays(GetServiceUsersConstants.MaxDateRangeDays), true);
         }
+
         if (!fromDate.HasValue && !toDate.HasValue) {
             var now = DateTime.UtcNow;
-            return (now.AddDays(-MaxDateRangeDays), now, true);
+            return (now.AddDays(-GetServiceUsersConstants.MaxDateRangeDays), now, true);
         }
+
         return (fromDate, toDate, false);
     }
 }

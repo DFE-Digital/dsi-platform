@@ -52,6 +52,6 @@ public static class ValidationEndpointFilterExtensions
     /// <typeparam name="TRequest">The type of the request to validate.</typeparam>
     /// <param name="builder">The endpoint builder to add the filter to.</param>
     /// <returns>The updated endpoint builder.</returns>
-    public static RouteHandlerBuilder AddValidationFilter<TRequest>(this RouteHandlerBuilder builder) where TRequest : notnull
+    public static RouteHandlerBuilder WithValidationFilter<TRequest>(this RouteHandlerBuilder builder) where TRequest : notnull
         => builder.AddEndpointFilter<ValidationEndpointFilter<TRequest>>();
 }

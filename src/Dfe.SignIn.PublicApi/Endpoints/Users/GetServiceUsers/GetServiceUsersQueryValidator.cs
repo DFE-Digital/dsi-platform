@@ -11,8 +11,6 @@ namespace Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
 /// incoming GetServiceUsersQuery instances prior to executing queries against the service user data source.</remarks>
 public class GetServiceUsersQueryValidator : AbstractValidator<GetServiceUsersQuery>
 {
-    private const int MaxDateRangeDays = 90;
-
     /// <inheritdoc />
     public GetServiceUsersQueryValidator()
     {
@@ -33,8 +31,8 @@ public class GetServiceUsersQueryValidator : AbstractValidator<GetServiceUsersQu
                 .WithMessage("From date greater than to date.")
                 .Must(x => x.From!.Value <= DateTimeOffset.UtcNow && x.To!.Value <= DateTimeOffset.UtcNow)
                 .WithMessage("Date range should not be in the future.")
-                .Must(x => (x.To!.Value - x.From!.Value).TotalDays <= MaxDateRangeDays)
-                .WithMessage($"Only {MaxDateRangeDays} days are allowed between dates.");
+                .Must(x => (x.To!.Value - x.From!.Value).TotalDays <= GetServiceUsersConstants.MaxDateRangeDays)
+                .WithMessage($"Only {GetServiceUsersConstants.MaxDateRangeDays} days are allowed between dates.");
         });
 
         this.When(x => x.From.HasValue && !x.To.HasValue, () => {

@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Users;
 
@@ -15,11 +15,6 @@ public static partial class UserEndpoints
     {
         app.MapPost("v2/users/{userId}/organisations/{organisationId}/query", PostQueryUserOrganisation);
 
-        app.MapGet("/users", GetServiceUsers)
-            .WithName("GetServiceUsersRequest")
-            .WithTags("Users")
-            .Produces<GetServiceUsersResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+        GetServiceUsersEndpoint.Map(app);
     }
 }

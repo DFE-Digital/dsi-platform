@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
 
 /// <summary>
-/// Query parameters for GetServiceUsers endpoint.
+/// Request/Query parameters for GetServiceUsers endpoint.
 /// </summary>
 public record GetServiceUsersQuery(
-    [property: FromQuery] int? Status = null,
-    [property: FromQuery] DateTimeOffset? From = null,
-    [property: FromQuery] DateTimeOffset? To = null,
-    [property: FromQuery] int Page = 1,
-    [property: FromQuery] int PageSize = 25
+    [FromQuery(Name = "status")] int? Status = null,
+    [FromQuery(Name = "from")] DateTimeOffset? From = null,
+    [FromQuery(Name = "to")] DateTimeOffset? To = null,
+    [FromQuery(Name = "page")] int Page = 1,
+    [FromQuery(Name = "pageSize")] int PageSize = 25
 );

@@ -1,7 +1,4 @@
-using System;
 using Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
-using FluentValidation.Results;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Users.GetServiceUsers;
 
