@@ -5,8 +5,18 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace Dfe.SignIn.Web.Profile;
 
+/// <summary>
+/// Component runs after the user has been authenicated and is responsible for adding or adjusting application
+/// based claims.
+/// </summary>
+/// <param name="interaction"></param>
 public class ApplicationClaimsTransformation(IInteractionDispatcher interaction) : IClaimsTransformation
 {
+    /// <summary>
+    /// Transforms the current claims principal and adds claims if required
+    /// </summary>
+    /// <param name="principal"></param>
+    /// <returns>New claims principle with added claims</returns>
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         if (principal.Identity is null) {
