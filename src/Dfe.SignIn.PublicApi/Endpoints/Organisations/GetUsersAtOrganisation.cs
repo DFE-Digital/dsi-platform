@@ -43,6 +43,12 @@ public static partial class OrganisationEndpoints
 
         try {
 
+            GetUsersAtOrganisationRequestNew request = new(clientSession.ClientId, externalId);
+
+            var response = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseNew>();
+
+            /*
+
             // get the application id from the session
             var applicationId = await FetchApplicationIdFromEntityFramework(interaction, clientSession.ClientId);
             if (applicationId == null) {
@@ -74,10 +80,12 @@ public static partial class OrganisationEndpoints
                 ExternalId = externalId,
                 Users = users
             };
+            */
 
-            return TypedResults.Ok(responseModel);
+            return TypedResults.NotFound();
         }
-        catch (NotFoundInteractionException) {
+        catch (NotFoundInteractionException ex) {
+            logger.LogWarning(ex, "Organisation missing");
             return TypedResults.NotFound();
         }
         catch (Exception ex) {

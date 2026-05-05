@@ -4,6 +4,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.Applications;
+using Dfe.SignIn.Core.UseCases.Organisations;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
@@ -97,6 +98,7 @@ builder.Services
 
 builder.Services.AddInteractor<GetUserProfileNodeRequester>();
 builder.Services.AddInteractor<GetApplicationByClientIdUseCase>();
+builder.Services.AddInteractor<GetUsersAtOrganisationUseCase>();
 
 builder.Services
     .AddUnitOfWorkEntityFrameworkServices(

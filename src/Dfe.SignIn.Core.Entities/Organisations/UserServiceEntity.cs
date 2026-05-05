@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.Core.Entities.Directories;
 
 namespace Dfe.SignIn.Core.Entities.Organisations;
 
@@ -25,6 +26,9 @@ public partial class UserServiceEntity
     public virtual OrganisationEntity? Organisation { get; set; }
 
     public virtual ServiceEntity? Service { get; set; }
+
+    public virtual UserEntity? User { get; set; }
+
+    public virtual ICollection<UserServiceRoleEntity> UserServiceRoles { get; set; } = [];
 }
 #pragma warning restore CS1591
-
