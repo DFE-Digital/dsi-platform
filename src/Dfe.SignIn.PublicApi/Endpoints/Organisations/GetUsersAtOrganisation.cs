@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Applications;
@@ -18,39 +17,16 @@ public static partial class OrganisationEndpoints
     /// <param name="externalId">The UKPRN or UPIN of the organisation.</param>
     /// <param name="clientSession">The client session for the current request.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
-    /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
-    /// <param name="httpContext">The current HTTP context, used to access headers and request information.</param>
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
-    public static async Task<Results<Ok<GetUsersAtOrganisationResponseNew>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
+    public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
         string externalId,
         IClientSession clientSession,
-        IInteractionDispatcher interaction,
-        ILoggerFactory loggerFactory,
-        HttpContext httpContext)
+        IInteractionDispatcher interaction)
     {
-        var logger = loggerFactory.CreateLogger(nameof(OrganisationEndpoints));
-
-        var correlationId = Activity.Current?.TraceId.ToString();
-        var clientCorrelationId = httpContext.Request.Headers["x-correlation-id"].FirstOrDefault();
-
-        logger.LogInformation(
-            "{ClientId} is attempting to get users at organisation for ukprn/upin: {RequestedExternalId} (correlationId: {CorrelationId}, clientCorrelationId: {ClientCorrelationId})",
-            clientSession.ClientId,
-            externalId,
-            correlationId,
-            clientCorrelationId
-        );
-
         try {
 
-            GetUsersAtOrganisationRequestNew request = new(clientSession.ClientId, externalId);
-
-            GetUsersAtOrganisationResponseNew response = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseNew>();
-
-            /*
-
             // get the application id from the session
-            var applicationId = await FetchApplicationIdFromEntityFramework(interaction, clientSession.ClientId);
+            var applicationId = await FetchApplicationIdFromNode(interaction, clientSession.ClientId);
             if (applicationId == null) {
                 return TypedResults.NotFound();
             }
@@ -72,7 +48,7 @@ public static partial class OrganisationEndpoints
             var userRoles = await GetUserIdsAndRoles(interaction, applicationId.Value, organisationIds);
 
             // get user names and their email address and statuses
-            var users = await GetNameandEmailandStatusOfUsers(interaction, userRoles, logger);
+            var users = await GetNameandEmailandStatusOfUsers(interaction, userRoles);
 
             // populate the model
             var responseModel = new GetUsersAtOrganisationResponse {
@@ -80,17 +56,13 @@ public static partial class OrganisationEndpoints
                 ExternalId = externalId,
                 Users = users
             };
-            */
 
-            return TypedResults.Ok(response);
+            return TypedResults.Ok(responseModel);
         }
-        catch (NotFoundInteractionException ex) {
-            logger.LogWarning(ex, "Organisation missing");
+        catch (NotFoundInteractionException) {
             return TypedResults.NotFound();
         }
-        catch (Exception ex) {
-
-            logger.LogError(ex, "Unexpected error while retrieving organisation users for ukprn/upin {RequestedExternalId}", externalId);
+        catch (Exception) {
 
             return TypedResults.InternalServerError(
                 new ProblemDetails {
@@ -107,25 +79,7 @@ public static partial class OrganisationEndpoints
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="clientName">The application/service/client name.</param>
     /// <returns>The application id of the service.</returns>
-#pragma warning disable IDE0051 // Remove unused private members
     private static async Task<Guid?> FetchApplicationIdFromNode(IInteractionDispatcher interaction, string clientName)
-#pragma warning restore IDE0051 // Remove unused private members
-    {
-        GetApplicationByClientIdRequest request = new() { ClientId = clientName };
-        var response = await interaction.DispatchAsync(request).To<GetApplicationByClientIdResponse>();
-
-        var application = response.Application;
-
-        return application?.Id;
-    }
-
-    /// <summary>
-    /// Use the client name, extracted from the bearer token, to lookup the client id
-    /// </summary>
-    /// <param name="interaction">Service to dispatch interaction requests.</param>
-    /// <param name="clientName">The application/service/client name.</param>
-    /// <returns>The application id of the service.</returns>
-    private static async Task<Guid?> FetchApplicationIdFromEntityFramework(IInteractionDispatcher interaction, string clientName)
     {
         GetApplicationByClientIdRequest request = new() { ClientId = clientName };
         var response = await interaction.DispatchAsync(request).To<GetApplicationByClientIdResponse>();
@@ -165,7 +119,6 @@ public static partial class OrganisationEndpoints
         GetOrganisationIdsByExternalIdRequest request = new() { LookupKey = "UPIN-multi", LookupValue = upin };
         var response = await interaction.DispatchAsync(request).To<GetOrganisationIdsByExternalIdResponse>();
         IEnumerable<Guid>? organisationIds = response?.OrganisationIds;
-
         return organisationIds;
     }
 
@@ -212,11 +165,8 @@ public static partial class OrganisationEndpoints
     /// </summary>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="userRoles">Service roles codes for users.</param>
-    /// <param name="logger">For logging when exception is raised.</param>
     /// <returns>User names, email addresses, and statuses</returns>
-    private static async Task<List<UserAtOrganisation>> GetNameandEmailandStatusOfUsers(IInteractionDispatcher interaction,
-        Dictionary<Guid, HashSet<string>> userRoles,
-        ILogger logger)
+    private static async Task<List<UserAtOrganisation>> GetNameandEmailandStatusOfUsers(IInteractionDispatcher interaction, Dictionary<Guid, HashSet<string>> userRoles)
     {
         List<UserAtOrganisation> users = [];
         foreach (var (userId, roles) in userRoles) {
@@ -235,9 +185,8 @@ public static partial class OrganisationEndpoints
                     users.Add(user);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 // overlook the exception that occurs when there are no matches
-                logger.LogWarning(ex, "Unexpected error while retrieving user profile for clientId {UserId}", userId);
             }
         }
 

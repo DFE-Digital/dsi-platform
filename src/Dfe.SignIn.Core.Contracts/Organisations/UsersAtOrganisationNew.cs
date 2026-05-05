@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Organisations;
@@ -17,6 +18,29 @@ public record GetUsersAtOrganisationRequestNew(
 /// </summary>
 public class GetUsersAtOrganisationResponseNew
 {
+    /// <summary>
+    /// True if a UKPRN is being expressed, false if UPIN is being shown.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsUkprn { get; set; }
+
+    /// <summary>
+    /// The value of the UKPRN or UPIN.
+    /// </summary>
+    [JsonIgnore]
+    public string? ExternalId { get; set; }
+
+    /// <summary>
+    /// Ukprn label.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? Ukprn => this.IsUkprn ? this.ExternalId : null;
+
+    /// <summary>
+    /// Upin label
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? Upin => !this.IsUkprn ? this.ExternalId : null;
     public IReadOnlyList<UserAtOrganisationNew>? Users { get; set; }
 }
 
