@@ -3,12 +3,13 @@ using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
+using Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.AutoMock;
 
-namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Users;
+namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Users.GetServiceUsers;
 
 [TestClass]
 public class GetServiceUsersTests
@@ -25,7 +26,7 @@ public class GetServiceUsersTests
         IsHiddenService = false
     };
 
-    private static (AutoMocker, IClientSession, Mock<ILoggerFactory>, DefaultHttpContext) CreateMocks()
+    private static (AutoMocker, IClientSession, Mock<ILoggerFactory>, DefaultHttpContext) CreateMocks(bool valid = true)
     {
         var autoMocker = new AutoMocker();
         var clientSession = autoMocker.GetMock<IClientSession>();
@@ -37,6 +38,14 @@ public class GetServiceUsersTests
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Headers["X-Correlation-ID"] = "corr-123";
+
+        var validator = new Mock<FluentValidation.IValidator<GetServiceUsersQuery>>();
+        validator.Setup(v => v.ValidateAsync(It.IsAny<GetServiceUsersQuery>(), default)).ReturnsAsync(
+            new FluentValidation.Results.ValidationResult(valid ? [] : [
+                new FluentValidation.Results.ValidationFailure("Page", "page must be greater than 0.")
+            ])
+        );
+
         return (autoMocker, clientSession.Object, loggerFactory, httpContext);
     }
 
@@ -69,7 +78,8 @@ public class GetServiceUsersTests
             mockClientSession.Object,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
-            httpContext
+            httpContext,
+            new GetServiceUsersQuery()
         );
 
         Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.NotFound>(result);
@@ -93,7 +103,8 @@ public class GetServiceUsersTests
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
-            httpContext
+            httpContext,
+            new GetServiceUsersQuery()
         );
 
         Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>>(result);
@@ -118,7 +129,8 @@ public class GetServiceUsersTests
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
-            httpContext
+            httpContext,
+            new GetServiceUsersQuery()
         );
 
         Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>>(result);
@@ -145,11 +157,7 @@ public class GetServiceUsersTests
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext,
-            status: 0,
-            from: from,
-            to: to,
-            page: 2,
-            pageSize: 25
+            new GetServiceUsersQuery(Status: 0, From: from, To: to, Page: 2, PageSize: 25)
         );
 
         Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>>(result);
@@ -166,137 +174,18 @@ public class GetServiceUsersTests
     }
 
     [TestMethod]
-    [DataRow(0, 25)]
-    [DataRow(1, 0)]
-    [DataRow(-1, 25)]
-    [DataRow(1, -10)]
-    public async Task ReturnsBadRequest_WhenPagingIsInvalid(int page, int pageSize)
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
-            page: page,
-            pageSize: pageSize
-        );
-
-        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
-    }
-
-    [TestMethod]
-    public async Task ReturnsBadRequest_WhenStatusIsInvalid()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
-            status: 2
-        );
-
-        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
-    }
-
-    [TestMethod]
-    public async Task ReturnsBadRequest_WhenFromDateIsGreaterThanToDate()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
-            from: new DateTimeOffset(2023, 1, 5, 0, 0, 0, TimeSpan.Zero),
-            to: new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero)
-        );
-
-        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
-    }
-
-    [TestMethod]
-    public async Task ReturnsBadRequest_WhenDateRangeExceeds90Days()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
-            from: new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            to: new DateTimeOffset(2023, 4, 2, 0, 0, 0, TimeSpan.Zero)
-        );
-
-        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
-    }
-
-    [TestMethod]
-    public async Task ReturnsBadRequest_WhenDateIsInFuture()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
-            from: DateTimeOffset.UtcNow.AddDays(1)
-        );
-
-        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
-    }
-    [TestMethod]
-    public async Task ReturnsBadRequest_WhenBothDatesAreInFuture()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        var future = DateTimeOffset.UtcNow.AddDays(2);
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
-            from: future,
-            to: future.AddDays(1)
-        );
-
-        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
-    }
-
-    [TestMethod]
-    public async Task ReturnsBadRequest_WhenOnlyToDateIsInFuture()
-    {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
-        var future = DateTimeOffset.UtcNow.AddDays(2);
-
-        var result = await UserEndpoints.GetServiceUsers(
-            clientSession,
-            autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
-            to: future
-        );
-
-        Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<string>>(result);
-    }
-
-    [TestMethod]
     public async Task ReturnsNotFound_WhenApplicationIsNull()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { Application = null });
 
         var result = await UserEndpoints.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
-            httpContext
+            httpContext,
+            new GetServiceUsersQuery()
         );
 
         Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.NotFound>(result);
@@ -312,7 +201,8 @@ public class GetServiceUsersTests
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
-            httpContext
+            httpContext,
+            new GetServiceUsersQuery()
         );
 
         Assert.IsInstanceOfType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
@@ -331,7 +221,7 @@ public class GetServiceUsersTests
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext,
-            from: from
+            new GetServiceUsersQuery(From: from)
         );
 
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
@@ -352,7 +242,7 @@ public class GetServiceUsersTests
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext,
-            to: to
+            new GetServiceUsersQuery(To: to)
         );
 
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
@@ -374,8 +264,7 @@ public class GetServiceUsersTests
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext,
-            from: from,
-            to: to
+            new GetServiceUsersQuery(From: from, To: to)
         );
 
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
@@ -397,8 +286,7 @@ public class GetServiceUsersTests
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext,
-            from: from,
-            to: to
+            new GetServiceUsersQuery(From: from, To: to)
         );
 
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
@@ -417,7 +305,8 @@ public class GetServiceUsersTests
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
-            httpContext
+            httpContext,
+            new GetServiceUsersQuery()
         );
 
         var ok = result as Microsoft.AspNetCore.Http.HttpResults.Ok<GetServiceUsersResponse>;
