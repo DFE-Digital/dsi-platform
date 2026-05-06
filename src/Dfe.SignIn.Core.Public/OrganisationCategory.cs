@@ -91,4 +91,10 @@ public enum OrganisationCategory
     /// </summary>
     [Description("Youth Custody Service")]
     YouthCustodyService = 53,
+
+    /// <summary>
+    /// UKRLP providers.
+    /// </summary>
+    [Description("UKRLP Providers")]
+    UkrlpProviders = 54,
 }
