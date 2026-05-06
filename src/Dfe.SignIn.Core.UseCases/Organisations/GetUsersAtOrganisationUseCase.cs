@@ -48,9 +48,9 @@ public sealed class GetUsersAtOrganisationUseCase(
                     && o.Ukprn == context.Request.ExternalId
                 select new UserAtOrganisationNew(
                     u.Sub,
+                    u.Email,
                     u.FirstName,
                     u.LastName,
-                    u.Email,
                     u.Status,
                     r.Code);
 

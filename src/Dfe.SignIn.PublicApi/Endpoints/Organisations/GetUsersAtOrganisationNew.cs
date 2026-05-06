@@ -1,9 +1,6 @@
 using System.Diagnostics;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Access;
-using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.Organisations;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.PublicApi.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +18,7 @@ public static partial class OrganisationEndpoints
     /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
     /// <param name="httpContext">The current HTTP context, used to access headers and request information.</param>
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
-    public static async Task<Results<Ok<GetUsersAtOrganisationResponseNew>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisationV2(
+    public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisationV2(
         string externalId,
         IClientSession clientSession,
         IInteractionDispatcher interaction,
@@ -42,16 +39,26 @@ public static partial class OrganisationEndpoints
         );
 
         try {
-
             GetUsersAtOrganisationRequestNew request = new(clientSession.ClientId, externalId);
 
             GetUsersAtOrganisationResponseNew model = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseNew>();
 
-            // populate the model
-            var responseModel = new GetUsersAtOrganisationResponseNew {
+            IEnumerable<UserAtOrganisation>? users = model?.Users?
+                .GroupBy(u => u.Sub)
+                .Select(g => new UserAtOrganisation(
+                    g.First().Email,
+                    g.First().FirstName,
+                    g.First().LastName,
+                    g.First().UserStatus,
+                    g.Where(x => !string.IsNullOrWhiteSpace(x.Role))
+                     .Select(x => x.Role!)
+                     .Distinct()
+                ));
+
+            var responseModel = new GetUsersAtOrganisationResponse {
                 IsUkprn = true,
                 ExternalId = externalId,
-                Users = model.Users
+                Users = users?.ToList()
             };
 
             return TypedResults.Ok(responseModel);

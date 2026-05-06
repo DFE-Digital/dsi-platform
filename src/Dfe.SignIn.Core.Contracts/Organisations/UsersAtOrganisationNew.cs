@@ -6,7 +6,8 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// <summary>
 /// Request and response models for getting users at an organisation.
 /// </summary>
-/// <param name="ExternalId"></param>
+/// <param name="ClientId">Identifies the service.</param>
+/// <param name="ExternalId">UKPRN or UPIN of the organisation.</param>
 [AssociatedResponse(typeof(GetUsersAtOrganisationResponseNew))]
 public record GetUsersAtOrganisationRequestNew(
     string ClientId,
@@ -41,7 +42,10 @@ public class GetUsersAtOrganisationResponseNew
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? Upin => !this.IsUkprn ? this.ExternalId : null;
-    public IReadOnlyList<UserAtOrganisationNew>? Users { get; set; }
+    /// <summary>
+    /// The users and their roles.
+    /// </summary>
+    public IEnumerable<UserAtOrganisationNew>? Users { get; set; }
 }
 
 /// <summary>

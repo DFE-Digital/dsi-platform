@@ -70,4 +70,4 @@ public record UserAtOrganisation(
     string FirstName,
     string LastName,
     int UserStatus,
-    IReadOnlyList<string> Roles);
+    IEnumerable<string> Roles);
