@@ -262,10 +262,3 @@ jobs:
       tag_name: ${{ github.run_id }}
       transformation_environment: ${{ needs.prepare.outputs.registry_key == 'TRAN' }}
 
-  cleanup:
-    name: Cleanup
-    uses: ./.github/workflows/cleanup-deployments.yml
-    needs: [prepare, checks-passed]
-    if: ${{ always() }}
-    permissions:
-      deployments: write
