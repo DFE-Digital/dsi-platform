@@ -1,4 +1,5 @@
 using System.Data;
+using System.Linq.Expressions;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Entities.Directories;
@@ -8,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Organisations;
 
+/// <summary>
+/// Query returns users and their roles for a service and organisation.
+/// </summary>
+/// <param name="uowOrganisations"></param>
 public sealed class GetUsersAtOrganisationUseCase(
     IUnitOfWorkOrganisations uowOrganisations
 ) : Interactor<GetUsersAtOrganisationRequestNew, GetUsersAtOrganisationResponseNew>
@@ -19,15 +24,47 @@ public sealed class GetUsersAtOrganisationUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var query =
-                from us in uowOrganisations.Repository<UserServiceEntity>()
-                join o in uowOrganisations.Repository<OrganisationEntity>()
-                    on us.OrganisationId equals o.Id
-                join u in uowOrganisations.Repository<UserEntity>()
-                    on us.UserId equals u.Sub
-                join s in uowOrganisations.Repository<ServiceEntity>()
-                    on us.ServiceId equals s.Id
-                join usr in uowOrganisations.Repository<UserServiceRoleEntity>()
+        string clientId = context.Request.ClientId;
+        string externalId = context.Request.ExternalId;
+
+        // Try UKPRN first
+        var results = await this.BuildQuery(clientId, o => o.Ukprn == externalId)
+            .ToListAsync(cancellationToken);
+
+        bool isUkprn = true;
+
+        // If no results, fallback to UPIN
+        if (results.Count == 0) {
+            isUkprn = false;
+
+            results = await this.BuildQuery(clientId, o => o.Upin == externalId)
+                .ToListAsync(cancellationToken);
+        }
+
+        return new GetUsersAtOrganisationResponseNew {
+            IsUkprn = isUkprn,
+            ExternalId = externalId,
+            Users = results
+        };
+    }
+
+    private IQueryable<UserAtOrganisationNew> BuildQuery(
+        string clientId,
+        Expression<Func<OrganisationEntity, bool>> organisationFilter)
+    {
+        var organisations = uowOrganisations
+            .Repository<OrganisationEntity>()
+            .Where(organisationFilter);
+
+        return
+            from us in uowOrganisations.Repository<UserServiceEntity>()
+            join o in organisations
+                on us.OrganisationId equals o.Id
+            join u in uowOrganisations.Repository<UserEntity>()
+                on us.UserId equals u.Sub
+            join s in uowOrganisations.Repository<ServiceEntity>()
+                on us.ServiceId equals s.Id
+            join usr in uowOrganisations.Repository<UserServiceRoleEntity>()
                 on new {
                     oid = us.OrganisationId,
                     sid = us.ServiceId,
@@ -39,41 +76,18 @@ public sealed class GetUsersAtOrganisationUseCase(
                     uid = usr.UserId
                 }
                 into usrGroup
-                from usr in usrGroup.DefaultIfEmpty()   // LEFT JOIN user_service_roles
-                join r in uowOrganisations.Repository<RoleEntity>()
-                    on usr.RoleId equals r.Id
-                    into roleGroup
-                from r in roleGroup.DefaultIfEmpty()    // LEFT JOIN Role
-                where s.ClientId == context.Request.ClientId
-                    && o.Ukprn == context.Request.ExternalId
-                select new UserAtOrganisationNew(
-                    u.Sub,
-                    u.Email,
-                    u.FirstName,
-                    u.LastName,
-                    u.Status,
-                    r.Code);
-
-        List<UserAtOrganisationNew> results = await query.ToListAsync();
-
-        //var roles = await uowOrganisations
-        //    .Repository<UserServiceEntity>()
-        //    .Include(x => x.User)
-        //    .Include(x => x.UserServiceRoles)
-        //    .Where(us =>
-        //        us.Service!.ClientId == "GIAS" &&
-        //        us.Organisation!.Ukprn == "10038591")
-        //    .Select(us => new UserAtOrganisationNew(
-        //        us.User.Sub,
-        //        us.User.FirstName,
-        //        us.User.LastName,
-        //        us.User.Email,
-        //        us.User.Status,
-        //        "Nobby"))
-        //    .ToListAsync(cancellationToken);
-
-        GetUsersAtOrganisationResponseNew responseModel = new() { Users = results };
-
-        return responseModel;
+            from usr in usrGroup.DefaultIfEmpty()
+            join r in uowOrganisations.Repository<RoleEntity>()
+                on usr.RoleId equals r.Id
+                into roleGroup
+            from r in roleGroup.DefaultIfEmpty()
+            where s.ClientId == clientId
+            select new UserAtOrganisationNew(
+                u.Sub,
+                u.Email,
+                u.FirstName,
+                u.LastName,
+                u.Status,
+                r.Code);
     }
 }

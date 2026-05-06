@@ -38,7 +38,7 @@ public class GetUsersAtOrganisationResponseNew
     public string? Ukprn => this.IsUkprn ? this.ExternalId : null;
 
     /// <summary>
-    /// Upin label
+    /// Upin label.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? Upin => !this.IsUkprn ? this.ExternalId : null;
@@ -51,6 +51,9 @@ public class GetUsersAtOrganisationResponseNew
 /// <summary>
 /// Represents a user associated with an organisation.
 /// </summary>
+/// <param name="Sub">
+/// The unique identifier of the user.
+/// </param>
 /// <param name="Email">
 /// The user's email address.
 /// </param>

@@ -43,6 +43,10 @@ public static partial class OrganisationEndpoints
 
             GetUsersAtOrganisationResponseNew model = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseNew>();
 
+            if (model.Users == null || !model.Users.Any()) {
+                return TypedResults.NotFound();
+            }
+
             IEnumerable<UserAtOrganisation>? users = model?.Users?
                 .GroupBy(u => u.Sub)
                 .Select(g => new UserAtOrganisation(
@@ -56,7 +60,7 @@ public static partial class OrganisationEndpoints
                 ));
 
             var responseModel = new GetUsersAtOrganisationResponse {
-                IsUkprn = true,
+                IsUkprn = model!.IsUkprn,
                 ExternalId = externalId,
                 Users = users?.ToList()
             };
