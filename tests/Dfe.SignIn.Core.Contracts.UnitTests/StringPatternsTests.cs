@@ -111,8 +111,14 @@ public sealed class StringPatternsTests
     [DataRow("Software Developer (and Tester)", true)]
     [DataRow("B2C Specailist", true)]
     [DataRow(" ", false)]
-    [DataRow(" Developer ", false)]
+    [DataRow(" Developer ", true)]
     [DataRow("A & B", false)]
+    [DataRow("  Software Developer  ", true)]
+    [DataRow("Software Developer  ", true)]
+    [DataRow("  Software Developer", true)]
+    [DataRow("  Software      Developer   ", true)]
+    [DataRow("<div>test</div>", false)]
+    [DataRow("<script type=\"javascript\">alert(1);</script>", false)]
     public void JobTitleRegex_WorksAsExpected(string input, bool expectedResult)
     {
         bool result = StringPatterns.JobTitleRegex().IsMatch(input);
