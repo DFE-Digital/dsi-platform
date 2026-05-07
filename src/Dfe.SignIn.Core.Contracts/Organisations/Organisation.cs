@@ -158,4 +158,9 @@ public sealed record Organisation
     /// Indicates if the organisation is on APAR.
     /// </summary>
     public string? IsOnApar { get; set; }
+
+    /// <summary>
+    /// The legacy numeric identifier for the organisation used by external systems.
+    /// </summary>
+    public long? LegacyId { get; init; }
 }

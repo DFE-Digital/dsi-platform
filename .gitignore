@@ -41,6 +41,7 @@ bld/
 [Ll]og/
 [Ll]ogs/
 _site/
+graphifyer-output/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -403,3 +404,10 @@ FodyWeavers.xsd
 
 # GitHub workflows
 /build.sln
+.gitignore
+
+# Environment-specific appsettings (Development, Local, tran, etc.)
+**/appsettings.*.json
+
+# Graphify output
+graphify-out/
