@@ -95,6 +95,7 @@ builder.Services
 builder.Services.SetupServiceInteractions();
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
+builder.Services.SetupUserInteractions();
 
 var app = builder.Build();
 
