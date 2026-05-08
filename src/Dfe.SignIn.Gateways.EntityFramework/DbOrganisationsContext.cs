@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration.Organisations;
 using Microsoft.EntityFrameworkCore;
@@ -82,6 +83,8 @@ public partial class DbOrganisationsContext : DbContext
 
     public virtual DbSet<UserServiceRoleEntity> UserServiceRoles { get; set; }
 
+    public virtual DbSet<UserEntity> Users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new CognitiveSearchEntityConfiguration());
@@ -118,6 +121,7 @@ public partial class DbOrganisationsContext : DbContext
         modelBuilder.ApplyConfiguration(new UserServiceIdentifierEntityConfiguration());
         modelBuilder.ApplyConfiguration(new UserServiceRequestEntityConfiguration());
         modelBuilder.ApplyConfiguration(new UserServiceRoleEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
 
         modelBuilder.HasSequence("numeric_id_sequence")
             .StartsAt(50000L)

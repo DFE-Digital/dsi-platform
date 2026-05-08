@@ -6,11 +6,13 @@ using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
+using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Configuration;
+using Dfe.SignIn.PublicApi.Endpoints.Applications;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.Services;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
@@ -90,12 +92,21 @@ builder.Services
         builder.Configuration.GetRequiredSection("SelectOrganisationSessionRedisCache"))
     .AddSelectOrganisationSessionCache()
     .Configure<SelectOrganisationOptions>(builder.Configuration.GetRequiredSection("SelectOrganisation"))
-    .SetupSelectOrganisationInteractions();
+    .SetupSelectOrganisationInteractions()
+    .SetupApplicationInteractions()
+    .SetupUserInteractions();
+
+builder.Services
+    .AddUnitOfWorkEntityFrameworkServices(
+        builder.Configuration.GetRequiredSection("EntityFramework"),
+        addDirectoriesUnitOfWork: true,
+        addOrganisationsUnitOfWork: true,
+        addAuditUnitOfWork: false
+    );
 
 builder.Services.SetupServiceInteractions();
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
-builder.Services.SetupUserInteractions();
 
 var app = builder.Build();
 
@@ -113,6 +124,7 @@ app.UseBearerTokenAuthMiddleware();
 
 app.UseSelectOrganisationEndpoints();
 app.UseUserEndpoints();
+app.UseApplicationEndpoints();
 app.UseServiceEndpoints();
 
 await app.RunAsync();

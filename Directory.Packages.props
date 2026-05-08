@@ -70,6 +70,11 @@
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.4" />
     <PackageVersion Include="System.Net.Http.Json" Version="9.0.9" />
   </ItemGroup>
+  <!-- Validation -->
+  <ItemGroup>
+    <PackageVersion Include="FluentValidation" Version="11.9.0" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
+  </ItemGroup>
   <!-- Security -->
   <ItemGroup>
     <!-- Headers -->

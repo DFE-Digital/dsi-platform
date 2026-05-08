@@ -19,5 +19,6 @@ public static class UserEndpointExtensions
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
         services.AddInteractor<GetUserOrganisationsUseCase>();
+        services.AddInteractor<GetServiceUsersUseCase>();
     }
 }
