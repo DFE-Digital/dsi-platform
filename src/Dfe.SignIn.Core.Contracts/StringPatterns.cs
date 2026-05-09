@@ -47,7 +47,7 @@ public static partial class StringPatterns
     /// Regular expression pattern which can be used to verify the first name of a person.
     /// </summary>
     [ExampleValue("Alex")]
-    public const string FirstNamePattern = $"^(?<first>{NamePattern})$";
+    public const string FirstNamePattern = $"^ *(?<first>{NamePattern}) *$";
 
     [GeneratedRegex(FirstNamePattern)]
     public static partial Regex FirstNameRegex();
@@ -56,7 +56,7 @@ public static partial class StringPatterns
     /// Regular expression pattern which can be used to verify the last name of a person.
     /// </summary>
     [ExampleValue("Johnson")]
-    public const string LastNamePattern = $"^(?<last>{NamePattern})$";
+    public const string LastNamePattern = $"^ *(?<last>{NamePattern}) *$";
 
     [GeneratedRegex(LastNamePattern)]
     public static partial Regex LastNameRegex();
