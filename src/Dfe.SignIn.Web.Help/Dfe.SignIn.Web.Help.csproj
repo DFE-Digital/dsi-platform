@@ -23,6 +23,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.Redis" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
     <PackageReference Include="Markdig" />
+    <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 
