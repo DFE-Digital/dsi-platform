@@ -26,6 +26,7 @@
     <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="Moq" />
     <PackageReference Include="Moq.AutoMock" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 
   <ItemGroup>

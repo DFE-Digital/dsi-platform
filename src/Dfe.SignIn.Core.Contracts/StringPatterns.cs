@@ -47,7 +47,7 @@ public static partial class StringPatterns
     /// Regular expression pattern which can be used to verify the first name of a person.
     /// </summary>
     [ExampleValue("Alex")]
-    public const string FirstNamePattern = $"^(?<first>{NamePattern})$";
+    public const string FirstNamePattern = $"^ *(?<first>{NamePattern}) *$";
 
     [GeneratedRegex(FirstNamePattern)]
     public static partial Regex FirstNameRegex();
@@ -56,7 +56,7 @@ public static partial class StringPatterns
     /// Regular expression pattern which can be used to verify the last name of a person.
     /// </summary>
     [ExampleValue("Johnson")]
-    public const string LastNamePattern = $"^(?<last>{NamePattern})$";
+    public const string LastNamePattern = $"^ *(?<last>{NamePattern}) *$";
 
     [GeneratedRegex(LastNamePattern)]
     public static partial Regex LastNameRegex();
@@ -86,11 +86,14 @@ public static partial class StringPatterns
 
     /// <summary>
     /// Regular expression pattern which can be used to verify the job title of a person.
+    ///
+    /// ^$ - allows for an empty string ""
+    /// ^\s...\s*$ - allows for spaces at start and end
+    /// [\p{L}\p{N}()]+ - Need at least one real character, letters numbers or ().
     /// </summary>
     [ExampleValue("Software Developer")]
     public const string JobTitlePattern
-        = @"^([\p{L}\p{N}()]+( [\p{L}\p{N}()]+)*)?$";
-
+        = @"^$|^\s*[\p{L}\p{N}()]+(?:\s+[\p{L}\p{N}()]+)*\s*$";
     [GeneratedRegex(JobTitlePattern)]
     public static partial Regex JobTitleRegex();
 }
