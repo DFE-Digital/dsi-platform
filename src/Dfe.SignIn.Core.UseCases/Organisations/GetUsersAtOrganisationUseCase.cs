@@ -15,11 +15,11 @@ namespace Dfe.SignIn.Core.UseCases.Organisations;
 /// <param name="uowOrganisations"></param>
 public sealed class GetUsersAtOrganisationUseCase(
     IUnitOfWorkOrganisations uowOrganisations
-) : Interactor<GetUsersAtOrganisationRequestNew, GetUsersAtOrganisationResponseNew>
+) : Interactor<GetUsersAtOrganisationRequestRaw, GetUsersAtOrganisationResponseRaw>
 {
     /// <inheritdoc/>
-    public override async Task<GetUsersAtOrganisationResponseNew> InvokeAsync(
-        InteractionContext<GetUsersAtOrganisationRequestNew> context,
+    public override async Task<GetUsersAtOrganisationResponseRaw> InvokeAsync(
+        InteractionContext<GetUsersAtOrganisationRequestRaw> context,
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
@@ -41,14 +41,14 @@ public sealed class GetUsersAtOrganisationUseCase(
                 .ToListAsync(cancellationToken);
         }
 
-        return new GetUsersAtOrganisationResponseNew {
+        return new GetUsersAtOrganisationResponseRaw {
             IsUkprn = isUkprn,
             ExternalId = externalId,
             Users = results
         };
     }
 
-    private IQueryable<UserAtOrganisationNew> BuildQuery(
+    private IQueryable<UserAtOrganisationRaw> BuildQuery(
         string clientId,
         Expression<Func<OrganisationEntity, bool>> organisationFilter)
     {
@@ -82,7 +82,7 @@ public sealed class GetUsersAtOrganisationUseCase(
                 into roleGroup
             from r in roleGroup.DefaultIfEmpty()
             where s.ClientId == clientId
-            select new UserAtOrganisationNew(
+            select new UserAtOrganisationRaw(
                 u.Sub,
                 u.Email,
                 u.FirstName,

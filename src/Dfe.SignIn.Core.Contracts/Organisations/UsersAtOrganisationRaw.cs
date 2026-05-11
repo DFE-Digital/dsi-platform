@@ -8,8 +8,8 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// </summary>
 /// <param name="ClientId">Identifies the service.</param>
 /// <param name="ExternalId">UKPRN or UPIN of the organisation.</param>
-[AssociatedResponse(typeof(GetUsersAtOrganisationResponseNew))]
-public record GetUsersAtOrganisationRequestNew(
+[AssociatedResponse(typeof(GetUsersAtOrganisationResponseRaw))]
+public record GetUsersAtOrganisationRequestRaw(
     string ClientId,
     string ExternalId
 );
@@ -17,7 +17,7 @@ public record GetUsersAtOrganisationRequestNew(
 /// <summary>
 /// Represents the response containing users associated with an organisation.
 /// </summary>
-public class GetUsersAtOrganisationResponseNew
+public class GetUsersAtOrganisationResponseRaw
 {
     /// <summary>
     /// True if a UKPRN is being expressed, false if UPIN is being shown.
@@ -45,7 +45,7 @@ public class GetUsersAtOrganisationResponseNew
     /// <summary>
     /// The users and their roles.
     /// </summary>
-    public IEnumerable<UserAtOrganisationNew>? Users { get; set; }
+    public IEnumerable<UserAtOrganisationRaw>? Users { get; set; }
 }
 
 /// <summary>
@@ -69,7 +69,7 @@ public class GetUsersAtOrganisationResponseNew
 /// <param name="Role">
 /// A read-only list of roles assigned to the user within the organisation.
 /// </param>
-public record UserAtOrganisationNew(
+public record UserAtOrganisationRaw(
     Guid Sub,
     string Email,
     string FirstName,

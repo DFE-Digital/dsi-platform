@@ -14,7 +14,6 @@ public static partial class OrganisationEndpoints
     [ExcludeFromCodeCoverage]
     public static void UseOrganisationEndpoints(this WebApplication app)
     {
-        app.MapGet("organisations/{externalId}/users", GetUsersAtOrganisation);
         app.MapGet("v2/organisations/{externalId}/users", GetUsersAtOrganisationV2);
     }
 }
