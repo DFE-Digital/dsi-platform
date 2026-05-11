@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <ProjectGuid>50EEDDFA-B5FE-4062-8129-853AD4378A97</ProjectGuid>
@@ -21,6 +21,7 @@
     <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="Moq" />
     <PackageReference Include="Moq.AutoMock" />
+    <PackageReference Include="OpenTelemetry.Api" />
   </ItemGroup>
 
   <ItemGroup>
