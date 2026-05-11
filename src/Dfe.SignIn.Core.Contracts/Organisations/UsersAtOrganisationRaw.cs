@@ -32,17 +32,6 @@ public class GetUsersAtOrganisationResponseRaw
     public string? ExternalId { get; set; }
 
     /// <summary>
-    /// Ukprn label.
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string? Ukprn => this.IsUkprn ? this.ExternalId : null;
-
-    /// <summary>
-    /// Upin label.
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string? Upin => !this.IsUkprn ? this.ExternalId : null;
-    /// <summary>
     /// The users and their roles.
     /// </summary>
     public IEnumerable<UserAtOrganisationRaw>? Users { get; set; }
