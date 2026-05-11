@@ -21,4 +21,7 @@ internal sealed record GetUserProfileDto
 
     [JsonPropertyName("email")]
     public required string EmailAddress { get; init; }
+
+    [JsonPropertyName("status")]
+    public required short Status { get; init; }
 }

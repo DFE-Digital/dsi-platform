@@ -28,6 +28,7 @@ public partial class UserServiceEntity
     public virtual ServiceEntity? Service { get; set; }
 
     public virtual UserEntity? User { get; set; }
+
+    public virtual ICollection<UserServiceRoleEntity> UserServiceRoles { get; set; } = [];
 }
 #pragma warning restore CS1591
-

@@ -13,6 +13,7 @@ using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Configuration;
 using Dfe.SignIn.PublicApi.Endpoints.Applications;
+using Dfe.SignIn.PublicApi.Endpoints.Organisations;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.Services;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
@@ -126,5 +127,6 @@ app.UseSelectOrganisationEndpoints();
 app.UseUserEndpoints();
 app.UseApplicationEndpoints();
 app.UseServiceEndpoints();
+app.UseOrganisationEndpoints();
 
 await app.RunAsync();

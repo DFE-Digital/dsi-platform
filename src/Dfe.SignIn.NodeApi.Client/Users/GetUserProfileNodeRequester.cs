@@ -32,6 +32,7 @@ public sealed class GetUserProfileNodeRequester(
             LastName = response.LastName,
             JobTitle = !string.IsNullOrWhiteSpace(response.JobTitle) ? response.JobTitle : null,
             EmailAddress = response.EmailAddress,
+            Status = response.Status
         };
     }
 }

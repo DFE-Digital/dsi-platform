@@ -39,7 +39,8 @@ public sealed class GetUserProfileNodeRequesterTests
                     "given_name": "Bob",
                     "family_name": "Robinson",
                     "job_title": "Software Engineer",
-                    "email": "bob.robinson@example.com"
+                    "email": "bob.robinson@example.com",
+                    "status": 1
                 }
                 """),
         };
@@ -62,6 +63,7 @@ public sealed class GetUserProfileNodeRequesterTests
         Assert.AreEqual("Robinson", response.LastName);
         Assert.AreEqual("Software Engineer", response.JobTitle);
         Assert.AreEqual("bob.robinson@example.com", response.EmailAddress);
+        Assert.AreEqual(1, response.Status);
     }
 
     [TestMethod]

@@ -137,4 +137,3 @@ public partial class DbOrganisationsContext : DbContext
     }
 }
 #pragma warning restore CS1591
-
