@@ -38,14 +38,12 @@ public static partial class OrganisationEndpoints
             clientCorrelationId
         );
 
-        try
-        {
+        try {
             GetUsersAtOrganisationRequestRaw request = new(clientSession.ClientId, externalId);
 
             GetUsersAtOrganisationResponseRaw model = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseRaw>();
 
-            if (model == null || model.Users == null || !model.Users.Any())
-            {
+            if (model == null || model.Users == null || !model.Users.Any()) {
                 return TypedResults.NotFound();
             }
 
@@ -61,28 +59,24 @@ public static partial class OrganisationEndpoints
                      .Distinct()
                 ));
 
-            var responseModel = new GetUsersAtOrganisationResponse
-            {
+            var responseModel = new GetUsersAtOrganisationResponse {
                 IsUkprn = model!.IsUkprn,
                 ExternalId = externalId,
-                Users = users.ToList()
+                Users = [.. users]
             };
 
             return TypedResults.Ok(responseModel);
         }
-        catch (NotFoundInteractionException ex)
-        {
+        catch (NotFoundInteractionException ex) {
             logger.LogWarning(ex, "Organisation missing");
             return TypedResults.NotFound();
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
 
             logger.LogError(ex, "Unexpected error while retrieving organisation users for ukprn/upin {RequestedExternalId}", externalId);
 
             return TypedResults.InternalServerError(
-                new ProblemDetails
-                {
+                new ProblemDetails {
                     Title = "Internal Server Error",
                     Detail = "Something unexpected happened while processing your request.",
                     Status = StatusCodes.Status500InternalServerError
