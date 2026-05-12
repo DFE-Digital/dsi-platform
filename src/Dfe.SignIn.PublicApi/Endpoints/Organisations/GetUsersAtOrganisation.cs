@@ -18,7 +18,7 @@ public static partial class OrganisationEndpoints
     /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
     /// <param name="httpContext">The current HTTP context, used to access headers and request information.</param>
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
-    public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisationV2(
+    public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
         string externalId,
         IClientSession clientSession,
         IInteractionDispatcher interaction,

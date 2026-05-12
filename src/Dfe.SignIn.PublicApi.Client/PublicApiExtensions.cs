@@ -76,7 +76,7 @@ public static class PublicApiExtensions
 
     private static void AddSelectOrganisationApiRequesters(IServiceCollection services)
     {
-        AddApiRequester(services, "v2/select-organisation", (client, jsonOptions, endpoint) =>
+        AddApiRequester(services, "select-organisation", (client, jsonOptions, endpoint) =>
             new PublicApiPostRequester<
                 CreateSelectOrganisationSessionApiRequest,
                 CreateSelectOrganisationSessionApiResponse

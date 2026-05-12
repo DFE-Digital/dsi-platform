@@ -59,7 +59,7 @@ public class GetUsersAtOrganisationTests
                 IsUkprn = true
             });
 
-        var response = await OrganisationEndpoints.GetUsersAtOrganisationV2(
+        var response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
@@ -86,7 +86,7 @@ public class GetUsersAtOrganisationTests
                 IsUkprn = true
             });
 
-        Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>> response = await OrganisationEndpoints.GetUsersAtOrganisationV2(
+        Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>> response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
@@ -106,7 +106,7 @@ public class GetUsersAtOrganisationTests
 
         autoMocker.MockResponse<GetUsersAtOrganisationRequestRaw>(null);
 
-        var response = await OrganisationEndpoints.GetUsersAtOrganisationV2(
+        var response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
@@ -137,7 +137,7 @@ public class GetUsersAtOrganisationTests
                 IsUkprn = true
             });
 
-        var response = await OrganisationEndpoints.GetUsersAtOrganisationV2(
+        var response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
@@ -173,7 +173,7 @@ public class GetUsersAtOrganisationTests
                 IsUkprn = true
             });
 
-        var response = await OrganisationEndpoints.GetUsersAtOrganisationV2(
+        var response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
@@ -211,7 +211,7 @@ public class GetUsersAtOrganisationTests
                 IsUkprn = true
             });
 
-        await OrganisationEndpoints.GetUsersAtOrganisationV2(
+        await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
