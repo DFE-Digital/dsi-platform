@@ -33,8 +33,4 @@
     <ProjectReference Include="..\..\src\Dfe.SignIn.PublicApi\Dfe.SignIn.PublicApi.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Endpoints\Organisations\" />
-  </ItemGroup>
-
 </Project>

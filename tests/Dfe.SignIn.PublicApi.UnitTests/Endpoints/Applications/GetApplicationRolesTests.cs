@@ -62,7 +62,6 @@ public class GetApplicationRolesTests
         var parentClientId = "parent-client-id";
         var parentId = new Guid("660e8400-e29b-41d4-a716-446655440000");
         var appWithParent = FakeApplication with { ClientId = "child-client-id", ParentClientId = parentClientId, ParentId = parentId };
-        clientSession = autoMocker.GetMock<IClientSession>().Object;
         autoMocker.GetMock<IClientSession>().SetupGet(x => x.ClientId).Returns(parentClientId);
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(

@@ -61,7 +61,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task Returns404_WhenApplicationNotFound()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, _, loggerFactory, httpContext) = CreateMocks();
 
         var mockClientSession = autoMocker.GetMock<IClientSession>();
         mockClientSession.SetupGet(x => x.ClientId).Returns("fake-client-id");
