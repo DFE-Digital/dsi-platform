@@ -14,17 +14,23 @@ public static class SecurityHeaderPolicyExtensions
     /// Use the standard security header policy for the DfE Sign-in platform.
     /// </summary>
     /// <param name="builder">The builder to register the middleware on.</param>
+    /// <param name="configurePolicy">An optional delegate to override the default policies.</param>
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="builder"/> is null.</para>
     /// </exception>
-    public static void UseDsiSecurityHeaderPolicy(this IApplicationBuilder builder)
+    public static void UseDsiSecurityHeaderPolicy(
+        this IApplicationBuilder builder,
+        Action<HeaderPolicyCollection>? configurePolicy = null)
     {
         ExceptionHelpers.ThrowIfArgumentNull(builder, nameof(builder));
 
         var optionsAccessor = builder.ApplicationServices.GetRequiredService<
             IOptions<SecurityHeaderPolicyOptions>
         >();
-        builder.UseSecurityHeaders(GetHeaderPolicyCollection(optionsAccessor.Value));
+
+        var policy = GetHeaderPolicyCollection(optionsAccessor.Value);
+        configurePolicy?.Invoke(policy);
+        builder.UseSecurityHeaders(policy);
     }
 
     private static HeaderPolicyCollection GetHeaderPolicyCollection(SecurityHeaderPolicyOptions options)
