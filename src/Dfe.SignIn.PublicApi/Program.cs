@@ -112,7 +112,12 @@ builder.Services.SetupApiSecretEncryption(builder.Configuration);
 var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
-app.UseDsiSecurityHeaderPolicy();
+app.UseDsiSecurityHeaderPolicy(policy => {
+    policy.AddFrameOptionsSameOrigin();
+    policy.AddCustomHeader("X-DNS-Prefetch-Control", "off");
+    policy.AddCustomHeader("X-Permitted-Cross-Domain-Policies", "none");
+    policy.AddStrictTransportSecurityMaxAgeIncludeSubDomainsAndPreload(31536000);
+});
 
 app.UseSwagger();
 app.UseSwaggerUI(options => {

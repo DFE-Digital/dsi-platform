@@ -12,7 +12,7 @@ public sealed record GetServiceUsersRequest
     /// <summary>
     /// The unique identifier of the application for which to retrieve service users.
     /// </summary>
-    public required Guid ApplicationId { get; set; }
+    public required Guid ApplicationId { get; init; }
 
     /// <summary>
     /// The page number to retrieve (1-based).
