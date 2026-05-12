@@ -1,6 +1,6 @@
 
 using System.Diagnostics.CodeAnalysis;
-using Dfe.SignIn.Core.Contracts.Access;
+using Dfe.SignIn.Core.Contracts.Applications;
 
 namespace Dfe.SignIn.NodeApi.Client.Access.Models;
 

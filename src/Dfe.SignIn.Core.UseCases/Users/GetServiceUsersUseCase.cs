@@ -1,6 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Extensions;
-using Dfe.SignIn.Core.Contracts.Access;
+using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;

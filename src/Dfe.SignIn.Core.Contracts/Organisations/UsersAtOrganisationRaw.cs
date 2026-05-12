@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Dfe.SignIn.Base.Framework;
 
@@ -8,6 +9,7 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// </summary>
 /// <param name="ClientId">Identifies the service.</param>
 /// <param name="ExternalId">UKPRN or UPIN of the organisation.</param>
+[ExcludeFromCodeCoverage]
 [AssociatedResponse(typeof(GetUsersAtOrganisationResponseRaw))]
 public record GetUsersAtOrganisationRequestRaw(
     string ClientId,
@@ -17,6 +19,7 @@ public record GetUsersAtOrganisationRequestRaw(
 /// <summary>
 /// Represents the response containing users associated with an organisation.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class GetUsersAtOrganisationResponseRaw
 {
     /// <summary>
@@ -58,6 +61,7 @@ public class GetUsersAtOrganisationResponseRaw
 /// <param name="Role">
 /// A read-only list of roles assigned to the user within the organisation.
 /// </param>
+[ExcludeFromCodeCoverage]
 public record UserAtOrganisationRaw(
     Guid Sub,
     string Email,
