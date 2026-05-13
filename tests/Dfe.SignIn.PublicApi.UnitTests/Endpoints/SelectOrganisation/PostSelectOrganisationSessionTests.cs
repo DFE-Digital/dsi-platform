@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.SelectOrganisation;
@@ -93,11 +94,12 @@ public sealed class PostSelectOrganisationSessionTests
 
         autoMocker.MockResponse<CreateSelectOrganisationSessionRequest>(FakeResponse);
 
-        var response = await SelectOrganisationEndpoints.PostSelectOrganisationSession(
+        var result = await SelectOrganisationEndpoints.PostSelectOrganisationSession(
             FakePublicApiRequest,
             autoMocker.Get<IClientSession>(),
             autoMocker.Get<IInteractionDispatcher>()
         );
+        var response = ((Ok<CreateSelectOrganisationSessionApiResponse>)result.Result).Value!;
 
         Assert.AreEqual(FakeResponse.RequestId, response.RequestId);
         Assert.AreEqual(FakeResponse.HasOptions, response.HasOptions);

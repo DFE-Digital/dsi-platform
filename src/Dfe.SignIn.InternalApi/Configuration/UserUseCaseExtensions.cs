@@ -31,6 +31,7 @@ public static class UserUseCaseExtensions
         services.AddInteractor<ChangeJobTitleUseCase>();
         services.AddInteractor<CreateUserUseCase>();
         services.AddInteractor<GetOrganisationsAssociatedWithUserUseCase>();
+        services.AddInteractor<GetUserOrganisationIdentifiersUseCase>();
         services.AddInteractor<GetUserProfileUseCase>();
         services.AddInteractor<GetUserStatusUseCase>();
         services.AddInteractor<LinkEntraUserToDsiUseCase>();

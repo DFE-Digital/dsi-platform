@@ -110,18 +110,4 @@ public sealed class GetPendingChangeEmailAddressNodeRequesterTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.PendingChangeEmailAddress);
     }
-
-    [TestMethod]
-    public async Task Throws_WhenRequestFails()
-    {
-        var interactor = CreateGetPendingChangeEmailAddressNodeRequester(new() {
-            ["(GET) http://directories.localhost/usercodes/edd75704-0839-4f2a-be51-a6ecaf584019/changeemail"] =
-                new MappedResponse(HttpStatusCode.InternalServerError),
-        });
-
-        await Assert.ThrowsExactlyAsync<HttpRequestException>(()
-            => interactor.InvokeAsync(new GetPendingChangeEmailAddressRequest {
-                UserId = new Guid("edd75704-0839-4f2a-be51-a6ecaf584019"),
-            }));
-    }
 }

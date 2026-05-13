@@ -55,4 +55,9 @@ public sealed record GetUserProfileResponse
     /// </summary>
     [RegularExpression(StringPatterns.EmailAddressPattern)]
     public required string EmailAddress { get; init; }
+
+    /// <summary>
+    /// The user status.
+    /// </summary>
+    public short Status { get; init; }
 }

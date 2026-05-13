@@ -35,14 +35,21 @@ public sealed class InternalApiRequester<TRequest>(
         var httpResponse = await client.SendAsJsonAsync(
             HttpMethod.Post, endpointPath, context.Request, cancellationToken);
 
+        var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
+
         if (httpResponse.StatusCode is HttpStatusCode.OK) {
             var response = (await httpResponse.Content.ReadFromJsonAsync<InteractionResponse>(cancellationToken))!;
-            var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
             var responseType = ContractsAssembly.GetType(response.Type, throwOnError: true)!;
             return JsonSerializer.Deserialize(response.Data, responseType, jsonOptions)!;
         }
-        else if (httpResponse.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.InternalServerError) {
-            var failedResponse = (await httpResponse.Content.ReadFromJsonAsync<FailedInteractionResponse>(cancellationToken))!;
+        else if (httpResponse.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.NotFound or HttpStatusCode.InternalServerError) {
+            var body = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+            if (string.IsNullOrWhiteSpace(body)) {
+                throw new HttpRequestException(
+                    $"Internal API returned {(int)httpResponse.StatusCode} with an empty body for '{endpointPath}'. " +
+                    $"The endpoint may not be registered or a server error occurred before the response was written.");
+            }
+            var failedResponse = JsonSerializer.Deserialize<FailedInteractionResponse>(body, jsonOptions)!;
             var exception = exceptionSerializer.DeserializeExceptionFromJson(failedResponse.Exception);
             throw exception;
         }

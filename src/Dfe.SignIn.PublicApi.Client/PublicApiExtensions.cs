@@ -76,7 +76,7 @@ public static class PublicApiExtensions
 
     private static void AddSelectOrganisationApiRequesters(IServiceCollection services)
     {
-        AddApiRequester(services, "v2/select-organisation", (client, jsonOptions, endpoint) =>
+        AddApiRequester(services, "select-organisation", (client, jsonOptions, endpoint) =>
             new PublicApiPostRequester<
                 CreateSelectOrganisationSessionApiRequest,
                 CreateSelectOrganisationSessionApiResponse
@@ -85,7 +85,7 @@ public static class PublicApiExtensions
 
         // The following interactor is not exposed for use in applications until the
         // request/response models have been properly designed.
-        services.AddInteractor<GetUserAccessToServiceApiRequester>();
+        services.AddInteractor<GetUserServiceAccessDetailsApiRequester>();
     }
 
     private static void AddUsersApiRequesters(IServiceCollection services)

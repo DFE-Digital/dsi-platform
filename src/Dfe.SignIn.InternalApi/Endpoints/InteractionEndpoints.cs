@@ -61,6 +61,7 @@ public static partial class InteractionEndpoints
         app.Map<CheckIsBlockedEmailAddressRequest, CheckIsBlockedEmailAddressResponse>();
         app.Map<CreateUserRequest, CreateUserResponse>();
         app.Map<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>();
+        app.Map<GetUserOrganisationIdentifiersRequest, GetUserOrganisationIdentifiersResponse>();
         app.Map<GetUserProfileRequest, GetUserProfileResponse>();
         app.Map<GetUserStatusRequest, GetUserStatusResponse>();
         app.Map<LinkEntraUserToDsiRequest, LinkEntraUserToDsiResponse>();
