@@ -151,9 +151,9 @@ public sealed class ChangeNameUseCaseTests
         );
 
         var user = db.Users.Single(x => x.Sub == ExistingChangedUserId);
+
         Assert.AreEqual("Alex", user.FirstName);
         Assert.AreEqual("Test", user.LastName);
-
         Assert.IsTrue(capturedAudit.Count == 1);
         Assert.AreEqual(capturedAudit.First().Message, "Successfully changed users name to Alex Test");
     }
@@ -172,13 +172,12 @@ public sealed class ChangeNameUseCaseTests
         );
 
         var user = db.Users.Single(x => x.Sub == ExistingChangedUserId);
+
         Assert.AreEqual("Alex Tester", user.FirstName);
         Assert.AreEqual("Test", user.LastName);
-
         Assert.IsTrue(capturedAudit.Count == 1);
         Assert.AreEqual(capturedAudit.First().Message, "Successfully changed users name to Alex Tester Test");
     }
-
 
     [TestMethod]
     public async Task UserExists_UpdatesMultipleSurnameNameWithNormalisedSpaces()
@@ -194,9 +193,9 @@ public sealed class ChangeNameUseCaseTests
         );
 
         var user = db.Users.Single(x => x.Sub == ExistingChangedUserId);
+
         Assert.AreEqual("Alex", user.FirstName);
         Assert.AreEqual("Test Test", user.LastName);
-
         Assert.IsTrue(capturedAudit.Count == 1);
         Assert.AreEqual(capturedAudit.First().Message, "Successfully changed users name to Alex Test Test");
     }
