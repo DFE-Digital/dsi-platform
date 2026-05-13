@@ -45,7 +45,7 @@ public sealed class ChangeNameUseCase(
         await interaction.DispatchAsync(
             new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeJobTitle,
-                Message = $"Successfully changed users name to ${user.FirstName} {user.LastName}",
+                Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
                 UserId = context.Request.UserId,
             }
         );
