@@ -12,6 +12,8 @@ var redis = builder.AddRedis("infra-redis")
     // Defaults to Redis Commander for a fast, lightweight cache viewer that uses minimal resources.
     .WithRedisCommander();
 
+var redisConnectionString = redis.Resource.ConnectionStringExpression;
+
 var frontend = builder.AddDockerfile("infra-frontend", "../../", "docker/frontend/Dockerfile")
     .WithHttpEndpoint(targetPort: 8080, name: "http");
 
@@ -25,9 +27,13 @@ var bearerTokenConfig = builder.Configuration.GetSection("BearerToken");
 var publicApiSecretConfig = builder.Configuration.GetSection("PublicApiSecretEncryption");
 var selectOrgConfig = builder.Configuration.GetSection("SelectOrganisation");
 var internalApiConfig = builder.Configuration.GetSection("InternalApiClient");
-var redisConnectionString = redis.Resource.ConnectionStringExpression;
 
-builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
+var dotNetComponents = builder.Configuration.GetSection("Components:DotNet");
+var nodeComponents = builder.Configuration.GetSection("Components:Node");
+var nodeRootDir = builder.Configuration["NodePlatformDirectory"];
+
+if (dotNetComponents.GetValue("HelpEnabled", true)) {
+    builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
     .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
@@ -35,8 +41,10 @@ builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: 
     .WithEnvironment("RaiseSupportTicketByEmail__EmailTemplateId", supportEmailConfig["EmailTemplateId"])
     .WaitFor(frontend)
     .WaitFor(redis);
+}
 
-builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
+if (dotNetComponents.GetValue("ProfileEnabled", true)) {
+    builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
     .WithEnvironment("GeneralRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("SessionRedisCache__ConnectionString", redisConnectionString)
@@ -54,8 +62,10 @@ builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfile
     .WithEnvironment("Session__NotifyRemainingMinutes", sessionConfig["NotifyRemainingMinutes"])
     .WaitFor(frontend)
     .WaitFor(redis);
+}
 
-builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
+if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
+    builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
     .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
@@ -65,15 +75,18 @@ builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfil
     .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
     .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
     .WaitFor(redis);
+}
 
-builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
-
-var nodeServicesRootDirectory = "../../../dsi-node-platform"; //todo: consider if this should be an app setting instead of hardcoded path
-builder.AddNpmApp("node-services", $"{nodeServicesRootDirectory}/login.dfe.services", "start")
+if (nodeComponents.GetValue("ServicesEnabled", true)) {
+    builder.AddNpmApp("node-services", $"{nodeRootDir}/login.dfe.services", "start")
     .WithHttpsEndpoint(port: 41012, targetPort: 41012, env: "PORT", isProxied: false)
-    .WithEnvFile($"{nodeServicesRootDirectory}/.env")
+    .WithEnvFile($"{nodeRootDir}/.env")
     .WithEnvironment("NODE_TLS_REJECT_UNAUTHORIZED", "0")
     .WithEnvironment("LOCAL_REDIS_CONN", "")
-    .WithRedisUrlEnvironment("REDIS_CONN", redis);
+    .WithRedisUrlEnvironment("REDIS_CONN", redis)
+    .WaitFor(redis);
+}
+
+builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
 
 builder.Build().Run();
