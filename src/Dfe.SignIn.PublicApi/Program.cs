@@ -3,6 +3,7 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
+using Dfe.SignIn.Core.Repository;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
@@ -105,6 +106,7 @@ builder.Services
         addAuditUnitOfWork: false
     );
 
+builder.Services.AddScoped<IOrganisationRepository, OrganisationRepository>();
 builder.Services.SetupServiceInteractions();
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
