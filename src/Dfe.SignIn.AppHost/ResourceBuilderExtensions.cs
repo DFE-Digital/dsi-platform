@@ -49,4 +49,59 @@ public static class ResourceBuilderExtensions
 
         return builder;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="builder"></param>
+    /// <param name="envFilePath"></param>
+    /// <returns></returns>
+    public static IResourceBuilder<T> WithEnvFile<T>(
+        this IResourceBuilder<T> builder,
+        string envFilePath)
+        where T : IResourceWithEnvironment
+    {
+        var fullPath = Path.GetFullPath(envFilePath);
+        var envVars = File.ReadAllLines(fullPath)
+            .Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith('#'))
+            .Select(l => l.Split('=', 2))
+            .Where(p => p.Length == 2)
+            .ToDictionary(p => p[0].Trim(), p => p[1].Trim());
+
+        return builder.WithEnvironment(ctx => {
+            foreach (var (key, value) in envVars) {
+                ctx.EnvironmentVariables[key] = value;
+            }
+        });
+    }
+
+    public static IResourceBuilder<T> WithRedisUrlEnvironment<T>(
+    this IResourceBuilder<T> builder,
+    string envVarName,
+    IResourceBuilder<RedisResource> redis)
+    where T : IResourceWithEnvironment
+    {
+        return builder.WithEnvironment(ctx =>
+            ctx.EnvironmentVariables[envVarName] = new RedisUrlValueProvider(redis.Resource.ConnectionStringExpression));
+    }
+
+    private sealed class RedisUrlValueProvider(ReferenceExpression connectionStringExpression) : IValueProvider
+    {
+        public async ValueTask<string?> GetValueAsync(CancellationToken cancellationToken = default)
+        {
+            var connStr = await connectionStringExpression.GetValueAsync(cancellationToken);
+            if (connStr is null)
+                return null;
+
+            var parts = connStr.Split(',');
+            var hostPort = parts[0];
+            var password = parts.FirstOrDefault(p => p.StartsWith("password="))
+                ?.Substring("password=".Length) ?? string.Empty;
+
+            return string.IsNullOrEmpty(password)
+                ? $"redis://{hostPort}"
+                : $"redis://:{Uri.EscapeDataString(password)}@{hostPort}";
+        }
+    }
 }

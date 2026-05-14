@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.3.1">
+<Project Sdk="Aspire.AppHost.Sdk/13.3.2">
 
   <ItemGroup>
     <ProjectReference Include="..\Dfe.SignIn.Web.Help\Dfe.SignIn.Web.Help.csproj" />
@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.Redis" />
+      <PackageReference Include="Aspire.Hosting.NodeJs" />
   </ItemGroup>
 
   <PropertyGroup>

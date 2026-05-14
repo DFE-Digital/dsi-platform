@@ -68,4 +68,12 @@ builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfil
 
 builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
 
+var nodeServicesRootDirectory = "../../../dsi-node-platform"; //todo: consider if this should be an app setting instead of hardcoded path
+builder.AddNpmApp("node-services", $"{nodeServicesRootDirectory}/login.dfe.services", "start")
+    .WithHttpsEndpoint(port: 41012, targetPort: 41012, env: "PORT", isProxied: false)
+    .WithEnvFile($"{nodeServicesRootDirectory}/.env")
+    .WithEnvironment("NODE_TLS_REJECT_UNAUTHORIZED", "0")
+    .WithEnvironment("LOCAL_REDIS_CONN", "")
+    .WithRedisUrlEnvironment("REDIS_CONN", redis);
+
 builder.Build().Run();
