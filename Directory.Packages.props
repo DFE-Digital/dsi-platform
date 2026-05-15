@@ -120,7 +120,7 @@
   <!-- Unit testing -->
   <ItemGroup>
     <!-- Code coverage -->
-    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.0" />
     <!-- Microsoft testing framework -->
     <PackageVersion Include="MSTest.TestAdapter" Version="3.10.4" />
     <PackageVersion Include="MSTest.TestFramework" Version="3.10.4" />
