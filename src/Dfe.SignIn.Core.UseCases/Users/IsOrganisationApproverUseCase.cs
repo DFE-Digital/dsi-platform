@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
@@ -21,11 +22,9 @@ public sealed class IsOrganisationApproverUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var approverRoleId = 10000; // This is the role ID for approvers, but this should be moved to a constant somewhere.
-
         var isApprover = await unitOfWork.Repository<UserOrganisationEntity>()
             .Where(x => x.UserId == context.Request.UserId)
-            .AnyAsync(x => x.RoleId == approverRoleId, cancellationToken);
+            .AnyAsync(x => x.RoleId == OrganisationRoles.Approver.Id, cancellationToken);
 
         return new IsOrganisationApproverResponse(isApprover);
     }
