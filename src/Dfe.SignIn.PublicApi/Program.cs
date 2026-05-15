@@ -11,6 +11,7 @@ using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Configuration;
+using Dfe.SignIn.PublicApi.Endpoints.Organisations;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -109,5 +110,6 @@ app.UseBearerTokenAuthMiddleware();
 
 app.UseSelectOrganisationEndpoints();
 app.UseUserEndpoints();
+app.UseOrganisationEndpoints();
 
 await app.RunAsync();
