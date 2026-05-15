@@ -92,6 +92,7 @@ builder.Services
     .SetupSelectOrganisationInteractions();
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
+builder.Services.SetupUserInteractions();
 
 var app = builder.Build();
 
