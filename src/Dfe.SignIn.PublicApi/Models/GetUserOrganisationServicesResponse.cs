@@ -1,24 +1,33 @@
-namespace Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Public;
 
-public class GetUserOrganisationService
+namespace Dfe.SignIn.PublicApi.Models;
+
+public class GetUserOrganisationServicesResponse
 {
+
     public Guid UserId { get; set; }
     public int UserStatus { get; set; }
     public string Email { get; set; }
     public string FamilyName { get; set; }
     public string GivenName { get; set; }
-    public Guid OrganisationId { get; set; }
-    public string OrganisationName { get; set; }
-    public string? CategoryId { get; set; }
-    //public string CategoryName { get; set; }
+
+    public List<OrganisationDto> Organisations { get; set; } = [];
+
+}
+
+public class OrganisationDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+
+    public CategoryDto Category { get; set; }
+    public StatusDto Status { get; set; }
 
     public string? Urn { get; set; }
     public string? Uid { get; set; }
     public string? Ukprn { get; set; }
     public string? EstablishmentNumber { get; set; }
 
-    public int StatusId { get; set; }
-    //public string StatusName { get; set; }
     public DateOnly? ClosedOn { get; set; }
 
     public string? Address { get; set; }
@@ -43,11 +52,34 @@ public class GetUserOrganisationService
     public string? GIASProviderType { get; set; }
     public int? PIMSProviderTypeCode { get; set; }
 
-    public string ServiceName { get; set; }
-    public string? ServiceDescription { get; set; }
-    public string RoleName { get; set; }
-    public string RoleCode { get; set; }
+    public List<ServiceDto> Services { get; set; } = [];
 
     public int OrgRoleId { get; set; }
     public string OrgRoleName { get; set; }
+}
+
+public class CategoryDto
+{
+    public string? Id { get; set; }
+    public OrganisationCategory? Name { get; set; }
+}
+
+public class StatusDto
+{
+    public int Id { get; set; }
+    public OrganisationStatus? Name { get; set; }
+}
+
+public class ServiceDto
+{
+    public string Name { get; set; }
+    public string? Description { get; set; }
+
+    public List<RoleDto> Roles { get; set; } = [];
+}
+
+public class RoleDto
+{
+    public string Name { get; set; }
+    public string Code { get; set; }
 }
