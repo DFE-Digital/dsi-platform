@@ -11,9 +11,8 @@ public static partial class UserEndpoints
     /// Hidden organisations (status = 0) are excluded.
     /// </summary>
     /// <returns>
-    ///   <para>200 with an array of organisations when the user belongs to at least one
-    ///   visible organisation.</para>
-    ///   <para>404 when the user belongs to no organisations, or all are hidden.</para>
+    ///   <para>200 with an array of organisations when the user belongs to, including services and roles.</para>
+    ///   <para>404 when the user belongs to no organisations.</para>
     /// </returns>
     public static async Task<Results<Ok<IEnumerable<GetUserOrganisationService>>, NotFound>> GetUserOrganisationServices(
         Guid userId,
