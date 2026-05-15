@@ -22,5 +22,10 @@ internal sealed class RoleEntityConfiguration : IEntityTypeConfiguration<RoleEnt
         builder.Property(e => e.Name).HasMaxLength(125);
 
         builder.Property(e => e.Status).HasDefaultValue((short)1);
+
+        builder.HasOne(d => d.Parent)
+            .WithMany()
+            .HasForeignKey(d => d.ParentId)
+            .HasConstraintName("FK_Role_Role_ParentId");
     }
 }
