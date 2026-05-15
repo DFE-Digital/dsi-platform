@@ -25,6 +25,7 @@ var bearerTokenConfig = builder.Configuration.GetSection("BearerToken");
 var publicApiSecretConfig = builder.Configuration.GetSection("PublicApiSecretEncryption");
 var selectOrgConfig = builder.Configuration.GetSection("SelectOrganisation");
 var internalApiConfig = builder.Configuration.GetSection("InternalApiClient");
+var efConfig = builder.Configuration.GetSection("EntityFramework");
 var redisConnectionString = redis.Resource.ConnectionStringExpression;
 
 builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
@@ -55,6 +56,27 @@ builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfile
     .WaitFor(frontend)
     .WaitFor(redis);
 
+var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-internal-api", launchProfileName: "http")
+    .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local")
+    .WithEnvironment("EntityFramework__Directories__Host", efConfig["Directories:Host"])
+    .WithEnvironment("EntityFramework__Directories__Name", efConfig["Directories:Name"])
+    .WithEnvironment("EntityFramework__Directories__Username", efConfig["Directories:Username"])
+    .WithEnvironment("EntityFramework__Directories__Password", efConfig["Directories:Password"])
+    .WithEnvironment("EntityFramework__Organisations__Host", efConfig["Organisations:Host"])
+    .WithEnvironment("EntityFramework__Organisations__Name", efConfig["Organisations:Name"])
+    .WithEnvironment("EntityFramework__Organisations__Username", efConfig["Organisations:Username"])
+    .WithEnvironment("EntityFramework__Organisations__Password", efConfig["Organisations:Password"])
+    .WithEnvironment("InternalApiClient__ClientId", internalApiConfig["ClientId"])
+    .WithEnvironment("InternalApiClient__ClientSecret", internalApiConfig["ClientSecret"])
+    .WithEnvironment("InternalApiClient__Tenant", internalApiConfig["Tenant"])
+    .WithEnvironment("InternalApiClient__HostUrl", internalApiConfig["HostUrl"])
+    .WithEnvironment("InternalApiClient__Search__BaseAddress", internalApiConfig["Search:BaseAddress"])
+    .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
+    .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
+    .WithEnvironment("InternalApiClient__Directories__BaseAddress", internalApiConfig["Directories:BaseAddress"])
+    .WithEnvironment("InternalApiClient__Applications__BaseAddress", internalApiConfig["Applications:BaseAddress"])
+    .WithEnvironment("InternalApiClient__UseProxy", "false");
+
 builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
     .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redisConnectionString)
@@ -62,10 +84,12 @@ builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfil
     .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
     .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
     .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
+    .WithEnvironment("InternalApiClient__BaseAddress", internalApi.GetEndpoint("http"))
     .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
     .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
+    .WaitFor(internalApi)
     .WaitFor(redis);
 
 builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
 
-builder.Build().Run();
+await builder.Build().RunAsync();

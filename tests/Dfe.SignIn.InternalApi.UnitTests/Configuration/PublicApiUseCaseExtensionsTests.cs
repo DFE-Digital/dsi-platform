@@ -1,5 +1,7 @@
 using Dfe.SignIn.Core.Contracts.PublicApi;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.UseCases.PublicApi;
+using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.InternalApi.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +47,9 @@ public sealed class PublicApiUseCaseExtensionsTests
         );
         Assert.IsTrue(
             services.HasInteractor<DecryptApiSecretRequest, DecryptApiSecretUseCase>()
+        );
+        Assert.IsTrue(
+            services.HasInteractor<GetUserOrganisationIdentifiersRequest, GetUserOrganisationIdentifiersUseCase>()
         );
     }
 }

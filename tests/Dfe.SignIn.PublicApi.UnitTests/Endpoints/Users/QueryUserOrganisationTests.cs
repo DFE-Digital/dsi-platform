@@ -6,6 +6,7 @@ using Dfe.SignIn.Core.Public.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Contracts.Users;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.PublicApi.UnitTests.Endpoints.Users;
@@ -95,13 +96,14 @@ public sealed class QueryUserOrganisationTests
             }
         );
 
-        var response = await UserEndpoints.PostQueryUserOrganisation(
+        var result = await UserEndpoints.PostQueryUserOrganisation(
             FakeUserId,
             FakeOrganisation1.Id,
             FakeMinimalRequest,
             autoMocker.Get<IClientSession>(),
             autoMocker.Get<IInteractionDispatcher>()
         );
+        var response = ((Ok<QueryUserOrganisationApiResponse>)result.Result).Value!;
 
         Assert.AreEqual(FakeUserId, response.UserId);
         Assert.IsNull(response.Organisation);
@@ -121,13 +123,14 @@ public sealed class QueryUserOrganisationTests
             }
         );
 
-        var response = await UserEndpoints.PostQueryUserOrganisation(
+        var result = await UserEndpoints.PostQueryUserOrganisation(
             FakeUserId,
             FakeOrganisation1.Id,
             FakeMinimalRequest,
             autoMocker.Get<IClientSession>(),
             autoMocker.Get<IInteractionDispatcher>()
         );
+        var response = ((Ok<QueryUserOrganisationApiResponse>)result.Result).Value!;
 
         Assert.AreEqual(FakeUserId, response.UserId);
 
