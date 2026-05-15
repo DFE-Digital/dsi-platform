@@ -107,7 +107,7 @@
   </ItemGroup>
   <!-- Content -->
   <ItemGroup>
-    <PackageVersion Include="HtmlAgilityPack" Version="1.12.2" />
+    <PackageVersion Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageVersion Include="Humanizer.Core" Version="2.14.1" />
     <PackageVersion Include="Markdig" Version="0.42.0" />
     <PackageVersion Include="YamlDotNet" Version="16.3.0" />
