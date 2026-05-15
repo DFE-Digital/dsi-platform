@@ -3,7 +3,6 @@ using System.Security.Claims;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.WebFramework.Mvc;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests;
