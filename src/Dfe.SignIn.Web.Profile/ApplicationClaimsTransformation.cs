@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Microsoft.AspNetCore.Authentication;
 
@@ -33,8 +34,8 @@ public class ApplicationClaimsTransformation(IInteractionDispatcher interaction)
             .To<IsOrganisationApproverResponse>();
 
         if (response.IsApprover) {
-            if (!identity.HasClaim(c => c.Type == ApplicationRoles.Approver)) {
-                identity.AddClaim(new Claim(ApplicationRoles.Approver, string.Empty));
+            if (!identity.HasClaim(c => c.Type == OrganisationRoles.Approver.Name)) {
+                identity.AddClaim(new Claim(OrganisationRoles.Approver.Name, string.Empty));
             }
         }
 

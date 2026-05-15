@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Organisations;
 
 namespace Dfe.SignIn.WebFramework.Mvc;
 
@@ -65,6 +66,6 @@ public static class ClaimsPrincipalExtensions
     public static bool HasApproverClaim(this ClaimsPrincipal principal)
     {
         ExceptionHelpers.ThrowIfArgumentNull(principal, nameof(principal));
-        return principal.Claims.Any(x => x.Type == ApplicationRoles.Approver);
+        return principal.Claims.Any(x => x.Type == OrganisationRoles.Approver.Name);
     }
 }

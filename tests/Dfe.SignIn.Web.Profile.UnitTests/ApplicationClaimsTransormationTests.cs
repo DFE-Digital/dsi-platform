@@ -1,6 +1,7 @@
 
 using System.Security.Claims;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.WebFramework.Mvc;
 using Moq.AutoMock;
@@ -49,7 +50,7 @@ public sealed class ApplicationClaimsTransormationTests
         // Assert
         Assert.AreEqual(2, result.Claims.Count());
         Assert.AreEqual(1, result.Claims.Count(c => c.Type == ClaimTypes.NameIdentifier && c.Value == "286101e9-a2dd-4894-bb3b-aefa8ea60ecd"));
-        Assert.AreEqual(1, result.Claims.Count(c => c.Type == ApplicationRoles.Approver));
+        Assert.AreEqual(1, result.Claims.Count(c => c.Type == OrganisationRoles.Approver.Name));
     }
 
     [TestMethod]

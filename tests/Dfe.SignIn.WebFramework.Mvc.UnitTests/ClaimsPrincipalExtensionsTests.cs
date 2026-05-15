@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dfe.SignIn.Core.Contracts.Organisations;
 
 namespace Dfe.SignIn.WebFramework.Mvc.UnitTests;
 
@@ -107,7 +108,7 @@ public sealed class ClaimsPrincipalExtensionsTests
         var principal = new ClaimsPrincipal([
                    new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd"),
-                new(ApplicationRoles.Approver, string.Empty),
+                new(OrganisationRoles.Approver.Name, string.Empty),
             ])
                ]);
         // Act
