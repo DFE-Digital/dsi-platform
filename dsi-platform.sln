@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.4.11626.88 stable
+VisualStudioVersion = 18.4.11626.88
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3F245DBD-544F-4DD4-9B56-06B116BB9CFE}"
 EndProject
@@ -106,6 +106,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.AppHost", "src\Dfe.SignIn.AppHost\Dfe.SignIn.AppHost.csproj", "{FB441F92-0AEF-4A0E-A102-4966F336D111}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.ServiceDefaults", "src\Dfe.SignIn.ServiceDefaults\Dfe.SignIn.ServiceDefaults.csproj", "{282680D1-4103-4AC6-9238-0038A937DAA2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6EEA84BA-E9AD-4CD5-8E6F-4ABB0C0D4613}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
+		Directory.Solution.props = Directory.Solution.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

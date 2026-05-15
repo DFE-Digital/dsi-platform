@@ -1,12 +1,12 @@
 using Dfe.SignIn.Base.Framework;
 
-namespace Dfe.SignIn.Core.Contracts.Access;
+namespace Dfe.SignIn.Core.Contracts.Applications;
 
 /// <summary>
 /// Request to get the roles that are associated with an application.
 /// </summary>
-[AssociatedResponse(typeof(GetRolesOfApplicationResponse))]
-public sealed record GetRolesOfApplicationRequest
+[AssociatedResponse(typeof(GetApplicationRolesResponse))]
+public sealed record GetApplicationRolesRequest
 {
     /// <summary>
     /// The unique identifier of the application.
@@ -15,9 +15,9 @@ public sealed record GetRolesOfApplicationRequest
 }
 
 /// <summary>
-/// Response model for request <see cref="GetRolesOfApplicationRequest"/>.
+/// Response model for request <see cref="GetApplicationRolesRequest"/>.
 /// </summary>
-public sealed record GetRolesOfApplicationResponse
+public sealed record GetApplicationRolesResponse
 {
     /// <summary>
     /// An enumerable collection of application roles.

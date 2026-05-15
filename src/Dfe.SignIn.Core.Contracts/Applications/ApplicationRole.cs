@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Dfe.SignIn.Core.Contracts.Access;
+namespace Dfe.SignIn.Core.Contracts.Applications;
 
 /// <summary>
 /// A model representing a role in DfE Sign-in.

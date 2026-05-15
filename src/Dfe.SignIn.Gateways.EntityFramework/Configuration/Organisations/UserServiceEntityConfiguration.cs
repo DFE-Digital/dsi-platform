@@ -46,5 +46,10 @@ internal sealed class UserServiceEntityConfiguration : IEntityTypeConfiguration<
         builder.HasOne(d => d.Service).WithMany(p => p.UserServices)
             .HasForeignKey(d => d.ServiceId)
             .HasConstraintName("user_services_service_id_fk");
+
+        builder
+            .HasOne(d => d.User)
+            .WithMany()
+            .HasForeignKey(d => d.UserId);
     }
 }
