@@ -20,7 +20,7 @@ public sealed record ChangeNameRequest
     /// The user's first name.
     /// </summary>
     [Required(ErrorMessage = "Enter a first name")]
-    [RegularExpression(StringPatterns.FirstNamePattern, ErrorMessage = "Enter a valid first name")]
+    [RegularExpression(StringPatterns.FirstNamePattern, ErrorMessage = "Special characters cannot be used in first name")]
     [MaxLength(60, ErrorMessage = "Enter a name with no more than 60 characters")]
     public required string FirstName { get; init; }
 
@@ -28,7 +28,7 @@ public sealed record ChangeNameRequest
     /// The user's last name.
     /// </summary>
     [Required(ErrorMessage = "Enter a last name")]
-    [RegularExpression(StringPatterns.LastNamePattern, ErrorMessage = "Enter a valid last name")]
+    [RegularExpression(StringPatterns.LastNamePattern, ErrorMessage = "Special characters cannot be used in last name")]
     [MaxLength(60, ErrorMessage = "Enter a name with no more than 60 characters")]
     public required string LastName { get; init; }
 }
