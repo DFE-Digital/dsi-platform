@@ -1,5 +1,5 @@
 # --- Build and process documentation ---
-FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:c804b88aaca8d6b76f65998427adec3101dcbbf2e52e705e2509eb81263aab0c AS build
+FROM mcr.microsoft.com/dotnet/sdk@sha256:c804b88aaca8d6b76f65998427adec3101dcbbf2e52e705e2509eb81263aab0c AS build
 
 WORKDIR /work
 
@@ -31,8 +31,10 @@ RUN FRONTEND_VERSION=$( \
 
 
 # --- Serve with a lightweight non-root version of nginx ---
-FROM nginxinc/nginx-unprivileged:1.29-alpine3.22@sha256:3245911073f8a6f8f5257aa08339096f90ef8d5db70f502f8ffeb2b9ecd5ca18
+FROM nginxinc/nginx-unprivileged@sha256:3245911073f8a6f8f5257aa08339096f90ef8d5db70f502f8ffeb2b9ecd5ca18
 
 COPY docker/docs/nginx.conf /etc/nginx/templates/default.conf.template
 
 COPY --from=build /_site /usr/share/nginx/html
+
+USER nginx

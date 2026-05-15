@@ -106,7 +106,7 @@ public class AttributeCollectionSubmitHandlerTests
     }
 
     [TestMethod]
-    [DataRow("[Jo]", "Enter a valid first name")]
+    [DataRow("[Jo]", "Special characters cannot be used in first name")]
     [DataRow("A very very long name exceeding sixty characters with brackets", "Enter a name with no more than 60 characters")]
     [DataRow("[Jo] A very long name exceeding sixty characters with brackets", null)]
     public async Task ReturnsValidationError_WhenGivenNameIsInvalid(string inputValue, string? expectedError)
@@ -168,7 +168,7 @@ public class AttributeCollectionSubmitHandlerTests
     }
 
     [TestMethod]
-    [DataRow("[Bradford]", "Enter a valid last name")]
+    [DataRow("[Bradford]", "Special characters cannot be used in last name")]
     [DataRow("A very very long name exceeding sixty characters with brackets", "Enter a name with no more than 60 characters")]
     [DataRow("[Bradford] Long name exceeding sixty characters with brackets", null)]
     public async Task ReturnsValidationError_WhenSurnameIsInvalid(string inputValue, string? expectedError)

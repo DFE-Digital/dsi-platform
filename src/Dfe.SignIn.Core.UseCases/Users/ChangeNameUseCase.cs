@@ -10,14 +10,14 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// <summary>
 /// An interactor to change the job title of a user.
 /// </summary>
-public sealed class ChangeJobTitleUseCase(
+public sealed class ChangeNameUseCase(
     IUnitOfWorkDirectories unitOfWork,
     IInteractionDispatcher interaction
-) : Interactor<ChangeJobTitleRequest, ChangeJobTitleResponse>
+) : Interactor<ChangeNameRequest, ChangeNameResponse>
 {
     /// <inheritdoc/>
-    public override async Task<ChangeJobTitleResponse> InvokeAsync(
-        InteractionContext<ChangeJobTitleRequest> context,
+    public override async Task<ChangeNameResponse> InvokeAsync(
+        InteractionContext<ChangeNameRequest> context,
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
@@ -26,24 +26,30 @@ public sealed class ChangeJobTitleUseCase(
             .Where(x => x.Sub == context.Request.UserId)
             .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(context.Request.UserId);
 
-        if (user.JobTitle == context.Request.NewJobTitle) {
-            return new ChangeJobTitleResponse();
+        if (user.FirstName == context.Request.FirstName && user.LastName == context.Request.LastName) {
+            return new ChangeNameResponse();
         }
 
-        var normalisedJobTitle = context.Request.NewJobTitle.NormalizeWhitespace();
+        if (user.FirstName != context.Request.FirstName) {
+            var normalisedFirstName = context.Request.FirstName.NormalizeWhitespace();
+            user.FirstName = normalisedFirstName;
+        }
 
-        user.JobTitle = normalisedJobTitle;
+        if (user.LastName != context.Request.LastName) {
+            var normalisedLastName = context.Request.LastName.NormalizeWhitespace();
+            user.LastName = normalisedLastName;
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         await interaction.DispatchAsync(
             new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeJobTitle,
-                Message = $"Successfully changed job title to {normalisedJobTitle}",
+                Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
                 UserId = context.Request.UserId,
             }
         );
 
-        return new ChangeJobTitleResponse();
+        return new ChangeNameResponse();
     }
 }
