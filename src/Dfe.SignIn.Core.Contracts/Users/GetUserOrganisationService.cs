@@ -43,11 +43,12 @@ public class GetUserOrganisationService
     public string? GIASProviderType { get; set; }
     public int? PIMSProviderTypeCode { get; set; }
 
+    public Guid ServiceId { get; set; }
+
     public string ServiceName { get; set; }
     public string? ServiceDescription { get; set; }
     public string RoleName { get; set; }
     public string RoleCode { get; set; }
 
-    public int OrgRoleId { get; set; }
-    public string OrgRoleName { get; set; }
+    public short OrgRoleId { get; set; }
 }

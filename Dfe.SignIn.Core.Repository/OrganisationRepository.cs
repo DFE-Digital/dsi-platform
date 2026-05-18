@@ -43,8 +43,31 @@ public class OrganisationRepository : IOrganisationRepository
         };
     }
 
-    public async Task<IEnumerable<GetUserOrganisationService>> SelectOrganisationServicesByUserId(Guid userId, CancellationToken cancellationToken)
+    public async Task<IEnumerable<GetUserOrganisationService>> SelectOrganisationServicesByUserId(string clientName, Guid userId, CancellationToken cancellationToken)
     {
+
+        // Get the details for the user (name, email, etc)
+
+        // Call to get data about user of this service (limited by clientId). Returns their organisation
+        // role for this service (end user/approver), and the organisations this user is part of for
+        // this service (can be part of a service for multiple organisations)
+
+        // Need to do 2 calls so we can translate the organisation category and status
+        // ids into their human readable names
+
+        // Filter out orgs with status of 0.  This is mostly to remove the hidden id-only org, if present.
+
+        // Get list of ALL services for the user.  We need this because it has all the the service
+        // specific roles for the user against each service for each organisationId.
+        // We need this because that role information isn't provided in the getFilteredServiceUsersRaw call.
+
+        // A user can have multiple organisations for the same service, so we loop over them all.
+
+        // Find all the services the user has for this organisation so we can put it in the response
+
+        // For all the roles in the service, loop over them so we have a list of names instead
+        // of a list of just ids.
+
         IQueryable<GetUserOrganisationService> query =
              from u in this._dbContext.Users
              join uo in this._dbContext.UserOrganisations
@@ -75,6 +98,8 @@ public class OrganisationRepository : IOrganisationRepository
              where u.Sub == userId
              where uo.UserId == userId
              where us.UserId == userId
+             //where s.ClientId == clientName
+             where o.Status != 0
              select new GetUserOrganisationService {
                  UserId = u.Sub,
                  UserStatus = u.Status,
@@ -108,12 +133,13 @@ public class OrganisationRepository : IOrganisationRepository
                  ProviderTypeName = o.ProviderTypeName,
                  GIASProviderType = o.GiasProviderType,
                  PIMSProviderTypeCode = o.PimsProviderTypeCode,
+                 ServiceId = s.Id,
                  ServiceName = s.Name,
                  ServiceDescription = s.Description,
                  RoleName = r.Name,
                  RoleCode = r.Code,
-                 OrgRoleId = uo.RoleId,
-                 OrgRoleName = "Approver"
+                 OrgRoleId = uo.RoleId
+                 //OrgRoleName = "Approver"
              };
 
         var results = await query.ToListAsync(cancellationToken);

@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dfe.SignIn.PublicApi.Client\Dfe.SignIn.PublicApi.Client.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.PublicApi.Contracts\Dfe.SignIn.PublicApi.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

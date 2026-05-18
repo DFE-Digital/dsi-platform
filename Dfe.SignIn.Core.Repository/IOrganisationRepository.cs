@@ -17,6 +17,6 @@ public interface IOrganisationRepository
     /// <returns></returns>
     Task<GetUsersAtOrganisationResponseRaw> SelectByExternalId(string clientName, string externalId, CancellationToken cancellationToken);
 
-    Task<IEnumerable<GetUserOrganisationService>> SelectOrganisationServicesByUserId(Guid userId, CancellationToken cancellationToken);
+    Task<IEnumerable<GetUserOrganisationService>> SelectOrganisationServicesByUserId(string clientName, Guid userId, CancellationToken cancellationToken);
 
 }
