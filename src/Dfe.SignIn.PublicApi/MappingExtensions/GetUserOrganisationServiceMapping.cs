@@ -4,9 +4,9 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.PublicApi.Models;
 
-namespace Dfe.SignIn.PublicApi;
+namespace Dfe.SignIn.PublicApi.MappingExtensions;
 
-public static class MappingExtensions
+public static class GetUserOrganisationServiceMapping
 {
     /// <summary>
     /// Trasform to users.

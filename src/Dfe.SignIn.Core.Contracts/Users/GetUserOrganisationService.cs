@@ -19,17 +19,17 @@ public class GetUserOrganisationService
     /// <summary>
     /// Gets or sets the user's email address.
     /// </summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     /// Gets or sets the user's family (last) name.
     /// </summary>
-    public string FamilyName { get; set; }
+    public string? FamilyName { get; set; }
 
     /// <summary>
     /// Gets or sets the user's given (first) name.
     /// </summary>
-    public string GivenName { get; set; }
+    public string? GivenName { get; set; }
 
     /// <summary>
     /// Gets or sets the unique identifier of the organisation.
@@ -39,7 +39,7 @@ public class GetUserOrganisationService
     /// <summary>
     /// Gets or sets the name of the organisation.
     /// </summary>
-    public string OrganisationName { get; set; }
+    public string? OrganisationName { get; set; }
 
     /// <summary>
     /// Gets or sets the category identifier of the organisation.
@@ -164,7 +164,7 @@ public class GetUserOrganisationService
     /// <summary>
     /// Gets or sets the name of the service.
     /// </summary>
-    public string ServiceName { get; set; }
+    public string? ServiceName { get; set; }
 
     /// <summary>
     /// Gets or sets the description of the service.
@@ -174,12 +174,12 @@ public class GetUserOrganisationService
     /// <summary>
     /// Gets or sets the role name assigned to the user in the service.
     /// </summary>
-    public string RoleName { get; set; }
+    public string? RoleName { get; set; }
 
     /// <summary>
     /// Gets or sets the role code assigned to the user in the service.
     /// </summary>
-    public string RoleCode { get; set; }
+    public string? RoleCode { get; set; }
 
     /// <summary>
     /// Gets or sets the organisation role identifier.

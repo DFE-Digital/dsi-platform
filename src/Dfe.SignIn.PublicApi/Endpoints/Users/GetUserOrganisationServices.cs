@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Dfe.SignIn.Core.Repository;
 using Dfe.SignIn.PublicApi.Authorization;
+using Dfe.SignIn.PublicApi.MappingExtensions;
 using Dfe.SignIn.PublicApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

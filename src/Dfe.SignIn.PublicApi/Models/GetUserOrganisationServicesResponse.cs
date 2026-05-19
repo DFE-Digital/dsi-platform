@@ -24,19 +24,19 @@ public class GetUserOrganisationServicesResponse
     /// Gets or sets the user's email address.
     /// </summary>
     [JsonPropertyName("email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     /// Gets or sets the user's family (last) name.
     /// </summary>
     [JsonPropertyName("familyName")]
-    public string FamilyName { get; set; }
+    public string? FamilyName { get; set; }
 
     /// <summary>
     /// Gets or sets the user's given (first) name.
     /// </summary>
     [JsonPropertyName("givenName")]
-    public string GivenName { get; set; }
+    public string? GivenName { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of organisations associated with the user.
@@ -60,7 +60,7 @@ public class OrganisationDto
     /// Gets or sets the name of the organisation.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the organisation category details.
@@ -264,7 +264,7 @@ public class ServiceDto
     /// Gets or sets the name of the service.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the description of the service.
@@ -288,11 +288,11 @@ public class RoleDto
     /// Gets or sets the name of the role.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the code associated with the role.
     /// </summary>
     [JsonPropertyName("code")]
-    public string Code { get; set; }
+    public string? Code { get; set; }
 }

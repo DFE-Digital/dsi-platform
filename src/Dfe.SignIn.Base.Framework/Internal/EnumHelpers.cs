@@ -37,6 +37,11 @@ public static class EnumHelpers
         };
     }
 
+    /// <summary>
+    /// Return the Description decorator from the enumeration.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public static string GetDescription(this Enum value)
     {
         var member = value.GetType().GetMember(value.ToString());
