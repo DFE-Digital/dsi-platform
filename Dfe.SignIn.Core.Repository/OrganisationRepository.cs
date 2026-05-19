@@ -19,6 +19,7 @@ public class OrganisationRepository : IOrganisationRepository
         this._dbContext = dbContext;
     }
 
+    ///<inheritdoc/>
     public async Task<GetUsersAtOrganisationResponseRaw> SelectByExternalId(string clientName, string externalId, CancellationToken cancellationToken)
     {
         // Try UKPRN first
@@ -43,8 +44,10 @@ public class OrganisationRepository : IOrganisationRepository
         };
     }
 
-    public async Task<IEnumerable<GetUserOrganisationService>> SelectOrganisationServicesByUserId(string clientName, Guid userId, CancellationToken cancellationToken)
+    ///<inheritdoc/>
+    public async Task<IEnumerable<GetUserOrganisationService>> SelectOrganisationServicesAndRolesByUserId(string clientName, Guid userId, CancellationToken cancellationToken)
     {
+        // COMMENTS below extracted from NodJs.
 
         // Get the details for the user (name, email, etc)
 
@@ -109,13 +112,11 @@ public class OrganisationRepository : IOrganisationRepository
                  OrganisationId = o.Id,
                  OrganisationName = o.Name,
                  CategoryId = o.Category,
-                 //CategoryName = (o.Category == "001") ? "Establishment" : "Something else",
                  Urn = o.Urn,
                  Uid = o.Uid,
                  Ukprn = o.Ukprn,
                  EstablishmentNumber = o.EstablishmentNumber,
                  StatusId = o.Status,
-                 //StatusName = (o.Status == 1) ? "Open" : "Something different",
                  ClosedOn = o.ClosedOn,
                  Address = o.Address,
                  Telephone = o.Telephone,
@@ -139,7 +140,6 @@ public class OrganisationRepository : IOrganisationRepository
                  RoleName = r.Name,
                  RoleCode = r.Code,
                  OrgRoleId = uo.RoleId
-                 //OrgRoleName = "Approver"
              };
 
         var results = await query.ToListAsync(cancellationToken);
