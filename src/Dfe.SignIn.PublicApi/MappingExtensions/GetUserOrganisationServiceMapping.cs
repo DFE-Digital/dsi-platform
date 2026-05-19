@@ -6,6 +6,9 @@ using Dfe.SignIn.PublicApi.Models;
 
 namespace Dfe.SignIn.PublicApi.MappingExtensions;
 
+/// <summary>
+/// Map GetUserOrganisationService to data transfer objects.
+/// </summary>
 public static class GetUserOrganisationServiceMapping
 {
     /// <summary>
