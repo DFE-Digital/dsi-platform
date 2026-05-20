@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
@@ -71,6 +72,7 @@ public class OrganisationRepository : IOrganisationRepository
         // For all the roles in the service, loop over them so we have a list of names instead
         // of a list of just ids.
 
+        /*
         IQueryable<GetUserOrganisationService> query =
              from u in this._dbContext.Users
              join uo in this._dbContext.UserOrganisations
@@ -141,8 +143,85 @@ public class OrganisationRepository : IOrganisationRepository
                  RoleCode = r.Code,
                  OrgRoleId = uo.RoleId
              };
+        */
 
-        var results = await query.ToListAsync(cancellationToken);
+        var sql = FormattableStringFactory.Create(
+            """
+            
+            SELECT           
+                u.sub AS UserId
+                ,CAST(u.[status] AS INT) AS UserStatus
+                ,u.email
+                ,u.family_name AS FamilyName
+                ,u.given_name AS GivenName
+                ,o.Id AS OrganisationId
+                ,o.[name] AS OrganisationName
+                ,o.Category AS CategoryId
+                ,o.URN
+                ,o.[uid]
+                ,o.UKPRN
+                ,o.EstablishmentNumber
+                ,o.[Status] AS StatusId
+                ,o.ClosedOn
+                ,o.[Address]
+                ,o.telephone
+                ,o.statutoryLowAge
+                ,o.statutoryHighAge
+                ,o.legacyId
+                ,o.companyRegistrationNumber
+                ,o.ProviderProfileID
+                ,o.UPIN
+                ,o.PIMSProviderType
+                ,o.PIMSStatus
+                ,o.DistrictAdministrativeName
+                ,o.OpenedOn
+                ,o.SourceSystem
+                ,o.ProviderTypeName
+                ,o.GIASProviderType
+                ,o.PIMSProviderTypeCode
+                ,s.id AS ServiceId
+                ,s.[name] AS ServiceName
+                ,s.[description] AS ServiceDescription
+                ,r.[Name] AS RoleName
+                ,r.Code AS RoleCode
+                ,uo.role_id AS OrgRoleId
+            FROM
+            (
+                SELECT
+                    uo.[user_id]
+                    ,uo.organisation_id
+                FROM
+                    dbo.user_organisation uo
+                INNER JOIN
+                    dbo.user_services us ON us.organisation_id = uo.organisation_id AND us.user_id = uo.user_id
+                INNER JOIN
+                    dbo.[service] s ON s.id = us.service_id
+                WHERE
+                    uo.[user_id] = {0}
+                    AND s.clientId = {1}
+                    AND us.[status] <> 0
+                ) orgUsers
+                INNER JOIN
+                    dbo.[user] u ON u.sub = orgUsers.user_id
+                INNER JOIN
+                    dbo.user_organisation uo ON uo.[user_id] = orgUsers.user_id AND uo.organisation_id = orgUsers.organisation_id
+                INNER JOIN
+                    dbo.organisation o ON o.id = uo.organisation_id
+                INNER JOIN
+                    dbo.user_services us ON us.organisation_id = o.Id AND us.[user_id] = u.sub
+                LEFT OUTER JOIN
+                    dbo.[service] s ON s.id = us.service_id
+                LEFT OUTER JOIN
+                    dbo.user_service_roles usr ON usr.organisation_id = us.organisation_id
+                        AND usr.service_id = us.service_id
+                            AND usr.[user_id] = us.[user_id]
+                LEFT OUTER JOIN
+                    dbo.[Role] r ON r.Id = usr.role_id
+                ;
+            
+            """, userId, clientName);
+
+        var results = await this._dbContext.Database.SqlQuery<GetUserOrganisationService>(sql).ToListAsync(cancellationToken);
 
         return results;
     }
