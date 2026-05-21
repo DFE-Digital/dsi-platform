@@ -1,4 +1,3 @@
-using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 
 namespace Dfe.SignIn.Core.Repository;
@@ -8,15 +7,6 @@ namespace Dfe.SignIn.Core.Repository;
 /// </summary>
 public interface IOrganisationRepository
 {
-    /// <summary>
-    /// Get organisations by Id.
-    /// </summary>
-    /// <param name="clientName">E.g. gias.</param>
-    /// <param name="externalId">UKPRN or UPIN of the organisation.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
-    Task<GetUsersAtOrganisationResponseRaw> SelectByExternalId(string clientName, string externalId, CancellationToken cancellationToken);
-
     /// <summary>
     /// Given a user identifier, return organisations the user is assigned and their services and roles.
     /// </summary>

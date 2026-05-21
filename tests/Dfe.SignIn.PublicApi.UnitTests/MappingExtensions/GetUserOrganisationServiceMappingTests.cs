@@ -102,8 +102,8 @@ public class GetUserOrganisationServiceMappingTests
 
         Assert.AreEqual(model.OrganisationId, org.Id);
         Assert.AreEqual(model.OrganisationName, org.Name);
-        Assert.AreEqual(model.CategoryId, org.Category.Id);
-        Assert.AreEqual(model.StatusId, org.Status.Id);
+        Assert.AreEqual(model.CategoryId, org.Category?.Id);
+        Assert.AreEqual(model.StatusId, org.Status?.Id);
     }
 
     [TestMethod]
