@@ -53,22 +53,28 @@ public sealed class AuthController(
 
     private async Task<IActionResult> SignOutHelper(string? redirectUri = null)
     {
-        var result = this.SignOut(
-            new AuthenticationProperties { RedirectUri = redirectUri },
-            OpenIdConnectDefaults.AuthenticationScheme,
-            CookieAuthenticationDefaults.AuthenticationScheme
-        );
-
-        if (this.User.Identity?.IsAuthenticated == true) {
-            await interaction.DispatchAsync(
-                new WriteToAuditRequest {
-                    EventCategory = AuditEventCategoryNames.SignOut,
-                    Message = "User signing out",
-                    UserId = this.User.GetUserId(),
-                }
+        try {
+            var result = this.SignOut(
+                new AuthenticationProperties { RedirectUri = redirectUri },
+                OpenIdConnectDefaults.AuthenticationScheme,
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                ExternalAuthConstants.CookiesSchemeName
             );
-        }
 
-        return result;
+            if (this.User.Identity?.IsAuthenticated == true) {
+                await interaction.DispatchAsync(
+                    new WriteToAuditRequest {
+                        EventCategory = AuditEventCategoryNames.SignOut,
+                        Message = "User signing out",
+                        UserId = this.User.GetUserId(),
+                    }
+                );
+            }
+
+            return result;
+        }
+        catch (Exception ex) {
+            throw new InvalidOperationException("An error occurred while signing out.", ex);
+        }
     }
 }
