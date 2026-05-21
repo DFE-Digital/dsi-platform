@@ -17,7 +17,7 @@
     {
         new()
         {
-            Href = platformOptions.ServicesUrl,
+            Href = new Uri(platformOptions.ServicesUrl, "my-services"),
             Text = "Services",
         },
         new()
