@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
@@ -8,6 +9,7 @@ namespace Dfe.SignIn.Core.Repository;
 /// <summary>
 /// Get organisation details.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class OrganisationRepository : IOrganisationRepository
 {
     private readonly DbOrganisationsContext _dbContext;
