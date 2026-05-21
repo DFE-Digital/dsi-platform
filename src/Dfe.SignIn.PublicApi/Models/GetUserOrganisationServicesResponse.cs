@@ -66,7 +66,7 @@ public class OrganisationDto
     /// Gets or sets the organisation category details.
     /// </summary>
     [JsonPropertyName("category")]
-    public CategoryDto Category { get; set; }
+    public CategoryDto? Category { get; set; }
 
     /// <summary>
     /// Gets or sets the Unique Reference Number (URN).
@@ -96,7 +96,7 @@ public class OrganisationDto
     /// Gets or sets the organisation status details.
     /// </summary>
     [JsonPropertyName("status")]
-    public StatusDto Status { get; set; }
+    public StatusDto? Status { get; set; }
 
     /// <summary>
     /// Gets or sets the date the organisation was closed.

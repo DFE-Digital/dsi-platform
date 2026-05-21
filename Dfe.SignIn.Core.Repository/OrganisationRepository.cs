@@ -72,79 +72,6 @@ public class OrganisationRepository : IOrganisationRepository
         // For all the roles in the service, loop over them so we have a list of names instead
         // of a list of just ids.
 
-        /*
-        IQueryable<GetUserOrganisationService> query =
-             from u in this._dbContext.Users
-             join uo in this._dbContext.UserOrganisations
-                on u.Sub equals uo.UserId
-             join o in this._dbContext.Organisations
-                on uo.OrganisationId equals o.Id
-             join us in this._dbContext.UserServices
-                on o.Id equals us.OrganisationId
-             join s in this._dbContext.Services
-                 on us.ServiceId equals s.Id
-             join usr in this._dbContext.UserServiceRoles
-                 on new {
-                     oid = us.OrganisationId,
-                     sid = us.ServiceId,
-                     uid = us.UserId
-                 }
-                 equals new {
-                     oid = (Guid?)usr.OrganisationId,
-                     sid = (Guid?)usr.ServiceId,
-                     uid = usr.UserId
-                 }
-                 into usrGroup
-             from usr in usrGroup.DefaultIfEmpty()
-             join r in this._dbContext.Roles
-                 on usr.RoleId equals r.Id
-                 into roleGroup
-             from r in roleGroup.DefaultIfEmpty()
-             where u.Sub == userId
-             where uo.UserId == userId
-             where us.UserId == userId
-             //where s.ClientId == clientName
-             where o.Status != 0
-             select new GetUserOrganisationService {
-                 UserId = u.Sub,
-                 UserStatus = u.Status,
-                 Email = u.Email,
-                 FamilyName = u.LastName,
-                 GivenName = u.FirstName,
-                 OrganisationId = o.Id,
-                 OrganisationName = o.Name,
-                 CategoryId = o.Category,
-                 Urn = o.Urn,
-                 Uid = o.Uid,
-                 Ukprn = o.Ukprn,
-                 EstablishmentNumber = o.EstablishmentNumber,
-                 StatusId = o.Status,
-                 ClosedOn = o.ClosedOn,
-                 Address = o.Address,
-                 Telephone = o.Telephone,
-                 StatutoryLowAge = o.StatutoryLowAge,
-                 StatutoryHighAge = o.StatutoryHighAge,
-                 LegacyId = o.LegacyId,
-                 CompanyRegistrationNumber = o.CompanyRegistrationNumber,
-                 ProviderProfileID = o.ProviderProfileId,
-                 UPIN = o.Upin,
-                 PIMSProviderType = o.PimsProviderType,
-                 PIMSStatus = o.PimsStatus,
-                 DistrictAdministrativeName = o.DistrictAdministrativeName1, // matches NodeJs
-                 OpenedOn = o.OpenedOn,
-                 SourceSystem = o.SourceSystem,
-                 ProviderTypeName = o.ProviderTypeName,
-                 GIASProviderType = o.GiasProviderType,
-                 PIMSProviderTypeCode = o.PimsProviderTypeCode,
-                 ServiceId = s.Id,
-                 ServiceName = s.Name,
-                 ServiceDescription = s.Description,
-                 RoleName = r.Name,
-                 RoleCode = r.Code,
-                 OrgRoleId = uo.RoleId
-             };
-        */
-
         var sql = FormattableStringFactory.Create(
             """
             
@@ -196,10 +123,12 @@ public class OrganisationRepository : IOrganisationRepository
                     dbo.user_services us ON us.organisation_id = uo.organisation_id AND us.user_id = uo.user_id
                 INNER JOIN
                     dbo.[service] s ON s.id = us.service_id
+                INNER JOIN
+                    dbo.organisation o ON o.Id = uo.organisation_id
                 WHERE
                     uo.[user_id] = {0}
                     AND s.clientId = {1}
-                    AND us.[status] <> 0
+                    AND o.[status] <> 0
                 ) orgUsers
                 INNER JOIN
                     dbo.[user] u ON u.sub = orgUsers.user_id

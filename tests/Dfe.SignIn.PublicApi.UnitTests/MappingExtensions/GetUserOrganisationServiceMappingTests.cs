@@ -50,7 +50,7 @@ public class GetUserOrganisationServiceMappingTests
 
         var result = models.ToUserDtos().ToList();
 
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
         Assert.AreEqual(userId, result[0].UserId);
     }
 
@@ -198,7 +198,7 @@ public class GetUserOrganisationServiceMappingTests
             .Roles
             .ToList();
 
-        Assert.AreEqual(1, roles.Count);
+        Assert.HasCount(1, roles);
         Assert.AreEqual("Role1", roles[0].Name);
     }
 

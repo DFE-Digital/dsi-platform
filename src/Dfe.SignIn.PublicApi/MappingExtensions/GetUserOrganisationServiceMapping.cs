@@ -104,10 +104,10 @@ public static class GetUserOrganisationServiceMapping
     this IGrouping<Guid, GetUserOrganisationService> orgGroup)
     {
         return orgGroup
-            .GroupBy(x => x.ServiceName)
+            .GroupBy(x => x.ServiceName ?? string.Empty)
             .OrderBy(x => x.Key)
             .Select(serviceGroup => {
-                var s = serviceGroup.First();
+                GetUserOrganisationService s = serviceGroup.First();
 
                 return new ServiceDto {
                     Name = s.ServiceName,
