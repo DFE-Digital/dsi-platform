@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dfe.SignIn.Core.Contracts.Organisations;
 
 namespace Dfe.SignIn.WebFramework.Mvc.UnitTests;
 
@@ -72,5 +73,49 @@ public sealed class ClaimsPrincipalExtensionsTests
         Assert.AreEqual(Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd"), userId);
     }
 
+    #endregion
+
+    #region  HasApproverClaim(ClaimsPrincipal)
+
+    [TestMethod]
+    public void HasApproverClaim_Throws_WhenPrincipalArgumentIsNull()
+    {
+        // Act
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ClaimsPrincipalExtensions.HasApproverClaim(null!));
+    }
+
+    [TestMethod]
+    public void HasApproverClaim_Returns_FalseWhenClaimIsMissing()
+    {
+        // Arrange
+        var principal = new ClaimsPrincipal([
+                   new ClaimsIdentity((IEnumerable<Claim>?)[
+                new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd")
+            ])
+               ]);
+        // Act
+        var result = ClaimsPrincipalExtensions.HasApproverClaim(principal);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void HasApproverClaim_Returns_TrueWhenClaimIsPresent()
+    {
+        // Arrange
+        var principal = new ClaimsPrincipal([
+                   new ClaimsIdentity((IEnumerable<Claim>?)[
+                new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd"),
+                new(OrganisationRoles.Approver.Name, string.Empty),
+            ])
+               ]);
+        // Act
+        var result = ClaimsPrincipalExtensions.HasApproverClaim(principal);
+
+        // Assert
+        Assert.IsTrue(result);
+    }
     #endregion
 }
