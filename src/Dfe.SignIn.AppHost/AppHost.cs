@@ -22,6 +22,8 @@ var redisConnectionString = ReferenceExpression.Create(
 var frontend = builder.AddDockerfile("infra-frontend", "../../", "docker/frontend/Dockerfile")
     .WithHttpEndpoint(targetPort: 8080, name: "http");
 
+var frontendEndpoint = frontend.GetEndpoint("http");
+
 // Extract shared configuration sections to easily reuse them across projects
 var govNotifyConfig = builder.Configuration.GetSection("GovNotify");
 var supportEmailConfig = builder.Configuration.GetSection("RaiseSupportTicketByEmail");
@@ -39,7 +41,7 @@ var nodeComponents = builder.Configuration.GetSection("Components:Node");
 
 if (dotNetComponents.GetValue("HelpEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
-    .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
+    .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
     .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
     .WithEnvironment("RaiseSupportTicketByEmail__SupportEmailAddress", supportEmailConfig["SupportEmailAddress"])
@@ -50,7 +52,7 @@ if (dotNetComponents.GetValue("HelpEnabled", true)) {
 
 if (dotNetComponents.GetValue("ProfileEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
-    .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
+    .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
     .WithEnvironment("GeneralRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("SessionRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("TokenRedisCache__ConnectionString", redisConnectionString)
@@ -71,7 +73,7 @@ if (dotNetComponents.GetValue("ProfileEnabled", true)) {
 
 if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
-    .WithSharedConfiguration(builder.Configuration, frontend.GetEndpoint("http"))
+    .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
     .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
     .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
@@ -112,32 +114,23 @@ var nodeEnvFileName = builder.Configuration["NodeEnvFileName"]
 // Node components
 IResourceBuilder<NodeAppResource>? oidc = null;
 if (nodeComponents.GetValue("OidcEnabled", true)) {
-    oidc = builder.AddNodePlatformApp("node-oidc", nodeRootDir, "login.dfe.oidc", 4436, redisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+    oidc = builder.AddNodePlatformApp("node-oidc", nodeRootDir, "login.dfe.oidc", 4436, redisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName, scriptName: "dev")
     .WithNpmPackageInstallation()
     .WaitFor(redis);
 }
 
 IResourceBuilder<NodeAppResource>? interactor = null;
 if (nodeComponents.GetValue("InteractionsEnabled", true)) {
-    interactor = builder.AddNodePlatformApp("node-interactions", nodeRootDir, "login.dfe.interactions", 4431, redisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
-    .WithNpmPackageInstallation();
-
-    if (oidc != null) {
-        interactor.WaitFor(oidc);
-    }
+    interactor = builder.AddNodePlatformApp("node-interactions", nodeRootDir, "login.dfe.interactions", 4431, redisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName, scriptName: "dev")
+    .WithNpmPackageInstallation()
+    .WaitForIfPresent(oidc);
 }
 
 if (nodeComponents.GetValue("ServicesEnabled", true)) {
-    var services = builder.AddNodePlatformApp("node-services", nodeRootDir, "login.dfe.services", 41012, redisConnectionString, envFileName: nodeEnvFileName)
-    .WithNpmPackageInstallation();
-
-    if (oidc != null) {
-        services.WaitFor(oidc);
-    }
-
-    if (interactor != null) {
-        services.WaitFor(interactor);
-    }
+    builder.AddNodePlatformApp("node-services", nodeRootDir, "login.dfe.services", 41012, redisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName)
+    .WithNpmPackageInstallation()
+    .WaitForIfPresent(oidc)
+    .WaitForIfPresent(interactor);
 }
 
 builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
