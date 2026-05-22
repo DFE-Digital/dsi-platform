@@ -15,6 +15,7 @@ using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Rewrite;
 
@@ -108,6 +109,20 @@ builder.Services
 
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
+
+// In local development, disable SSL certificate validation for the OpenID Connect backchannel to allow using self-signed certificates.
+// This should only be used in the Local environment and not in any other environment to avoid security risks.
+// Note: This is necessary because the OpenID Connect middleware makes backchannel HTTP requests to the identity provider for token validation and other operations, and in local development,
+// the identity provider may be using a self-signed certificate that is not trusted by the development machine.
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Services.PostConfigure<OpenIdConnectOptions>(
+        OpenIdConnectDefaults.AuthenticationScheme, options => {
+            options.BackchannelHttpHandler = new HttpClientHandler {
+                ServerCertificateCustomValidationCallback = // NOSONAR
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+        });
+}
 
 var app = builder.Build();
 

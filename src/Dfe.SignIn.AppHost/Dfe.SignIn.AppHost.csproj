@@ -1,13 +1,16 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.2.2">
+<Project Sdk="Aspire.AppHost.Sdk/13.3.5">
 
   <ItemGroup>
     <ProjectReference Include="..\Dfe.SignIn.Web.Help\Dfe.SignIn.Web.Help.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Web.Profile\Dfe.SignIn.Web.Profile.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.PublicApi\Dfe.SignIn.PublicApi.csproj" />
+      <ProjectReference Include="..\Dfe.SignIn.InternalApi\Dfe.SignIn.InternalApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Redis" />
+      <PackageReference Include="Aspire.Hosting.Redis" />
+      <PackageReference Include="Aspire.Hosting.NodeJs" />
+      <PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" />
   </ItemGroup>
 
   <PropertyGroup>

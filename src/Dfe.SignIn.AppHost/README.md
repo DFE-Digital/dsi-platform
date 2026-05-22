@@ -4,13 +4,15 @@
 
 ## Prerequisites
 
-| Requirement | Notes |
-|---|---|
-| [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10) | Including the Aspire workload (`dotnet workload install aspire`) |
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Must be running before launching |
-| [PowerShell 7+](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell) | Required for the TLS proxy tool |
+| Requirement                                                                                            | Notes                                                                         |
+| ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10)                                         | Including the Aspire workload (`dotnet workload install aspire`)              |
+| [Aspire CLI](https://aspire.dev/get-started/install-cli/)                                              | Required to run and manage the Aspire app host                                |
+| [Node.js](https://nodejs.org/)                                                                         | Required for Node platform apps (OIDC, Interactions, Services)                |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/)                                      | Must be running before launching                                              |
+| [PowerShell 7+](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell)  | Required for the TLS proxy tool                                               |
 | [dsi-tools](https://dfe-secureaccess.atlassian.net/wiki/spaces/NSA/pages/4647682065/Install+dsi-tools) | Required for local TLS proxying (e.g. Profile app). Follow the install guide. |
-| User secrets | See section below |
+| User secrets                                                                                           | See section below                                                             |
 
 ## Dev setup
 
@@ -37,15 +39,38 @@ dotnet user-secrets set "ExternalId:Authority"    "<value>" --project src/Dfe.Si
 dotnet user-secrets set "ExternalId:Instance"     "<value>" --project src/Dfe.SignIn.AppHost
 dotnet user-secrets set "ExternalId:TenantId"     "<value>" --project src/Dfe.SignIn.AppHost
 
-dotnet user-secrets set "InternalApiClient:BaseAddress"    "<value>" --project src/Dfe.SignIn.AppHost
-dotnet user-secrets set "InternalApiClient:ClientId"       "<value>" --project src/Dfe.SignIn.AppHost
-dotnet user-secrets set "InternalApiClient:ClientSecret"   "<value>" --project src/Dfe.SignIn.AppHost
-dotnet user-secrets set "InternalApiClient:HostUrl"        "<value>" --project src/Dfe.SignIn.AppHost
-dotnet user-secrets set "InternalApiClient:Resource"       "<value>" --project src/Dfe.SignIn.AppHost
-dotnet user-secrets set "InternalApiClient:Tenant"         "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:ClientId"                  "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:ClientSecret"              "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:HostUrl"                   "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:Tenant"                    "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:Access:BaseAddress"        "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:Organisations:BaseAddress" "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:Directories:BaseAddress"   "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:Applications:BaseAddress"  "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "InternalApiClient:Search:BaseAddress"        "<value>" --project src/Dfe.SignIn.AppHost
+
+dotnet user-secrets set "Session:DurationInMinutes"                   "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "Session:NotifyRemainingMinutes"              "<value>" --project src/Dfe.SignIn.AppHost
+
+dotnet user-secrets set "BearerToken:ValidAudience"                             "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "PublicApiSecretEncryption:Key"                         "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "SelectOrganisation:SelectOrganisationBaseAddress"      "<value>" --project src/Dfe.SignIn.AppHost
+
+dotnet user-secrets set "EntityFramework:Directories:Host"     "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "EntityFramework:Directories:Name"     "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "EntityFramework:Directories:Username" "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "EntityFramework:Directories:Password" "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "EntityFramework:Organisations:Host"     "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "EntityFramework:Organisations:Name"     "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "EntityFramework:Organisations:Username" "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "EntityFramework:Organisations:Password" "<value>" --project src/Dfe.SignIn.AppHost
+
+dotnet user-secrets set "NodePlatformDirectory" "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "NodeEnvFileName"       "<value>" --project src/Dfe.SignIn.AppHost
 
 dotnet user-secrets set "GovNotify:ApiKey"                                    "<value>" --project src/Dfe.SignIn.AppHost
 dotnet user-secrets set "RaiseSupportTicketByEmail:SupportEmailAddress"       "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "RaiseSupportTicketByEmail:EmailTemplateId"           "<value>" --project src/Dfe.SignIn.AppHost
 ```
 
 > Actual values are shared via the team's secrets store. Ask a team member if you don't have them.
@@ -71,27 +96,44 @@ Alternatively, use the terminal option below.
 
 ### Command line
 
-Ensure Docker Desktop is running, then:
+Ensure Docker Desktop is running, then run the following from the **solution root** (where `aspire.config.json` is located). The Aspire CLI uses that file to locate the AppHost project automatically.
 
 ```bash
+# Using the Aspire CLI (recommended)
+aspire start
+
+# Using the .NET CLI
 dotnet watch run --project src/Dfe.SignIn.AppHost
 ```
 
 This will build the solution, start Docker containers (Redis, frontend), and launch all configured apps. The Aspire dashboard URL is printed to the console on startup.
 
+To stop all resources when using the Aspire CLI:
+
+```bash
+aspire stop
+```
+
 ## What gets started
 
-| Resource | Description |
-|---|---|
-| `infra-redis` | Redis instance with a persistent data volume + Redis Commander UI |
-| `infra-frontend` | Frontend asset server built from `docker/frontend/Dockerfile` |
-| `app-help` | Help web app (`http://localhost:5012`) |
-| `app-profile` | Profile web app (`http://localhost:41011`) |
-| `tool-tls-proxy` | Local TLS proxy (`Start-DsiTlsProxy` PowerShell function) |
+| Resource            | Description                                                                                               |
+| ------------------- | --------------------------------------------------------------------------------------------------------- |
+| `infra-redis`       | Redis instance with a persistent data volume + Redis Commander UI                                         |
+| `infra-frontend`    | Frontend asset server built from `docker/frontend/Dockerfile`                                             |
+| `app-help`          | Help web app — conditional on `Components:DotNet:HelpEnabled` (default: true)                             |
+| `app-profile`       | Profile web app — conditional on `Components:DotNet:ProfileEnabled` (default: true)                       |
+| `app-public-api`    | Public API — conditional on `Components:DotNet:PublicApiEnabled` (default: true)                          |
+| `app-internal-api`  | Internal API — always started                                                                             |
+| `node-oidc`         | Node OIDC app on port 4436 — conditional on `Components:Node:OidcEnabled` (default: true)                 |
+| `node-interactions` | Node Interactions app on port 4431 — conditional on `Components:Node:InteractionsEnabled` (default: true) |
+| `node-services`     | Node Services app on port 41012 — conditional on `Components:Node:ServicesEnabled` (default: true)        |
+| `tool-tls-proxy`    | Local TLS proxy (`Start-DsiTlsProxy` PowerShell function)                                                 |
 
 ## Aspire dashboard
 
 The dashboard is available at the URL printed to the console on startup (typically `http://localhost:15142`). Use it to view logs, traces, and the state of all resources.
+
+For further reference, see the [Aspire documentation](https://aspire.dev/docs/).
 
 ## Troubleshooting
 
