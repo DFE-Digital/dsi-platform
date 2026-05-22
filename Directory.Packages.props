@@ -17,7 +17,7 @@
   <ItemGroup>
     <!-- Dependency injection -->
     <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.3.2" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.3.5" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.9.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
