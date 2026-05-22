@@ -50,6 +50,28 @@ public static class ResourceBuilderExtensions
         return builder;
     }
 
+    public static IResourceBuilder<NodeAppResource> AddNodePlatformApp(
+        this IDistributedApplicationBuilder builder,
+        string name,
+        string nodeRootDir,
+        string appName,
+        int port,
+        ReferenceExpression? redisConnectionString = null,
+        string scriptName = "start",
+        string envFileName = ".env")
+    {
+        var npmApp = builder.AddNpmApp(name, $"{nodeRootDir}/{appName}", scriptName)
+            .WithHttpsEndpoint(port: port, targetPort: port, env: "PORT", isProxied: false)
+            .WithEnvFile($"{nodeRootDir}/{envFileName}")  // loads .env defaults first
+            .WithEnvironment("NODE_TLS_REJECT_UNAUTHORIZED", "0");
+
+        if (redisConnectionString is not null) {
+            npmApp.WithEnvironment("LOCAL_REDIS_CONN", redisConnectionString);
+        }
+
+        return npmApp;
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -74,34 +96,5 @@ public static class ResourceBuilderExtensions
                 ctx.EnvironmentVariables[key] = value;
             }
         });
-    }
-
-    public static IResourceBuilder<T> WithRedisUrlEnvironment<T>(
-    this IResourceBuilder<T> builder,
-    string envVarName,
-    IResourceBuilder<RedisResource> redis)
-    where T : IResourceWithEnvironment
-    {
-        return builder.WithEnvironment(ctx =>
-            ctx.EnvironmentVariables[envVarName] = new RedisUrlValueProvider(redis.Resource.ConnectionStringExpression));
-    }
-
-    private sealed class RedisUrlValueProvider(ReferenceExpression connectionStringExpression) : IValueProvider
-    {
-        public async ValueTask<string?> GetValueAsync(CancellationToken cancellationToken = default)
-        {
-            var connStr = await connectionStringExpression.GetValueAsync(cancellationToken);
-            if (connStr is null)
-                return null;
-
-            var parts = connStr.Split(',');
-            var hostPort = parts[0];
-            var password = parts.FirstOrDefault(p => p.StartsWith("password="))
-                ?.Substring("password=".Length) ?? string.Empty;
-
-            return string.IsNullOrEmpty(password)
-                ? $"redis://{hostPort}"
-                : $"redis://:{Uri.EscapeDataString(password)}@{hostPort}";
-        }
     }
 }

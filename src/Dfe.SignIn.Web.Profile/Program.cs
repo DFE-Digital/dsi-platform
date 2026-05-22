@@ -15,6 +15,7 @@ using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Rewrite;
 
@@ -108,6 +109,16 @@ builder.Services
 
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
+
+if (builder.Environment.IsEnvironment("Local")) {
+    builder.Services.PostConfigure<OpenIdConnectOptions>(
+        OpenIdConnectDefaults.AuthenticationScheme, options => {
+            options.BackchannelHttpHandler = new HttpClientHandler {
+                ServerCertificateCustomValidationCallback =
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+        });
+}
 
 var app = builder.Build();
 
