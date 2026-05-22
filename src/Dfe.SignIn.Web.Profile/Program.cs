@@ -118,8 +118,8 @@ if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.PostConfigure<OpenIdConnectOptions>(
         OpenIdConnectDefaults.AuthenticationScheme, options => {
             options.BackchannelHttpHandler = new HttpClientHandler {
-                ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator // NOSONAR
+                ServerCertificateCustomValidationCallback = // NOSONAR
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             };
         });
 }
