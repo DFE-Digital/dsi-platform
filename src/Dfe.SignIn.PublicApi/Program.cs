@@ -3,7 +3,6 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
-using Dfe.SignIn.Core.Repository;
 using Dfe.SignIn.Core.UseCases.SelectOrganisation;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.DistributedCache.SelectOrganisation;
@@ -18,6 +17,7 @@ using Dfe.SignIn.PublicApi.Endpoints.Organisations;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.Services;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
+using Dfe.SignIn.PublicApi.Repository;
 using Dfe.SignIn.WebFramework.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);

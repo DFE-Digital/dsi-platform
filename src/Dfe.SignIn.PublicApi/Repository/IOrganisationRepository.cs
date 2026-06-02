@@ -1,6 +1,6 @@
 using Dfe.SignIn.Core.Contracts.Users;
 
-namespace Dfe.SignIn.Core.Repository;
+namespace Dfe.SignIn.PublicApi.Repository;
 
 /// <summary>
 /// Organisations.
@@ -12,7 +12,7 @@ public interface IOrganisationRepository
     /// </summary>
     /// <param name="clientName"></param>
     /// <param name="userId">Unique identifier of the user.</param>
-    /// <param name="cancellationToken">The cancellation token<./param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     Task<IEnumerable<GetUserOrganisationService>> SelectOrganisationServicesAndRolesByUserId(string clientName, Guid userId, CancellationToken cancellationToken);
 

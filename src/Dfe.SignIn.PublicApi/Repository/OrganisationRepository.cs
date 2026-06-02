@@ -4,7 +4,7 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dfe.SignIn.Core.Repository;
+namespace Dfe.SignIn.PublicApi.Repository;
 
 /// <summary>
 /// Get organisation details.

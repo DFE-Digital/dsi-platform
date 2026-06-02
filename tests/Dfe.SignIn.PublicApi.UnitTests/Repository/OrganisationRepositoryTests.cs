@@ -1,11 +1,12 @@
 using System.Linq.Expressions;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.PublicApi.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 
-namespace Dfe.SignIn.Core.Repository.UnitTests;
+namespace Dfe.SignIn.PublicApi.UnitTests.Repository;
 
 [TestClass]
 [Ignore]

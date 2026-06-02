@@ -222,6 +222,6 @@ public sealed class GetUsersAtOrganisationUseCaseTests
         );
 
         Assert.AreEqual(1, response?.Users?.Count());
-        Assert.IsNull(response.Users.First().Role);
+        Assert.IsNull(response?.Users?.First().Role);
     }
 }
