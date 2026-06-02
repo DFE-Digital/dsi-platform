@@ -14,6 +14,10 @@ public class OrganisationRepository : IOrganisationRepository
 {
     private readonly DbOrganisationsContext _dbContext;
 
+    /// <summary>
+    /// Organisation table queries.
+    /// </summary>
+    /// <param name="dbContext"></param>
     public OrganisationRepository(DbOrganisationsContext dbContext)
     {
         this._dbContext = dbContext;
