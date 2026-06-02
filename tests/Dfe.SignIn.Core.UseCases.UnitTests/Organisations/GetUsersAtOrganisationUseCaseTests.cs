@@ -122,9 +122,9 @@ public sealed class GetUsersAtOrganisationUseCaseTests
         Assert.AreEqual(Ukprn, response.ExternalId);
         Assert.AreEqual(2, response?.Users?.Count());
 
-        var user = response.Users.First(u => u.FirstName == "John");
-        Assert.AreEqual("user1@test.com", user.Email);
-        Assert.AreEqual("Admin", user.Role);
+        var user = response?.Users?.First(u => u.FirstName == "John");
+        Assert.AreEqual("user1@test.com", user?.Email);
+        Assert.AreEqual("Admin", user?.Role);
     }
 
     [TestMethod]
