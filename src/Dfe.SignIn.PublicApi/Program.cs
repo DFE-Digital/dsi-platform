@@ -115,10 +115,12 @@ var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy(policy => {
+
+    var hstsMaxAgeInSeconds = 31536000;
     policy.AddFrameOptionsSameOrigin();
     policy.AddCustomHeader("X-DNS-Prefetch-Control", "off");
     policy.AddCustomHeader("X-Permitted-Cross-Domain-Policies", "none");
-    policy.AddStrictTransportSecurityMaxAgeIncludeSubDomainsAndPreload(31536000);
+    policy.AddCustomHeader("Strict-Transport-Security", $"max-age={hstsMaxAgeInSeconds}; includeSubDomains");
 });
 
 app.UseSwagger();
