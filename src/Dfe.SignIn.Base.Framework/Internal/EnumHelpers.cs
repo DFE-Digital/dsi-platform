@@ -1,4 +1,7 @@
 
+using System.ComponentModel;
+using System.Reflection;
+
 namespace Dfe.SignIn.Base.Framework.Internal;
 
 /// <summary>
@@ -32,5 +35,27 @@ public static class EnumHelpers
             int i when Enum.IsDefined(typeof(TEnum), i) => (TEnum)(object)i,
             _ => throw new ArgumentException($"Cannot convert '{input}' to enum {typeof(TEnum).Name}"),
         };
+    }
+
+    /// <summary>
+    /// Return the Description decorator from the enumeration.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static string GetDescription(this Enum value)
+    {
+        var member = value.GetType().GetMember(value.ToString());
+
+        if (member.Length > 0) {
+            var attribute = member[0]
+                .GetCustomAttribute<DescriptionAttribute>();
+
+            if (attribute != null) {
+                return attribute.Description;
+            }
+        }
+
+        // Fallback if no DescriptionAttribute is found
+        return value.ToString();
     }
 }
