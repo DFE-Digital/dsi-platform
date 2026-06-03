@@ -46,6 +46,11 @@ public sealed class StringPatternsTests
     [DataRow(" Bob ", true)]
     [DataRow("   Bob", true)]
     [DataRow("Bob       ", true)]
+    [DataRow("Bob William       ", true)]
+    [DataRow("      Bob William       ", true)]
+    [DataRow("Bob    William", true)]
+    [DataRow("Bob   \t William", false)]
+    [DataRow("Bob   \t\n William", false)]
     public void FirstNameRegex_WorksAsExpected(string input, bool expectedResult)
     {
         bool result = StringPatterns.FirstNameRegex().IsMatch(input);
@@ -66,6 +71,11 @@ public sealed class StringPatternsTests
     [DataRow("MAY -", false)]
     [DataRow("   Bob", true)]
     [DataRow("Bob       ", true)]
+    [DataRow("Bob William       ", true)]
+    [DataRow("      Bob William       ", true)]
+    [DataRow("Bob    William", true)]
+    [DataRow("Bob   \t William", false)]
+    [DataRow("Bob   \t\n William", false)]
     public void LastNameRegex_WorksAsExpected(string input, bool expectedResult)
     {
         bool result = StringPatterns.LastNameRegex().IsMatch(input);
