@@ -118,7 +118,7 @@ app.UseDsiSecurityHeaderPolicy(policy => {
     policy.AddFrameOptionsSameOrigin();
     policy.AddCustomHeader("X-DNS-Prefetch-Control", "off");
     policy.AddCustomHeader("X-Permitted-Cross-Domain-Policies", "none");
-    policy.AddCustomHeader("Strict-Transport-Security", $"max-age={hstsMaxAgeInSeconds}; includeSubDomains");
+    policy.AddCustomHeader("Strict-Transport-Security", $"max-age={hstsMaxAgeInSeconds}; includeSubDomains; preload");
 });
 
 app.UseSwagger();
