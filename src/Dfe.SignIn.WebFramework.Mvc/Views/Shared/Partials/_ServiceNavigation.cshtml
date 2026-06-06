@@ -1,14 +1,31 @@
 <govuk-service-navigation service-name="@(ViewData[DsiLayoutConstants.ServiceName] ?? "DfE Sign‑in")" service-url="/">
-    @if (ViewData[DsiLayoutConstants.ServiceNavigationItems] is IEnumerable<NavigationItemViewModel> items &&
-        items.Any())
-    {
+    @{
+        var navObj = ViewData[DsiLayoutConstants.ServiceNavigationItems];
+    }
+    @if (navObj is NavigationItemViewModel[] items && items.Any())
+{
         <govuk-service-navigation-nav>
 
             @foreach (var item in items)
             {
-                <govuk-service-navigation-nav-item href=@item.Href active=@item.IsActive>
-                    @item.Text
-                </govuk-service-navigation-nav-item>
+                @switch (item)
+                {
+                    case CountNavigationItemViewModel countItem:
+                        <govuk-service-navigation-nav-item href="@countItem.Href" active="@countItem.IsActive" >
+                            @countItem.Text
+                            @if (countItem.Count > 0)
+                            {
+                                <span class="govuk-notification-badge">@countItem.Count</span>
+                            }
+                        </govuk-service-navigation-nav-item>
+                        break;
+
+                    case StandardNavigationItemViewModel standardItem:
+                        <govuk-service-navigation-nav-item href="@standardItem.Href" active="@standardItem.IsActive">
+                            @standardItem.Text
+                        </govuk-service-navigation-nav-item>
+                        break;
+                }
             }
         </govuk-service-navigation-nav>
     }
