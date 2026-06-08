@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
@@ -25,7 +26,7 @@ public sealed class PendingApprovalCountUseCase(IUnitOfWorkOrganisations unitOfW
     public override async Task<PendingApprovalCountResponse> InvokeAsync(InteractionContext<GetPendingApprovalCountRequest> context, CancellationToken cancellationToken = default)
     {
         var orgIds = await unitOfWork.Repository<UserOrganisationEntity>().Include(x => x.Organisation)
-            .Where(x => x.UserId == context.Request.UserId && x.RoleId == 10000)
+            .Where(x => x.UserId == context.Request.UserId && x.RoleId == OrganisationRoles.Approver.Id)
             .Select(x => x.OrganisationId)
             .ToListAsync(cancellationToken);
 

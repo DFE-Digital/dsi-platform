@@ -1,45 +1,17 @@
 using System.Security.Claims;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
-using Dfe.SignIn.WebFramework.Mvc.Features;
 using Dfe.SignIn.WebFramework.Mvc.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
-using Moq.AutoMock;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Services;
 
 [TestClass]
 public sealed class ServiceNavigationBuilderTests
 {
-    private static HomeController CreateController(
-        AutoMocker autoMocker,
-        GetPendingChangeEmailAddressResponse pendingChangeEmailAddressResponse)
-    {
-        autoMocker.MockResponse<GetPendingChangeEmailAddressRequest>(pendingChangeEmailAddressResponse);
-
-        var controller = autoMocker.CreateInstance<HomeController>();
-
-        var httpContext = new DefaultHttpContext();
-        httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature {
-            UserId = Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            IsEntra = false,
-            IsInternalUser = false,
-            FirstName = "Alex",
-            LastName = "Johnson",
-            EmailAddress = "alex.johnson@example.com",
-            JobTitle = "Software Developer",
-        });
-        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
-
-        return controller;
-    }
-
     [TestMethod]
     public async Task UnauthorisedUserGetsNoMenuItems()
     {
@@ -76,9 +48,7 @@ public sealed class ServiceNavigationBuilderTests
         // Arrange
         var userCtx = CreateUser(new Guid().ToString(), authenticated: true);
 
-        var response = new PendingApprovalCountResponse() {
-            Count = 0
-        };
+        var response = new PendingApprovalCountResponse();
 
         var interactionDispatcher = new Mock<IInteractionDispatcher>();
 
@@ -141,7 +111,7 @@ public sealed class ServiceNavigationBuilderTests
         Assert.IsTrue(result.Any(x => x.Text == "Manage users" && x.Href.AbsoluteUri == $"{options.Value.ServicesUrl}approvals/users"));
         Assert.IsTrue(result.Any(x => x.Text == "Requests" && x.Href.AbsoluteUri == $"{options.Value.ServicesUrl}access-requests"));
 
-        var navigationMenuItem = result.Single(x => x.Text == "Requests") as CountNavigationItemViewModel;
+        var navigationMenuItem = (CountNavigationItemViewModel)result.Single(x => x.Text == "Requests" && x is CountNavigationItemViewModel);
 
         Assert.IsNotNull(navigationMenuItem);
         Assert.AreEqual(response.Count, navigationMenuItem.Count);
