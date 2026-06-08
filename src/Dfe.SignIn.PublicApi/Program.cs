@@ -113,14 +113,16 @@ builder.Services.SetupApiSecretEncryption(builder.Configuration);
 
 var app = builder.Build();
 
+var securityOptions = app.Configuration
+    .GetSection("SecurityHeaderPolicy")
+    .Get<SecurityHeaderPolicyOptions>() ?? new SecurityHeaderPolicyOptions();
+
 app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy(policy => {
-
-    var hstsMaxAgeInSeconds = 31536000;
     policy.AddFrameOptionsSameOrigin();
     policy.AddCustomHeader("X-DNS-Prefetch-Control", "off");
     policy.AddCustomHeader("X-Permitted-Cross-Domain-Policies", "none");
-    policy.AddCustomHeader("Strict-Transport-Security", $"max-age={hstsMaxAgeInSeconds}; includeSubDomains");
+    policy.AddCustomHeader("Strict-Transport-Security", $"max-age={securityOptions.HstsMaxAgeInSeconds}; includeSubDomains; preload");
 });
 
 app.UseSwagger();
