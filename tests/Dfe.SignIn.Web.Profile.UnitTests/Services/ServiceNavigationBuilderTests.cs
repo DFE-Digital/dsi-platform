@@ -48,8 +48,6 @@ public sealed class ServiceNavigationBuilderTests
         // Arrange
         var userCtx = CreateUser(new Guid().ToString(), authenticated: true);
 
-        var response = new PendingApprovalCountResponse();
-
         var interactionDispatcher = new Mock<IInteractionDispatcher>();
 
         var options = Options.Create(
