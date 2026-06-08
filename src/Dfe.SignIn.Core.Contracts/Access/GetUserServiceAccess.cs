@@ -73,6 +73,7 @@ public sealed record UserServiceRole
     /// <summary>The numeric identifier of the role.</summary>
     public required long NumericId { get; init; }
 
+    /// <summary>The status of the role.</summary>
     public required UserServiceRoleStatus Status { get; set; }
 }
 
