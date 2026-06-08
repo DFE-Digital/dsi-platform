@@ -83,7 +83,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
         };
     }
 
-    public async Task<GetUserServiceAccessResponse> GetUserService(Guid userId, Guid serviceId, Guid organisationId)
+    private async Task<GetUserServiceAccessResponse> GetUserService(Guid userId, Guid serviceId, Guid organisationId)
     {
         var userService = await uowOrganisations.Repository<UserServiceEntity>()
             .AsNoTracking()
@@ -125,7 +125,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
                 }),
                 Identifiers = identifiers.Select(i => new UserServiceIdentifier {
                     Key = i.IdentifierKey,
-                    Value = i.IdentifierValue,
+                    Value = i.IdentifierValue ?? string.Empty,
                 }),
             }
         };
