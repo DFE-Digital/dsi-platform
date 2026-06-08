@@ -2,6 +2,9 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Entities.Organisations;
+using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
 
@@ -22,7 +25,8 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 ///   </list>
 /// </remarks>
 public sealed class GetUserServiceAccessDetailsUseCase(
-    IInteractionDispatcher interaction
+    IInteractionDispatcher interaction,
+    IUnitOfWorkOrganisations uowOrganisations
 ) : Interactor<GetUserServiceAccessDetailsRequest, GetUserServiceAccessDetailsResponse>
 {
     /// <inheritdoc/>
@@ -34,13 +38,11 @@ public sealed class GetUserServiceAccessDetailsUseCase(
 
         // 1. Confirm the user has access to this service in this organisation.
         //    Returns null access when no record exists → 404 from the endpoint.
-        var accessResponse = await interaction.DispatchAsync(
-            new GetUserServiceAccessRequest {
-                UserId = context.Request.UserId,
-                ServiceId = context.Request.ServiceId,
-                OrganisationId = context.Request.OrganisationId,
-            }
-        ).To<GetUserServiceAccessResponse>();
+        var accessResponse = await this.GetUserService(
+            context.Request.UserId,
+            context.Request.ServiceId,
+            context.Request.OrganisationId
+        );
 
         if (accessResponse.Access is null) {
             throw UserServiceAccessNotFoundException.From(
@@ -78,6 +80,54 @@ public sealed class GetUserServiceAccessDetailsUseCase(
             OrganisationIsOnApar = organisation.IsOnApar,
             Roles = accessResponse.Access.Roles,
             Identifiers = accessResponse.Access.Identifiers,
+        };
+    }
+
+    public async Task<GetUserServiceAccessResponse> GetUserService(Guid userId, Guid serviceId, Guid organisationId)
+    {
+        var userService = await uowOrganisations.Repository<UserServiceEntity>()
+            .AsNoTracking()
+            .Where(x => x.ServiceId == serviceId)
+            .Where(x => x.UserId == userId)
+            .Where(x => x.OrganisationId == organisationId)
+            .FirstOrDefaultAsync();
+
+        if (userService is null) {
+            return new GetUserServiceAccessResponse { Access = null };
+        }
+
+        var roles = await uowOrganisations.Repository<UserServiceRoleEntity>()
+            .AsNoTracking()
+            .Include(x => x.Role)
+            .Where(x => x.UserId == userId)
+            .Where(x => x.ServiceId == serviceId)
+            .Where(x => x.OrganisationId == organisationId)
+            .ToListAsync();
+
+        var identifiers = await uowOrganisations.Repository<UserServiceIdentifierEntity>()
+            .AsNoTracking()
+            .Where(x => x.UserId == userId)
+            .Where(x => x.ServiceId == serviceId)
+            .Where(x => x.OrganisationId == organisationId)
+            .ToListAsync();
+
+        return new GetUserServiceAccessResponse {
+            Access = new UserServiceAccess {
+                UserId = userService.UserId,
+                ServiceId = userService.ServiceId!.Value,
+                OrganisationId = userService.OrganisationId!.Value,
+                Roles = roles.Select(r => new UserServiceRole {
+                    Id = r.Role.Id,
+                    Name = r.Role.Name,
+                    Code = r.Role.Code,
+                    NumericId = r.Role.NumericId,
+                    Status = UserServiceRoleStatus.FromId(r.Role.Status),
+                }),
+                Identifiers = identifiers.Select(i => new UserServiceIdentifier {
+                    Key = i.IdentifierKey,
+                    Value = i.IdentifierValue,
+                }),
+            }
         };
     }
 }

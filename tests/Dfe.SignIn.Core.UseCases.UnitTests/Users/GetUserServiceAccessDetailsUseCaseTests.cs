@@ -21,7 +21,7 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
     };
 
     private static readonly UserServiceRole[] FakeRoles = [
-        new() { Id = Guid.Parse("b1b2b3b4-0000-0000-0000-000000000001"), Name = "Role A", Code = "role-a", NumericId = 1 }
+        new() { Id = Guid.Parse("b1b2b3b4-0000-0000-0000-000000000001"), Name = "Role A", Code = "role-a", NumericId = 1, Status = UserServiceRoleStatus.FromId(0) }
     ];
 
     private static readonly UserServiceIdentifier[] FakeIdentifiers = [

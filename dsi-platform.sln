@@ -105,6 +105,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.ServiceDefaults"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi", "src\Dfe.SignIn.PublicApi\Dfe.SignIn.PublicApi.csproj", "{36F11936-D413-4D86-B5E7-0BF41EB2885A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.AppHost", "src\Dfe.SignIn.AppHost\Dfe.SignIn.AppHost.csproj", "{5100CDC3-5C26-B655-51E7-C5738A1DCD44}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -703,6 +705,18 @@ Global
 		{36F11936-D413-4D86-B5E7-0BF41EB2885A}.Release|x64.Build.0 = Release|Any CPU
 		{36F11936-D413-4D86-B5E7-0BF41EB2885A}.Release|x86.ActiveCfg = Release|Any CPU
 		{36F11936-D413-4D86-B5E7-0BF41EB2885A}.Release|x86.Build.0 = Release|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Debug|x64.Build.0 = Debug|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Debug|x86.Build.0 = Debug|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Release|x64.ActiveCfg = Release|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Release|x64.Build.0 = Release|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Release|x86.ActiveCfg = Release|Any CPU
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -757,6 +771,7 @@ Global
 		{475856BD-7824-48AC-8B94-1FD7EB3629F6} = {3F245DBD-544F-4DD4-9B56-06B116BB9CFE}
 		{282680D1-4103-4AC6-9238-0038A937DAA2} = {3F245DBD-544F-4DD4-9B56-06B116BB9CFE}
 		{36F11936-D413-4D86-B5E7-0BF41EB2885A} = {3F245DBD-544F-4DD4-9B56-06B116BB9CFE}
+		{5100CDC3-5C26-B655-51E7-C5738A1DCD44} = {3F245DBD-544F-4DD4-9B56-06B116BB9CFE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86FC62DB-8432-46A5-BBDD-C58FDCB6403E}
