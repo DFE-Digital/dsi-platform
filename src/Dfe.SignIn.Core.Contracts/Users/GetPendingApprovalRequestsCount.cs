@@ -18,7 +18,7 @@ public sealed record GetPendingApprovalCountRequest
 }
 
 /// <summary>
-/// Represents a response for <see cref=""/>.
+/// Represents a response
 /// </summary>
 public sealed record PendingApprovalCountResponse
 {
