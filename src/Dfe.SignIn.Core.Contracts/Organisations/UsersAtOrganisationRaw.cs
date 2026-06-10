@@ -9,11 +9,13 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// </summary>
 /// <param name="ClientId">Identifies the service.</param>
 /// <param name="ExternalId">UKPRN or UPIN of the organisation.</param>
+/// <param name="Roles">Optional comma-separated list of role codes to filter the users by.</param>
 [ExcludeFromCodeCoverage]
 [AssociatedResponse(typeof(GetUsersAtOrganisationResponseRaw))]
-public record GetUsersAtOrganisationRequestRaw(
+public sealed record GetUsersAtOrganisationRequestRaw(
     string ClientId,
-    string ExternalId
+    string ExternalId,
+    string? Roles
 );
 
 /// <summary>

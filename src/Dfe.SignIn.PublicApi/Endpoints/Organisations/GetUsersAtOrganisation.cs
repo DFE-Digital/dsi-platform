@@ -13,6 +13,7 @@ public static partial class OrganisationEndpoints
     /// Get users and their roles on the current service at an organisation or organisations.
     /// </summary>
     /// <param name="externalId">The UKPRN or UPIN of the organisation.</param>
+    /// <param name="roles">User role codes to filter organisation user's list</param>
     /// <param name="clientSession">The client session for the current request.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
@@ -20,6 +21,7 @@ public static partial class OrganisationEndpoints
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
     public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
         string externalId,
+        string? roles,
         IClientSession clientSession,
         IInteractionDispatcher interaction,
         ILoggerFactory loggerFactory,
@@ -39,13 +41,17 @@ public static partial class OrganisationEndpoints
         );
 
         try {
-            GetUsersAtOrganisationRequestRaw request = new(clientSession.ClientId, externalId);
+            GetUsersAtOrganisationRequestRaw request = new(clientSession.ClientId, externalId, roles);
 
             GetUsersAtOrganisationResponseRaw model = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseRaw>();
 
             if (model == null || model.Users == null || !model.Users.Any()) {
                 return TypedResults.NotFound();
             }
+
+            string[]? findRoles = roles?
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                ?? [];
 
             IEnumerable<UserAtOrganisation> users = model.Users
                 .GroupBy(u => u.Sub)
@@ -55,7 +61,10 @@ public static partial class OrganisationEndpoints
                     g.First().LastName,
                     g.First().UserStatus,
                     g.Where(x => !string.IsNullOrWhiteSpace(x.Role))
-                     .Select(x => x.Role!)
+                    //g.Where(x => !string.IsNullOrWhiteSpace(x.Role)
+                    //    && (findRoles == null || (findRoles != null && findRoles.Contains(x.Role)))
+                    //)
+                    .Select(x => x.Role!)
                      .Distinct()
                 ));
 
