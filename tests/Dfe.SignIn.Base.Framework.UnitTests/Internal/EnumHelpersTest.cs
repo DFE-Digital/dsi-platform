@@ -8,7 +8,9 @@ public sealed class EnumHelpersTests
     public enum EnumTest
     {
         Unknown = 0,
+        [System.ComponentModel.Description("First value description")]
         One = 1,
+        [System.ComponentModel.Description("Second value description")]
         Two = 2,
         Three = 3
     }
@@ -40,5 +42,23 @@ public sealed class EnumHelpersTests
             Assert.ThrowsExactly<ArgumentException>(
             () => EnumHelpers.MapEnum<EnumTest>(input));
         }
+    }
+
+    [TestMethod]
+    [DataRow(EnumTest.One, "First value description")]
+    [DataRow(EnumTest.Two, "Second value description")]
+    public void GetDescription_WithDescriptionAttribute_ReturnsDescription(
+      EnumTest value,
+      string expected)
+    {
+        var result = value.GetDescription();
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetDescription_WithoutDescriptionAttribute_ReturnsEnumName()
+    {
+        var result = EnumTest.Three.GetDescription();
+        Assert.AreEqual("Three", result);
     }
 }
