@@ -26,12 +26,9 @@ public sealed class GetUsersAtOrganisationUseCase(
 
         string clientId = context.Request.ClientId;
         string externalId = context.Request.ExternalId;
-        string[]? findRoles = context.Request.Roles?
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            ?? [];
 
         // Try UKPRN first
-        var results = await this.BuildQuery(clientId, findRoles, o => o.Ukprn == externalId)
+        var results = await this.BuildQuery(clientId, o => o.Ukprn == externalId)
             .ToListAsync(cancellationToken);
 
         bool isUkprn = true;
@@ -40,7 +37,7 @@ public sealed class GetUsersAtOrganisationUseCase(
         if (results.Count == 0) {
             isUkprn = false;
 
-            results = await this.BuildQuery(clientId, findRoles, o => o.Upin == externalId)
+            results = await this.BuildQuery(clientId, o => o.Upin == externalId)
                 .ToListAsync(cancellationToken);
         }
 
@@ -53,7 +50,6 @@ public sealed class GetUsersAtOrganisationUseCase(
 
     private IQueryable<UserAtOrganisationRaw> BuildQuery(
         string clientId,
-        string[]? findRoles,
         Expression<Func<OrganisationEntity, bool>> organisationFilter)
     {
         var organisations = uowOrganisations
@@ -86,7 +82,6 @@ public sealed class GetUsersAtOrganisationUseCase(
                 into roleGroup
             from r in roleGroup.DefaultIfEmpty()
             where s.ClientId == clientId
-            where findRoles == null || findRoles.Length == 0 || (r != null && findRoles.Contains(r.Code))
             select new UserAtOrganisationRaw(
                 u.Sub,
                 u.Email,

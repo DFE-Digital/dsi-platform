@@ -21,7 +21,7 @@ public static partial class OrganisationEndpoints
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
     public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
         string externalId,
-        string? roles,
+        [FromQuery] string[]? roles,
         IClientSession clientSession,
         IInteractionDispatcher interaction,
         ILoggerFactory loggerFactory,
@@ -41,7 +41,7 @@ public static partial class OrganisationEndpoints
         );
 
         try {
-            GetUsersAtOrganisationRequestRaw request = new(clientSession.ClientId, externalId, roles);
+            GetUsersAtOrganisationRequestRaw request = new(clientSession.ClientId, externalId);
 
             GetUsersAtOrganisationResponseRaw model = await interaction.DispatchAsync(request).To<GetUsersAtOrganisationResponseRaw>();
 
@@ -49,9 +49,14 @@ public static partial class OrganisationEndpoints
                 return TypedResults.NotFound();
             }
 
-            string[]? findRoles = roles?
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                ?? [];
+            var findRoles = roles?
+                    .SelectMany(r => r.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                    .Distinct()
+                    .ToArray();
+
+            var roleSet = (findRoles == null || findRoles.Length == 0)
+                ? null
+                : new HashSet<string>(findRoles, StringComparer.OrdinalIgnoreCase);
 
             IEnumerable<UserAtOrganisation> users = model.Users
                 .GroupBy(u => u.Sub)
@@ -61,12 +66,12 @@ public static partial class OrganisationEndpoints
                     g.First().LastName,
                     g.First().UserStatus,
                     g.Where(x => !string.IsNullOrWhiteSpace(x.Role))
-                    //g.Where(x => !string.IsNullOrWhiteSpace(x.Role)
-                    //    && (findRoles == null || (findRoles != null && findRoles.Contains(x.Role)))
-                    //)
-                    .Select(x => x.Role!)
+                     .Select(x => x.Role!)
                      .Distinct()
-                ));
+                ))
+                .Where(u =>
+                    roleSet == null || u.Roles.Any(r => roleSet.Contains(r))
+                );
 
             var responseModel = new GetUsersAtOrganisationResponse {
                 IsUkprn = model!.IsUkprn,

@@ -9,20 +9,18 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// </summary>
 /// <param name="ClientId">Identifies the service.</param>
 /// <param name="ExternalId">UKPRN or UPIN of the organisation.</param>
-/// <param name="Roles">Optional comma-separated list of role codes to filter the users by.</param>
 [ExcludeFromCodeCoverage]
 [AssociatedResponse(typeof(GetUsersAtOrganisationResponseRaw))]
 public sealed record GetUsersAtOrganisationRequestRaw(
     string ClientId,
-    string ExternalId,
-    string? Roles
+    string ExternalId
 );
 
 /// <summary>
 /// Represents the response containing users associated with an organisation.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class GetUsersAtOrganisationResponseRaw
+public sealed class GetUsersAtOrganisationResponseRaw
 {
     /// <summary>
     /// True if a UKPRN is being expressed, false if UPIN is being shown.
