@@ -17,5 +17,7 @@ public static partial class UserEndpoints
 
         GetServiceUsersEndpoint.Map(app);
         app.MapGet("users/{userId}/organisations", GetUserOrganisations);
+
+        app.MapGet("users/{userId}/organisationservices", GetUserOrganisationServices);
     }
 }

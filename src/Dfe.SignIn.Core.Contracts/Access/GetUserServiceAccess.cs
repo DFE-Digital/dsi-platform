@@ -72,6 +72,25 @@ public sealed record UserServiceRole
 
     /// <summary>The numeric identifier of the role.</summary>
     public required long NumericId { get; init; }
+
+    /// <summary>The status of the role.</summary>
+    public required UserServiceRoleStatus Status { get; set; }
+}
+
+/// <summary>
+/// Represents the status of a user-service role, using an integer code.
+/// </summary>
+public sealed record UserServiceRoleStatus
+{
+    /// <summary>The integer code representing the role status.</summary>
+    public required int Id { get; set; } = 0;
+
+    /// <summary>
+    /// Creates a new instance of <see cref="UserServiceRoleStatus"/> from an integer status code.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    public static UserServiceRoleStatus FromId(int status) => new() { Id = status };
 }
 
 /// <summary>

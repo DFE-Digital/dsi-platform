@@ -17,6 +17,7 @@ using Dfe.SignIn.PublicApi.Endpoints.Organisations;
 using Dfe.SignIn.PublicApi.Endpoints.SelectOrganisation;
 using Dfe.SignIn.PublicApi.Endpoints.Services;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
+using Dfe.SignIn.PublicApi.Repository;
 using Dfe.SignIn.WebFramework.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -105,6 +106,7 @@ builder.Services
         addAuditUnitOfWork: false
     );
 
+builder.Services.AddScoped<IOrganisationRepository, OrganisationRepository>();
 builder.Services.SetupServiceInteractions();
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
