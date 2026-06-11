@@ -190,7 +190,7 @@ public class GetUsersAtOrganisationTests
         var ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
         Assert.IsNotNull(ok);
         Assert.IsNotNull(ok!.Value!.Users);
-        var roles = ok.Value!.Users.First().Roles;
+        var roles = ok.Value!.Users[0].Roles;
 
         Assert.AreEqual(1, roles.Count());
         Assert.AreEqual("Admin", roles.First());
@@ -261,7 +261,7 @@ public class GetUsersAtOrganisationTests
         var ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
         Assert.IsNotNull(ok);
         Assert.IsNotNull(ok!.Value!.Users);
-        var roles = ok.Value!.Users.First().Roles;
+        var roles = ok.Value!.Users[0].Roles;
 
         Assert.HasCount(2, roles);
     }
