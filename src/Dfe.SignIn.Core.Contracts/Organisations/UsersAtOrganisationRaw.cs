@@ -11,7 +11,7 @@ namespace Dfe.SignIn.Core.Contracts.Organisations;
 /// <param name="ExternalId">UKPRN or UPIN of the organisation.</param>
 [ExcludeFromCodeCoverage]
 [AssociatedResponse(typeof(GetUsersAtOrganisationResponseRaw))]
-public record GetUsersAtOrganisationRequestRaw(
+public sealed record GetUsersAtOrganisationRequestRaw(
     string ClientId,
     string ExternalId
 );
@@ -20,7 +20,7 @@ public record GetUsersAtOrganisationRequestRaw(
 /// Represents the response containing users associated with an organisation.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class GetUsersAtOrganisationResponseRaw
+public sealed class GetUsersAtOrganisationResponseRaw
 {
     /// <summary>
     /// True if a UKPRN is being expressed, false if UPIN is being shown.

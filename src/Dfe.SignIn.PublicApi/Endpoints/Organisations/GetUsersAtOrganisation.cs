@@ -13,6 +13,7 @@ public static partial class OrganisationEndpoints
     /// Get users and their roles on the current service at an organisation or organisations.
     /// </summary>
     /// <param name="externalId">The UKPRN or UPIN of the organisation.</param>
+    /// <param name="roles">User role codes to filter organisation user's list</param>
     /// <param name="clientSession">The client session for the current request.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
@@ -20,6 +21,7 @@ public static partial class OrganisationEndpoints
     /// <returns>User names, email address, status and roles of the service at the organisation(s).</returns>
     public static async Task<Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>>> GetUsersAtOrganisation(
         string externalId,
+        [FromQuery] string[]? roles,
         IClientSession clientSession,
         IInteractionDispatcher interaction,
         ILoggerFactory loggerFactory,
@@ -47,6 +49,15 @@ public static partial class OrganisationEndpoints
                 return TypedResults.NotFound();
             }
 
+            var findRoles = roles?
+                    .SelectMany(r => r.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                    .Distinct()
+                    .ToArray();
+
+            var roleSet = (findRoles == null || findRoles.Length == 0)
+                ? null
+                : new HashSet<string>(findRoles, StringComparer.OrdinalIgnoreCase);
+
             IEnumerable<UserAtOrganisation> users = model.Users
                 .GroupBy(u => u.Sub)
                 .Select(g => new UserAtOrganisation(
@@ -57,7 +68,10 @@ public static partial class OrganisationEndpoints
                     g.Where(x => !string.IsNullOrWhiteSpace(x.Role))
                      .Select(x => x.Role!)
                      .Distinct()
-                ));
+                ))
+                .Where(u =>
+                    roleSet == null || u.Roles.Any(r => roleSet.Contains(r))
+                );
 
             var responseModel = new GetUsersAtOrganisationResponse {
                 IsUkprn = model!.IsUkprn,
