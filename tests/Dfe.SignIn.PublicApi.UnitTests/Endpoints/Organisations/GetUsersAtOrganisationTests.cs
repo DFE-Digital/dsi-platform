@@ -61,14 +61,17 @@ public class GetUsersAtOrganisationTests
 
         var response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
+            null,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext);
 
-        Ok<GetUsersAtOrganisationResponse> ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
+        var ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
         Assert.IsNotNull(ok);
-        Assert.AreEqual(1, ok.Value!.Users.Count);
+        Assert.IsNotNull(ok!.Value!.Users);
+        Assert.HasCount(1, ok!.Value!.Users);
+
         Assert.AreEqual("user1@test.com", ok.Value.Users.First().Email);
     }
 
@@ -88,6 +91,7 @@ public class GetUsersAtOrganisationTests
 
         Results<Ok<GetUsersAtOrganisationResponse>, NotFound, InternalServerError<ProblemDetails>> response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
+            null,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
@@ -104,10 +108,11 @@ public class GetUsersAtOrganisationTests
         var logger = new Mock<ILogger>();
         loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
-        autoMocker.MockResponse<GetUsersAtOrganisationRequestRaw>(null);
+        autoMocker.MockResponse<GetUsersAtOrganisationRequestRaw>(null!);
 
         var response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
+            null,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
@@ -139,14 +144,15 @@ public class GetUsersAtOrganisationTests
 
         var response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
+            null,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext);
 
-        Ok<GetUsersAtOrganisationResponse> ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
+        var ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
         Assert.IsNotNull(ok);
-
+        Assert.IsNotNull(ok!.Value!.Users);
         var user = ok.Value!.Users.Single();
 
         Assert.AreEqual(2, user.Roles.Count());
@@ -175,14 +181,15 @@ public class GetUsersAtOrganisationTests
 
         var response = await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
+            null,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
             httpContext);
 
-        Ok<GetUsersAtOrganisationResponse> ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
+        var ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
         Assert.IsNotNull(ok);
-
+        Assert.IsNotNull(ok!.Value!.Users);
         var roles = ok.Value!.Users.First().Roles;
 
         Assert.AreEqual(1, roles.Count());
@@ -213,6 +220,7 @@ public class GetUsersAtOrganisationTests
 
         await OrganisationEndpoints.GetUsersAtOrganisation(
             ExternalId,
+            null,
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             loggerFactory.Object,
@@ -222,7 +230,7 @@ public class GetUsersAtOrganisationTests
 
         Assert.IsNotNull(logInvocation);
 
-        var message = logInvocation.Arguments[2]?.ToString();
+        string? message = logInvocation.Arguments[2]?.ToString();
         Assert.IsNotNull(message);
         Assert.Contains(FakeClientId, message);
         Assert.Contains("corr-123", message);
