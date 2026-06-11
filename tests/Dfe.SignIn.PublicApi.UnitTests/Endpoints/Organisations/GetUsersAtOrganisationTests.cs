@@ -197,6 +197,76 @@ public class GetUsersAtOrganisationTests
     }
 
     [TestMethod]
+    public async Task FiltersByRolesWhenZeroMatchesReturnsEmpty()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        var users = new[]
+        {
+            new UserAtOrganisationRaw(Guid.Empty, "user@test.com", "John", "Doe", 1, "User"),
+            new UserAtOrganisationRaw(Guid.Empty, "user@test.com", "John", "Doe", 1, "Admin"),
+        };
+
+        autoMocker.MockResponse<GetUsersAtOrganisationRequestRaw>(
+            new GetUsersAtOrganisationResponseRaw {
+                Users = users,
+                IsUkprn = true
+            });
+
+        var response = await OrganisationEndpoints.GetUsersAtOrganisation(
+            ExternalId,
+            ["Guest"],
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext);
+
+        var ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
+        Assert.IsNotNull(ok);
+        Assert.IsNotNull(ok!.Value!.Users);
+        Assert.IsEmpty(ok!.Value!.Users);
+    }
+
+    [TestMethod]
+    public async Task FiltersByRolesWhenAnyMatchesReturnsAllRoles()
+    {
+        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+
+        var logger = new Mock<ILogger>();
+        loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        var users = new[]
+        {
+            new UserAtOrganisationRaw(Guid.Empty, "user@test.com", "John", "Doe", 1, "User"),
+            new UserAtOrganisationRaw(Guid.Empty, "user@test.com", "John", "Doe", 1, "Admin"),
+        };
+
+        autoMocker.MockResponse<GetUsersAtOrganisationRequestRaw>(
+            new GetUsersAtOrganisationResponseRaw {
+                Users = users,
+                IsUkprn = true
+            });
+
+        var response = await OrganisationEndpoints.GetUsersAtOrganisation(
+            ExternalId,
+            ["User"],
+            clientSession,
+            autoMocker.Get<IInteractionDispatcher>(),
+            loggerFactory.Object,
+            httpContext);
+
+        var ok = response.Result as Ok<GetUsersAtOrganisationResponse>;
+        Assert.IsNotNull(ok);
+        Assert.IsNotNull(ok!.Value!.Users);
+        var roles = ok.Value!.Users.First().Roles;
+
+        Assert.HasCount(2, roles);
+    }
+
+    [TestMethod]
     public async Task LogsRequest_WithCorrelationIds()
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
