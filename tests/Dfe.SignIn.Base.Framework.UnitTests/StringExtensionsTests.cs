@@ -55,7 +55,7 @@ public sealed class StringExtensionsTests
     {
         // Act & Assert
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.ThrowsException<FormatException>(() => StringExtensions.ToGuid(null));
+        Assert.ThrowsExactly<FormatException>(() => StringExtensions.ToGuid(null));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
@@ -67,6 +67,6 @@ public sealed class StringExtensionsTests
     public void ToGuid_ThrowsFormatException_WhenInvalid(string input)
     {
         // Act & Assert
-        Assert.ThrowsException<FormatException>(() => input.ToGuid());
+        Assert.ThrowsExactly<FormatException>(() => input.ToGuid());
     }
 }
