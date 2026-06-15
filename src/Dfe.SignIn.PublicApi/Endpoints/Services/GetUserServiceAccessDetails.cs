@@ -58,16 +58,3 @@ public static partial class ServiceEndpoints
         }
     }
 }
-
-/*
-
-    logger.info(
-      `Error getting user ${uid}'s access to ${sid} within organisation ${oid} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`,
-      {
-        correlationId,
-        clientCorrelationId,
-        stack: e.stack,
-      },
-    );
-
-*/
