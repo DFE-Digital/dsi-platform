@@ -72,11 +72,11 @@ public sealed class GetUserServiceAccessDetailsUseCase(
 
         return new GetUserServiceAccessDetailsResponse {
             UserId = accessResponse.Access.UserId,
-            UserLegacyNumericId = userOrgIdentifiers.NumericIdentifier,
+            UserLegacyNumericId = userOrgIdentifiers.NumericIdentifier.ToString(),
             UserLegacyTextId = userOrgIdentifiers.TextIdentifier,
             ServiceId = accessResponse.Access.ServiceId,
             OrganisationId = accessResponse.Access.OrganisationId,
-            OrganisationLegacyId = organisation.LegacyId,
+            OrganisationLegacyId = organisation.LegacyId.ToString(),
             OrganisationIsOnApar = organisation.IsOnApar,
             Roles = accessResponse.Access.Roles,
             Identifiers = accessResponse.Access.Identifiers,
@@ -120,7 +120,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
                     Id = r.Role.Id,
                     Name = r.Role.Name,
                     Code = r.Role.Code,
-                    NumericId = r.Role.NumericId,
+                    NumericId = r.Role.NumericId.ToString(),
                     Status = UserServiceRoleStatus.FromId(r.Role.Status),
                 }),
                 Identifiers = identifiers.Select(i => new UserServiceIdentifier {

@@ -71,7 +71,7 @@ public sealed record UserServiceRole
     public required string Code { get; init; }
 
     /// <summary>The numeric identifier of the role.</summary>
-    public required long NumericId { get; init; }
+    public required string NumericId { get; init; }
 
     /// <summary>The status of the role.</summary>
     public required UserServiceRoleStatus Status { get; set; }
