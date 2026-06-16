@@ -15,9 +15,11 @@
   </ItemGroup>
   <!-- Application composition -->
   <ItemGroup>
-    <!-- Dependency injection -->
+    <!-- Version pinned due to advisory: GHSA-hv8m-jj95-wg3x -->
+    <PackageVersion Include="MessagePack" Version="2.5.301" />
     <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.2" />
+    <!-- Dependency injection -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
     <!-- Options -->
