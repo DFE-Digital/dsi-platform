@@ -37,7 +37,7 @@ public sealed record GetUserServiceAccessDetailsResponse
     /// <summary>
     /// The legacy numeric identifier for the user within the organisation.
     /// </summary>
-    public long? UserLegacyNumericId { get; init; }
+    public string? UserLegacyNumericId { get; init; }
 
     /// <summary>
     /// The legacy text identifier for the user within the organisation.
@@ -53,7 +53,7 @@ public sealed record GetUserServiceAccessDetailsResponse
     /// <summary>
     /// The legacy identifier of the organisation.
     /// </summary>
-    public long? OrganisationLegacyId { get; init; }
+    public string? OrganisationLegacyId { get; init; }
 
     /// <summary>
     /// Indicates whether the organisation is on APAR.
