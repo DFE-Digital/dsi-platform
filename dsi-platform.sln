@@ -107,6 +107,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.PublicApi", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.AppHost", "src\Dfe.SignIn.AppHost\Dfe.SignIn.AppHost.csproj", "{5100CDC3-5C26-B655-51E7-C5738A1DCD44}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{13662C86-4AC9-492C-B0EE-462144D22E35}"
+	ProjectSection(SolutionItems) = preProject
+		aspire.config.json = aspire.config.json
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		Directory.Packages.props = Directory.Packages.props
+		Directory.Solution.props = Directory.Solution.props
+		Directory.Solution.targets = Directory.Solution.targets
+		global.json = global.json
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
