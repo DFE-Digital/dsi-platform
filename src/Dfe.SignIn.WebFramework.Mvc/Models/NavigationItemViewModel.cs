@@ -1,22 +1,39 @@
 namespace Dfe.SignIn.WebFramework.Mvc.Models;
 
 /// <summary>
-/// The view model of a navigation item.
+/// An abstract class representing the attributes that make up a NavMenuItem
 /// </summary>
-public sealed class NavigationItemViewModel
+public abstract record NavigationItemViewModel
 {
     /// <summary>
-    /// The text to show on the navigation item.
+    /// Where does the link navigate the user to
     /// </summary>
-    public required string Text { get; set; }
+    public required Uri Href { get; init; }
 
     /// <summary>
-    /// The hypertext reference.
+    /// Human readable display text
     /// </summary>
-    public required Uri Href { get; set; }
+    public required string Text { get; init; }
 
     /// <summary>
-    /// A value indicating if the navigation item is active.
+    /// Is the link currently active
     /// </summary>
-    public bool IsActive { get; set; } = false;
+    public bool IsActive { get; init; }
+}
+/// <summary>
+/// An implementation of the NavigationItemViewModel
+/// </summary>
+public sealed record StandardNavigationItemViewModel
+    : NavigationItemViewModel;
+
+/// <summary>
+/// An implementation of the NavigationViewModel which provides a Count property
+/// </summary>
+public sealed record CountNavigationItemViewModel
+    : NavigationItemViewModel
+{
+    /// <summary>
+    /// A count
+    /// </summary>
+    public required int Count { get; init; }
 }

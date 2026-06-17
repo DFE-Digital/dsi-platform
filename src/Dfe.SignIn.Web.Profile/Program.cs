@@ -62,6 +62,7 @@ builder.Services
     .AddInteractionFramework();
 
 builder.Services.AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>();
+builder.Services.AddScoped<IServiceNavigationBuilder, ServiceNavigationBuilder>();
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
 

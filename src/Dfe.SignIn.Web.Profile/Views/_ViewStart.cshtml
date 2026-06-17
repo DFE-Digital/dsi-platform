@@ -1,7 +1,12 @@
+@using Dfe.SignIn.Web.Profile.Services
+@inject IServiceNavigationBuilder NavigationBuilder
+
 @{
     Layout = "_DsiLayout";
 
     ViewData[DsiLayoutConstants.ServiceName] = "DfE Sign-in";
+
+    ViewData[DsiLayoutConstants.ServiceNavigationItems] = await NavigationBuilder.Build(User);
 
     if (User.Identity?.IsAuthenticated == true)
     {
@@ -10,49 +15,4 @@
             MvcNaming.Controller<AuthController>()
         );
     }
-
-    var platformOptions = platformOptionsAccessor.Value;
-
-    var items = new List<NavigationItemViewModel>
-    {
-        new()
-        {
-            Href = new Uri(platformOptions.ServicesUrl, "my-services"),
-            Text = "Services",
-        },
-        new()
-        {
-            Href = new Uri(platformOptions.ServicesUrl, "organisations"),
-            Text = "Organisations",
-        }
-    };
-
-    if (User.Identity is not null && User.Identity.IsAuthenticated && User.HasApproverClaim())
-    {
-        items.Add(new()
-        {
-            Href = new Uri(platformOptions.ServicesUrl, "approvals/users"),
-            Text = "Manage users",
-        });
-        items.Add(new()
-        {
-            Href = new Uri(platformOptions.ServicesUrl, "access-requests"),
-            Text = "Requests",
-        });
-    }
-
-    items.Add(new()
-    {
-        Href = platformOptions.ProfileUrl,
-        Text = "Profile",
-        IsActive = true,
-    });
-
-    items.Add(new()
-    {
-        Href = platformOptions.HelpUrl,
-        Text = "Help",
-    });
-
-    ViewData[DsiLayoutConstants.ServiceNavigationItems] = items.ToArray();
 }
