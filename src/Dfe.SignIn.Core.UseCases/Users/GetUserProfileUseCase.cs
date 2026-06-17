@@ -32,6 +32,7 @@ public sealed class GetUserProfileUseCase(
             LastName = user.LastName,
             JobTitle = !string.IsNullOrWhiteSpace(user.JobTitle) ? user.JobTitle : null,
             EmailAddress = user.Email,
+            Status = user.Status,
         };
     }
 }

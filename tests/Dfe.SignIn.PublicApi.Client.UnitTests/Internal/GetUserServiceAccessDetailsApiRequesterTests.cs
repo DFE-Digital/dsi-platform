@@ -9,7 +9,7 @@ using Moq.Protected;
 namespace Dfe.SignIn.PublicApi.Client.UnitTests.Internal;
 
 [TestClass]
-public sealed class GetUserAccessToServiceApiRequesterTests
+public sealed class GetUserServiceAccessDetailsApiRequesterTests
 {
     private static void UseFakeOptions(AutoMocker autoMocker)
     {
@@ -54,8 +54,8 @@ public sealed class GetUserAccessToServiceApiRequesterTests
     public Task Throws_WhenRequestIsInvalid()
     {
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
-            GetUserAccessToServiceRequest,
-            GetUserAccessToServiceApiRequester
+            GetUserServiceAccessDetailsRequest,
+            GetUserServiceAccessDetailsApiRequester
         >();
     }
 
@@ -69,9 +69,9 @@ public sealed class GetUserAccessToServiceApiRequesterTests
             { "roles": [] }
         """);
 
-        var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
+        var requester = autoMocker.CreateInstance<GetUserServiceAccessDetailsApiRequester>();
 
-        await requester.InvokeAsync(new GetUserAccessToServiceRequest {
+        await requester.InvokeAsync(new GetUserServiceAccessDetailsRequest {
             UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
             OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
         });
@@ -109,10 +109,10 @@ public sealed class GetUserAccessToServiceApiRequesterTests
             BaseAddress = new Uri("https://public-api"),
         });
 
-        var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
+        var requester = autoMocker.CreateInstance<GetUserServiceAccessDetailsApiRequester>();
 
         return Assert.ThrowsExactlyAsync<HttpRequestException>(()
-            => requester.InvokeAsync(new GetUserAccessToServiceRequest {
+            => requester.InvokeAsync(new GetUserServiceAccessDetailsRequest {
                 UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
                 OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
             }));
@@ -150,9 +150,9 @@ public sealed class GetUserAccessToServiceApiRequesterTests
             }
         """);
 
-        var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
+        var requester = autoMocker.CreateInstance<GetUserServiceAccessDetailsApiRequester>();
 
-        var response = await requester.InvokeAsync(new GetUserAccessToServiceRequest {
+        var response = await requester.InvokeAsync(new GetUserServiceAccessDetailsRequest {
             UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
             OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
         });
@@ -183,10 +183,10 @@ public sealed class GetUserAccessToServiceApiRequesterTests
 
         UseHttpClientWithFakeResponse(autoMocker, "null");
 
-        var requester = autoMocker.CreateInstance<GetUserAccessToServiceApiRequester>();
+        var requester = autoMocker.CreateInstance<GetUserServiceAccessDetailsApiRequester>();
 
         return Assert.ThrowsExactlyAsync<InvalidOperationException>(()
-            => requester.InvokeAsync(new GetUserAccessToServiceRequest {
+            => requester.InvokeAsync(new GetUserServiceAccessDetailsRequest {
                 UserId = new Guid("cc94a206-6f24-4ac1-ae79-d88a38a9d9be"),
                 OrganisationId = new Guid("7e4de903-67f8-4f36-8bd6-a02225c559f4"),
             }));

@@ -71,19 +71,6 @@ if (dotNetComponents.GetValue("ProfileEnabled", true)) {
     .WaitFor(redis);
 }
 
-if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
-    builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
-    .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
-    .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redisConnectionString)
-    .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
-    .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
-    .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
-    .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
-    .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
-    .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
-    .WaitFor(redis);
-}
-
 var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-internal-api", launchProfileName: "http")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local")
     .WithEnvironment("EntityFramework__Directories__Host", efConfig["Directories:Host"])
@@ -104,6 +91,33 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("InternalApiClient__Directories__BaseAddress", internalApiConfig["Directories:BaseAddress"])
     .WithEnvironment("InternalApiClient__Applications__BaseAddress", internalApiConfig["Applications:BaseAddress"])
     .WithEnvironment("InternalApiClient__UseProxy", "false");
+
+if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
+    builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
+    .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
+    .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
+    .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
+    .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
+    .WithEnvironment("InternalApiClient__BaseAddress", internalApi.GetEndpoint("http"))
+    .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
+    .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
+    .WithEnvironment("EntityFramework__Organisations__Username", efConfig["Organisations:Username"])
+    .WithEnvironment("EntityFramework__Organisations__Password", efConfig["Organisations:Password"])
+    .WithEnvironment("EntityFramework__Organisations__Name", efConfig["Organisations:Name"])
+    .WithEnvironment("EntityFramework__Organisations__Host", efConfig["Organisations:Host"])
+    .WithEnvironment("EntityFramework__Directories__Username", efConfig["Directories:Username"])
+    .WithEnvironment("EntityFramework__Directories__Password", efConfig["Directories:Password"])
+    .WithEnvironment("EntityFramework__Directories__Name", efConfig["Directories:Name"])
+    .WithEnvironment("EntityFramework__Directories__Host", efConfig["Directories:Host"])
+    .WithEnvironment("EntityFramework__Audit__Username", efConfig["Audit:Username"])
+    .WithEnvironment("EntityFramework__Audit__Password", efConfig["Audit:Password"])
+    .WithEnvironment("EntityFramework__Audit__Name", efConfig["Audit:Name"])
+    .WithEnvironment("EntityFramework__Audit__Host", efConfig["Audit:Host"])
+    .WaitFor(internalApi)
+    .WaitFor(redis);
+}
 
 var nodeRootDir = builder.Configuration["NodePlatformDirectory"]
     ?? throw new InvalidOperationException("NodePlatformDirectory is not configured.");
@@ -135,4 +149,4 @@ if (nodeComponents.GetValue("ServicesEnabled", true)) {
 
 builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
 
-builder.Build().Run();
+await builder.Build().RunAsync();
