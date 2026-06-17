@@ -8,14 +8,14 @@ namespace Dfe.SignIn.PublicApi.Client.Internal;
 // The following interactor is not exposed for use in applications until the
 // request/response models have been properly designed.
 
-internal sealed record GetUserAccessToServiceRequest
+internal sealed record GetUserServiceAccessDetailsRequest
 {
     public required Guid UserId { get; init; }
 
     public required Guid OrganisationId { get; init; }
 }
 
-internal sealed record GetUserAccessToServiceResponse
+internal sealed record GetUserServiceAccessDetailsResponse
 {
     public required IEnumerable<Role> Roles { get; init; }
 }
@@ -38,15 +38,15 @@ internal sealed class Status()
     public required int Id { get; init; }
 }
 
-internal sealed class GetUserAccessToServiceApiRequester(
+internal sealed class GetUserServiceAccessDetailsApiRequester(
     IOptionsMonitor<JsonSerializerOptions> jsonOptionsAccessor,
     IOptions<PublicApiOptions> optionsAccessor,
     IPublicApiClient client
-) : Interactor<GetUserAccessToServiceRequest, GetUserAccessToServiceResponse>
+) : Interactor<GetUserServiceAccessDetailsRequest, GetUserServiceAccessDetailsResponse>
 {
     /// <inheritdoc/>
-    public override async Task<GetUserAccessToServiceResponse> InvokeAsync(
-        InteractionContext<GetUserAccessToServiceRequest> context,
+    public override async Task<GetUserServiceAccessDetailsResponse> InvokeAsync(
+        InteractionContext<GetUserServiceAccessDetailsRequest> context,
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
@@ -63,7 +63,7 @@ internal sealed class GetUserAccessToServiceApiRequester(
             cancellationToken
         );
         if (httpResponse.StatusCode == System.Net.HttpStatusCode.NotFound) {
-            return new GetUserAccessToServiceResponse {
+            return new GetUserServiceAccessDetailsResponse {
                 Roles = [],
             };
         }
@@ -71,7 +71,7 @@ internal sealed class GetUserAccessToServiceApiRequester(
         httpResponse.EnsureSuccessStatusCode();
 
         var jsonOptions = jsonOptionsAccessor.Get(JsonHelperExtensions.StandardOptionsKey);
-        return await httpResponse.Content.ReadFromJsonAsync<GetUserAccessToServiceResponse>(
+        return await httpResponse.Content.ReadFromJsonAsync<GetUserServiceAccessDetailsResponse>(
             jsonOptions, cancellationToken
         ) ?? throw new InvalidOperationException("Invalid response.");
     }

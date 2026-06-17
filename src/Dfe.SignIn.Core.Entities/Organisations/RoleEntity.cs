@@ -29,6 +29,8 @@ public partial class RoleEntity
     public virtual ICollection<PolicyRoleEntity> PolicyRoles { get; set; } = [];
 
     public virtual ICollection<UserServiceRoleEntity> UserServiceRoles { get; set; } = [];
+
+    public virtual RoleEntity? Parent { get; set; }
 }
 #pragma warning restore CS1591
 
