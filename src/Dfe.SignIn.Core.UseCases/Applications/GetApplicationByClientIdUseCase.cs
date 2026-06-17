@@ -1,7 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
-using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Applications;
@@ -9,9 +8,7 @@ namespace Dfe.SignIn.Core.UseCases.Applications;
 /// <summary>
 /// Use case responsible for obtaining information about an application.
 /// </summary>
-public sealed class GetApplicationByClientIdUseCase(
-    IUnitOfWorkOrganisations uowOrganisations
-) : Interactor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
+public sealed class GetApplicationByClientIdUseCase(DbOrganisationsContext uowOrganisations) : Interactor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
 {
     /// <inheritdoc/>
     public override async Task<GetApplicationByClientIdResponse> InvokeAsync(
@@ -20,7 +17,7 @@ public sealed class GetApplicationByClientIdUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var serviceEntity = await uowOrganisations.Repository<ServiceEntity>()
+        var serviceEntity = await uowOrganisations.Services
             .Select(x => new {
                 x.Id,
                 x.ClientId,

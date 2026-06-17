@@ -1,6 +1,5 @@
 
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -47,19 +46,19 @@ public static class UnitOfWorkEntityFrameworkExtensions
             services.AddScoped<TimestampInterceptor>();
         }
 
-        AddUnitOfWork<IUnitOfWorkDirectories, UnitOfWorkDirectories, DbDirectoriesContext>(
+        AddUnitOfWork<DbDirectoriesContext>(
             services,
             section,
             "Directories",
             addDirectoriesUnitOfWork);
 
-        AddUnitOfWork<IUnitOfWorkOrganisations, UnitOfWorkOrganisations, DbOrganisationsContext>(
+        AddUnitOfWork<DbOrganisationsContext>(
             services,
             section,
             "Organisations",
             addOrganisationsUnitOfWork);
 
-        AddUnitOfWork<IUnitOfWorkAudit, UnitOfWorkAudit, DbAuditContext>(
+        AddUnitOfWork<DbAuditContext>(
             services,
             section,
             "Audit",
@@ -104,14 +103,12 @@ public static class UnitOfWorkEntityFrameworkExtensions
     ///   (<c>Host</c>, <c>Name</c>, <c>Username</c>, <c>Password</c>)
     ///   is missing for the specified <paramref name="configKey"/>.</para>
     /// </exception>
-    private static void AddUnitOfWork<TUnitOfWorkContract, TUnitOfWorkConcrete, TDbContext>(
+    private static void AddUnitOfWork<TDbContext>(
         IServiceCollection services,
         IConfiguration section,
         string configKey,
         bool register)
         where TDbContext : DbContext
-        where TUnitOfWorkConcrete : EntityFrameworkUnitOfWork, TUnitOfWorkContract
-        where TUnitOfWorkContract : class, IUnitOfWork
     {
         if (!register) {
             return;
@@ -143,6 +140,5 @@ public static class UnitOfWorkEntityFrameworkExtensions
             options.AddInterceptors(timestampInterceptor);
         });
 
-        services.AddScoped<TUnitOfWorkContract, TUnitOfWorkConcrete>();
     }
 }

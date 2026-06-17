@@ -1,7 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Organisations;
-using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Organisations;
@@ -9,9 +8,7 @@ namespace Dfe.SignIn.Core.UseCases.Organisations;
 /// <summary>
 /// Use case for getting information about an organisation.
 /// </summary>
-public sealed class GetOrganisationByIdUseCase(
-    IUnitOfWorkOrganisations uowOrganisations
-) : Interactor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>
+public sealed class GetOrganisationByIdUseCase(DbOrganisationsContext uowOrganisations) : Interactor<GetOrganisationByIdRequest, GetOrganisationByIdResponse>
 {
     /// <inheritdoc/>
     public override async Task<GetOrganisationByIdResponse> InvokeAsync(
@@ -20,7 +17,7 @@ public sealed class GetOrganisationByIdUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var organisationEntity = await uowOrganisations.Repository<OrganisationEntity>()
+        var organisationEntity = await uowOrganisations.Organisations
             .Where(x => x.Id == context.Request.OrganisationId)
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw OrganisationNotFoundException.FromOrganisationId(context.Request.OrganisationId);

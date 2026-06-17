@@ -1,8 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Directories;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -11,7 +10,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for linking an Entra user to a DfE Sign-in user.
 /// </summary>
 public sealed class LinkEntraUserToDsiUseCase(
-    IUnitOfWorkDirectories unitOfWork,
+    DbDirectoriesContext unitOfWork,
     IInteractionDispatcher interaction,
     TimeProvider timeProvider
     ) : Interactor<LinkEntraUserToDsiRequest, LinkEntraUserToDsiResponse>
@@ -23,7 +22,7 @@ public sealed class LinkEntraUserToDsiUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Repository<UserEntity>()
+        var user = await unitOfWork.Users
             .Where(x => x.Sub == context.Request.DsiUserId)
             .SingleOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw UserNotFoundException.FromUserId(context.Request.DsiUserId);
@@ -34,8 +33,7 @@ public sealed class LinkEntraUserToDsiUseCase(
                 user.Sub, userEntraOid, context.Request.EntraUserId);
         }
 
-        var existingEntraUser = await unitOfWork
-            .Repository<UserEntity>()
+        var existingEntraUser = await unitOfWork.Users
             .Where(x => x.EntraOid == context.Request.EntraUserId)
             .Select(x => new { x.Sub })
             .FirstOrDefaultAsync(cancellationToken);

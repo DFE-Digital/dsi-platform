@@ -8,7 +8,7 @@ builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: 
 #pragma warning disable ASPIRECERTIFICATES001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 var redis = builder.AddRedis("infra-redis")
     .WithPassword(null)
-    .WithEndpointProxySupport(false)
+    //.WithEndpointProxySupport(false)
     .WithImage("redis", "latest")
     .WithDataVolume()
     .WithoutHttpsCertificate()
@@ -16,7 +16,13 @@ var redis = builder.AddRedis("infra-redis")
 #pragma warning restore ASPIRECERTIFICATES001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
 var redisTcpEndpoint = redis.GetEndpoint("tcp");
-var redisConnectionString = ReferenceExpression.Create(
+
+// 1. .NET Format (No prefix, StackExchange.Redis expects "host:port")
+var dotnetRedisConnectionString = ReferenceExpression.Create(
+    $"{redisTcpEndpoint.Property(EndpointProperty.Host)}:{redisTcpEndpoint.Property(EndpointProperty.Port)}");
+
+// 2. Node.js Format (Requires "redis://" URI prefix)
+var nodeRedisConnectionString = ReferenceExpression.Create(
     $"redis://{redisTcpEndpoint.Property(EndpointProperty.Host)}:{redisTcpEndpoint.Property(EndpointProperty.Port)}");
 
 var frontend = builder.AddDockerfile("infra-frontend", "../../", "docker/frontend/Dockerfile")
@@ -42,7 +48,7 @@ var nodeComponents = builder.Configuration.GetSection("Components:Node");
 if (dotNetComponents.GetValue("HelpEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
-    .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("InteractionsRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
     .WithEnvironment("RaiseSupportTicketByEmail__SupportEmailAddress", supportEmailConfig["SupportEmailAddress"])
     .WithEnvironment("RaiseSupportTicketByEmail__EmailTemplateId", supportEmailConfig["EmailTemplateId"])
@@ -74,9 +80,9 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
 if (dotNetComponents.GetValue("ProfileEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
-    .WithEnvironment("GeneralRedisCache__ConnectionString", redisConnectionString)
-    .WithEnvironment("SessionRedisCache__ConnectionString", redisConnectionString)
-    .WithEnvironment("TokenRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
+    .WithEnvironment("SessionRedisCache__ConnectionString", dotnetRedisConnectionString)
+    .WithEnvironment("TokenRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("Oidc__ClientId", oidcConfig["ClientId"])
     .WithEnvironment("Oidc__ClientSecret", oidcConfig["ClientSecret"])
     .WithEnvironment("Oidc__Authority", oidcConfig["Authority"])
@@ -95,12 +101,12 @@ if (dotNetComponents.GetValue("ProfileEnabled", true)) {
 if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
-    .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", redisConnectionString)
-    .WithEnvironment("InteractionsRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", dotnetRedisConnectionString)
+    .WithEnvironment("InteractionsRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
     .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
     .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
-    .WithEnvironment("InternalApiClient__BaseAddress", internalApi.GetEndpoint("http"))
+    .WithEnvironment("InternalApiClient__BaseAddress", internalApi.GetEndpoint("https"))
     .WithEnvironment("InternalApiClient__Access__BaseAddress", internalApiConfig["Access:BaseAddress"])
     .WithEnvironment("InternalApiClient__Organisations__BaseAddress", internalApiConfig["Organisations:BaseAddress"])
     .WithEnvironment("EntityFramework__Organisations__Username", efConfig["Organisations:Username"])
@@ -128,20 +134,20 @@ var nodeEnvFileName = builder.Configuration["NodeEnvFileName"]
 // Node components
 IResourceBuilder<NodeAppResource>? oidc = null;
 if (nodeComponents.GetValue("OidcEnabled", true)) {
-    oidc = builder.AddNodePlatformApp("node-oidc", nodeRootDir, "login.dfe.oidc", 4436, redisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName, scriptName: "dev")
+    oidc = builder.AddNodePlatformApp("node-oidc", nodeRootDir, "login.dfe.oidc", 4436, nodeRedisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName, scriptName: "dev")
     .WithNpmPackageInstallation()
     .WaitFor(redis);
 }
 
 IResourceBuilder<NodeAppResource>? interactor = null;
 if (nodeComponents.GetValue("InteractionsEnabled", true)) {
-    interactor = builder.AddNodePlatformApp("node-interactions", nodeRootDir, "login.dfe.interactions", 4431, redisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName, scriptName: "dev")
+    interactor = builder.AddNodePlatformApp("node-interactions", nodeRootDir, "login.dfe.interactions", 4431, nodeRedisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName, scriptName: "dev")
     .WithNpmPackageInstallation()
     .WaitForIfPresent(oidc);
 }
 
 if (nodeComponents.GetValue("ServicesEnabled", true)) {
-    builder.AddNodePlatformApp("node-services", nodeRootDir, "login.dfe.services", 41012, redisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName)
+    builder.AddNodePlatformApp("node-services", nodeRootDir, "login.dfe.services", 41012, nodeRedisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName)
     .WithNpmPackageInstallation()
     .WaitForIfPresent(oidc)
     .WaitForIfPresent(interactor);

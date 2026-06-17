@@ -2,7 +2,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Search;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -20,8 +20,8 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 ///   Review login.dfe.directories for implementation details.</para>
 /// </remarks>
 public sealed class CreateUserUseCase(
+    DbDirectoriesContext unitOfWork,
     IInteractionDispatcher interaction,
-    IUnitOfWorkDirectories unitOfWork,
     TimeProvider timeProvider
 ) : Interactor<CreateUserRequest, CreateUserResponse>
 {
@@ -32,7 +32,7 @@ public sealed class CreateUserUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Repository<UserEntity>()
+        var user = await unitOfWork.Users
                 .Where(x =>
                     x.Email == context.Request.EmailAddress ||
                     x.EntraOid == context.Request.EntraUserId)

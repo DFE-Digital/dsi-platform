@@ -1,8 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -12,7 +11,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// services for a approval user
 /// </summary>
 /// <param name="unitOfWork"></param>
-public sealed class PendingApprovalCountUseCase(IUnitOfWorkOrganisations unitOfWork) : Interactor<GetPendingApprovalCountRequest, PendingApprovalCountResponse>
+public sealed class PendingApprovalCountUseCase(DbOrganisationsContext unitOfWork) : Interactor<GetPendingApprovalCountRequest, PendingApprovalCountResponse>
 {
     /// <summary>
     /// Calculates the number of outstanding approvals that the Approval user for the given
@@ -25,15 +24,15 @@ public sealed class PendingApprovalCountUseCase(IUnitOfWorkOrganisations unitOfW
     /// <returns></returns>
     public override async Task<PendingApprovalCountResponse> InvokeAsync(InteractionContext<GetPendingApprovalCountRequest> context, CancellationToken cancellationToken = default)
     {
-        var orgIds = await unitOfWork.Repository<UserOrganisationEntity>().Include(x => x.Organisation)
+        var orgIds = await unitOfWork.UserOrganisations.Include(x => x.Organisation)
             .Where(x => x.UserId == context.Request.UserId && x.RoleId == OrganisationRoles.Approver.Id)
             .Select(x => x.OrganisationId)
             .ToListAsync(cancellationToken);
 
-        var pendingServiceNotificationCount = await unitOfWork.Repository<UserServiceRequestEntity>()
+        var pendingServiceNotificationCount = await unitOfWork.UserServiceRequests
             .CountAsync(x => orgIds.Contains(x.OrganisationId) && !x.ActionedAt.HasValue, cancellationToken);
 
-        var pendingOrganisationNotificationCount = await unitOfWork.Repository<UserOrganisationRequestEntity>()
+        var pendingOrganisationNotificationCount = await unitOfWork.UserOrganisationRequests
       .CountAsync(x => orgIds.Contains(x.OrganisationId) && !x.ActionedAt.HasValue, cancellationToken);
 
         var pendingCount = pendingServiceNotificationCount + pendingOrganisationNotificationCount;

@@ -1,8 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Dfe.SignIn.Core.UseCases.Organisations;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -11,7 +10,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for getting all of the organisations that are associated with a particular user.
 /// </summary>
 public sealed class GetOrganisationsAssociatedWithUserUseCase(
-    IUnitOfWorkOrganisations unitOfWork
+    DbOrganisationsContext unitOfWork
 )
     : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {
@@ -22,7 +21,7 @@ public sealed class GetOrganisationsAssociatedWithUserUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var organisations = await unitOfWork.Repository<UserOrganisationEntity>()
+        var organisations = await unitOfWork.UserOrganisations
             .Where(x => x.UserId == context.Request.UserId)
             .Select(x => OrganisationHelpers.OrganisationFromEntity(x.Organisation))
             .ToArrayAsync(cancellationToken);

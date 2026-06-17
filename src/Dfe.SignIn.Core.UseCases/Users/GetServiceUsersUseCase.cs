@@ -5,7 +5,7 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -14,9 +14,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Get the service users for a given service (client).
 /// </summary>
 /// <param name="uowOrganisations"></param>
-public sealed class GetServiceUsersUseCase(
-    IUnitOfWorkOrganisations uowOrganisations
-) : Interactor<GetServiceUsersRequest, GetServiceUsersResponse>
+public sealed class GetServiceUsersUseCase(DbOrganisationsContext uowOrganisations) : Interactor<GetServiceUsersRequest, GetServiceUsersResponse>
 {
     /// <inheritdoc/>
     public override async Task<GetServiceUsersResponse> InvokeAsync(
@@ -29,7 +27,7 @@ public sealed class GetServiceUsersUseCase(
         var pageSize = context.Request.PageSize;
         var pageNumber = context.Request.PageNumber;
 
-        var query = uowOrganisations.Repository<UserServiceEntity>()
+        var query = uowOrganisations.UserServices
             .AsNoTracking()
             .Include(x => x.User)
             .Include(x => x.Organisation)
@@ -88,7 +86,7 @@ public sealed class GetServiceUsersUseCase(
     private async Task<ILookup<(Guid UserId, Guid OrgId), ServiceUserRoleDto>> GetServiceRolesLookupAsync(
         Guid appId, List<Guid> userIds, CancellationToken ct)
     {
-        var roles = await uowOrganisations.Repository<UserServiceRoleEntity>()
+        var roles = await uowOrganisations.UserServiceRoles
             .AsNoTracking()
             .Include(x => x.Role)
             .Where(x => x.ServiceId == appId)
@@ -109,7 +107,7 @@ public sealed class GetServiceUsersUseCase(
     private async Task<ILookup<Guid, (Guid OrgId, short RoleId)>> GetOrgRolesLookupAsync(
         List<Guid> userIds, CancellationToken ct)
     {
-        var orgRoles = await uowOrganisations.Repository<UserOrganisationEntity>()
+        var orgRoles = await uowOrganisations.UserOrganisations
             .AsNoTracking()
             .Where(x => userIds.Contains(x.UserId))
             .Select(x => new { x.UserId, x.OrganisationId, x.RoleId })
