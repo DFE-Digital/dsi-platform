@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Public.SelectOrganisation;
 
@@ -9,6 +10,7 @@ namespace Dfe.SignIn.Core.Contracts.SelectOrganisation;
 /// Represents a request to filter organisations for a user.
 /// </summary>
 [AssociatedResponse(typeof(FilterOrganisationsForUserResponse))]
+[Throws(typeof(ApplicationNotFoundException))]
 public sealed record FilterOrganisationsForUserRequest
 {
     /// <summary>

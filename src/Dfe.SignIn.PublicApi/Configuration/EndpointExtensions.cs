@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Dfe.SignIn.Base.Framework;
+using FluentValidation;
 
 namespace Dfe.SignIn.PublicApi.Configuration;
 
@@ -21,8 +22,9 @@ public static class EndpointExtensions
     public static void SetupEndpoints(this IServiceCollection services)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
-
         SetupCamelCaseNamingForEnums(services);
+
+        services.AddValidatorsFromAssemblyContaining<Program>();
     }
 
     private static void SetupCamelCaseNamingForEnums(IServiceCollection services)

@@ -30,6 +30,8 @@ public sealed class GetApplicationByClientIdUseCase(
                 x.IsExternalService,
                 x.IsHiddenService,
                 x.IsIdOnlyService,
+                x.ParentId,
+                ParentClientId = x.Parent != null ? x.Parent.ClientId : null,
             })
             .SingleOrDefaultAsync(
                 x => x.ClientId == context.Request.ClientId,
@@ -50,6 +52,8 @@ public sealed class GetApplicationByClientIdUseCase(
                 IsExternalService = serviceEntity.IsExternalService,
                 IsHiddenService = serviceEntity.IsHiddenService,
                 IsIdOnlyService = serviceEntity.IsIdOnlyService,
+                ParentId = serviceEntity.ParentId,
+                ParentClientId = serviceEntity.ParentClientId,
             }
         };
     }
