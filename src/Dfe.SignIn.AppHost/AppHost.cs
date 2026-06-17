@@ -50,27 +50,6 @@ if (dotNetComponents.GetValue("HelpEnabled", true)) {
     .WaitFor(redis);
 }
 
-if (dotNetComponents.GetValue("ProfileEnabled", true)) {
-    builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
-    .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
-    .WithEnvironment("GeneralRedisCache__ConnectionString", redisConnectionString)
-    .WithEnvironment("SessionRedisCache__ConnectionString", redisConnectionString)
-    .WithEnvironment("TokenRedisCache__ConnectionString", redisConnectionString)
-    .WithEnvironment("Oidc__ClientId", oidcConfig["ClientId"])
-    .WithEnvironment("Oidc__ClientSecret", oidcConfig["ClientSecret"])
-    .WithEnvironment("Oidc__Authority", oidcConfig["Authority"])
-    .WithEnvironment("Oidc__MetadataAddress", oidcConfig["MetadataAddress"])
-    .WithEnvironment("ExternalId__ClientId", externalIdConfig["ClientId"])
-    .WithEnvironment("ExternalId__ClientSecret", externalIdConfig["ClientSecret"])
-    .WithEnvironment("ExternalId__Authority", externalIdConfig["Authority"])
-    .WithEnvironment("ExternalId__Instance", externalIdConfig["Instance"])
-    .WithEnvironment("ExternalId__TenantId", externalIdConfig["TenantId"])
-    .WithEnvironment("Session__DurationInMinutes", sessionConfig["DurationInMinutes"])
-    .WithEnvironment("Session__NotifyRemainingMinutes", sessionConfig["NotifyRemainingMinutes"])
-    .WaitFor(frontend)
-    .WaitFor(redis);
-}
-
 var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-internal-api", launchProfileName: "http")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local")
     .WithEnvironment("EntityFramework__Directories__Host", efConfig["Directories:Host"])
@@ -91,6 +70,27 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("InternalApiClient__Directories__BaseAddress", internalApiConfig["Directories:BaseAddress"])
     .WithEnvironment("InternalApiClient__Applications__BaseAddress", internalApiConfig["Applications:BaseAddress"])
     .WithEnvironment("InternalApiClient__UseProxy", "false");
+
+if (dotNetComponents.GetValue("ProfileEnabled", true)) {
+    builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
+    .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
+    .WithEnvironment("GeneralRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("SessionRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("TokenRedisCache__ConnectionString", redisConnectionString)
+    .WithEnvironment("Oidc__ClientId", oidcConfig["ClientId"])
+    .WithEnvironment("Oidc__ClientSecret", oidcConfig["ClientSecret"])
+    .WithEnvironment("Oidc__Authority", oidcConfig["Authority"])
+    .WithEnvironment("Oidc__MetadataAddress", oidcConfig["MetadataAddress"])
+    .WithEnvironment("ExternalId__ClientId", externalIdConfig["ClientId"])
+    .WithEnvironment("ExternalId__ClientSecret", externalIdConfig["ClientSecret"])
+    .WithEnvironment("ExternalId__Authority", externalIdConfig["Authority"])
+    .WithEnvironment("ExternalId__Instance", externalIdConfig["Instance"])
+    .WithEnvironment("ExternalId__TenantId", externalIdConfig["TenantId"])
+    .WithEnvironment("Session__DurationInMinutes", sessionConfig["DurationInMinutes"])
+    .WithEnvironment("Session__NotifyRemainingMinutes", sessionConfig["NotifyRemainingMinutes"])
+    .WaitFor(frontend)
+    .WaitFor(redis);
+}
 
 if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
