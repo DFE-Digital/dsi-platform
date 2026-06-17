@@ -25,7 +25,12 @@ public sealed class AuthController(
     {
         var platformOptions = platformOptionsAccessor.CurrentValue;
 
-        return this.SignOutHelper(platformOptions.ServicesUrl.ToString());
+        var serviceUrl = platformOptions.ServicesUrl.ToString();
+        if (this.User.Identity?.IsAuthenticated == true) {
+            serviceUrl += "signout";
+        }
+
+        return this.SignOutHelper(serviceUrl);
     }
 
     [AllowAnonymous]
@@ -51,7 +56,8 @@ public sealed class AuthController(
         var result = this.SignOut(
             new AuthenticationProperties { RedirectUri = redirectUri },
             OpenIdConnectDefaults.AuthenticationScheme,
-            CookieAuthenticationDefaults.AuthenticationScheme
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            ExternalAuthConstants.CookiesSchemeName
         );
 
         if (this.User.Identity?.IsAuthenticated == true) {
