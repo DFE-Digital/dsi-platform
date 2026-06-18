@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.Contracts.SupportTickets;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.SupportTickets;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.SupportTickets;
@@ -9,9 +11,13 @@ namespace Dfe.SignIn.Core.UseCases.UnitTests.SupportTickets;
 public sealed class GetApplicationNamesForSupportTicketUseCaseTests
 {
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.Services.Add(new ServiceEntity {
             Id = Guid.NewGuid(),
@@ -104,7 +110,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCaseTests
     public async Task Services_WithNoParams_AreReturned()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationNamesForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(
@@ -118,7 +124,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCaseTests
     public async Task Services_WithUnrelatedParams_AreReturned()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationNamesForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(
@@ -132,7 +138,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCaseTests
     public async Task Services_WithHelpHiddenTrue_AreExcluded()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationNamesForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(
@@ -146,7 +152,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCaseTests
     public async Task Services_WithHelpHiddenFalse_AreReturned()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationNamesForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(
@@ -160,7 +166,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCaseTests
     public async Task Services_WithMixedParams_IncludingHelpHiddenTrue_AreExcluded()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationNamesForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(
@@ -174,7 +180,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCaseTests
     public async Task ChildServices_AreExcluded()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationNamesForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(
@@ -188,7 +194,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCaseTests
     public async Task OnlyExpectedServices_AreReturned()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationNamesForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(
@@ -212,7 +218,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCaseTests
     public async Task OnlyExpectedServices_AreReturned_Ordered()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationNamesForSupportTicketUseCase>();
 
         var response = await interactor.InvokeAsync(

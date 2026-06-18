@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Applications;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Applications;
@@ -21,9 +23,13 @@ public sealed class GetApplicationRolesUseCaseTests
     private static readonly Guid AppBId = Guid.Parse("33510512-33f3-491c-86ca-e036726584d0");
     private static readonly Guid AppCId = Guid.Parse("f8da743c-eeb7-4be4-8045-54fba2e13419");
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.Services.Add(new ServiceEntity {
             Id = AppAId,
@@ -175,7 +181,7 @@ public sealed class GetApplicationRolesUseCaseTests
     public async Task ReturnsApplicationRoles(Guid applicationId, GetApplicationRolesResponse expectedResponse)
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
 
         var interactor = autoMocker.CreateInstance<GetApplicationRolesUseCase>();
 

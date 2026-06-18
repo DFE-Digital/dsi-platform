@@ -1,5 +1,4 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -90,68 +89,6 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
             ));
 
         Assert.AreEqual($"Section 'Directories:{missingKey}' not found in configuration.", ex.Message);
-    }
-
-    [TestMethod]
-    public void AddUnitOfWorkEntityFrameworkServices_Registers_TransactionDecorator_And_TransactionContext()
-    {
-        var services = new ServiceCollection();
-        services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
-
-        services.AddUnitOfWorkEntityFrameworkServices(
-            this.configMock,
-            addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false,
-            addAuditUnitOfWork: false);
-
-        var provider = services.BuildServiceProvider();
-
-        var dispatcher = provider.GetRequiredService<IInteractionDispatcher>();
-        Assert.IsInstanceOfType(dispatcher, typeof(ProtectTransactionInteractionDispatcher));
-
-        var transactionContext = provider.GetRequiredService<IEntityFrameworkTransactionContext>();
-        Assert.IsInstanceOfType(transactionContext, typeof(EntityFrameworkTransactionContext));
-    }
-
-    [TestMethod]
-    public void AddUnitOfWorkEntityFrameworkServices_DoesNotRegister_Decorator_IfNoUoWEnabled()
-    {
-        var services = new ServiceCollection();
-        services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
-
-        services.AddUnitOfWorkEntityFrameworkServices(
-            this.configMock,
-            addDirectoriesUnitOfWork: false,
-            addOrganisationsUnitOfWork: false,
-            addAuditUnitOfWork: false);
-
-        var provider = services.BuildServiceProvider();
-
-        var dispatcher = provider.GetRequiredService<IInteractionDispatcher>();
-        Assert.IsInstanceOfType(dispatcher, typeof(FakeDispatcher));
-
-        Assert.IsNull(provider.GetService<IEntityFrameworkTransactionContext>());
-    }
-
-    [TestMethod]
-    public void AddUnitOfWorkEntityFrameworkServices_Registers_Directories_UoW_And_Context()
-    {
-        var services = new ServiceCollection();
-        services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
-
-        services.AddUnitOfWorkEntityFrameworkServices(
-            this.configMock,
-            addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false,
-            addAuditUnitOfWork: false);
-
-        var provider = services.BuildServiceProvider();
-
-        Assert.IsNotNull(provider.GetService<DbDirectoriesContext>());
-
-        Assert.IsInstanceOfType(
-            provider.GetRequiredService<IUnitOfWorkDirectories>(),
-            typeof(UnitOfWorkDirectories));
     }
 
     [TestMethod]

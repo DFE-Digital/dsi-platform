@@ -2,6 +2,8 @@ using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.PublicApi;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Applications;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Applications;
@@ -18,9 +20,13 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
         >();
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.Services.Add(new ServiceEntity {
             Id = Guid.Parse("b03e0aa5-f2a9-4926-8be0-9b996f97790d"),
@@ -37,7 +43,7 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
     public async Task Throws_WhenApplicationNotFound()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetApplicationApiConfigurationUseCase>();
 
         string nonExistentClientId = "non-existent";
@@ -55,7 +61,7 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
     public async Task ReturnsApiConfiguration()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
 
         autoMocker.MockResponse(
             new DecryptApiSecretRequest {

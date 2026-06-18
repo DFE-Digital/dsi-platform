@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -20,9 +22,13 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
         >();
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.UserOrganisations.Add(new UserOrganisationEntity {
             UserId = UserId,
@@ -40,7 +46,7 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
     public async Task ReturnsIdentifiers_WhenUserOrganisationExists()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var useCase = autoMocker.CreateInstance<GetUserOrganisationIdentifiersUseCase>();
 
         var response = await useCase.InvokeAsync(
@@ -58,7 +64,7 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
     public async Task ReturnsNullIdentifiers_WhenUserOrganisationDoesNotExist()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var useCase = autoMocker.CreateInstance<GetUserOrganisationIdentifiersUseCase>();
 
         var response = await useCase.InvokeAsync(
@@ -76,7 +82,11 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
     public async Task ReturnsNullIdentifiers_WhenNumericAndTextIdentifiersAreNotSet()
     {
         var autoMocker = new AutoMocker();
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.UserOrganisations.Add(new UserOrganisationEntity {
             UserId = UserId,

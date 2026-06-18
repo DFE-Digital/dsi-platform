@@ -41,8 +41,6 @@ public static class UnitOfWorkEntityFrameworkExtensions
 
         if (addDirectoriesUnitOfWork || addOrganisationsUnitOfWork || addAuditUnitOfWork) {
             services.TryAddSingleton(TimeProvider.System);
-            services.AddScoped<IEntityFrameworkTransactionContext, EntityFrameworkTransactionContext>();
-            services.Decorate<IInteractionDispatcher, ProtectTransactionInteractionDispatcher>();
             services.AddScoped<TimestampInterceptor>();
         }
 

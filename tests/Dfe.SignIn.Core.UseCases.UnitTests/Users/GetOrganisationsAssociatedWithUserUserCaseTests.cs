@@ -3,6 +3,8 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -19,9 +21,13 @@ public sealed class GetOrganisationsAssociatedWithUserUserCaseTests
         >();
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.Organisations.Add(new OrganisationEntity {
             Id = Guid.Parse("d289bd61-06c5-4fcf-b0f1-7509bc3570f4"),
@@ -78,7 +84,7 @@ public sealed class GetOrganisationsAssociatedWithUserUserCaseTests
     public async Task ReturnsExpectedCollection()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<GetOrganisationsAssociatedWithUserUseCase>();
 
         var response = await interactor.InvokeAsync(

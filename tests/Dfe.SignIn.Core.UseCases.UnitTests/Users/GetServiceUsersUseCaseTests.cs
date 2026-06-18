@@ -3,6 +3,8 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -91,7 +93,11 @@ public class GetServiceUsersUseCaseTests
     public async Task ReturnsEmpty_WhenNoServiceUsers()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         var interactor = autoMocker.CreateInstance<GetServiceUsersUseCase>();
         var response = await interactor.InvokeAsync(new GetServiceUsersRequest {
@@ -110,7 +116,12 @@ public class GetServiceUsersUseCaseTests
     public async Task ReturnsSingleUser_WithOrgAndRoles()
     {
         var autoMocker = new AutoMocker();
-        var orgCtx = autoMocker.UseInMemoryOrganisationsDb();
+
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
 
         orgCtx.Organisations.Add(CreateOrganisation());
         orgCtx.Users.Add(CreateUser());
@@ -141,7 +152,11 @@ public class GetServiceUsersUseCaseTests
     public async Task Handles_NullRoleForeignKey()
     {
         var autoMocker = new AutoMocker();
-        var orgCtx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
 
         orgCtx.Organisations.Add(CreateOrganisation());
         orgCtx.Users.Add(CreateUser());
@@ -163,7 +178,11 @@ public class GetServiceUsersUseCaseTests
     public async Task Handles_MissingUserOrganisationRole()
     {
         var autoMocker = new AutoMocker();
-        var orgCtx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
 
         orgCtx.Organisations.Add(CreateOrganisation("Test Org"));
         orgCtx.Users.Add(CreateUser());
@@ -185,7 +204,11 @@ public class GetServiceUsersUseCaseTests
     public async Task Pagination_SkipTake_WithCorrectOrdering()
     {
         var autoMocker = new AutoMocker();
-        var orgCtx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
 
         for (int i = 0 ; i < 3 ; i++) {
             var userId = Guid.Parse($"00000000-0000-0000-0000-00000000000{i + 1}");
@@ -220,7 +243,11 @@ public class GetServiceUsersUseCaseTests
     public async Task ReturnsEmpty_WhenAllMappedUsersHaveEmptyEmail()
     {
         var autoMocker = new AutoMocker();
-        var orgCtx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
 
         orgCtx.Organisations.Add(CreateOrganisation());
         orgCtx.UserServices.Add(CreateUserService());

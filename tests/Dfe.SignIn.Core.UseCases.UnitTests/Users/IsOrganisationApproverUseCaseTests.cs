@@ -3,6 +3,8 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -15,7 +17,7 @@ public sealed class IsOrganisationApproverUseCaseTests
     {
         // Arrange
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
 
         var interactor = autoMocker.CreateInstance<IsOrganisationApproverUseCase>();
 
@@ -33,7 +35,7 @@ public sealed class IsOrganisationApproverUseCaseTests
     {
         // Arrange
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
 
         var interactor = autoMocker.CreateInstance<IsOrganisationApproverUseCase>();
 
@@ -46,9 +48,13 @@ public sealed class IsOrganisationApproverUseCaseTests
         Assert.IsTrue(result.IsApprover);
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         var user1Id = Guid.Parse("6d690a96-c392-4482-b750-733ea472bc96");
         var user2Id = Guid.Parse("1d690a94-c392-4482-b750-711ea472bc96");

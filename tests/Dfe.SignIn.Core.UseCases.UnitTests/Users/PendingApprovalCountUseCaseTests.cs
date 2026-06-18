@@ -3,6 +3,8 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -17,7 +19,7 @@ public sealed class PendingApprovalCountUseCaseTests
     {
         // Arrange
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker, CreatePendingOrganisationRequest: true);
+        await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: true);
 
         var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
 
@@ -33,7 +35,7 @@ public sealed class PendingApprovalCountUseCaseTests
     {
         // Arrange
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker, CreatePendingOrganisationRequest: false, CreatePendingServiceRequest: true);
+        await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: false, CreatePendingServiceRequest: true);
 
         var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
 
@@ -49,7 +51,7 @@ public sealed class PendingApprovalCountUseCaseTests
     {
         // Arrange
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker, CreatePendingOrganisationRequest: true, CreatePendingServiceRequest: true);
+        await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: true, CreatePendingServiceRequest: true);
 
         var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
 
@@ -65,7 +67,7 @@ public sealed class PendingApprovalCountUseCaseTests
     {
         // Arrange
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        await SetupFakeDatabaseAsync();
 
         var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
 
@@ -76,10 +78,14 @@ public sealed class PendingApprovalCountUseCaseTests
         Assert.AreEqual(0, result.Count);
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker, bool CreatePendingOrganisationRequest = false,
+    private static async Task SetupFakeDatabaseAsync(bool CreatePendingOrganisationRequest = false,
         bool CreatePendingServiceRequest = false)
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+           .UseInMemoryDatabase(Guid.NewGuid().ToString())
+           .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         var standardUser = Guid.Parse("1d690a94-c392-4482-b750-711ea472bc96");
 

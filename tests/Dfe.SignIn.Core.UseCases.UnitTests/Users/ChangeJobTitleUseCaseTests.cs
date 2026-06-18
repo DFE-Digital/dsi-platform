@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -22,9 +23,13 @@ public sealed class ChangeJobTitleUseCaseTests
         >();
     }
 
-    private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryDirectoriesDb();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbDirectoriesContext(options);
 
         ctx.Users.Add(new UserEntity {
             Sub = Guid.Parse("3ed6826f-6854-4adf-b65f-5b2ace7c8691"),
@@ -55,7 +60,7 @@ public sealed class ChangeJobTitleUseCaseTests
     SetupAsync()
     {
         var autoMocker = new AutoMocker();
-        var db = await SetupFakeDatabaseAsync(autoMocker);
+        var db = await SetupFakeDatabaseAsync();
         var interactor = autoMocker.CreateInstance<ChangeJobTitleUseCase>();
 
         var capturedAudit = new List<WriteToAuditRequest>();

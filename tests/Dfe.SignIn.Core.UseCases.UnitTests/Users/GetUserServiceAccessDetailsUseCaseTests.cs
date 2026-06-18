@@ -4,6 +4,8 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -34,7 +36,11 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
     private static async Task<AutoMocker> SetupWithAccessAsync()
     {
         var autoMocker = new AutoMocker();
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         // Seed UserService (the access record)
         ctx.UserServices.Add(new UserServiceEntity {
@@ -124,7 +130,9 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
     public async Task Throws_WhenUserHasNoAccess()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.UseInMemoryOrganisationsDb(); // empty DB — no UserService row
+
+        // SJW commented out the following line to simulate a scenario where the database is empty and there is no UserService row for the user.
+        //autoMocker.UseInMemoryOrganisationsDb(); // empty DB — no UserService row
 
         var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 
