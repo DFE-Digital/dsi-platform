@@ -8,7 +8,7 @@ builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: 
 #pragma warning disable ASPIRECERTIFICATES001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 var redis = builder.AddRedis("infra-redis")
     .WithPassword(null)
-    //.WithEndpointProxySupport(false)
+    .WithEndpointProxySupport(false)
     .WithImage("redis", "latest")
     .WithDataVolume()
     .WithoutHttpsCertificate()
@@ -17,11 +17,11 @@ var redis = builder.AddRedis("infra-redis")
 
 var redisTcpEndpoint = redis.GetEndpoint("tcp");
 
-// 1. .NET Format (No prefix, StackExchange.Redis expects "host:port")
+// .NET Format (No prefix, StackExchange.Redis expects "host:port")
 var dotnetRedisConnectionString = ReferenceExpression.Create(
     $"{redisTcpEndpoint.Property(EndpointProperty.Host)}:{redisTcpEndpoint.Property(EndpointProperty.Port)}");
 
-// 2. Node.js Format (Requires "redis://" URI prefix)
+// Node.js Format (Requires "redis://" URI prefix)
 var nodeRedisConnectionString = ReferenceExpression.Create(
     $"redis://{redisTcpEndpoint.Property(EndpointProperty.Host)}:{redisTcpEndpoint.Property(EndpointProperty.Port)}");
 
@@ -83,6 +83,7 @@ if (dotNetComponents.GetValue("ProfileEnabled", true)) {
     .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("SessionRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("TokenRedisCache__ConnectionString", dotnetRedisConnectionString)
+    .WithEnvironment("InternalApiClient__BaseAddress", internalApi.GetEndpoint("https"))
     .WithEnvironment("Oidc__ClientId", oidcConfig["ClientId"])
     .WithEnvironment("Oidc__ClientSecret", oidcConfig["ClientSecret"])
     .WithEnvironment("Oidc__Authority", oidcConfig["Authority"])
