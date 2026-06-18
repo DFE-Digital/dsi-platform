@@ -1,9 +1,11 @@
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.PublicApi;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Applications;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Applications;
@@ -20,7 +22,7 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
         >();
     }
 
-    private static async Task SetupFakeDatabaseAsync()
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -37,14 +39,15 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task Throws_WhenApplicationNotFound()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<GetApplicationApiConfigurationUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetApplicationApiConfigurationUseCase interactor = new(orgCtx, Mock.Of<IInteractionDispatcher>());
 
         string nonExistentClientId = "non-existent";
 

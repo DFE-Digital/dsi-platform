@@ -1,9 +1,11 @@
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -60,13 +62,13 @@ public sealed class ChangeJobTitleUseCaseTests
     SetupAsync()
     {
         var autoMocker = new AutoMocker();
-        var db = await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<ChangeJobTitleUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        ChangeJobTitleUseCase interactor = new(dirCtx, Mock.Of<IInteractionDispatcher>());
 
         var capturedAudit = new List<WriteToAuditRequest>();
         autoMocker.CaptureRequest<WriteToAuditRequest>(capturedAudit.Add);
 
-        return (interactor, db, capturedAudit);
+        return (interactor, dirCtx, capturedAudit);
     }
 
     [TestMethod]

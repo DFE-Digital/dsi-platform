@@ -65,7 +65,6 @@ public sealed class CreateUserUseCaseTests
     [TestMethod]
     public async Task ThrowsWhen_EmailAlreadyExists()
     {
-        //var autoMocker = new AutoMocker();
         var dirCtx = await SetupFakeDatabaseAsync();
         CreateUserUseCase interactor =
             new(dirCtx, Mock.Of<IInteractionDispatcher>(), Mock.Of<TimeProvider>());
@@ -102,9 +101,9 @@ public sealed class CreateUserUseCaseTests
     [TestMethod]
     public async Task ShouldCreateNewUser()
     {
-        var autoMocker = new AutoMocker();
-        var db = await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        CreateUserUseCase interactor =
+            new(dirCtx, Mock.Of<IInteractionDispatcher>(), Mock.Of<TimeProvider>());
 
         var user = await interactor.InvokeAsync(
             new CreateUserRequest {
@@ -116,7 +115,7 @@ public sealed class CreateUserUseCaseTests
 
         Assert.IsNotNull(user);
 
-        var matchingUser = db.Users.FirstOrDefault(x => x.Sub == user.UserId);
+        var matchingUser = dirCtx.Users.FirstOrDefault(x => x.Sub == user.UserId);
 
         Assert.IsNotNull(user);
         Assert.AreEqual("joe.brown@example.com", matchingUser?.Email);

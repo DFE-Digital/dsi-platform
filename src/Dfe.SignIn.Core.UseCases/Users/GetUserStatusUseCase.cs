@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Internal;
 using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,10 +21,10 @@ public sealed class GetUserStatusUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var queryBuilder = unitOfWork.Users;
-        //queryBuilder = context.Request.EntraUserId.HasValue
-        //    ? queryBuilder.Where(x => x.EntraOid == context.Request.EntraUserId.Value)
-        //    : queryBuilder.Where(x => x.Email == context.Request.EmailAddress);
+        IQueryable<UserEntity> queryBuilder = unitOfWork.Users;
+        queryBuilder = context.Request.EntraUserId.HasValue
+            ? queryBuilder.Where(x => x.EntraOid == context.Request.EntraUserId.Value)
+            : queryBuilder.Where(x => x.Email == context.Request.EmailAddress);
 
         var user = await queryBuilder.Select(x => new { x.Sub, x.Status }).FirstOrDefaultAsync(cancellationToken);
 

@@ -3,7 +3,6 @@ using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
 
@@ -19,7 +18,7 @@ public sealed class GetUserProfileUseCaseTests
         >();
     }
 
-    private static async Task SetupFakeDatabaseAsync()
+    private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync()
     {
         var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -52,14 +51,15 @@ public sealed class GetUserProfileUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task Throws_WhenUserNotFound()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<GetUserProfileUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        GetUserProfileUseCase interactor = new(dirCtx);
 
         Guid nonExistentUserId = Guid.Parse("6d690a96-c392-4482-b750-733ea472bc96");
 
@@ -102,9 +102,8 @@ public sealed class GetUserProfileUseCaseTests
     [DynamicData(nameof(GetCasesForReturnsExpectedProfile), DynamicDataSourceType.Method)]
     public async Task ReturnsExpectedProfile(Guid userId, GetUserProfileResponse expectedResponse)
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<GetUserProfileUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        GetUserProfileUseCase interactor = new(dirCtx);
 
         var response = await interactor.InvokeAsync(
             new GetUserProfileRequest {

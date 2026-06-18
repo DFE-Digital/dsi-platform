@@ -4,7 +4,6 @@ using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Organisations;
 
@@ -20,7 +19,7 @@ public sealed class GetOrganisationByIdUseCaseTests
         >();
     }
 
-    private static async Task SetupFakeDatabaseAsync()
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -36,14 +35,15 @@ public sealed class GetOrganisationByIdUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task Throws_WhenOrganisationNotFound()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<GetOrganisationByIdUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetOrganisationByIdUseCase interactor = new(orgCtx);
 
         Guid nonExistentUserId = Guid.Parse("6d690a96-c392-4482-b750-733ea472bc96");
 
@@ -59,9 +59,8 @@ public sealed class GetOrganisationByIdUseCaseTests
     [TestMethod]
     public async Task ReturnsExpectedProfile()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<GetOrganisationByIdUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetOrganisationByIdUseCase interactor = new(orgCtx);
 
         var response = await interactor.InvokeAsync(
             new GetOrganisationByIdRequest {

@@ -92,14 +92,14 @@ public class GetServiceUsersUseCaseTests
     [TestMethod]
     public async Task ReturnsEmpty_WhenNoServiceUsers()
     {
-        var autoMocker = new AutoMocker();
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        var ctx = new DbOrganisationsContext(options);
+        var dirCtx = new DbOrganisationsContext(options);
 
-        var interactor = autoMocker.CreateInstance<GetServiceUsersUseCase>();
+        GetServiceUsersUseCase interactor = new(dirCtx);
+
         var response = await interactor.InvokeAsync(new GetServiceUsersRequest {
             ApplicationId = ServiceId,
             PageNumber = 1,
@@ -115,8 +115,6 @@ public class GetServiceUsersUseCaseTests
     [TestMethod]
     public async Task ReturnsSingleUser_WithOrgAndRoles()
     {
-        var autoMocker = new AutoMocker();
-
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -134,7 +132,7 @@ public class GetServiceUsersUseCaseTests
 
         await orgCtx.SaveChangesAsync();
 
-        var interactor = autoMocker.CreateInstance<GetServiceUsersUseCase>();
+        GetServiceUsersUseCase interactor = new(orgCtx);
         var response = await interactor.InvokeAsync(CreateRequest());
 
         Assert.AreEqual(1, response.Users.Count);
@@ -151,7 +149,6 @@ public class GetServiceUsersUseCaseTests
     [TestMethod]
     public async Task Handles_NullRoleForeignKey()
     {
-        var autoMocker = new AutoMocker();
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -167,7 +164,7 @@ public class GetServiceUsersUseCaseTests
 
         await orgCtx.SaveChangesAsync();
 
-        var interactor = autoMocker.CreateInstance<GetServiceUsersUseCase>();
+        GetServiceUsersUseCase interactor = new(orgCtx);
         var response = await interactor.InvokeAsync(CreateRequest());
 
         Assert.AreEqual(1, response.Users.Count);
@@ -177,7 +174,6 @@ public class GetServiceUsersUseCaseTests
     [TestMethod]
     public async Task Handles_MissingUserOrganisationRole()
     {
-        var autoMocker = new AutoMocker();
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -190,7 +186,7 @@ public class GetServiceUsersUseCaseTests
 
         await orgCtx.SaveChangesAsync();
 
-        var interactor = autoMocker.CreateInstance<GetServiceUsersUseCase>();
+        GetServiceUsersUseCase interactor = new(orgCtx);
         var response = await interactor.InvokeAsync(CreateRequest());
 
         Assert.AreEqual(1, response.Users.Count);
@@ -203,7 +199,6 @@ public class GetServiceUsersUseCaseTests
     [TestMethod]
     public async Task Pagination_SkipTake_WithCorrectOrdering()
     {
-        var autoMocker = new AutoMocker();
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -231,7 +226,7 @@ public class GetServiceUsersUseCaseTests
         orgCtx.Organisations.Add(CreateOrganisation());
         await orgCtx.SaveChangesAsync();
 
-        var interactor = autoMocker.CreateInstance<GetServiceUsersUseCase>();
+        GetServiceUsersUseCase interactor = new(orgCtx);
         var response = await interactor.InvokeAsync(CreateRequest(2, 2));
 
         Assert.AreEqual(1, response.Users.Count);
@@ -242,7 +237,6 @@ public class GetServiceUsersUseCaseTests
     [TestMethod]
     public async Task ReturnsEmpty_WhenAllMappedUsersHaveEmptyEmail()
     {
-        var autoMocker = new AutoMocker();
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -255,7 +249,7 @@ public class GetServiceUsersUseCaseTests
 
         await orgCtx.SaveChangesAsync();
 
-        var interactor = autoMocker.CreateInstance<GetServiceUsersUseCase>();
+        GetServiceUsersUseCase interactor = new(orgCtx);
         var response = await interactor.InvokeAsync(CreateRequest());
 
         Assert.AreEqual(0, response.Users.Count);

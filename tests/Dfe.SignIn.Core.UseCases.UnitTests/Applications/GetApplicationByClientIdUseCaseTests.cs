@@ -3,7 +3,6 @@ using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Applications;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Applications;
 
@@ -19,7 +18,7 @@ public sealed class GetApplicationByClientIdUseCaseTests
         >();
     }
 
-    private static async Task SetupFakeDatabaseAsync()
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -64,14 +63,15 @@ public sealed class GetApplicationByClientIdUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task Throws_WhenApplicationNotFound()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<GetApplicationByClientIdUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetApplicationByClientIdUseCase interactor = new(orgCtx);
 
         string nonExistentClientId = "non-existent";
 
@@ -137,10 +137,8 @@ public sealed class GetApplicationByClientIdUseCaseTests
     [DynamicData(nameof(GetCasesForReturnsApplicationInformation), DynamicDataSourceType.Method)]
     public async Task ReturnsApplicationInformation(string clientId, GetApplicationByClientIdResponse expectedResponse)
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-
-        var interactor = autoMocker.CreateInstance<GetApplicationByClientIdUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetApplicationByClientIdUseCase interactor = new(orgCtx);
 
         var response = await interactor.InvokeAsync(
             new GetApplicationByClientIdRequest {

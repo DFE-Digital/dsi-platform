@@ -4,7 +4,6 @@ using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Organisations;
 
@@ -20,7 +19,7 @@ public sealed class GetUsersAtOrganisationUseCaseTests
     private const string Ukprn = "12345678";
     private const string Upin = "87654321";
 
-    private static async Task SetupFakeDatabaseAsync()
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -110,15 +109,15 @@ public sealed class GetUsersAtOrganisationUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task ReturnsUsers_WhenMatchingUkprn()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-
-        var useCase = autoMocker.CreateInstance<GetUsersAtOrganisationUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetUsersAtOrganisationUseCase useCase = new(orgCtx);
 
         var response = await useCase.InvokeAsync(
             new GetUsersAtOrganisationRequestRaw(ClientId, Ukprn)
@@ -136,10 +135,8 @@ public sealed class GetUsersAtOrganisationUseCaseTests
     [TestMethod]
     public async Task FallsBackToUpin_WhenUkprnHasNoResults()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-
-        var useCase = autoMocker.CreateInstance<GetUsersAtOrganisationUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetUsersAtOrganisationUseCase useCase = new(orgCtx);
 
         var response = await useCase.InvokeAsync(
             new GetUsersAtOrganisationRequestRaw(ClientId, Upin)
@@ -153,10 +150,8 @@ public sealed class GetUsersAtOrganisationUseCaseTests
     [TestMethod]
     public async Task ReturnsEmpty_WhenNoMatchingOrganisation()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-
-        var useCase = autoMocker.CreateInstance<GetUsersAtOrganisationUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetUsersAtOrganisationUseCase useCase = new(orgCtx);
 
         var response = await useCase.InvokeAsync(
             new GetUsersAtOrganisationRequestRaw(ClientId, "99999999")
@@ -169,10 +164,8 @@ public sealed class GetUsersAtOrganisationUseCaseTests
     [TestMethod]
     public async Task FiltersUsers_ByClientId()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-
-        var useCase = autoMocker.CreateInstance<GetUsersAtOrganisationUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetUsersAtOrganisationUseCase useCase = new(orgCtx);
 
         // Different clientId -> should return no users
         var response = await useCase.InvokeAsync(
@@ -185,20 +178,18 @@ public sealed class GetUsersAtOrganisationUseCaseTests
     [TestMethod]
     public async Task ReturnsUsers_WithNullRole_WhenNoRoleAssigned()
     {
-        var autoMocker = new AutoMocker();
-
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        var ctx = new DbOrganisationsContext(options);
+        var orgCtx = new DbOrganisationsContext(options);
 
         var orgId = Guid.NewGuid();
         var serviceId = Guid.NewGuid();
 
-        ctx.Organisations.Add(new OrganisationEntity { Id = orgId, Ukprn = Ukprn, Name = "New organisation", Status = 1 });
+        orgCtx.Organisations.Add(new OrganisationEntity { Id = orgId, Ukprn = Ukprn, Name = "New organisation", Status = 1 });
 
-        ctx.Services.Add(new ServiceEntity {
+        orgCtx.Services.Add(new ServiceEntity {
             Id = serviceId,
             ClientId = ClientId,
             Name = "Service",
@@ -215,17 +206,17 @@ public sealed class GetUsersAtOrganisationUseCaseTests
             Salt = "pinch"
         };
 
-        ctx.Users.Add(user);
+        orgCtx.Users.Add(user);
 
-        ctx.UserServices.Add(new UserServiceEntity {
+        orgCtx.UserServices.Add(new UserServiceEntity {
             OrganisationId = orgId,
             ServiceId = serviceId,
             UserId = user.Sub
         });
 
-        await ctx.SaveChangesAsync();
+        await orgCtx.SaveChangesAsync();
 
-        var useCase = autoMocker.CreateInstance<GetUsersAtOrganisationUseCase>();
+        GetUsersAtOrganisationUseCase useCase = new(orgCtx);
 
         var response = await useCase.InvokeAsync(
             new GetUsersAtOrganisationRequestRaw(ClientId, Ukprn)

@@ -5,7 +5,6 @@ using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
 
@@ -18,10 +17,8 @@ public sealed class PendingApprovalCountUseCaseTests
     public async Task GetPendingApprovalCount_Returns_OneWhenUserRequestAccessToOrganisation()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: true);
-
-        var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: true);
+        PendingApprovalCountUseCase interactor = new(orgCtx);
 
         // Act
         var result = await interactor.InvokeAsync(new GetPendingApprovalCountRequest() { UserId = ApprovalUserId });
@@ -34,10 +31,8 @@ public sealed class PendingApprovalCountUseCaseTests
     public async Task GetPendingApprovalCount_Returns_OneWhenUserRequestAccessToService()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: false, CreatePendingServiceRequest: true);
-
-        var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: false, CreatePendingServiceRequest: true);
+        PendingApprovalCountUseCase interactor = new(orgCtx);
 
         // Act
         var result = await interactor.InvokeAsync(new GetPendingApprovalCountRequest() { UserId = ApprovalUserId });
@@ -50,10 +45,8 @@ public sealed class PendingApprovalCountUseCaseTests
     public async Task GetPendingApprovalCount_Returns_TwoWhenUserRequestsAccessToOrganisationAndService()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: true, CreatePendingServiceRequest: true);
-
-        var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: true, CreatePendingServiceRequest: true);
+        PendingApprovalCountUseCase interactor = new(orgCtx);
 
         // Act
         var result = await interactor.InvokeAsync(new GetPendingApprovalCountRequest() { UserId = ApprovalUserId });
@@ -66,10 +59,8 @@ public sealed class PendingApprovalCountUseCaseTests
     public async Task GetPendingApprovalCount_Returns_ZeroWhenNoActiveRequests()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-
-        var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        PendingApprovalCountUseCase interactor = new(orgCtx);
 
         // Act
         var result = await interactor.InvokeAsync(new GetPendingApprovalCountRequest() { UserId = ApprovalUserId });
@@ -78,7 +69,7 @@ public sealed class PendingApprovalCountUseCaseTests
         Assert.AreEqual(0, result.Count);
     }
 
-    private static async Task SetupFakeDatabaseAsync(bool CreatePendingOrganisationRequest = false,
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync(bool CreatePendingOrganisationRequest = false,
         bool CreatePendingServiceRequest = false)
     {
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
@@ -136,5 +127,6 @@ public sealed class PendingApprovalCountUseCaseTests
 
         await ctx.SaveChangesAsync();
 
+        return ctx;
     }
 }
