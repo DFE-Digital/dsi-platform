@@ -17,10 +17,21 @@ public class GetServiceUsersUseCaseTests
     private static readonly Guid UserId = Guid.Parse("c1c1c1c1-3333-3333-3333-333333333333");
 
     [TestMethod]
-    public Task Throws_WhenRequestIsInvalid() => InteractionAssert.ThrowsWhenRequestIsInvalid<
+    public Task Throws_WhenRequestIsInvalid()
+    {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
+        return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetServiceUsersRequest,
             GetServiceUsersUseCase
-        >();
+        >(autoMocker);
+    }
 
     private static OrganisationEntity CreateOrganisation(string name = "Org 1")
         => new() {
@@ -96,9 +107,9 @@ public class GetServiceUsersUseCaseTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        var dirCtx = new DbOrganisationsContext(options);
+        var orgCtx = new DbOrganisationsContext(options);
 
-        GetServiceUsersUseCase interactor = new(dirCtx);
+        GetServiceUsersUseCase interactor = new(orgCtx);
 
         var response = await interactor.InvokeAsync(new GetServiceUsersRequest {
             ApplicationId = ServiceId,

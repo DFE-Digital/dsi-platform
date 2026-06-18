@@ -1,9 +1,11 @@
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -14,10 +16,18 @@ public sealed class LinkEntraUserToDsiUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var dirCtx = new DbDirectoriesContext(options);
+        autoMocker.Use(dirCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             LinkEntraUserToDsiRequest,
             LinkEntraUserToDsiUseCase
-        >();
+        >(autoMocker);
     }
 
     private static readonly Guid UserIdMatchingDsiUserId = Guid.Parse("3ed6826f-6854-4adf-b65f-5b2ace7c8691");
@@ -68,9 +78,12 @@ public sealed class LinkEntraUserToDsiUseCaseTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.Use<TimeProvider>(
-        new MockTimeProvider(new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero)));
         var db = await SetupFakeDatabaseAsync();
+        autoMocker.Use(db);
+
+        autoMocker.Use<TimeProvider>(
+            new MockTimeProvider(new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero))
+        );
 
         var interactor = autoMocker.CreateInstance<LinkEntraUserToDsiUseCase>();
 
@@ -102,10 +115,10 @@ public sealed class LinkEntraUserToDsiUseCaseTests
     [TestMethod]
     public async Task Throws_WhenEntraAccountAlreadyLinkedToDifferentUser()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        var mockTimeProvider = new MockTimeProvider(new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero));
 
-        var interactor = autoMocker.CreateInstance<LinkEntraUserToDsiUseCase>();
+        LinkEntraUserToDsiUseCase interactor = new(orgCtx, Mock.Of<IInteractionDispatcher>(), mockTimeProvider);
 
         var exception = await Assert.ThrowsExactlyAsync<EntraAccountAlreadyLinkedToDifferentUserException>(async () => {
             await interactor.InvokeAsync(
@@ -125,10 +138,10 @@ public sealed class LinkEntraUserToDsiUseCaseTests
     [TestMethod]
     public async Task Throws_WhenUserAlreadyLinkedToAnEntraAccount()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        var mockTimeProvider = new MockTimeProvider(new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero));
 
-        var interactor = autoMocker.CreateInstance<LinkEntraUserToDsiUseCase>();
+        LinkEntraUserToDsiUseCase interactor = new(orgCtx, Mock.Of<IInteractionDispatcher>(), mockTimeProvider);
 
         var exception = await Assert.ThrowsExactlyAsync<UserAlreadyLinkedToEntraAccountException>(async () => {
             await interactor.InvokeAsync(

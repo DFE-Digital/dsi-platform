@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Applications;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Applications;
 
@@ -12,10 +13,18 @@ public sealed class GetApplicationRolesUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationRolesRequest,
             GetApplicationRolesUseCase
-        >();
+        >(autoMocker);
     }
 
     private static readonly Guid AppAId = Guid.Parse("01e876a1-a06d-4945-bbe0-599a3d73dd11");

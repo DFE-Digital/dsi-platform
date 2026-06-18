@@ -16,10 +16,18 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetUserOrganisationIdentifiersRequest,
             GetUserOrganisationIdentifiersUseCase
-        >();
+        >(autoMocker);
     }
 
     private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()

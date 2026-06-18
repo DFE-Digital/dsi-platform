@@ -16,10 +16,18 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationApiConfigurationRequest,
             GetApplicationApiConfigurationUseCase
-        >();
+        >(autoMocker);
     }
 
     private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
@@ -64,7 +72,9 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
     public async Task ReturnsApiConfiguration()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
+        var orgCtx = await SetupFakeDatabaseAsync();
+
+        autoMocker.Use(orgCtx); // register DbContext
 
         autoMocker.MockResponse(
             new DecryptApiSecretRequest {
@@ -75,7 +85,8 @@ public sealed class GetApplicationApiConfigurationUseCaseTests
             }
         );
 
-        var interactor = autoMocker.CreateInstance<GetApplicationApiConfigurationUseCase>();
+        var interactor = autoMocker
+            .CreateInstance<GetApplicationApiConfigurationUseCase>();
 
         var response = await interactor.InvokeAsync(
             new GetApplicationApiConfigurationRequest {

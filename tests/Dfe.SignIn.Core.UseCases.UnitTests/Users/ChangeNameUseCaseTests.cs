@@ -17,22 +17,31 @@ public sealed class ChangeNameUseCaseTests
     SetupAsync()
     {
         var autoMocker = new AutoMocker();
-        var db = await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<ChangeNameUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        autoMocker.Use(dirCtx);
+        ChangeNameUseCase interactor = autoMocker.CreateInstance<ChangeNameUseCase>();
 
         var capturedAudit = new List<WriteToAuditRequest>();
         autoMocker.CaptureRequest<WriteToAuditRequest>(capturedAudit.Add);
 
-        return (interactor, db, capturedAudit);
+        return (interactor, dirCtx, capturedAudit);
     }
 
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var dirCtx = new DbDirectoriesContext(options);
+        autoMocker.Use(dirCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             ChangeNameRequest,
             ChangeNameUseCase
-        >();
+        >(autoMocker);
     }
 
     [TestMethod]

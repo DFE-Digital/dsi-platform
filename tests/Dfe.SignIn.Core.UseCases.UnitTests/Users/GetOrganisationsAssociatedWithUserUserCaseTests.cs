@@ -15,13 +15,21 @@ public sealed class GetOrganisationsAssociatedWithUserUserCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetOrganisationsAssociatedWithUserRequest,
             GetOrganisationsAssociatedWithUserUseCase
-        >();
+        >(autoMocker);
     }
 
-    private static async Task SetupFakeDatabaseAsync()
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
         var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -78,14 +86,15 @@ public sealed class GetOrganisationsAssociatedWithUserUserCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task ReturnsExpectedCollection()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync();
-        var interactor = autoMocker.CreateInstance<GetOrganisationsAssociatedWithUserUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetOrganisationsAssociatedWithUserUseCase interactor = new(orgCtx);
 
         var response = await interactor.InvokeAsync(
             new GetOrganisationsAssociatedWithUserRequest {

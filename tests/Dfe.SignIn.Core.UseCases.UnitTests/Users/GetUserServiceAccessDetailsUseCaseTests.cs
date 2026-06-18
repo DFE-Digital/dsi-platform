@@ -27,10 +27,18 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetUserServiceAccessDetailsRequest,
             GetUserServiceAccessDetailsUseCase
-        >();
+        >(autoMocker);
     }
 
     private static async Task<AutoMocker> SetupWithAccessAsync()
@@ -123,6 +131,8 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
             }
         );
 
+        autoMocker.Use(ctx); // register DbContext
+
         return autoMocker;
     }
 
@@ -131,8 +141,13 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
     {
         var autoMocker = new AutoMocker();
 
-        // SJW commented out the following line to simulate a scenario where the database is empty and there is no UserService row for the user.
-        //autoMocker.UseInMemoryOrganisationsDb(); // empty DB — no UserService row
+        // Simulate a scenario where the database is empty and there is no UserService row for the user.
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
+        autoMocker.Use(ctx);
 
         var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 

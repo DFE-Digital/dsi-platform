@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Organisations;
 
@@ -13,10 +14,18 @@ public sealed class GetOrganisationByIdUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetOrganisationByIdRequest,
             GetOrganisationByIdUseCase
-        >();
+        >(autoMocker);
     }
 
     private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()

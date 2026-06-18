@@ -1,11 +1,9 @@
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -13,16 +11,23 @@ namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
 [TestClass]
 public sealed class ChangeJobTitleUseCaseTests
 {
-
     private static readonly Guid ExistingChangedUserId = Guid.Parse("3ed6826f-6854-4adf-b65f-5b2ace7c8691");
 
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var dirCtx = new DbDirectoriesContext(options);
+        autoMocker.Use(dirCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             ChangeJobTitleRequest,
             ChangeJobTitleUseCase
-        >();
+        >(autoMocker);
     }
 
     private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync()
@@ -63,7 +68,9 @@ public sealed class ChangeJobTitleUseCaseTests
     {
         var autoMocker = new AutoMocker();
         var dirCtx = await SetupFakeDatabaseAsync();
-        ChangeJobTitleUseCase interactor = new(dirCtx, Mock.Of<IInteractionDispatcher>());
+        autoMocker.Use(dirCtx);
+
+        var interactor = autoMocker.CreateInstance<ChangeJobTitleUseCase>();
 
         var capturedAudit = new List<WriteToAuditRequest>();
         autoMocker.CaptureRequest<WriteToAuditRequest>(capturedAudit.Add);
