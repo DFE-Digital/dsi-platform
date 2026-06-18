@@ -71,13 +71,6 @@ public static class UnitOfWorkEntityFrameworkExtensions
     /// with a SQL Server connection string derived from configuration and attaches a <see cref="TimestampInterceptor"/>
     /// to automatically manage CreatedAt and UpdatedAt timestamps.
     /// </summary>
-    /// <typeparam name="TUnitOfWorkContract">
-    /// The interface type representing the unit of work contract.
-    /// </typeparam>
-    /// <typeparam name="TUnitOfWorkConcrete">
-    /// The concrete implementation type of the unit of work. Must inherit from
-    /// <see cref="EntityFrameworkUnitOfWork"/> and implement <typeparamref name="TUnitOfWorkContract"/>.
-    /// </typeparam>
     /// <typeparam name="TDbContext">
     /// The type of <see cref="DbContext"/> associated with this unit of work.
     /// </typeparam>
