@@ -134,9 +134,13 @@
     <PackageVersion Include="MSTest.TestAdapter" Version="3.10.4" />
     <PackageVersion Include="MSTest.TestFramework" Version="3.10.4" />
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <!-- Mocking -->
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Moq.AutoMock" Version="3.5.0" />
+    <!-- Integration testing -->
+    <PackageVersion Include="Testcontainers.MsSql" Version="4.3.0" />
+    <PackageVersion Include="Respawn" Version="6.2.1" />
   </ItemGroup>
 </Project>

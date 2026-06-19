@@ -125,3 +125,9 @@ app.UseSupportTicketEndpoints();
 app.UseUserEndpoints();
 
 await app.RunAsync();
+
+// Expose the Program class to the integration tests project
+/// <summary>
+/// The entry point class for the application.
+/// </summary>
+public partial class Program { }
