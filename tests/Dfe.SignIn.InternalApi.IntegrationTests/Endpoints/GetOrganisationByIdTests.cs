@@ -15,7 +15,7 @@ public class GetOrganisationByIdTests
     private HttpClient _client = null!;
 
     [ClassInitialize]
-    public static void ClassInitialize(TestContext context)
+    public static void ClassInitialize( TestContext context )
     {
         _factory = new InternalApiWebApplicationFactory();
     }
@@ -23,8 +23,7 @@ public class GetOrganisationByIdTests
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
-        if (_factory is not null)
-        {
+        if (_factory is not null) {
             await _factory.DisposeAsync();
         }
     }
@@ -62,15 +61,14 @@ public class GetOrganisationByIdTests
         };
 
         // Act: POST to the endpoint
-        var response = await _client.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await _client.PostAsJsonAsync( "interaction/Organisations.GetOrganisationById", request );
 
         // Assert
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
+        if (response.StatusCode != HttpStatusCode.OK) {
             var errorContent = await response.Content.ReadAsStringAsync();
-            Assert.Fail($"Request failed with status {response.StatusCode}. Response: {errorContent}");
+            Assert.Fail( $"Request failed with status {response.StatusCode}. Response: {errorContent}" );
         }
-        
+
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<GetOrganisationByIdResponse>>();
         Assert.IsNotNull( body );
         Assert.IsNotNull( body.Data );
