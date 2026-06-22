@@ -124,6 +124,7 @@ var securityOptions = app.Configuration
 if (app.Environment.IsEnvironment("Local")) {
     app.UseAzureAppConfiguration();
 }
+
 app.UseMiddleware<CancellationContextMiddleware>();
 
 app.UseDsiSecurityHeaderPolicy(policy => {
