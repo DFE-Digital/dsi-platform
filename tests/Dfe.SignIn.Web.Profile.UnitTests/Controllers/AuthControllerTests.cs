@@ -74,7 +74,7 @@ public sealed class AuthControllerTests
         var result = await controller.SignOut();
 
         var signOutResult = TypeAssert.IsType<SignOutResult>(result);
-        Assert.AreEqual("http://services.localhost/", signOutResult.Properties?.RedirectUri);
+        Assert.AreEqual("http://services.localhost/signout", signOutResult.Properties?.RedirectUri);
         Assert.Contains(OpenIdConnectDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
         Assert.Contains(CookieAuthenticationDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
     }
@@ -155,7 +155,7 @@ public sealed class AuthControllerTests
         var result = await controller.Timeout();
 
         var signOutResult = TypeAssert.IsType<SignOutResult>(result);
-        Assert.AreEqual("http://services.localhost/", signOutResult.Properties?.RedirectUri);
+        Assert.AreEqual("http://services.localhost/signout", signOutResult.Properties?.RedirectUri);
         Assert.Contains(OpenIdConnectDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
         Assert.Contains(CookieAuthenticationDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
     }

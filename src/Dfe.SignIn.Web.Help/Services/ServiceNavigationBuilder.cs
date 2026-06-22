@@ -37,7 +37,7 @@ public sealed class ServiceNavigationBuilder(
 
         // Infer section navigation from first topic listing section of the home page.
         return (await this.GetRootSectionTopicsAsync())
-            .Select(sectionTopic => new NavigationItemViewModel {
+            .Select(sectionTopic => new StandardNavigationItemViewModel {
                 Text = sectionTopic.Metadata.NavigationTitle,
                 Href = new Uri(sectionTopic.Path, UriKind.Relative),
                 IsActive = currentPath.StartsWith(sectionTopic.Path),
