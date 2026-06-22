@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
@@ -7,6 +8,7 @@ namespace Dfe.SignIn.WebFramework.AppConfiguration;
 /// <summary>
 /// Utility method for loading settings from Azure App Configuration
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class AzureAppConfigHelper
 {
     /// <summary>
