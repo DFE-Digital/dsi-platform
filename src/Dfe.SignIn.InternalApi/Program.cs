@@ -9,6 +9,7 @@ using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.NodeApi.Client;
+using Dfe.SignIn.WebFramework.AppConfiguration;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +18,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
+
+    builder.LoadSettingsFromAzureAppConfig(["Common", "WebApp", "InternalApi", "AuditDb", "DirectoriesDb", "OrganisationsDb"]);
 }
+
 builder.Configuration.AddEnvironmentVariables();
 
 // Add OpenTelemetry and configure it to use Azure Monitor.

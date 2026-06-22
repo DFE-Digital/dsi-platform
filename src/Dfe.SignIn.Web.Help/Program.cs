@@ -12,18 +12,27 @@ using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Help.Configuration;
 using Dfe.SignIn.Web.Help.Content;
 using Dfe.SignIn.Web.Help.Services;
+using Dfe.SignIn.WebFramework.AppConfiguration;
 using Dfe.SignIn.WebFramework.Configuration;
+using Dfe.SignIn.WebFramework.Extensions;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults(["/v2/healthcheck"]);
-
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
+
+    builder.LoadSettingsFromAzureAppConfig(["InternalApiClient", "Assets", "Platform", "Help"]);
 }
+
+builder.Services
+      .AddValidatedRequiredOptions<AssetsConfiguration>(builder.Configuration, "Assets")
+      .AddValidatedRequiredOptions<InternalApiClientConfiguration>(builder.Configuration, "InternalApiClient")
+      .AddValidatedRequiredOptions<PlatformOptions>(builder.Configuration, "Platform");
+
+builder.AddServiceDefaults(["/v2/healthcheck"]);
 
 builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;

@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders.TagHelpers" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" />
   </ItemGroup>
 
   <ItemGroup>

@@ -13,7 +13,9 @@ using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Profile;
 using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.WebFramework.AppConfiguration;
 using Dfe.SignIn.WebFramework.Configuration;
+using Dfe.SignIn.WebFramework.Extensions;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authentication;
@@ -22,11 +24,20 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults(["/v2/healthcheck"]);
-
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
+
+    builder.LoadSettingsFromAzureAppConfig(["Common", "InternalApiClient", "Platform", "Assets", "WebApp", "Profile"]);
 }
+
+builder.Services
+    .AddValidatedRequiredOptions<AssetsConfiguration>(builder.Configuration, "Assets")
+    .AddValidatedRequiredOptions<InternalApiClientConfiguration>(builder.Configuration, "InternalApiClient")
+    .AddValidatedRequiredOptions<SessionConfiguration>(builder.Configuration, "Session")
+    .AddValidatedRequiredOptions<ExternalIdConfiguration>(builder.Configuration, "ExternalId")
+    .AddValidatedRequiredOptions<PlatformOptions>(builder.Configuration, "Platform");
+
+builder.AddServiceDefaults(["/v2/healthcheck"]);
 
 builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
@@ -96,7 +107,7 @@ else {
 }
 
 builder.Services
-    .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
+    //.Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
@@ -112,10 +123,17 @@ builder.Services
 
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
+builder.Services.AddHealthChecks()
+    .AddAzureAppConfiguration();
+
+builder.Services.AddAzureAppConfiguration();
 
 var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
+
+app.UseAzureAppConfiguration();
+
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
