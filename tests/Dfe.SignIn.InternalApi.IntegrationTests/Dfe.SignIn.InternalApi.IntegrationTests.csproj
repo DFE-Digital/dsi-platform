@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="MSTest.TestAdapter" />
@@ -23,8 +27,6 @@
     <PackageReference Include="Moq" />
     <PackageReference Include="Moq.AutoMock" />
     <PackageReference Include="OpenTelemetry.Api" />
-    <PackageReference Include="Testcontainers.MsSql" />
-    <PackageReference Include="Respawn" />
   </ItemGroup>
 
   <ItemGroup>

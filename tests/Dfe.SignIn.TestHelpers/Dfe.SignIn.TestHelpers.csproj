@@ -18,6 +18,10 @@
 
   <ItemGroup>
     <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Testcontainers.MsSql" />
+    <PackageReference Include="Respawn" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.InternalApi.IntegrationTests.Configuration;
+namespace Dfe.SignIn.TestHelpers.Integration;
 
 public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {

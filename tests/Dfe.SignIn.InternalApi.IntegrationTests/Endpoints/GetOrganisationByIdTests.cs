@@ -15,9 +15,10 @@ public class GetOrganisationByIdTests
     private HttpClient _client = null!;
 
     [ClassInitialize]
-    public static void ClassInitialize( TestContext context )
+    public static async Task ClassInitialize( TestContext context )
     {
         _factory = new InternalApiWebApplicationFactory();
+        await _factory.InitialiseDatabasesAsync();
     }
 
     [ClassCleanup]

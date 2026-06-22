@@ -104,6 +104,7 @@
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.2" />
     <!-- Database -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.9" />
     <!-- Entity Framework tooling -->
