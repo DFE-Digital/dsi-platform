@@ -114,6 +114,11 @@ builder.Services
 var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
+
+if (app.Environment.IsEnvironment("Local")) {
+    app.UseAzureAppConfiguration();
+}
+
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.

@@ -148,7 +148,9 @@ var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
 
-app.UseAzureAppConfiguration();
+if (app.Environment.IsEnvironment("Local")) {
+    app.UseAzureAppConfiguration();
+}
 
 app.UseDsiSecurityHeaderPolicy();
 

@@ -18,6 +18,8 @@
   <ItemGroup>
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
     <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" />
     <PackageReference Include="Microsoft.Graph" />
     <PackageReference Include="Microsoft.Identity.Web" />
     <PackageReference Include="Microsoft.Kiota.Abstractions" />
