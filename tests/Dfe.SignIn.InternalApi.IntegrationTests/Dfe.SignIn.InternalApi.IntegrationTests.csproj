@@ -50,7 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.IntegrationTests.json">
+    <None Update="appsettings.Test.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

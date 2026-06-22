@@ -15,7 +15,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>
         new("dsi-organisations-test", "Organisations", typeof(DbOrganisationsContext))
     ];
 
-    protected override string AppSettingsFileName => "appsettings.IntegrationTests.json";
+    protected override string AppSettingsFileName => "appsettings.Test.json";
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

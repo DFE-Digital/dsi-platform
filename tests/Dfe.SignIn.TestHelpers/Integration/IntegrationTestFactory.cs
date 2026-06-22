@@ -24,16 +24,11 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
 
     protected IntegrationTestFactory()
     {
-        // 1. Set environment before the host builds
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Local");
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
 
-        // 2. Load static config values from the test project's JSON file
         LoadStaticConfigurations(this.AppSettingsFileName);
 
-        // 3. Start the SQL container
         this._sqlFixture.StartAsync(this.DatabaseCatalogs).GetAwaiter().GetResult();
-
-        // 4. Set connection env vars so the host can read them during build
         this._sqlFixture.SetConnectionEnvironmentVariables();
     }
 
