@@ -22,14 +22,14 @@ The framework spins up a lightweight, isolated SQL Server instance inside a Dock
 
 ```mermaid
 sequenceDiagram
-    participant TestRunner as MSTest Runner
+    participant TestRunner as xUnit Runner
     participant Factory as WebApplicationFactory
     participant Container as Docker (SQL Server)
     participant API as In-Memory API Host
     participant Db as Test Database
 
-    Note over TestRunner,Db: Class Initialisation
-    TestRunner->>Factory: Instantiate Factory
+    Note over TestRunner,Db: Class Initialisation (via collection fixture)
+    TestRunner->>Factory: Instantiate Factory (Starts container once)
     Factory->>Container: Boot SQL Server container (Testcontainers)
     Container-->>Factory: Connection string returned
     Factory->>Factory: Map JSON settings to Env variables
@@ -85,58 +85,50 @@ using Dfe.SignIn.Core.Entities.Organisations;  // Replace with your database ent
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
 
-[TestClass]
-public class GetOrganisationByIdTests
+[Collection("IntegrationTestsCollection")]
+[Trait("Category", "Integration")]
+public class GetOrganisationByIdTests : IAsyncLifetime
 {
-    private static InternalApiWebApplicationFactory _factory = null!;
-    private HttpClient _client = null!;
+    private readonly InternalApiWebApplicationFactory _factory;
+    private readonly HttpClient _client;
 
-    [ClassInitialize]
-    public static void ClassInitialize(TestContext context)
+    public GetOrganisationByIdTests(InternalApiWebApplicationFactory factory)
     {
-        _factory = new InternalApiWebApplicationFactory();
-    }
-
-    [ClassCleanup]
-    public static async Task ClassCleanup()
-    {
-        if (_factory is not null)
-        {
-            await _factory.DisposeAsync();
-        }
-    }
-
-    [TestInitialize]
-    public async Task TestInitialize()
-    {
-        await _factory.ResetDatabasesAsync();
+        _factory = factory;
         _client = _factory.CreateClient();
     }
 
-    [TestMethod]
+    public async Task InitializeAsync()
+    {
+        // Clear database state between tests
+        await _factory.ResetDatabasesAsync();
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
+    [Fact]
     public async Task GetOrganisationById_ReturnsOrganisation_WhenExists()
     {
         // 1. Arrange: Seed your data using the scoped DbContext
         var orgId = Guid.NewGuid();
         var expectedName = "Test Academy Trust";
         
-        using (var scope = _factory.Services.CreateScope())
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
+        dbContext.Organisations.Add(new OrganisationEntity
         {
-            var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
-            dbContext.Organisations.Add(new OrganisationEntity
-            {
-                Id = orgId,
-                Name = expectedName,
-                Category = "001", // Required field for DB mapping
-                Status = 1,       // Required field for DB mapping
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-            await dbContext.SaveChangesAsync();
-        }
+            Id = orgId,
+            Name = expectedName,
+            Category = "001", // Required field for DB mapping
+            Status = 1,       // Required field for DB mapping
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+        await dbContext.SaveChangesAsync();
 
         var request = new GetOrganisationByIdRequest { OrganisationId = orgId };
 
@@ -151,9 +143,10 @@ public class GetOrganisationByIdTests
         }
 
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<GetOrganisationByIdResponse>>();
-        Assert.IsNotNull(body);
-        Assert.AreEqual(orgId, body.Data.Organisation.Id);
-        Assert.AreEqual(expectedName, body.Data.Organisation.Name);
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+        Assert.Equal(orgId, body.Data.Organisation.Id);
+        Assert.Equal(expectedName, body.Data.Organisation.Name);
     }
 }
 ```
@@ -167,7 +160,7 @@ public static class SeedExtensions
     public static async Task<Guid> SeedOrganisationAsync(this InternalApiWebApplicationFactory factory, string name)
     {
         var id = Guid.NewGuid();
-        using var scope = factory.Services.CreateScope();
+        await using var scope = factory.Services.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
         
         context.Organisations.Add(new OrganisationEntity
@@ -194,7 +187,7 @@ public static class SeedExtensions
 In .NET 6+ Minimal APIs, using `ConfigureWebHost` to override configuration properties happens **after** `Program.cs` starts parsing `builder.Configuration`. Since the API project checks configuration keys immediately during bootstrap (`CreateBuilder(args)`), standard `WebApplicationFactory` configuration overrides are too late and cause "Section not found" exceptions.
 
 ### Solution: JSON-to-Environment Variable Mapping
-We solve this by loading static test settings from [appsettings.IntegrationTests.json](file:///c:/Work/Playground/dsi-workspace/dsi-platform/tests/Dfe.SignIn.InternalApi.IntegrationTests/appsettings.IntegrationTests.json) in the `InternalApiWebApplicationFactory` constructor and dumping them as process environment variables. 
+We solve this by loading static test settings from [appsettings.IntegrationTests.json](file:///c:/Work/Playground/dsi-workspace/dsi-platform/tests/Dfe.SignIn.InternalApi.IntegrationTests/appsettings.IntegrationTests.json) (or custom test settings file defined by the factory) in the constructor and dumping them as process environment variables. 
 The configuration binder translates double underscores (`__`) into colons (`:`), resulting in a perfect representation of configuration sections (e.g. `AzureAd__Audience` maps to `AzureAd:Audience`) which are processed in time by `Program.cs`.
 
 ---
