@@ -13,7 +13,7 @@ namespace Dfe.SignIn.TestHelpers.Integration;
 public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<TProgram>
     where TProgram : class
 {
-    private readonly SqlContainerFixture _sqlFixture = new();
+    private readonly SqlDatabaseManager _dbManager = new();
 
     /// <summary>
     /// Defines the database catalogs that this API requires.
@@ -31,8 +31,8 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
 
         // The container must be started synchronously here because environment variables
         // need to be set before the WebApplicationFactory builds its host in ConfigureWebHost.
-        this._sqlFixture.StartAsync(this.DatabaseCatalogs).GetAwaiter().GetResult();
-        this._sqlFixture.SetConnectionEnvironmentVariables();
+        this._dbManager.StartAsync(this.DatabaseCatalogs).GetAwaiter().GetResult();
+        this._dbManager.SetConnectionEnvironmentVariables();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -47,7 +47,7 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
     /// </summary>
     public async Task InitialiseDatabasesAsync()
     {
-        await this._sqlFixture.InitialiseSchemasAsync(this.DatabaseCatalogs, this.Services);
+        await this._dbManager.InitialiseSchemasAsync(this.DatabaseCatalogs, this.Services);
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
     /// </summary>
     public async Task ResetDatabasesAsync()
     {
-        await this._sqlFixture.ResetAllAsync();
+        await this._dbManager.ResetAllAsync();
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
 
     public override async ValueTask DisposeAsync()
     {
-        await this._sqlFixture.DisposeAsync();
+        await this._dbManager.DisposeAsync();
         await base.DisposeAsync();
     }
 }

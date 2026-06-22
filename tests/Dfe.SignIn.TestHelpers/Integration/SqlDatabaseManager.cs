@@ -10,7 +10,7 @@ namespace Dfe.SignIn.TestHelpers.Integration;
 /// Manages a single SQL Server Testcontainer, creates database catalogs,
 /// initialises schemas via EF Core, and provides Respawn-based state resets.
 /// </summary>
-public sealed class SqlContainerFixture : IAsyncDisposable
+public sealed class SqlDatabaseManager : IAsyncDisposable
 {
     private readonly MsSqlContainer _container = new MsSqlBuilder()
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
