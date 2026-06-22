@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 
@@ -24,18 +25,25 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
 
     protected IntegrationTestFactory()
     {
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Local");
 
         LoadStaticConfigurations(this.AppSettingsFileName);
 
+        // The container must be started synchronously here because environment variables
+        // need to be set before the WebApplicationFactory builds its host in ConfigureWebHost.
         this._sqlFixture.StartAsync(this.DatabaseCatalogs).GetAwaiter().GetResult();
         this._sqlFixture.SetConnectionEnvironmentVariables();
+    }
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.UseEnvironment("Local");
     }
 
     /// <summary>
     /// Called after the host has been built and Services are available.
     /// Creates database schemas and initialises Respawners.
-    /// Must be called explicitly from [ClassInitialize] or equivalent.
+    /// This is called automatically by xUnit via <see cref="IAsyncLifetime.InitializeAsync"/>.
     /// </summary>
     public async Task InitialiseDatabasesAsync()
     {

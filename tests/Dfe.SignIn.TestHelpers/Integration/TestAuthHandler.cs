@@ -16,12 +16,14 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     {
     }
 
+    private const string TestUserId = "00000000-0000-0000-0000-000000000001";
+
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, "TestUser"),
-            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
+            new Claim(ClaimTypes.NameIdentifier, TestUserId)
         };
         var identity = new ClaimsIdentity(claims, "TestScheme");
         var principal = new ClaimsPrincipal(identity);

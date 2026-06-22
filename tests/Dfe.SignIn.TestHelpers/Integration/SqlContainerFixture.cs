@@ -86,5 +86,6 @@ public sealed class SqlContainerFixture : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await this._container.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 }
