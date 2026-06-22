@@ -1,5 +1,3 @@
-namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
-
 using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Organisations;
@@ -7,25 +5,27 @@ using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+using Assert = Xunit.Assert;
+
+namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
 
 [Collection("IntegrationTestsCollection")]
 [Trait("Category", "Integration")]
 public class GetOrganisationByIdTests : IAsyncLifetime
 {
-    private readonly InternalApiWebApplicationFactory _factory;
-    private readonly HttpClient _client;
+    private readonly InternalApiWebApplicationFactory webAppfactory;
+    private readonly HttpClient httpClient;
 
     public GetOrganisationByIdTests(InternalApiWebApplicationFactory factory)
     {
-        _factory = factory;
-        _client = _factory.CreateClient();
+        this.webAppfactory = factory;
+        this.httpClient = this.webAppfactory.CreateClient();
     }
 
     public async Task InitializeAsync()
     {
         // Clear database state between tests
-        await _factory.ResetDatabasesAsync();
+        await this.webAppfactory.ResetDatabasesAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
@@ -37,10 +37,9 @@ public class GetOrganisationByIdTests : IAsyncLifetime
         var orgId = Guid.NewGuid();
         var expectedName = "Test Academy Trust";
 
-        await using var scope = _factory.Services.CreateAsyncScope();
+        await using var scope = this.webAppfactory.Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
-        dbContext.Organisations.Add(new OrganisationEntity
-        {
+        dbContext.Organisations.Add(new OrganisationEntity {
             Id = orgId,
             Name = expectedName,
             Category = "001",
@@ -50,17 +49,15 @@ public class GetOrganisationByIdTests : IAsyncLifetime
         });
         await dbContext.SaveChangesAsync();
 
-        var request = new GetOrganisationByIdRequest
-        {
+        var request = new GetOrganisationByIdRequest {
             OrganisationId = orgId
         };
 
         // Act: POST to the endpoint
-        var response = await _client.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await this.httpClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
 
         // Assert
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
+        if (response.StatusCode != HttpStatusCode.OK) {
             var errorContent = await response.Content.ReadAsStringAsync();
             Assert.Fail($"Request failed with status {response.StatusCode}. Response: {errorContent}");
         }
@@ -77,13 +74,12 @@ public class GetOrganisationByIdTests : IAsyncLifetime
     {
         // Arrange
         var missingOrgId = Guid.NewGuid();
-        var request = new GetOrganisationByIdRequest
-        {
+        var request = new GetOrganisationByIdRequest {
             OrganisationId = missingOrgId
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await this.httpClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

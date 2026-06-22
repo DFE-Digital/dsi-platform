@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
 [CollectionDefinition("IntegrationTestsCollection")]

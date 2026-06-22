@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
@@ -33,11 +32,11 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
 
     public async Task InitializeAsync()
     {
-        await InitialiseDatabasesAsync();
+        await this.InitialiseDatabasesAsync();
     }
 
     async Task IAsyncLifetime.DisposeAsync()
     {
-        await DisposeAsync();
+        await this.DisposeAsync();
     }
 }
