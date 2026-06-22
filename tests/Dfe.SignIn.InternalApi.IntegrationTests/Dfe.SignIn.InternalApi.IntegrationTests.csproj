@@ -51,7 +51,7 @@
 
   <ItemGroup>
     <None Update="appsettings.IntegrationTests.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
