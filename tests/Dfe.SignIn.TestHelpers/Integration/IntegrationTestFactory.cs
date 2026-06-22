@@ -1,9 +1,7 @@
-namespace Dfe.SignIn.TestHelpers.Integration;
-
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 
+namespace Dfe.SignIn.TestHelpers.Integration;
 /// <summary>
 /// A reusable base <see cref="WebApplicationFactory{TEntryPoint}"/> for integration tests.
 /// Manages SQL container lifecycle, configuration bridging, and database resets.
@@ -22,19 +20,21 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
     /// </summary>
     protected abstract IReadOnlyList<DatabaseCatalog> DatabaseCatalogs { get; }
 
+    protected abstract string AppSettingsFileName { get; }
+
     protected IntegrationTestFactory()
     {
         // 1. Set environment before the host builds
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Local");
 
         // 2. Load static config values from the test project's JSON file
-        LoadStaticConfigurations();
+        LoadStaticConfigurations(this.AppSettingsFileName);
 
         // 3. Start the SQL container
-        _sqlFixture.StartAsync(DatabaseCatalogs).GetAwaiter().GetResult();
+        this._sqlFixture.StartAsync(this.DatabaseCatalogs).GetAwaiter().GetResult();
 
         // 4. Set connection env vars so the host can read them during build
-        _sqlFixture.SetConnectionEnvironmentVariables();
+        this._sqlFixture.SetConnectionEnvironmentVariables();
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
     /// </summary>
     public async Task InitialiseDatabasesAsync()
     {
-        await _sqlFixture.InitialiseSchemasAsync(DatabaseCatalogs, Services);
+        await this._sqlFixture.InitialiseSchemasAsync(this.DatabaseCatalogs, this.Services);
     }
 
     /// <summary>
@@ -53,24 +53,26 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
     /// </summary>
     public async Task ResetDatabasesAsync()
     {
-        await _sqlFixture.ResetAllAsync();
+        await this._sqlFixture.ResetAllAsync();
     }
 
     /// <summary>
     /// Loads <c>appsettings.IntegrationTests.json</c> from the test project's output directory
     /// and writes each key-value pair as an environment variable using the <c>__</c> separator.
     /// </summary>
-    private static void LoadStaticConfigurations()
+    private static void LoadStaticConfigurations(string appSettingsFileName)
     {
+        if (string.IsNullOrEmpty(appSettingsFileName)) {
+            return;
+        }
+
         var config = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.IntegrationTests.json", optional: false)
+            .AddJsonFile(appSettingsFileName, optional: false)
             .Build();
 
-        foreach (var pair in config.AsEnumerable())
-        {
-            if (pair.Value is not null)
-            {
+        foreach (var pair in config.AsEnumerable()) {
+            if (pair.Value is not null) {
                 var envKey = pair.Key.Replace(":", "__");
                 Environment.SetEnvironmentVariable(envKey, pair.Value);
             }
@@ -79,7 +81,7 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
 
     public override async ValueTask DisposeAsync()
     {
-        await _sqlFixture.DisposeAsync();
+        await this._sqlFixture.DisposeAsync();
         await base.DisposeAsync();
     }
 }

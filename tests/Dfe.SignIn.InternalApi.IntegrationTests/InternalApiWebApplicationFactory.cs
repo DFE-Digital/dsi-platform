@@ -9,20 +9,20 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
 public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>
 {
-    protected override IReadOnlyList<DatabaseCatalog> DatabaseCatalogs =>
-    [
+    protected override IReadOnlyList<DatabaseCatalog> DatabaseCatalogs
+    => [
         new("dsi-directories-test", "Directories", typeof(DbDirectoriesContext)),
         new("dsi-organisations-test", "Organisations", typeof(DbOrganisationsContext))
     ];
+
+    protected override string AppSettingsFileName => "appsettings.IntegrationTests.json";
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
 
-        builder.ConfigureTestServices(services =>
-        {
-            services.AddAuthentication(options =>
-            {
+        builder.ConfigureTestServices(services => {
+            services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = "TestScheme";
                 options.DefaultChallengeScheme = "TestScheme";
             })

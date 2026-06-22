@@ -1,4 +1,3 @@
-namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
 
 using System.Net;
 using System.Net.Http.Json;
@@ -8,6 +7,8 @@ using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
+
 [TestClass]
 public class GetOrganisationByIdTests
 {
@@ -15,7 +16,7 @@ public class GetOrganisationByIdTests
     private HttpClient _client = null!;
 
     [ClassInitialize]
-    public static async Task ClassInitialize( TestContext context )
+    public static async Task ClassInitialize(TestContext context)
     {
         _factory = new InternalApiWebApplicationFactory();
         await _factory.InitialiseDatabasesAsync();
@@ -46,14 +47,14 @@ public class GetOrganisationByIdTests
 
         using (var scope = _factory.Services.CreateScope()) {
             var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
-            dbContext.Organisations.Add( new OrganisationEntity {
+            dbContext.Organisations.Add(new OrganisationEntity {
                 Id = orgId,
                 Name = expectedName,
                 Category = "001",
                 Status = 1,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
-            } );
+            });
             await dbContext.SaveChangesAsync();
         }
 
@@ -62,19 +63,19 @@ public class GetOrganisationByIdTests
         };
 
         // Act: POST to the endpoint
-        var response = await _client.PostAsJsonAsync( "interaction/Organisations.GetOrganisationById", request );
+        var response = await this._client.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
 
         // Assert
         if (response.StatusCode != HttpStatusCode.OK) {
             var errorContent = await response.Content.ReadAsStringAsync();
-            Assert.Fail( $"Request failed with status {response.StatusCode}. Response: {errorContent}" );
+            Assert.Fail($"Request failed with status {response.StatusCode}. Response: {errorContent}");
         }
 
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<GetOrganisationByIdResponse>>();
-        Assert.IsNotNull( body );
-        Assert.IsNotNull( body.Data );
-        Assert.AreEqual( orgId, body.Data.Organisation.Id );
-        Assert.AreEqual( expectedName, body.Data.Organisation.Name );
+        Assert.IsNotNull(body);
+        Assert.IsNotNull(body.Data);
+        Assert.AreEqual(orgId, body.Data.Organisation.Id);
+        Assert.AreEqual(expectedName, body.Data.Organisation.Name);
     }
 
     [TestMethod]
@@ -87,9 +88,9 @@ public class GetOrganisationByIdTests
         };
 
         // Act
-        var response = await this._client.PostAsJsonAsync( "interaction/Organisations.GetOrganisationById", request );
+        var response = await this._client.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
 
         // Assert
-        Assert.AreEqual( HttpStatusCode.NotFound, response.StatusCode );
+        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 }

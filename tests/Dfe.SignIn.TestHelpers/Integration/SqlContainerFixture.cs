@@ -1,4 +1,3 @@
-namespace Dfe.SignIn.TestHelpers.Integration;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Respawn;
 using Testcontainers.MsSql;
 
+namespace Dfe.SignIn.TestHelpers.Integration;
 /// <summary>
 /// Manages a single SQL Server Testcontainer, creates database catalogs,
 /// initialises schemas via EF Core, and provides Respawn-based state resets.
@@ -16,25 +16,23 @@ public sealed class SqlContainerFixture : IAsyncDisposable
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
 
-    private readonly Dictionary<string, string> _connectionStrings = new();
-    private readonly Dictionary<string, Respawner> _respawners = new();
+    private readonly Dictionary<string, string> _connectionStrings = [];
+    private readonly Dictionary<string, Respawner> _respawners = [];
 
     /// <summary>
     /// Starts the container and builds catalog connection strings.
     /// </summary>
     public async Task StartAsync(IReadOnlyList<DatabaseCatalog> catalogs)
     {
-        await _container.StartAsync();
+        await this._container.StartAsync();
 
-        var containerCs = _container.GetConnectionString();
+        var containerCs = this._container.GetConnectionString();
 
-        foreach (var catalog in catalogs)
-        {
-            var csBuilder = new SqlConnectionStringBuilder(containerCs)
-            {
+        foreach (var catalog in catalogs) {
+            var csBuilder = new SqlConnectionStringBuilder(containerCs) {
                 InitialCatalog = catalog.CatalogName
             };
-            _connectionStrings[catalog.ConfigKey] = csBuilder.ConnectionString;
+            this._connectionStrings[catalog.ConfigKey] = csBuilder.ConnectionString;
         }
     }
 
@@ -45,8 +43,7 @@ public sealed class SqlContainerFixture : IAsyncDisposable
     /// </summary>
     public void SetConnectionEnvironmentVariables()
     {
-        foreach (var (configKey, cs) in _connectionStrings)
-        {
+        foreach (var (configKey, cs) in this._connectionStrings) {
             var csb = new SqlConnectionStringBuilder(cs);
             Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Host", csb.DataSource);
             Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Name", csb.InitialCatalog);
@@ -60,20 +57,18 @@ public sealed class SqlContainerFixture : IAsyncDisposable
     /// </summary>
     public async Task InitialiseSchemasAsync(IReadOnlyList<DatabaseCatalog> catalogs, IServiceProvider serviceProvider)
     {
-        foreach (var catalog in catalogs)
-        {
-            var cs = _connectionStrings[catalog.ConfigKey];
+        foreach (var catalog in catalogs) {
+            var cs = this._connectionStrings[catalog.ConfigKey];
 
             using var scope = serviceProvider.CreateScope();
             var dbContext = (DbContext)scope.ServiceProvider.GetRequiredService(catalog.DbContextType);
             await dbContext.Database.EnsureCreatedAsync();
 
-            var respawner = await Respawner.CreateAsync(cs, new RespawnerOptions
-            {
+            var respawner = await Respawner.CreateAsync(cs, new RespawnerOptions {
                 DbAdapter = DbAdapter.SqlServer
             });
 
-            _respawners[catalog.ConfigKey] = respawner;
+            this._respawners[catalog.ConfigKey] = respawner;
         }
     }
 
@@ -82,15 +77,14 @@ public sealed class SqlContainerFixture : IAsyncDisposable
     /// </summary>
     public async Task ResetAllAsync()
     {
-        foreach (var (configKey, respawner) in _respawners)
-        {
-            var cs = _connectionStrings[configKey];
+        foreach (var (configKey, respawner) in this._respawners) {
+            var cs = this._connectionStrings[configKey];
             await respawner.ResetAsync(cs);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _container.DisposeAsync();
+        await this._container.DisposeAsync();
     }
 }

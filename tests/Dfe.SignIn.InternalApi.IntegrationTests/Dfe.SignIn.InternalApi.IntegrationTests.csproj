@@ -11,6 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Configuration\**" />
+    <EmbeddedResource Remove="Configuration\**" />
+    <None Remove="Configuration\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
   </ItemGroup>
 
@@ -40,7 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Configuration\" />
     <Folder Include="Endpoints\" />
   </ItemGroup>
 
