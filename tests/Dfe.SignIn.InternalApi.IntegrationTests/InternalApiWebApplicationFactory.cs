@@ -19,20 +19,26 @@ public class InternalApiWebApplicationFactory : WebApplicationFactory<Program>
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
 
-    private Respawner? _directoriesRespawner;
-    private Respawner? _organisationsRespawner;
+    private readonly Respawner _directoriesRespawner;
+    private readonly Respawner _organisationsRespawner;
 
-    private string? _directoriesConnectionString;
-    private string? _organisationsConnectionString;
+    private readonly string _directoriesConnectionString;
+    private readonly string _organisationsConnectionString;
 
-    public async Task InitializeContainerAsync()
+    public InternalApiWebApplicationFactory()
     {
-        // Start the SQL Server container
-        await _dbContainer.StartAsync();
+        // 1. Set environment to Local so Program.cs uses user secrets / local bypasses
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Local");
+
+        // 2. Load static JSON configurations and write them as environment variables (so they are visible immediately to builder.Configuration)
+        LoadStaticConfigurations();
+
+        // 3. Start the SQL Server container synchronously
+        _dbContainer.StartAsync().GetAwaiter().GetResult();
 
         var containerConnectionString = _dbContainer.GetConnectionString();
 
-        // Build specific catalog connection strings
+        // 4. Build specific catalog connection strings
         var directoriesBuilder = new SqlConnectionStringBuilder(containerConnectionString)
         {
             InitialCatalog = "dsi-directories-test"
@@ -45,71 +51,71 @@ public class InternalApiWebApplicationFactory : WebApplicationFactory<Program>
         };
         _organisationsConnectionString = organisationsBuilder.ConnectionString;
 
-        // Initialize database schemas using EF Core EnsureCreatedAsync
+        // 5. Set dynamic connection variables so they are present in builder.Configuration immediately
+        SetDynamicConnectionEnvironmentVariables();
+
+        // 6. Initialize database schemas using EF Core EnsureCreated
         using var scope = Services.CreateScope();
         
         var directoriesContext = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        await directoriesContext.Database.EnsureCreatedAsync();
+        directoriesContext.Database.EnsureCreated();
 
         var organisationsContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
-        await organisationsContext.Database.EnsureCreatedAsync();
+        organisationsContext.Database.EnsureCreated();
 
-        // Setup Respawner to clean database state between test runs
-        _directoriesRespawner = await Respawner.CreateAsync(_directoriesConnectionString, new RespawnerOptions
+        // 7. Setup Respawner to clean database state between test runs
+        _directoriesRespawner = Respawner.CreateAsync(_directoriesConnectionString, new RespawnerOptions
         {
             DbAdapter = DbAdapter.SqlServer
-        });
+        }).GetAwaiter().GetResult();
 
-        _organisationsRespawner = await Respawner.CreateAsync(_organisationsConnectionString, new RespawnerOptions
+        _organisationsRespawner = Respawner.CreateAsync(_organisationsConnectionString, new RespawnerOptions
         {
             DbAdapter = DbAdapter.SqlServer
-        });
+        }).GetAwaiter().GetResult();
     }
 
     public async Task ResetDatabasesAsync()
     {
-        if (_directoriesConnectionString != null && _directoriesRespawner != null)
+        await _directoriesRespawner.ResetAsync(_directoriesConnectionString);
+        await _organisationsRespawner.ResetAsync(_organisationsConnectionString);
+    }
+
+    private void LoadStaticConfigurations()
+    {
+        var config = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.IntegrationTests.json", optional: false)
+            .Build();
+
+        foreach (var pair in config.AsEnumerable())
         {
-            await _directoriesRespawner.ResetAsync(_directoriesConnectionString);
+            if (pair.Value is not null)
+            {
+                // Translate C# hierarchy separator ':' to process environment separator '__'
+                var envKey = pair.Key.Replace(":", "__");
+                Environment.SetEnvironmentVariable(envKey, pair.Value);
+            }
         }
-        if (_organisationsConnectionString != null && _organisationsRespawner != null)
-        {
-            await _organisationsRespawner.ResetAsync(_organisationsConnectionString);
-        }
+    }
+
+    private void SetDynamicConnectionEnvironmentVariables()
+    {
+        // Directories Db Settings
+        Environment.SetEnvironmentVariable("EntityFramework__Directories__Host", GetDataSource(_directoriesConnectionString));
+        Environment.SetEnvironmentVariable("EntityFramework__Directories__Name", "dsi-directories-test");
+        Environment.SetEnvironmentVariable("EntityFramework__Directories__Username", GetUserID(_directoriesConnectionString));
+        Environment.SetEnvironmentVariable("EntityFramework__Directories__Password", GetPassword(_directoriesConnectionString));
+
+        // Organisations Db Settings
+        Environment.SetEnvironmentVariable("EntityFramework__Organisations__Host", GetDataSource(_organisationsConnectionString));
+        Environment.SetEnvironmentVariable("EntityFramework__Organisations__Name", "dsi-organisations-test");
+        Environment.SetEnvironmentVariable("EntityFramework__Organisations__Username", GetUserID(_organisationsConnectionString));
+        Environment.SetEnvironmentVariable("EntityFramework__Organisations__Password", GetPassword(_organisationsConnectionString));
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        // Set environment to Local to mock Service Bus, auditing, and other Azure endpoints
-        builder.UseEnvironment("Local");
-
-        builder.ConfigureAppConfiguration((context, config) =>
-        {
-            var testConfiguration = new Dictionary<string, string?>
-            {
-                // Directories Db Settings
-                ["EntityFramework:Directories:Host"] = GetDataSource(_directoriesConnectionString),
-                ["EntityFramework:Directories:Name"] = "dsi-directories-test",
-                ["EntityFramework:Directories:Username"] = GetUserID(_directoriesConnectionString),
-                ["EntityFramework:Directories:Password"] = GetPassword(_directoriesConnectionString),
-
-                // Organisations Db Settings
-                ["EntityFramework:Organisations:Host"] = GetDataSource(_organisationsConnectionString),
-                ["EntityFramework:Organisations:Name"] = "dsi-organisations-test",
-                ["EntityFramework:Organisations:Username"] = GetUserID(_organisationsConnectionString),
-                ["EntityFramework:Organisations:Password"] = GetPassword(_organisationsConnectionString),
-
-                // Bypass Azure AD client credential throws
-                ["InternalApiClient:Tenant"] = Guid.Empty.ToString(),
-                ["InternalApiClient:ClientId"] = Guid.Empty.ToString(),
-                ["InternalApiClient:ClientSecret"] = "dummy-secret",
-                ["InternalApiClient:HostUrl"] = "https://localhost",
-                ["InternalApiClient:BaseUrl"] = "https://localhost"
-            };
-
-            config.AddInMemoryCollection(testConfiguration);
-        });
-
         builder.ConfigureTestServices(services =>
         {
             // Inject TestAuthHandler to bypass real JWT checks
@@ -122,13 +128,13 @@ public class InternalApiWebApplicationFactory : WebApplicationFactory<Program>
         });
     }
 
-    private static string GetDataSource(string? connectionString) =>
+    private static string GetDataSource(string connectionString) =>
         new SqlConnectionStringBuilder(connectionString).DataSource;
 
-    private static string GetUserID(string? connectionString) =>
+    private static string GetUserID(string connectionString) =>
         new SqlConnectionStringBuilder(connectionString).UserID;
 
-    private static string GetPassword(string? connectionString) =>
+    private static string GetPassword(string connectionString) =>
         new SqlConnectionStringBuilder(connectionString).Password;
 
     public override async ValueTask DisposeAsync()
