@@ -43,10 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Endpoints\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="appsettings.Test.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

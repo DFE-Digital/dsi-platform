@@ -18,6 +18,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.AzureServiceBus" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
+    <PackageReference Include="FluentValidation" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />

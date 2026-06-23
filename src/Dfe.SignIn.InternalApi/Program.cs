@@ -8,6 +8,7 @@ using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
+using Dfe.SignIn.InternalApi.Feature.Users;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -123,6 +124,9 @@ app.UseOrganisationEndpoints();
 app.UsePublicApiEndpoints();
 app.UseSupportTicketEndpoints();
 app.UseUserEndpoints();
+
+//UserEndpoints.UseMyUserEndpoints(app);
+app.UseMyUserEndpoints();
 
 await app.RunAsync();
 
