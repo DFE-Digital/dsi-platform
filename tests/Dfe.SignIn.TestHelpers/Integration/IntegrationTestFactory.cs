@@ -25,7 +25,7 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
 
     protected IntegrationTestFactory()
     {
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Local");
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
 
         LoadStaticConfigurations(this.AppSettingsFileName);
 

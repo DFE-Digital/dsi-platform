@@ -21,7 +21,7 @@
     <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.0" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.9.0" />
-    <!-- Dependency injection -->   
+    <!-- Dependency injection -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
     <!-- Options -->
@@ -107,6 +107,8 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.1.6" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.9" />
     <!-- Entity Framework tooling -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9" />
   </ItemGroup>
@@ -145,6 +147,6 @@
     <PackageVersion Include="Moq.AutoMock" Version="3.5.0" />
     <!-- Integration testing -->
     <PackageVersion Include="Testcontainers.MsSql" Version="4.3.0" />
-    <PackageVersion Include="Respawn" Version="6.2.1" />
+    <PackageVersion Include="Respawn" Version="7.0.0" />
   </ItemGroup>
 </Project>

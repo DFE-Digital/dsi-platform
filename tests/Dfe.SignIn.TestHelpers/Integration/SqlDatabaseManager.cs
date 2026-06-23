@@ -6,6 +6,18 @@ using Respawn;
 using Testcontainers.MsSql;
 
 namespace Dfe.SignIn.TestHelpers.Integration;
+
+/// <summary>
+/// Describes a database catalog to provision inside the SQL container.
+/// </summary>
+/// <param name="CatalogName">The SQL catalog name (e.g., "dsi-directories-test").</param>
+/// <param name="ConfigKey">
+/// The configuration key prefix used to set EntityFramework__[ConfigKey]__Host/Name/Username/Password
+/// environment variables (e.g., "Directories").
+/// </param>
+/// <param name="DbContextType">The EF Core <see cref="DbContext"/> type to run EnsureCreated on.</param>
+public sealed record DatabaseCatalog(string CatalogName, string ConfigKey, Type DbContextType);
+
 /// <summary>
 /// Manages a single SQL Server Testcontainer, creates database catalogs,
 /// initialises schemas via EF Core, and provides Respawn-based state resets.
@@ -26,10 +38,10 @@ public sealed class SqlDatabaseManager : IAsyncDisposable
     {
         await this._container.StartAsync();
 
-        var containerCs = this._container.GetConnectionString();
+        var containerConnectionString = this._container.GetConnectionString();
 
         foreach (var catalog in catalogs) {
-            var csBuilder = new SqlConnectionStringBuilder(containerCs) {
+            var csBuilder = new SqlConnectionStringBuilder(containerConnectionString) {
                 InitialCatalog = catalog.CatalogName
             };
             this._connectionStrings[catalog.ConfigKey] = csBuilder.ConnectionString;
@@ -44,11 +56,11 @@ public sealed class SqlDatabaseManager : IAsyncDisposable
     public void SetConnectionEnvironmentVariables()
     {
         foreach (var (configKey, cs) in this._connectionStrings) {
-            var csb = new SqlConnectionStringBuilder(cs);
-            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Host", csb.DataSource);
-            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Name", csb.InitialCatalog);
-            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Username", csb.UserID);
-            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Password", csb.Password);
+            var connectionStringBuilder = new SqlConnectionStringBuilder(cs);
+            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Host", connectionStringBuilder.DataSource);
+            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Name", connectionStringBuilder.InitialCatalog);
+            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Username", connectionStringBuilder.UserID);
+            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Password", connectionStringBuilder.Password);
         }
     }
 
@@ -58,13 +70,16 @@ public sealed class SqlDatabaseManager : IAsyncDisposable
     public async Task InitialiseSchemasAsync(IReadOnlyList<DatabaseCatalog> catalogs, IServiceProvider serviceProvider)
     {
         foreach (var catalog in catalogs) {
-            var cs = this._connectionStrings[catalog.ConfigKey];
+            var catalogConnectionString = this._connectionStrings[catalog.ConfigKey];
 
             using var scope = serviceProvider.CreateScope();
             var dbContext = (DbContext)scope.ServiceProvider.GetRequiredService(catalog.DbContextType);
             await dbContext.Database.EnsureCreatedAsync();
 
-            var respawner = await Respawner.CreateAsync(cs, new RespawnerOptions {
+            using var connection = new SqlConnection(catalogConnectionString);
+            await connection.OpenAsync();
+
+            var respawner = await Respawner.CreateAsync(connection, new RespawnerOptions {
                 DbAdapter = DbAdapter.SqlServer
             });
 
@@ -78,8 +93,10 @@ public sealed class SqlDatabaseManager : IAsyncDisposable
     public async Task ResetAllAsync()
     {
         foreach (var (configKey, respawner) in this._respawners) {
-            var cs = this._connectionStrings[configKey];
-            await respawner.ResetAsync(cs);
+            var catalogConnectionString = this._connectionStrings[configKey];
+            await using var connection = new SqlConnection(catalogConnectionString);
+            await connection.OpenAsync();
+            await respawner.ResetAsync(connection);
         }
     }
 
