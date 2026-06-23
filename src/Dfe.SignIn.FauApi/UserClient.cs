@@ -22,10 +22,11 @@ public class UserClient
     /// Get user organisation services and roles.
     /// </summary>
     /// <param name="userId"></param>
+    /// <param name="clientId">Then service or application name.</param>
     /// <returns></returns>
-    public async Task<GetUserOrganisationServicesResponse> GetUserOrganisationServicesAsync(Guid userId)
+    public async Task<GetUserOrganisationServicesResponse> GetUserOrganisationServicesAsync(Guid userId, string? clientId)
     {
-        GetUserOrganisationServicesResponse model = await this._httpClient.GetFromJsonAsync<GetUserOrganisationServicesResponse>($"users/{userId}/organisationservices/GIAS")
+        GetUserOrganisationServicesResponse model = await this._httpClient.GetFromJsonAsync<GetUserOrganisationServicesResponse>($"users/{userId}/organisationservices/{clientId}")
                 ?? throw new InvalidOperationException($"Received null response for user {userId} from FAU API.");
 
         return model;

@@ -21,8 +21,8 @@ app.UseSwaggerUI(c => {
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/users/{userId}/organisationservices", async (Guid userId, UserClient client) => {
-    var result = await client.GetUserOrganisationServicesAsync(userId);
+app.MapGet("/users/{userId}/organisationservices", async (Guid userId, string clientId, UserClient client) => {
+    var result = await client.GetUserOrganisationServicesAsync(userId, clientId);
     return result is null ? Results.NotFound() : Results.Ok(result);
 });
 
