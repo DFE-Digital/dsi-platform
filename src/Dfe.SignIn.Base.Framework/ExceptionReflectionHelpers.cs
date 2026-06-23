@@ -27,7 +27,14 @@ internal static class ExceptionReflectionHelpers
                 }
 
                 exceptionTypesByFullName = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes())
+                    .SelectMany(assembly => {
+                        try {
+                            return assembly.GetTypes();
+                        }
+                        catch (ReflectionTypeLoadException e) {
+                            return e.Types.Where(t => t != null)!;
+                        }
+                    })
                     .Where(type => typeof(Exception).IsAssignableFrom(type))
                     .GroupBy(type => type.FullName)
                     .ToDictionary(
