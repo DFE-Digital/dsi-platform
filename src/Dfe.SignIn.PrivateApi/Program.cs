@@ -5,11 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddEndpointsApiExplorer(); // This is required for Swagger
-builder.Services.AddSwaggerGen(); // This adds Swagger Generator
+builder.Services.AddSwaggerGen();
 
-// Add Entity Framework DbContext
 builder.Services.AddDbContext<DbOrganisationsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -25,10 +23,6 @@ app.UseSwagger();
 app.UseSwaggerUI(c => {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My private API V1");
 });
-
-app.MapGet("/", () => "Hello World!");
-
-app.MapGet("/greeting", () => "Welcome to my article about Minimal API!");
 
 app.MapGet("users/{userId}/organisationservices/{clientId}", UserOrganisationServices.GetUserOrganisationServices);
 

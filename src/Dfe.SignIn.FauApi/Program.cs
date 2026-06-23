@@ -3,10 +3,13 @@ using Dfe.SignIn.FauApi;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer(); // This is required for Swagger
-builder.Services.AddSwaggerGen(); // This adds Swagger Generator
+builder.Services.AddSwaggerGen();
 
-// Register HttpClientFactory
-builder.Services.AddHttpClient<UserClient>();
+// Register HttpClientFactory; base URL is read from configuration (PrivateApi:BaseUrl).
+var fauApiBaseUrl = builder.Configuration["PrivateApi:BaseUrl"] ?? string.Empty;
+builder.Services.AddHttpClient<UserClient>(
+    c => c.BaseAddress = new Uri(fauApiBaseUrl)
+ );
 
 var app = builder.Build();
 

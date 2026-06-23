@@ -15,7 +15,6 @@ public class UserClient
     public UserClient(HttpClient httpClient)
     {
         this._httpClient = httpClient;
-        this._httpClient.BaseAddress = new Uri("http://localhost:5003/");
     }
 
     /// <summary>
