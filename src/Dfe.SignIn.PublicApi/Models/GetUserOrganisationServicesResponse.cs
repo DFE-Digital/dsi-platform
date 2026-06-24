@@ -222,6 +222,7 @@ public class OrganisationDto
 /// <summary>
 /// Represents a response for the user organisation request.
 /// </summary>
+// NOSONAR: duplication is intention due to a seperate contract / use case
 public class UserOrganisationDto
 {
     /// <summary>
