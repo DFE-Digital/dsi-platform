@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Features;
 
@@ -79,6 +80,7 @@ public sealed class UserProfileFeature : IUserProfileFeature
 /// </summary>
 public sealed class UserProfileMiddleware(
     IInteractionDispatcher interaction,
+    IUsersApiClient usersApiClient,
     RequestDelegate next)
 {
     /// <summary>
@@ -95,9 +97,11 @@ public sealed class UserProfileMiddleware(
         if (context.User?.Identity?.IsAuthenticated == true) {
             Guid userId = context.User.GetUserId();
 
-            var profileResponse = await interaction.DispatchAsync(
-                new GetUserProfileRequest { UserId = userId }
-            ).To<GetUserProfileResponse>();
+            var profileResponse = await usersApiClient.GetUserProfile(new GetUserProfileRequestA { UserId = userId });
+
+            //var profileResponse = await interaction.DispatchAsync(
+            //    new GetUserProfileRequest { UserId = userId }
+            //).To<GetUserProfileResponse>();
 
             context.Features.Set<IUserProfileFeature>(new UserProfileFeature {
                 UserId = userId,
