@@ -1,5 +1,5 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +14,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/change-job-title")]
 public sealed class ChangeJobTitleController(
-    IInteractionDispatcher interaction
+    IUsersApiClient usersApiClient
 ) : Controller
 {
     [HttpGet]
@@ -32,11 +32,17 @@ public sealed class ChangeJobTitleController(
     public async Task<IActionResult> PostIndex(
         ChangeJobTitleViewModel viewModel)
     {
-        await interaction.MapRequestFromViewModel<ChangeJobTitleRequest>(this, viewModel)
-            .Use(request => request with {
-                UserId = this.User.GetUserId(),
-            })
-            .DispatchAsync();
+
+        await usersApiClient.ChangeJobTitle(new ChangeJobTitleRequest {
+            UserId = this.User.GetUserId(),
+            NewJobTitle = viewModel.JobTitleInput,
+        });
+
+        //await interaction.MapRequestFromViewModel<ChangeJobTitleRequest>(this, viewModel)
+        //        .Use(request => request with {
+        //            UserId = this.User.GetUserId(),
+        //        })
+        //        .DispatchAsync();
 
         if (!this.ModelState.IsValid) {
             return this.Index();

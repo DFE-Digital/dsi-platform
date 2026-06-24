@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Dfe.SignIn.InternalApi.Configuration;
+namespace Dfe.SignIn.WebFramework;
 
 /// <summary>
 /// Generic endpoint filter for FluentValidation.

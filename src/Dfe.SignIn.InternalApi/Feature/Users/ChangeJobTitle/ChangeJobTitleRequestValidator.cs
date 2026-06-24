@@ -1,16 +1,13 @@
 using Dfe.SignIn.Core.Contracts;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using FluentValidation;
 
 namespace Dfe.SignIn.InternalApi.Feature.Users.ChangeJobTitle;
 
-public sealed record ChangeJobTitleRequest
-{
-    public required Guid UserId { get; init; }
-
-    public required string NewJobTitle { get; init; }
-}
-
-public class ChangeJobTitleRequestValidator : AbstractValidator<ChangeJobTitleRequest>
+/// <summary>
+/// Validator for the <see cref="ChangeJobTitleRequest"/> class.
+/// </summary>
+public sealed class ChangeJobTitleRequestValidator : AbstractValidator<ChangeJobTitleRequest>
 {
     /// <inheritdoc />
     public ChangeJobTitleRequestValidator()

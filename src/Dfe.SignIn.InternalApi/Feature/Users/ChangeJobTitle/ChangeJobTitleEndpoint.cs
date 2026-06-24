@@ -1,18 +1,22 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.InternalApi.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.InternalApi.Feature.Users.ChangeJobTitle;
 
+/// <summary>
+/// An endpoint to change the job title of a user.
+/// </summary>
 public sealed class ChangeJobTitleEndpoint
 {
+    /// <inheritdoc/>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost("/users", Handler)
-            .WithName("ChangeJobTitleQuery")
+        app.MapPost(ApiRoutes.ChangeJobTitle, Handler)
+            .WithName("Change Job Title")
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
@@ -20,14 +24,15 @@ public sealed class ChangeJobTitleEndpoint
             .WithOpenApi();
     }
 
+    /// <inheritdoc/>
     public static async Task<IResult> Handler(
-        DbOrganisationsContext dbOrganisationsContext,
+        DbDirectoriesContext dbDirectoriesContext,
         ILoggerFactory loggerFactory,
         HttpContext httpContext,
         [FromBody] ChangeJobTitleRequest query,
         CancellationToken cancellationToken)
     {
-        var user = await dbOrganisationsContext
+        var user = await dbDirectoriesContext
             .Users
             .Where(x => x.Sub == query.UserId)
             .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(query.UserId);
@@ -40,7 +45,7 @@ public sealed class ChangeJobTitleEndpoint
 
         user.JobTitle = normalisedJobTitle;
 
-        await dbOrganisationsContext.SaveChangesAsync(cancellationToken);
+        await dbDirectoriesContext.SaveChangesAsync(cancellationToken);
 
         //TODO: Add audit logging for job title change
         //await interaction.DispatchAsync(

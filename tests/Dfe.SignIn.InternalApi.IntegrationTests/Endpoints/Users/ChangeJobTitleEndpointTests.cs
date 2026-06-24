@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.InternalApi.Feature.Users.ChangeJobTitle;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
@@ -57,7 +57,7 @@ public class ChangeJobTitleEndpointTests : IAsyncLifetime
         };
 
         // Act: POST to the endpoint
-        var response = await this.httpClient.PostAsJsonAsync("/users", request);
+        var response = await this.httpClient.PostAsJsonAsync("/users/ChangeJobTitle", request);
 
         // Assert
         Xunit.Assert.Equal(HttpStatusCode.OK, response.StatusCode);

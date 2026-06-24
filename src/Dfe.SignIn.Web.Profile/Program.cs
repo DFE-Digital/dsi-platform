@@ -2,6 +2,7 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Interfaces.Graph;
@@ -20,6 +21,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Extensions.Options;
+using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,6 +114,36 @@ builder.Services
     .AddHttpContextAccessor()
     .AddSingleton<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>()
     .AddSingleton<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>();
+
+//InternalApiClient__BaseAddress
+
+//builder.Services
+//    .AddRefitClient<IUsersApiClient>()
+//    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:5001"))
+//    .AddStandardResilienceHandler();
+
+//builder.Services
+//    .AddRefitClient<IUsersApiClient>()
+//    .ConfigureHttpClient((provider, client) => {
+//        var options = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
+//        client.BaseAddress = options.BaseAddress;
+//    })
+//    .AddStandardResilienceHandler();
+
+builder.Services
+    .AddRefitClient<IUsersApiClient>()
+    .ConfigureHttpClient((provider, client) => {
+        var options = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
+        client.BaseAddress = options.BaseAddress;
+    })
+    .AddHttpMessageHandler(provider => {
+        var options = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
+        string[] scopes = [$"{options.Resource}/.default"];
+
+        var auditContextBuilder = provider.GetRequiredService<IAuditContextBuilder>();
+        return new AuthenticatedHttpClientHandler(auditContextBuilder, tokenCredential, scopes);
+    })
+    .AddStandardResilienceHandler();
 
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));

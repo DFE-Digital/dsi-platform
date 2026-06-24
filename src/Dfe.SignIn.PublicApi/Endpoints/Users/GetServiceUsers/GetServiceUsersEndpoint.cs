@@ -3,7 +3,6 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.PublicApi.Authorization;
-using Dfe.SignIn.PublicApi.Configuration;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
 
