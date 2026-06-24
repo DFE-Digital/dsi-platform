@@ -222,6 +222,7 @@ public class OrganisationDto
 /// <summary>
 /// Represents a response for the user organisation request.
 /// </summary>
+// NOSONAR - code duplication is justified since the model is used within another use case
 public class UserOrganisationDto
 {
     /// <summary>
