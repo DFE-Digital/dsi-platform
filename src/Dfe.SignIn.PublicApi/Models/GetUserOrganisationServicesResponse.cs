@@ -217,7 +217,6 @@ public class OrganisationDto
     /// </summary>
     [JsonPropertyName("orgRoleName")]
     public string? OrgRoleName { get; set; }
-
 }
 
 /// <summary>
@@ -438,7 +437,7 @@ public class UserOrganisationDto
     /// Gets or sets the code associated DistrictAdministrative Code (Legacy)
     /// </summary>
     public string? DistrictAdministrative_code { get; init; }
-    
+
     /// <summary>
     /// Gets or sets the code associated IS On APAR
     /// </summary>
