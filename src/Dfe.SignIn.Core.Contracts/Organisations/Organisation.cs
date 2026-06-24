@@ -163,4 +163,29 @@ public sealed record Organisation
     /// The legacy numeric identifier for the organisation used by external systems.
     /// </summary>
     public long? LegacyId { get; init; }
+
+    /// <summary>
+    /// Telephone Number associated to organisation
+    /// </summary>
+    public string? Telephone { get; init; }
+
+    /// <summary>
+    /// Gets or Sets Statutory Low Age
+    /// </summary>
+    public int? StatutoryLowAge { get; init; }
+
+    /// <summary>
+    /// Gets or Sets Statutory High Age
+    /// </summary>
+    public int? StatutoryHighAge { get; init; }
+
+    /// <summary>
+    /// Gets or Sets Company Registration Number
+    /// </summary>
+    public string? CompanyRegistrationNumber { get; init; }
+
+    /// <summary>
+    /// Gets or Sets District Administrative_code
+    /// </summary>
+    public string? DistrictAdministrative_code { get; set; }
 }
