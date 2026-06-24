@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
+using Dfe.SignIn.PublicApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Moq.AutoMock;
 
@@ -35,7 +36,7 @@ public sealed class GetUserOrganisationsTests
             autoMocker.Get<IInteractionDispatcher>()
         );
 
-        var ok = result.Result as Ok<IEnumerable<Organisation>>;
+        var ok = result.Result as Ok<IEnumerable<UserOrganisationDto>>;
         Assert.IsNotNull(ok);
         Assert.HasCount(1, ok.Value!.ToArray());
         Assert.AreEqual(FakeOrganisation.Id, ok.Value!.First().Id);
