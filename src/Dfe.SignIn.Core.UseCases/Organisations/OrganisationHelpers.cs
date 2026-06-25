@@ -49,6 +49,11 @@ internal static class OrganisationHelpers
             DistrictAdministrativeCode = entity.DistrictAdministrativeCode,
             IsOnApar = entity.IsOnApar,
             LegacyId = entity.LegacyId,
+            Telephone = entity.Telephone,
+            CompanyRegistrationNumber = entity.CompanyRegistrationNumber,
+            DistrictAdministrative_code = entity.DistrictAdministrativeCode,
+            StatutoryHighAge = entity.StatutoryHighAge,
+            StatutoryLowAge = entity.StatutoryLowAge
         };
     }
 }

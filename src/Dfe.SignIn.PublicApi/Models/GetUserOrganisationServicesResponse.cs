@@ -46,12 +46,12 @@ public class GetUserOrganisationServicesResponse
 }
 
 /// <summary>
-/// Represents an organisation and its associated details and services.
+/// Base class for Organsiation related data
 /// </summary>
-public class OrganisationDto
+public abstract class BaseOrganisationDto
 {
     /// <summary>
-    /// Gets or sets the unique identifier of the organisation.
+    /// Gets or sets the Id
     /// </summary>
     [JsonPropertyName("id")]
     public Guid Id { get; set; }
@@ -217,6 +217,69 @@ public class OrganisationDto
     /// </summary>
     [JsonPropertyName("orgRoleName")]
     public string? OrgRoleName { get; set; }
+}
+/// <summary>
+/// Represents an organisation and its associated details and services.
+/// </summary>
+public class OrganisationDto : BaseOrganisationDto
+{
+}
+
+/// <summary>
+/// Represents a response for the user organisation request.
+/// </summary>
+public class UserOrganisationDto : BaseOrganisationDto
+{
+    /// <summary>
+    /// Gets or sets the code associated with the role.
+    /// </summary>
+    [JsonPropertyName("legalName")]
+    public string? LegalName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the code associated provider type code.
+    /// </summary>
+    public string? ProviderTypeCode { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated  PIMSStatus Name
+    /// </summary>
+    public string? PIMSStatusName { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated GIAS Status Name
+    /// </summary>
+    public string? GIASStatusName { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated GIAS Status
+    /// </summary>
+    public int? GIASStatus { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated Master Provider Status Name
+    /// </summary>
+    public string? MasterProviderStatusName { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated Master Provider Status Code
+    /// </summary>
+    public int? MasterProviderStatusCode { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated District Administrative Code
+    /// </summary>
+    public string? DistrictAdministrativeCode { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated DistrictAdministrative Code (Legacy)
+    /// </summary>
+    public string? DistrictAdministrative_code { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated IS On APAR
+    /// </summary>
+    public string? IsOnAPAR { get; init; }
 }
 
 /// <summary>
