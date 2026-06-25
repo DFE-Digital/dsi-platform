@@ -1,5 +1,4 @@
 using Azure.Identity;
-using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
@@ -36,12 +35,6 @@ builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
-
-// Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
-    builder.Services.AddOpenTelemetry().UseAzureMonitor();
-}
-
 builder.Services.Configure<ForwardedHeadersOptions>(options => {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
     options.KnownIPNetworks.Clear();
@@ -165,6 +158,7 @@ if (builder.Environment.IsEnvironment("Local")) {
 var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
+app.UseMiddleware<Dfe.SignIn.WebFramework.ClientCorrelationMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.

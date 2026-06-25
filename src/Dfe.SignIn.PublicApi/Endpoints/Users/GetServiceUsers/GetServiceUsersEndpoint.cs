@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.Users;
@@ -11,6 +10,8 @@ namespace Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
 /// </summary>
 public static class GetServiceUsersEndpoint
 {
+    public sealed class LogContext {}
+
     /// <summary>
     /// Configures the HTTP endpoint for retrieving service users in the specified web application.
     /// </summary>
@@ -34,29 +35,18 @@ public static class GetServiceUsersEndpoint
     /// </summary>
     /// <param name="clientSession">The client session for the current request.</param>
     /// <param name="interaction">Service to dispatch interaction requests.</param>
-    /// <param name="loggerFactory">Factory to create loggers for logging request details.</param>
-    /// <param name="httpContext">The current HTTP context, used to access headers and request information.</param>
+    /// <param name="logger">The logger instance for this endpoint.</param>
     /// <param name="query">The query parameters for filtering and pagination.</param>
     /// <returns>The service users for the given service.</returns>
     public static async Task<IResult> GetServiceUsers(
         IClientSession clientSession,
         IInteractionDispatcher interaction,
-        ILoggerFactory loggerFactory,
-        HttpContext httpContext,
+        ILogger<LogContext> logger,
         [AsParameters] GetServiceUsersQuery query)
     {
-        var logger = loggerFactory.CreateLogger(nameof(UserEndpoints));
-        var correlationId = Activity.Current?.TraceId.ToString();
-        var clientCorrelationId = httpContext.Request.Headers["x-correlation-id"].FirstOrDefault();
-
-        if (logger.IsEnabled(LogLevel.Information)) {
-            logger.LogInformation(
-                "{ClientId} is attempting to get service users (correlationId: {CorrelationId}, clientCorrelationId: {ClientCorrelationId})",
-                clientSession.ClientId,
-                correlationId,
-                clientCorrelationId
-            );
-        }
+        logger.LogInformation(
+            "Client {ClientId} requesting service users",
+            clientSession.ClientId);
 
         DateTimeOffset? fromDate = query.From;
         DateTimeOffset? toDate = query.To;

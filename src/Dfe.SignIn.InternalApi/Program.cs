@@ -1,5 +1,4 @@
 using Azure.Identity;
-using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
@@ -13,18 +12,16 @@ using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
 }
 builder.Configuration.AddEnvironmentVariables();
-
-// Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
-    builder.Services.AddOpenTelemetry().UseAzureMonitor();
-}
 
 // Add services to the container.
 builder.Services
@@ -106,6 +103,7 @@ else {
 var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
+app.UseMiddleware<Dfe.SignIn.WebFramework.ClientCorrelationMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 app.UseAuthentication();

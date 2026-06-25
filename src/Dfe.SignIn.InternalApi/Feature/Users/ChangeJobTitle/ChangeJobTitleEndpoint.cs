@@ -27,17 +27,23 @@ public sealed class ChangeJobTitleEndpoint
     /// <inheritdoc/>
     public static async Task<IResult> Handler(
         DbDirectoriesContext dbDirectoriesContext,
-        ILoggerFactory loggerFactory,
-        HttpContext httpContext,
+        ILogger<ChangeJobTitleEndpoint> logger,
         [FromBody] ChangeJobTitleRequest query,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation(
+            "Changing job title for user {UserId}",
+            query.UserId);
+
         var user = await dbDirectoriesContext
             .Users
             .Where(x => x.Sub == query.UserId)
             .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(query.UserId);
 
         if (user.JobTitle == query.NewJobTitle) {
+            logger.LogInformation(
+                "Job title unchanged for user {UserId} — already set to requested value",
+                query.UserId);
             return Results.Ok(); //TODO: Consider returning a different status code or message indicating that the job title is already set to the desired value.
         }
 
@@ -46,6 +52,10 @@ public sealed class ChangeJobTitleEndpoint
         user.JobTitle = normalisedJobTitle;
 
         await dbDirectoriesContext.SaveChangesAsync(cancellationToken);
+
+        logger.LogInformation(
+            "Successfully changed job title for user {UserId}",
+            query.UserId);
 
         //TODO: Add audit logging for job title change
         //await interaction.DispatchAsync(

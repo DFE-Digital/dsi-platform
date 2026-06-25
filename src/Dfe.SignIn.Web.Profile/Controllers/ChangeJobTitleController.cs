@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
+using Microsoft.Extensions.Logging;
 
 //using Dfe.SignIn.Core.Contracts.Features.Users;
 //using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
@@ -18,7 +19,8 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/change-job-title")]
 public sealed class ChangeJobTitleController(
     //IUsersApiClient usersApiClient,
-    IInteractionDispatcher interaction
+    IInteractionDispatcher interaction,
+    ILogger<ChangeJobTitleController> logger
 ) : Controller
 {
     [HttpGet]
@@ -36,6 +38,9 @@ public sealed class ChangeJobTitleController(
     public async Task<IActionResult> PostIndex(
         ChangeJobTitleViewModel viewModel)
     {
+        logger.LogInformation(
+            "User {UserId} requesting job title change",
+            this.User.GetUserId());
 
         //await usersApiClient.ChangeJobTitle(new ChangeJobTitleRequest {
         //    UserId = this.User.GetUserId(),
@@ -49,6 +54,9 @@ public sealed class ChangeJobTitleController(
                 .DispatchAsync();
 
         if (!this.ModelState.IsValid) {
+            logger.LogWarning(
+                "Job title change validation failed for user {UserId}",
+                this.User.GetUserId());
             return this.Index();
         }
 

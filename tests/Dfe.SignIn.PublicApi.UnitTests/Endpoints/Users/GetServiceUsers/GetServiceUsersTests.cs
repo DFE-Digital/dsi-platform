@@ -25,20 +25,17 @@ public class GetServiceUsersTests
         IsHiddenService = false
     };
 
-    private static (AutoMocker, IClientSession, Mock<ILoggerFactory>, DefaultHttpContext) CreateMocks()
+    private static (AutoMocker, IClientSession, Mock<ILogger<GetServiceUsersEndpoint.LogContext>>, DefaultHttpContext) CreateMocks()
     {
         var autoMocker = new AutoMocker();
         var clientSession = autoMocker.GetMock<IClientSession>();
         clientSession.SetupGet(x => x.ClientId).Returns(FakeClientId);
 
-        var loggerFactory = new Mock<ILoggerFactory>();
-        var logger = new Mock<ILogger>();
-        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+        var logger = new Mock<ILogger<GetServiceUsersEndpoint.LogContext>>();
 
         var httpContext = new DefaultHttpContext();
-        httpContext.Request.Headers["X-Correlation-ID"] = "corr-123";
 
-        return (autoMocker, clientSession.Object, loggerFactory, httpContext);
+        return (autoMocker, clientSession.Object, logger, httpContext);
     }
 
     private static void MockApplicationLookup(AutoMocker autoMocker, Application? application = null)
@@ -61,7 +58,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task Returns404_WhenApplicationNotFound()
     {
-        var (autoMocker, _, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, _, logger, httpContext) = CreateMocks();
 
         var mockClientSession = autoMocker.GetMock<IClientSession>();
         mockClientSession.SetupGet(x => x.ClientId).Returns("fake-client-id");
@@ -69,8 +66,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             mockClientSession.Object,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery()
         );
 
@@ -80,7 +76,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsOk_WhenValidRequest()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
 
         MockApplicationLookup(autoMocker);
         var capturedRequest = (GetServiceUsersRequest?)null;
@@ -94,8 +90,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery()
         );
 
@@ -112,7 +107,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ExtractParam_IsCaseInsensitive()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         httpContext.Request.QueryString = new QueryString("?PaGe=2&PaGeSiZe=10");
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker, page: 2);
@@ -120,8 +115,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery()
         );
 
@@ -131,7 +125,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsOk_WithValidFilterParameters()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         var from = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero);
         var to = new DateTimeOffset(2023, 1, 5, 0, 0, 0, TimeSpan.Zero);
         var capturedRequest = (GetServiceUsersRequest?)null;
@@ -147,8 +141,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery(Status: 0, From: from, To: to, Page: 2, PageSize: 25)
         );
 
@@ -168,15 +161,14 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsNotFound_WhenApplicationIsNull()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { Application = null });
 
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery()
         );
 
@@ -186,14 +178,13 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsProblem_WhenApplicationLookupThrowsUnexpectedException()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         autoMocker.MockThrows<GetApplicationByClientIdRequest>(new Exception("fail"));
 
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery()
         );
 
@@ -203,7 +194,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsOk_SetsWarning_WhenOnlyFromDateProvided()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
 
@@ -211,8 +202,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery(From: from)
         );
 
@@ -224,7 +214,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsOk_SetsWarning_WhenOnlyToDateProvided()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
 
@@ -232,8 +222,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery(To: to)
         );
 
@@ -245,7 +234,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsOk_NoWarning_WhenBothDatesProvided()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
 
@@ -254,8 +243,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery(From: from, To: to)
         );
 
@@ -267,7 +255,7 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsOk_SetsDateRange_WhenBothDatesProvided()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
 
@@ -276,8 +264,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery(From: from, To: to)
         );
 
@@ -289,15 +276,14 @@ public class GetServiceUsersTests
     [TestMethod]
     public async Task ReturnsOk_NullDateRange_WhenNoDatesProvided()
     {
-        var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
+        var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
 
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
-            loggerFactory.Object,
-            httpContext,
+            logger.Object,
             new GetServiceUsersQuery()
         );
 

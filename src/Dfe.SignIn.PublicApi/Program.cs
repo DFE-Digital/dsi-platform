@@ -1,5 +1,4 @@
 using Azure.Identity;
-using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
@@ -33,12 +32,6 @@ builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
-
-// Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
-    builder.Services.AddOpenTelemetry().UseAzureMonitor();
-}
-
 IEnumerable<NodeApiName> requiredNodeApiNames = [
     NodeApiName.Access, NodeApiName.Applications, NodeApiName.Organisations];
 
@@ -118,6 +111,7 @@ var securityOptions = app.Configuration
     .Get<SecurityHeaderPolicyOptions>() ?? new SecurityHeaderPolicyOptions();
 
 app.UseMiddleware<CancellationContextMiddleware>();
+app.UseMiddleware<Dfe.SignIn.WebFramework.ClientCorrelationMiddleware>();
 app.UseDsiSecurityHeaderPolicy(policy => {
     policy.AddFrameOptionsSameOrigin();
     policy.AddCustomHeader("X-DNS-Prefetch-Control", "off");
