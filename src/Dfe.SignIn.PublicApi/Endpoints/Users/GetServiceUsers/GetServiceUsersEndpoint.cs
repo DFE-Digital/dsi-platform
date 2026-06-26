@@ -8,10 +8,8 @@ namespace Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
 /// <summary>
 /// Endpoints for service users, migrated from Node.js getServiceUsers.
 /// </summary>
-public static class GetServiceUsersEndpoint
+public sealed class GetServiceUsersEndpoint
 {
-    public sealed class LogContext {}
-
     /// <summary>
     /// Configures the HTTP endpoint for retrieving service users in the specified web application.
     /// </summary>
@@ -21,7 +19,7 @@ public static class GetServiceUsersEndpoint
     /// <param name="app">The endpoint route builder to which the user retrieval endpoint is added.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet("/users", GetServiceUsers)
+        app.MapGet("/users", GetServiceUsersHandler)
             .WithName("GetServiceUsersRequest")
             .WithTags("Users")
             .Produces<GetServiceUsersResponse>(StatusCodes.Status200OK)
@@ -38,10 +36,10 @@ public static class GetServiceUsersEndpoint
     /// <param name="logger">The logger instance for this endpoint.</param>
     /// <param name="query">The query parameters for filtering and pagination.</param>
     /// <returns>The service users for the given service.</returns>
-    public static async Task<IResult> GetServiceUsers(
+    public static async Task<IResult> GetServiceUsersHandler(
         IClientSession clientSession,
         IInteractionDispatcher interaction,
-        ILogger<LogContext> logger,
+        ILogger<GetServiceUsersEndpoint> logger,
         [AsParameters] GetServiceUsersQuery query)
     {
         logger.LogInformation(

@@ -1,9 +1,5 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
-using Microsoft.Extensions.Logging;
-
-//using Dfe.SignIn.Core.Contracts.Features.Users;
-//using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authorization;
@@ -18,8 +14,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/change-job-title")]
 public sealed class ChangeJobTitleController(
-    //IUsersApiClient usersApiClient,
-    IInteractionDispatcher interaction,
+    IUsersApiClient usersApiClient,
     ILogger<ChangeJobTitleController> logger
 ) : Controller
 {
@@ -42,23 +37,17 @@ public sealed class ChangeJobTitleController(
             "User {UserId} requesting job title change",
             this.User.GetUserId());
 
-        //await usersApiClient.ChangeJobTitle(new ChangeJobTitleRequest {
-        //    UserId = this.User.GetUserId(),
-        //    NewJobTitle = viewModel.JobTitleInput,
-        //});
-
-        await interaction.MapRequestFromViewModel<ChangeJobTitleRequest>(this, viewModel)
-                .Use(request => request with {
-                    UserId = this.User.GetUserId(),
-                })
-                .DispatchAsync();
-
         if (!this.ModelState.IsValid) {
             logger.LogWarning(
                 "Job title change validation failed for user {UserId}",
                 this.User.GetUserId());
             return this.Index();
         }
+
+        await usersApiClient.ChangeJobTitle(new ChangeJobTitleRequest {
+            UserId = this.User.GetUserId(),
+            NewJobTitle = viewModel.JobTitleInput,
+        });
 
         this.SetFlashSuccess(
             heading: "Job title updated successfully",

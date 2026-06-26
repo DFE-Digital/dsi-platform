@@ -25,13 +25,13 @@ public class GetServiceUsersTests
         IsHiddenService = false
     };
 
-    private static (AutoMocker, IClientSession, Mock<ILogger<GetServiceUsersEndpoint.LogContext>>, DefaultHttpContext) CreateMocks()
+    private static (AutoMocker, IClientSession, Mock<ILogger<GetServiceUsersEndpoint>>, DefaultHttpContext) CreateMocks()
     {
         var autoMocker = new AutoMocker();
         var clientSession = autoMocker.GetMock<IClientSession>();
         clientSession.SetupGet(x => x.ClientId).Returns(FakeClientId);
 
-        var logger = new Mock<ILogger<GetServiceUsersEndpoint.LogContext>>();
+        var logger = new Mock<ILogger<GetServiceUsersEndpoint>>();
 
         var httpContext = new DefaultHttpContext();
 
@@ -63,7 +63,7 @@ public class GetServiceUsersTests
         var mockClientSession = autoMocker.GetMock<IClientSession>();
         mockClientSession.SetupGet(x => x.ClientId).Returns("fake-client-id");
 
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             mockClientSession.Object,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -87,7 +87,7 @@ public class GetServiceUsersTests
             NumberOfPages = 0
         });
 
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -112,7 +112,7 @@ public class GetServiceUsersTests
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker, page: 2);
 
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -138,7 +138,7 @@ public class GetServiceUsersTests
             NumberOfPages = 0
         });
 
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -165,7 +165,7 @@ public class GetServiceUsersTests
 
         autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { Application = null });
 
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -181,7 +181,7 @@ public class GetServiceUsersTests
         var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
         autoMocker.MockThrows<GetApplicationByClientIdRequest>(new Exception("fail"));
 
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -199,7 +199,7 @@ public class GetServiceUsersTests
         MockGetServiceUsersResponse(autoMocker);
 
         var from = DateTimeOffset.UtcNow.AddDays(-10);
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -219,7 +219,7 @@ public class GetServiceUsersTests
         MockGetServiceUsersResponse(autoMocker);
 
         var to = DateTimeOffset.UtcNow.AddDays(-1);
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -240,7 +240,7 @@ public class GetServiceUsersTests
 
         var from = DateTimeOffset.UtcNow.AddDays(-10);
         var to = DateTimeOffset.UtcNow.AddDays(-5);
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -261,7 +261,7 @@ public class GetServiceUsersTests
 
         var from = DateTimeOffset.UtcNow.AddDays(-10);
         var to = DateTimeOffset.UtcNow.AddDays(-5);
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,
@@ -280,7 +280,7 @@ public class GetServiceUsersTests
         MockApplicationLookup(autoMocker);
         MockGetServiceUsersResponse(autoMocker);
 
-        var result = await GetServiceUsersEndpoint.GetServiceUsers(
+        var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
             logger.Object,

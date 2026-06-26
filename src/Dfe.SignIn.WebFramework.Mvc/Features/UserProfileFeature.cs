@@ -99,10 +99,6 @@ public sealed class UserProfileMiddleware(
 
             var profileResponse = await usersApiClient.GetUserProfile(new GetUserProfileRequestA { UserId = userId });
 
-            //var profileResponse = await interaction.DispatchAsync(
-            //    new GetUserProfileRequest { UserId = userId }
-            //).To<GetUserProfileResponse>();
-
             context.Features.Set<IUserProfileFeature>(new UserProfileFeature {
                 UserId = userId,
                 IsEntra = profileResponse.IsEntra,
