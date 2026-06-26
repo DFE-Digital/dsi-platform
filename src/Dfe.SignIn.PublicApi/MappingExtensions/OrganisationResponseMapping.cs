@@ -18,6 +18,8 @@ public static class OrganisationResponseMapping
     /// <returns></returns>
     public static UserOrganisationDto ToDto(this Organisation o)
     {
+        var tagColor = AnnotationHelpers.GetTagColour(o.Status);
+
         return new UserOrganisationDto {
             Id = o.Id,
             Name = o.Name,
@@ -32,7 +34,7 @@ public static class OrganisationResponseMapping
             Status = new StatusWithLabelDto {
                 Id = (int)o.Status,
                 Name = EnumHelpers.MapEnum<OrganisationStatus>((int)o.Status).GetDescription(),
-                TagColor = AnnotationHelpers.GetTagColour(o.Status).HasValue ? AnnotationHelpers.GetTagColour(o.Status).Value.GetDescription() : string.Empty,
+                TagColor = tagColor?.ToString()
             },
             PIMSProviderType = o.PimsProviderType,
             PIMSProviderTypeCode = o.PimsProviderTypeCode,
