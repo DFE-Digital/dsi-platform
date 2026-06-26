@@ -93,12 +93,6 @@ public abstract class BaseOrganisationDto
     public string? EstablishmentNumber { get; set; }
 
     /// <summary>
-    /// Gets or sets the organisation status details.
-    /// </summary>
-    [JsonPropertyName("status")]
-    public StatusDto? Status { get; set; }
-
-    /// <summary>
     /// Gets or sets the date the organisation was closed.
     /// </summary>
     [JsonPropertyName("closedOn")]
@@ -201,6 +195,12 @@ public abstract class BaseOrganisationDto
 public class OrganisationDto : BaseOrganisationDto
 {
     /// <summary>
+    /// Gets or sets the organisation status details.
+    /// </summary>
+    [JsonPropertyName("status")]
+    public StatusDto? Status { get; set; }
+
+    /// <summary>
     /// Gets or sets the provider profile identifier.
     /// </summary>
     [JsonPropertyName("ProviderProfileID")]
@@ -229,6 +229,13 @@ public class OrganisationDto : BaseOrganisationDto
 /// </summary>
 public class UserOrganisationDto : BaseOrganisationDto
 {
+
+    /// <summary>
+    /// Gets or sets the organisation status details.
+    /// </summary>
+    [JsonPropertyName("status")]
+    public StatusWithLabelDto? Status { get; set; }
+
     /// <summary>
     /// Gets or sets the code associated with the role.
     /// </summary>
