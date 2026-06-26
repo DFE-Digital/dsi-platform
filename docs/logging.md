@@ -71,13 +71,58 @@ OpenTelemetry automatically manages transaction context propagation.
 
 ### B. Client Correlation IDs (Optional)
 API consumers may pass a custom client-specified ID via the `x-correlation-id` HTTP header. 
-*   This is captured and placed into the log scope centrally via the **`ClientCorrelationMiddleware`**.
+*   This is captured and placed into the log scope centrally via the **`LogContextEnrichmentMiddleware`**.
 *   It is registered in `Program.cs` right after the cancellation middleware:
     ```csharp
     app.UseMiddleware<CancellationContextMiddleware>();
-    app.UseMiddleware<Dfe.SignIn.WebFramework.ClientCorrelationMiddleware>();
+    app.UseMiddleware<Dfe.SignIn.WebFramework.LogContextEnrichmentMiddleware>();
     ```
 *   When present, the property `ClientCorrelationId` is automatically appended as structured metadata to every log message generated during that HTTP request.
+
+### C. Session Identity Context (Automatic — via `LogContextEnrichmentMiddleware`)
+
+The middleware also enriches the log scope with request identity context so that every log
+entry for a request is automatically linked to the user that made it. No endpoint
+code is required.
+
+| Application Type | Scope Property | Source | Value |
+|---|---|---|---|
+| Web apps (OIDC-authenticated) | `UserId` | `ClaimTypes.NameIdentifier` claim | Authenticated user's GUID |
+| Public API | — | Endpoints manually include client details | Logged explicitly in handlers |
+| Internal API | — | Service-to-service only | Not enriched (OTel TraceId is sufficient) |
+
+> [!WARNING]
+> **Data Protection**: `UserId` values are persistent pseudonymous identifiers and are
+> considered **personal data** under GDPR. Access to log storage (Azure Monitor / Log
+> Analytics workspaces) **must** be restricted to authorised operations staff only.
+> Ensure your Data Protection Impact Assessment (DPIA) covers the logging of user identifiers.
+> User identifiers must never be logged alongside other personal data fields (e.g. name, email)
+> in the same log statement.
+
+#### How it works
+
+For **web apps**, the middleware reads the authenticated user's identity directly from
+`context.User` (populated by OIDC authentication which runs before this middleware):
+
+```csharp
+// Automatically available in log scope for all authenticated web requests
+// { UserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+```
+
+For **APIs** (Public API / Internal API), the client or service context is not enriched in
+the middleware scope. Instead, log messages within endpoints should include the client context explicitly:
+
+```csharp
+logger.LogInformation("Processing request for client {ClientId}", clientSession.ClientId);
+```
+
+You can query the User ID property in Application Insights / Log Analytics:
+
+```kusto
+traces
+| where customDimensions.UserId == "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+| order by timestamp desc
+```
 
 ---
 

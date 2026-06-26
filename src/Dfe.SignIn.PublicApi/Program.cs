@@ -111,7 +111,7 @@ var securityOptions = app.Configuration
     .Get<SecurityHeaderPolicyOptions>() ?? new SecurityHeaderPolicyOptions();
 
 app.UseMiddleware<CancellationContextMiddleware>();
-app.UseMiddleware<Dfe.SignIn.WebFramework.ClientCorrelationMiddleware>();
+app.UseMiddleware<Dfe.SignIn.WebFramework.LogContextEnrichmentMiddleware>();
 app.UseDsiSecurityHeaderPolicy(policy => {
     policy.AddFrameOptionsSameOrigin();
     policy.AddCustomHeader("X-DNS-Prefetch-Control", "off");

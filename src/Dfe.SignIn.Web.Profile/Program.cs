@@ -158,7 +158,7 @@ if (builder.Environment.IsEnvironment("Local")) {
 var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
-app.UseMiddleware<Dfe.SignIn.WebFramework.ClientCorrelationMiddleware>();
+app.UseMiddleware<Dfe.SignIn.WebFramework.LogContextEnrichmentMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.

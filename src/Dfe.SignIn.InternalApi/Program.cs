@@ -103,7 +103,7 @@ else {
 var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
-app.UseMiddleware<Dfe.SignIn.WebFramework.ClientCorrelationMiddleware>();
+app.UseMiddleware<Dfe.SignIn.WebFramework.LogContextEnrichmentMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 app.UseAuthentication();
