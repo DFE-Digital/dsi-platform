@@ -199,6 +199,7 @@ public record OrganisationDto
             Name = this.Name,
             LegalName = this.LegalName,
             Category = EnumHelpers.MapEnum<OrganisationCategory>(organisationCategory),
+            CategoryId = organisationCategory,
             EstablishmentType = actualEstablishmentType,
             EstablishmentNumber = this.EstablishmentNumber,
             Urn = this.Urn,
