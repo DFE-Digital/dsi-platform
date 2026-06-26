@@ -168,6 +168,12 @@ public record OrganisationDto
     public string? IsOnAPAR { get; set; }
 
     /// <summary>
+    /// Gets or sets the legacyId
+    /// </summary>
+    [JsonPropertyName("legacyId")]
+    public long? LegacyId { get; set; }
+
+    /// <summary>
     /// Maps this DTO to a domain <see cref="Organisation"/> instance.
     /// </summary>
     /// <param name="organisationStatus">
@@ -198,6 +204,7 @@ public record OrganisationDto
             Status = organisationStatus,
             Name = this.Name,
             LegalName = this.LegalName,
+            LegacyId = this.LegacyId,
             Category = EnumHelpers.MapEnum<OrganisationCategory>(organisationCategory),
             CategoryId = organisationCategory,
             EstablishmentType = actualEstablishmentType,
