@@ -35,9 +35,6 @@ internal sealed record UserOrganisationDto : OrganisationDto
     [JsonPropertyName("statutoryHighAge")]
     public int? StatutoryHighAge { get; set; }
 
-    [JsonPropertyName("legacyId")]
-    public long? LegacyId { get; set; }
-
     [JsonPropertyName("telephone")]
     public string? Telephone { get; set; }
 
