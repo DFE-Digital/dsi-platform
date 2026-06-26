@@ -90,6 +90,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
             Status = OrganisationStatus.Open,
             Category = OrganisationCategory.Establishment,
             EstablishmentType = EstablishmentType.HigherEducationInstitution,
+            CategoryId = "001"
         });
 
         Assert.AreEqual(organisations[1], new Organisation {
@@ -97,6 +98,7 @@ public sealed class GetOrganisationsAssociatedWithUserNodeRequesterTests
             Name = mockDtos[1].Organisation.Name,
             Status = OrganisationStatus.Open,
             Category = OrganisationCategory.LocalAuthority,
+            CategoryId = "002"
         });
     }
 
