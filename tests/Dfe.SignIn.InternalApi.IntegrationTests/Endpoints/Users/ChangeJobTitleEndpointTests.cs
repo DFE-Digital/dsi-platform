@@ -36,7 +36,7 @@ public class ChangeJobTitleEndpointTests : IAsyncLifetime
         var expectedJobTitle = "New Job Title";
 
         await using var scope = this.webAppfactory.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
         dbContext.Users.Add(new UserEntity {
             Salt = "salt",
             Email = "dummy@test.com",

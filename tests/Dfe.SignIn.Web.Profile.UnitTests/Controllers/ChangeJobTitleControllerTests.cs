@@ -1,5 +1,6 @@
 using System.Security.Claims;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
@@ -8,6 +9,7 @@ using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
@@ -31,7 +33,7 @@ public sealed class ChangeJobTitleControllerTests
         });
 
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity([
-            new(ClaimTypes.NameIdentifier, "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            new Claim(ClaimTypes.NameIdentifier, "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
         ], "TestAuth"));
 
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
@@ -76,13 +78,14 @@ public sealed class ChangeJobTitleControllerTests
     public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.MockValidationError<ChangeJobTitleRequest>(nameof(ChangeJobTitleRequest.NewJobTitle));
-
         var controller = CreateController(autoMocker);
 
-        var result = await controller.PostIndex(new ChangeJobTitleViewModel());
+        // Force ModelState invalid without needing TryValidateModel infrastructure
+        controller.ModelState.AddModelError(nameof(ChangeJobTitleRequest.NewJobTitle), "Required");
 
+        var result = await controller.PostIndex(new ChangeJobTitleViewModel());
         var viewResult = TypeAssert.IsType<ViewResult>(result);
+
         Assert.AreEqual("Index", viewResult.ViewName);
     }
 
@@ -92,7 +95,10 @@ public sealed class ChangeJobTitleControllerTests
         var autoMocker = new AutoMocker();
 
         ChangeJobTitleRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<ChangeJobTitleRequest>(r => capturedRequest = r);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangeJobTitle(It.IsAny<ChangeJobTitleRequest>()))
+            .Callback<ChangeJobTitleRequest>(r => capturedRequest = r)
+            .Returns(Task.CompletedTask);
 
         var controller = CreateController(autoMocker);
 
@@ -107,6 +113,11 @@ public sealed class ChangeJobTitleControllerTests
     public async Task PostIndex_FlashSuccess_WhenSuccessful()
     {
         var autoMocker = new AutoMocker();
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangeJobTitle(It.IsAny<ChangeJobTitleRequest>()))
+            .Returns(Task.CompletedTask);
+
         var controller = CreateController(autoMocker);
 
         await controller.PostIndex(CreateValidChangeJobTitleViewModel());
@@ -122,6 +133,11 @@ public sealed class ChangeJobTitleControllerTests
     public async Task PostIndex_RedirectsToHome_WhenSuccessful()
     {
         var autoMocker = new AutoMocker();
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangeJobTitle(It.IsAny<ChangeJobTitleRequest>()))
+            .Returns(Task.CompletedTask);
+
         var controller = CreateController(autoMocker);
 
         var result = await controller.PostIndex(CreateValidChangeJobTitleViewModel());
