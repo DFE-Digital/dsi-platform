@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework.Internal;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Public;
+using Dfe.SignIn.Core.Public.Metadata;
 using Dfe.SignIn.PublicApi.Models;
 
 namespace Dfe.SignIn.PublicApi.MappingExtensions;
@@ -21,16 +22,17 @@ public static class OrganisationResponseMapping
             Id = o.Id,
             Name = o.Name,
             Category = new CategoryDto {
-                Id = ((int)o.Category).ToString(),
-                Name = EnumHelpers.MapEnum<OrganisationCategory>((int)o.Category).GetDescription()
+                Id = o.CategoryId,
+                Name = EnumHelpers.MapEnum<OrganisationCategory>(o.CategoryId).GetDescription()
             },
             Urn = o.Urn,
             Uid = o.Uid,
             Ukprn = o.Ukprn,
             EstablishmentNumber = o.EstablishmentNumber,
-            Status = new StatusDto {
+            Status = new StatusWithLabelDto {
                 Id = (int)o.Status,
-                Name = EnumHelpers.MapEnum<OrganisationStatus>((int)o.Status).GetDescription()
+                Name = EnumHelpers.MapEnum<OrganisationStatus>((int)o.Status).GetDescription(),
+                TagColor = AnnotationHelpers.GetTagColour(o.Status).HasValue ? AnnotationHelpers.GetTagColour(o.Status).Value.GetDescription() : string.Empty,
             },
             PIMSProviderType = o.PimsProviderType,
             PIMSProviderTypeCode = o.PimsProviderTypeCode,
@@ -48,7 +50,7 @@ public static class OrganisationResponseMapping
             SourceSystem = o.SourceSystem,
             ProviderTypeName = o.ProviderTypeName,
             LegalName = o.LegalName,
-            ProviderTypeCode = o.ProviderTypeName,
+            ProviderTypeCode = o.ProviderTypeCode,
             GIASProviderType = o.GiasProviderType,
             PIMSStatusName = o.PimsStatusName,
             GIASStatusName = o.GiasStatusName,

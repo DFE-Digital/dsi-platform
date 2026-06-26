@@ -23,6 +23,7 @@ internal static class OrganisationHelpers
             Status = EnumHelpers.MapEnum<OrganisationStatus>(entity.Status),
             Name = entity.Name,
             LegalName = entity.LegalName,
+            CategoryId = entity.Category,
             Category = EnumHelpers.MapEnum<OrganisationCategory>(entity.Category),
             EstablishmentType = actualEstablishmentType,
             EstablishmentNumber = entity.EstablishmentNumber,

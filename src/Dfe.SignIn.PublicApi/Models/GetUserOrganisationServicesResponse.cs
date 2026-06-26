@@ -141,12 +141,6 @@ public abstract class BaseOrganisationDto
     public string? CompanyRegistrationNumber { get; set; }
 
     /// <summary>
-    /// Gets or sets the provider profile identifier.
-    /// </summary>
-    [JsonPropertyName("ProviderProfileID")]
-    public string? ProviderProfileID { get; set; }
-
-    /// <summary>
     /// Gets or sets the Unique Provider Identification Number (UPIN).
     /// </summary>
     [JsonPropertyName("UPIN")]
@@ -199,13 +193,24 @@ public abstract class BaseOrganisationDto
     /// </summary>
     [JsonPropertyName("PIMSProviderTypeCode")]
     public int? PIMSProviderTypeCode { get; set; }
+}
+
+/// <summary>
+/// Represents an organisation and its associated details and services.
+/// </summary>
+public class OrganisationDto : BaseOrganisationDto
+{
+    /// <summary>
+    /// Gets or sets the provider profile identifier.
+    /// </summary>
+    [JsonPropertyName("ProviderProfileID")]
+    public string? ProviderProfileID { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of services associated with the organisation.
     /// </summary>
     [JsonPropertyName("services")]
     public IEnumerable<ServiceDto> Services { get; set; } = [];
-
     /// <summary>
     /// Gets or sets the organisation role identifier for the user.
     /// </summary>
@@ -217,12 +222,6 @@ public abstract class BaseOrganisationDto
     /// </summary>
     [JsonPropertyName("orgRoleName")]
     public string? OrgRoleName { get; set; }
-}
-/// <summary>
-/// Represents an organisation and its associated details and services.
-/// </summary>
-public class OrganisationDto : BaseOrganisationDto
-{
 }
 
 /// <summary>
@@ -239,7 +238,7 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// <summary>
     /// Gets or sets the code associated provider type code.
     /// </summary>
-    public string? ProviderTypeCode { get; init; }
+    public int? ProviderTypeCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated  PIMSStatus Name
@@ -316,6 +315,18 @@ public class StatusDto
     /// </summary>
     [JsonPropertyName("name")]
     public string? Name { get; set; }
+}
+
+/// <summary>
+/// Represents the status of an organisation.
+/// </summary>
+public class StatusWithLabelDto : StatusDto
+{
+    /// <summary>
+    /// Gets or sets the status TagColor.
+    /// </summary>
+    [JsonPropertyName("tagColor")]
+    public string? TagColor { get; set; }
 }
 
 /// <summary>
