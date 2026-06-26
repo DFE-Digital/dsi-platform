@@ -32,6 +32,8 @@ builder.Services
 
 builder.Services.SetupSwagger();
 builder.Services.AddHealthChecks();
+builder.Services.AddExceptionHandler<Dfe.SignIn.InternalApi.GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 #if !DEBUG // Exclude when debugging locally.
@@ -102,6 +104,7 @@ else {
 
 var app = builder.Build();
 
+app.UseExceptionHandler(); // Returns JSON ProblemDetails using GlobalExceptionHandler
 app.UseMiddleware<CancellationContextMiddleware>();
 app.UseMiddleware<Dfe.SignIn.WebFramework.LogContextEnrichmentMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
