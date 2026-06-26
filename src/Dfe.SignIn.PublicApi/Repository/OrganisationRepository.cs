@@ -89,36 +89,38 @@ public class OrganisationRepository : IOrganisationRepository
                     ,r.[Name] AS RoleName
                     ,r.Code AS RoleCode
                     ,uo.role_id AS OrgRoleId
-                FROM dbo.user_organisation uo
-                JOIN dbo.[user] u 
-                    ON u.sub = uo.user_id
-                JOIN dbo.organisation o 
-                    ON o.Id = uo.organisation_id
-                JOIN dbo.user_services us 
-                    ON us.organisation_id = uo.organisation_id 
-                    AND us.user_id = uo.user_id
-                LEFT JOIN dbo.[service] s 
-                    ON s.id = us.service_id
-                LEFT JOIN dbo.user_service_roles usr 
-                    ON usr.organisation_id = us.organisation_id
-                    AND usr.service_id = us.service_id
-                    AND usr.user_id = us.user_id
-                LEFT JOIN dbo.[Role] r 
-                    ON r.Id = usr.role_id
-                WHERE
-                    uo.user_id = {userId}
-                    AND 
-                    o.[status] <> 0
-                    AND EXISTS (
-                        SELECT 1
+                    ,CASE WHEN EXISTS (
+                        SELECT *
                         FROM dbo.user_services us2
                         JOIN dbo.[service] s2 
                             ON s2.id = us2.service_id
+                        JOIN dbo.[organisation] o2
+                            ON o2.Id = us2.organisation_id
                         WHERE 
                             us2.organisation_id = uo.organisation_id
                             AND us2.user_id = uo.user_id
                             AND s2.clientId = {clientName}
-                    );
+                            AND o2.[Status] <> 0
+                        )
+                        THEN 1 ELSE 0 END AS IsInService
+                FROM dbo.[user] u
+                LEFT OUTER JOIN dbo.user_organisation uo
+                    ON uo.user_id = u.sub
+                LEFT OUTER JOIN dbo.organisation o 
+                    ON o.Id = uo.organisation_id AND o.[Status] <> 0
+                LEFT OUTER JOIN dbo.user_services us 
+                    ON us.organisation_id = uo.organisation_id 
+                    AND us.user_id = uo.user_id
+                LEFT OUTER JOIN dbo.[service] s 
+                    ON s.id = us.service_id
+                LEFT OUTER JOIN dbo.user_service_roles usr 
+                    ON usr.organisation_id = us.organisation_id
+                    AND usr.service_id = us.service_id
+                    AND usr.user_id = us.user_id
+                LEFT OUTER JOIN dbo.[Role] r 
+                    ON r.Id = usr.role_id
+                WHERE
+                    u.sub = {userId};
                 """)
             .ToListAsync(cancellationToken);
 

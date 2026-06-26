@@ -18,10 +18,12 @@ public static class GetUserOrganisationServiceMapping
     /// <returns></returns>
     public static IEnumerable<GetUserOrganisationServicesResponse> ToUserDtos(this IEnumerable<GetUserOrganisationService> models)
     {
+        var hasService = models.Any(x => x.IsInService == 1);
+
         return models
             .GroupBy(x => x.UserId)
             .Select(userGroup => {
-                GetUserOrganisationService u = userGroup.First();
+                var u = userGroup.First();
 
                 return new GetUserOrganisationServicesResponse {
                     UserId = u.UserId,
@@ -29,9 +31,9 @@ public static class GetUserOrganisationServiceMapping
                     Email = u.Email,
                     FamilyName = u.FamilyName,
                     GivenName = u.GivenName,
-
-                    Organisations = userGroup.ToOrganisationDtos()
-
+                    Organisations = hasService
+                        ? userGroup.ToOrganisationDtos()
+                        : []
                 };
             });
     }
@@ -45,12 +47,13 @@ public static class GetUserOrganisationServiceMapping
     this IGrouping<Guid, GetUserOrganisationService> userGroup)
     {
         return userGroup
-            .GroupBy(x => x.OrganisationId)
+            .Where(x => x.OrganisationId.HasValue) // Filter out nulls
+            .GroupBy(x => x.OrganisationId!.Value) // Use ! to suppress nullable warning
             .Select(static orgGroup => {
                 var o = orgGroup.First();
 
                 return new OrganisationDto {
-                    Id = o.OrganisationId,
+                    Id = o.OrganisationId ?? Guid.Empty,
                     Name = o.OrganisationName,
 
                     Category = new CategoryDto {
@@ -63,10 +66,12 @@ public static class GetUserOrganisationServiceMapping
                     Ukprn = o.Ukprn,
                     EstablishmentNumber = o.EstablishmentNumber,
 
-                    Status = new StatusDto {
-                        Id = o.StatusId,
-                        Name = EnumHelpers.MapEnum<OrganisationStatus>(o.StatusId).GetDescription()
-                    },
+                    Status = o.StatusId.HasValue
+                        ? new StatusDto {
+                            Id = o.StatusId.Value,
+                            Name = EnumHelpers.MapEnum<OrganisationStatus>(o.StatusId).GetDescription()
+                        }
+                        : new StatusDto(),
 
                     ClosedOn = o.ClosedOn,
                     Address = o.Address,
@@ -88,8 +93,8 @@ public static class GetUserOrganisationServiceMapping
 
                     Services = orgGroup.ToServiceDtos(),
 
-                    OrgRoleId = o.OrgRoleId,
-                    OrgRoleName = OrganisationRoles.FromId(o.OrgRoleId)?.Name
+                    OrgRoleId = o.OrgRoleId ?? 0, // Fix: Use fallback if null
+                    OrgRoleName = o.OrgRoleId.HasValue ? OrganisationRoles.FromId(o.OrgRoleId.Value)?.Name : null // Fix: Only access .Value if not null
                 };
             });
 
