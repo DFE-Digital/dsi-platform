@@ -20,12 +20,18 @@ public static class OrganisationResponseMapping
     {
         var tagColor = AnnotationHelpers.GetTagColour(o.Status);
 
+        var categoryName = string.Empty;
+
+        if (!string.IsNullOrEmpty(o.CategoryId)) {
+            categoryName = EnumHelpers.MapEnum<OrganisationCategory>(o.CategoryId).GetDescription();
+        }
+
         return new UserOrganisationDto {
             Id = o.Id,
             Name = o.Name,
             Category = new CategoryDto {
                 Id = o.CategoryId,
-                Name = EnumHelpers.MapEnum<OrganisationCategory>(o.CategoryId).GetDescription()
+                Name = categoryName
             },
             Urn = o.Urn,
             Uid = o.Uid,
