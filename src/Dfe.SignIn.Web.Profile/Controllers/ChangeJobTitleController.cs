@@ -44,10 +44,24 @@ public sealed class ChangeJobTitleController(
             return this.Index();
         }
 
-        await usersApiClient.ChangeJobTitle(new ChangeJobTitleRequest {
-            UserId = this.User.GetUserId(),
-            NewJobTitle = viewModel.JobTitleInput,
-        });
+        try {
+            await usersApiClient.ChangeJobTitle(new ChangeJobTitleRequest {
+                UserId = this.User.GetUserId(),
+                NewJobTitle = viewModel.JobTitleInput,
+            });
+        }
+        catch (Exception ex) {
+            logger.LogError(
+                ex,
+                "Job title change failed for user {UserId}",
+                this.User.GetUserId());
+            this.SetFlashNotification(
+                heading: "Job title change failed",
+                message: "An error occurred while trying to change your job title. Please try again later."
+            );
+
+            return this.Index();
+        }
 
         this.SetFlashSuccess(
             heading: "Job title updated successfully",
