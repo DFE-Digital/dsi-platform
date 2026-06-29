@@ -239,52 +239,61 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// <summary>
     /// Gets or sets the code associated with the role.
     /// </summary>
-    [JsonPropertyName("legalName")]
+    [JsonPropertyName("LegalName")]
     public string? LegalName { get; set; }
 
     /// <summary>
     /// Gets or sets the code associated provider type code.
     /// </summary>
+    [JsonPropertyName("ProviderTypeCode")]
     public int? ProviderTypeCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated  PIMSStatus Name
     /// </summary>
+    [JsonPropertyName("PIMSStatusName")]
     public string? PIMSStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated GIAS Status Name
     /// </summary>
+    [JsonPropertyName("GIASStatusName")]
     public string? GIASStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated GIAS Status
     /// </summary>
+    [JsonPropertyName("GIASStatus")]
     public int? GIASStatus { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated Master Provider Status Name
     /// </summary>
+    [JsonPropertyName("MasterProviderStatusName")]
     public string? MasterProviderStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated Master Provider Status Code
     /// </summary>
+    [JsonPropertyName("MasterProviderStatusCode")]
     public int? MasterProviderStatusCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated District Administrative Code
     /// </summary>
+    [JsonPropertyName("DistrictAdministrativeCode")]
     public string? DistrictAdministrativeCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated DistrictAdministrative Code (Legacy)
     /// </summary>
+    [JsonPropertyName("DistrictAdministrative_code")]
     public string? DistrictAdministrative_code { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated IS On APAR
     /// </summary>
+    [JsonPropertyName("IsOnAPAR")]
     public string? IsOnAPAR { get; init; }
 }
 
