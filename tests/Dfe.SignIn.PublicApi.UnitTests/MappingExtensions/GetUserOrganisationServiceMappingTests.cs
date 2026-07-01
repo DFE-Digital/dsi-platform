@@ -8,12 +8,13 @@ namespace Dfe.SignIn.PublicApi.UnitTests.MappingExtensions;
 [TestClass]
 public class GetUserOrganisationServiceMappingTests
 {
-    private static GetUserOrganisationService CreateModel(
+    private static GetUserOrganisationService CreateUserOrganisationServiceModel(
         Guid userId,
         Guid orgId,
         string? serviceName,
         string? roleName,
-        string? roleCode)
+        string? roleCode,
+        int inService = 1)
     {
         return new GetUserOrganisationService {
             UserId = userId,
@@ -33,8 +34,31 @@ public class GetUserOrganisationServiceMappingTests
             RoleName = roleName,
             RoleCode = roleCode,
 
-            OrgRoleId = OrganisationRoles.Approver.Id
+            OrgRoleId = OrganisationRoles.Approver.Id,
+            IsInService = inService
         };
+    }
+
+    [TestMethod]
+    public void ToUserDtos_WhenServiceNotFound_ReturnsSingleUserWithZeroOrganisations()
+    {
+        var userId = Guid.NewGuid();
+        var orgId = Guid.NewGuid();
+
+        var models = new[]
+        {
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1", 0),
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceB", "Role2", "R2", 0)
+        };
+
+        var result = models.ToUserDtos().Single();
+
+        Assert.IsEmpty(result.Organisations);
+        Assert.AreEqual(userId, result.UserId);
+        Assert.AreEqual("test@test.com", result.Email);
+        Assert.AreEqual("Doe", result.FamilyName);
+        Assert.AreEqual("John", result.GivenName);
+        Assert.AreEqual(1, result.UserStatus);
     }
 
     [TestMethod]
@@ -44,8 +68,8 @@ public class GetUserOrganisationServiceMappingTests
 
         var models = new[]
         {
-            CreateModel(userId, Guid.NewGuid(), "ServiceA", "Role1", "R1"),
-            CreateModel(userId, Guid.NewGuid(), "ServiceB", "Role2", "R2")
+            CreateUserOrganisationServiceModel(userId, Guid.NewGuid(), "ServiceA", "Role1", "R1"),
+            CreateUserOrganisationServiceModel(userId, Guid.NewGuid(), "ServiceB", "Role2", "R2")
         };
 
         var result = models.ToUserDtos().ToList();
@@ -59,7 +83,7 @@ public class GetUserOrganisationServiceMappingTests
     {
         var userId = Guid.NewGuid();
 
-        var model = CreateModel(userId, Guid.NewGuid(), "ServiceA", "Role1", "R1");
+        var model = CreateUserOrganisationServiceModel(userId, Guid.NewGuid(), "ServiceA", "Role1", "R1");
 
         var result = new[] { model }.ToUserDtos().Single();
 
@@ -77,8 +101,8 @@ public class GetUserOrganisationServiceMappingTests
 
         var models = new[]
         {
-            CreateModel(userId, orgId, "ServiceA", "Role1", "R1"),
-            CreateModel(userId, orgId, "ServiceB", "Role2", "R2")
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1"),
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceB", "Role2", "R2")
         };
 
         var result = models.ToUserDtos().Single();
@@ -92,7 +116,7 @@ public class GetUserOrganisationServiceMappingTests
         var userId = Guid.NewGuid();
         var orgId = Guid.NewGuid();
 
-        var model = CreateModel(userId, orgId, "ServiceA", "Role1", "R1");
+        var model = CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1");
 
         var org = new[] { model }
             .ToUserDtos()
@@ -114,8 +138,8 @@ public class GetUserOrganisationServiceMappingTests
 
         var models = new[]
         {
-            CreateModel(userId, orgId, "ServiceA", "Role1", "R1"),
-            CreateModel(userId, orgId, "ServiceA", "Role2", "R2")
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1"),
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role2", "R2")
         };
 
         var services = models
@@ -136,8 +160,8 @@ public class GetUserOrganisationServiceMappingTests
 
         var models = new[]
         {
-            CreateModel(userId, orgId, "BService", "Role1", "R1"),
-            CreateModel(userId, orgId, "AService", "Role1", "R1")
+            CreateUserOrganisationServiceModel(userId, orgId, "BService", "Role1", "R1"),
+            CreateUserOrganisationServiceModel(userId, orgId, "AService", "Role1", "R1")
         };
 
         var services = models
@@ -160,8 +184,8 @@ public class GetUserOrganisationServiceMappingTests
 
         var models = new[]
         {
-            CreateModel(userId, orgId, "ServiceA", "Role1", "R1"),
-            CreateModel(userId, orgId, "ServiceA", "Role1", "R1") // duplicate
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1"),
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1") // duplicate
         };
 
         var roles = models
@@ -184,8 +208,8 @@ public class GetUserOrganisationServiceMappingTests
 
         var models = new[]
         {
-            CreateModel(userId, orgId, "ServiceA", null, "R1"),
-            CreateModel(userId, orgId, "ServiceA", "Role1", "R1")
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", null, "R1"),
+            CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1")
         };
 
         var roles = models
@@ -208,7 +232,7 @@ public class GetUserOrganisationServiceMappingTests
         var userId = Guid.NewGuid();
         var orgId = Guid.NewGuid();
 
-        var model = CreateModel(userId, orgId, "ServiceA", "Role1", "R1");
+        var model = CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1");
         model.LegacyId = 12345;
 
         var org = new[] { model }
@@ -226,7 +250,7 @@ public class GetUserOrganisationServiceMappingTests
         var userId = Guid.NewGuid();
         var orgId = Guid.NewGuid();
 
-        var model = CreateModel(userId, orgId, "ServiceA", "Role1", "R1");
+        var model = CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1");
 
         var org = new[] { model }
             .ToUserDtos()
