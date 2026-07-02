@@ -40,7 +40,7 @@ public static class OrganisationResponseMapping
             Status = new StatusWithLabelDto {
                 Id = (int)o.Status,
                 Name = EnumHelpers.MapEnum<OrganisationStatus>((int)o.Status).GetDescription(),
-                TagColor = tagColor?.ToString()
+                TagColor = tagColor?.ToString().ToLower()
             },
             PIMSProviderType = o.PimsProviderType,
             PIMSProviderTypeCode = o.PimsProviderTypeCode,
@@ -62,11 +62,9 @@ public static class OrganisationResponseMapping
             GIASProviderType = o.GiasProviderType,
             PIMSStatusName = o.PimsStatusName,
             GIASStatusName = o.GiasStatusName,
-            GIASStatus = o.GiasStatus,
             MasterProviderStatusName = o.MasterProviderStatusName,
             MasterProviderStatusCode = o.MasterProviderStatusCode,
             DistrictAdministrativeCode = o.DistrictAdministrativeCode,
-            DistrictAdministrative_code = o.DistrictAdministrative_code,
             IsOnAPAR = o.IsOnApar
         };
     }

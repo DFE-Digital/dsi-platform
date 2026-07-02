@@ -135,12 +135,6 @@ public abstract class BaseOrganisationDto
     public string? CompanyRegistrationNumber { get; set; }
 
     /// <summary>
-    /// Gets or sets the Unique Provider Identification Number (UPIN).
-    /// </summary>
-    [JsonPropertyName("UPIN")]
-    public string? UPIN { get; set; }
-
-    /// <summary>
     /// Gets or sets the PIMS provider type.
     /// </summary>
     [JsonPropertyName("PIMSProviderType")]
@@ -169,12 +163,6 @@ public abstract class BaseOrganisationDto
     /// </summary>
     [JsonPropertyName("SourceSystem")]
     public string? SourceSystem { get; set; }
-
-    /// <summary>
-    /// Gets or sets the provider type name.
-    /// </summary>
-    [JsonPropertyName("ProviderTypeName")]
-    public string? ProviderTypeName { get; set; }
 
     /// <summary>
     /// Gets or sets the GIAS provider type.
@@ -222,6 +210,18 @@ public class OrganisationDto : BaseOrganisationDto
     /// </summary>
     [JsonPropertyName("orgRoleName")]
     public string? OrgRoleName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Unique Provider Identification Number (UPIN).
+    /// </summary>
+    [JsonPropertyName("UPIN")]
+    public string? UPIN { get; set; }
+
+    /// <summary>
+    /// Gets or sets the provider type name.
+    /// </summary>
+    [JsonPropertyName("ProviderTypeName")]
+    public string? ProviderTypeName { get; set; }
 }
 
 /// <summary>
@@ -261,12 +261,6 @@ public class UserOrganisationDto : BaseOrganisationDto
     public string? GIASStatusName { get; init; }
 
     /// <summary>
-    /// Gets or sets the code associated GIAS Status
-    /// </summary>
-    [JsonPropertyName("GIASStatus")]
-    public int? GIASStatus { get; init; }
-
-    /// <summary>
     /// Gets or sets the code associated Master Provider Status Name
     /// </summary>
     [JsonPropertyName("MasterProviderStatusName")]
@@ -285,16 +279,22 @@ public class UserOrganisationDto : BaseOrganisationDto
     public string? DistrictAdministrativeCode { get; init; }
 
     /// <summary>
-    /// Gets or sets the code associated DistrictAdministrative Code (Legacy)
-    /// </summary>
-    [JsonPropertyName("DistrictAdministrative_code")]
-    public string? DistrictAdministrative_code { get; init; }
-
-    /// <summary>
     /// Gets or sets the code associated IS On APAR
     /// </summary>
     [JsonPropertyName("IsOnAPAR")]
     public string? IsOnAPAR { get; init; }
+
+    /// <summary>
+    /// Gets or sets the Unique Provider Identification Number (UPIN).
+    /// </summary>
+    [JsonPropertyName("upin")]
+    public string? UPIN { get; set; }
+
+    /// <summary>
+    /// Gets or sets the provider type name.
+    /// </summary>
+    [JsonPropertyName("providerTypeName")]
+    public string? ProviderTypeName { get; set; }
 }
 
 /// <summary>
