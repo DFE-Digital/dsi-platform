@@ -137,43 +137,43 @@ public abstract class BaseOrganisationDto
     /// <summary>
     /// Gets or sets the PIMS provider type.
     /// </summary>
-    [JsonPropertyName("PIMSProviderType")]
+    [JsonPropertyName("pimsProviderType")]
     public string? PIMSProviderType { get; set; }
 
     /// <summary>
     /// Gets or sets the PIMS status of the organisation.
     /// </summary>
-    [JsonPropertyName("PIMSStatus")]
+    [JsonPropertyName("pimsStatus")]
     public string? PIMSStatus { get; set; }
 
     /// <summary>
     /// Gets or sets the district administrative name.
     /// </summary>
-    [JsonPropertyName("DistrictAdministrativeName")]
+    [JsonPropertyName("districtAdministrativeName")]
     public string? DistrictAdministrativeName { get; set; }
 
     /// <summary>
     /// Gets or sets the organisation opening date (as a string).
     /// </summary>
-    [JsonPropertyName("OpenedOn")]
+    [JsonPropertyName("openedOn")]
     public string? OpenedOn { get; set; }
 
     /// <summary>
     /// Gets or sets the source system from which this organisation data originates.
     /// </summary>
-    [JsonPropertyName("SourceSystem")]
+    [JsonPropertyName("sourceSystem")]
     public string? SourceSystem { get; set; }
 
     /// <summary>
     /// Gets or sets the GIAS provider type.
     /// </summary>
-    [JsonPropertyName("GIASProviderType")]
+    [JsonPropertyName("giasProviderType")]
     public string? GIASProviderType { get; set; }
 
     /// <summary>
     /// Gets or sets the PIMS provider type code.
     /// </summary>
-    [JsonPropertyName("PIMSProviderTypeCode")]
+    [JsonPropertyName("pimsProviderTypeCode")]
     public int? PIMSProviderTypeCode { get; set; }
 }
 
@@ -239,49 +239,49 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// <summary>
     /// Gets or sets the code associated with the role.
     /// </summary>
-    [JsonPropertyName("LegalName")]
+    [JsonPropertyName("legalName")]
     public string? LegalName { get; set; }
 
     /// <summary>
     /// Gets or sets the code associated provider type code.
     /// </summary>
-    [JsonPropertyName("ProviderTypeCode")]
+    [JsonPropertyName("providerTypeCode")]
     public int? ProviderTypeCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated  PIMSStatus Name
     /// </summary>
-    [JsonPropertyName("PIMSStatusName")]
+    [JsonPropertyName("pimsStatusName")]
     public string? PIMSStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated GIAS Status Name
     /// </summary>
-    [JsonPropertyName("GIASStatusName")]
+    [JsonPropertyName("giasStatusName")]
     public string? GIASStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated Master Provider Status Name
     /// </summary>
-    [JsonPropertyName("MasterProviderStatusName")]
+    [JsonPropertyName("masterProviderStatusName")]
     public string? MasterProviderStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated Master Provider Status Code
     /// </summary>
-    [JsonPropertyName("MasterProviderStatusCode")]
+    [JsonPropertyName("masterProviderStatusCode")]
     public int? MasterProviderStatusCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated District Administrative Code
     /// </summary>
-    [JsonPropertyName("DistrictAdministrativeCode")]
+    [JsonPropertyName("districtAdministrativeCode")]
     public string? DistrictAdministrativeCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated IS On APAR
     /// </summary>
-    [JsonPropertyName("IsOnAPAR")]
+    [JsonPropertyName("isOnAPAR")]
     public string? IsOnAPAR { get; init; }
 
     /// <summary>
