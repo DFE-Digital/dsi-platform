@@ -2,7 +2,6 @@ using System.Security.Claims;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -39,7 +38,7 @@ public sealed class UserProfileMiddlewareTests
 
         autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
             x.DispatchAsync(
-                It.IsAny<InteractionContext<GetUserProfileRequest>>()
+                It.IsAny<InteractionContext<Core.Contracts.Users.GetUserProfileRequest>>()
             ),
             Times.Never
         );

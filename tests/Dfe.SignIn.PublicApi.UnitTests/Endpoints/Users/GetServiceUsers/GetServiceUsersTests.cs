@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Features.Applications;
+using Dfe.SignIn.Core.Contracts.Features.Applications.GetApplicationByClientId;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.PublicApi.Authorization;
 using Dfe.SignIn.PublicApi.Endpoints.Users.GetServiceUsers;
@@ -16,7 +17,7 @@ public class GetServiceUsersTests
     private const string FakeClientId = "test-client-id";
     private static readonly Guid FakeServiceId = Guid.NewGuid();
 
-    private static Application CreateTestApplication() => new() {
+    private static Core.Contracts.Applications.Application CreateTestApplication() => new() {
         Id = FakeServiceId,
         ClientId = FakeClientId,
         Name = "Test Application",
@@ -38,11 +39,13 @@ public class GetServiceUsersTests
         return (autoMocker, clientSession.Object, logger, httpContext);
     }
 
-    private static void MockApplicationLookup(AutoMocker autoMocker, Application? application = null)
+    private static void MockApplicationLookup(AutoMocker autoMocker, Core.Contracts.Applications.Application? application = null)
     {
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse {
-            Application = application ?? CreateTestApplication()
-        });
+        autoMocker.GetMock<IApplicationsApiClient>()
+            .Setup(x => x.GetApplicationByClientId(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse {
+                Application = application ?? CreateTestApplication()
+            });
     }
 
     private static void MockGetServiceUsersResponse(AutoMocker autoMocker, int page = 1)
@@ -62,10 +65,14 @@ public class GetServiceUsersTests
 
         var mockClientSession = autoMocker.GetMock<IClientSession>();
         mockClientSession.SetupGet(x => x.ClientId).Returns("fake-client-id");
+        autoMocker.GetMock<IApplicationsApiClient>()
+            .Setup(x => x.GetApplicationByClientId(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ThrowsAsync(new ApplicationNotFoundException());
 
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             mockClientSession.Object,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery()
         );
@@ -90,6 +97,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery()
         );
@@ -115,6 +123,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery()
         );
@@ -141,6 +150,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery(Status: 0, From: from, To: to, Page: 2, PageSize: 25)
         );
@@ -163,11 +173,14 @@ public class GetServiceUsersTests
     {
         var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
 
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { Application = null });
+        autoMocker.GetMock<IApplicationsApiClient>()
+            .Setup(x => x.GetApplicationByClientId(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ReturnsAsync(new GetApplicationByClientIdResponse { Application = null! });
 
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery()
         );
@@ -179,11 +192,14 @@ public class GetServiceUsersTests
     public async Task ReturnsProblem_WhenApplicationLookupThrowsUnexpectedException()
     {
         var (autoMocker, clientSession, logger, httpContext) = CreateMocks();
-        autoMocker.MockThrows<GetApplicationByClientIdRequest>(new Exception("fail"));
+        autoMocker.GetMock<IApplicationsApiClient>()
+            .Setup(x => x.GetApplicationByClientId(It.IsAny<GetApplicationByClientIdRequest>()))
+            .ThrowsAsync(new Exception("fail"));
 
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery()
         );
@@ -202,6 +218,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery(From: from)
         );
@@ -222,6 +239,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery(To: to)
         );
@@ -243,6 +261,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery(From: from, To: to)
         );
@@ -264,6 +283,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery(From: from, To: to)
         );
@@ -283,6 +303,7 @@ public class GetServiceUsersTests
         var result = await GetServiceUsersEndpoint.GetServiceUsersHandler(
             clientSession,
             autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<IApplicationsApiClient>(),
             logger.Object,
             new GetServiceUsersQuery()
         );

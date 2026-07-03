@@ -1,3 +1,4 @@
+using Dfe.SignIn.InternalApi.Feature.Applications;
 using Dfe.SignIn.InternalApi.Feature.Users;
 
 namespace Dfe.SignIn.InternalApi.Feature;
@@ -14,5 +15,6 @@ public static class Bootstrapping
     public static void MapFeatureEndpoints(this WebApplication app)
     {
         app.UseMyUserEndpoints();
+        app.UseApplicationEndpoints();
     }
 }

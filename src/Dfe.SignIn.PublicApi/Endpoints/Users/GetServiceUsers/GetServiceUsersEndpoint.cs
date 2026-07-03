@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Features.Applications;
+using Dfe.SignIn.Core.Contracts.Features.Applications.GetApplicationByClientId;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.PublicApi.Authorization;
 
@@ -35,10 +36,12 @@ public sealed class GetServiceUsersEndpoint
     /// <param name="interaction">Service to dispatch interaction requests.</param>
     /// <param name="logger">The logger instance for this endpoint.</param>
     /// <param name="query">The query parameters for filtering and pagination.</param>
+    /// <param name="applicationsApiClient">The applications API client for retrieving application details.</param>
     /// <returns>The service users for the given service.</returns>
     public static async Task<IResult> GetServiceUsersHandler(
         IClientSession clientSession,
         IInteractionDispatcher interaction,
+        IApplicationsApiClient applicationsApiClient,
         ILogger<GetServiceUsersEndpoint> logger,
         [AsParameters] GetServiceUsersQuery query)
     {
@@ -58,11 +61,11 @@ public sealed class GetServiceUsersEndpoint
         GetApplicationByClientIdResponse applicationResponse;
 
         try {
-            applicationResponse = await interaction.DispatchAsync(
+            applicationResponse = await applicationsApiClient.GetApplicationByClientId(
                 new GetApplicationByClientIdRequest {
                     ClientId = clientId
                 }
-            ).To<GetApplicationByClientIdResponse>();
+            );
         }
         catch (ApplicationNotFoundException) {
             return Results.NotFound($"Application with clientId '{clientId}' not found.");

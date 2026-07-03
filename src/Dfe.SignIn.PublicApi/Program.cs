@@ -104,6 +104,9 @@ builder.Services.SetupServiceInteractions();
 
 builder.Services.SetupApiSecretEncryption(builder.Configuration);
 
+builder.Services
+    .AddApplicationsApiClient(tokenCredential);
+
 var app = builder.Build();
 
 var securityOptions = app.Configuration
@@ -111,7 +114,7 @@ var securityOptions = app.Configuration
     .Get<SecurityHeaderPolicyOptions>() ?? new SecurityHeaderPolicyOptions();
 
 app.UseMiddleware<CancellationContextMiddleware>();
-app.UseMiddleware<Dfe.SignIn.WebFramework.LogContextEnrichmentMiddleware>();
+app.UseMiddleware<LogContextEnrichmentMiddleware>();
 app.UseDsiSecurityHeaderPolicy(policy => {
     policy.AddFrameOptionsSameOrigin();
     policy.AddCustomHeader("X-DNS-Prefetch-Control", "off");

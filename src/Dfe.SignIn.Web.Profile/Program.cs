@@ -1,7 +1,6 @@
 using Azure.Identity;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Interfaces.Graph;
@@ -20,8 +19,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.Extensions.Options;
-using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,20 +120,22 @@ builder.Services
 //    })
 //    .AddStandardResilienceHandler();
 
-builder.Services
-    .AddRefitClient<IUsersApiClient>()
-    .ConfigureHttpClient((provider, client) => {
-        var options = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
-        client.BaseAddress = options.BaseAddress;
-    })
-    .AddHttpMessageHandler(provider => {
-        var options = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
-        string[] scopes = [$"{options.Resource}/.default"];
+//builder.Services
+//    .AddRefitClient<IUsersApiClient>()
+//    .ConfigureHttpClient((provider, client) => {
+//        var options = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
+//        client.BaseAddress = options.BaseAddress;
+//    })
+//    .AddHttpMessageHandler(provider => {
+//        var options = provider.GetRequiredService<IOptions<InternalApiClientOptions>>().Value;
+//        string[] scopes = [$"{options.Resource}/.default"];
 
-        var auditContextBuilder = provider.GetRequiredService<IAuditContextBuilder>();
-        return new AuthenticatedHttpClientHandler(auditContextBuilder, tokenCredential, scopes);
-    })
-    .AddStandardResilienceHandler();
+//        var auditContextBuilder = provider.GetRequiredService<IAuditContextBuilder>();
+//        return new AuthenticatedHttpClientHandler(auditContextBuilder, tokenCredential, scopes);
+//    })
+//    .AddStandardResilienceHandler();
+
+builder.Services.AddUsersApiClient(tokenCredential);
 
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
@@ -158,7 +157,7 @@ if (builder.Environment.IsEnvironment("Local")) {
 var app = builder.Build();
 
 app.UseMiddleware<CancellationContextMiddleware>();
-app.UseMiddleware<Dfe.SignIn.WebFramework.LogContextEnrichmentMiddleware>();
+app.UseMiddleware<LogContextEnrichmentMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.

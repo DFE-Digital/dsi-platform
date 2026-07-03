@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Dfe.SignIn.WebFramework;
@@ -61,9 +60,6 @@ public class LogContextEnrichmentMiddleware(RequestDelegate next, ILogger<LogCon
             scope["UserId"] = userClaim.Value;
         }
 
-        // Custom enrichment hook for subclasses
-        await EnrichScopeAsync(context, scope);
-
         if (scope.Count > 0) {
             using (logger.BeginScope(scope)) {
                 await next(context);
@@ -72,17 +68,5 @@ public class LogContextEnrichmentMiddleware(RequestDelegate next, ILogger<LogCon
         else {
             await next(context);
         }
-    }
-
-    /// <summary>
-    /// Virtual hook to allow subclasses (such as in Public API) to enrich the logging scope
-    /// with additional contextual values (e.g. Client ID).
-    /// </summary>
-    /// <param name="context">The current HTTP context.</param>
-    /// <param name="scope">The dictionary containing scope keys and values.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    protected virtual Task EnrichScopeAsync(HttpContext context, IDictionary<string, object> scope)
-    {
-        return Task.CompletedTask;
     }
 }
