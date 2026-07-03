@@ -281,7 +281,7 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// <summary>
     /// Gets or sets the code associated IS On APAR
     /// </summary>
-    [JsonPropertyName("isOnAPAR")]
+    [JsonPropertyName("isOnApar")]
     public string? IsOnAPAR { get; init; }
 
     /// <summary>
