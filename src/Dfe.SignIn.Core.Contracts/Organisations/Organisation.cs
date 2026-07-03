@@ -28,10 +28,15 @@ public sealed record Organisation
     public string? LegalName { get; init; }
 
     /// <summary>
-    /// The category of the organisation
+    /// The category of the organisation as an Enum value.
     /// </summary>
     /// <seealso cref="EstablishmentType"/>
     public OrganisationCategory Category { get; init; }
+
+    /// <summary>
+    /// The category of the organisation as a string representation
+    /// </summary>
+    public string? CategoryId { get; init; }
 
     /// <summary>
     /// The establishment type of the organisation.

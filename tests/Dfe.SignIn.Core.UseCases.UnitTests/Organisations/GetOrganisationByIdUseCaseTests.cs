@@ -69,6 +69,7 @@ public sealed class GetOrganisationByIdUseCaseTests
                 Name = "Test Organisation",
                 Status = OrganisationStatus.Open,
                 Category = OrganisationCategory.LocalAuthority,
+                CategoryId = "002"
             }
         };
 

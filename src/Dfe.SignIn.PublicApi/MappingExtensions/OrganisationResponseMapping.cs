@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework.Internal;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Public;
+using Dfe.SignIn.Core.Public.Metadata;
 using Dfe.SignIn.PublicApi.Models;
 
 namespace Dfe.SignIn.PublicApi.MappingExtensions;
@@ -17,20 +18,29 @@ public static class OrganisationResponseMapping
     /// <returns></returns>
     public static UserOrganisationDto ToDto(this Organisation o)
     {
+        var tagColor = AnnotationHelpers.GetTagColour(o.Status);
+
+        var categoryName = string.Empty;
+
+        if (!string.IsNullOrEmpty(o.CategoryId)) {
+            categoryName = EnumHelpers.MapEnum<OrganisationCategory>(o.CategoryId).GetDescription();
+        }
+
         return new UserOrganisationDto {
             Id = o.Id,
             Name = o.Name,
             Category = new CategoryDto {
-                Id = ((int)o.Category).ToString(),
-                Name = EnumHelpers.MapEnum<OrganisationCategory>((int)o.Category).GetDescription()
+                Id = o.CategoryId,
+                Name = categoryName
             },
             Urn = o.Urn,
             Uid = o.Uid,
             Ukprn = o.Ukprn,
             EstablishmentNumber = o.EstablishmentNumber,
-            Status = new StatusDto {
+            Status = new StatusWithLabelDto {
                 Id = (int)o.Status,
-                Name = EnumHelpers.MapEnum<OrganisationStatus>((int)o.Status).GetDescription()
+                Name = EnumHelpers.MapEnum<OrganisationStatus>((int)o.Status).GetDescription(),
+                TagColor = tagColor?.ToString().ToLower()
             },
             PIMSProviderType = o.PimsProviderType,
             PIMSProviderTypeCode = o.PimsProviderTypeCode,
@@ -48,15 +58,13 @@ public static class OrganisationResponseMapping
             SourceSystem = o.SourceSystem,
             ProviderTypeName = o.ProviderTypeName,
             LegalName = o.LegalName,
-            ProviderTypeCode = o.ProviderTypeName,
+            ProviderTypeCode = o.ProviderTypeCode,
             GIASProviderType = o.GiasProviderType,
             PIMSStatusName = o.PimsStatusName,
             GIASStatusName = o.GiasStatusName,
-            GIASStatus = o.GiasStatus,
             MasterProviderStatusName = o.MasterProviderStatusName,
             MasterProviderStatusCode = o.MasterProviderStatusCode,
             DistrictAdministrativeCode = o.DistrictAdministrativeCode,
-            DistrictAdministrative_code = o.DistrictAdministrative_code,
             IsOnAPAR = o.IsOnApar
         };
     }
