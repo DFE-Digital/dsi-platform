@@ -121,6 +121,8 @@ public static class AuditChangeEmailEventNames
     /// Indicates that an error occurred whilst attempting to change the email address.
     /// </summary>
     public const string EmailChangeFailed = "email-change-failed";
+
+    public const string VerificationCode = "verification-code";
 }
 
 /// <summary>
