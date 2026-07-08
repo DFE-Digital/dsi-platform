@@ -62,6 +62,7 @@ public static class OrganisationResponseMapping
             GIASProviderType = o.GiasProviderType,
             PIMSStatusName = o.PimsStatusName,
             GIASStatusName = o.GiasStatusName,
+            GIASStatus = o.GiasStatus,
             MasterProviderStatusName = o.MasterProviderStatusName,
             MasterProviderStatusCode = o.MasterProviderStatusCode,
             DistrictAdministrativeCode = o.DistrictAdministrativeCode,

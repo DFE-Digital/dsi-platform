@@ -224,6 +224,15 @@ public class OrganisationDto : BaseOrganisationDto
     public string? ProviderTypeName { get; set; }
 }
 
+public class RegionDto
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+}
+
 /// <summary>
 /// Represents a response for the user organisation request.
 /// </summary>
@@ -295,6 +304,18 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// </summary>
     [JsonPropertyName("providerTypeName")]
     public string? ProviderTypeName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the GIAS Status.
+    /// </summary>
+    [JsonPropertyName("GIASStatus")]
+    public int? GIASStatus { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Region related data
+    /// </summary>
+    [JsonPropertyName("region")]
+    public RegionDto? Region { get; set; }
 }
 
 /// <summary>
