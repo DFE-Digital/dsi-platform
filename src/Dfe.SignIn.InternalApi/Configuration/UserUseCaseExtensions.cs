@@ -38,6 +38,8 @@ public static class UserUseCaseExtensions
         services.AddInteractor<IsOrganisationApproverUseCase>();
         services.AddInteractor<ChangeNameUseCase>();
         services.AddInteractor<PendingApprovalCountUseCase>();
+        services.AddInteractor<InitiateChangeEmailAddressUseCase>();
+
         services
             .Configure<BlockedEmailAddressOptions>(options => {
                 var section = configuration.GetSection("BlockedEmailAddresses");

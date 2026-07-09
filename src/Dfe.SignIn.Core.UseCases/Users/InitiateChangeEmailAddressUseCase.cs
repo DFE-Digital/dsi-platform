@@ -1,24 +1,39 @@
 using System.Security.Cryptography;
-using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Notifications;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
 
+internal record UserCodeDto(Guid Uid, string EmailAddress, string Code);
+/// <summary>
+/// 
+/// </summary>
+/// <param name="unitOfWork"></param>
+/// <param name="interaction"></param>
+/// <param name="logger"></param>
 public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories unitOfWork,
     IInteractionDispatcher interaction,
-    IInteractionLimiter actionLimiter,
+    IOptions<PlatformOptions> platformOptions,
     ILogger<InitiateChangeEmailAddressUseCase> logger
 ) : Interactor<InitiateChangeEmailAddressRequest, InitiateChangeEmailAddressResponse>
 {
 
     private static readonly string CodeType = "changeemail";
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public override async Task<InitiateChangeEmailAddressResponse> InvokeAsync(
         InteractionContext<InitiateChangeEmailAddressRequest> context,
         CancellationToken cancellationToken = default)
@@ -63,8 +78,6 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
             context.ThrowIfHasValidationErrors();
         }
 
-        await actionLimiter.LimitAndThrowAsync(context.Request);
-
         await interaction.DispatchAsync(
         new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeEmail,
@@ -74,16 +87,6 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
         }
     );
 
-        /*var response = await directoriesClient.PutAsJsonAsync($"usercodes/upsert", new {
-            uid = request.UserId.ToString(),
-            clientId = request.ClientId,
-            redirectUri = "n/a",
-            codeType = "changeemail",
-            email = request.NewEmailAddress,
-            selfInvoked = request.IsSelfInvoked,
-        }, CancellationToken.None);
-*/
-
         await this.DeleteAnyExistingVerificationCodeAsync(context.Request, cancellationToken);
 
         await this.CreateNewVerificationCodeAsync(
@@ -91,8 +94,9 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
             context.Request.ClientId,
             "n/a",
             "changeemail",
-            context.Request.NewEmailAddress,
-            context.Request.IsSelfInvoked);
+            context.Request.NewEmailAddress);
+
+        return new InitiateChangeEmailAddressResponse();
     }
 
     private async Task DeleteAnyExistingVerificationCodeAsync(
@@ -115,7 +119,7 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
     }
 
     private async Task CreateNewVerificationCodeAsync(Guid uid,
-        string clientId, string redirectUri, string codeType, string email, bool isSelfInvoked)
+        string clientId, string redirectUri, string codeType, string email)
     {
         var userCode = await this.GetUserCode(uid, CodeType);
 
@@ -124,58 +128,129 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
         }
 
         if (userCode is null) {
-            CreateUserCode(uid, clientId, redirectUri, email, codeType);
+            userCode = await this.CreateUserCode(uid, clientId, redirectUri, email);
+        }
+        else {
+            userCode = await this.UpdateUserCode(uid, email, redirectUri, clientId, codeType);
         }
 
-        await interaction.DispatchAsync(
-          new WriteToAuditRequest {
-              EventCategory = AuditEventCategoryNames.ChangeEmail,
-              EventName = AuditChangeEmailEventNames.VerificationCode,
-              Message = $"Change email verification code ${code.code} sent to email ${code.email}. code expiry=${code.createdAt}, code type=${code.codeType.toLowerCase()}",
-              UserId = request.UserId
-          });
+        var user = await unitOfWork.Repository<UserEntity>().FirstOrDefaultAsync(u => u.Sub == uid)
+            ?? throw new Exception("User not found!");
 
-        var response = await directoriesClient.PutAsJsonAsync($"usercodes/upsert", new {
-            uid = request.UserId.ToString(),
-            clientId = request.ClientId,
-            redirectUri = "n/a",
-            codeType = "changeemail",
-            email = request.NewEmailAddress,
-            selfInvoked = request.IsSelfInvoked,
-        }, CancellationToken.None);
+        await interaction.DispatchAsync(new SendEmailNotificationRequest {
+            RecipientEmailAddress = email,
+            TemplateId = "8a6b7625-87d5-41bc-bc58-035343571d81",
+            Personalisation = new Dictionary<string, dynamic> {
+                { "firstName",  user.FirstName},
+                { "lastName",  user.LastName},
+                { "code",  userCode.Code},
+                { "email", email},
+                { "helpUrl", platformOptions.Value.HelpUrl},
+                { "returnUrl", ""}
+            }
+        });
 
-        response.EnsureSuccessStatusCode();
+        await interaction.DispatchAsync(new SendEmailNotificationRequest {
+            RecipientEmailAddress = user.Email,
+            TemplateId = "18e0e804-04c6-4f73-9462-ab3cbf8b990f",
+            Personalisation = new Dictionary<string, dynamic> {
+                {"firstName",  user.FirstName},
+                {"lastName",  user.LastName},
+                {"newEmail",  email},
+                {"profileUrl", platformOptions.Value.ProfileUrl },
+                {"helpUrl", platformOptions.Value.HelpUrl }
+            }
+        });
     }
 
-    private async Task<string?> CreateUserCode(Guid userId, string clientId, string
-        redirectUri, string email, string codeType)
+    private async Task<UserCodeDto?> CreateUserCode(Guid userId, string clientId, string
+        redirectUri, string email)
     {
         if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(redirectUri)) {
             return null;
         }
 
         var code = this.GenerateResetCode();
+
+        var userCodeEntity = new UserCodeEntity {
+            ClientId = clientId,
+            Code = code,
+            CodeType = "changeemail",
+            CreatedAt = DateTime.UtcNow,
+            Email = email,
+            RedirectUri = redirectUri,
+            Uid = userId,
+            UpdatedAt = DateTime.UtcNow
+
+        };
+
+        await unitOfWork.AddAsync(userCodeEntity);
+
+        _ = await unitOfWork.SaveChangesAsync();
+
+        return new UserCodeDto(userId, email, code);
     }
 
-    private async Task<string?> GetUserCode(Guid userId, string codeType)
+    private async Task<UserCodeDto?> GetUserCode(Guid userId, string codeType)
     {
         var userCodeToRemove = await unitOfWork.Repository<UserCodeEntity>()
             .Where(x => x.Uid == userId && x.CodeType == codeType)
-            .Select(x => x.Code)
+            .Select(x => new UserCodeDto(userId, x.Email, x.Code))
             .FirstOrDefaultAsync();
 
         return userCodeToRemove;
     }
 
-    private async Task<string?> GetUserCodeByEmail(string email, string codeType)
+    private async Task<UserCodeDto?> GetUserCodeByEmail(string email, string codeType)
     {
-        return (await unitOfWork.Repository<UserCodeEntity>()
-            .FirstOrDefaultAsync(x => x.Email == email && x.CodeType == codeType))?.Code ?? null;
+        var usercode = await unitOfWork.Repository<UserCodeEntity>()
+             .FirstOrDefaultAsync(x => x.Email == email && x.CodeType == codeType);
+
+        if (usercode is null) {
+            return null;
+        }
+
+        return new UserCodeDto(usercode.Uid, usercode.Email, usercode.Code);
     }
 
     private string GenerateResetCode()
     {
-        return CodeGenerator().Ge   
+        return CodeGenerator.Generate(8, CodeGenerator.FullCharset);
+    }
+
+    private async Task<UserCodeDto?> UpdateUserCode(Guid userId, string email, string
+        redirectUri, string clientId, string codeType)
+    {
+        logger.LogInformation("Update User Code");
+
+        var codeFromFind = await this.GetUserCode(userId, codeType);
+
+        if (codeFromFind is null) {
+            return null;
+        }
+
+        if (string.IsNullOrEmpty(codeFromFind.EmailAddress) || !string.Equals(codeFromFind.EmailAddress, email, StringComparison.OrdinalIgnoreCase)) {
+            var code = CodeGenerator.Generate(8, CodeGenerator.FullCharset);
+
+            var userCode = await unitOfWork.Repository<UserCodeEntity>()
+                .Where(x => x.Uid == userId && x.CodeType == codeType)
+                .FirstOrDefaultAsync();
+
+            if (userCode is null) {
+                return null;
+            }
+
+            userCode.Email = email;
+            userCode.RedirectUri = redirectUri;
+            userCode.ClientId = clientId;
+            userCode.Code = code;
+
+            _ = await unitOfWork.SaveChangesAsync();
+
+            return new UserCodeDto(userId, email, code);
+        }
+
+        return new UserCodeDto(userId, email, codeFromFind.Code);
     }
 }
 
