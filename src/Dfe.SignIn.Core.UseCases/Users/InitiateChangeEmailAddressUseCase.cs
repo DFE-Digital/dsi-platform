@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
@@ -254,6 +255,7 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
     }
 }
 
+[ExcludeFromCodeCoverage]
 public static class CodeGenerator
 {
     public const string NumericCharset = "123456789";
