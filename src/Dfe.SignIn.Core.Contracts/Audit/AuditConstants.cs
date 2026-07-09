@@ -122,6 +122,9 @@ public static class AuditChangeEmailEventNames
     /// </summary>
     public const string EmailChangeFailed = "email-change-failed";
 
+    /// <summary>
+    /// Indicates that a verifiction code was requested.
+    /// </summary>
     public const string VerificationCode = "verification-code";
 }
 
