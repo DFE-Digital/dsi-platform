@@ -113,7 +113,7 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
         }
         catch (Exception ex) {
             //todo correlation Id??
-            logger.LogError("Delete User Code failed for request {correlationId}");
+            logger.LogError("Delete User Code failed");
             throw;
         }
     }
