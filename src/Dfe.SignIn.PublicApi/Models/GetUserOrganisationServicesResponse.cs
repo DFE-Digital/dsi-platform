@@ -223,14 +223,21 @@ public class OrganisationDto : BaseOrganisationDto
     [JsonPropertyName("ProviderTypeName")]
     public string? ProviderTypeName { get; set; }
 }
-
+/// <summary>
+/// 
+/// </summary>
 public class RegionDto
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [JsonPropertyName("id")]
     public string? Id { get; set; }
-
+    /// <summary>
+    /// 
+    /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }
 
 /// <summary>
@@ -245,7 +252,7 @@ public record LocalAuthority(Guid Id, string Name, string? Code);
 /// 
 /// </summary>
 /// <param name="Id"></param>
-/// <param name="name"></param>
+/// <param name="Name"></param>
 public record PhaseOfEducation(string Id, string Name);
 
 /// <summary>
