@@ -18,7 +18,8 @@ public sealed class GetUserOrganisationsTests
         Id = new Guid("a1b2c3d4-0000-0000-0000-000000000010"),
         Name = "Test Organisation",
         Status = OrganisationStatus.Open,
-        Category = OrganisationCategory.Government
+        Category = OrganisationCategory.Government,
+        CategoryId = "011"
     };
 
     [TestMethod]
