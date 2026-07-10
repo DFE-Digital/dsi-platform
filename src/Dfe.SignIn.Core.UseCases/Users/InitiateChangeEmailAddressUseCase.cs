@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Notifications;
@@ -12,12 +11,13 @@ using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
 
-internal record UserCodeDto(Guid Uid, string EmailAddress, string Code);
+internal record UserCodeDto(Guid Uid, string? EmailAddress, string Code);
 /// <summary>
 /// 
 /// </summary>
 /// <param name="unitOfWork"></param>
 /// <param name="interaction"></param>
+/// <param name="platformOptions"></param>
 /// <param name="logger"></param>
 public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories unitOfWork,
     IInteractionDispatcher interaction,
@@ -112,8 +112,7 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
             }
         }
         catch (Exception ex) {
-            //todo correlation Id??
-            logger.LogError("Delete User Code failed");
+            logger.LogError("Delete User Code failed {ex}", ex);
             throw;
         }
     }
@@ -134,33 +133,36 @@ public sealed class InitiateChangeEmailAddressUseCase(IUnitOfWorkDirectories uni
             userCode = await this.UpdateUserCode(uid, email, redirectUri, clientId, codeType);
         }
 
-        var user = await unitOfWork.Repository<UserEntity>().FirstOrDefaultAsync(u => u.Sub == uid)
-            ?? throw new Exception("User not found!");
+        if (userCode is not null) {
 
-        await interaction.DispatchAsync(new SendEmailNotificationRequest {
-            RecipientEmailAddress = email,
-            TemplateId = "8a6b7625-87d5-41bc-bc58-035343571d81",
-            Personalisation = new Dictionary<string, dynamic> {
-                { "firstName",  user.FirstName},
-                { "lastName",  user.LastName},
-                { "code",  userCode.Code},
-                { "email", email},
-                { "helpUrl", platformOptions.Value.HelpUrl},
-                { "returnUrl", ""}
-            }
-        });
+            var user = await unitOfWork.Repository<UserEntity>().FirstOrDefaultAsync(u => u.Sub == uid)
+                ?? throw new Exception("User not found!");
 
-        await interaction.DispatchAsync(new SendEmailNotificationRequest {
-            RecipientEmailAddress = user.Email,
-            TemplateId = "18e0e804-04c6-4f73-9462-ab3cbf8b990f",
-            Personalisation = new Dictionary<string, dynamic> {
-                {"firstName",  user.FirstName},
-                {"lastName",  user.LastName},
-                {"newEmail",  email},
-                {"profileUrl", platformOptions.Value.ProfileUrl },
-                {"helpUrl", platformOptions.Value.HelpUrl }
-            }
-        });
+            await interaction.DispatchAsync(new SendEmailNotificationRequest {
+                RecipientEmailAddress = email,
+                TemplateId = "8a6b7625-87d5-41bc-bc58-035343571d81",
+                Personalisation = new Dictionary<string, dynamic> {
+                    { "firstName",  user.FirstName},
+                    { "lastName",  user.LastName},
+                    { "code",  userCode.Code},
+                    { "email", email},
+                    { "helpUrl", platformOptions.Value.HelpUrl},
+                    { "returnUrl", ""}
+                }
+            });
+
+            await interaction.DispatchAsync(new SendEmailNotificationRequest {
+                RecipientEmailAddress = user.Email,
+                TemplateId = "18e0e804-04c6-4f73-9462-ab3cbf8b990f",
+                Personalisation = new Dictionary<string, dynamic> {
+                    {"firstName",  user.FirstName},
+                    {"lastName",  user.LastName},
+                    {"newEmail",  email},
+                    {"profileUrl", platformOptions.Value.ProfileUrl },
+                    {"helpUrl", platformOptions.Value.HelpUrl }
+                }
+            });
+        }
     }
 
     private async Task<UserCodeDto?> CreateUserCode(Guid userId, string clientId, string
