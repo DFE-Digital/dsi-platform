@@ -109,6 +109,10 @@ public partial class OrganisationEntity
     public virtual ICollection<UserServiceRequestEntity> UserServiceRequests { get; set; } = [];
 
     public virtual ICollection<UserServiceEntity> UserServices { get; set; } = [];
+
+    public ICollection<OrganisationAssociationEntity> Associations { get; set; } = [];
+
+    public ICollection<OrganisationAssociationEntity> AssociatedWith { get; set; } = [];
 }
 #pragma warning restore CS1591
 

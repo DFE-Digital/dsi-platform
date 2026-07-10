@@ -193,4 +193,22 @@ public sealed record Organisation
     /// Gets or Sets District Administrative_code
     /// </summary>
     public string? DistrictAdministrative_code { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public LocalAuthority? LocalAuthority { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public int? PhaseOfEducation { get; set; }
 }
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+/// <param name="Code"></param>
+public record LocalAuthority(Guid Id, string Name, string? Code);

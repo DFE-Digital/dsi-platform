@@ -234,6 +234,21 @@ public class RegionDto
 }
 
 /// <summary>
+/// 
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+/// <param name="Code"></param>
+public record LocalAuthority(Guid Id, string Name, string? Code);
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="name"></param>
+public record PhaseOfEducation(string Id, string Name);
+
+/// <summary>
 /// Represents a response for the user organisation request.
 /// </summary>
 public class UserOrganisationDto : BaseOrganisationDto
@@ -316,6 +331,15 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// </summary>
     [JsonPropertyName("region")]
     public RegionDto? Region { get; set; }
+
+    /// <summary>
+    /// Gets or sets the localAuthority related data
+    /// </summary>
+    [JsonPropertyName("localAuthority")]
+    public LocalAuthority? LocalAuthority { get; set; }
+
+    [JsonPropertyName("phaseOfEducation")]
+    public PhaseOfEducation? PhaseOfEducation { get; set; }
 }
 
 /// <summary>

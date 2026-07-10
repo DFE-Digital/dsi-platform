@@ -54,7 +54,18 @@ internal static class OrganisationHelpers
             CompanyRegistrationNumber = entity.CompanyRegistrationNumber,
             DistrictAdministrative_code = entity.DistrictAdministrativeCode,
             StatutoryHighAge = entity.StatutoryHighAge,
-            StatutoryLowAge = entity.StatutoryLowAge
+            StatutoryLowAge = entity.StatutoryLowAge,
+            LocalAuthority = GetLocalAuthortyDetails(entity.Associations),
+            PhaseOfEducation = GeneratePhaseOfEducationData(entity.PhaseOfEducation)
         };
+    }
+
+    private static LocalAuthority? GetLocalAuthortyDetails(ICollection<OrganisationAssociationEntity> organisationAssociationEntities)
+    {
+        var la = organisationAssociationEntities.FirstOrDefault(x => x.LinkType == "LA");
+        if (la is not null) {
+            return new LocalAuthority(la.AssociatedOrganisation.Id, la.AssociatedOrganisation.Name, la.AssociatedOrganisation.EstablishmentNumber);
+        }
+        return null;
     }
 }

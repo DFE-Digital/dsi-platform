@@ -10,7 +10,13 @@ internal sealed class OrganisationAssociationEntityConfiguration : IEntityTypeCo
     [ExcludeFromCodeCoverage]
     public void Configure(EntityTypeBuilder<OrganisationAssociationEntity> builder)
     {
-        builder.HasNoKey().ToTable("organisation_association");
+        builder.ToTable("organisation_association");
+
+        builder.HasKey(x => new {
+            x.OrganisationId,
+            x.AssociatedOrganisationId,
+            x.LinkType
+        });
 
         builder.HasIndex(e => e.OrganisationId, "IX_OrganisationAssociation_OrgAssType");
 
@@ -23,12 +29,14 @@ internal sealed class OrganisationAssociationEntityConfiguration : IEntityTypeCo
 
         builder.Property(e => e.OrganisationId).HasColumnName("organisation_id");
 
-        builder.HasOne(d => d.AssociatedOrganisation).WithMany()
+        builder.HasOne(d => d.AssociatedOrganisation)
+            .WithMany(x => x.AssociatedWith)
             .HasForeignKey(d => d.AssociatedOrganisationId)
             .OnDelete(DeleteBehavior.ClientSetNull)
             .HasConstraintName("FK__organisat__assoc__37703C52");
 
-        builder.HasOne(d => d.Organisation).WithMany()
+        builder.HasOne(d => d.Organisation)
+            .WithMany(x => x.Associations)
             .HasForeignKey(d => d.OrganisationId)
             .OnDelete(DeleteBehavior.ClientSetNull)
             .HasConstraintName("FK__organisat__organ__3864608B");

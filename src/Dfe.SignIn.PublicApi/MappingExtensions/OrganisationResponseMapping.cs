@@ -66,7 +66,22 @@ public static class OrganisationResponseMapping
             MasterProviderStatusName = o.MasterProviderStatusName,
             MasterProviderStatusCode = o.MasterProviderStatusCode,
             DistrictAdministrativeCode = o.DistrictAdministrativeCode,
-            IsOnAPAR = o.IsOnApar
+            IsOnAPAR = o.IsOnApar,
+            LocalAuthority = o.LocalAuthority is not null
+                ? new Models.LocalAuthority(o.LocalAuthority.Id, o.LocalAuthority.Name, o.LocalAuthority.Code)
+                : null,
+            PhaseOfEducation = ConstructPhaseOfEducationData(o.PhaseOfEducation)
         };
+    }
+
+    private static PhaseOfEducation ConstructPhaseOfEducationData(int? phaseOfEducation)
+    {
+        if (phaseOfEducation is null) {
+            return new PhaseOfEducation("0", "Not applicable");
+        }
+
+        OrganisationCategory name = EnumHelpers.MapEnum<OrganisationCategory>(phaseOfEducation);
+
+        return new PhaseOfEducation(phaseOfEducation.Value.ToString("D3"), name.GetDescription());
     }
 }
