@@ -47,8 +47,8 @@ public static class GetUserOrganisationServiceMapping
     this IGrouping<Guid, GetUserOrganisationService> userGroup)
     {
         return userGroup
-            .Where(x => x.OrganisationId.HasValue) // Filter out nulls
-            .GroupBy(x => x.OrganisationId!.Value) // Use ! to suppress nullable warning
+            .Where(x => x.OrganisationId.HasValue)
+            .GroupBy(x => x.OrganisationId!.Value)
             .Select(static orgGroup => {
                 var o = orgGroup.First();
 
@@ -93,8 +93,8 @@ public static class GetUserOrganisationServiceMapping
 
                     Services = orgGroup.ToServiceDtos(),
 
-                    OrgRoleId = o.OrgRoleId ?? 0, // Fix: Use fallback if null
-                    OrgRoleName = o.OrgRoleId.HasValue ? OrganisationRoles.FromId(o.OrgRoleId.Value)?.Name : null // Fix: Only access .Value if not null
+                    OrgRoleId = o.OrgRoleId ?? 0,
+                    OrgRoleName = o.OrgRoleId.HasValue ? OrganisationRoles.FromId(o.OrgRoleId.Value)?.Name : null
                 };
             });
 
