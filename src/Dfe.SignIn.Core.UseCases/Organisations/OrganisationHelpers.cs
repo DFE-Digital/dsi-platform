@@ -55,8 +55,7 @@ internal static class OrganisationHelpers
             DistrictAdministrative_code = entity.DistrictAdministrativeCode,
             StatutoryHighAge = entity.StatutoryHighAge,
             StatutoryLowAge = entity.StatutoryLowAge,
-            LocalAuthority = GetLocalAuthortyDetails(entity.Associations),
-            PhaseOfEducation = GeneratePhaseOfEducationData(entity.PhaseOfEducation)
+            LocalAuthority = GetLocalAuthortyDetails(entity.Associations)
         };
     }
 
