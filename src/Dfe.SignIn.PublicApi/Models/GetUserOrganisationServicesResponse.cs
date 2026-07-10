@@ -345,6 +345,9 @@ public class UserOrganisationDto : BaseOrganisationDto
     [JsonPropertyName("localAuthority")]
     public LocalAuthority? LocalAuthority { get; set; }
 
+    /// <summary>
+    /// Gets or sets the phaseOfEducation related data
+    /// </summary>
     [JsonPropertyName("phaseOfEducation")]
     public PhaseOfEducation? PhaseOfEducation { get; set; }
 }
