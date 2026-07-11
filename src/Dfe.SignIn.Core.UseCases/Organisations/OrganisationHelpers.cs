@@ -46,16 +46,18 @@ internal static class OrganisationHelpers
             MasterProviderStatusCode = entity.MasterProviderStatusCode,
             MasterProviderStatusName = entity.MasterProviderStatusName,
             OpenedOn = entity.OpenedOn,
-            DistrictAdministrativeName = entity.DistrictAdministrativeName,
+            DistrictAdministrativeName = entity.DistrictAdministrativeName1,
             DistrictAdministrativeCode = entity.DistrictAdministrativeCode,
             IsOnApar = entity.IsOnApar,
             LegacyId = entity.LegacyId,
             Telephone = entity.Telephone,
             CompanyRegistrationNumber = entity.CompanyRegistrationNumber,
-            DistrictAdministrative_code = entity.DistrictAdministrativeCode,
+            DistrictAdministrative_code = entity.DistrictAdministrativeCode1,
             StatutoryHighAge = entity.StatutoryHighAge,
             StatutoryLowAge = entity.StatutoryLowAge,
-            LocalAuthority = GetLocalAuthortyDetails(entity.Associations)
+            LocalAuthority = GetLocalAuthortyDetails(entity.Associations),
+            RegionCode = entity.RegionCode,
+            PhaseOfEducation = entity.PhaseOfEducation
         };
     }
 
