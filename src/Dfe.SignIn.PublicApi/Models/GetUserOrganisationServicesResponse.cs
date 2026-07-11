@@ -137,7 +137,7 @@ public abstract class BaseOrganisationDto
     /// <summary>
     /// Gets or sets the PIMS provider type.
     /// </summary>
-    [JsonPropertyName("pimsProviderType")]
+    [JsonPropertyName("PIMSProviderType")]
     public string? PIMSProviderType { get; set; }
 
     /// <summary>
@@ -149,31 +149,31 @@ public abstract class BaseOrganisationDto
     /// <summary>
     /// Gets or sets the district administrative name.
     /// </summary>
-    [JsonPropertyName("districtAdministrativeName")]
+    [JsonPropertyName("DistrictAdministrativeName")]
     public string? DistrictAdministrativeName { get; set; }
 
     /// <summary>
     /// Gets or sets the organisation opening date (as a string).
     /// </summary>
-    [JsonPropertyName("openedOn")]
+    [JsonPropertyName("OpenedOn")]
     public string? OpenedOn { get; set; }
 
     /// <summary>
     /// Gets or sets the source system from which this organisation data originates.
     /// </summary>
-    [JsonPropertyName("sourceSystem")]
+    [JsonPropertyName("SourceSystem")]
     public string? SourceSystem { get; set; }
 
     /// <summary>
     /// Gets or sets the GIAS provider type.
     /// </summary>
-    [JsonPropertyName("giasProviderType")]
+    [JsonPropertyName("GIASProviderType")]
     public string? GIASProviderType { get; set; }
 
     /// <summary>
     /// Gets or sets the PIMS provider type code.
     /// </summary>
-    [JsonPropertyName("pimsProviderTypeCode")]
+    [JsonPropertyName("PIMSProviderTypeCode")]
     public int? PIMSProviderTypeCode { get; set; }
 }
 
@@ -256,6 +256,20 @@ public record LocalAuthority(Guid Id, string Name, string? Code);
 public record PhaseOfEducation(string Id, string Name);
 
 /// <summary>
+/// 
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+public record Region(string Id, string Name);
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+public record EstablishmentType(string Id, string Name);
+
+/// <summary>
 /// Represents a response for the user organisation request.
 /// </summary>
 public class UserOrganisationDto : BaseOrganisationDto
@@ -270,49 +284,55 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// <summary>
     /// Gets or sets the code associated with the role.
     /// </summary>
-    [JsonPropertyName("legalName")]
+    [JsonPropertyName("LegalName")]
     public string? LegalName { get; set; }
 
     /// <summary>
     /// Gets or sets the code associated provider type code.
     /// </summary>
-    [JsonPropertyName("providerTypeCode")]
+    [JsonPropertyName("ProviderTypeCode")]
     public int? ProviderTypeCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated  PIMSStatus Name
     /// </summary>
-    [JsonPropertyName("pimsStatusName")]
+    [JsonPropertyName("PIMSStatusName")]
     public string? PIMSStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated GIAS Status Name
     /// </summary>
-    [JsonPropertyName("giasStatusName")]
+    [JsonPropertyName("GIASStatusName")]
     public string? GIASStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated Master Provider Status Name
     /// </summary>
-    [JsonPropertyName("masterProviderStatusName")]
+    [JsonPropertyName("MasterProviderStatusName")]
     public string? MasterProviderStatusName { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated Master Provider Status Code
     /// </summary>
-    [JsonPropertyName("masterProviderStatusCode")]
+    [JsonPropertyName("MasterProviderStatusCode")]
     public int? MasterProviderStatusCode { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated District Administrative Code
     /// </summary>
-    [JsonPropertyName("districtAdministrativeCode")]
+    [JsonPropertyName("DistrictAdministrativeCode")]
     public string? DistrictAdministrativeCode { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated District Administrative Code
+    /// </summary>
+    [JsonPropertyName("DistrictAdministrative_code")]
+    public string? DistrictAdministrative_Code { get; init; }
 
     /// <summary>
     /// Gets or sets the code associated IS On APAR
     /// </summary>
-    [JsonPropertyName("isOnApar")]
+    [JsonPropertyName("IsOnAPAR")]
     public string? IsOnAPAR { get; init; }
 
     /// <summary>
@@ -337,7 +357,7 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// Gets or sets the Region related data
     /// </summary>
     [JsonPropertyName("region")]
-    public RegionDto? Region { get; set; }
+    public Region? Region { get; set; }
 
     /// <summary>
     /// Gets or sets the localAuthority related data
@@ -350,6 +370,12 @@ public class UserOrganisationDto : BaseOrganisationDto
     /// </summary>
     [JsonPropertyName("phaseOfEducation")]
     public PhaseOfEducation? PhaseOfEducation { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [JsonPropertyName("type")]
+    public EstablishmentType? EstablishmentType { get; set; }
 }
 
 /// <summary>

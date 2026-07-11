@@ -203,6 +203,10 @@ public sealed record Organisation
     /// 
     /// </summary>
     public int? PhaseOfEducation { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public string? RegionCode { get; set; }
 }
 
 /// <summary>
