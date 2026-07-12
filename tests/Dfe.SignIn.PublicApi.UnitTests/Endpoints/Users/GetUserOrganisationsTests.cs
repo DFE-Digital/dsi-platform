@@ -81,14 +81,16 @@ public sealed class GetUserOrganisationsTests
         var ok = result.Result as Ok<IEnumerable<UserOrganisationDto>>;
         Assert.IsNotNull(ok);
         Assert.HasCount(1, ok.Value!.ToArray());
-        Assert.AreEqual(FakeOrganisationWithLocalAuthority.Id, ok.Value!.First().Id);
-        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Id, ok.Value!.First().LocalAuthority.Id);
-        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Code, ok.Value!.First().LocalAuthority.Code);
-        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Name, ok.Value!.First().LocalAuthority.Name);
 
-        Assert.IsNotNull(ok.Value!.First().PhaseOfEducation);
-        Assert.AreEqual("Local Authority", ok.Value!.First().PhaseOfEducation.Name);
-        Assert.AreEqual("002", ok.Value!.First().PhaseOfEducation.Id);
+        var response = ok.Value!.First();
+        Assert.AreEqual(FakeOrganisationWithLocalAuthority.Id, response.Id);
+        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Id, response.LocalAuthority.Id);
+        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Code, response.LocalAuthority.Code);
+        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Name, response.LocalAuthority.Name);
+
+        Assert.IsNotNull(response.PhaseOfEducation);
+        Assert.AreEqual("Test Organisation 2", response.Name);
+        Assert.AreEqual("2", response.PhaseOfEducation.Id);
     }
 
     [TestMethod]
