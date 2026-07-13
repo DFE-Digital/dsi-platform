@@ -33,8 +33,28 @@ public sealed class ChangeJobTitleController(
 }
 ```
 
-### Static Classes & Minimal API Endpoints
-C# does not allow static classes to be generic type arguments (e.g. `ILogger<StaticClass>` fails to compile with `CS0718`). To resolve this in static classes and Minimal API endpoints:
+### Minimal API Endpoint Classes (Recommended)
+For Minimal API endpoints implemented as non-static endpoint classes with static handler methods, inject `ILogger<T>` typed to the endpoint class itself.
+
+```csharp
+public sealed class ChangeJobTitleEndpoint
+{
+    public static async Task<IResult> Handler(
+        DbDirectoriesContext dbDirectoriesContext,
+        ILogger<ChangeJobTitleEndpoint> logger,
+        [FromBody] ChangeJobTitleRequest query,
+        CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Changing job title for user {UserId}", query.UserId);
+        // ...
+    }
+}
+```
+
+This is the preferred pattern where possible because it avoids marker types and keeps logger category names aligned with the endpoint type.
+
+### Static Endpoint Classes (Fallback Pattern)
+C# does not allow static classes to be generic type arguments (e.g. `ILogger<StaticClass>` fails to compile with `CS0718`). If an endpoint must be static:
 1.  Define a nested public marker class named `LogContext` inside the static class.
 2.  Use `ILogger<LogContext>` as the parameter type.
 
@@ -116,6 +136,19 @@ the middleware scope. Instead, log messages within endpoints should include the 
 logger.LogInformation("Processing request for client {ClientId}", clientSession.ClientId);
 ```
 
+For Internal API command endpoints, log structured lifecycle events at Information level:
+*   Start of operation with stable identifier fields (e.g. `UserId`).
+*   No-op or idempotent outcome where no state change is required.
+*   Successful completion after persistence.
+
+```csharp
+logger.LogInformation("Changing job title for user {UserId}", query.UserId);
+logger.LogInformation("Job title unchanged for user {UserId} - already set to requested value", query.UserId);
+logger.LogInformation("Successfully changed job title for user {UserId}", query.UserId);
+```
+
+Do not include personal content values (e.g. names, email addresses, or free-text profile fields) in the same log statement as `UserId`.
+
 You can query the User ID property in Application Insights / Log Analytics:
 
 ```kusto
@@ -135,7 +168,7 @@ Azure Monitor integration is enabled via `ServiceDefaults` if `APPLICATIONINSIGH
 *   **Exceptions and Error Logs are always sent (100% ingestion)** to ensure troubleshooting capability.
 *   **Successful Traces and Dependency Calls are sampled** based on the configured ratio.
 
-### Configuration Configuration
+### Sampling Configuration
 The sampling ratio is configurable dynamically and defaults to a highly cost-conscious **10%** if not explicitly set:
 
 ```csharp
