@@ -224,24 +224,24 @@ public class OrganisationDto : BaseOrganisationDto
     public string? ProviderTypeName { get; set; }
 }
 /// <summary>
-/// 
+/// Class representing Region data 
 /// </summary>
 public class RegionDto
 {
     /// <summary>
-    /// 
+    ///  Gets or sets the Region Id.
     /// </summary>
     [JsonPropertyName("id")]
     public string? Id { get; set; }
     /// <summary>
-    /// 
+    /// Gets or sets the Region Name.
     /// </summary>
     [JsonPropertyName("name")]
     public string? Name { get; set; }
 }
 
 /// <summary>
-/// 
+/// Class representing LocalAuthority data 
 /// </summary>
 /// <param name="Id"></param>
 /// <param name="Name"></param>
@@ -249,21 +249,21 @@ public class RegionDto
 public record LocalAuthority(Guid Id, string Name, string? Code);
 
 /// <summary>
-/// 
+/// Class representing PhaseOfEducation data 
 /// </summary>
 /// <param name="Id"></param>
 /// <param name="Name"></param>
 public record PhaseOfEducation(string Id, string Name);
 
 /// <summary>
-/// 
+/// Class representing Region data 
 /// </summary>
 /// <param name="Id"></param>
 /// <param name="Name"></param>
 public record Region(string Id, string Name);
 
 /// <summary>
-/// 
+/// Represents a response for the EstablishmentType request.
 /// </summary>
 /// <param name="Id"></param>
 /// <param name="Name"></param>
@@ -372,7 +372,7 @@ public class UserOrganisationDto : BaseOrganisationDto
     public PhaseOfEducation? PhaseOfEducation { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the EstablishmentType related data
     /// </summary>
     [JsonPropertyName("type")]
     public EstablishmentType? EstablishmentType { get; set; }
