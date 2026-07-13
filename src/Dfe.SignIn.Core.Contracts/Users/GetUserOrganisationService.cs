@@ -34,7 +34,7 @@ public class GetUserOrganisationService
     /// <summary>
     /// Gets or sets the unique identifier of the organisation.
     /// </summary>
-    public Guid OrganisationId { get; set; }
+    public Guid? OrganisationId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the organisation.
@@ -69,7 +69,7 @@ public class GetUserOrganisationService
     /// <summary>
     /// Gets or sets the organisation status identifier.
     /// </summary>
-    public int StatusId { get; set; }
+    public int? StatusId { get; set; }
 
     /// <summary>
     /// Gets or sets the date the organisation was closed.
@@ -159,7 +159,7 @@ public class GetUserOrganisationService
     /// <summary>
     /// Gets or sets the unique identifier of the service.
     /// </summary>
-    public Guid ServiceId { get; set; }
+    public Guid? ServiceId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the service.
@@ -184,5 +184,10 @@ public class GetUserOrganisationService
     /// <summary>
     /// Gets or sets the organisation role identifier.
     /// </summary>
-    public short OrgRoleId { get; set; }
+    public short? OrgRoleId { get; set; }
+
+    /// <summary>
+    /// True if the user belongs to the passed in service at any active organisation.
+    /// </summary>
+    public int IsInService { get; set; }
 }
