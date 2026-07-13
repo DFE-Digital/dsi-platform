@@ -11,7 +11,7 @@ namespace Dfe.SignIn.PublicApi.MappingExtensions;
 /// </summary>
 public static class OrganisationResponseMapping
 {
-    internal static readonly Dictionary<string, string> EstablishmentTypes = new() {
+    private static readonly Dictionary<string, string> EstablishmentTypes = new() {
         {  "01","Community School" },
         {  "02", "Voluntary Aided School" },
         {  "03", "Voluntary Controlled School" },
@@ -55,7 +55,7 @@ public static class OrganisationResponseMapping
         {  "57", "Academy secure 16 to 19" }
     };
 
-    internal static readonly Dictionary<string, string> RegionMappings = new() {
+    private static readonly Dictionary<string, string> RegionMappings = new() {
         {  "A","North East" },
         {  "B", "North West" },
         {  "D", "Yorkshire and the Humber" },
@@ -69,7 +69,7 @@ public static class OrganisationResponseMapping
         {  "Z", "Not Applicable" }
     };
 
-    internal static readonly Dictionary<int, string> PhaseOfEducationMappings = new() {
+    private static readonly Dictionary<int, string> PhaseOfEducationMappings = new() {
         {  0,  "Not applicable" },
         {  1,  "Nursery" },
         {  2,  "Primary" },

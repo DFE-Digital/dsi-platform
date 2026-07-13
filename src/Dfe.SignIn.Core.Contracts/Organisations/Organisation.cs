@@ -195,22 +195,22 @@ public sealed record Organisation
     public string? DistrictAdministrative_code { get; set; }
 
     /// <summary>
-    /// 
+    /// Get or Sets Local Authority data
     /// </summary>
     public LocalAuthority? LocalAuthority { get; set; }
 
     /// <summary>
-    /// 
+    /// Get or Sets Phase of Education
     /// </summary>
     public int? PhaseOfEducation { get; set; }
     /// <summary>
-    /// 
+    /// Get or Sets Region code
     /// </summary>
     public string? RegionCode { get; set; }
 }
 
 /// <summary>
-/// 
+///  A model representing an Local Authority in DfE Sign-in.
 /// </summary>
 /// <param name="Id"></param>
 /// <param name="Name"></param>
