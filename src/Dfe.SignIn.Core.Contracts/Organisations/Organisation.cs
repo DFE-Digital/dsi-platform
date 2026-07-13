@@ -193,4 +193,26 @@ public sealed record Organisation
     /// Gets or Sets District Administrative_code
     /// </summary>
     public string? DistrictAdministrative_code { get; set; }
+
+    /// <summary>
+    /// Get or Sets Local Authority data
+    /// </summary>
+    public LocalAuthority? LocalAuthority { get; set; }
+
+    /// <summary>
+    /// Get or Sets Phase of Education
+    /// </summary>
+    public int? PhaseOfEducation { get; set; }
+    /// <summary>
+    /// Get or Sets Region code
+    /// </summary>
+    public string? RegionCode { get; set; }
 }
+
+/// <summary>
+///  A model representing an Local Authority in DfE Sign-in.
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+/// <param name="Code"></param>
+public record LocalAuthority(Guid Id, string Name, string? Code);

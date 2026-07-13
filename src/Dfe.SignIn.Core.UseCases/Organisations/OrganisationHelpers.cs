@@ -46,15 +46,27 @@ internal static class OrganisationHelpers
             MasterProviderStatusCode = entity.MasterProviderStatusCode,
             MasterProviderStatusName = entity.MasterProviderStatusName,
             OpenedOn = entity.OpenedOn,
-            DistrictAdministrativeName = entity.DistrictAdministrativeName,
+            DistrictAdministrativeName = entity.DistrictAdministrativeName1,
             DistrictAdministrativeCode = entity.DistrictAdministrativeCode,
             IsOnApar = entity.IsOnApar,
             LegacyId = entity.LegacyId,
             Telephone = entity.Telephone,
             CompanyRegistrationNumber = entity.CompanyRegistrationNumber,
-            DistrictAdministrative_code = entity.DistrictAdministrativeCode,
+            DistrictAdministrative_code = entity.DistrictAdministrativeCode1,
             StatutoryHighAge = entity.StatutoryHighAge,
-            StatutoryLowAge = entity.StatutoryLowAge
+            StatutoryLowAge = entity.StatutoryLowAge,
+            LocalAuthority = GetLocalAuthortyDetails(entity.Associations),
+            RegionCode = entity.RegionCode,
+            PhaseOfEducation = entity.PhaseOfEducation
         };
+    }
+
+    private static LocalAuthority? GetLocalAuthortyDetails(ICollection<OrganisationAssociationEntity> organisationAssociationEntities)
+    {
+        var la = organisationAssociationEntities.FirstOrDefault(x => x.LinkType == "LA");
+        if (la is not null) {
+            return new LocalAuthority(la.AssociatedOrganisation.Id, la.AssociatedOrganisation.Name, la.AssociatedOrganisation.EstablishmentNumber);
+        }
+        return null;
     }
 }
