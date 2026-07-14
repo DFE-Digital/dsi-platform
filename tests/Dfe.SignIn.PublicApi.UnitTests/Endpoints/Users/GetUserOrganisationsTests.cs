@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.PublicApi.Endpoints.Users;
+using Dfe.SignIn.PublicApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Moq.AutoMock;
 
@@ -17,6 +18,22 @@ public sealed class GetUserOrganisationsTests
         Id = new Guid("a1b2c3d4-0000-0000-0000-000000000010"),
         Name = "Test Organisation",
         Status = OrganisationStatus.Open,
+        Category = OrganisationCategory.Government,
+        CategoryId = "011"
+    };
+
+    private static readonly Organisation FakeOrganisationWithLocalAuthority = new() {
+        Id = new Guid("f3b2e3d4-0000-0000-0000-000000000011"),
+        Name = "Test Organisation 2",
+        Status = OrganisationStatus.Open,
+        Category = OrganisationCategory.Government,
+        CategoryId = "011",
+        LocalAuthority = new Core.Contracts.Organisations.LocalAuthority(
+            new Guid("f1b1e1d1-1120-0000-0000-000000000011"),
+            "Test LA",
+            "Rx1"),
+        PhaseOfEducation = 2
+
     };
 
     [TestMethod]
@@ -35,10 +52,44 @@ public sealed class GetUserOrganisationsTests
             autoMocker.Get<IInteractionDispatcher>()
         );
 
-        var ok = result.Result as Ok<IEnumerable<Organisation>>;
+        var ok = result.Result as Ok<IEnumerable<UserOrganisationDto>>;
         Assert.IsNotNull(ok);
         Assert.HasCount(1, ok.Value!.ToArray());
         Assert.AreEqual(FakeOrganisation.Id, ok.Value!.First().Id);
+
+        Assert.IsNull(ok.Value!.First().PhaseOfEducation);
+
+    }
+
+    [TestMethod]
+    public async Task Returns200_WithOrganisations_WhenUserHasVisibleIncludesLocalAuthority()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.MockResponse<GetUserOrganisationsRequest>(
+            new GetUserOrganisationsResponse {
+                Organisations = [FakeOrganisationWithLocalAuthority],
+            }
+        );
+
+        var result = await UserEndpoints.GetUserOrganisations(
+            FakeUserId,
+            autoMocker.Get<IInteractionDispatcher>()
+        );
+
+        var ok = result.Result as Ok<IEnumerable<UserOrganisationDto>>;
+        Assert.IsNotNull(ok);
+        Assert.HasCount(1, ok.Value!.ToArray());
+
+        var response = ok.Value!.First();
+        Assert.AreEqual(FakeOrganisationWithLocalAuthority.Id, response.Id);
+        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Id, response.LocalAuthority.Id);
+        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Code, response.LocalAuthority.Code);
+        Assert.AreEqual(FakeOrganisationWithLocalAuthority.LocalAuthority.Name, response.LocalAuthority.Name);
+
+        Assert.IsNotNull(response.PhaseOfEducation);
+        Assert.AreEqual("Test Organisation 2", response.Name);
+        Assert.AreEqual(2, response.PhaseOfEducation.Id);
     }
 
     [TestMethod]

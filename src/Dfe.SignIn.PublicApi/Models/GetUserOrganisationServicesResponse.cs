@@ -46,12 +46,12 @@ public class GetUserOrganisationServicesResponse
 }
 
 /// <summary>
-/// Represents an organisation and its associated details and services.
+/// Base class for Organsiation related data
 /// </summary>
-public class OrganisationDto
+public abstract class BaseOrganisationDto
 {
     /// <summary>
-    /// Gets or sets the unique identifier of the organisation.
+    /// Gets or sets the Id
     /// </summary>
     [JsonPropertyName("id")]
     public Guid Id { get; set; }
@@ -91,12 +91,6 @@ public class OrganisationDto
     /// </summary>
     [JsonPropertyName("establishmentNumber")]
     public string? EstablishmentNumber { get; set; }
-
-    /// <summary>
-    /// Gets or sets the organisation status details.
-    /// </summary>
-    [JsonPropertyName("status")]
-    public StatusDto? Status { get; set; }
 
     /// <summary>
     /// Gets or sets the date the organisation was closed.
@@ -141,18 +135,6 @@ public class OrganisationDto
     public string? CompanyRegistrationNumber { get; set; }
 
     /// <summary>
-    /// Gets or sets the provider profile identifier.
-    /// </summary>
-    [JsonPropertyName("ProviderProfileID")]
-    public string? ProviderProfileID { get; set; }
-
-    /// <summary>
-    /// Gets or sets the Unique Provider Identification Number (UPIN).
-    /// </summary>
-    [JsonPropertyName("UPIN")]
-    public string? UPIN { get; set; }
-
-    /// <summary>
     /// Gets or sets the PIMS provider type.
     /// </summary>
     [JsonPropertyName("PIMSProviderType")]
@@ -161,7 +143,7 @@ public class OrganisationDto
     /// <summary>
     /// Gets or sets the PIMS status of the organisation.
     /// </summary>
-    [JsonPropertyName("PIMSStatus")]
+    [JsonPropertyName("pimsStatus")]
     public string? PIMSStatus { get; set; }
 
     /// <summary>
@@ -183,12 +165,6 @@ public class OrganisationDto
     public string? SourceSystem { get; set; }
 
     /// <summary>
-    /// Gets or sets the provider type name.
-    /// </summary>
-    [JsonPropertyName("ProviderTypeName")]
-    public string? ProviderTypeName { get; set; }
-
-    /// <summary>
     /// Gets or sets the GIAS provider type.
     /// </summary>
     [JsonPropertyName("GIASProviderType")]
@@ -199,13 +175,30 @@ public class OrganisationDto
     /// </summary>
     [JsonPropertyName("PIMSProviderTypeCode")]
     public int? PIMSProviderTypeCode { get; set; }
+}
+
+/// <summary>
+/// Represents an organisation and its associated details and services.
+/// </summary>
+public class OrganisationDto : BaseOrganisationDto
+{
+    /// <summary>
+    /// Gets or sets the organisation status details.
+    /// </summary>
+    [JsonPropertyName("status")]
+    public StatusDto? Status { get; set; }
+
+    /// <summary>
+    /// Gets or sets the provider profile identifier.
+    /// </summary>
+    [JsonPropertyName("ProviderProfileID")]
+    public string? ProviderProfileID { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of services associated with the organisation.
     /// </summary>
     [JsonPropertyName("services")]
     public IEnumerable<ServiceDto> Services { get; set; } = [];
-
     /// <summary>
     /// Gets or sets the organisation role identifier for the user.
     /// </summary>
@@ -217,6 +210,172 @@ public class OrganisationDto
     /// </summary>
     [JsonPropertyName("orgRoleName")]
     public string? OrgRoleName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Unique Provider Identification Number (UPIN).
+    /// </summary>
+    [JsonPropertyName("UPIN")]
+    public string? UPIN { get; set; }
+
+    /// <summary>
+    /// Gets or sets the provider type name.
+    /// </summary>
+    [JsonPropertyName("ProviderTypeName")]
+    public string? ProviderTypeName { get; set; }
+}
+/// <summary>
+/// Class representing Region data 
+/// </summary>
+public class RegionDto
+{
+    /// <summary>
+    ///  Gets or sets the Region Id.
+    /// </summary>
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+    /// <summary>
+    /// Gets or sets the Region Name.
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+}
+
+/// <summary>
+/// Class representing LocalAuthority data 
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+/// <param name="Code"></param>
+public record LocalAuthority(Guid Id, string Name, string? Code);
+
+/// <summary>
+/// Class representing PhaseOfEducation data 
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+public record PhaseOfEducation(int Id, string Name);
+
+/// <summary>
+/// Class representing Region data 
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+public record Region(string Id, string Name);
+
+/// <summary>
+/// Represents a response for the EstablishmentType request.
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+public record EstablishmentType(string Id, string Name);
+
+/// <summary>
+/// Represents a response for the user organisation request.
+/// </summary>
+public class UserOrganisationDto : BaseOrganisationDto
+{
+
+    /// <summary>
+    /// Gets or sets the organisation status details.
+    /// </summary>
+    [JsonPropertyName("status")]
+    public StatusWithLabelDto? Status { get; set; }
+
+    /// <summary>
+    /// Gets or sets the code associated with the role.
+    /// </summary>
+    [JsonPropertyName("LegalName")]
+    public string? LegalName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the code associated provider type code.
+    /// </summary>
+    [JsonPropertyName("ProviderTypeCode")]
+    public int? ProviderTypeCode { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated  PIMSStatus Name
+    /// </summary>
+    [JsonPropertyName("PIMSStatusName")]
+    public string? PIMSStatusName { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated GIAS Status Name
+    /// </summary>
+    [JsonPropertyName("GIASStatusName")]
+    public string? GIASStatusName { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated Master Provider Status Name
+    /// </summary>
+    [JsonPropertyName("MasterProviderStatusName")]
+    public string? MasterProviderStatusName { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated Master Provider Status Code
+    /// </summary>
+    [JsonPropertyName("MasterProviderStatusCode")]
+    public int? MasterProviderStatusCode { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated District Administrative Code
+    /// </summary>
+    [JsonPropertyName("DistrictAdministrativeCode")]
+    public string? DistrictAdministrativeCode { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated District Administrative Code
+    /// </summary>
+    [JsonPropertyName("DistrictAdministrative_code")]
+    public string? DistrictAdministrative_Code { get; init; }
+
+    /// <summary>
+    /// Gets or sets the code associated IS On APAR
+    /// </summary>
+    [JsonPropertyName("IsOnAPAR")]
+    public string? IsOnAPAR { get; init; }
+
+    /// <summary>
+    /// Gets or sets the Unique Provider Identification Number (UPIN).
+    /// </summary>
+    [JsonPropertyName("upin")]
+    public string? UPIN { get; set; }
+
+    /// <summary>
+    /// Gets or sets the provider type name.
+    /// </summary>
+    [JsonPropertyName("providerTypeName")]
+    public string? ProviderTypeName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the GIAS Status.
+    /// </summary>
+    [JsonPropertyName("GIASStatus")]
+    public int? GIASStatus { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Region related data
+    /// </summary>
+    [JsonPropertyName("region")]
+    public Region? Region { get; set; }
+
+    /// <summary>
+    /// Gets or sets the localAuthority related data
+    /// </summary>
+    [JsonPropertyName("localAuthority")]
+    public LocalAuthority? LocalAuthority { get; set; }
+
+    /// <summary>
+    /// Gets or sets the phaseOfEducation related data
+    /// </summary>
+    [JsonPropertyName("phaseOfEducation")]
+    public PhaseOfEducation? PhaseOfEducation { get; set; }
+
+    /// <summary>
+    /// Gets or sets the EstablishmentType related data
+    /// </summary>
+    [JsonPropertyName("type")]
+    public EstablishmentType? EstablishmentType { get; set; }
 }
 
 /// <summary>
@@ -253,6 +412,18 @@ public class StatusDto
     /// </summary>
     [JsonPropertyName("name")]
     public string? Name { get; set; }
+}
+
+/// <summary>
+/// Represents the status of an organisation.
+/// </summary>
+public class StatusWithLabelDto : StatusDto
+{
+    /// <summary>
+    /// Gets or sets the status TagColor.
+    /// </summary>
+    [JsonPropertyName("tagColor")]
+    public string? TagColor { get; set; }
 }
 
 /// <summary>

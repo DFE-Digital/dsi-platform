@@ -28,10 +28,15 @@ public sealed record Organisation
     public string? LegalName { get; init; }
 
     /// <summary>
-    /// The category of the organisation
+    /// The category of the organisation as an Enum value.
     /// </summary>
     /// <seealso cref="EstablishmentType"/>
     public OrganisationCategory Category { get; init; }
+
+    /// <summary>
+    /// The category of the organisation as a string representation
+    /// </summary>
+    public string? CategoryId { get; init; }
 
     /// <summary>
     /// The establishment type of the organisation.
@@ -163,4 +168,51 @@ public sealed record Organisation
     /// The legacy numeric identifier for the organisation used by external systems.
     /// </summary>
     public long? LegacyId { get; init; }
+
+    /// <summary>
+    /// Telephone Number associated to organisation
+    /// </summary>
+    public string? Telephone { get; init; }
+
+    /// <summary>
+    /// Gets or Sets Statutory Low Age
+    /// </summary>
+    public int? StatutoryLowAge { get; init; }
+
+    /// <summary>
+    /// Gets or Sets Statutory High Age
+    /// </summary>
+    public int? StatutoryHighAge { get; init; }
+
+    /// <summary>
+    /// Gets or Sets Company Registration Number
+    /// </summary>
+    public string? CompanyRegistrationNumber { get; init; }
+
+    /// <summary>
+    /// Gets or Sets District Administrative_code
+    /// </summary>
+    public string? DistrictAdministrative_code { get; set; }
+
+    /// <summary>
+    /// Get or Sets Local Authority data
+    /// </summary>
+    public LocalAuthority? LocalAuthority { get; set; }
+
+    /// <summary>
+    /// Get or Sets Phase of Education
+    /// </summary>
+    public int? PhaseOfEducation { get; set; }
+    /// <summary>
+    /// Get or Sets Region code
+    /// </summary>
+    public string? RegionCode { get; set; }
 }
+
+/// <summary>
+///  A model representing an Local Authority in DfE Sign-in.
+/// </summary>
+/// <param name="Id"></param>
+/// <param name="Name"></param>
+/// <param name="Code"></param>
+public record LocalAuthority(Guid Id, string Name, string? Code);
