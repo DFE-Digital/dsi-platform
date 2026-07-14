@@ -32,13 +32,13 @@ internal static class ExceptionReflectionHelpers
                             return assembly.GetTypes();
                         }
                         catch (ReflectionTypeLoadException e) {
-                            return e.Types.Where(t => t != null)!;
+                            return e.Types.Where(t => t != null);
                         }
                     })
                     .Where(type => typeof(Exception).IsAssignableFrom(type))
                     .GroupBy(type => type.FullName)
                     .ToDictionary(
-                        keySelector: type => type.First().FullName!,
+                        keySelector: type => type.First().FullName,
                         elementSelector: type => type.First()
                     );
                 return exceptionTypesByFullName;
@@ -124,8 +124,8 @@ internal static class ExceptionReflectionHelpers
 
         IEnumerable<PropertyInfo> result;
         lock (@lock) {
-            if (!propertiesByType.TryGetValue(exceptionType, out result!)) {
-                result = [.. exceptionType.GetProperties().Where(IsSerializableProperty)];
+            if (!propertiesByType.TryGetValue(exceptionType, out result)) {
+                result = exceptionType.GetProperties().Where(IsSerializableProperty);
                 propertiesByType[exceptionType] = result;
             }
         }
