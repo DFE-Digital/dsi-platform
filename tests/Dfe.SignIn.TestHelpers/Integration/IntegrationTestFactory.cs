@@ -14,6 +14,7 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
     where TProgram : class
 {
     private readonly SqlDatabaseManager _dbManager = new();
+    private readonly Dictionary<string, string?> _originalEnvironmentValues = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Defines the database catalogs that this API requires.
@@ -21,23 +22,23 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
     /// </summary>
     protected abstract IReadOnlyList<DatabaseCatalog> DatabaseCatalogs { get; }
 
-    protected abstract string AppSettingsFileName { get; }
+    protected virtual string AppSettingsFileName { get; } = "appsettings.Test.json";
 
     protected IntegrationTestFactory()
     {
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
+        this.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
 
-        LoadStaticConfigurations(this.AppSettingsFileName);
+        this.LoadStaticConfigurations(this.AppSettingsFileName);
 
         // The container must be started synchronously here because environment variables
         // need to be set before the WebApplicationFactory builds its host in ConfigureWebHost.
         this._dbManager.StartAsync(this.DatabaseCatalogs).GetAwaiter().GetResult();
-        this._dbManager.SetConnectionEnvironmentVariables();
+        this._dbManager.SetConnectionEnvironmentVariables(this.SetEnvironmentVariable);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseEnvironment("Local");
+        builder.UseEnvironment("Test");
     }
 
     /// <summary>
@@ -63,7 +64,7 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
     /// Loads <c>appsettings.IntegrationTests.json</c> from the test project's output directory
     /// and writes each key-value pair as an environment variable using the <c>__</c> separator.
     /// </summary>
-    private static void LoadStaticConfigurations(string appSettingsFileName)
+    private void LoadStaticConfigurations(string appSettingsFileName)
     {
         if (string.IsNullOrEmpty(appSettingsFileName)) {
             return;
@@ -77,14 +78,37 @@ public abstract class IntegrationTestFactory<TProgram> : WebApplicationFactory<T
         foreach (var pair in config.AsEnumerable()) {
             if (pair.Value is not null) {
                 var envKey = pair.Key.Replace(":", "__");
-                Environment.SetEnvironmentVariable(envKey, pair.Value);
+                this.SetEnvironmentVariable(envKey, pair.Value);
             }
         }
     }
 
+    private void SetEnvironmentVariable(string key, string? value)
+    {
+        if (!this._originalEnvironmentValues.ContainsKey(key)) {
+            this._originalEnvironmentValues[key] = Environment.GetEnvironmentVariable(key);
+        }
+
+        Environment.SetEnvironmentVariable(key, value);
+    }
+
+    private void RestoreEnvironmentVariables()
+    {
+        foreach (var (key, originalValue) in this._originalEnvironmentValues) {
+            Environment.SetEnvironmentVariable(key, originalValue);
+        }
+
+        this._originalEnvironmentValues.Clear();
+    }
+
     public override async ValueTask DisposeAsync()
     {
-        await this._dbManager.DisposeAsync();
-        await base.DisposeAsync();
+        try {
+            await this._dbManager.DisposeAsync();
+            await base.DisposeAsync();
+        }
+        finally {
+            this.RestoreEnvironmentVariables();
+        }
     }
 }

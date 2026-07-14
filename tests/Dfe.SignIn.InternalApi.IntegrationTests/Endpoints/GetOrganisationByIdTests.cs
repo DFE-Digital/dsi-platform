@@ -9,35 +9,24 @@ using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
 
-[Collection("IntegrationTestsCollection")]
 [Trait("Category", "Integration")]
-public class GetOrganisationByIdTests : IAsyncLifetime
+public class GetOrganisationByIdTests : IntegrationEndpointTestBase
 {
-    private readonly InternalApiWebApplicationFactory webAppfactory;
-    private readonly HttpClient httpClient;
-
     public GetOrganisationByIdTests(InternalApiWebApplicationFactory factory)
+        : base(factory)
     {
-        this.webAppfactory = factory;
-        this.httpClient = this.webAppfactory.CreateClient();
     }
-
-    public async Task InitializeAsync()
-    {
-        // Clear database state between tests
-        await this.webAppfactory.ResetDatabasesAsync();
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
 
     [Fact]
     public async Task GetOrganisationById_ReturnsOrganisation_WhenExists()
     {
+        var authenticatedClient = this.CreateAuthenticatedClient();
+
         // Arrange: Seed an organisation
         var orgId = Guid.NewGuid();
         var expectedName = "Test Academy Trust";
 
-        await using var scope = this.webAppfactory.Services.CreateAsyncScope();
+        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
         dbContext.Organisations.Add(new OrganisationEntity {
             Id = orgId,
@@ -54,7 +43,7 @@ public class GetOrganisationByIdTests : IAsyncLifetime
         };
 
         // Act: POST to the endpoint
-        var response = await this.httpClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
 
         // Assert
         if (response.StatusCode != HttpStatusCode.OK) {
@@ -72,6 +61,8 @@ public class GetOrganisationByIdTests : IAsyncLifetime
     [Fact]
     public async Task GetOrganisationById_Returns404_WhenDoesNotExist()
     {
+        var authenticatedClient = this.CreateAuthenticatedClient();
+
         // Arrange
         var missingOrgId = Guid.NewGuid();
         var request = new GetOrganisationByIdRequest {
@@ -79,9 +70,23 @@ public class GetOrganisationByIdTests : IAsyncLifetime
         };
 
         // Act
-        var response = await this.httpClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetOrganisationById_Returns401_WhenUnauthenticated()
+    {
+        var anonymousClient = this.CreateAnonymousClient();
+
+        var request = new GetOrganisationByIdRequest {
+            OrganisationId = Guid.NewGuid()
+        };
+
+        var response = await anonymousClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }

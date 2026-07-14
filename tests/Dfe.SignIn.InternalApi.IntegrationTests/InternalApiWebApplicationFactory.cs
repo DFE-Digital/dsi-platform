@@ -15,8 +15,6 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         new("dsi-organisations-test", "Organisations", typeof(DbOrganisationsContext))
     ];
 
-    protected override string AppSettingsFileName => "appsettings.Test.json";
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
@@ -28,6 +26,31 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             })
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", _ => { });
         });
+    }
+
+    public HttpClient CreateAuthenticatedClient(string? userId = null, string? userName = null, params string[] roles)
+    {
+        var client = this.CreateClient();
+        client.DefaultRequestHeaders.Add(TestAuthHandler.EnableAuthHeaderName, bool.TrueString);
+
+        if (!string.IsNullOrWhiteSpace(userId)) {
+            client.DefaultRequestHeaders.Add(TestAuthHandler.UserIdHeaderName, userId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(userName)) {
+            client.DefaultRequestHeaders.Add(TestAuthHandler.UserNameHeaderName, userName);
+        }
+
+        foreach (var role in roles.Where(static r => !string.IsNullOrWhiteSpace(r))) {
+            client.DefaultRequestHeaders.Add(TestAuthHandler.RoleHeaderName, role);
+        }
+
+        return client;
+    }
+
+    public HttpClient CreateAnonymousClient()
+    {
+        return this.CreateClient();
     }
 
     public async Task InitializeAsync()

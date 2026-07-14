@@ -1,6 +1,8 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
 using Testcontainers.MsSql;
@@ -15,7 +17,7 @@ namespace Dfe.SignIn.TestHelpers.Integration;
 /// The configuration key prefix used to set EntityFramework__[ConfigKey]__Host/Name/Username/Password
 /// environment variables (e.g., "Directories").
 /// </param>
-/// <param name="DbContextType">The EF Core <see cref="DbContext"/> type to run EnsureCreated on.</param>
+/// <param name="DbContextType">The EF Core <see cref="DbContext"/> type to run migrations on.</param>
 public sealed record DatabaseCatalog(string CatalogName, string ConfigKey, Type DbContextType);
 
 /// <summary>
@@ -53,19 +55,19 @@ public sealed class SqlDatabaseManager : IAsyncDisposable
     /// <c>EntityFramework:{ConfigKey}:Host/Name/Username/Password</c> configuration
     /// resolves correctly from the container's dynamic connection string.
     /// </summary>
-    public void SetConnectionEnvironmentVariables()
+    public void SetConnectionEnvironmentVariables(Action<string, string?> setEnvironmentVariable)
     {
         foreach (var (configKey, cs) in this._connectionStrings) {
             var connectionStringBuilder = new SqlConnectionStringBuilder(cs);
-            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Host", connectionStringBuilder.DataSource);
-            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Name", connectionStringBuilder.InitialCatalog);
-            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Username", connectionStringBuilder.UserID);
-            Environment.SetEnvironmentVariable($"EntityFramework__{configKey}__Password", connectionStringBuilder.Password);
+            setEnvironmentVariable($"EntityFramework__{configKey}__Host", connectionStringBuilder.DataSource);
+            setEnvironmentVariable($"EntityFramework__{configKey}__Name", connectionStringBuilder.InitialCatalog);
+            setEnvironmentVariable($"EntityFramework__{configKey}__Username", connectionStringBuilder.UserID);
+            setEnvironmentVariable($"EntityFramework__{configKey}__Password", connectionStringBuilder.Password);
         }
     }
 
     /// <summary>
-    /// Initialises database schemas via EF Core EnsureCreated and builds Respawners.
+    /// Initialises database schemas via EF Core migrations when available, otherwise EnsureCreated, and builds Respawners.
     /// </summary>
     public async Task InitialiseSchemasAsync(IReadOnlyList<DatabaseCatalog> catalogs, IServiceProvider serviceProvider)
     {
@@ -74,7 +76,14 @@ public sealed class SqlDatabaseManager : IAsyncDisposable
 
             using var scope = serviceProvider.CreateScope();
             var dbContext = (DbContext)scope.ServiceProvider.GetRequiredService(catalog.DbContextType);
-            await dbContext.Database.EnsureCreatedAsync();
+            var migrationsAssembly = dbContext.Database.GetService<IMigrationsAssembly>();
+
+            if (migrationsAssembly.Migrations.Any()) {
+                await dbContext.Database.MigrateAsync();
+            }
+            else {
+                await dbContext.Database.EnsureCreatedAsync();
+            }
 
             using var connection = new SqlConnection(catalogConnectionString);
             await connection.OpenAsync();

@@ -45,13 +45,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 #endif
 ;
 
-builder.Services.AddAuthorizationBuilder()
+var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
 #if DEBUG // Include when debugging locally.
-    .SetDefaultPolicy(
+if (builder.Environment.IsEnvironment("Local")) {
+    authorizationBuilder.SetDefaultPolicy(
         new AuthorizationPolicyBuilder().RequireAssertion(_ => true).Build()
-    )
+    );
+}
 #endif
-;
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Search];
 
