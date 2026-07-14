@@ -32,13 +32,14 @@ internal static class ExceptionReflectionHelpers
                             return assembly.GetTypes();
                         }
                         catch (ReflectionTypeLoadException e) {
-                            return e.Types.Where(t => t != null);
+                            return e.Types.OfType<Type>();
                         }
                     })
                     .Where(type => typeof(Exception).IsAssignableFrom(type))
+                    .Where(type => type.FullName is not null)
                     .GroupBy(type => type.FullName)
                     .ToDictionary(
-                        keySelector: type => type.First().FullName,
+                        keySelector: type => type.Key,
                         elementSelector: type => type.First()
                     );
                 return exceptionTypesByFullName;
