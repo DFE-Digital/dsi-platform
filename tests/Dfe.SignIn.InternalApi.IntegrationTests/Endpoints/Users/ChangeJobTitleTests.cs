@@ -84,22 +84,82 @@ public class ChangeJobTitleTests : IntegrationEndpointTestBase
         Assert.Equal(userId, auditRequest.UserId);
     }
 
-    [Fact(Skip = "TODO: implement missing-user assertion")]
+    [Fact]
     public async Task ChangeJobTitle_Returns404_WhenUserDoesNotExist()
     {
-        await Task.CompletedTask;
+        var authenticatedClient = this.CreateAuthenticatedClient();
+
+        var request = new ChangeJobTitleRequest {
+            UserId = Guid.NewGuid(),
+            NewJobTitle = "Senior Software Developer"
+        };
+
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact(Skip = "TODO: implement auth assertion")]
+    [Fact]
     public async Task ChangeJobTitle_Returns401_WhenUnauthenticated()
     {
-        await Task.CompletedTask;
+        var anonymousClient = this.CreateAnonymousClient();
+
+        var request = new ChangeJobTitleRequest {
+            UserId = Guid.NewGuid(),
+            NewJobTitle = "Senior Software Developer"
+        };
+
+        var response = await anonymousClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
-    [Fact(Skip = "TODO: verify database update")]
+    [Fact]
     public async Task ChangeJobTitle_UpdatesJobTitleInDatabase()
     {
-        await Task.CompletedTask;
+        var capturedAudit = new CapturingWriteToAuditInteractor();
+        using var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
+            builder.ConfigureTestServices(services => {
+                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
+                services.AddSingleton<IInteractor<WriteToAuditRequest>>(capturedAudit);
+            });
+        });
+
+        var authenticatedClient = customisedFactory.CreateClient();
+        authenticatedClient.DefaultRequestHeaders.Add(TestAuthHandler.EnableAuthHeaderName, bool.TrueString);
+
+        var userId = Guid.NewGuid();
+        var expectedJobTitle = "Principal Software Engineer";
+
+        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
+        dbContext.Users.Add(new UserEntity {
+            Sub = userId,
+            Email = "alex.johnson@example.com",
+            FirstName = "Alex",
+            LastName = "Johnson",
+            Password = "",
+            Salt = "",
+            Status = 1,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            JobTitle = "Software Developer"
+        });
+        await dbContext.SaveChangesAsync();
+
+        var request = new ChangeJobTitleRequest {
+            UserId = userId,
+            NewJobTitle = expectedJobTitle
+        };
+
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        await using var assertionScope = customisedFactory.Services.CreateAsyncScope();
+        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
+        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == userId);
+        Assert.Equal(expectedJobTitle, updatedUser.JobTitle);
     }
 
     [Fact(Skip = "TODO: verify audit event")]
