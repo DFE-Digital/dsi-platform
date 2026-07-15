@@ -37,7 +37,7 @@ internal static class ExceptionReflectionHelpers
                     })
                     .Where(type => typeof(Exception).IsAssignableFrom(type))
                     .Where(type => type.FullName is not null)
-                    .GroupBy(type => type.FullName)
+                    .GroupBy(type => type.FullName ?? throw new InvalidOperationException("Exception type full name was unexpectedly null."))
                     .ToDictionary(
                         keySelector: type => type.Key,
                         elementSelector: type => type.First()
@@ -123,9 +123,9 @@ internal static class ExceptionReflectionHelpers
     {
         ExceptionHelpers.ThrowIfArgumentNull(exceptionType, nameof(exceptionType));
 
-        IEnumerable<PropertyInfo> result;
+        IEnumerable<PropertyInfo>? result;
         lock (@lock) {
-            if (!propertiesByType.TryGetValue(exceptionType, out result)) {
+            if (!propertiesByType.TryGetValue(exceptionType, out result) || result is null) {
                 result = exceptionType.GetProperties().Where(IsSerializableProperty);
                 propertiesByType[exceptionType] = result;
             }
