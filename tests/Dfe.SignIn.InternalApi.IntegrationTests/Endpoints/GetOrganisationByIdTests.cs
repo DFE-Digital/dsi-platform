@@ -1,0 +1,92 @@
+using System.Net;
+using System.Net.Http.Json;
+using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Entities.Organisations;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.InternalApi.Contracts;
+using Microsoft.Extensions.DependencyInjection;
+using Assert = Xunit.Assert;
+
+namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
+
+[Trait("Category", "Integration")]
+public class GetOrganisationByIdTests : IntegrationEndpointTestBase
+{
+    public GetOrganisationByIdTests(InternalApiWebApplicationFactory factory)
+        : base(factory)
+    {
+    }
+
+    [Fact]
+    public async Task GetOrganisationById_ReturnsOrganisation_WhenExists()
+    {
+        var authenticatedClient = this.CreateAuthenticatedClient();
+
+        // Arrange: Seed an organisation
+        var orgId = Guid.NewGuid();
+        var expectedName = "Test Academy Trust";
+
+        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
+        dbContext.Organisations.Add(new OrganisationEntity {
+            Id = orgId,
+            Name = expectedName,
+            Category = "001",
+            Status = 1,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+        await dbContext.SaveChangesAsync();
+
+        var request = new GetOrganisationByIdRequest {
+            OrganisationId = orgId
+        };
+
+        // Act: POST to the endpoint
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+
+        // Assert
+        if (response.StatusCode != HttpStatusCode.OK) {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Assert.Fail($"Request failed with status {response.StatusCode}. Response: {errorContent}");
+        }
+
+        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<GetOrganisationByIdResponse>>();
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+        Assert.Equal(orgId, body.Data.Organisation.Id);
+        Assert.Equal(expectedName, body.Data.Organisation.Name);
+    }
+
+    [Fact]
+    public async Task GetOrganisationById_Returns404_WhenDoesNotExist()
+    {
+        var authenticatedClient = this.CreateAuthenticatedClient();
+
+        // Arrange
+        var missingOrgId = Guid.NewGuid();
+        var request = new GetOrganisationByIdRequest {
+            OrganisationId = missingOrgId
+        };
+
+        // Act
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetOrganisationById_Returns401_WhenUnauthenticated()
+    {
+        var anonymousClient = this.CreateAnonymousClient();
+
+        var request = new GetOrganisationByIdRequest {
+            OrganisationId = Guid.NewGuid()
+        };
+
+        var response = await anonymousClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+}
