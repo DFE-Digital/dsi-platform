@@ -7,7 +7,7 @@ using Dfe.SignIn.InternalApi.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
-namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
+namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Organisations;
 
 [Trait("Category", "Integration")]
 public class GetOrganisationByIdTests : IntegrationEndpointTestBase
