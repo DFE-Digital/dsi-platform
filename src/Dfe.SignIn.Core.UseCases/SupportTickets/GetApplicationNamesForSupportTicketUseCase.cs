@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Core.UseCases.SupportTickets;
 /// Use case for getting a list of application names that can be chosen from
 /// when raising a support ticket.
 /// </summary>
-public sealed class GetApplicationNamesForSupportTicketUseCase(DbOrganisationsContext unitOfWork) : Interactor<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>
+public sealed class GetApplicationNamesForSupportTicketUseCase(DbOrganisationsContext organisationsDbContext) : Interactor<GetApplicationNamesForSupportTicketRequest, GetApplicationNamesForSupportTicketResponse>
 {
     /// <inheritdoc/>
     public override async Task<GetApplicationNamesForSupportTicketResponse> InvokeAsync(
@@ -18,7 +18,7 @@ public sealed class GetApplicationNamesForSupportTicketUseCase(DbOrganisationsCo
     {
         context.ThrowIfHasValidationErrors();
 
-        var applications = await unitOfWork.Services
+        var applications = await organisationsDbContext.Services
                     .Where(x => !x.IsChildService && !x.ServiceParams.Any(sp =>
                         sp.ParamName == "helpHidden" &&
                         sp.ParamValue == "true"))

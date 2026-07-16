@@ -10,7 +10,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for linking an Entra user to a DfE Sign-in user.
 /// </summary>
 public sealed class LinkEntraUserToDsiUseCase(
-    DbDirectoriesContext unitOfWork,
+    DbDirectoriesContext directoriesDbContext,
     IInteractionDispatcher interaction,
     TimeProvider timeProvider
     ) : Interactor<LinkEntraUserToDsiRequest, LinkEntraUserToDsiResponse>
@@ -22,7 +22,7 @@ public sealed class LinkEntraUserToDsiUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Users
+        var user = await directoriesDbContext.Users
             .Where(x => x.Sub == context.Request.DsiUserId)
             .SingleOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw UserNotFoundException.FromUserId(context.Request.DsiUserId);
@@ -33,7 +33,7 @@ public sealed class LinkEntraUserToDsiUseCase(
                 user.Sub, userEntraOid, context.Request.EntraUserId);
         }
 
-        var existingEntraUser = await unitOfWork.Users
+        var existingEntraUser = await directoriesDbContext.Users
             .Where(x => x.EntraOid == context.Request.EntraUserId)
             .Select(x => new { x.Sub })
             .FirstOrDefaultAsync(cancellationToken);
@@ -61,7 +61,7 @@ public sealed class LinkEntraUserToDsiUseCase(
             user.EntraLinked = timeProvider.GetUtcNow().UtcDateTime;
             entraAccountLinked = true;
         }
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
         if (nameUpdated) {
             await interaction.DispatchAsync(new WriteToAuditRequest {

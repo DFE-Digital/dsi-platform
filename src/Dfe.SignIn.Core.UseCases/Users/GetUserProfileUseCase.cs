@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for getting the profile of a user.
 /// </summary>
 public sealed class GetUserProfileUseCase(
-    DbDirectoriesContext unitOfWork
+    DbDirectoriesContext directoriesDbContext
 ) : Interactor<GetUserProfileRequest, GetUserProfileResponse>
 {
     /// <inheritdoc/>
@@ -19,7 +19,7 @@ public sealed class GetUserProfileUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Users
+        var user = await directoriesDbContext.Users
             .Where(x => x.Sub == context.Request.UserId)
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw UserNotFoundException.FromUserId(context.Request.UserId);

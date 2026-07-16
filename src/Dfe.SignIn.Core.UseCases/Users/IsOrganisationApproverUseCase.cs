@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// <summary>
 /// Use case for checking if a user is an approver for any of their associated organisations.
 /// </summary>
-public sealed class IsOrganisationApproverUseCase(DbOrganisationsContext unitOfWork)
+public sealed class IsOrganisationApproverUseCase(DbOrganisationsContext organisationsDbContext)
     : Interactor<IsOrganisationApproverRequest, IsOrganisationApproverResponse>
 {
     /// <inheritdoc/>
@@ -19,7 +19,7 @@ public sealed class IsOrganisationApproverUseCase(DbOrganisationsContext unitOfW
     {
         context.ThrowIfHasValidationErrors();
 
-        var isApprover = await unitOfWork.UserOrganisations
+        var isApprover = await organisationsDbContext.UserOrganisations
             .Where(x => x.UserId == context.Request.UserId)
             .AnyAsync(x => x.RoleId == OrganisationRoles.Approver.Id, cancellationToken);
 

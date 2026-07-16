@@ -10,7 +10,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for getting all of the organisations that are associated with a particular user.
 /// </summary>
 public sealed class GetOrganisationsAssociatedWithUserUseCase(
-    DbOrganisationsContext unitOfWork
+    DbOrganisationsContext organisationDbContext
 )
     : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {
@@ -20,15 +20,16 @@ public sealed class GetOrganisationsAssociatedWithUserUseCase(
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
+        var organisations2 = organisationDbContext.UserOrganisations.ToList()
+            .Where(x => x.UserId == context.Request.UserId);
 
-        var organisations = unitOfWork.Repository<UserOrganisationEntity>()
+        var organisations = organisationDbContext.UserOrganisations
             .Where(x => x.UserId == context.Request.UserId)
             .Include(x => x.Organisation)
                 .ThenInclude(x => x.Associations)
                 .ThenInclude(x => x.AssociatedOrganisation)
             .ToList();
 
-        //.Where( && )
         var x = organisations.Select(x => OrganisationHelpers.OrganisationFromEntity(x.Organisation));
 
         return Task.FromResult(new GetOrganisationsAssociatedWithUserResponse {

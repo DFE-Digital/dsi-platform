@@ -11,7 +11,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// legacy system integration.
 /// </summary>
 public sealed class GetUserOrganisationIdentifiersUseCase(
-    DbOrganisationsContext unitOfWork
+    DbOrganisationsContext organisationsDbContext
 ) : Interactor<GetUserOrganisationIdentifiersRequest, GetUserOrganisationIdentifiersResponse>
 {
     /// <inheritdoc/>
@@ -21,7 +21,7 @@ public sealed class GetUserOrganisationIdentifiersUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var userOrganisation = await unitOfWork
+        var userOrganisation = await organisationsDbContext
             .UserOrganisations
             .Where(x => x.UserId == context.Request.UserId
                      && x.OrganisationId == context.Request.OrganisationId)

@@ -20,7 +20,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 ///   Review login.dfe.directories for implementation details.</para>
 /// </remarks>
 public sealed class CreateUserUseCase(
-    DbDirectoriesContext unitOfWork,
+    DbDirectoriesContext directoriesDbContext,
     IInteractionDispatcher interaction,
     TimeProvider timeProvider
 ) : Interactor<CreateUserRequest, CreateUserResponse>
@@ -32,7 +32,7 @@ public sealed class CreateUserUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Users
+        var user = await directoriesDbContext.Users
                 .Where(x =>
                     x.Email == context.Request.EmailAddress ||
                     x.EntraOid == context.Request.EntraUserId)
@@ -59,8 +59,8 @@ public sealed class CreateUserUseCase(
             Sub = Guid.NewGuid(),
         };
 
-        await unitOfWork.AddAsync(newUser, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await directoriesDbContext.AddAsync(newUser, cancellationToken);
+        await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
         await interaction.DispatchAsync(
             new UpdateUserInSearchIndexRequest {

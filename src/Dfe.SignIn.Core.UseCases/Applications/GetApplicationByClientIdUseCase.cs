@@ -8,7 +8,7 @@ namespace Dfe.SignIn.Core.UseCases.Applications;
 /// <summary>
 /// Use case responsible for obtaining information about an application.
 /// </summary>
-public sealed class GetApplicationByClientIdUseCase(DbOrganisationsContext uowOrganisations) : Interactor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
+public sealed class GetApplicationByClientIdUseCase(DbOrganisationsContext organisationsDbContext) : Interactor<GetApplicationByClientIdRequest, GetApplicationByClientIdResponse>
 {
     /// <inheritdoc/>
     public override async Task<GetApplicationByClientIdResponse> InvokeAsync(
@@ -17,7 +17,7 @@ public sealed class GetApplicationByClientIdUseCase(DbOrganisationsContext uowOr
     {
         context.ThrowIfHasValidationErrors();
 
-        var serviceEntity = await uowOrganisations.Services
+        var serviceEntity = await organisationsDbContext.Services
             .Select(x => new {
                 x.Id,
                 x.ClientId,

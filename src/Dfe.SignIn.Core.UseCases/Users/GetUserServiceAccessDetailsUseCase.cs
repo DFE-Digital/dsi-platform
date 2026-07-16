@@ -24,7 +24,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 ///   </list>
 /// </remarks>
 public sealed class GetUserServiceAccessDetailsUseCase(
-    DbOrganisationsContext uowOrganisations,
+    DbOrganisationsContext organisationsDbContext,
     IInteractionDispatcher interaction
 ) : Interactor<GetUserServiceAccessDetailsRequest, GetUserServiceAccessDetailsResponse>
 {
@@ -84,7 +84,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
 
     private async Task<GetUserServiceAccessResponse> GetUserService(Guid userId, Guid serviceId, Guid organisationId)
     {
-        var userService = await uowOrganisations.UserServices
+        var userService = await organisationsDbContext.UserServices
             .AsNoTracking()
             .Where(x => x.ServiceId == serviceId)
             .Where(x => x.UserId == userId)
@@ -95,7 +95,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
             return new GetUserServiceAccessResponse { Access = null };
         }
 
-        var roles = await uowOrganisations.UserServiceRoles
+        var roles = await organisationsDbContext.UserServiceRoles
             .AsNoTracking()
             .Include(x => x.Role)
             .Where(x => x.UserId == userId)
@@ -103,7 +103,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
             .Where(x => x.OrganisationId == organisationId)
             .ToListAsync();
 
-        var identifiers = await uowOrganisations.UserServiceIdentifiers
+        var identifiers = await organisationsDbContext.UserServiceIdentifiers
             .AsNoTracking()
             .Where(x => x.UserId == userId)
             .Where(x => x.ServiceId == serviceId)

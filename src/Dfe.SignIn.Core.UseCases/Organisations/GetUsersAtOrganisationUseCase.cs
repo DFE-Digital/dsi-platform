@@ -12,8 +12,8 @@ namespace Dfe.SignIn.Core.UseCases.Organisations;
 /// <summary>
 /// Query returns users and their roles for a service and organisation.
 /// </summary>
-/// <param name="uowOrganisations"></param>
-public sealed class GetUsersAtOrganisationUseCase(DbOrganisationsContext uowOrganisations) : Interactor<GetUsersAtOrganisationRequestRaw, GetUsersAtOrganisationResponseRaw>
+/// <param name="organisationsDbContext"></param>
+public sealed class GetUsersAtOrganisationUseCase(DbOrganisationsContext organisationsDbContext) : Interactor<GetUsersAtOrganisationRequestRaw, GetUsersAtOrganisationResponseRaw>
 {
     /// <inheritdoc/>
     public override async Task<GetUsersAtOrganisationResponseRaw> InvokeAsync(
@@ -50,19 +50,19 @@ public sealed class GetUsersAtOrganisationUseCase(DbOrganisationsContext uowOrga
         string clientId,
         Expression<Func<OrganisationEntity, bool>> organisationFilter)
     {
-        var organisations = uowOrganisations
+        var organisations = organisationsDbContext
             .Organisations
             .Where(organisationFilter);
 
         return
-            from us in uowOrganisations.UserServices
+            from us in organisationsDbContext.UserServices
             join o in organisations
                 on us.OrganisationId equals o.Id
-            join u in uowOrganisations.Users
+            join u in organisationsDbContext.Users
                 on us.UserId equals u.Sub
-            join s in uowOrganisations.Services
+            join s in organisationsDbContext.Services
                 on us.ServiceId equals s.Id
-            join usr in uowOrganisations.UserServiceRoles
+            join usr in organisationsDbContext.UserServiceRoles
                 on new {
                     oid = us.OrganisationId,
                     sid = us.ServiceId,
@@ -75,7 +75,7 @@ public sealed class GetUsersAtOrganisationUseCase(DbOrganisationsContext uowOrga
                 }
                 into usrGroup
             from usr in usrGroup.DefaultIfEmpty()
-            join r in uowOrganisations.Roles
+            join r in organisationsDbContext.Roles
                 on usr.RoleId equals r.Id
                 into roleGroup
             from r in roleGroup.DefaultIfEmpty()

@@ -11,7 +11,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// An interactor to determine if a user exists and retrieve their account status.
 /// </summary>
 public sealed class GetUserStatusUseCase(
-    DbDirectoriesContext unitOfWork
+    DbDirectoriesContext directoriesDbContext
 ) : Interactor<GetUserStatusRequest, GetUserStatusResponse>
 {
     /// <inheritdoc/>
@@ -21,7 +21,7 @@ public sealed class GetUserStatusUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        IQueryable<UserEntity> queryBuilder = unitOfWork.Users;
+        IQueryable<UserEntity> queryBuilder = directoriesDbContext.Users;
         queryBuilder = context.Request.EntraUserId.HasValue
             ? queryBuilder.Where(x => x.EntraOid == context.Request.EntraUserId.Value)
             : queryBuilder.Where(x => x.Email == context.Request.EmailAddress);

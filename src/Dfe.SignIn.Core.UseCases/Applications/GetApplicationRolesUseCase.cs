@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Core.UseCases.Applications;
 /// <summary>
 /// Use case responsible for obtaining information about an application.
 /// </summary>
-public sealed class GetApplicationRolesUseCase(DbOrganisationsContext uowOrganisations) : Interactor<GetApplicationRolesRequest, GetApplicationRolesResponse>
+public sealed class GetApplicationRolesUseCase(DbOrganisationsContext organisationsDbContext) : Interactor<GetApplicationRolesRequest, GetApplicationRolesResponse>
 {
     /// <inheritdoc/>
     public override async Task<GetApplicationRolesResponse> InvokeAsync(
@@ -18,7 +18,7 @@ public sealed class GetApplicationRolesUseCase(DbOrganisationsContext uowOrganis
     {
         context.ThrowIfHasValidationErrors();
 
-        var roles = await uowOrganisations.Roles
+        var roles = await organisationsDbContext.Roles
             .Include(r => r.Parent)
             .Where(r => r.ApplicationId == context.Request.ApplicationId)
             .OrderBy(r => r.Name)

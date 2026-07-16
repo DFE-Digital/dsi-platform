@@ -10,7 +10,7 @@ namespace Dfe.SignIn.Core.UseCases.Applications;
 /// Use case responsible for obtaining the Public API configuration of an application.
 /// </summary>
 public sealed class GetApplicationApiConfigurationUseCase(
-    DbOrganisationsContext uowOrganisations,
+    DbOrganisationsContext organisationsDbContext,
     IInteractionDispatcher interaction
 ) : Interactor<GetApplicationApiConfigurationRequest, GetApplicationApiConfigurationResponse>
 {
@@ -21,7 +21,7 @@ public sealed class GetApplicationApiConfigurationUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var serviceEntity = await uowOrganisations.Services
+        var serviceEntity = await organisationsDbContext.Services
             .Select(x => new {
                 x.ClientId,
                 x.ApiSecret,

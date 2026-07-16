@@ -10,8 +10,8 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// User case to get the number of pending approvals for organisations and
 /// services for a approval user
 /// </summary>
-/// <param name="unitOfWork"></param>
-public sealed class PendingApprovalCountUseCase(DbOrganisationsContext unitOfWork) : Interactor<GetPendingApprovalCountRequest, PendingApprovalCountResponse>
+/// <param name="organisationsDbContext"></param>
+public sealed class PendingApprovalCountUseCase(DbOrganisationsContext organisationsDbContext) : Interactor<GetPendingApprovalCountRequest, PendingApprovalCountResponse>
 {
     /// <summary>
     /// Calculates the number of outstanding approvals that the Approval user for the given
@@ -24,15 +24,15 @@ public sealed class PendingApprovalCountUseCase(DbOrganisationsContext unitOfWor
     /// <returns></returns>
     public override async Task<PendingApprovalCountResponse> InvokeAsync(InteractionContext<GetPendingApprovalCountRequest> context, CancellationToken cancellationToken = default)
     {
-        var orgIds = await unitOfWork.UserOrganisations.Include(x => x.Organisation)
+        var orgIds = await organisationsDbContext.UserOrganisations.Include(x => x.Organisation)
             .Where(x => x.UserId == context.Request.UserId && x.RoleId == OrganisationRoles.Approver.Id)
             .Select(x => x.OrganisationId)
             .ToListAsync(cancellationToken);
 
-        var pendingServiceNotificationCount = await unitOfWork.UserServiceRequests
+        var pendingServiceNotificationCount = await organisationsDbContext.UserServiceRequests
             .CountAsync(x => orgIds.Contains(x.OrganisationId) && !x.ActionedAt.HasValue, cancellationToken);
 
-        var pendingOrganisationNotificationCount = await unitOfWork.UserOrganisationRequests
+        var pendingOrganisationNotificationCount = await organisationsDbContext.UserOrganisationRequests
       .CountAsync(x => orgIds.Contains(x.OrganisationId) && !x.ActionedAt.HasValue, cancellationToken);
 
         var pendingCount = pendingServiceNotificationCount + pendingOrganisationNotificationCount;

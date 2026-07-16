@@ -10,7 +10,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// An interactor to change the job title of a user.
 /// </summary>
 public sealed class ChangeJobTitleUseCase(
-    DbDirectoriesContext unitOfWork,
+    DbDirectoriesContext directoriesDbContext,
     IInteractionDispatcher interaction
 ) : Interactor<ChangeJobTitleRequest, ChangeJobTitleResponse>
 {
@@ -21,7 +21,7 @@ public sealed class ChangeJobTitleUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Users
+        var user = await directoriesDbContext.Users
             .Where(x => x.Sub == context.Request.UserId)
             .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(context.Request.UserId);
 
@@ -33,7 +33,7 @@ public sealed class ChangeJobTitleUseCase(
 
         user.JobTitle = normalisedJobTitle;
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
         await interaction.DispatchAsync(
             new WriteToAuditRequest {
