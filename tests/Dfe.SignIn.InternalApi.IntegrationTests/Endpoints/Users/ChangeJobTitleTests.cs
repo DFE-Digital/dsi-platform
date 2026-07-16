@@ -63,7 +63,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task ChangeJobTitle_Returns404_WhenUserDoesNotExist()
     {
-        var authenticatedClient = this.CreateClient().WithAuthenticate();
+        var authenticatedClient = this.CreateClient().WithAuthentication();
 
         var request = new ChangeJobTitleRequest {
             UserId = Guid.NewGuid(),
