@@ -26,6 +26,13 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
         return this.DisposeCreatedFactoriesAsync();
     }
 
+    /// <summary>
+    /// This method creates a new HttpClient instance with a mock implementation of the IInteractor<WriteToAuditRequest> interface.
+    /// The mock implementation captures the WriteToAuditRequest passed to it, allowing for verification of audit logging behavior during integration tests.
+    /// NOTE: This has only been added to support the interator that writes to audit, so that we can verify that the correct audit events are being written during integration tests.
+    /// NOTE: When we move to a simpler IAuditorService implementation, this method can be removed and the tests can be updated to use the real implementation of IAuditorService.
+    /// </summary>
+    /// <returns></returns>
     protected (HttpClient Client, CapturingWriteToAuditInteractor AuditMock) CreateClientWithAuditMock()
     {
         var auditMock = new CapturingWriteToAuditInteractor();
@@ -52,7 +59,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
         await this.InsertEntitiesAsync<TContext, TEntity>([entity]);
     }
 
-    protected async Task InsertEntitiesAsync<TContext, TEntity>(params TEntity[] entities)
+    protected async Task InsertEntitiesAsync<TContext, TEntity>(IEnumerable<TEntity> entities)
         where TContext : DbContext
         where TEntity : class
     {
@@ -76,14 +83,4 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     {
         return this.WebAppFactory.CreateClient();
     }
-
-    //protected HttpClient CreateAuthenticatedClient(string? userId = null, string? userName = null, params string[] roles)
-    //{
-    //    return this.WebAppFactory.CreateAuthenticatedClient(userId, userName, roles);
-    //}
-
-    //protected HttpClient CreateAnonymousClient()
-    //{
-    //    return this.WebAppFactory.CreateAnonymousClient();
-    //}
 }

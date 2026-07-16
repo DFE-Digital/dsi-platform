@@ -122,27 +122,117 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         Assert.Null(auditRequest);
     }
 
-    [Fact(Skip = "TODO: verify whitespace normalisation")]
+    [Fact]
     public async Task ChangeJobTitle_NormalisesWhitespaceBeforeSaving()
     {
-        await Task.CompletedTask;
+        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+
+        var newjobTitle = "Senior Software      Developer";
+        var expectedJobTitle = "Senior Software Developer";
+        var user = EntityFaker.User.Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var request = new ChangeJobTitleRequest {
+            UserId = user.Sub,
+            NewJobTitle = newjobTitle
+        };
+
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeJobTitleResponse>>();
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+
+        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
+        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
+        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        Assert.Equal(expectedJobTitle, updatedUser.JobTitle);
     }
 
-    [Fact(Skip = "TODO: verify other users are untouched")]
+    [Fact]
     public async Task ChangeJobTitle_LeavesOtherUsersUnchanged()
     {
-        await Task.CompletedTask;
+        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+
+        var newJobTitle = "Senior Software Developer";
+        var users = EntityFaker.User.Generate(3);
+
+        await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>(users);
+
+        var userToUpdate = users[1];
+
+        var request = new ChangeJobTitleRequest {
+            UserId = userToUpdate.Sub,
+            NewJobTitle = newJobTitle
+        };
+
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeJobTitleResponse>>();
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+
+        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
+        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
+
+        var userSubs = users.Select(u => u.Sub).ToList();
+        var assertionUsers = await assertionDbContext.Users
+            .Where(x => userSubs.Contains(x.Sub))
+            .ToListAsync();
+
+        var updatedUser = assertionUsers.Single(x => x.Sub == userToUpdate.Sub);
+        Assert.Equal(newJobTitle, updatedUser.JobTitle);
+
+        var unchangedUsers = assertionUsers.Where(x => x.Sub != userToUpdate.Sub).ToList();
+        foreach (var unchangedUser in unchangedUsers) {
+            Assert.NotEqual(newJobTitle, unchangedUser.JobTitle);
+        }
     }
 
-    [Fact(Skip = "TODO: verify validation failure")]
+    [Fact]
     public async Task ChangeJobTitle_Returns400_WhenNewJobTitleIsInvalid()
     {
-        await Task.CompletedTask;
+        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+
+        var users = EntityFaker.User.Generate(3);
+
+        await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>(users);
+
+        var userToUpdate = users[1];
+
+        var request = new ChangeJobTitleRequest {
+            UserId = userToUpdate.Sub,
+            NewJobTitle = "Senior Software Engineer!!!" // Invalid characters in job title
+        };
+
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
-    [Fact(Skip = "TODO: verify max-length validation failure")]
+    [Fact]
     public async Task ChangeJobTitle_Returns400_WhenNewJobTitleExceedsMaxLength()
     {
-        await Task.CompletedTask;
+        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+
+        var longJobTitle = "Vice President of Global Human Capital Management and Organizational Culture Development";
+        var user = EntityFaker.User
+            .Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var request = new ChangeJobTitleRequest {
+            UserId = user.Sub,
+            NewJobTitle = longJobTitle
+        };
+
+        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }
