@@ -22,6 +22,8 @@
     <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Bogus" />
+    <PackageReference Include="xunit" />
     <PackageReference Include="Testcontainers.MsSql" PrivateAssets="all" />
     <PackageReference Include="Respawn" PrivateAssets="all" />
   </ItemGroup>
@@ -37,6 +39,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/Dfe.SignIn.Base.Framework/Dfe.SignIn.Base.Framework.csproj" />
+    <ProjectReference Include="../../src/Dfe.SignIn.Core.Contracts/Dfe.SignIn.Core.Contracts.csproj" />
+    <ProjectReference Include="../../src/Dfe.SignIn.Core.Entities/Dfe.SignIn.Core.Entities.csproj" />
   </ItemGroup>
 
 </Project>

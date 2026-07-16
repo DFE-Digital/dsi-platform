@@ -40,6 +40,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Dfe.SignIn.TestHelpers\Dfe.SignIn.TestHelpers.csproj" />
     <ProjectReference Include="..\..\src\Dfe.SignIn.InternalApi\Dfe.SignIn.InternalApi.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.Contracts\Dfe.SignIn.Core.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.Entities\Dfe.SignIn.Core.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

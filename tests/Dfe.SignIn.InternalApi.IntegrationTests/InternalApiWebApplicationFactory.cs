@@ -9,8 +9,6 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
 public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>, IAsyncLifetime
 {
-    public Action<IServiceCollection>? ConfigureAdditionalTestServices { get; set; }
-
     protected override IReadOnlyList<DatabaseCatalog> DatabaseCatalogs
     => [
         new("dsi-directories-test", "Directories", typeof(DbDirectoriesContext)),
@@ -27,8 +25,6 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
                 options.DefaultChallengeScheme = "TestScheme";
             })
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", _ => { });
-
-            this.ConfigureAdditionalTestServices?.Invoke(services);
         });
     }
 

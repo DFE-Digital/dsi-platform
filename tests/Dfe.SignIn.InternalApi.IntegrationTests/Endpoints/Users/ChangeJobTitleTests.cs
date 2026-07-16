@@ -1,22 +1,20 @@
 using System.Net;
 using System.Net.Http.Json;
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
+using Dfe.SignIn.TestHelpers.Integration.Data;
+using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Dfe.SignIn.TestHelpers.Integration;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 
 [Trait("Category", "Integration")]
-public class ChangeJobTitleTests : IntegrationEndpointTestBase
+public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
 {
     public ChangeJobTitleTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -24,70 +22,46 @@ public class ChangeJobTitleTests : IntegrationEndpointTestBase
     }
 
     [Fact]
-    public async Task ChangeJobTitle_ReturnsSuccess_WhenUserExists()
+    public async Task ChangeJobTitle_ReturnsSuccess_UpdatesDb_AndWritesAudit_WhenUserExists()
     {
-        var capturedAudit = new CapturingWriteToAuditInteractor();
-        using var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
-            builder.ConfigureTestServices(services => {
-                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-                services.AddSingleton<IInteractor<WriteToAuditRequest>>(capturedAudit);
-            });
-        });
+        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
-        var authenticatedClient = customisedFactory.CreateClient();
-        authenticatedClient.DefaultRequestHeaders.Add(TestAuthHandler.EnableAuthHeaderName, bool.TrueString);
-
-        var userId = Guid.NewGuid();
         var expectedJobTitle = "Senior Software Developer";
+        var user = EntityFaker.User
+            .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
+            .Generate();
 
-        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        dbContext.Users.Add(new UserEntity {
-            Sub = userId,
-            Email = "alex.johnson@example.com",
-            FirstName = "Alex",
-            LastName = "Johnson",
-            Password = "",
-            Salt = "",
-            Status = 1,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            JobTitle = "Software Developer"
-        });
-        await dbContext.SaveChangesAsync();
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var request = new ChangeJobTitleRequest {
-            UserId = userId,
+            UserId = user.Sub,
             NewJobTitle = expectedJobTitle
         };
 
         var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
 
-        if (response.StatusCode != HttpStatusCode.OK) {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            Assert.Fail($"Request failed with status {response.StatusCode}. Response: {errorContent}");
-        }
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeJobTitleResponse>>();
         Assert.NotNull(body);
         Assert.NotNull(body.Data);
 
-        await using var assertionScope = customisedFactory.Services.CreateAsyncScope();
+        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == userId);
+        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
         Assert.Equal(expectedJobTitle, updatedUser.JobTitle);
 
-        var auditRequest = capturedAudit.CapturedRequest;
+        var auditRequest = auditMock.CapturedRequest;
         Assert.NotNull(auditRequest);
         Assert.Equal(AuditEventCategoryNames.ChangeJobTitle, auditRequest.EventCategory);
         Assert.Equal($"Successfully changed job title to {expectedJobTitle}", auditRequest.Message);
-        Assert.Equal(userId, auditRequest.UserId);
+        Assert.Equal(user.Sub, auditRequest.UserId);
     }
 
     [Fact]
     public async Task ChangeJobTitle_Returns404_WhenUserDoesNotExist()
     {
-        var authenticatedClient = this.CreateAuthenticatedClient();
+        var authenticatedClient = this.CreateClient().Authenticate();
 
         var request = new ChangeJobTitleRequest {
             UserId = Guid.NewGuid(),
@@ -102,7 +76,7 @@ public class ChangeJobTitleTests : IntegrationEndpointTestBase
     [Fact]
     public async Task ChangeJobTitle_Returns401_WhenUnauthenticated()
     {
-        var anonymousClient = this.CreateAnonymousClient();
+        var anonymousClient = this.CreateClient();
 
         var request = new ChangeJobTitleRequest {
             UserId = Guid.NewGuid(),
@@ -115,63 +89,37 @@ public class ChangeJobTitleTests : IntegrationEndpointTestBase
     }
 
     [Fact]
-    public async Task ChangeJobTitle_UpdatesJobTitleInDatabase()
+    public async Task ChangeJobTitle_DoesNotWriteAuditEvent_WhenTitleIsUnchanged()
     {
-        var capturedAudit = new CapturingWriteToAuditInteractor();
-        using var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
-            builder.ConfigureTestServices(services => {
-                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-                services.AddSingleton<IInteractor<WriteToAuditRequest>>(capturedAudit);
-            });
-        });
+        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
-        var authenticatedClient = customisedFactory.CreateClient();
-        authenticatedClient.DefaultRequestHeaders.Add(TestAuthHandler.EnableAuthHeaderName, bool.TrueString);
+        var jobTitle = "Senior Software Developer";
+        var user = EntityFaker.User
+            .RuleFor(x => x.JobTitle, (_, _) => jobTitle)
+            .Generate();
 
-        var userId = Guid.NewGuid();
-        var expectedJobTitle = "Principal Software Engineer";
-
-        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        dbContext.Users.Add(new UserEntity {
-            Sub = userId,
-            Email = "alex.johnson@example.com",
-            FirstName = "Alex",
-            LastName = "Johnson",
-            Password = "",
-            Salt = "",
-            Status = 1,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            JobTitle = "Software Developer"
-        });
-        await dbContext.SaveChangesAsync();
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var request = new ChangeJobTitleRequest {
-            UserId = userId,
-            NewJobTitle = expectedJobTitle
+            UserId = user.Sub,
+            NewJobTitle = jobTitle
         };
 
         var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = customisedFactory.Services.CreateAsyncScope();
+        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeJobTitleResponse>>();
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+
+        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == userId);
-        Assert.Equal(expectedJobTitle, updatedUser.JobTitle);
-    }
+        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        Assert.Equal(jobTitle, updatedUser.JobTitle);
 
-    [Fact(Skip = "TODO: verify audit event")]
-    public async Task ChangeJobTitle_WritesAuditEvent_OnSuccessfulUpdate()
-    {
-        await Task.CompletedTask;
-    }
-
-    [Fact(Skip = "TODO: verify unchanged-title branch")]
-    public async Task ChangeJobTitle_DoesNotWriteAuditEvent_WhenTitleIsUnchanged()
-    {
-        await Task.CompletedTask;
+        var auditRequest = auditMock.CapturedRequest;
+        Assert.Null(auditRequest);
     }
 
     [Fact(Skip = "TODO: verify whitespace normalisation")]
@@ -196,16 +144,5 @@ public class ChangeJobTitleTests : IntegrationEndpointTestBase
     public async Task ChangeJobTitle_Returns400_WhenNewJobTitleExceedsMaxLength()
     {
         await Task.CompletedTask;
-    }
-
-    private sealed class CapturingWriteToAuditInteractor : IInteractor<WriteToAuditRequest>
-    {
-        public WriteToAuditRequest? CapturedRequest { get; private set; }
-
-        public Task<object> InvokeAsync(InteractionContext<WriteToAuditRequest> context, CancellationToken cancellationToken = default)
-        {
-            this.CapturedRequest = context.Request;
-            return Task.FromResult<object>(new WriteToAuditResponse());
-        }
     }
 }
