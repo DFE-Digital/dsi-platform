@@ -139,9 +139,9 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
     {
         var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
-        var newFirstName = "Jane    Mary";
+        var newFirstName = "Jane    Mary";  // Intentional extra spaces
         var expectedFirstName = "Jane Mary";
-        var newLastName = "Smith   Jones";
+        var newLastName = "Smith   Jones"; // Intentional extra spaces
         var expectedLastName = "Smith Jones";
         var user = EntityFaker.User.Generate();
 
