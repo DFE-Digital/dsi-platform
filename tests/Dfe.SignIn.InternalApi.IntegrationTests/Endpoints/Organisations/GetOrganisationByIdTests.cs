@@ -21,7 +21,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_ReturnsOrganisation_WhenExists()
     {
-        var authenticatedClient = this.CreateClient().Authenticate();
+        var authenticatedClient = this.CreateClient().WithAuthenticate();
 
         // Arrange: Seed an organisation
         var orgId = Guid.NewGuid();
@@ -62,7 +62,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_Returns404_WhenDoesNotExist()
     {
-        var authenticatedClient = this.CreateClient().Authenticate();
+        var authenticatedClient = this.CreateClient().WithAuthenticate();
 
         // Arrange
         var missingOrgId = Guid.NewGuid();

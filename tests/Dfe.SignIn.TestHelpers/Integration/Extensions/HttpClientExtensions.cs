@@ -2,7 +2,7 @@ namespace Dfe.SignIn.TestHelpers.Integration.Extensions;
 
 public static class HttpClientExtensions
 {
-    public static HttpClient Authenticate(this HttpClient client, string? userId = null, string? userName = null, params string[] roles)
+    public static HttpClient WithAuthenticate(this HttpClient client, string? userId = null, string? userName = null, params string[] roles)
     {
         client.DefaultRequestHeaders.Add(TestAuthHandler.EnableAuthHeaderName, bool.TrueString);
 
