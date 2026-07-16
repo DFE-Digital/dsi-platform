@@ -15,19 +15,24 @@ public sealed class GetOrganisationsAssociatedWithUserUseCase(
     : Interactor<GetOrganisationsAssociatedWithUserRequest, GetOrganisationsAssociatedWithUserResponse>
 {
     /// <inheritdoc/>
-    public override async Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(
+    public override Task<GetOrganisationsAssociatedWithUserResponse> InvokeAsync(
         InteractionContext<GetOrganisationsAssociatedWithUserRequest> context,
         CancellationToken cancellationToken = default)
     {
         context.ThrowIfHasValidationErrors();
 
-        var organisations = await unitOfWork.UserOrganisations
+        var organisations = unitOfWork.Repository<UserOrganisationEntity>()
             .Where(x => x.UserId == context.Request.UserId)
-            .Select(x => OrganisationHelpers.OrganisationFromEntity(x.Organisation))
-            .ToArrayAsync(cancellationToken);
+            .Include(x => x.Organisation)
+                .ThenInclude(x => x.Associations)
+                .ThenInclude(x => x.AssociatedOrganisation)
+            .ToList();
 
-        return new GetOrganisationsAssociatedWithUserResponse {
-            Organisations = organisations
-        };
+        //.Where( && )
+        var x = organisations.Select(x => OrganisationHelpers.OrganisationFromEntity(x.Organisation));
+
+        return Task.FromResult(new GetOrganisationsAssociatedWithUserResponse {
+            Organisations = x
+        });
     }
 }

@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.PublicApi.MappingExtensions;
+using Dfe.SignIn.PublicApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Dfe.SignIn.PublicApi.Endpoints.Users;
@@ -16,7 +17,7 @@ public static partial class UserEndpoints
     ///   visible organisation.</para>
     ///   <para>404 when the user belongs to no organisations, or all are hidden.</para>
     /// </returns>
-    public static async Task<Results<Ok<IEnumerable<Organisation>>, NotFound>> GetUserOrganisations(
+    public static async Task<Results<Ok<IEnumerable<UserOrganisationDto>>, NotFound>> GetUserOrganisations(
         Guid userId,
         // ---
         IInteractionDispatcher interaction)
@@ -28,7 +29,9 @@ public static partial class UserEndpoints
                 }
             ).To<GetUserOrganisationsResponse>();
 
-            return TypedResults.Ok(response.Organisations);
+            var responseModel = response.Organisations.Select(x => x.ToDto());
+
+            return TypedResults.Ok(responseModel);
         }
         catch (NotFoundInteractionException) {
             return TypedResults.NotFound();

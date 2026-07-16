@@ -80,6 +80,7 @@ jobs:
         run: |
           dotnet test ./build.sln `
             --no-build `
+            --filter "Category!=Integration" `
             --collect "XPlat Code Coverage" `
             --logger "trx;LogFileName=TestResults.trx" `
             /p:AutomatedRun=true

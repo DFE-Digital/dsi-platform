@@ -12,8 +12,8 @@ public static partial class UserEndpoints
 {
 
     /// <summary>
-    /// Gets the list of organisations a user belongs to.
-    /// Hidden organisations (status = 0) are excluded.
+    /// Gives all organisations and services associated with a user,
+    /// where the organisation grants the user access to the service passed in on the clientId.
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="organisationRepository"></param>

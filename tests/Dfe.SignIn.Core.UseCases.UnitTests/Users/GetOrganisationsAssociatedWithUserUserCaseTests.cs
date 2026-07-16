@@ -109,12 +109,14 @@ public sealed class GetOrganisationsAssociatedWithUserUserCaseTests
                     Name = "Test Organisation 1",
                     Status = OrganisationStatus.Open,
                     Category = OrganisationCategory.LocalAuthority,
+                    CategoryId = "002"
                 },
                 new Organisation {
                     Id = Guid.Parse("f9fb271e-2f7c-439c-9c69-332d3281b2d1"),
                     Name = "Test Organisation 2",
                     Status = OrganisationStatus.Closed,
                     Category = OrganisationCategory.LocalAuthority,
+                    CategoryId = "002"
                 }
             ]
         };
