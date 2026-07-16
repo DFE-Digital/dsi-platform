@@ -253,7 +253,7 @@ public record LocalAuthority(Guid Id, string Name, string? Code);
 /// </summary>
 /// <param name="Id"></param>
 /// <param name="Name"></param>
-public record PhaseOfEducation(string Id, string Name);
+public record PhaseOfEducation(int Id, string Name);
 
 /// <summary>
 /// Class representing Region data 

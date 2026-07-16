@@ -172,13 +172,13 @@ public static class OrganisationResponseMapping
     private static PhaseOfEducation? ConstructPhaseOfEducationData(int? phaseOfEducation)
     {
         if (phaseOfEducation is null) {
-            return new PhaseOfEducation("0", "Not applicable");
+            return null;
         }
 
         if (!PhaseOfEducationMappings.ContainsKey(phaseOfEducation.Value)) {
             return null;
         }
 
-        return new PhaseOfEducation(phaseOfEducation.Value.ToString(), PhaseOfEducationMappings[phaseOfEducation.Value]);
+        return new PhaseOfEducation(phaseOfEducation.Value, PhaseOfEducationMappings[phaseOfEducation.Value]);
     }
 }

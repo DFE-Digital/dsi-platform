@@ -57,9 +57,8 @@ public sealed class GetUserOrganisationsTests
         Assert.HasCount(1, ok.Value!.ToArray());
         Assert.AreEqual(FakeOrganisation.Id, ok.Value!.First().Id);
 
-        Assert.IsNotNull(ok.Value!.First().PhaseOfEducation);
-        Assert.AreEqual("Not applicable", ok.Value!.First().PhaseOfEducation.Name);
-        Assert.AreEqual("0", ok.Value!.First().PhaseOfEducation.Id);
+        Assert.IsNull(ok.Value!.First().PhaseOfEducation);
+
     }
 
     [TestMethod]
@@ -90,7 +89,7 @@ public sealed class GetUserOrganisationsTests
 
         Assert.IsNotNull(response.PhaseOfEducation);
         Assert.AreEqual("Test Organisation 2", response.Name);
-        Assert.AreEqual("2", response.PhaseOfEducation.Id);
+        Assert.AreEqual(2, response.PhaseOfEducation.Id);
     }
 
     [TestMethod]
