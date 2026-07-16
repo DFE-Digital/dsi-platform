@@ -4,14 +4,17 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
+using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
-namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints;
+namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Organisations;
 
 [Trait("Category", "Integration")]
-public class GetOrganisationByIdTests : IntegrationEndpointTestBase
+public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
 {
+    private const string endpoint = "interaction/Organisations.GetOrganisationById";
+
     public GetOrganisationByIdTests(InternalApiWebApplicationFactory factory)
         : base(factory)
     {
@@ -20,7 +23,7 @@ public class GetOrganisationByIdTests : IntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_ReturnsOrganisation_WhenExists()
     {
-        var authenticatedClient = this.CreateAuthenticatedClient();
+        var authenticatedClient = this.CreateClient().WithAuthentication();
 
         // Arrange: Seed an organisation
         var orgId = Guid.NewGuid();
@@ -43,7 +46,7 @@ public class GetOrganisationByIdTests : IntegrationEndpointTestBase
         };
 
         // Act: POST to the endpoint
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         // Assert
         if (response.StatusCode != HttpStatusCode.OK) {
@@ -61,7 +64,7 @@ public class GetOrganisationByIdTests : IntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_Returns404_WhenDoesNotExist()
     {
-        var authenticatedClient = this.CreateAuthenticatedClient();
+        var authenticatedClient = this.CreateClient().WithAuthentication();
 
         // Arrange
         var missingOrgId = Guid.NewGuid();
@@ -70,7 +73,7 @@ public class GetOrganisationByIdTests : IntegrationEndpointTestBase
         };
 
         // Act
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -79,13 +82,13 @@ public class GetOrganisationByIdTests : IntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_Returns401_WhenUnauthenticated()
     {
-        var anonymousClient = this.CreateAnonymousClient();
+        var anonymousClient = this.CreateClient();
 
         var request = new GetOrganisationByIdRequest {
             OrganisationId = Guid.NewGuid()
         };
 
-        var response = await anonymousClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }

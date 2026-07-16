@@ -17,6 +17,7 @@
   <ItemGroup>
     <!-- Local Orchestration -->
     <!-- Version pinned due to advisory: GHSA-hv8m-jj95-wg3x -->
+    <PackageVersion Include="Bogus" Version="35.6.5" />
     <PackageVersion Include="MessagePack" Version="2.5.301" />
     <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.0" />

@@ -9,10 +9,11 @@ This guide explains the purpose, architecture, and implementation details of the
 While unit tests validate business logic in isolation by mocking all external dependencies, **integration tests** verify that the entire application stack works together correctly.
 
 In the DfE Sign-In platform, integration tests ensure:
-*   **Database Schema Compatibility**: Entity Framework Core mappings align perfectly with real SQL Server database schemas.
-*   **API Route and Contract Validation**: HTTP endpoints are correctly mapped, accept the expected request payloads, and return correct response payloads.
-*   **Security & Interception**: Custom middlewares, filters, logging contexts, and exception handling blocks function correctly in a real HTTP lifecycle.
-*   **Resilience & DI Setup**: Dependency injection registrations resolve correctly without runtime exceptions during host startup.
+
+- **Database Schema Compatibility**: Entity Framework Core mappings align perfectly with real SQL Server database schemas.
+- **API Route and Contract Validation**: HTTP endpoints are correctly mapped, accept the expected request payloads, and return correct response payloads.
+- **Security & Interception**: Custom middlewares, filters, logging contexts, and exception handling blocks function correctly in a real HTTP lifecycle.
+- **Resilience & DI Setup**: Dependency injection registrations resolve correctly without runtime exceptions during host startup.
 
 ---
 
@@ -50,6 +51,25 @@ sequenceDiagram
     TestRunner->>TestRunner: Assert status code and response payload
 ```
 
+### 2.1 How test authentication works
+
+Integration tests do not use a real identity provider. Instead, they use a test authentication scheme so the full HTTP pipeline can still enforce authorisation rules.
+
+Approach:
+
+1. The test host configures a custom scheme (`TestScheme`) as the default authenticate/challenge scheme.
+2. Tests call `Authenticate()` on `HttpClient` to add `X-Test-Auth: true`.
+3. A custom auth handler checks this header and builds a `ClaimsPrincipal` for the request.
+4. If no user details are supplied, the handler uses default test values for user ID and username.
+5. Endpoints still require authorisation (`RequireAuthorization()`), so requests without test auth headers return `401`.
+
+Key references to apply when writing or troubleshooting tests:
+
+- `InternalApiWebApplicationFactory.ConfigureWebHost` (registers the test auth scheme/handler)
+- `HttpClientExtensions.Authenticate` (adds test auth headers to requests)
+- `TestAuthHandler.HandleAuthenticateAsync` (creates claims and fallback defaults)
+- `InteractionHandlerExtensions.Map<TRequest, TResponse>` with `RequireAuthorization()` (enforces auth on interaction endpoints)
+
 ---
 
 ## 3. Key Libraries Used
@@ -57,16 +77,22 @@ sequenceDiagram
 We utilize three main libraries to keep integration tests fast, isolated, and easy to maintain:
 
 ### 1. `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory<T>`)
+
 Hosts the API in-memory using a test-specific web server.
-*   **Why**: It allows sending real HTTP requests to your endpoints and testing the full middleware pipeline without running a slow, external IIS or Kestrel process.
+
+- **Why**: It allows sending real HTTP requests to your endpoints and testing the full middleware pipeline without running a slow, external IIS or Kestrel process.
 
 ### 2. `Testcontainers.MsSql`
+
 Provides lightweight, disposable SQL Server instances running in Docker.
-*   **Why**: It avoids the need for a shared, local database server that could contain stale data. Each test run gets a 100% fresh, isolated SQL Server instance.
+
+- **Why**: It avoids the need for a shared, local database server that could contain stale data. Each test run gets a 100% fresh, isolated SQL Server instance.
 
 ### 3. `Respawn`
+
 Resets the state of database tables back to a blank schema.
-*   **Why**: Dropping and recreating database schemas for every test takes seconds. Respawn queries the database metadata, disables foreign keys, deletes all data using `DELETE`/`TRUNCATE` statements, and re-enables constraints in **under 15 milliseconds**, ensuring total test isolation without a speed penalty.
+
+- **Why**: Dropping and recreating database schemas for every test takes seconds. Respawn queries the database metadata, disables foreign keys, deletes all data using `DELETE`/`TRUNCATE` statements, and re-enables constraints in **under 15 milliseconds**, ensuring total test isolation without a speed penalty.
 
 ---
 
@@ -75,6 +101,7 @@ Resets the state of database tables back to a blank schema.
 Follow these steps to add integration tests for a new endpoint:
 
 ### Step 1: Add a Test Class
+
 Create a new test file under the `Endpoints/` folder. Use the following class template:
 
 ```csharp
@@ -116,7 +143,7 @@ public class GetOrganisationByIdTests : IAsyncLifetime
         // 1. Arrange: Seed your data using the scoped DbContext
         var orgId = Guid.NewGuid();
         var expectedName = "Test Academy Trust";
-        
+
         await using var scope = _factory.Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
         dbContext.Organisations.Add(new OrganisationEntity
@@ -152,6 +179,7 @@ public class GetOrganisationByIdTests : IAsyncLifetime
 ```
 
 ### Step 2: Implement Common Seeding Helpers (Optional)
+
 If you find yourself seeding the same entities (like a default user or organisation) across multiple test classes, create an extension class to reuse the code:
 
 ```csharp
@@ -162,7 +190,7 @@ public static class SeedExtensions
         var id = Guid.NewGuid();
         await using var scope = factory.Services.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
-        
+
         context.Organisations.Add(new OrganisationEntity
         {
             Id = id,
@@ -172,7 +200,7 @@ public static class SeedExtensions
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         });
-        
+
         await context.SaveChangesAsync();
         return id;
     }
@@ -184,10 +212,12 @@ public static class SeedExtensions
 ## 5. Configuration & Under-The-Hood Details
 
 ### Minimal API Startup Limitation
+
 In .NET 6+ Minimal APIs, using `ConfigureWebHost` to override configuration properties happens **after** `Program.cs` starts parsing `builder.Configuration`. Since the API project checks configuration keys immediately during bootstrap (`CreateBuilder(args)`), standard `WebApplicationFactory` configuration overrides are too late and cause "Section not found" exceptions.
 
 ### Solution: JSON-to-Environment Variable Mapping
-We solve this by loading static test settings from [appsettings.IntegrationTests.json](file:///c:/Work/Playground/dsi-workspace/dsi-platform/tests/Dfe.SignIn.InternalApi.IntegrationTests/appsettings.IntegrationTests.json) (or custom test settings file defined by the factory) in the constructor and dumping them as process environment variables. 
+
+We solve this by loading static test settings from [appsettings.IntegrationTests.json](file:///c:/Work/Playground/dsi-workspace/dsi-platform/tests/Dfe.SignIn.InternalApi.IntegrationTests/appsettings.IntegrationTests.json) (or custom test settings file defined by the factory) in the constructor and dumping them as process environment variables.
 The configuration binder translates double underscores (`__`) into colons (`:`), resulting in a perfect representation of configuration sections (e.g. `AzureAd__Audience` maps to `AzureAd:Audience`) which are processed in time by `Program.cs`.
 
 ---
@@ -195,23 +225,29 @@ The configuration binder translates double underscores (`__`) into colons (`:`),
 ## 6. Troubleshooting & Tips for Developers
 
 ### "An Application Control policy has blocked this file (0x800711C7)"
+
 This occurs on corporate-managed laptops when Windows AppLocker blocks the execution/loading of DLLs in arbitrary folders (like `C:\Users\` or user sandbox folders).
-*   **Fix 1**: Move/clone your workspace folder to a whitelisted developer directory, such as `C:\git\` or `C:\source\`.
-*   **Fix 2**: Run tests inside **WSL 2** (Ubuntu/Linux terminal) where Windows AppLocker policies do not apply:
-    ```bash
-    dotnet test tests/Dfe.SignIn.InternalApi.IntegrationTests/Dfe.SignIn.InternalApi.IntegrationTests.csproj
-    ```
+
+- **Fix 1**: Move/clone your workspace folder to a whitelisted developer directory, such as `C:\git\` or `C:\source\`.
+- **Fix 2**: Run tests inside **WSL 2** (Ubuntu/Linux terminal) where Windows AppLocker policies do not apply:
+  ```bash
+  dotnet test tests/Dfe.SignIn.InternalApi.IntegrationTests/Dfe.SignIn.InternalApi.IntegrationTests.csproj
+  ```
 
 ### "Docker is either not running or misconfigured"
+
 Testcontainers requires a running Docker daemon.
-*   **Fix**: Ensure **Docker Desktop** is running. If Docker is active and the error persists:
-    *   Disable **"Resource Saver Mode"** in Docker Desktop settings (known to freeze background container boot requests).
-    *   If using WSL 2 backend, ensure integration is enabled for your current distro.
+
+- **Fix**: Ensure **Docker Desktop** is running. If Docker is active and the error persists:
+  - Disable **"Resource Saver Mode"** in Docker Desktop settings (known to freeze background container boot requests).
+  - If using WSL 2 backend, ensure integration is enabled for your current distro.
 
 ### Test execution is stuck at `StartAsync` / Taking too long
+
 The first time integration tests run, Testcontainers has to pull the large Microsoft SQL Server image. Because it pulls the image silently over the Docker API, it looks like the test runner is frozen.
-*   **Fix**: Run a manual pull in your terminal once to download the image with progress indicators:
-    ```bash
-    docker pull mcr.microsoft.com/mssql/server:2022-latest
-    ```
-    All subsequent runs will boot instantly since the image will be cached in your local Docker registry.
+
+- **Fix**: Run a manual pull in your terminal once to download the image with progress indicators:
+  ```bash
+  docker pull mcr.microsoft.com/mssql/server:2022-latest
+  ```
+  All subsequent runs will boot instantly since the image will be cached in your local Docker registry.
