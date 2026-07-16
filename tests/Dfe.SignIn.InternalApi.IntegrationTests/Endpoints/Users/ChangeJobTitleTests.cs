@@ -16,6 +16,8 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
 {
+    private const string endpoint = "interaction/Users.ChangeJobTitle";
+
     public ChangeJobTitleTests(InternalApiWebApplicationFactory factory)
         : base(factory)
     {
@@ -38,7 +40,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = expectedJobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -68,7 +70,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = "Senior Software Developer"
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -83,7 +85,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = "Senior Software Developer"
         };
 
-        var response = await anonymousClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -105,7 +107,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = jobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -127,7 +129,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
     {
         var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
-        var newjobTitle = "Senior Software      Developer";
+        var newjobTitle = "Senior Software      Developer"; // Intentionally includes multiple spaces
         var expectedJobTitle = "Senior Software Developer";
         var user = EntityFaker.User.Generate();
 
@@ -138,7 +140,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = newjobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -169,7 +171,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = newJobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -199,18 +201,16 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
     {
         var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
-        var users = EntityFaker.User.Generate(3);
+        var user = EntityFaker.User.Generate();
 
-        await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>(users);
-
-        var userToUpdate = users[1];
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var request = new ChangeJobTitleRequest {
-            UserId = userToUpdate.Sub,
+            UserId = user.Sub,
             NewJobTitle = "Senior Software Engineer!!!" // Invalid characters in job title
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -221,8 +221,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
         var longJobTitle = "Vice President of Global Human Capital Management and Organizational Culture Development";
-        var user = EntityFaker.User
-            .Generate();
+        var user = EntityFaker.User.Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
@@ -231,7 +230,7 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = longJobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Users.ChangeJobTitle", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

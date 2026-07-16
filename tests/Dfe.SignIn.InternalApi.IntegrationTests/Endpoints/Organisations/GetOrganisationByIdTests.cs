@@ -13,6 +13,8 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Organisations;
 [Trait("Category", "Integration")]
 public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
 {
+    private const string endpoint = "interaction/Organisations.GetOrganisationById";
+
     public GetOrganisationByIdTests(InternalApiWebApplicationFactory factory)
         : base(factory)
     {
@@ -44,7 +46,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
         };
 
         // Act: POST to the endpoint
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         // Assert
         if (response.StatusCode != HttpStatusCode.OK) {
@@ -71,7 +73,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
         };
 
         // Act
-        var response = await authenticatedClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -86,7 +88,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
             OrganisationId = Guid.NewGuid()
         };
 
-        var response = await anonymousClient.PostAsJsonAsync("interaction/Organisations.GetOrganisationById", request);
+        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
