@@ -4,6 +4,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
+using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
@@ -69,6 +70,11 @@ builder.Services
 builder.Services
     .AddInteractionFramework()
     .AddInteractionCaching(builder.Configuration);
+
+builder.Services
+    .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
+    .AddGovNotify()
+    .AddInteractor<SendEmailNotificationWithGovNotifyUseCase>();
 
 builder.Services
     .AddApplicationUseCases(builder.Configuration)

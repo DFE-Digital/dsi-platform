@@ -68,5 +68,6 @@ public static partial class InteractionEndpoints
         app.Map<IsOrganisationApproverRequest, IsOrganisationApproverResponse>();
         app.Map<ChangeNameRequest, ChangeNameResponse>();
         app.Map<GetPendingApprovalCountRequest, PendingApprovalCountResponse>();
+        app.Map<InitiateChangeEmailAddressRequest, InitiateChangeEmailAddressResponse>();
     }
 }
