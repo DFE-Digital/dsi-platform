@@ -214,8 +214,12 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         }
     }
 
-    [Fact]
-    public async Task ChangeName_Returns400_WhenFirstNameIsEmpty()
+    [Theory]
+    [InlineData("", "Smith")]         // Invalid FirstName: Empty
+    [InlineData("Jane!!!", "Smith")]  // Invalid FirstName: Special chars
+    [InlineData("Jane", "")]          // Invalid LastName: Empty
+    [InlineData("Jane", "Smith!!!")]  // Invalid LastName: Special chars
+    public async Task ChangeName_Returns400_WhenNameIsInvalid(string firstName, string lastName)
     {
         var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
@@ -225,68 +229,8 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         var request = new ChangeNameRequest {
             UserId = user.Sub,
-            FirstName = "",
-            LastName = "Smith"
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task ChangeName_Returns400_WhenLastNameIsEmpty()
-    {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
-
-        var user = EntityFaker.User.Generate();
-
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
-
-        var request = new ChangeNameRequest {
-            UserId = user.Sub,
-            FirstName = "Jane",
-            LastName = ""
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task ChangeName_Returns400_WhenFirstNameIsInvalid()
-    {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
-
-        var user = EntityFaker.User.Generate();
-
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
-
-        var request = new ChangeNameRequest {
-            UserId = user.Sub,
-            FirstName = "Jane!!!", // Invalid character
-            LastName = "Smith"
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task ChangeName_Returns400_WhenLastNameIsInvalid()
-    {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
-
-        var user = EntityFaker.User.Generate();
-
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
-
-        var request = new ChangeNameRequest {
-            UserId = user.Sub,
-            FirstName = "Jane",
-            LastName = "Smith!!!" // Invalid character
+            FirstName = firstName,
+            LastName = lastName
         };
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
