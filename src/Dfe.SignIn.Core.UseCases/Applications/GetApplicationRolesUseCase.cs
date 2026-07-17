@@ -1,8 +1,7 @@
 using System.Data;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
-using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Applications;
@@ -10,9 +9,7 @@ namespace Dfe.SignIn.Core.UseCases.Applications;
 /// <summary>
 /// Use case responsible for obtaining information about an application.
 /// </summary>
-public sealed class GetApplicationRolesUseCase(
-    IUnitOfWorkOrganisations uowOrganisations
-) : Interactor<GetApplicationRolesRequest, GetApplicationRolesResponse>
+public sealed class GetApplicationRolesUseCase(DbOrganisationsContext organisationsDbContext) : Interactor<GetApplicationRolesRequest, GetApplicationRolesResponse>
 {
     /// <inheritdoc/>
     public override async Task<GetApplicationRolesResponse> InvokeAsync(
@@ -21,7 +18,7 @@ public sealed class GetApplicationRolesUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var roles = await uowOrganisations.Repository<RoleEntity>()
+        var roles = await organisationsDbContext.Roles
             .Include(r => r.Parent)
             .Where(r => r.ApplicationId == context.Request.ApplicationId)
             .OrderBy(r => r.Name)

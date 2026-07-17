@@ -3,7 +3,8 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Users;
-using Moq.AutoMock;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
 
@@ -16,10 +17,8 @@ public sealed class PendingApprovalCountUseCaseTests
     public async Task GetPendingApprovalCount_Returns_OneWhenUserRequestAccessToOrganisation()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker, CreatePendingOrganisationRequest: true);
-
-        var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: true);
+        PendingApprovalCountUseCase interactor = new(orgCtx);
 
         // Act
         var result = await interactor.InvokeAsync(new GetPendingApprovalCountRequest() { UserId = ApprovalUserId });
@@ -32,10 +31,8 @@ public sealed class PendingApprovalCountUseCaseTests
     public async Task GetPendingApprovalCount_Returns_OneWhenUserRequestAccessToService()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker, CreatePendingOrganisationRequest: false, CreatePendingServiceRequest: true);
-
-        var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: false, CreatePendingServiceRequest: true);
+        PendingApprovalCountUseCase interactor = new(orgCtx);
 
         // Act
         var result = await interactor.InvokeAsync(new GetPendingApprovalCountRequest() { UserId = ApprovalUserId });
@@ -48,10 +45,8 @@ public sealed class PendingApprovalCountUseCaseTests
     public async Task GetPendingApprovalCount_Returns_TwoWhenUserRequestsAccessToOrganisationAndService()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker, CreatePendingOrganisationRequest: true, CreatePendingServiceRequest: true);
-
-        var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync(CreatePendingOrganisationRequest: true, CreatePendingServiceRequest: true);
+        PendingApprovalCountUseCase interactor = new(orgCtx);
 
         // Act
         var result = await interactor.InvokeAsync(new GetPendingApprovalCountRequest() { UserId = ApprovalUserId });
@@ -64,10 +59,8 @@ public sealed class PendingApprovalCountUseCaseTests
     public async Task GetPendingApprovalCount_Returns_ZeroWhenNoActiveRequests()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-
-        var interactor = autoMocker.CreateInstance<PendingApprovalCountUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        PendingApprovalCountUseCase interactor = new(orgCtx);
 
         // Act
         var result = await interactor.InvokeAsync(new GetPendingApprovalCountRequest() { UserId = ApprovalUserId });
@@ -76,10 +69,14 @@ public sealed class PendingApprovalCountUseCaseTests
         Assert.AreEqual(0, result.Count);
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker, bool CreatePendingOrganisationRequest = false,
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync(bool CreatePendingOrganisationRequest = false,
         bool CreatePendingServiceRequest = false)
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+           .UseInMemoryDatabase(Guid.NewGuid().ToString())
+           .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         var standardUser = Guid.Parse("1d690a94-c392-4482-b750-711ea472bc96");
 
@@ -130,5 +127,6 @@ public sealed class PendingApprovalCountUseCaseTests
 
         await ctx.SaveChangesAsync();
 
+        return ctx;
     }
 }

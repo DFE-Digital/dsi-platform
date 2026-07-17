@@ -2,6 +2,8 @@
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -12,19 +14,31 @@ public sealed class GetUserStatusUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var dirCtx = new DbDirectoriesContext(options);
+        autoMocker.Use(dirCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetUserStatusRequest,
             GetUserStatusUseCase
-        >();
+        >(autoMocker);
     }
 
     private static readonly Guid UserIdMatchingEmail = Guid.Parse("3ed6826f-6854-4adf-b65f-5b2ace7c8691");
     private static readonly Guid UserIdMatchingEntraOid = Guid.Parse("74f539fa-5de2-4b15-b983-24ca9612b7cb");
     private static readonly Guid UserEntraOid = Guid.Parse("ecf31b2d-03e8-4f00-9035-32d2dd4a9ed3");
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryDirectoriesDb();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbDirectoriesContext(options);
 
         ctx.Users.Add(new UserEntity {
             Sub = UserIdMatchingEmail,
@@ -50,14 +64,15 @@ public sealed class GetUserStatusUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task UserDoesNotExistByEntraOid_ReturnsExpectedObject()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<GetUserStatusUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        GetUserStatusUseCase interactor = new(dirCtx);
 
         var result = await interactor.InvokeAsync(
             new GetUserStatusRequest {
@@ -76,9 +91,8 @@ public sealed class GetUserStatusUseCaseTests
     [TestMethod]
     public async Task UserDoesNotExistByEmail_ReturnsExpectedObject()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<GetUserStatusUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        GetUserStatusUseCase interactor = new(dirCtx);
 
         var result = await interactor.InvokeAsync(
             new GetUserStatusRequest {
@@ -97,9 +111,8 @@ public sealed class GetUserStatusUseCaseTests
     [TestMethod]
     public async Task UserExistByEmail_ReturnsExpectedObject()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<GetUserStatusUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        GetUserStatusUseCase interactor = new(dirCtx);
 
         var result = await interactor.InvokeAsync(
             new GetUserStatusRequest {
@@ -118,9 +131,8 @@ public sealed class GetUserStatusUseCaseTests
     [TestMethod]
     public async Task UserExistByEntraOid_ReturnsExpectedObject()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<GetUserStatusUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        GetUserStatusUseCase interactor = new(dirCtx);
 
         var result = await interactor.InvokeAsync(
             new GetUserStatusRequest {

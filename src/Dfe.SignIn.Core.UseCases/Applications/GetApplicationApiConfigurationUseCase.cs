@@ -1,8 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Contracts.PublicApi;
-using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Applications;
@@ -11,8 +10,8 @@ namespace Dfe.SignIn.Core.UseCases.Applications;
 /// Use case responsible for obtaining the Public API configuration of an application.
 /// </summary>
 public sealed class GetApplicationApiConfigurationUseCase(
-    IInteractionDispatcher interaction,
-    IUnitOfWorkOrganisations uowOrganisations
+    DbOrganisationsContext organisationsDbContext,
+    IInteractionDispatcher interaction
 ) : Interactor<GetApplicationApiConfigurationRequest, GetApplicationApiConfigurationResponse>
 {
     /// <inheritdoc/>
@@ -22,7 +21,7 @@ public sealed class GetApplicationApiConfigurationUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var serviceEntity = await uowOrganisations.Repository<ServiceEntity>()
+        var serviceEntity = await organisationsDbContext.Services
             .Select(x => new {
                 x.ClientId,
                 x.ApiSecret,

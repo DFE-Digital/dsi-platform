@@ -2,8 +2,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Access;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -25,8 +24,8 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 ///   </list>
 /// </remarks>
 public sealed class GetUserServiceAccessDetailsUseCase(
-    IInteractionDispatcher interaction,
-    IUnitOfWorkOrganisations uowOrganisations
+    DbOrganisationsContext organisationsDbContext,
+    IInteractionDispatcher interaction
 ) : Interactor<GetUserServiceAccessDetailsRequest, GetUserServiceAccessDetailsResponse>
 {
     /// <inheritdoc/>
@@ -85,7 +84,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
 
     private async Task<GetUserServiceAccessResponse> GetUserService(Guid userId, Guid serviceId, Guid organisationId)
     {
-        var userService = await uowOrganisations.Repository<UserServiceEntity>()
+        var userService = await organisationsDbContext.UserServices
             .AsNoTracking()
             .Where(x => x.ServiceId == serviceId)
             .Where(x => x.UserId == userId)
@@ -96,7 +95,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
             return new GetUserServiceAccessResponse { Access = null };
         }
 
-        var roles = await uowOrganisations.Repository<UserServiceRoleEntity>()
+        var roles = await organisationsDbContext.UserServiceRoles
             .AsNoTracking()
             .Include(x => x.Role)
             .Where(x => x.UserId == userId)
@@ -104,7 +103,7 @@ public sealed class GetUserServiceAccessDetailsUseCase(
             .Where(x => x.OrganisationId == organisationId)
             .ToListAsync();
 
-        var identifiers = await uowOrganisations.Repository<UserServiceIdentifierEntity>()
+        var identifiers = await organisationsDbContext.UserServiceIdentifiers
             .AsNoTracking()
             .Where(x => x.UserId == userId)
             .Where(x => x.ServiceId == serviceId)

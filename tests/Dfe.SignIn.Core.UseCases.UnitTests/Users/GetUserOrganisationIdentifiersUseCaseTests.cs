@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -14,15 +16,27 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetUserOrganisationIdentifiersRequest,
             GetUserOrganisationIdentifiersUseCase
-        >();
+        >(autoMocker);
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.UserOrganisations.Add(new UserOrganisationEntity {
             UserId = UserId,
@@ -34,14 +48,15 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task ReturnsIdentifiers_WhenUserOrganisationExists()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var useCase = autoMocker.CreateInstance<GetUserOrganisationIdentifiersUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetUserOrganisationIdentifiersUseCase useCase = new(orgCtx);
 
         var response = await useCase.InvokeAsync(
             new GetUserOrganisationIdentifiersRequest {
@@ -57,9 +72,8 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
     [TestMethod]
     public async Task ReturnsNullIdentifiers_WhenUserOrganisationDoesNotExist()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var useCase = autoMocker.CreateInstance<GetUserOrganisationIdentifiersUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetUserOrganisationIdentifiersUseCase useCase = new(orgCtx);
 
         var response = await useCase.InvokeAsync(
             new GetUserOrganisationIdentifiersRequest {
@@ -76,9 +90,13 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
     public async Task ReturnsNullIdentifiers_WhenNumericAndTextIdentifiersAreNotSet()
     {
         var autoMocker = new AutoMocker();
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
-        ctx.UserOrganisations.Add(new UserOrganisationEntity {
+        var orgCtx = new DbOrganisationsContext(options);
+
+        orgCtx.UserOrganisations.Add(new UserOrganisationEntity {
             UserId = UserId,
             OrganisationId = OrganisationId,
             RoleId = 0,
@@ -86,9 +104,9 @@ public sealed class GetUserOrganisationIdentifiersUseCaseTests
             NumericIdentifier = null,
             TextIdentifier = null,
         });
-        await ctx.SaveChangesAsync();
+        await orgCtx.SaveChangesAsync();
 
-        var useCase = autoMocker.CreateInstance<GetUserOrganisationIdentifiersUseCase>();
+        GetUserOrganisationIdentifiersUseCase useCase = new(orgCtx);
 
         var response = await useCase.InvokeAsync(
             new GetUserOrganisationIdentifiersRequest {

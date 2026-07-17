@@ -1,6 +1,5 @@
 
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -42,24 +41,22 @@ public static class UnitOfWorkEntityFrameworkExtensions
 
         if (addDirectoriesUnitOfWork || addOrganisationsUnitOfWork || addAuditUnitOfWork) {
             services.TryAddSingleton(TimeProvider.System);
-            services.AddScoped<IEntityFrameworkTransactionContext, EntityFrameworkTransactionContext>();
-            services.Decorate<IInteractionDispatcher, ProtectTransactionInteractionDispatcher>();
             services.AddScoped<TimestampInterceptor>();
         }
 
-        AddUnitOfWork<IUnitOfWorkDirectories, UnitOfWorkDirectories, DbDirectoriesContext>(
+        AddUnitOfWork<DbDirectoriesContext>(
             services,
             section,
             "Directories",
             addDirectoriesUnitOfWork);
 
-        AddUnitOfWork<IUnitOfWorkOrganisations, UnitOfWorkOrganisations, DbOrganisationsContext>(
+        AddUnitOfWork<DbOrganisationsContext>(
             services,
             section,
             "Organisations",
             addOrganisationsUnitOfWork);
 
-        AddUnitOfWork<IUnitOfWorkAudit, UnitOfWorkAudit, DbAuditContext>(
+        AddUnitOfWork<DbAuditContext>(
             services,
             section,
             "Audit",
@@ -74,13 +71,6 @@ public static class UnitOfWorkEntityFrameworkExtensions
     /// with a SQL Server connection string derived from configuration and attaches a <see cref="TimestampInterceptor"/>
     /// to automatically manage CreatedAt and UpdatedAt timestamps.
     /// </summary>
-    /// <typeparam name="TUnitOfWorkContract">
-    /// The interface type representing the unit of work contract.
-    /// </typeparam>
-    /// <typeparam name="TUnitOfWorkConcrete">
-    /// The concrete implementation type of the unit of work. Must inherit from
-    /// <see cref="EntityFrameworkUnitOfWork"/> and implement <typeparamref name="TUnitOfWorkContract"/>.
-    /// </typeparam>
     /// <typeparam name="TDbContext">
     /// The type of <see cref="DbContext"/> associated with this unit of work.
     /// </typeparam>
@@ -104,14 +94,12 @@ public static class UnitOfWorkEntityFrameworkExtensions
     ///   (<c>Host</c>, <c>Name</c>, <c>Username</c>, <c>Password</c>)
     ///   is missing for the specified <paramref name="configKey"/>.</para>
     /// </exception>
-    private static void AddUnitOfWork<TUnitOfWorkContract, TUnitOfWorkConcrete, TDbContext>(
+    private static void AddUnitOfWork<TDbContext>(
         IServiceCollection services,
         IConfiguration section,
         string configKey,
         bool register)
         where TDbContext : DbContext
-        where TUnitOfWorkConcrete : EntityFrameworkUnitOfWork, TUnitOfWorkContract
-        where TUnitOfWorkContract : class, IUnitOfWork
     {
         if (!register) {
             return;
@@ -143,6 +131,5 @@ public static class UnitOfWorkEntityFrameworkExtensions
             options.AddInterceptors(timestampInterceptor);
         });
 
-        services.AddScoped<TUnitOfWorkContract, TUnitOfWorkConcrete>();
     }
 }

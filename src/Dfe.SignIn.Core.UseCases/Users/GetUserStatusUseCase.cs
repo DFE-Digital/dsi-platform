@@ -2,7 +2,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Internal;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -11,7 +11,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// An interactor to determine if a user exists and retrieve their account status.
 /// </summary>
 public sealed class GetUserStatusUseCase(
-    IUnitOfWorkDirectories unitOfWork
+    DbDirectoriesContext directoriesDbContext
 ) : Interactor<GetUserStatusRequest, GetUserStatusResponse>
 {
     /// <inheritdoc/>
@@ -21,7 +21,7 @@ public sealed class GetUserStatusUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var queryBuilder = unitOfWork.Repository<UserEntity>();
+        IQueryable<UserEntity> queryBuilder = directoriesDbContext.Users;
         queryBuilder = context.Request.EntraUserId.HasValue
             ? queryBuilder.Where(x => x.EntraOid == context.Request.EntraUserId.Value)
             : queryBuilder.Where(x => x.Email == context.Request.EmailAddress);

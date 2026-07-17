@@ -4,6 +4,8 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -25,16 +27,28 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetUserServiceAccessDetailsRequest,
             GetUserServiceAccessDetailsUseCase
-        >();
+        >(autoMocker);
     }
 
     private static async Task<AutoMocker> SetupWithAccessAsync()
     {
         var autoMocker = new AutoMocker();
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         // Seed UserService (the access record)
         ctx.UserServices.Add(new UserServiceEntity {
@@ -117,6 +131,8 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
             }
         );
 
+        autoMocker.Use(ctx); // register DbContext
+
         return autoMocker;
     }
 
@@ -124,7 +140,14 @@ public sealed class GetUserServiceAccessDetailsUseCaseTests
     public async Task Throws_WhenUserHasNoAccess()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.UseInMemoryOrganisationsDb(); // empty DB — no UserService row
+
+        // Simulate a scenario where the database is empty and there is no UserService row for the user.
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
+        autoMocker.Use(ctx);
 
         var useCase = autoMocker.CreateInstance<GetUserServiceAccessDetailsUseCase>();
 

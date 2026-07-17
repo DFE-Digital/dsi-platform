@@ -2,9 +2,9 @@ using System.Data;
 using System.Linq.Expressions;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Organisations;
-using Dfe.SignIn.Core.Entities.Directories;
+
 using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Organisations;
@@ -12,10 +12,8 @@ namespace Dfe.SignIn.Core.UseCases.Organisations;
 /// <summary>
 /// Query returns users and their roles for a service and organisation.
 /// </summary>
-/// <param name="uowOrganisations"></param>
-public sealed class GetUsersAtOrganisationUseCase(
-    IUnitOfWorkOrganisations uowOrganisations
-) : Interactor<GetUsersAtOrganisationRequestRaw, GetUsersAtOrganisationResponseRaw>
+/// <param name="organisationsDbContext"></param>
+public sealed class GetUsersAtOrganisationUseCase(DbOrganisationsContext organisationsDbContext) : Interactor<GetUsersAtOrganisationRequestRaw, GetUsersAtOrganisationResponseRaw>
 {
     /// <inheritdoc/>
     public override async Task<GetUsersAtOrganisationResponseRaw> InvokeAsync(
@@ -52,19 +50,19 @@ public sealed class GetUsersAtOrganisationUseCase(
         string clientId,
         Expression<Func<OrganisationEntity, bool>> organisationFilter)
     {
-        var organisations = uowOrganisations
-            .Repository<OrganisationEntity>()
+        var organisations = organisationsDbContext
+            .Organisations
             .Where(organisationFilter);
 
         return
-            from us in uowOrganisations.Repository<UserServiceEntity>()
+            from us in organisationsDbContext.UserServices
             join o in organisations
                 on us.OrganisationId equals o.Id
-            join u in uowOrganisations.Repository<UserEntity>()
+            join u in organisationsDbContext.Users
                 on us.UserId equals u.Sub
-            join s in uowOrganisations.Repository<ServiceEntity>()
+            join s in organisationsDbContext.Services
                 on us.ServiceId equals s.Id
-            join usr in uowOrganisations.Repository<UserServiceRoleEntity>()
+            join usr in organisationsDbContext.UserServiceRoles
                 on new {
                     oid = us.OrganisationId,
                     sid = us.ServiceId,
@@ -77,7 +75,7 @@ public sealed class GetUsersAtOrganisationUseCase(
                 }
                 into usrGroup
             from usr in usrGroup.DefaultIfEmpty()
-            join r in uowOrganisations.Repository<RoleEntity>()
+            join r in organisationsDbContext.Roles
                 on usr.RoleId equals r.Id
                 into roleGroup
             from r in roleGroup.DefaultIfEmpty()

@@ -1,8 +1,11 @@
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Search;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -13,19 +16,31 @@ public sealed class CreateUserUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var dirCtx = new DbDirectoriesContext(options);
+        autoMocker.Use(dirCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             CreateUserRequest,
             CreateUserUseCase
-        >();
+        >(autoMocker);
     }
 
     private static readonly Guid UserIdMatchingEmail = Guid.Parse("3ed6826f-6854-4adf-b65f-5b2ace7c8691");
     private static readonly Guid UserIdMatchingEntraOid = Guid.Parse("74f539fa-5de2-4b15-b983-24ca9612b7cb");
     private static readonly Guid UserEntraOid = Guid.Parse("ecf31b2d-03e8-4f00-9035-32d2dd4a9ed3");
 
-    private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryDirectoriesDb();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbDirectoriesContext(options);
 
         ctx.Users.Add(new UserEntity {
             Sub = UserIdMatchingEmail,
@@ -58,9 +73,9 @@ public sealed class CreateUserUseCaseTests
     [TestMethod]
     public async Task ThrowsWhen_EmailAlreadyExists()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        CreateUserUseCase interactor =
+            new(dirCtx, Mock.Of<IInteractionDispatcher>(), Mock.Of<TimeProvider>());
 
         await Assert.ThrowsExactlyAsync<CannotCreateNewUserException>(()
             => interactor.InvokeAsync(
@@ -76,9 +91,9 @@ public sealed class CreateUserUseCaseTests
     [TestMethod]
     public async Task ThrowsWhen_EntraUserIdAlreadyExists()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        CreateUserUseCase interactor =
+            new(dirCtx, Mock.Of<IInteractionDispatcher>(), Mock.Of<TimeProvider>());
 
         await Assert.ThrowsExactlyAsync<CannotCreateNewUserException>(()
             => interactor.InvokeAsync(
@@ -94,9 +109,9 @@ public sealed class CreateUserUseCaseTests
     [TestMethod]
     public async Task ShouldCreateNewUser()
     {
-        var autoMocker = new AutoMocker();
-        var db = await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        CreateUserUseCase interactor =
+            new(dirCtx, Mock.Of<IInteractionDispatcher>(), Mock.Of<TimeProvider>());
 
         var user = await interactor.InvokeAsync(
             new CreateUserRequest {
@@ -108,7 +123,7 @@ public sealed class CreateUserUseCaseTests
 
         Assert.IsNotNull(user);
 
-        var matchingUser = db.Users.FirstOrDefault(x => x.Sub == user.UserId);
+        var matchingUser = dirCtx.Users.FirstOrDefault(x => x.Sub == user.UserId);
 
         Assert.IsNotNull(user);
         Assert.AreEqual("joe.brown@example.com", matchingUser?.Email);
@@ -126,10 +141,18 @@ public sealed class CreateUserUseCaseTests
     public async Task UpdatesUserInSearchIndex()
     {
         var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        var dirCtx = await SetupFakeDatabaseAsync();
+        var mockTimeProvider = new MockTimeProvider(
+            new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero)
+        );
+
+        autoMocker.Use(dirCtx);
+        autoMocker.Use(mockTimeProvider);
 
         UpdateUserInSearchIndexRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<UpdateUserInSearchIndexRequest>(r => capturedRequest = r);
+        autoMocker.CaptureRequest<UpdateUserInSearchIndexRequest>(
+            r => capturedRequest = r
+        );
 
         var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
 
@@ -139,7 +162,8 @@ public sealed class CreateUserUseCaseTests
                 FirstName = "joe",
                 LastName = "brown",
                 EntraUserId = Guid.Parse("fa70e11c-f1eb-4bab-9fa0-ff36a9620066")
-            });
+            }
+        );
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual(user.UserId, capturedRequest.UserId);
