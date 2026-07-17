@@ -12,7 +12,8 @@
     <PackageReference Include="Aspire.Hosting.Redis" />
 	<PackageReference Include="Aspire.Hosting.NodeJs" />
 	<PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" />	  
-    <PackageReference Include="MessagePack" />
+    <PackageReference Include="MessagePack" />	  
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" />
   </ItemGroup>
 
   <PropertyGroup>
