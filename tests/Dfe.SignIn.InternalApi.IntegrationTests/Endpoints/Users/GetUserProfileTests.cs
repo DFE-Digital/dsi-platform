@@ -6,8 +6,6 @@ using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
@@ -88,7 +86,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
     }
 
     [Fact]
-    public async Task GetUserProfile_Returns400_WhenUserIdIsEmpty()
+    public async Task GetUserProfile_Returns404_WhenUserIdIsEmpty()
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
@@ -98,7 +96,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Theory]
