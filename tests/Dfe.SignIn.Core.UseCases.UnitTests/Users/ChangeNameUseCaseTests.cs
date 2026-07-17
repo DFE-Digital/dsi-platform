@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -16,22 +17,31 @@ public sealed class ChangeNameUseCaseTests
     SetupAsync()
     {
         var autoMocker = new AutoMocker();
-        var db = await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<ChangeNameUseCase>();
+        var dirCtx = await SetupFakeDatabaseAsync();
+        autoMocker.Use(dirCtx);
+        ChangeNameUseCase interactor = autoMocker.CreateInstance<ChangeNameUseCase>();
 
         var capturedAudit = new List<WriteToAuditRequest>();
         autoMocker.CaptureRequest<WriteToAuditRequest>(capturedAudit.Add);
 
-        return (interactor, db, capturedAudit);
+        return (interactor, dirCtx, capturedAudit);
     }
 
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var dirCtx = new DbDirectoriesContext(options);
+        autoMocker.Use(dirCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             ChangeNameRequest,
             ChangeNameUseCase
-        >();
+        >(autoMocker);
     }
 
     [TestMethod]
@@ -216,9 +226,13 @@ public sealed class ChangeNameUseCaseTests
         Assert.IsEmpty(capturedAudit);
     }
 
-    private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbDirectoriesContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryDirectoriesDb();
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbDirectoriesContext(options);
 
         ctx.Users.Add(new UserEntity {
             Sub = Guid.Parse("3ed6826f-6854-4adf-b65f-5b2ace7c8691"),

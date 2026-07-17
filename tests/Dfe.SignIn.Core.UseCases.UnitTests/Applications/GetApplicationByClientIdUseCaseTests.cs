@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Applications;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Applications;
@@ -11,15 +13,27 @@ public sealed class GetApplicationByClientIdUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationByClientIdRequest,
             GetApplicationByClientIdUseCase
-        >();
+        >(autoMocker);
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.Services.Add(new ServiceEntity {
             Id = Guid.Parse("01e876a1-a06d-4945-bbe0-599a3d73dd11"),
@@ -58,14 +72,15 @@ public sealed class GetApplicationByClientIdUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task Throws_WhenApplicationNotFound()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<GetApplicationByClientIdUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetApplicationByClientIdUseCase interactor = new(orgCtx);
 
         string nonExistentClientId = "non-existent";
 
@@ -131,10 +146,8 @@ public sealed class GetApplicationByClientIdUseCaseTests
     [DynamicData(nameof(GetCasesForReturnsApplicationInformation), DynamicDataSourceType.Method)]
     public async Task ReturnsApplicationInformation(string clientId, GetApplicationByClientIdResponse expectedResponse)
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-
-        var interactor = autoMocker.CreateInstance<GetApplicationByClientIdUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetApplicationByClientIdUseCase interactor = new(orgCtx);
 
         var response = await interactor.InvokeAsync(
             new GetApplicationByClientIdRequest {

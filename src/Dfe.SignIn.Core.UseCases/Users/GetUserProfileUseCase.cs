@@ -1,7 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Directories;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -10,7 +9,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for getting the profile of a user.
 /// </summary>
 public sealed class GetUserProfileUseCase(
-    IUnitOfWorkDirectories unitOfWork
+    DbDirectoriesContext directoriesDbContext
 ) : Interactor<GetUserProfileRequest, GetUserProfileResponse>
 {
     /// <inheritdoc/>
@@ -20,7 +19,7 @@ public sealed class GetUserProfileUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Repository<UserEntity>()
+        var user = await directoriesDbContext.Users
             .Where(x => x.Sub == context.Request.UserId)
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw UserNotFoundException.FromUserId(context.Request.UserId);

@@ -2,6 +2,8 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Organisations;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Organisations;
@@ -12,15 +14,27 @@ public sealed class GetOrganisationByIdUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetOrganisationByIdRequest,
             GetOrganisationByIdUseCase
-        >();
+        >(autoMocker);
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.Organisations.Add(new OrganisationEntity {
             Id = Guid.Parse("d289bd61-06c5-4fcf-b0f1-7509bc3570f4"),
@@ -30,14 +44,15 @@ public sealed class GetOrganisationByIdUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     [TestMethod]
     public async Task Throws_WhenOrganisationNotFound()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<GetOrganisationByIdUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetOrganisationByIdUseCase interactor = new(orgCtx);
 
         Guid nonExistentUserId = Guid.Parse("6d690a96-c392-4482-b750-733ea472bc96");
 
@@ -53,9 +68,8 @@ public sealed class GetOrganisationByIdUseCaseTests
     [TestMethod]
     public async Task ReturnsExpectedProfile()
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-        var interactor = autoMocker.CreateInstance<GetOrganisationByIdUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetOrganisationByIdUseCase interactor = new(orgCtx);
 
         var response = await interactor.InvokeAsync(
             new GetOrganisationByIdRequest {

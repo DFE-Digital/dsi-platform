@@ -1,7 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Organisations;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -12,7 +11,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// legacy system integration.
 /// </summary>
 public sealed class GetUserOrganisationIdentifiersUseCase(
-    IUnitOfWorkOrganisations uowOrganisations
+    DbOrganisationsContext organisationsDbContext
 ) : Interactor<GetUserOrganisationIdentifiersRequest, GetUserOrganisationIdentifiersResponse>
 {
     /// <inheritdoc/>
@@ -22,8 +21,8 @@ public sealed class GetUserOrganisationIdentifiersUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var userOrganisation = await uowOrganisations
-            .Repository<UserOrganisationEntity>()
+        var userOrganisation = await organisationsDbContext
+            .UserOrganisations
             .Where(x => x.UserId == context.Request.UserId
                      && x.OrganisationId == context.Request.OrganisationId)
             .FirstOrDefaultAsync(cancellationToken);

@@ -1,8 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Directories;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
+using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
@@ -11,7 +10,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// An interactor to change the job title of a user.
 /// </summary>
 public sealed class ChangeJobTitleUseCase(
-    IUnitOfWorkDirectories unitOfWork,
+    DbDirectoriesContext directoriesDbContext,
     IInteractionDispatcher interaction
 ) : Interactor<ChangeJobTitleRequest, ChangeJobTitleResponse>
 {
@@ -22,7 +21,7 @@ public sealed class ChangeJobTitleUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Repository<UserEntity>()
+        var user = await directoriesDbContext.Users
             .Where(x => x.Sub == context.Request.UserId)
             .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(context.Request.UserId);
 
@@ -34,7 +33,7 @@ public sealed class ChangeJobTitleUseCase(
 
         user.JobTitle = normalisedJobTitle;
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
         await interaction.DispatchAsync(
             new WriteToAuditRequest {

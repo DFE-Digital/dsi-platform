@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.UseCases.Applications;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Applications;
@@ -11,19 +13,31 @@ public sealed class GetApplicationRolesUseCaseTests
     [TestMethod]
     public Task Throws_WhenRequestIsInvalid()
     {
+        var autoMocker = new AutoMocker();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var orgCtx = new DbOrganisationsContext(options);
+        autoMocker.Use(orgCtx);
+
         return InteractionAssert.ThrowsWhenRequestIsInvalid<
             GetApplicationRolesRequest,
             GetApplicationRolesUseCase
-        >();
+        >(autoMocker);
     }
 
     private static readonly Guid AppAId = Guid.Parse("01e876a1-a06d-4945-bbe0-599a3d73dd11");
     private static readonly Guid AppBId = Guid.Parse("33510512-33f3-491c-86ca-e036726584d0");
     private static readonly Guid AppCId = Guid.Parse("f8da743c-eeb7-4be4-8045-54fba2e13419");
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         ctx.Services.Add(new ServiceEntity {
             Id = AppAId,
@@ -102,6 +116,8 @@ public sealed class GetApplicationRolesUseCaseTests
         // AppC has no roles
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
     }
 
     public static IEnumerable<object[]> GetCasesForReturnsApplicationRoles()
@@ -174,10 +190,8 @@ public sealed class GetApplicationRolesUseCaseTests
     [DynamicData(nameof(GetCasesForReturnsApplicationRoles), DynamicDataSourceType.Method)]
     public async Task ReturnsApplicationRoles(Guid applicationId, GetApplicationRolesResponse expectedResponse)
     {
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-
-        var interactor = autoMocker.CreateInstance<GetApplicationRolesUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        GetApplicationRolesUseCase interactor = new(orgCtx);
 
         var response = await interactor.InvokeAsync(
             new GetApplicationRolesRequest {

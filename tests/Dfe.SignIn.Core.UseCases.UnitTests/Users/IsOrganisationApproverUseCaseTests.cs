@@ -3,7 +3,8 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Core.UseCases.Users;
-using Moq.AutoMock;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
 
@@ -14,10 +15,8 @@ public sealed class IsOrganisationApproverUseCaseTests
     public async Task Approver_IsFalseWhenUserHasNoApproverPermissions()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
-
-        var interactor = autoMocker.CreateInstance<IsOrganisationApproverUseCase>();
+        var orgCtx = await SetupFakeDatabaseAsync();
+        IsOrganisationApproverUseCase interactor = new(orgCtx);
 
         Guid nonExistentUserId = Guid.Parse("6d690a96-c392-4482-b750-733ea472bc96");
 
@@ -32,23 +31,25 @@ public sealed class IsOrganisationApproverUseCaseTests
     public async Task Approver_IsTrueWhenUserHasApproverPermissions()
     {
         // Arrange
-        var autoMocker = new AutoMocker();
-        await SetupFakeDatabaseAsync(autoMocker);
+        var orgCtx = await SetupFakeDatabaseAsync();
+        IsOrganisationApproverUseCase interactor = new(orgCtx);
 
-        var interactor = autoMocker.CreateInstance<IsOrganisationApproverUseCase>();
-
-        Guid nonExistentUserId = Guid.Parse("1d690a94-c392-4482-b750-711ea472bc96");
+        Guid approverUserId = Guid.Parse("1d690a94-c392-4482-b750-711ea472bc96");
 
         // Act
-        var result = await interactor.InvokeAsync(new IsOrganisationApproverRequest(nonExistentUserId));
+        var result = await interactor.InvokeAsync(new IsOrganisationApproverRequest(approverUserId));
 
         // Assert
         Assert.IsTrue(result.IsApprover);
     }
 
-    private static async Task SetupFakeDatabaseAsync(AutoMocker autoMocker)
+    private static async Task<DbOrganisationsContext> SetupFakeDatabaseAsync()
     {
-        var ctx = autoMocker.UseInMemoryOrganisationsDb();
+        var options = new DbContextOptionsBuilder<DbOrganisationsContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var ctx = new DbOrganisationsContext(options);
 
         var user1Id = Guid.Parse("6d690a96-c392-4482-b750-733ea472bc96");
         var user2Id = Guid.Parse("1d690a94-c392-4482-b750-711ea472bc96");
@@ -111,6 +112,8 @@ public sealed class IsOrganisationApproverUseCaseTests
         });
 
         await ctx.SaveChangesAsync();
+
+        return ctx;
 
     }
 }

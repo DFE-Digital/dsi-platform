@@ -170,7 +170,7 @@ public class GetServiceUsersTests
     {
         var (autoMocker, clientSession, loggerFactory, httpContext) = CreateMocks();
 
-        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { Application = null });
+        autoMocker.MockResponse<GetApplicationByClientIdRequest>(new GetApplicationByClientIdResponse { Application = null! });
 
         var result = await GetServiceUsersEndpoint.GetServiceUsers(
             clientSession,
