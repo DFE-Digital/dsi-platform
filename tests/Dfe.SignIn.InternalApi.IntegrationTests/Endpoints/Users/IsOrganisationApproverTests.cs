@@ -66,10 +66,10 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
         var org2 = organisations[1];
 
         // Seed Organisations
-        await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>(new[] { org1, org2 });
+        await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>([org1, org2]);
 
         // Seed UserOrganisations
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>(new[] {
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>([
             new UserOrganisationEntity {
                 UserId = userId,
                 OrganisationId = org1.Id,
@@ -86,7 +86,7 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
                 UpdatedAt = DateTime.UtcNow,
                 Status = ActiveUserOrganisationStatus
             }
-        });
+        ]);
 
         var request = new IsOrganisationApproverRequest(userId);
 

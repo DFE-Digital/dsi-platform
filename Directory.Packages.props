@@ -38,7 +38,7 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="OpenTelemetry.Api" Version="1.15.3" />
     <PackageVersion Include="Scrutor" Version="6.1.0" />
-    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.15" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.18" />
   </ItemGroup>
   <!-- Communication -->
   <ItemGroup>
