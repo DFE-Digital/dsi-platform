@@ -274,7 +274,12 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<PendingApprovalCountResponse>>();
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+        Assert.Equal(0, body.Data.Count);
     }
 
     [Fact]
