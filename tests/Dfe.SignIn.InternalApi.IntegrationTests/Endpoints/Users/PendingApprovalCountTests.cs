@@ -44,7 +44,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
         });
 
         // Seed 2 active pending service requests & 1 active pending org request
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserServiceRequestEntity>(new[] {
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserServiceRequestEntity>([
             new UserServiceRequestEntity {
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
@@ -79,9 +79,9 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             }
-        });
+        ]);
 
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationRequestEntity>(new[] {
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationRequestEntity>([
             new UserOrganisationRequestEntity {
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
@@ -101,7 +101,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             }
-        });
+        ]);
 
         var request = new GetPendingApprovalCountRequest { UserId = userId };
 
@@ -125,10 +125,10 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
         var orgB = EntityFaker.Organisation.Generate(); // User is End User
         var orgC = EntityFaker.Organisation.Generate(); // User is Not Associated
 
-        await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>(new[] { orgA, orgB, orgC });
+        await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>([orgA, orgB, orgC]);
 
         // Seed UserOrganisation: Approver for Org A, End User for Org B
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>(new[] {
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>([
             new UserOrganisationEntity {
                 UserId = userId,
                 OrganisationId = orgA.Id,
@@ -145,7 +145,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
                 UpdatedAt = DateTime.UtcNow,
                 Status = ActiveUserOrganisationStatus
             }
-        });
+        ]);
 
         // Org A: 2 pending requests
         await this.InsertEntityAsync<DbOrganisationsContext, UserServiceRequestEntity>(new UserServiceRequestEntity {

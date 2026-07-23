@@ -11,14 +11,14 @@ using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 
-[Trait( "Category", "Integration" )]
+[Trait("Category", "Integration")]
 public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBase
 {
     private const string endpoint = "interaction/Users.IsOrganisationApprover";
     private const short ActiveUserOrganisationStatus = 1;
 
-    public IsOrganisationApproverTests( InternalApiWebApplicationFactory factory )
-        : base( factory )
+    public IsOrganisationApproverTests(InternalApiWebApplicationFactory factory)
+        : base(factory)
     {
     }
 
@@ -31,28 +31,28 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
         var org = EntityFaker.Organisation.Generate();
 
         // Seed Organisation
-        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>( org );
+        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(org);
 
         // Seed UserOrganisation as Approver (RoleId = 10000)
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>( new UserOrganisationEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>(new UserOrganisationEntity {
             UserId = userId,
             OrganisationId = org.Id,
             RoleId = OrganisationRoles.Approver.Id,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Status = ActiveUserOrganisationStatus
-        } );
+        });
 
-        var request = new IsOrganisationApproverRequest( userId );
+        var request = new IsOrganisationApproverRequest(userId);
 
-        var response = await authenticatedClient.PostAsJsonAsync( endpoint, request );
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
-        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<IsOrganisationApproverResponse>>();
-        Assert.NotNull( body );
-        Assert.NotNull( body.Data );
-        Assert.True( body.Data.IsApprover );
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+        Assert.True(body.Data.IsApprover);
     }
 
     [Fact]
@@ -61,15 +61,15 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
         var userId = Guid.NewGuid();
-        var organisations = EntityFaker.Organisation.Generate( 2 );
+        var organisations = EntityFaker.Organisation.Generate(2);
         var org1 = organisations[0];
         var org2 = organisations[1];
 
         // Seed Organisations
-        await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>( new[] { org1, org2 } );
+        await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>(new[] { org1, org2 });
 
         // Seed UserOrganisations
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>( new[] {
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>(new[] {
             new UserOrganisationEntity {
                 UserId = userId,
                 OrganisationId = org1.Id,
@@ -86,18 +86,18 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
                 UpdatedAt = DateTime.UtcNow,
                 Status = ActiveUserOrganisationStatus
             }
-        } );
+        });
 
-        var request = new IsOrganisationApproverRequest( userId );
+        var request = new IsOrganisationApproverRequest(userId);
 
-        var response = await authenticatedClient.PostAsJsonAsync( endpoint, request );
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
-        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<IsOrganisationApproverResponse>>();
-        Assert.NotNull( body );
-        Assert.NotNull( body.Data );
-        Assert.True( body.Data.IsApprover );
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+        Assert.True(body.Data.IsApprover);
     }
 
     [Fact]
@@ -109,28 +109,28 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
         var org = EntityFaker.Organisation.Generate();
 
         // Seed Organisation
-        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>( org );
+        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(org);
 
         // Seed UserOrganisation as End User (RoleId = 0)
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>( new UserOrganisationEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>(new UserOrganisationEntity {
             UserId = userId,
             OrganisationId = org.Id,
             RoleId = OrganisationRoles.EndUser.Id,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Status = ActiveUserOrganisationStatus
-        } );
+        });
 
-        var request = new IsOrganisationApproverRequest( userId );
+        var request = new IsOrganisationApproverRequest(userId);
 
-        var response = await authenticatedClient.PostAsJsonAsync( endpoint, request );
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
-        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<IsOrganisationApproverResponse>>();
-        Assert.NotNull( body );
-        Assert.NotNull( body.Data );
-        Assert.False( body.Data.IsApprover );
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+        Assert.False(body.Data.IsApprover);
     }
 
     [Fact]
@@ -138,16 +138,16 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var request = new IsOrganisationApproverRequest( Guid.NewGuid() );
+        var request = new IsOrganisationApproverRequest(Guid.NewGuid());
 
-        var response = await authenticatedClient.PostAsJsonAsync( endpoint, request );
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
-        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<IsOrganisationApproverResponse>>();
-        Assert.NotNull( body );
-        Assert.NotNull( body.Data );
-        Assert.False( body.Data.IsApprover );
+        Assert.NotNull(body);
+        Assert.NotNull(body.Data);
+        Assert.False(body.Data.IsApprover);
     }
 
     [Fact]
@@ -155,9 +155,9 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var response = await authenticatedClient.PostAsJsonAsync( endpoint, "" );
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, "");
 
-        Assert.Equal( HttpStatusCode.BadRequest, response.StatusCode );
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
@@ -165,10 +165,10 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     {
         var anonymousClient = this.CreateClient();
 
-        var request = new IsOrganisationApproverRequest( Guid.NewGuid() );
+        var request = new IsOrganisationApproverRequest(Guid.NewGuid());
 
-        var response = await anonymousClient.PostAsJsonAsync( endpoint, request );
+        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
 
-        Assert.Equal( HttpStatusCode.Unauthorized, response.StatusCode );
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }
