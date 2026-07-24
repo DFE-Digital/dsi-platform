@@ -33,8 +33,7 @@ public sealed class ValidationEndpointFilter<TRequest> : IEndpointFilter where T
         var result = await validator.ValidateAsync(request);
         if (!result.IsValid) {
             // Join all error messages into a single string (plain BadRequest)
-            var error = string.Join(" ", result.Errors.Select(e => e.ErrorMessage));
-            return Results.BadRequest(error);
+            return Results.ValidationProblem(result.ToDictionary());
         }
 
         return await next(context);

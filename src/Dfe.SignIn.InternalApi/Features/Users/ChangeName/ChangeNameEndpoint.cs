@@ -1,4 +1,7 @@
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +19,7 @@ public sealed class ChangeNameEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost("ApiRoutes.ChangeName", Handler)
+        app.MapPost(UsersApiRoutes.ChangeName, Handler)
             .WithName("Change Name")
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)
@@ -28,39 +31,48 @@ public sealed class ChangeNameEndpoint : IEndpoint
     /// <summary>
     /// Changes the name of a user.
     /// </summary>
-    /// <param name="dbDirectoriesContext">The database context to use for accessing user data.</param>
+    /// <param name="directoriesDbContext">The database context to use for accessing user data.</param>
     /// <param name="logger">The logger to use for logging information.</param>
-    /// <param name="query">The request containing the user ID and new name.</param>
+    /// <param name="request">The request containing the user ID and new name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
     public static async Task<IResult> Handler(
-        DbDirectoriesContext dbDirectoriesContext,
+        DbDirectoriesContext directoriesDbContext,
         ILogger<ChangeNameEndpoint> logger,
-        [FromBody] ChangeNameRequest query,
+        [FromBody] ChangeNameRequest request,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation(
-            "Changing name for user {UserId}",
-            query.UserId);
+        logger.LogInformation("Changing name for user {UserId}", request.UserId);
 
-        var user = await dbDirectoriesContext
-            .Users
-            .Where(x => x.Sub == query.UserId)
-            .FirstOrDefaultAsync(cancellationToken) ??
-            throw new Exception($"User with ID {query.UserId} not found.");
-        //throw UserNotFoundException.FromUserId(query.UserId);
-        //if (user.JobTitle == query.NewJobTitle) {
-        //    logger.LogInformation(
-        //        "Job title unchanged for user {UserId} — already set to requested value",
-        //        query.UserId);
-        //    return Results.Ok(); //TODO: Consider returning a different status code or message indicating that the job title is already set to the desired value.
-        //}
-        //var normalisedJobTitle = query.NewJobTitle.NormalizeWhitespace();
-        //user.JobTitle = normalisedJobTitle;
-        //await dbDirectoriesContext.SaveChangesAsync(cancellationToken);
-        //logger.LogInformation(
-        //    "Successfully changed job title for user {UserId}",
-        //    query.UserId);
+        var user = await directoriesDbContext.Users
+            .Where(x => x.Sub == request.UserId)
+            .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(request.UserId);
+
+        if (user.FirstName == request.FirstName && user.LastName == request.LastName) {
+            return Results.Ok();
+            //return new ChangeNameResponse();
+        }
+
+        if (user.FirstName != request.FirstName) {
+            var normalisedFirstName = request.FirstName.NormalizeWhitespace();
+            user.FirstName = normalisedFirstName;
+        }
+
+        if (user.LastName != request.LastName) {
+            var normalisedLastName = request.LastName.NormalizeWhitespace();
+            user.LastName = normalisedLastName;
+        }
+
+        await directoriesDbContext.SaveChangesAsync(cancellationToken);
+
+        //TODO: Add new implementation for audit logging here, as the previous implementation was commented out.
+        //await interaction.DispatchAsync(
+        //    new WriteToAuditRequest {
+        //        EventCategory = AuditEventCategoryNames.ChangeName,
+        //        Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
+        //        UserId = context.Request.UserId,
+        //    }
+        //);
 
         return Results.Ok();
     }

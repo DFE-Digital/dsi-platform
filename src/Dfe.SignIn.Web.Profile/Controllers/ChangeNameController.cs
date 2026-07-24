@@ -1,4 +1,5 @@
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/change-name")]
 public sealed class ChangeNameController(
-    IInteractionDispatcher interaction
+    IUsersApiClient usersApiClient
 ) : Controller
 {
     [HttpGet]
@@ -32,17 +33,17 @@ public sealed class ChangeNameController(
     public async Task<IActionResult> PostIndex(
         ChangeNameViewModel viewModel)
     {
-        //await interaction.MapRequestFromViewModel<ChangeNameRequest>(this, viewModel)
-        //    .Use(request => request with {
-        //        UserId = this.User.GetUserId(),
-        //    })
-        //    .DispatchAsync();
+        var request = new ChangeNameRequest {
+            UserId = this.User.GetUserId(),
+            FirstName = viewModel.FirstNameInput ?? string.Empty,
+            LastName = viewModel.LastNameInput ?? string.Empty,
+        };
 
-        await Task.FromResult(viewModel);
-
-        var test = viewModel;
-
-        if (!this.ModelState.IsValid) {
+        try {
+            await usersApiClient.ChangeName(request);
+        }
+        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+            await this.ModelState.TryAddValidationErrorsAsync(ex);
             return this.Index();
         }
 

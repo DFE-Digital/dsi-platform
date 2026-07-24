@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Refit;
 
 namespace Dfe.SignIn.Core.Contracts.Features.Users;

@@ -1,169 +1,144 @@
-//using System.Security.Claims;
-//using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-//using Dfe.SignIn.Core.Contracts.Users;
-//using Dfe.SignIn.Web.Profile.Controllers;
-//using Dfe.SignIn.Web.Profile.Models;
-//using Dfe.SignIn.WebFramework.Mvc;
-//using Dfe.SignIn.WebFramework.Mvc.Features;
-//using GovUk.Frontend.AspNetCore;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.AspNetCore.Mvc.ViewFeatures;
-//using Moq.AutoMock;
+using System.Security.Claims;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
+using Dfe.SignIn.Web.Profile.Controllers;
+using Dfe.SignIn.Web.Profile.Models;
+using Dfe.SignIn.WebFramework.Mvc;
+using Dfe.SignIn.WebFramework.Mvc.Features;
+using GovUk.Frontend.AspNetCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
+using Moq.AutoMock;
 
-//namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
+namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
 
-//[TestClass]
-//public sealed class ChangeNameControllerTests
-//{
-//    private static ChangeNameController CreateController(AutoMocker autoMocker)
-//    {
-//        var controller = autoMocker.CreateInstance<ChangeNameController>();
+[TestClass]
+public sealed class ChangeNameControllerTests
+{
+    private static ChangeNameController CreateController(AutoMocker autoMocker)
+    {
+        var controller = autoMocker.CreateInstance<ChangeNameController>();
 
-//        var httpContext = new DefaultHttpContext();
-//        httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature {
-//            UserId = Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-//            IsEntra = false,
-//            IsInternalUser = false,
-//            FirstName = "Alex",
-//            LastName = "Johnson",
-//            EmailAddress = "alex.johnson@example.com",
-//            JobTitle = "Software Developer",
-//        });
+        var httpContext = new DefaultHttpContext();
+        httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature {
+            UserId = Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            IsEntra = false,
+            IsInternalUser = false,
+            FirstName = "Alex",
+            LastName = "Johnson",
+            EmailAddress = "alex.johnson@example.com",
+            JobTitle = "Software Developer",
+        });
 
-//        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity([
-//            new(ClaimTypes.NameIdentifier, "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-//        ], "TestAuth"));
+        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity([
+            new(ClaimTypes.NameIdentifier, "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+        ], "TestAuth"));
 
-//        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
-//        controller.TempData = autoMocker.CreateInstance<TempDataDictionary>();
+        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        controller.TempData = autoMocker.CreateInstance<TempDataDictionary>();
 
-//        return controller;
-//    }
+        return controller;
+    }
 
-//    #region Index()
+    [TestMethod]
+    public void Index_InitialiseJobTitleInputFromUserProfile()
+    {
+        var controller = CreateController(new AutoMocker());
 
-//    [TestMethod]
-//    public void Index_InitialiseJobTitleInputFromUserProfile()
-//    {
-//        var controller = CreateController(new AutoMocker());
+        var result = controller.Index();
 
-//        var result = controller.Index();
+        var viewModel = TypeAssert.IsViewModelType<ChangeNameViewModel>(result);
+        Assert.AreEqual("Alex", viewModel.FirstNameInput);
+        Assert.AreEqual("Johnson", viewModel.LastNameInput);
+    }
 
-//        var viewModel = TypeAssert.IsViewModelType<ChangeNameViewModel>(result);
-//        Assert.AreEqual("Alex", viewModel.FirstNameInput);
-//        Assert.AreEqual("Johnson", viewModel.LastNameInput);
-//    }
+    [TestMethod]
+    public void Index_PresentsExpectedView()
+    {
+        var controller = CreateController(new AutoMocker());
 
-//    [TestMethod]
-//    public void Index_PresentsExpectedView()
-//    {
-//        var controller = CreateController(new AutoMocker());
+        var result = controller.Index();
 
-//        var result = controller.Index();
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+    }
 
-//        var viewResult = TypeAssert.IsType<ViewResult>(result);
-//        Assert.AreEqual("Index", viewResult.ViewName);
-//    }
+    private static ChangeNameViewModel CreateValidChangeNameViewModel() => new() {
+        FirstNameInput = "Bob",
+        LastNameInput = "Clarkson",
+    };
 
-//    #endregion
+    [TestMethod]
+    public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
+    {
+        var autoMocker = new AutoMocker();
 
-//    #region PostIndex()
+        await autoMocker.MockRefitValidationError<IUsersApiClient>(
+            x => x.ChangeName(It.IsAny<ChangeNameRequest>()),
+            nameof(ChangeNameViewModel.FirstNameInput),
+            "First name is required.");
 
-//    private static ChangeNameViewModel CreateValidChangeNameViewModel() => new() {
-//        FirstNameInput = "Bob",
-//        LastNameInput = "Clarkson",
-//    };
+        var controller = CreateController(autoMocker);
 
-//    [TestMethod]
-//    public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
-//    {
-//        var autoMocker = new AutoMocker();
-//        autoMocker.MockValidationError<ChangeNameRequest>(nameof(ChangeNameRequest.FirstName));
+        var result = await controller.PostIndex(new ChangeNameViewModel());
 
-//        var controller = CreateController(autoMocker);
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+    }
 
-//        var result = await controller.PostIndex(new ChangeNameViewModel());
+    [TestMethod]
+    public async Task PostIndex_FlashSuccess_WhenSuccessful()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker);
 
-//        var viewResult = TypeAssert.IsType<ViewResult>(result);
-//        Assert.AreEqual("Index", viewResult.ViewName);
-//    }
+        await controller.PostIndex(CreateValidChangeNameViewModel());
 
-//    [TestMethod]
-//    public async Task PostIndex_DispatchesExpectedInteraction()
-//    {
-//        var autoMocker = new AutoMocker();
+        var flashNotification = controller.TempData.GetFlashNotification();
+        Assert.IsNotNull(flashNotification);
+        Assert.AreEqual(NotificationBannerType.Success, flashNotification.Type);
+        Assert.AreEqual("Name updated successfully", flashNotification.Heading);
+        Assert.AreEqual("The name associated with your account has been updated.", flashNotification.Message);
+    }
 
-//        ChangeNameRequest? capturedRequest = null;
-//        autoMocker.CaptureRequest<ChangeNameRequest>(r => capturedRequest = r);
+    [TestMethod]
+    public async Task PostIndex_RedirectsToHome_WhenSuccessful()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker);
 
-//        var controller = CreateController(autoMocker);
+        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
 
-//        await controller.PostIndex(CreateValidChangeNameViewModel());
+        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
+        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
+        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+    }
 
-//        Assert.IsNotNull(capturedRequest);
-//        Assert.AreEqual(Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
-//        Assert.AreEqual("Bob", capturedRequest.FirstName);
-//        Assert.AreEqual("Clarkson", capturedRequest.LastName);
-//    }
+    [TestMethod]
+    public void PostCancel_FlashCancelled()
+    {
+        var controller = CreateController(new AutoMocker());
 
-//    [TestMethod]
-//    public async Task PostIndex_FlashSuccess_WhenSuccessful()
-//    {
-//        var autoMocker = new AutoMocker();
-//        var controller = CreateController(autoMocker);
+        controller.PostCancel();
 
-//        await controller.PostIndex(CreateValidChangeNameViewModel());
+        var flashNotification = controller.TempData.GetFlashNotification();
+        Assert.IsNotNull(flashNotification);
+        Assert.AreEqual(NotificationBannerType.Default, flashNotification.Type);
+        Assert.AreEqual("Name change cancelled", flashNotification.Heading);
+        Assert.AreEqual("As you did not complete the name change process, your name change has been cancelled.", flashNotification.Message);
+    }
 
-//        var flashNotification = controller.TempData.GetFlashNotification();
-//        Assert.IsNotNull(flashNotification);
-//        Assert.AreEqual(NotificationBannerType.Success, flashNotification.Type);
-//        Assert.AreEqual("Name updated successfully", flashNotification.Heading);
-//        Assert.AreEqual("The name associated with your account has been updated.", flashNotification.Message);
-//    }
+    [TestMethod]
+    public void PostCancel_RedirectsToHome()
+    {
+        var controller = CreateController(new AutoMocker());
 
-//    [TestMethod]
-//    public async Task PostIndex_RedirectsToHome_WhenSuccessful()
-//    {
-//        var autoMocker = new AutoMocker();
-//        var controller = CreateController(autoMocker);
+        var result = controller.PostCancel();
 
-//        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
-
-//        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-//        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-//        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
-//    }
-
-//    #endregion
-
-//    #region PostCancel()
-
-//    [TestMethod]
-//    public void PostCancel_FlashCancelled()
-//    {
-//        var controller = CreateController(new AutoMocker());
-
-//        controller.PostCancel();
-
-//        var flashNotification = controller.TempData.GetFlashNotification();
-//        Assert.IsNotNull(flashNotification);
-//        Assert.AreEqual(NotificationBannerType.Default, flashNotification.Type);
-//        Assert.AreEqual("Name change cancelled", flashNotification.Heading);
-//        Assert.AreEqual("As you did not complete the name change process, your name change has been cancelled.", flashNotification.Message);
-//    }
-
-//    [TestMethod]
-//    public void PostCancel_RedirectsToHome()
-//    {
-//        var controller = CreateController(new AutoMocker());
-
-//        var result = controller.PostCancel();
-
-//        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-//        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-//        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
-//    }
-
-//    #endregion
-//}
+        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
+        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
+        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+    }
+}

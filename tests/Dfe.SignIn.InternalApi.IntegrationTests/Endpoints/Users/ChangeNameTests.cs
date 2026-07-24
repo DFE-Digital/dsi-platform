@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
@@ -400,4 +400,3 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         Assert.Equal(expectedLastName, updatedUser.LastName);
     }
 }
-

@@ -112,6 +112,9 @@ builder.Services
     .AddSingleton<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>()
     .AddSingleton<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>();
 
+builder.Services
+    .AddUsersApiClient(tokenCredential);
+
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
 
