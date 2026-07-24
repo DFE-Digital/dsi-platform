@@ -1,6 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 
-namespace Dfe.SignIn.Core.Contracts.Users;
+namespace Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 
 /// <summary>
 /// The exception thrown when a requested user account was not found.

@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;

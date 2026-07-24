@@ -1,7 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

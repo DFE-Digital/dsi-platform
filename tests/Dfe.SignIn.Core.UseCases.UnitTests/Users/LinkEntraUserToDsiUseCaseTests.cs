@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.UseCases.Users;
