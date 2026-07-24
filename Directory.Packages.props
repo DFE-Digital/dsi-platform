@@ -79,6 +79,8 @@
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.2" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.4" />
     <PackageVersion Include="System.Net.Http.Json" Version="9.0.9" />
+    <PackageVersion Include="Refit" Version="11.0.1" />
+    <PackageVersion Include="Refit.HttpClientFactory" Version="11.0.1" />
   </ItemGroup>
   <!-- Validation -->
   <ItemGroup>

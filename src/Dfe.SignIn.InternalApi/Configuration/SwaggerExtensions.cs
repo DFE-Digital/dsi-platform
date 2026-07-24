@@ -27,7 +27,7 @@ public static class SwaggerExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
-    public static void SetupSwagger(this IServiceCollection services)
+    public static void AddSwagger(this IServiceCollection services)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
@@ -77,5 +77,21 @@ public static class SwaggerExtensions
                 Version = "v1"
             });
         });
+    }
+
+    /// <summary>
+    /// Configure the application to use Swagger.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static WebApplication UseSwagger(this WebApplication app)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(app, nameof(app));
+        app.UseSwagger();
+        app.UseSwaggerUI(options => {
+            options.SwaggerEndpoint("v1/swagger.json", "DfE Sign-in Internal API");
+        });
+
+        return app;
     }
 }

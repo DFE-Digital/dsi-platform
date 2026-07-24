@@ -1,11 +1,11 @@
 using FluentValidation;
 
-namespace Dfe.SignIn.PublicApi.Configuration;
+namespace Dfe.SignIn.WebFramework;
 
 /// <summary>
 /// Generic endpoint filter for FluentValidation.
 /// </summary>
-public class ValidationEndpointFilter<TRequest> : IEndpointFilter where TRequest : notnull
+public sealed class ValidationEndpointFilter<TRequest> : IEndpointFilter where TRequest : notnull
 {
     /// <summary>
     /// Invokes the next endpoint filter in the pipeline after validating the request using a registered validator, if

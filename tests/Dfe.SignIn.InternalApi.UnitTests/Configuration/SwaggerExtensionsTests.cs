@@ -9,7 +9,7 @@ public sealed class SwaggerExtensionsTests
     public void SetupSwagger_Throws_WhenServicesArgumentIsNull()
     {
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => SwaggerExtensions.SetupSwagger(
+            => SwaggerExtensions.AddSwagger(
                 services: null!
             ));
     }

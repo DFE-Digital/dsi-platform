@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;

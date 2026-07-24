@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -111,12 +108,26 @@ public static class Extensions
             builder.Services.AddOpenTelemetry().UseOtlpExporter();
         }
 
-        // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-        //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-        //{
-        //    builder.Services.AddOpenTelemetry()
-        //       .UseAzureMonitor();
-        //}
+        // Azure Monitor — only enabled when connection string is configured.
+        // Sampling ratio controls what proportion of traces are sent to App Insights.
+        // Errors and exceptions are always captured regardless of sampling ratio.
+        if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"])) {
+            builder.Services.AddOpenTelemetry()
+                .UseAzureMonitor(options => {
+                    // Sampling ratio: 1.0 = 100% of traces (full visibility, higher cost)
+                    //                  0.5 = 50%  of traces (balanced)
+                    //                  0.25 = 25% of traces (cost-conscious)
+                    //                  0.1 = 10%  of traces (minimal cost, high-traffic services)
+                    //
+                    // Override per environment via appsettings or environment variables.
+                    // Defaults to 0.1 (10%) so costs remain low if config is not set.
+                    // Errors/exceptions are NEVER sampled out regardless of this value.
+                    options.SamplingRatio =
+                        float.TryParse(builder.Configuration["AzureMonitor:SamplingRatio"], out var ratio)
+                            ? ratio
+                            : 0.1f;
+                });
+        }
 
         return builder;
     }

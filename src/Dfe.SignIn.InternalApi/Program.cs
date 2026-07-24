@@ -8,6 +8,7 @@ using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
+using Dfe.SignIn.InternalApi.Features;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,9 +16,12 @@ using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
 }
+
 builder.Configuration.AddEnvironmentVariables();
 
 // Add OpenTelemetry and configure it to use Azure Monitor.
@@ -32,8 +36,9 @@ builder.Services
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions();
 
-builder.Services.SetupSwagger();
+builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
+builder.Services.AddGlobalExceptionHandler();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 #if !DEBUG // Exclude when debugging locally.
@@ -105,6 +110,9 @@ else {
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+app.UseLogContextEnrichment();
+
 app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
@@ -112,9 +120,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSwagger();
-app.UseSwaggerUI(options => {
-    options.SwaggerEndpoint("v1/swagger.json", "DfE Sign-in Internal API");
-});
 
 app.UseHttpsRedirection();
 app.UseHealthChecks();
@@ -124,6 +129,8 @@ app.UseOrganisationEndpoints();
 app.UsePublicApiEndpoints();
 app.UseSupportTicketEndpoints();
 app.UseUserEndpoints();
+
+app.MapFeaturesEndpoints();
 
 await app.RunAsync();
 

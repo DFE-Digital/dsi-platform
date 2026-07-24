@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Microsoft.AspNetCore.Http;

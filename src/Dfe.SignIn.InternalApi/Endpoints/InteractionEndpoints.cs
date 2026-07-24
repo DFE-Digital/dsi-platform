@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Applications;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.PublicApi;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
