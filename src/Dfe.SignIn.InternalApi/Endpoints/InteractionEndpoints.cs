@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Applications;
-using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.PublicApi;
 using Dfe.SignIn.Core.Contracts.SupportTickets;
@@ -67,7 +66,6 @@ public static partial class InteractionEndpoints
         app.Map<GetUserStatusRequest, GetUserStatusResponse>();
         app.Map<LinkEntraUserToDsiRequest, LinkEntraUserToDsiResponse>();
         app.Map<IsOrganisationApproverRequest, IsOrganisationApproverResponse>();
-        app.Map<ChangeNameRequest, ChangeNameResponse>();
         app.Map<GetPendingApprovalCountRequest, PendingApprovalCountResponse>();
     }
 }

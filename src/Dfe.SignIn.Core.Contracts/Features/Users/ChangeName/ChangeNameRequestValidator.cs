@@ -1,8 +1,6 @@
-using Dfe.SignIn.Core.Contracts;
-using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using FluentValidation;
 
-namespace Dfe.SignIn.InternalApi.Features.Users.ChangeName;
+namespace Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 
 /// <summary>
 /// Validator for the <see cref="ChangeNameRequest"/> class.

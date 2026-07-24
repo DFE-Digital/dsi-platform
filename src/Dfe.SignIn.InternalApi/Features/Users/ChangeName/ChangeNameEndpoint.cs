@@ -1,5 +1,4 @@
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,13 +40,15 @@ public sealed class ChangeNameEndpoint : IEndpoint
         CancellationToken cancellationToken)
     {
         logger.LogInformation(
-            "Changing job title for user {UserId}",
+            "Changing name for user {UserId}",
             query.UserId);
 
         var user = await dbDirectoriesContext
             .Users
             .Where(x => x.Sub == query.UserId)
-            .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(query.UserId);
+            .FirstOrDefaultAsync(cancellationToken) ??
+            throw new Exception($"User with ID {query.UserId} not found.");
+        //throw UserNotFoundException.FromUserId(query.UserId);
         //if (user.JobTitle == query.NewJobTitle) {
         //    logger.LogInformation(
         //        "Job title unchanged for user {UserId} — already set to requested value",

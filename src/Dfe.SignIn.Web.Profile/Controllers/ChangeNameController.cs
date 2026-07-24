@@ -1,6 +1,4 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authorization;
@@ -34,11 +32,15 @@ public sealed class ChangeNameController(
     public async Task<IActionResult> PostIndex(
         ChangeNameViewModel viewModel)
     {
-        await interaction.MapRequestFromViewModel<ChangeNameRequest>(this, viewModel)
-            .Use(request => request with {
-                UserId = this.User.GetUserId(),
-            })
-            .DispatchAsync();
+        //await interaction.MapRequestFromViewModel<ChangeNameRequest>(this, viewModel)
+        //    .Use(request => request with {
+        //        UserId = this.User.GetUserId(),
+        //    })
+        //    .DispatchAsync();
+
+        await Task.FromResult(viewModel);
+
+        var test = viewModel;
 
         if (!this.ModelState.IsValid) {
             return this.Index();

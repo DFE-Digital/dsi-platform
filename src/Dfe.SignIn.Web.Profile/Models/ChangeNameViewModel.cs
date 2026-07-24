@@ -1,6 +1,3 @@
-using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Users;
-
 namespace Dfe.SignIn.Web.Profile.Models;
 
 /// <summary>
@@ -11,12 +8,10 @@ public sealed class ChangeNameViewModel
     /// <summary>
     /// Gets or sets the first name of the user.
     /// </summary>
-    [MapTo<ChangeNameRequest>(nameof(ChangeNameRequest.FirstName))]
     public string? FirstNameInput { get; set; }
 
     /// <summary>
     /// Gets or sets the last name of the user.
     /// </summary>
-    [MapTo<ChangeNameRequest>(nameof(ChangeNameRequest.LastName))]
     public string? LastNameInput { get; set; }
 }

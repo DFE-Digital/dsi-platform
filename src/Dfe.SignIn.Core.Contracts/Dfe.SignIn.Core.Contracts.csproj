@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <ProjectGuid>572DDF26-6969-4247-9D39-90DFFDCE50E1</ProjectGuid>
@@ -15,5 +15,6 @@
 
   <ItemGroup>
     <PackageReference Include="Refit" />
+    <PackageReference Include="FluentValidation" />
   </ItemGroup>    
 </Project>

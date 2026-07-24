@@ -1,7 +1,8 @@
-using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionSubmit;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Moq.AutoMock;
 
@@ -37,6 +38,7 @@ public class AttributeCollectionSubmitHandlerTests
     private static void SetupMockInteractionValidationResults(AutoMocker autoMocker)
     {
         autoMocker.Use<IInteractionValidator>(new InteractionValidator(autoMocker));
+        autoMocker.Use<IValidator<ChangeNameRequest>>(new ChangeNameRequestValidator());
     }
 
     [TestMethod]
@@ -100,7 +102,7 @@ public class AttributeCollectionSubmitHandlerTests
             },
         });
 
-        var exception = await Assert.ThrowsAsync<ValidationException>(()
+        var exception = await Assert.ThrowsAsync<System.ComponentModel.DataAnnotations.ValidationException>(()
             => handler.Run(fakeRequest));
         Assert.AreEqual("Invalid value for attribute 'givenName'.", exception.Message);
     }
@@ -162,7 +164,7 @@ public class AttributeCollectionSubmitHandlerTests
             },
         });
 
-        var exception = await Assert.ThrowsAsync<ValidationException>(()
+        var exception = await Assert.ThrowsAsync<System.ComponentModel.DataAnnotations.ValidationException>(()
             => handler.Run(fakeRequest));
         Assert.AreEqual("Invalid value for attribute 'surname'.", exception.Message);
     }
