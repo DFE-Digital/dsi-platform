@@ -6,6 +6,9 @@ using Dfe.SignIn.Core.Public;
 
 namespace Dfe.SignIn.TestHelpers.Integration.Data;
 
+/// <summary>
+/// Provides methods to generate fake entities for testing purposes.
+/// </summary>
 public static class EntityFaker
 {
     public static Faker<UserEntity> User => new Faker<UserEntity>()
