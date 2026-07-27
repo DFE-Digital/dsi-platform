@@ -2,6 +2,8 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +16,9 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/change-name")]
 public sealed class ChangeNameController(
-    IUsersApiClient usersApiClient
+    IUsersApiClient usersApiClient,
+    IValidator<ChangeNameRequest> changeNameValidator,
+    ILogger<ChangeNameController> logger
 ) : Controller
 {
     [HttpGet]
@@ -39,11 +43,18 @@ public sealed class ChangeNameController(
             LastName = viewModel.LastNameInput ?? string.Empty,
         };
 
+        var validationResult = await changeNameValidator.ValidateAsync(request);
+        if (!validationResult.IsValid) {
+            validationResult.AddToModelState(this.ModelState, null);
+            return this.Index();
+        }
+
         try {
             await usersApiClient.ChangeName(request);
         }
-        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
-            await this.ModelState.TryAddValidationErrorsAsync(ex);
+        catch (Exception ex) {
+            logger.LogError(ex, "An error occurred while changing the user's name.");
+            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
             return this.Index();
         }
 

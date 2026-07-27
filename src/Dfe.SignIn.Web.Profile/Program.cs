@@ -113,7 +113,8 @@ builder.Services
     .AddSingleton<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>();
 
 builder.Services
-    .AddUsersApiClient(tokenCredential);
+    .AddUsersApiClient(tokenCredential)
+    .AddDsiValidators();
 
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
@@ -148,6 +149,7 @@ if (!app.Environment.IsEnvironment("Local")) {
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseHealthChecks();
+app.UseLogContextEnrichment();
 
 var rewriteOptions = new RewriteOptions();
 rewriteOptions.AddRedirect("(.*)/$", "$1", statusCode: 301);
