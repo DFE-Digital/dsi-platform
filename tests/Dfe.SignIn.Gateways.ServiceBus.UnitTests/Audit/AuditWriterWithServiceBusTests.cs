@@ -9,10 +9,9 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Gateways.ServiceBus.UnitTests.Audit;
 
 [TestClass]
-[Obsolete]
-public sealed class WriteToAuditWithServiceBusTests
+public sealed class AuditWriterWithServiceBusTests
 {
-    private static WriteToAuditWithServiceBus CreateInteractor(AutoMocker autoMocker)
+    private static AuditWriterWithServiceBus CreateInteractor(AutoMocker autoMocker)
     {
         autoMocker.GetMock<IAuditContextBuilder>()
             .Setup(x => x.BuildAuditContext())
@@ -24,7 +23,7 @@ public sealed class WriteToAuditWithServiceBusTests
                 SourceUserId = new Guid("b1e26154-9b8a-4399-8662-5b4c1ffc01c3"),
             });
 
-        return autoMocker.CreateInstance<WriteToAuditWithServiceBus>();
+        return autoMocker.CreateInstance<AuditWriterWithServiceBus>();
     }
 
     private static void CaptureServiceBusMessage(AutoMocker autoMocker, Action<ServiceBusMessage, CancellationToken> captureMessage)
@@ -45,12 +44,12 @@ public sealed class WriteToAuditWithServiceBusTests
         ServiceBusMessage? capturedMessage = null;
         CaptureServiceBusMessage(autoMocker, (message, _) => capturedMessage = message);
 
-        var interactor = CreateInteractor(autoMocker);
+        var auditor = CreateInteractor(autoMocker);
 
-        await interactor.InvokeAsync(new WriteToAuditRequest {
+        _ = await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             Message = "Example audit message",
-        }, CancellationToken.None);
+        });
 
         Assert.IsNotNull(capturedMessage);
 
@@ -74,13 +73,13 @@ public sealed class WriteToAuditWithServiceBusTests
         ServiceBusMessage? capturedMessage = null;
         CaptureServiceBusMessage(autoMocker, (message, _) => capturedMessage = message);
 
-        var interactor = CreateInteractor(autoMocker);
+        var auditor = CreateInteractor(autoMocker);
 
-        await interactor.InvokeAsync(new WriteToAuditRequest {
+        _ = await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             Message = "Example audit message",
             WasFailure = wasFailure,
-        }, CancellationToken.None);
+        });
 
         Assert.IsNotNull(capturedMessage);
 
@@ -97,17 +96,17 @@ public sealed class WriteToAuditWithServiceBusTests
         ServiceBusMessage? capturedMessage = null;
         CaptureServiceBusMessage(autoMocker, (message, _) => capturedMessage = message);
 
-        var interactor = CreateInteractor(autoMocker);
+        var auditor = CreateInteractor(autoMocker);
 
-        await interactor.InvokeAsync(new WriteToAuditRequest {
+        _ = await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             EventName = "Example",
             Message = "Example audit message",
             OrganisationId = new Guid("da7d2275-330d-4ba9-93a1-686162c994b0"),
             CustomProperties = [
                 new("email", "jessica@example.com"),
-            ],
-        }, CancellationToken.None);
+            ]
+        });
 
         Assert.IsNotNull(capturedMessage);
 
@@ -134,13 +133,13 @@ public sealed class WriteToAuditWithServiceBusTests
         ServiceBusMessage? capturedMessage = null;
         CaptureServiceBusMessage(autoMocker, (message, _) => capturedMessage = message);
 
-        var interactor = CreateInteractor(autoMocker);
+        var auditor = CreateInteractor(autoMocker);
 
-        await interactor.InvokeAsync(new WriteToAuditRequest {
+        await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             Message = "Example audit message",
             UserId = new Guid("7290572c-efef-4f96-b814-735d1e1ad059"),
-        }, CancellationToken.None);
+        });
 
         Assert.IsNotNull(capturedMessage);
 

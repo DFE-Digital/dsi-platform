@@ -11,17 +11,18 @@ namespace Dfe.SignIn.Gateways.ServiceBus.Audit;
 /// <summary>
 /// Handles writing audit events to Service Bus with contextual metadata and custom properties.
 /// </summary>
-[Obsolete("This class will be removed in future versions. Use an instance of IAuditWriter")]
-public sealed class WriteToAuditWithServiceBus(
-    IAuditContextBuilder contextAccessor,
-    [FromKeyedServices(ServiceBusExtensions.AuditSenderKey)] ServiceBusSender sender
-) : Interactor<WriteToAuditRequest, WriteToAuditResponse>
+/// <param name="contextAccessor"></param>
+/// <param name="sender"></param>
+public sealed class AuditWriterWithServiceBus(IAuditContextBuilder contextAccessor,
+    [FromKeyedServices(ServiceBusExtensions.AuditSenderKey)] ServiceBusSender sender) : IAuditWriter
 {
-
-    /// <inheritdoc/>
-    public override async Task<WriteToAuditResponse> InvokeAsync(
-        InteractionContext<WriteToAuditRequest> context,
-        CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Implementation of an audit logger.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task<WriteToAuditResponse> Log(
+       InteractionContext<WriteToAuditRequest> context)
     {
         var auditContext = contextAccessor.BuildAuditContext();
 
@@ -33,14 +34,6 @@ public sealed class WriteToAuditWithServiceBus(
         return new WriteToAuditResponse();
     }
 
-    /// <summary>
-    /// Serializes the audit context and request into a structured JSON payload.
-    /// </summary>
-    /// <param name="auditContext">The context containing trace and source metadata.</param>
-    /// <param name="request">The audit request containing event details.</param>
-    /// <returns>
-    ///   <para>A JSON encoded string representing the audit event.</para>
-    /// </returns>
     private static string SerializeMessageBody(AuditContext auditContext, WriteToAuditRequest request)
     {
         using var stream = new MemoryStream();
