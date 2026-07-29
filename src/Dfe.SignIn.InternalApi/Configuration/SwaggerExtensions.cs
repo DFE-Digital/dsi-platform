@@ -87,8 +87,8 @@ public static class SwaggerExtensions
     public static WebApplication UseSwagger(this WebApplication app)
     {
         ExceptionHelpers.ThrowIfArgumentNull(app, nameof(app));
-        app.UseSwagger();
-        app.UseSwaggerUI(options => {
+        SwaggerBuilderExtensions.UseSwagger(app);
+        SwaggerUIBuilderExtensions.UseSwaggerUI(app, options => {
             options.SwaggerEndpoint("v1/swagger.json", "DfE Sign-in Internal API");
         });
 

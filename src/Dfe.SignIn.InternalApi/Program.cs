@@ -24,8 +24,9 @@ if (builder.Environment.IsEnvironment("Local")) {
 
 builder.Configuration.AddEnvironmentVariables();
 
-// Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
+// Add OpenTelemetry and configure it to use Azure Monitor when connection details are available.
+if (builder.Configuration.GetSection("AzureMonitor").Exists()
+    && !string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"])) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 

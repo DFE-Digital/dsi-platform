@@ -1,15 +1,14 @@
 using System.Security.Claims;
-using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using FluentValidation;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
@@ -19,6 +18,8 @@ public sealed class ChangeNameControllerTests
 {
     private static ChangeNameController CreateController(AutoMocker autoMocker)
     {
+        autoMocker.Use<IValidator<ChangeNameRequest>>(new ChangeNameRequestValidator());
+
         var controller = autoMocker.CreateInstance<ChangeNameController>();
 
         var httpContext = new DefaultHttpContext();
@@ -74,11 +75,6 @@ public sealed class ChangeNameControllerTests
     public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
     {
         var autoMocker = new AutoMocker();
-
-        await autoMocker.MockRefitValidationError<IUsersApiClient>(
-            x => x.ChangeName(It.IsAny<ChangeNameRequest>()),
-            nameof(ChangeNameViewModel.FirstNameInput),
-            "First name is required.");
 
         var controller = CreateController(autoMocker);
 
