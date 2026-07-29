@@ -9,4 +9,9 @@ public static class UsersApiRoutes
     /// The API route for changing a user's name.
     /// </summary>
     public const string ChangeName = "/interaction/Users.ChangeName";
+
+    /// <summary>
+    /// The API route for determining if a user is an approver.
+    /// </summary>
+    public const string IsApprover = "/interaction/Users.IsApprover";
 }

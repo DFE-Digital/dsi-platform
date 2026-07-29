@@ -1,8 +1,8 @@
-
 using System.Security.Claims;
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests;
@@ -28,14 +28,16 @@ public sealed class ApplicationClaimsTransormationTests
     }
 
     [TestMethod]
-    public async Task ReturnsPrincipleWithApproverclaimWhenUserHasApproverRights()
+    public async Task ReturnsPrincipleWithApproverClaimWhenUserHasApproverRights()
     {
         // Arrange
         var autoMocker = new AutoMocker();
-        var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
-        InteractionContext<IsOrganisationApproverRequest> capturedInteractionContext;
 
-        autoMocker.CaptureRequest<IsOrganisationApproverRequest>(r => capturedInteractionContext = r, new IsOrganisationApproverResponse(true));
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.IsApprover())
+            .ReturnsAsync(new IsOrganisationApproverResponse(true));
+
+        var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
 
         var principal = new ClaimsPrincipal([
                    new ClaimsIdentity((IEnumerable<Claim>?)[
@@ -58,10 +60,10 @@ public sealed class ApplicationClaimsTransormationTests
         // Arrange
         var autoMocker = new AutoMocker();
         var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
-        InteractionContext<IsOrganisationApproverRequest> capturedInteractionContext;
 
-        autoMocker.CaptureRequest<IsOrganisationApproverRequest>(r => capturedInteractionContext = r,
-            new IsOrganisationApproverResponse(false));
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.IsApprover())
+            .ReturnsAsync(new IsOrganisationApproverResponse(false));
 
         var principal = new ClaimsPrincipal([
             new ClaimsIdentity((IEnumerable<Claim>?)[

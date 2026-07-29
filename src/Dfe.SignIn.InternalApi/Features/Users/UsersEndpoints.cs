@@ -9,5 +9,6 @@ public static class UsersEndpoints
     public static void MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
         ChangeName.ChangeNameEndpoint.Map(app);
+        IsApprover.IsApproverEndpoint.Map(app);
     }
 }
