@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
@@ -14,7 +15,8 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "interaction/Users.GetPendingApprovalCount";
+    private const string endpoint = UsersApiRoutes.PendingApprovalCounter;
+
     private const short ActiveUserOrganisationStatus = 1;
 
     public PendingApprovalCountTests(InternalApiWebApplicationFactory factory)
@@ -103,9 +105,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             }
         ]);
 
-        var request = new GetPendingApprovalCountRequest { UserId = userId };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -194,9 +194,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             UpdatedAt = DateTime.UtcNow
         });
 
-        var request = new GetPendingApprovalCountRequest { UserId = userId };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -236,9 +234,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             UpdatedAt = DateTime.UtcNow
         });
 
-        var request = new GetPendingApprovalCountRequest { UserId = userId };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -253,9 +249,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var request = new GetPendingApprovalCountRequest { UserId = Guid.NewGuid() };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -270,9 +264,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var request = new GetPendingApprovalCountRequest { UserId = Guid.Empty };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -287,7 +279,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, "");
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -297,9 +289,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
     {
         var anonymousClient = this.CreateClient();
 
-        var request = new GetPendingApprovalCountRequest { UserId = Guid.NewGuid() };
-
-        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
+        var response = await anonymousClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }

@@ -14,4 +14,9 @@ public static class UsersApiRoutes
     /// The API route for determining if a user is an approver.
     /// </summary>
     public const string IsApprover = "/interaction/Users.IsApprover";
+
+    /// <summary>
+    /// The API route for getting the number of pending approval requests
+    /// </summary>
+    public const string PendingApprovalCounter = "/interactions/Users.PendingApprovalCounter";
 }

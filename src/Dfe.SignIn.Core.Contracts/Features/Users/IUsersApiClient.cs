@@ -23,4 +23,13 @@ public interface IUsersApiClient
     /// <returns></returns>
     [Get(UsersApiRoutes.IsApprover)]
     Task<IsOrganisationApproverResponse> IsApprover();
+
+    /// <summary>
+    /// Gets the number of pending approval requests for the logged in approver
+    /// </summary>
+    /// <returns>A task representing the number of pending approvals</returns>
+    [Get(UsersApiRoutes.PendingApprovalCounter)]
+
+    Task<PendingApprovalCountResponse> PendingApprovalCount();
+
 }

@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
@@ -22,9 +22,10 @@ public sealed class ServiceNavigationBuilderTests
             Count = 0
         };
 
-        var interactionDispatcher = new Mock<IInteractionDispatcher>();
-        interactionDispatcher.Setup(x => x.DispatchAsync(It.Is<InteractionContext<GetPendingApprovalCountRequest>>(c => true)))
-            .Returns(InteractionTask.FromResult(response));
+        var userClientMock = new Mock<IUsersApiClient>();
+
+        userClientMock.Setup(x => x.PendingApprovalCount())
+            .ReturnsAsync(response);
 
         var options = Options.Create(
             new PlatformOptions {
@@ -33,7 +34,7 @@ public sealed class ServiceNavigationBuilderTests
                 HelpUrl = new Uri("https://help.test/")
             });
 
-        var snb = new ServiceNavigationBuilder(options, interactionDispatcher.Object);
+        var snb = new ServiceNavigationBuilder(options, userClientMock.Object);
 
         // Act
         var result = await snb.Build(userCtx);
@@ -48,7 +49,7 @@ public sealed class ServiceNavigationBuilderTests
         // Arrange
         var userCtx = CreateUser(new Guid().ToString(), authenticated: true);
 
-        var interactionDispatcher = new Mock<IInteractionDispatcher>();
+        var userClientMock = new Mock<IUsersApiClient>();
 
         var options = Options.Create(
             new PlatformOptions {
@@ -57,13 +58,13 @@ public sealed class ServiceNavigationBuilderTests
                 HelpUrl = new Uri("https://help.test")
             });
 
-        var snb = new ServiceNavigationBuilder(options, interactionDispatcher.Object);
+        var snb = new ServiceNavigationBuilder(options, userClientMock.Object);
 
         // Act
         var result = await snb.Build(userCtx);
 
         // Assert
-        interactionDispatcher.Verify(x => x.DispatchAsync(It.Is<InteractionContext<GetPendingApprovalCountRequest>>(c => true)), Times.Never);
+        userClientMock.Verify(x => x.PendingApprovalCount(), Times.Never);
 
         Assert.AreEqual(4, result.Length);
         Assert.IsTrue(result.Any(x => x.Text == "Services" && x.Href.AbsoluteUri == $"{options.Value.ServicesUrl}my-services"));
@@ -82,9 +83,10 @@ public sealed class ServiceNavigationBuilderTests
             Count = 2
         };
 
-        var interactionDispatcher = new Mock<IInteractionDispatcher>();
-        interactionDispatcher.Setup(x => x.DispatchAsync(It.Is<InteractionContext<GetPendingApprovalCountRequest>>(c => true)))
-            .Returns(InteractionTask.FromResult(response));
+        var userClientMock = new Mock<IUsersApiClient>();
+
+        userClientMock.Setup(x => x.PendingApprovalCount())
+            .ReturnsAsync(response);
 
         var options = Options.Create(
             new PlatformOptions {
@@ -93,13 +95,13 @@ public sealed class ServiceNavigationBuilderTests
                 HelpUrl = new Uri("https://help.test")
             });
 
-        var snb = new ServiceNavigationBuilder(options, interactionDispatcher.Object);
+        var snb = new ServiceNavigationBuilder(options, userClientMock.Object);
 
         // Act
         var result = await snb.Build(userCtx);
 
         // Assert
-        interactionDispatcher.Verify(x => x.DispatchAsync(It.Is<InteractionContext<GetPendingApprovalCountRequest>>(c => true)), Times.Once);
+        userClientMock.Verify(x => x.PendingApprovalCount(), Times.Once);
 
         Assert.AreEqual(6, result.Length);
         Assert.IsTrue(result.Any(x => x.Text == "Services" && x.Href.AbsoluteUri == $"{options.Value.ServicesUrl}my-services"));

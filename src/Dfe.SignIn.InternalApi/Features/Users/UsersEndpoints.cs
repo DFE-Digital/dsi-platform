@@ -10,5 +10,6 @@ public static class UsersEndpoints
     {
         ChangeName.ChangeNameEndpoint.Map(app);
         IsApprover.IsApproverEndpoint.Map(app);
+        IsApprover.PendingApprovalCounterEndpoint.Map(app);
     }
 }
