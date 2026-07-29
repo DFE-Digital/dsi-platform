@@ -9,7 +9,6 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Gateways.ServiceBus.UnitTests.Audit;
 
 [TestClass]
-[Obsolete]
 public sealed class WriteToAuditWithServiceBusTests
 {
     private static WriteToAuditWithServiceBus CreateInteractor(AutoMocker autoMocker)

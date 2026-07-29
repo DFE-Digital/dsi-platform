@@ -9,7 +9,6 @@ namespace Dfe.SignIn.Gateways.ServiceBus.Audit;
 /// <summary>
 /// Handles writing audit events to Service Bus with contextual metadata and custom properties.
 /// </summary>
-[Obsolete("This class will be removed in future versions. Use an instance of IAuditWriter")]
 public sealed class WriteToAuditWithServiceBus(
     IAuditContextBuilder contextAccessor,
     [FromKeyedServices(ServiceBusExtensions.AuditSenderKey)] ServiceBusSender sender
