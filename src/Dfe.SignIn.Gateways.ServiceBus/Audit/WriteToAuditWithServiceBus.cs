@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
