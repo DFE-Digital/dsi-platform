@@ -54,13 +54,11 @@ public sealed class ChangeNameEndpoint : IEndpoint
         }
 
         if (user.FirstName != request.FirstName) {
-            var normalisedFirstName = request.FirstName.NormalizeWhitespace();
-            user.FirstName = normalisedFirstName;
+            user.FirstName = request.FirstName.NormalizeWhitespace();
         }
 
         if (user.LastName != request.LastName) {
-            var normalisedLastName = request.LastName.NormalizeWhitespace();
-            user.LastName = normalisedLastName;
+            user.LastName = request.LastName.NormalizeWhitespace();
         }
 
         await directoriesDbContext.SaveChangesAsync(cancellationToken);

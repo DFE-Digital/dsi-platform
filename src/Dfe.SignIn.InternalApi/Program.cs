@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
@@ -11,6 +12,7 @@ using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 
@@ -108,6 +110,8 @@ if (builder.Environment.IsEnvironment("Local")) {
 else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
+
+builder.Services.AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
 
 var app = builder.Build();
 
