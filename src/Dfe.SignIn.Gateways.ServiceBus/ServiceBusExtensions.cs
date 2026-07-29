@@ -188,6 +188,9 @@ public static class ServiceBusExtensions
             return client.CreateSender(options.TopicName);
         });
 
+        services.AddScoped<AuditWriterWithServiceBus>();
+
+        //Todo: remove this guy
         services.AddInteractor<WriteToAuditWithServiceBus>();
 
         return services;

@@ -9,16 +9,18 @@ namespace Dfe.SignIn.Gateways.ServiceBus.Audit;
 /// <summary>
 /// Handles writing audit events to Service Bus with contextual metadata and custom properties.
 /// </summary>
-public sealed class WriteToAuditWithServiceBus(
-    IAuditContextBuilder contextAccessor,
-    [FromKeyedServices(ServiceBusExtensions.AuditSenderKey)] ServiceBusSender sender
-) : Interactor<WriteToAuditRequest, WriteToAuditResponse>
+/// <param name="contextAccessor"></param>
+/// <param name="sender"></param>
+public sealed class AuditWriterWithServiceBus(IAuditContextBuilder contextAccessor,
+    [FromKeyedServices(ServiceBusExtensions.AuditSenderKey)] ServiceBusSender sender) : IAuditWriter
 {
-
-    /// <inheritdoc/>
-    public override async Task<WriteToAuditResponse> InvokeAsync(
-        InteractionContext<WriteToAuditRequest> context,
-        CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Implementation of an audit logger.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task<WriteToAuditResponse> Log(
+       InteractionContext<WriteToAuditRequest> context)
     {
         var auditContext = contextAccessor.BuildAuditContext();
 
