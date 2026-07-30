@@ -14,8 +14,6 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = UsersApiRoutes.IsApprover;
-
     private const short ActiveUserOrganisationStatus = 1;
 
     public IsOrganisationApproverTests(InternalApiWebApplicationFactory factory)
@@ -27,6 +25,9 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     public async Task IsOrganisationApprover_ReturnsTrue_WhenUserIsApprover()
     {
         var userId = Guid.NewGuid();
+
+        var url = UsersApiRoutes.IsApprover
+            .Replace("{userId}", userId.ToString());
 
         var authenticatedClient = this.CreateClient()
             .WithAuthentication(userId.ToString());
@@ -46,7 +47,7 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
             Status = ActiveUserOrganisationStatus
         });
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var response = await authenticatedClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -59,6 +60,9 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     public async Task IsOrganisationApprover_ReturnsTrue_WhenUserHasMultipleOrgsAndOneIsApprover()
     {
         var userId = Guid.NewGuid();
+
+        var url = UsersApiRoutes.IsApprover
+            .Replace("{userId}", userId.ToString());
 
         var authenticatedClient = this.CreateClient()
             .WithAuthentication(userId.ToString());
@@ -90,7 +94,7 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
             }
         ]);
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var response = await authenticatedClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -103,6 +107,9 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     public async Task IsOrganisationApprover_ReturnsFalse_WhenUserIsEndUser()
     {
         var userId = Guid.NewGuid();
+
+        var url = UsersApiRoutes.IsApprover
+            .Replace("{userId}", userId.ToString());
 
         var authenticatedClient = this.CreateClient()
             .WithAuthentication(userId.ToString());
@@ -122,7 +129,7 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
             Status = ActiveUserOrganisationStatus
         });
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var response = await authenticatedClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -137,7 +144,10 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
         var authenticatedClient = this.CreateClient()
             .WithAuthentication();
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var url = UsersApiRoutes.IsApprover
+            .Replace("{userId}", Guid.NewGuid().ToString());
+
+        var response = await authenticatedClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -151,7 +161,10 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     {
         var anonymousClient = this.CreateClient();
 
-        var response = await anonymousClient.GetAsync(endpoint);
+        var url = UsersApiRoutes.IsApprover
+           .Replace("{userId}", Guid.NewGuid().ToString());
+
+        var response = await anonymousClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }

@@ -13,5 +13,6 @@ public static class UsersApiRoutes
     /// <summary>
     /// The API route for determining if a user is an approver.
     /// </summary>
-    public const string IsApprover = "/interaction/Users.IsApprover";
+    /// 
+    public const string IsApprover = "/interaction/users/{userId}/is-approver";
 }
