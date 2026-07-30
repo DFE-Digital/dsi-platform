@@ -20,8 +20,8 @@ public interface IUsersApiClient
     /// <summary>
     /// Retrieves the profile information of a user based on the provided request.
     /// </summary>
-    /// <param name="request">The request containing the user's ID and name information.</param>
+    /// <param name="userId">The ID of the user whose profile information is being requested.</param>
     /// <returns>A task representing the asynchronous operation, containing the user's profile information.</returns>
     [Get(UsersApiRoutes.GetUserProfile)]
-    Task<GetUserProfileResponse> GetUserProfile([Query] GetUserProfileResponse request);
+    Task<GetUserProfileResponse> GetUserProfile(Guid userId);
 }
