@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
@@ -11,6 +12,7 @@ using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 
@@ -52,6 +54,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 ;
 
 var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
+authorizationBuilder.SetFallbackPolicy(
+    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
+);
 #if DEBUG // Include when debugging locally.
 if (builder.Environment.IsEnvironment("Local")) {
     authorizationBuilder.SetDefaultPolicy(
@@ -84,11 +89,11 @@ builder.Services
     .AddUserUseCases(builder.Configuration);
 
 builder.Services
-    .AddUnitOfWorkEntityFrameworkServices(
+    .AddEntityFrameworkServices(
         builder.Configuration.GetRequiredSection("EntityFramework"),
-        addDirectoriesUnitOfWork: true,
-        addOrganisationsUnitOfWork: true,
-        addAuditUnitOfWork: false
+        addDirectories: true,
+        addOrganisations: true,
+        addAudit: false
     );
 
 builder.Services
@@ -108,6 +113,8 @@ if (builder.Environment.IsEnvironment("Local")) {
 else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
+
+builder.Services.AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
 
 var app = builder.Build();
 

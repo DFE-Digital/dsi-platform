@@ -36,11 +36,15 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected (HttpClient Client, CapturingWriteToAuditInteractor AuditMock) CreateClientWithAuditMock()
     {
         var auditMock = new CapturingWriteToAuditInteractor();
+        var auditWriterMock = new TestAuditWriter(auditMock);
 
         var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
             builder.ConfigureTestServices(services => {
                 services.RemoveAll<IInteractor<WriteToAuditRequest>>();
                 services.AddSingleton<IInteractor<WriteToAuditRequest>>(auditMock);
+
+                services.RemoveAll<IAuditWriter>();
+                services.AddSingleton<IAuditWriter>(auditWriterMock);
             });
         });
 
@@ -81,6 +85,18 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
     protected HttpClient CreateClient()
     {
-        return this.WebAppFactory.CreateClient();
+        var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
+            builder.ConfigureTestServices(services => {
+                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
+                services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
+
+                services.RemoveAll<IAuditWriter>();
+                services.AddSingleton<IAuditWriter, TestAuditWriter>();
+            });
+        });
+
+        this.createdFactories.Add(customisedFactory);
+
+        return customisedFactory.CreateClient();
     }
 }

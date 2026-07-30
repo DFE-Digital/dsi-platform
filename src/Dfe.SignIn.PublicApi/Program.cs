@@ -99,11 +99,11 @@ builder.Services
     .SetupUserInteractions();
 
 builder.Services
-    .AddUnitOfWorkEntityFrameworkServices(
+    .AddEntityFrameworkServices(
         builder.Configuration.GetRequiredSection("EntityFramework"),
-        addDirectoriesUnitOfWork: true,
-        addOrganisationsUnitOfWork: true,
-        addAuditUnitOfWork: false
+        addDirectories: true,
+        addOrganisations: true,
+        addAudit: false
     );
 
 builder.Services.AddScoped<IOrganisationRepository, OrganisationRepository>();

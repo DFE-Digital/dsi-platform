@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Dfe.SignIn.Gateways.EntityFramework.UnitTests.Configuration;
 
 [TestClass]
-public sealed class EntityFrameworkUnitOfWorkExtensionsTests
+public sealed class EntityFrameworkExtensionsTests
 {
     private IConfiguration configMock = null!;
 
@@ -29,30 +29,30 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
     }
 
     [TestMethod]
-    public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenServicesNull()
+    public void AddEntityFrameworkServices_Throws_WhenServicesNull()
     {
         Assert.ThrowsExactly<ArgumentNullException>(() => {
             ServiceCollection services = null!;
-            services.AddUnitOfWorkEntityFrameworkServices(
+            services.AddEntityFrameworkServices(
                 this.configMock,
-                addDirectoriesUnitOfWork: true,
-                addOrganisationsUnitOfWork: true,
-                addAuditUnitOfWork: true
+                addDirectories: true,
+                addOrganisations: true,
+                addAudit: true
             );
         });
     }
 
     [TestMethod]
-    public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenSectionNull()
+    public void AddEntityFrameworkServices_Throws_WhenSectionNull()
     {
         Assert.ThrowsExactly<ArgumentNullException>(() => {
             var services = new ServiceCollection();
             IConfiguration config = null!;
-            services.AddUnitOfWorkEntityFrameworkServices(
+            services.AddEntityFrameworkServices(
                 config,
-                addDirectoriesUnitOfWork: true,
-                addOrganisationsUnitOfWork: true,
-                addAuditUnitOfWork: true
+                addDirectories: true,
+                addOrganisations: true,
+                addAudit: true
             );
         });
     }
@@ -62,7 +62,7 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
     [DataRow("Name")]
     [DataRow("Username")]
     [DataRow("Password")]
-    public void AddUnitOfWorkEntityFrameworkServices_Throws_WhenMissingRequiredConfigValue(string missingKey)
+    public void AddEntityFrameworkServices_Throws_WhenMissingRequiredConfigValue(string missingKey)
     {
         var configData = new Dictionary<string, string?>([
             new("Directories:Host", "localhost"),
@@ -81,27 +81,27 @@ public sealed class EntityFrameworkUnitOfWorkExtensionsTests
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
         var ex = Assert.ThrowsExactly<InvalidOperationException>(() =>
-            services.AddUnitOfWorkEntityFrameworkServices(
+            services.AddEntityFrameworkServices(
                 brokenConfiguration,
-                addDirectoriesUnitOfWork: true,
-                addOrganisationsUnitOfWork: false,
-                addAuditUnitOfWork: false
+                addDirectories: true,
+                addOrganisations: false,
+                addAudit: false
             ));
 
         Assert.AreEqual($"Section 'Directories:{missingKey}' not found in configuration.", ex.Message);
     }
 
     [TestMethod]
-    public void AddUnitOfWorkEntityFrameworkServices_RegistersExpectedServices()
+    public void AddEntityFrameworkServices_RegistersExpectedServices()
     {
         var services = new ServiceCollection();
         services.AddTransient<IInteractionDispatcher, FakeDispatcher>();
 
-        services.AddUnitOfWorkEntityFrameworkServices(
+        services.AddEntityFrameworkServices(
             this.configMock,
-            addDirectoriesUnitOfWork: true,
-            addOrganisationsUnitOfWork: false,
-            addAuditUnitOfWork: false);
+            addDirectories: true,
+            addOrganisations: false,
+            addAudit: false);
 
         var provider = services.BuildServiceProvider();
 
