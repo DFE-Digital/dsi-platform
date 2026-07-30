@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Dfe.SignIn.NodeApi.Client.Users;
 
 /// <summary>
-/// An interactor to change the name of a user.
+/// An interactor to change the job title of a user.
 /// </summary>
 [ApiRequester]
 [NodeApi(NodeApiName.Directories)]
