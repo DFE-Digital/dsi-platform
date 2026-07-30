@@ -10,13 +10,11 @@ using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
-using Dfe.SignIn.Web.Profile;
 using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Rewrite;
 
@@ -59,8 +57,6 @@ builder.Services.ConfigureDsiAntiforgeryCookie();
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions()
     .AddInteractionFramework();
-
-builder.Services.AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>();
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
 
