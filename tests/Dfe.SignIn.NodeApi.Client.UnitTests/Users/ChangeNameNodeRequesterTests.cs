@@ -20,7 +20,7 @@ public sealed class ChangeNameNodeRequesterTests
         >();
     }
 
-    private static ChangeNameNodeRequester CreateChangeNameNodeRequester(
+    private static (ChangeNameNodeRequester Interactor, HttpClient DirectoriesClient) CreateChangeNameNodeRequester(
         AutoMocker autoMocker,
         Dictionary<string, MappedResponse> responseMappings)
     {
@@ -29,10 +29,12 @@ public sealed class ChangeNameNodeRequesterTests
             BaseAddress = new Uri("http://directories.localhost")
         };
 
-        return new ChangeNameNodeRequester(
+        var interactor = new ChangeNameNodeRequester(
             directoriesClient,
             autoMocker.Get<IInteractionDispatcher>()
         );
+
+        return (interactor, directoriesClient);
     }
 
     private static Dictionary<string, MappedResponse> GetNodeResponseMappingsForHappyPath()
@@ -49,7 +51,8 @@ public sealed class ChangeNameNodeRequesterTests
     {
         var autoMocker = new AutoMocker();
         var responseMappings = GetNodeResponseMappingsForHappyPath();
-        var interactor = CreateChangeNameNodeRequester(autoMocker, responseMappings);
+        var (interactor, directoriesClient) = CreateChangeNameNodeRequester(autoMocker, responseMappings);
+        using var _ = directoriesClient;
 
         var response = await interactor.InvokeAsync(new ChangeNameRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
@@ -70,10 +73,11 @@ public sealed class ChangeNameNodeRequesterTests
     [TestMethod]
     public async Task Throws_WhenRequestFails()
     {
-        var interactor = CreateChangeNameNodeRequester(new AutoMocker(), new() {
+        var (interactor, directoriesClient) = CreateChangeNameNodeRequester(new AutoMocker(), new() {
             ["(PATCH) http://directories.localhost/users/51a50a75-e4fa-4b6e-9c72-581538ee5258"] =
                 new MappedResponse(HttpStatusCode.BadRequest),
         });
+        using var _ = directoriesClient;
 
         await Assert.ThrowsExactlyAsync<HttpRequestException>(()
             => interactor.InvokeAsync(new ChangeNameRequest {
@@ -92,7 +96,8 @@ public sealed class ChangeNameNodeRequesterTests
         autoMocker.CaptureRequest<WriteToAuditRequest>(request => capturedWriteToAudit = request);
 
         var responseMappings = GetNodeResponseMappingsForHappyPath();
-        var interactor = CreateChangeNameNodeRequester(autoMocker, responseMappings);
+        var (interactor, directoriesClient) = CreateChangeNameNodeRequester(autoMocker, responseMappings);
+        using var _ = directoriesClient;
 
         await interactor.InvokeAsync(new ChangeNameRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
@@ -115,10 +120,11 @@ public sealed class ChangeNameNodeRequesterTests
         WriteToAuditRequest? capturedWriteToAudit = null;
         autoMocker.CaptureRequest<WriteToAuditRequest>(request => capturedWriteToAudit = request);
 
-        var interactor = CreateChangeNameNodeRequester(autoMocker, new() {
+        var (interactor, directoriesClient) = CreateChangeNameNodeRequester(autoMocker, new() {
             ["(PATCH) http://directories.localhost/users/51a50a75-e4fa-4b6e-9c72-581538ee5258"] =
                 new MappedResponse(HttpStatusCode.BadRequest),
         });
+        using var _ = directoriesClient;
 
         await Assert.ThrowsExactlyAsync<HttpRequestException>(()
             => interactor.InvokeAsync(new ChangeNameRequest {

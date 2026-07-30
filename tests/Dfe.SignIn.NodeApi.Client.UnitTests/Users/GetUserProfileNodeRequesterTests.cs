@@ -16,7 +16,7 @@ public sealed class GetUserProfileNodeRequesterTests
         >();
     }
 
-    private static GetUserProfileNodeRequester CreateGetUserProfileNodeRequester(
+    private static (GetUserProfileNodeRequester Interactor, HttpClient DirectoriesClient) CreateGetUserProfileNodeRequester(
         Dictionary<string, MappedResponse> responseMappings)
     {
         var directoriesHandlerMock = HttpClientMocking.GetHandlerWithMappedResponses(responseMappings);
@@ -24,7 +24,9 @@ public sealed class GetUserProfileNodeRequesterTests
             BaseAddress = new Uri("http://directories.localhost")
         };
 
-        return new GetUserProfileNodeRequester(directoriesClient);
+        var interactor = new GetUserProfileNodeRequester(directoriesClient);
+
+        return (interactor, directoriesClient);
     }
 
     private static Dictionary<string, MappedResponse> GetNodeResponseMappingsForHappyPath()
@@ -49,7 +51,8 @@ public sealed class GetUserProfileNodeRequesterTests
     public async Task MakesExpectedRequestToGetUserProfile()
     {
         var responseMappings = GetNodeResponseMappingsForHappyPath();
-        var interactor = CreateGetUserProfileNodeRequester(responseMappings);
+        var (interactor, directoriesClient) = CreateGetUserProfileNodeRequester(responseMappings);
+        using var _ = directoriesClient;
 
         var response = await interactor.InvokeAsync(new GetUserProfileRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
@@ -67,10 +70,11 @@ public sealed class GetUserProfileNodeRequesterTests
     [TestMethod]
     public async Task Throws_WhenUserNotFound()
     {
-        var interactor = CreateGetUserProfileNodeRequester(new() {
+        var (interactor, directoriesClient) = CreateGetUserProfileNodeRequester(new() {
             ["(GET) http://directories.localhost/users/edd75704-0839-4f2a-be51-a6ecaf584019"] =
                 new MappedResponse(HttpStatusCode.NotFound),
         });
+        using var _ = directoriesClient;
 
         var exception = await Assert.ThrowsExactlyAsync<UserNotFoundException>(()
             => interactor.InvokeAsync(new GetUserProfileRequest {
@@ -82,10 +86,11 @@ public sealed class GetUserProfileNodeRequesterTests
     [TestMethod]
     public async Task Throws_WhenRequestFails()
     {
-        var interactor = CreateGetUserProfileNodeRequester(new() {
+        var (interactor, directoriesClient) = CreateGetUserProfileNodeRequester(new() {
             ["(GET) http://directories.localhost/users/edd75704-0839-4f2a-be51-a6ecaf584019"] =
                 new MappedResponse(HttpStatusCode.InternalServerError),
         });
+        using var _ = directoriesClient;
 
         await Assert.ThrowsExactlyAsync<HttpRequestException>(()
             => interactor.InvokeAsync(new GetUserProfileRequest {

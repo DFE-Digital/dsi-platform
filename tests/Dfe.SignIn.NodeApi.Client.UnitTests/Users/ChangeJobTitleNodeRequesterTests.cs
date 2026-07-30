@@ -20,7 +20,7 @@ public sealed class ChangeJobTitleNodeRequesterTests
         >();
     }
 
-    private static ChangeJobTitleNodeRequester CreateChangeJobTitleNodeRequester(
+    private static (ChangeJobTitleNodeRequester Interactor, HttpClient DirectoriesClient) CreateChangeJobTitleNodeRequester(
         AutoMocker autoMocker,
         Dictionary<string, MappedResponse> responseMappings)
     {
@@ -29,10 +29,12 @@ public sealed class ChangeJobTitleNodeRequesterTests
             BaseAddress = new Uri("http://directories.localhost")
         };
 
-        return new ChangeJobTitleNodeRequester(
+        var interactor = new ChangeJobTitleNodeRequester(
             directoriesClient,
             autoMocker.Get<IInteractionDispatcher>()
         );
+
+        return (interactor, directoriesClient);
     }
 
     private static Dictionary<string, MappedResponse> GetNodeResponseMappingsForHappyPath()
@@ -49,7 +51,8 @@ public sealed class ChangeJobTitleNodeRequesterTests
     {
         var autoMocker = new AutoMocker();
         var responseMappings = GetNodeResponseMappingsForHappyPath();
-        var interactor = CreateChangeJobTitleNodeRequester(autoMocker, responseMappings);
+        var (interactor, directoriesClient) = CreateChangeJobTitleNodeRequester(autoMocker, responseMappings);
+        using var _ = directoriesClient;
 
         var response = await interactor.InvokeAsync(new ChangeJobTitleRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
@@ -68,10 +71,11 @@ public sealed class ChangeJobTitleNodeRequesterTests
     [TestMethod]
     public async Task Throws_WhenRequestFails()
     {
-        var interactor = CreateChangeJobTitleNodeRequester(new AutoMocker(), new() {
+        var (interactor, directoriesClient) = CreateChangeJobTitleNodeRequester(new AutoMocker(), new() {
             ["(PATCH) http://directories.localhost/users/51a50a75-e4fa-4b6e-9c72-581538ee5258"] =
                 new MappedResponse(HttpStatusCode.BadRequest),
         });
+        using var _ = directoriesClient;
 
         await Assert.ThrowsExactlyAsync<HttpRequestException>(()
             => interactor.InvokeAsync(new ChangeJobTitleRequest {
@@ -89,7 +93,8 @@ public sealed class ChangeJobTitleNodeRequesterTests
         autoMocker.CaptureRequest<WriteToAuditRequest>(request => capturedWriteToAudit = request);
 
         var responseMappings = GetNodeResponseMappingsForHappyPath();
-        var interactor = CreateChangeJobTitleNodeRequester(autoMocker, responseMappings);
+        var (interactor, directoriesClient) = CreateChangeJobTitleNodeRequester(autoMocker, responseMappings);
+        using var _ = directoriesClient;
 
         await interactor.InvokeAsync(new ChangeJobTitleRequest {
             UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
