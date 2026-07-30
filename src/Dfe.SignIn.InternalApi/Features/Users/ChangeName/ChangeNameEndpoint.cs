@@ -1,7 +1,7 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +24,8 @@ public sealed class ChangeNameEndpoint : IEndpoint
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithValidationFilter<ChangeNameRequest>()
             .WithOpenApi();
     }
@@ -32,12 +34,14 @@ public sealed class ChangeNameEndpoint : IEndpoint
     /// Changes the name of a user.
     /// </summary>
     /// <param name="directoriesDbContext">The database context to use for accessing user data.</param>
+    /// <param name="auditWriter">The audit writer to log audit events.</param>
     /// <param name="logger">The logger to use for logging information.</param>
     /// <param name="request">The request containing the user ID and new name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
     public static async Task<IResult> Handler(
         DbDirectoriesContext directoriesDbContext,
+        IAuditWriter auditWriter,
         ILogger<ChangeNameEndpoint> logger,
         [FromBody] ChangeNameRequest request,
         CancellationToken cancellationToken)
@@ -46,33 +50,33 @@ public sealed class ChangeNameEndpoint : IEndpoint
 
         var user = await directoriesDbContext.Users
             .Where(x => x.Sub == request.UserId)
-            .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(request.UserId);
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (user is null) {
+            logger.LogWarning("User {UserId} not found", request.UserId);
+            return Results.NotFound();
+        }
 
         if (user.FirstName == request.FirstName && user.LastName == request.LastName) {
             return Results.Ok();
-            //return new ChangeNameResponse();
         }
 
         if (user.FirstName != request.FirstName) {
-            var normalisedFirstName = request.FirstName.NormalizeWhitespace();
-            user.FirstName = normalisedFirstName;
+            user.FirstName = request.FirstName.NormalizeWhitespace();
         }
 
         if (user.LastName != request.LastName) {
-            var normalisedLastName = request.LastName.NormalizeWhitespace();
-            user.LastName = normalisedLastName;
+            user.LastName = request.LastName.NormalizeWhitespace();
         }
 
         await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
-        //TODO: Add new implementation for audit logging here, as the previous implementation was commented out.
-        //await interaction.DispatchAsync(
-        //    new WriteToAuditRequest {
-        //        EventCategory = AuditEventCategoryNames.ChangeName,
-        //        Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
-        //        UserId = context.Request.UserId,
-        //    }
-        //);
+        await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeName,
+                Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
+                UserId = request.UserId,
+            }));
 
         return Results.Ok();
     }

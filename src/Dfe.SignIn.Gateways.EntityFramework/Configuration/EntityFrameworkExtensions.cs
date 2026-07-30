@@ -9,18 +9,18 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Dfe.SignIn.Gateways.EntityFramework.Configuration;
 
 /// <summary>
-/// Extension methods for setting up the Entity Framework Unit Of Work.
+/// Extension methods for setting up the Entity Framework databases.
 /// </summary>
-public static class UnitOfWorkEntityFrameworkExtensions
+public static class EntityFrameworkExtensions
 {
     /// <summary>
-    /// Adds the required configuration for using Entity Framework Core, unit of work implementation.
+    /// Adds the required configuration for using Entity Framework Core.
     /// </summary>
     /// <param name="services">The services collection.</param>
     /// <param name="section">Configuration section.</param>
-    /// <param name="addDirectoriesUnitOfWork">Register Directories unit of work.</param>
-    /// <param name="addOrganisationsUnitOfWork">Register Organisations unit of work.</param>
-    /// <param name="addAuditUnitOfWork">Register Audit unit of work.</param>
+    /// <param name="addDirectories">Register Directories database.</param>
+    /// <param name="addOrganisations">Register Organisations database.</param>
+    /// <param name="addAudit">Register Audit database.</param>
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
@@ -29,38 +29,38 @@ public static class UnitOfWorkEntityFrameworkExtensions
     ///   <para>- or -</para>
     ///   <para>If <paramref name="section"/> is null.</para>
     /// </exception>
-    public static IServiceCollection AddUnitOfWorkEntityFrameworkServices(
+    public static IServiceCollection AddEntityFrameworkServices(
         this IServiceCollection services,
         IConfiguration section,
-        bool addDirectoriesUnitOfWork,
-        bool addOrganisationsUnitOfWork,
-        bool addAuditUnitOfWork)
+        bool addDirectories,
+        bool addOrganisations,
+        bool addAudit)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(section, nameof(section));
 
-        if (addDirectoriesUnitOfWork || addOrganisationsUnitOfWork || addAuditUnitOfWork) {
+        if (addDirectories || addOrganisations || addAudit) {
             services.TryAddSingleton(TimeProvider.System);
             services.AddScoped<TimestampInterceptor>();
         }
 
-        AddUnitOfWork<DbDirectoriesContext>(
+        ConfigureDatabase<DbDirectoriesContext>(
             services,
             section,
             "Directories",
-            addDirectoriesUnitOfWork);
+            addDirectories);
 
-        AddUnitOfWork<DbOrganisationsContext>(
+        ConfigureDatabase<DbOrganisationsContext>(
             services,
             section,
             "Organisations",
-            addOrganisationsUnitOfWork);
+            addOrganisations);
 
-        AddUnitOfWork<DbAuditContext>(
+        ConfigureDatabase<DbAuditContext>(
             services,
             section,
             "Audit",
-            addAuditUnitOfWork);
+            addAudit);
 
         return services;
     }
@@ -94,7 +94,7 @@ public static class UnitOfWorkEntityFrameworkExtensions
     ///   (<c>Host</c>, <c>Name</c>, <c>Username</c>, <c>Password</c>)
     ///   is missing for the specified <paramref name="configKey"/>.</para>
     /// </exception>
-    private static void AddUnitOfWork<TDbContext>(
+    private static void ConfigureDatabase<TDbContext>(
         IServiceCollection services,
         IConfiguration section,
         string configKey,
@@ -130,6 +130,5 @@ public static class UnitOfWorkEntityFrameworkExtensions
             });
             options.AddInterceptors(timestampInterceptor);
         });
-
     }
 }
