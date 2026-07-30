@@ -1,5 +1,4 @@
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Features;
 
@@ -95,19 +94,20 @@ public sealed class UserProfileMiddleware(
         if (context.User?.Identity?.IsAuthenticated == true) {
             Guid userId = context.User.GetUserId();
 
-            var profileResponse = await interaction.DispatchAsync(
-                new GetUserProfileRequest { UserId = userId }
-            ).To<GetUserProfileResponse>();
+            //TODO [GetUserProfile]: This needs replacing with a call to the user profile service once it is available. For now, we will just log the user id in the audit message.
+            //var profileResponse = await interaction.DispatchAsync(
+            //    new GetUserProfileRequest { UserId = userId }
+            //).To<GetUserProfileResponse>();
 
-            context.Features.Set<IUserProfileFeature>(new UserProfileFeature {
-                UserId = userId,
-                IsEntra = profileResponse.IsEntra,
-                IsInternalUser = profileResponse.IsInternalUser,
-                FirstName = profileResponse.FirstName,
-                LastName = profileResponse.LastName,
-                EmailAddress = profileResponse.EmailAddress,
-                JobTitle = profileResponse.JobTitle,
-            });
+            //context.Features.Set<IUserProfileFeature>(new UserProfileFeature {
+            //    UserId = userId,
+            //    IsEntra = profileResponse.IsEntra,
+            //    IsInternalUser = profileResponse.IsInternalUser,
+            //    FirstName = profileResponse.FirstName,
+            //    LastName = profileResponse.LastName,
+            //    EmailAddress = profileResponse.EmailAddress,
+            //    JobTitle = profileResponse.JobTitle,
+            //});
         }
 
         await next(context);

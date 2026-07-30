@@ -1,8 +1,10 @@
 using System.Net;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.Users;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
@@ -23,28 +25,20 @@ public sealed class CancelPendingChangeEmailAddressNodeRequesterTests
         AutoMocker autoMocker,
         Dictionary<string, MappedResponse> responseMappings)
     {
-        autoMocker.MockResponse(
-            new GetUserProfileRequest {
-                UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
-            },
-            new GetUserProfileResponse {
-                IsEntra = false,
-                IsInternalUser = false,
-                FirstName = "Alex",
-                LastName = "Johnson",
-                JobTitle = "Software Engineer",
-                EmailAddress = "alex.johnson@example.com",
-            }
-        );
-
         var directoriesHandlerMock = HttpClientMocking.GetHandlerWithMappedResponses(responseMappings);
         var directoriesClient = new HttpClient(directoriesHandlerMock.Object) {
             BaseAddress = new Uri("http://directories.localhost")
         };
 
+        var userLookupServiceMock = autoMocker.GetMock<IUserLookupService>();
+        userLookupServiceMock
+            .Setup(x => x.GetUserEmailAddressAsync(new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258")))
+            .ReturnsAsync("alex.johnson@example.com");
+
         return new CancelPendingChangeEmailAddressNodeRequester(
             directoriesClient,
-            autoMocker.Get<IInteractionDispatcher>()
+            autoMocker.Get<IInteractionDispatcher>(),
+            userLookupServiceMock.Object
         );
     }
 

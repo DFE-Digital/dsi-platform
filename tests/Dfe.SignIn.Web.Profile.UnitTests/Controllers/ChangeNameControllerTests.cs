@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
+using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;

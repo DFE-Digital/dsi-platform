@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
+using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionSubmit;
 using FluentValidation;

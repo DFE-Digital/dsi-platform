@@ -114,6 +114,7 @@ else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
+builder.Services.AddFeaturesServices();
 builder.Services.AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
 
 var app = builder.Build();

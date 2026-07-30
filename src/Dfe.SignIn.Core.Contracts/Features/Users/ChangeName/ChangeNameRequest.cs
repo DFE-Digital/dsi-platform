@@ -20,10 +20,3 @@ public sealed record ChangeNameRequest
     /// </summary>
     public required string LastName { get; init; }
 }
-
-/// <summary>
-/// 
-/// </summary>
-public sealed record ChangeNameResponse
-{
-}

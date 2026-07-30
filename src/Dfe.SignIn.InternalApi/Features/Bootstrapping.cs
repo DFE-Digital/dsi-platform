@@ -17,4 +17,15 @@ public static class Bootstrapping
     {
         app.MapUsersEndpoints();
     }
+
+    /// <summary>
+    /// Adds the feature services to the service collection, including user-related services.
+    /// </summary>
+    /// <param name="services">The service collection to add the services to.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddFeaturesServices(this IServiceCollection services)
+    {
+        services.AddUserServices();
+        return services;
+    }
 }

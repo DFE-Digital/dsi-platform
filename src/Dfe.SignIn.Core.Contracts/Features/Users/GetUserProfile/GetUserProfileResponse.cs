@@ -1,27 +1,18 @@
-//using System.ComponentModel.DataAnnotations;
-//using Dfe.SignIn.Base.Framework;
-//using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
+namespace Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 
-//namespace Dfe.SignIn.Core.Contracts.Users;
-
-///// <summary>
-///// Represents a request to get the profile of a user.
-///// </summary>
-//[AssociatedResponse(typeof(GetUserProfileResponse))]
-//[Throws(typeof(UserNotFoundException))]
-//public sealed record GetUserProfileRequest
-//{
-//    /// <summary>
-//    /// The unique ID of the user.
-//    /// </summary>
-//    [Required]
-//    public required Guid UserId { get; init; }
-//}
-
-///// <summary>
-///// Represents a response for <see cref="GetUserProfileRequest"/>.
-///// </summary>
-//public sealed record GetUserProfileResponse
+/// <summary>
+/// 
+/// </summary>
+public sealed record GetUserProfileResponse(
+    Guid UserId,
+    string FirstName,
+    string LastName,
+    string EmailAddress,
+    bool IsEntra,
+    bool IsInternalUser,
+    string? JobTitle,
+    short Status
+);
 //{
 //    /// <summary>
 //    /// A value indicating if the user is in Entra.
@@ -36,25 +27,21 @@
 //    /// <summary>
 //    /// The first name of the user.
 //    /// </summary>
-//    [RegularExpression(StringPatterns.FirstNamePattern)]
 //    public required string FirstName { get; init; }
 
 //    /// <summary>
 //    /// The last name of the user.
 //    /// </summary>
-//    [RegularExpression(StringPatterns.LastNamePattern)]
 //    public required string LastName { get; init; }
 
 //    /// <summary>
 //    /// The job title of the user when set; otherwise, null.
 //    /// </summary>
-//    [RegularExpression(StringPatterns.JobTitlePattern)]
 //    public string? JobTitle { get; init; }
 
 //    /// <summary>
 //    /// The email address of the user.
 //    /// </summary>
-//    [RegularExpression(StringPatterns.EmailAddressPattern)]
 //    public required string EmailAddress { get; init; }
 
 //    /// <summary>

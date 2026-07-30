@@ -9,4 +9,9 @@ public static class UsersApiRoutes
     /// The API route for changing a user's name.
     /// </summary>
     public const string ChangeName = "/interaction/Users.ChangeName";
+
+    /// <summary>
+    /// The API route for retrieving a user's profile.
+    /// </summary>
+    public const string GetUserProfile = "/interaction/Users.GetUserProfile";
 }
