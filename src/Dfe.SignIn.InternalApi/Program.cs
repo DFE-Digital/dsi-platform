@@ -54,6 +54,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 ;
 
 var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
+authorizationBuilder.SetFallbackPolicy(
+    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
+);
 #if DEBUG // Include when debugging locally.
 if (builder.Environment.IsEnvironment("Local")) {
     authorizationBuilder.SetDefaultPolicy(

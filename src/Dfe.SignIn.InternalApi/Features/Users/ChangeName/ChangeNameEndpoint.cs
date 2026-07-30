@@ -4,7 +4,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.Gateways.ServiceBus.Audit;
+using Dfe.SignIn.InternalApi.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,6 +26,8 @@ public sealed class ChangeNameEndpoint : IEndpoint
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithValidationFilter<ChangeNameRequest>()
             .WithOpenApi();
     }
@@ -34,45 +36,59 @@ public sealed class ChangeNameEndpoint : IEndpoint
     /// Changes the name of a user.
     /// </summary>
     /// <param name="directoriesDbContext">The database context to use for accessing user data.</param>
+    /// <param name="auditWriter">The audit writer to log audit events.</param>
     /// <param name="logger">The logger to use for logging information.</param>
     /// <param name="request">The request containing the user ID and new name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
     public static async Task<IResult> Handler(
         DbDirectoriesContext directoriesDbContext,
-        AuditWriterWithServiceBus auditWriter,
+        IAuditWriter auditWriter,
         ILogger<ChangeNameEndpoint> logger,
         [FromBody] ChangeNameRequest request,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Changing name for user {UserId}", request.UserId);
 
-        var user = await directoriesDbContext.Users
-            .Where(x => x.Sub == request.UserId)
-            .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(request.UserId);
+        try {
+            var user = await directoriesDbContext.Users
+                .Where(x => x.Sub == request.UserId)
+                .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(request.UserId);
 
-        if (user.FirstName == request.FirstName && user.LastName == request.LastName) {
-            return Results.Ok();
-            //return new ChangeNameResponse();
+            if (user.FirstName == request.FirstName && user.LastName == request.LastName) {
+                return OkResponse();
+            }
+
+            if (user.FirstName != request.FirstName) {
+                user.FirstName = request.FirstName.NormalizeWhitespace();
+            }
+
+            if (user.LastName != request.LastName) {
+                user.LastName = request.LastName.NormalizeWhitespace();
+            }
+
+            await directoriesDbContext.SaveChangesAsync(cancellationToken);
+
+            await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
+                new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.ChangeName,
+                    Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
+                    UserId = request.UserId,
+                }));
+
+            return OkResponse();
         }
-
-        if (user.FirstName != request.FirstName) {
-            user.FirstName = request.FirstName.NormalizeWhitespace();
+        catch (NotFoundInteractionException) {
+            return Results.NotFound();
         }
+    }
 
-        if (user.LastName != request.LastName) {
-            user.LastName = request.LastName.NormalizeWhitespace();
-        }
-
-        await directoriesDbContext.SaveChangesAsync(cancellationToken);
-
-        await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
-            new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangeName,
-                Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
-                UserId = request.UserId,
-            }));
-
-        return Results.Ok();
+    private static IResult OkResponse()
+    {
+        var responseData = new ChangeNameResponse();
+        return Results.Ok(new InteractionResponse<ChangeNameResponse> {
+            Type = typeof(ChangeNameResponse).FullName!,
+            Data = responseData,
+        });
     }
 }
