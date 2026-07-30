@@ -27,9 +27,14 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetPendingApprovalCount_ReturnsCorrectSum_WhenUserIsApproverWithPendingRequests()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this.CreateClient()
+            .WithAuthentication();
 
         var userId = Guid.NewGuid();
+
+        var url = UsersApiRoutes.PendingApprovalCounter
+            .Replace("{userId}", userId.ToString());
+
         var org = EntityFaker.Organisation.Generate();
 
         // Seed Organisation
@@ -105,22 +110,26 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             }
         ]);
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var response = await authenticatedClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<PendingApprovalCountResponse>>();
+        var body = await response.Content.ReadFromJsonAsync<PendingApprovalCountResponse>();
         Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Equal(3, body.Data.Count);
+        Assert.Equal(3, body.Count);
     }
 
     [Fact]
     public async Task GetPendingApprovalCount_OnlyCountsRequestsForOrgsWhereUserIsApprover()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this.CreateClient()
+            .WithAuthentication();
 
         var userId = Guid.NewGuid();
+
+        var url = UsersApiRoutes.PendingApprovalCounter
+           .Replace("{userId}", userId.ToString());
+
         var orgA = EntityFaker.Organisation.Generate(); // User is Approver
         var orgB = EntityFaker.Organisation.Generate(); // User is End User
         var orgC = EntityFaker.Organisation.Generate(); // User is Not Associated
@@ -194,22 +203,26 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             UpdatedAt = DateTime.UtcNow
         });
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var response = await authenticatedClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<PendingApprovalCountResponse>>();
+        var body = await response.Content.ReadFromJsonAsync<PendingApprovalCountResponse>();
         Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Equal(2, body.Data.Count);
+        Assert.Equal(2, body.Count);
     }
 
     [Fact]
     public async Task GetPendingApprovalCount_ReturnsZero_WhenUserIsEndUserOnly()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this.CreateClient()
+            .WithAuthentication();
 
         var userId = Guid.NewGuid();
+
+        var url = UsersApiRoutes.PendingApprovalCounter
+            .Replace("{userId}", userId.ToString());
+
         var org = EntityFaker.Organisation.Generate();
 
         await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(org);
@@ -234,29 +247,33 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             UpdatedAt = DateTime.UtcNow
         });
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var response = await authenticatedClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<PendingApprovalCountResponse>>();
+        var body = await response.Content.ReadFromJsonAsync<PendingApprovalCountResponse>();
         Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Equal(0, body.Data.Count);
+        Assert.Equal(0, body.Count);
     }
 
     [Fact]
     public async Task GetPendingApprovalCount_ReturnsZero_WhenUserHasNoAssociatedOrganisations()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this.CreateClient()
+            .WithAuthentication();
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var userId = Guid.NewGuid();
+
+        var url = UsersApiRoutes.PendingApprovalCounter
+            .Replace("{userId}", userId.ToString());
+
+        var response = await authenticatedClient.GetAsync(url);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<PendingApprovalCountResponse>>();
+        var body = await response.Content.ReadFromJsonAsync<PendingApprovalCountResponse>();
         Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Equal(0, body.Data.Count);
+        Assert.Equal(0, body.Count);
     }
 
     [Fact]
@@ -266,12 +283,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
 
         var response = await authenticatedClient.GetAsync(endpoint);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<PendingApprovalCountResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Equal(0, body.Data.Count);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]

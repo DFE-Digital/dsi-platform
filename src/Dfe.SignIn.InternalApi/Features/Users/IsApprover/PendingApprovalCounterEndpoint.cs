@@ -1,9 +1,7 @@
-using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.WebFramework.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.IsApprover;
@@ -19,7 +17,7 @@ public class PendingApprovalCounterEndpoint : IEndpoint
     /// <param name="app"></param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet(UsersApiRoutes.IsApprover, Handler)
+        app.MapGet(UsersApiRoutes.PendingApprovalCounter, Handler)
             .WithName("Pending Approval Counter")
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)
@@ -32,18 +30,16 @@ public class PendingApprovalCounterEndpoint : IEndpoint
     /// 
     /// </summary>
     /// <param name="organisationsDbContext"></param>
-    /// <param name="principal"></param>
+    /// <param name="userId"></param>
     /// <param name="logger"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public static async Task<PendingApprovalCountResponse> Handler(
         DbOrganisationsContext organisationsDbContext,
-        ClaimsPrincipal principal,
+        Guid userId,
         ILogger<PendingApprovalCounterEndpoint> logger,
         CancellationToken cancellationToken)
     {
-        var userId = principal.GetUserId();
-
         var orgIds = await organisationsDbContext.UserOrganisations.Include(x => x.Organisation)
                    .Where(x => x.UserId == userId && x.RoleId == OrganisationRoles.Approver.Id)
                    .Select(x => x.OrganisationId)
