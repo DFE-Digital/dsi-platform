@@ -36,3 +36,5 @@ FROM nginxinc/nginx-unprivileged:1.29-alpine3.22@sha256:3245911073f8a6f8f5257aa0
 COPY docker/docs/nginx.conf /etc/nginx/templates/default.conf.template
 
 COPY --from=build /_site /usr/share/nginx/html
+
+USER nginx

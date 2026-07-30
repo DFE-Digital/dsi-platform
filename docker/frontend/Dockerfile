@@ -5,7 +5,7 @@ COPY ./frontend /frontend
 
 WORKDIR /frontend
 
-RUN npm install --ignore-scripts && \
+RUN npm ci --ignore-scripts && \
     npm run build
 
 
@@ -17,3 +17,5 @@ COPY --from=assets /frontend/node_modules/govuk-frontend/dist/govuk/assets /usr/
 COPY --from=assets /frontend/assets /usr/share/nginx/html/assets/assets
 
 COPY docker/frontend/nginx.conf /etc/nginx/templates/default.conf.template
+
+USER nginx
