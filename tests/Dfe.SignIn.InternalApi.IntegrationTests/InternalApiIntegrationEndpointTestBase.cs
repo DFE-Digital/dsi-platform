@@ -81,6 +81,15 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
     protected HttpClient CreateClient()
     {
-        return this.WebAppFactory.CreateClient();
+        var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
+            builder.ConfigureTestServices(services => {
+                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
+                services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
+            });
+        });
+
+        this.createdFactories.Add(customisedFactory);
+
+        return customisedFactory.CreateClient();
     }
 }

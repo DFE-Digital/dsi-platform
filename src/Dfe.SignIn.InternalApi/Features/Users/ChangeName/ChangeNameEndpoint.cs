@@ -1,8 +1,10 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,6 +40,7 @@ public sealed class ChangeNameEndpoint : IEndpoint
     /// <returns>The result of the operation.</returns>
     public static async Task<IResult> Handler(
         DbDirectoriesContext directoriesDbContext,
+        AuditWriterWithServiceBus auditWriter,
         ILogger<ChangeNameEndpoint> logger,
         [FromBody] ChangeNameRequest request,
         CancellationToken cancellationToken)
@@ -63,14 +66,12 @@ public sealed class ChangeNameEndpoint : IEndpoint
 
         await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
-        //TODO: Add new implementation for audit logging here, as the previous implementation was commented out.
-        //await interaction.DispatchAsync(
-        //    new WriteToAuditRequest {
-        //        EventCategory = AuditEventCategoryNames.ChangeName,
-        //        Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
-        //        UserId = context.Request.UserId,
-        //    }
-        //);
+        await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeName,
+                Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
+                UserId = request.UserId,
+            }));
 
         return Results.Ok();
     }
