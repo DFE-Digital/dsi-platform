@@ -2,9 +2,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.InternalApi.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,45 +48,36 @@ public sealed class ChangeNameEndpoint : IEndpoint
     {
         logger.LogInformation("Changing name for user {UserId}", request.UserId);
 
-        try {
-            var user = await directoriesDbContext.Users
-                .Where(x => x.Sub == request.UserId)
-                .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(request.UserId);
+        var user = await directoriesDbContext.Users
+            .Where(x => x.Sub == request.UserId)
+            .FirstOrDefaultAsync(cancellationToken);
 
-            if (user.FirstName == request.FirstName && user.LastName == request.LastName) {
-                return OkResponse();
-            }
-
-            if (user.FirstName != request.FirstName) {
-                user.FirstName = request.FirstName.NormalizeWhitespace();
-            }
-
-            if (user.LastName != request.LastName) {
-                user.LastName = request.LastName.NormalizeWhitespace();
-            }
-
-            await directoriesDbContext.SaveChangesAsync(cancellationToken);
-
-            await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
-                new WriteToAuditRequest {
-                    EventCategory = AuditEventCategoryNames.ChangeName,
-                    Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
-                    UserId = request.UserId,
-                }));
-
-            return OkResponse();
-        }
-        catch (NotFoundInteractionException) {
+        if (user is null) {
+            logger.LogWarning("User {UserId} not found", request.UserId);
             return Results.NotFound();
         }
-    }
 
-    private static IResult OkResponse()
-    {
-        var responseData = new ChangeNameResponse();
-        return Results.Ok(new InteractionResponse<ChangeNameResponse> {
-            Type = typeof(ChangeNameResponse).FullName!,
-            Data = responseData,
-        });
+        if (user.FirstName == request.FirstName && user.LastName == request.LastName) {
+            return Results.Ok();
+        }
+
+        if (user.FirstName != request.FirstName) {
+            user.FirstName = request.FirstName.NormalizeWhitespace();
+        }
+
+        if (user.LastName != request.LastName) {
+            user.LastName = request.LastName.NormalizeWhitespace();
+        }
+
+        await directoriesDbContext.SaveChangesAsync(cancellationToken);
+
+        await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
+            new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeName,
+                Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
+                UserId = request.UserId,
+            }));
+
+        return Results.Ok();
     }
 }

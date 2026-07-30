@@ -17,9 +17,7 @@ public sealed class TestAuditWriter : IAuditWriter
     public Task<WriteToAuditResponse> Log(InteractionContext<WriteToAuditRequest> context)
     {
         this.CapturedRequest = context.Request;
-        if (this.interactorMock is not null) {
-            this.interactorMock.InvokeAsync(context);
-        }
+        this.interactorMock?.InvokeAsync(context);
         return Task.FromResult(new WriteToAuditResponse());
     }
 }

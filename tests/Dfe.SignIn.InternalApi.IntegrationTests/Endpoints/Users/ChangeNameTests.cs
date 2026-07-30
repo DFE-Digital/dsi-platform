@@ -4,7 +4,6 @@ using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.InternalApi.Contracts;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -46,10 +45,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeNameResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
@@ -120,10 +115,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeNameResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
         var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
@@ -157,10 +148,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeNameResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
         var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
@@ -190,10 +177,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeNameResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
