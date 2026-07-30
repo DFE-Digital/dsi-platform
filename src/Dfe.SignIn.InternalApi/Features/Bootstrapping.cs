@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.InternalApi.Features.Users;
 
 namespace Dfe.SignIn.InternalApi.Features;
@@ -5,6 +6,7 @@ namespace Dfe.SignIn.InternalApi.Features;
 /// <summary>
 /// Bootstrapping class to map feature endpoints for the application.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class Bootstrapping
 {
     /// <summary>
