@@ -1,17 +1,18 @@
+using System.Net.Http.Json;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Directories;
-using Dfe.SignIn.Core.Interfaces.DataAccess;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Dfe.SignIn.Core.UseCases.Users;
+namespace Dfe.SignIn.NodeApi.Client.Users;
 
 /// <summary>
 /// An interactor to change the job title of a user.
 /// </summary>
-public sealed class ChangeJobTitleUseCase(
-    IUnitOfWorkDirectories unitOfWork,
+[ApiRequester]
+[NodeApi(NodeApiName.Directories)]
+public sealed class ChangeJobTitleNodeRequester(
+    [FromKeyedServices(NodeApiName.Directories)] HttpClient directoriesClient,
     IInteractionDispatcher interaction
 ) : Interactor<ChangeJobTitleRequest, ChangeJobTitleResponse>
 {
@@ -22,16 +23,11 @@ public sealed class ChangeJobTitleUseCase(
     {
         context.ThrowIfHasValidationErrors();
 
-        var user = await unitOfWork.Repository<UserEntity>()
-            .Where(x => x.Sub == context.Request.UserId)
-            .FirstOrDefaultAsync(cancellationToken) ?? throw UserNotFoundException.FromUserId(context.Request.UserId);
+        var response = await directoriesClient.PatchAsJsonAsync($"users/{context.Request.UserId}", new {
+            job_title = context.Request.NewJobTitle,
+        }, CancellationToken.None);
 
-        if (user.JobTitle == context.Request.NewJobTitle) {
-            return new ChangeJobTitleResponse();
-        }
-
-        user.JobTitle = context.Request.NewJobTitle;
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        response.EnsureSuccessStatusCode();
 
         await interaction.DispatchAsync(
             new WriteToAuditRequest {

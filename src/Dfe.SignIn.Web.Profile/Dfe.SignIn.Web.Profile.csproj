@@ -20,7 +20,6 @@
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="Microsoft.Graph" />
     <PackageReference Include="Microsoft.Identity.Web" />
-    <PackageReference Include="Microsoft.Kiota.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

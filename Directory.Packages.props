@@ -15,11 +15,9 @@
   </ItemGroup>
   <!-- Application composition -->
   <ItemGroup>
-    <!-- Version pinned due to advisory: GHSA-hv8m-jj95-wg3x -->
-    <PackageVersion Include="MessagePack" Version="2.5.301" />
+    <!-- Dependency injection -->
     <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.2" />
-    <!-- Dependency injection -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
     <!-- Options -->
@@ -30,11 +28,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.2" />
     <!-- Decorator pattern -->
-    <PackageVersion Include="Microsoft.Kiota.Abstractions" Version="1.22.0" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageVersion Include="OpenTelemetry.Api" Version="1.15.3" />
     <PackageVersion Include="Scrutor" Version="6.1.0" />
-    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.15" />
   </ItemGroup>
   <!-- Communication -->
   <ItemGroup>
