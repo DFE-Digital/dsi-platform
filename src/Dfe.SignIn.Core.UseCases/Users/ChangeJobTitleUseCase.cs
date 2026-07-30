@@ -30,16 +30,13 @@ public sealed class ChangeJobTitleUseCase(
             return new ChangeJobTitleResponse();
         }
 
-        var normalisedJobTitle = context.Request.NewJobTitle.NormalizeWhitespace();
-
-        user.JobTitle = normalisedJobTitle;
-
+        user.JobTitle = context.Request.NewJobTitle;
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         await interaction.DispatchAsync(
             new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeJobTitle,
-                Message = $"Successfully changed job title to {normalisedJobTitle}",
+                Message = $"Successfully changed job title to {context.Request.NewJobTitle}",
                 UserId = context.Request.UserId,
             }
         );

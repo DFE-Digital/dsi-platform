@@ -43,9 +43,7 @@ public sealed class StringPatternsTests
     [DataRow("Alex-bob O'John-son", true)]
     [DataRow("", false)]
     [DataRow(" ", false)]
-    [DataRow(" Bob ", true)]
-    [DataRow("   Bob", true)]
-    [DataRow("Bob       ", true)]
+    [DataRow(" Bob ", false)]
     public void FirstNameRegex_WorksAsExpected(string input, bool expectedResult)
     {
         bool result = StringPatterns.FirstNameRegex().IsMatch(input);
@@ -62,10 +60,8 @@ public sealed class StringPatternsTests
     [DataRow("May - Finnegan", true)]
     [DataRow("", false)]
     [DataRow(" ", false)]
-    [DataRow(" Bob ", true)]
+    [DataRow(" Bob ", false)]
     [DataRow("MAY -", false)]
-    [DataRow("   Bob", true)]
-    [DataRow("Bob       ", true)]
     public void LastNameRegex_WorksAsExpected(string input, bool expectedResult)
     {
         bool result = StringPatterns.LastNameRegex().IsMatch(input);
@@ -115,14 +111,8 @@ public sealed class StringPatternsTests
     [DataRow("Software Developer (and Tester)", true)]
     [DataRow("B2C Specailist", true)]
     [DataRow(" ", false)]
-    [DataRow(" Developer ", true)]
+    [DataRow(" Developer ", false)]
     [DataRow("A & B", false)]
-    [DataRow("  Software Developer  ", true)]
-    [DataRow("Software Developer  ", true)]
-    [DataRow("  Software Developer", true)]
-    [DataRow("  Software      Developer   ", true)]
-    [DataRow("<div>test</div>", false)]
-    [DataRow("<script type=\"javascript\">alert(1);</script>", false)]
     public void JobTitleRegex_WorksAsExpected(string input, bool expectedResult)
     {
         bool result = StringPatterns.JobTitleRegex().IsMatch(input);
