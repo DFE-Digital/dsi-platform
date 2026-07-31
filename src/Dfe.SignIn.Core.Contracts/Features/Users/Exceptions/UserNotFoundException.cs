@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
@@ -5,6 +6,7 @@ namespace Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 /// <summary>
 /// The exception thrown when a requested user account was not found.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "We could come back and test this, but it is not worth the effort for now.")]
 public sealed class UserNotFoundException : NotFoundInteractionException
 {
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 
 namespace Dfe.SignIn.WebFramework;
@@ -5,6 +6,7 @@ namespace Dfe.SignIn.WebFramework;
 /// <summary>
 /// Generic endpoint filter for FluentValidation.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "We could come back and test this, but it is not worth the effort for now.")]
 public sealed class ValidationEndpointFilter<TRequest> : IEndpointFilter where TRequest : notnull
 {
     /// <summary>

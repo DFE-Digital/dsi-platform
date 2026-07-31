@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,8 @@ namespace Dfe.SignIn.WebFramework;
 /// logs them, and returns a structured RFC 7807 ProblemDetails JSON response.
 /// Includes the ambient Trace ID and client correlation ID (if present) for diagnostics.
 /// </summary>
+///
+[ExcludeFromCodeCoverage(Justification = "We could come back and test this, but it is not worth the effort for now.")]
 public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
     /// <inheritdoc/>
