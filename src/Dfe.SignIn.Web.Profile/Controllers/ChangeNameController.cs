@@ -45,7 +45,7 @@ public sealed class ChangeNameController(
 
         var validationResult = await changeNameValidator.ValidateAsync(request);
         if (!validationResult.IsValid) {
-            validationResult.AddToModelState(this.ModelState, nameof(ChangeNameViewModel.LastNameInput));
+            validationResult.AddToModelState(this.ModelState, null);
             return this.Index();
         }
 
