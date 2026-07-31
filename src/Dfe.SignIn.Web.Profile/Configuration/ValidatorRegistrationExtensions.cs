@@ -1,20 +1,21 @@
-using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using FluentValidation;
+//using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
+//using Dfe.SignIn.Web.Profile.Models;
+//using FluentValidation;
 
-namespace Dfe.SignIn.Web.Profile.Configuration;
+//namespace Dfe.SignIn.Web.Profile.Configuration;
 
-public static class ValidatorRegistrationExtensions
-{
-    /// <summary>
-    /// Registers validators for the application.
-    /// </summary>
-    /// <param name="services">The services collection.</param>
-    /// <returns>
-    ///   <para>The <paramref name="services"/> instance for chained calls.</para>
-    /// </returns>
-    public static IServiceCollection AddDsiValidators(this IServiceCollection services)
-    {
-        services.AddSingleton<IValidator<ChangeNameRequest>, ChangeNameRequestValidator>();
-        return services;
-    }
-}
+//public static class ValidatorRegistrationExtensions
+//{
+//    /// <summary>
+//    /// Registers validators for the application.
+//    /// </summary>
+//    /// <param name="services">The services collection.</param>
+//    /// <returns>
+//    ///   <para>The <paramref name="services"/> instance for chained calls.</para>
+//    /// </returns>
+//    public static IServiceCollection AddDsiValidators(this IServiceCollection services)
+//    {
+//        services.AddSingleton<IValidator<ChangeNameViewModel>, ChangeNameRequestValidator>();
+//        return services;
+//    }
+//}
