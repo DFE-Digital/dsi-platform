@@ -1,5 +1,4 @@
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using FluentValidation;
 
 namespace Dfe.SignIn.Web.Profile.Configuration;

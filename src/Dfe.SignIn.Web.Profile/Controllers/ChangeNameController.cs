@@ -1,6 +1,5 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using FluentValidation;
@@ -46,7 +45,7 @@ public sealed class ChangeNameController(
 
         var validationResult = await changeNameValidator.ValidateAsync(request);
         if (!validationResult.IsValid) {
-            validationResult.AddToModelState(this.ModelState, null);
+            validationResult.AddToModelState(this.ModelState, nameof(ChangeNameViewModel));
             return this.Index();
         }
 
