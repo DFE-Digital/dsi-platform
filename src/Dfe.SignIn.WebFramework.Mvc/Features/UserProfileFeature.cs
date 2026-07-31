@@ -1,4 +1,3 @@
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Features;
@@ -78,7 +77,6 @@ public sealed class UserProfileFeature : IUserProfileFeature
 /// provided for the current request with <see cref="IUserProfileFeature"/>.
 /// </summary>
 public sealed class UserProfileMiddleware(
-    IInteractionDispatcher interaction,
     IUsersApiClient usersApiClient,
     RequestDelegate next)
 {
