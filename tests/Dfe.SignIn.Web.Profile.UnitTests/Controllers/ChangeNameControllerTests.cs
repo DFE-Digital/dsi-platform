@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
@@ -18,7 +17,7 @@ public sealed class ChangeNameControllerTests
 {
     private static ChangeNameController CreateController(AutoMocker autoMocker)
     {
-        autoMocker.Use<IValidator<ChangeNameRequest>>(new ChangeNameRequestValidator());
+        autoMocker.Use<IValidator<ChangeNameViewModel>>(new ChangeNameViewModelValidator());
 
         var controller = autoMocker.CreateInstance<ChangeNameController>();
 
