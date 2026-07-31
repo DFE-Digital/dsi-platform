@@ -1,6 +1,7 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
@@ -16,7 +17,7 @@ public sealed class GetUserProfileEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost(UsersApiRoutes.GetUserProfile, Handler)
+        app.MapGet(UsersApiRoutes.GetUserProfile, Handler)
             .WithName("Get User Profile")
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)
@@ -37,12 +38,13 @@ public sealed class GetUserProfileEndpoint : IEndpoint
     public static async Task<IResult> Handler(
         DbDirectoriesContext directoriesDbContext,
         ILogger<GetUserProfileEndpoint> logger,
-        Guid userId,
+        [FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Getting profile for user {UserId}", userId);
 
         var user = await directoriesDbContext.Users
+            .AsNoTracking()
             .Where(x => x.Sub == userId)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -61,6 +63,8 @@ public sealed class GetUserProfileEndpoint : IEndpoint
             !string.IsNullOrWhiteSpace(user.JobTitle) ? user.JobTitle : null,
             user.Status
         );
+
+        logger.LogInformation("Returning profile for user {UserId}", userId);
 
         return Results.Ok(response);
     }

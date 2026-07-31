@@ -19,6 +19,7 @@ public class UserLookupService(DbDirectoriesContext dbDirectoriesContext) : IUse
     public async Task<string?> GetUserEmailAddressAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var userEmail = await dbDirectoriesContext.Users
+            .AsNoTracking()
             .Where(x => x.Sub == userId)
             .Select(x => x.Email)
             .FirstOrDefaultAsync(cancellationToken);
@@ -26,3 +27,5 @@ public class UserLookupService(DbDirectoriesContext dbDirectoriesContext) : IUse
         return userEmail;
     }
 }
+
+//TODO: Consider moving this when no dependencies remain in the Node project. This is a temporary solution to avoid circular dependencies between the Core and Node projects.

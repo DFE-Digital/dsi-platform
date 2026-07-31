@@ -6,6 +6,7 @@ using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.ServiceBus;
+using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
@@ -54,14 +55,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 ;
 
 var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
-authorizationBuilder.SetFallbackPolicy(
-    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
-);
 #if DEBUG // Include when debugging locally.
 if (builder.Environment.IsEnvironment("Local")) {
     authorizationBuilder.SetDefaultPolicy(
         new AuthorizationPolicyBuilder().RequireAssertion(_ => true).Build()
     );
+}
+#else
+if (builder.Environment.IsEnvironment("Local")) {
+authorizationBuilder.SetFallbackPolicy(
+    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
+);
 }
 #endif
 
@@ -109,6 +113,7 @@ builder.Services
 
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
+    builder.Services.AddScoped<IAuditWriter, NullAuditWriter>();
 }
 else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
@@ -125,10 +130,10 @@ app.UseLogContextEnrichment();
 app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
+app.UseSwagger();
+
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseSwagger();
 
 app.UseHttpsRedirection();
 app.UseHealthChecks();

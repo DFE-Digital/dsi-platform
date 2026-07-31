@@ -58,6 +58,7 @@ public sealed class ChangeNameEndpoint : IEndpoint
         }
 
         if (user.FirstName == request.FirstName && user.LastName == request.LastName) {
+            logger.LogInformation("No changes detected for user {UserId}. FirstName and LastName are the same.", request.UserId);
             return Results.Ok();
         }
 
@@ -77,6 +78,8 @@ public sealed class ChangeNameEndpoint : IEndpoint
                 Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
                 UserId = request.UserId,
             }));
+
+        logger.LogInformation("Successfully changed name for user {UserId} to {FirstName} {LastName}", request.UserId, user.FirstName, user.LastName);
 
         return Results.Ok();
     }

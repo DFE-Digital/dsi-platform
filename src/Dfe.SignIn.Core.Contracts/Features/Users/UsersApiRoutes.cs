@@ -13,5 +13,5 @@ public static class UsersApiRoutes
     /// <summary>
     /// The API route for retrieving a user's profile.
     /// </summary>
-    public const string GetUserProfile = "/interaction/Users.GetUserProfile";
+    public const string GetUserProfile = "/interaction/{userId}/Users.GetUserProfile";
 }
