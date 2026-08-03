@@ -45,14 +45,14 @@ public class IsApproverEndpoint : IEndpoint
     {
         var userId = principal.GetUserId();
 
-        logger.LogInformation("Checking if user {0} is an approver ", userId);
+        logger.LogInformation("Checking if user {userId} is an approver ", userId);
 
         var isApprover = await organisationsDbContext.UserOrganisations
             .AsNoTracking()
             .Where(x => x.UserId == userId)
             .AnyAsync(x => x.RoleId == OrganisationRoles.Approver.Id, cancellationToken);
 
-        logger.LogInformation("User {0} Is approver status: {1}", userId, isApprover);
+        logger.LogInformation("User {userId} is approver status: {isApprover}", userId, isApprover);
 
         return new IsOrganisationApproverResponse(isApprover);
     }
