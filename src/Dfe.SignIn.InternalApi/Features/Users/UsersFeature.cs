@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
+using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 
@@ -20,6 +21,7 @@ public static class UsersFeature
     {
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
+        IsApproverEndpoint.Map(app);
     }
 
     /// <summary>

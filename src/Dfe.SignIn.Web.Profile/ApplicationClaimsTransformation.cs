@@ -1,7 +1,6 @@
 using System.Security.Claims;
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
-using Dfe.SignIn.Core.Contracts.Users;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Dfe.SignIn.Web.Profile;
@@ -10,8 +9,8 @@ namespace Dfe.SignIn.Web.Profile;
 /// Component runs after the user has been authenicated and is responsible for adding or adjusting application
 /// based claims.
 /// </summary>
-/// <param name="interaction"></param>
-public class ApplicationClaimsTransformation(IInteractionDispatcher interaction) : IClaimsTransformation
+/// <param name="usersApiClient"></param>
+public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : IClaimsTransformation
 {
     /// <summary>
     /// Transforms the current claims principal and adds claims if required
@@ -30,8 +29,7 @@ public class ApplicationClaimsTransformation(IInteractionDispatcher interaction)
 
         var identity = (ClaimsIdentity)principal.Identity;
 
-        var response = await interaction.DispatchAsync(new IsOrganisationApproverRequest(principal.GetUserId()))
-            .To<IsOrganisationApproverResponse>();
+        var response = await usersApiClient.IsApprover();
 
         if (response.IsApprover) {
             if (!identity.HasClaim(c => c.Type == OrganisationRoles.Approver.Name)) {

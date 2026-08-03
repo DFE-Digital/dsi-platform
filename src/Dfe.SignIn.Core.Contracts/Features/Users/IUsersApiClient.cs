@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
+using Dfe.SignIn.Core.Contracts.Users;
 using Refit;
 
 namespace Dfe.SignIn.Core.Contracts.Features.Users;
@@ -16,6 +17,13 @@ public interface IUsersApiClient
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.ChangeName)]
     Task ChangeName([Body] ChangeNameRequest request);
+
+    /// <summary>
+    /// Determins if the authenicated user is an approver.
+    /// </summary>
+    /// <returns></returns>
+    [Get(UsersApiRoutes.IsApprover)]
+    Task<IsOrganisationApproverResponse> IsApprover();
 
     /// <summary>
     /// Retrieves the profile information of a user based on the provided request.
