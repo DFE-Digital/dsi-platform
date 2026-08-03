@@ -17,7 +17,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/change-name")]
 public sealed class ChangeNameController(
     IUsersApiClient usersApiClient,
-    IValidator<ChangeNameRequest> changeNameValidator,
+    IValidator<ChangeNameViewModel> changeNameValidator,
     ILogger<ChangeNameController> logger
 ) : Controller
 {
@@ -37,19 +37,20 @@ public sealed class ChangeNameController(
     public async Task<IActionResult> PostIndex(
         ChangeNameViewModel viewModel)
     {
-        var request = new ChangeNameRequest {
-            UserId = this.User.GetUserId(),
-            FirstName = viewModel.FirstNameInput ?? string.Empty,
-            LastName = viewModel.LastNameInput ?? string.Empty,
-        };
+        var validationResult = await changeNameValidator.ValidateAsync(viewModel);
 
-        var validationResult = await changeNameValidator.ValidateAsync(request);
         if (!validationResult.IsValid) {
-            validationResult.AddToModelState(this.ModelState, null);
+            validationResult.AddToModelState(this.ModelState);
             return this.Index();
         }
 
         try {
+            var request = new ChangeNameRequest {
+                UserId = this.User.GetUserId(),
+                FirstName = viewModel.FirstNameInput ?? string.Empty,
+                LastName = viewModel.LastNameInput ?? string.Empty,
+            };
+
             await usersApiClient.ChangeName(request);
         }
         catch (Exception ex) {

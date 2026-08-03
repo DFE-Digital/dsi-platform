@@ -32,3 +32,20 @@ public sealed class AuditWriterWithServiceBus(IAuditContextBuilder contextAccess
         return new WriteToAuditResponse();
     }
 }
+
+/// <summary>
+/// A null implementation of the IAuditWriter interface that does not perform any logging.
+/// </summary>
+public sealed class NullAuditWriter : IAuditWriter
+{
+    /// <summary>
+    /// Implementation of an audit logger.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task<WriteToAuditResponse> Log(
+       InteractionContext<WriteToAuditRequest> context)
+    {
+        return await Task.FromResult(new WriteToAuditResponse());
+    }
+}

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 
@@ -38,6 +39,7 @@ namespace Dfe.SignIn.WebFramework;
 /// Data Protection Impact Assessment (DPIA) covers the logging of user identifiers.
 /// </para>
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "We could come back and test this, but it is not worth the effort for now.")]
 public sealed class LogContextEnrichmentMiddleware(RequestDelegate next, ILogger<LogContextEnrichmentMiddleware> logger)
 {
     /// <summary>

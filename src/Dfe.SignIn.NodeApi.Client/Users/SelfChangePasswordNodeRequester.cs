@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Interfaces.Graph;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +16,8 @@ namespace Dfe.SignIn.NodeApi.Client.Users;
 public sealed class SelfChangePasswordNodeRequester(
     [FromKeyedServices(NodeApiName.Directories)] HttpClient directoriesClient,
     IInteractionDispatcher interaction,
-    IGraphApiChangeUserPassword graphApiChangeUserPassword
+    IGraphApiChangeUserPassword graphApiChangeUserPassword,
+    IUserLookupService userLookupService
 ) : Interactor<SelfChangePasswordRequest, SelfChangePasswordResponse>
 {
     /// <inheritdoc/>
@@ -64,15 +66,14 @@ public sealed class SelfChangePasswordNodeRequester(
     private async Task CheckCurrentPasswordAsync(
         InteractionContext<SelfChangePasswordRequest> context)
     {
-        var profile = await interaction.DispatchAsync(
-            new GetUserProfileRequest {
-                UserId = context.Request.UserId,
-            }
-        ).To<GetUserProfileResponse>();
+        var userId = context.Request.UserId;
+        await Task.FromResult(userId);
+
+        var userEmail = await userLookupService.GetUserEmailAddressAsync(context.Request.UserId, CancellationToken.None);
 
         try {
             var response = await directoriesClient.PostAsJsonAsync($"users/authenticate", new {
-                username = profile.EmailAddress,
+                username = userEmail,
                 password = context.Request.CurrentPassword,
             }, CancellationToken.None);
 
