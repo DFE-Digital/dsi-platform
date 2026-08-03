@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +15,8 @@ namespace Dfe.SignIn.NodeApi.Client.Users;
 public sealed class InitiateChangeEmailAddressNodeRequester(
     [FromKeyedServices(NodeApiName.Directories)] HttpClient directoriesClient,
     IInteractionDispatcher interaction,
-    IInteractionLimiter actionLimiter
+    IInteractionLimiter actionLimiter,
+    IUserLookupService userLookupService
 ) : Interactor<InitiateChangeEmailAddressRequest, InitiateChangeEmailAddressResponse>
 {
     /// <inheritdoc/>
@@ -24,11 +26,7 @@ public sealed class InitiateChangeEmailAddressNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var userProfile = await interaction.DispatchAsync(
-            new GetUserProfileRequest {
-                UserId = context.Request.UserId,
-            }
-        ).To<GetUserProfileResponse>();
+        var userEmail = await userLookupService.GetUserEmailAddressAsync(context.Request.UserId, cancellationToken);
 
         var existingUserStatus = await interaction.DispatchAsync(
             new GetUserStatusRequest {
@@ -52,7 +50,7 @@ public sealed class InitiateChangeEmailAddressNodeRequester(
                 new WriteToAuditRequest {
                     EventCategory = AuditEventCategoryNames.ChangeEmail,
                     EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
-                    Message = $"Request to change email from {userProfile.EmailAddress} to existing user {context.Request.NewEmailAddress}",
+                    Message = $"Request to change email from {userEmail} to existing user {context.Request.NewEmailAddress}",
                     UserId = context.Request.UserId,
                 }
             );
@@ -70,7 +68,7 @@ public sealed class InitiateChangeEmailAddressNodeRequester(
             new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
-                Message = $"Request to change email from {userProfile.EmailAddress} to {context.Request.NewEmailAddress}",
+                Message = $"Request to change email from {userEmail} to {context.Request.NewEmailAddress}",
                 UserId = context.Request.UserId,
             }
         );

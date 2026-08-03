@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -8,6 +8,7 @@ using Moq.AutoMock;
 
 namespace Dfe.SignIn.WebFramework.Mvc.UnitTests.Features;
 
+//TODO [GetUserProfile]: This needs replacing with a call to the user profile service once it is available.For now, we will just log the user id in the audit message.
 [TestClass]
 public sealed class UserProfileMiddlewareTests
 {
@@ -35,32 +36,27 @@ public sealed class UserProfileMiddlewareTests
 
         await middleware.InvokeAsync(new DefaultHttpContext());
 
-        autoMocker.Verify<IInteractionDispatcher, InteractionTask>(x =>
-            x.DispatchAsync(
-                It.IsAny<InteractionContext<GetUserProfileRequest>>()
-            ),
-            Times.Never
-        );
+        autoMocker.GetMock<IUsersApiClient>()
+            .Verify(x => x.GetUserProfile(It.IsAny<Guid>()), Times.Never);
     }
 
     [TestMethod]
     public async Task FetchesUserProfile_WhenUserIsAuthenticated()
     {
         var autoMocker = new AutoMocker();
-
-        autoMocker.MockResponse(
-            new GetUserProfileRequest {
-                UserId = Guid.Parse("dbb88cbb-c9e6-4d78-843f-d761d14444c8"),
-            },
-            new GetUserProfileResponse {
-                IsEntra = true,
-                IsInternalUser = true,
-                FirstName = "Alex",
-                LastName = "Johnson",
-                EmailAddress = "alex.johnson@example.com",
-                JobTitle = "Software Engineer",
-            }
-        );
+        var userApiClientMock = autoMocker.GetMock<IUsersApiClient>();
+        userApiClientMock
+            .Setup(x => x.GetUserProfile(new Guid("dbb88cbb-c9e6-4d78-843f-d761d14444c8")))
+            .ReturnsAsync(new GetUserProfileResponse(
+                new Guid("dbb88cbb-c9e6-4d78-843f-d761d14444c8"),
+                 "Alex",
+                 "Johnson",
+                 "alex.johnson@example.com",
+                 true,
+                    true,
+                 "Software Engineer",
+                 1
+                ));
 
         var middleware = autoMocker.CreateInstance<UserProfileMiddleware>();
         var context = new DefaultHttpContext {

@@ -1,9 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.InternalApi.Contracts;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Assert = Xunit.Assert;
@@ -13,7 +12,9 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "interaction/Users.GetUserProfile";
+    private const string endpoint = "interaction/{userId}/Users.GetUserProfile";
+
+    private string GetEndpointUrl(Guid userId) => endpoint.Replace("{userId}", userId.ToString());
 
     public GetUserProfileTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -37,24 +38,19 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = new GetUserProfileRequest {
-            UserId = user.Sub
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
-
+        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(user.Sub));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<GetUserProfileResponse>>();
+        var body = await response.Content.ReadFromJsonAsync<GetUserProfileResponse>();
         Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Equal(user.IsEntra, body.Data.IsEntra);
-        Assert.Equal(user.IsInternalUser, body.Data.IsInternalUser);
-        Assert.Equal(user.FirstName, body.Data.FirstName);
-        Assert.Equal(user.LastName, body.Data.LastName);
-        Assert.Equal(user.JobTitle, body.Data.JobTitle);
-        Assert.Equal(user.Email, body.Data.EmailAddress);
-        Assert.Equal(user.Status, body.Data.Status);
+        Assert.NotNull(body);
+        Assert.Equal(user.IsEntra, body.IsEntra);
+        Assert.Equal(user.IsInternalUser, body.IsInternalUser);
+        Assert.Equal(user.FirstName, body.FirstName);
+        Assert.Equal(user.LastName, body.LastName);
+        Assert.Equal(user.JobTitle, body.JobTitle);
+        Assert.Equal(user.Email, body.EmailAddress);
+        Assert.Equal(user.Status, body.Status);
     }
 
     [Fact]
@@ -62,12 +58,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var request = new GetUserProfileRequest {
-            UserId = Guid.NewGuid()
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
-
+        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(Guid.NewGuid()));
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -76,12 +67,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
     {
         var anonymousClient = this.CreateClient();
 
-        var request = new GetUserProfileRequest {
-            UserId = Guid.NewGuid()
-        };
-
-        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
-
+        var response = await anonymousClient.GetAsync(this.GetEndpointUrl(Guid.NewGuid()));
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -90,12 +76,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var request = new GetUserProfileRequest {
-            UserId = Guid.Empty
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
-
+        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(Guid.Empty));
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -113,18 +94,12 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = new GetUserProfileRequest {
-            UserId = user.Sub
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
-
+        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(user.Sub));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<GetUserProfileResponse>>();
+        var body = await response.Content.ReadFromJsonAsync<GetUserProfileResponse>();
         Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Null(body.Data.JobTitle);
+        Assert.Null(body.JobTitle);
     }
 
     [Theory]
@@ -144,19 +119,13 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = new GetUserProfileRequest {
-            UserId = user.Sub
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
-
+        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(user.Sub));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<GetUserProfileResponse>>();
+        var body = await response.Content.ReadFromJsonAsync<GetUserProfileResponse>();
         Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Equal(isEntra, body.Data.IsEntra);
-        Assert.Equal(isInternalUser, body.Data.IsInternalUser);
-        Assert.Equal(status, body.Data.Status);
+        Assert.Equal(isEntra, body.IsEntra);
+        Assert.Equal(isInternalUser, body.IsInternalUser);
+        Assert.Equal(status, body.Status);
     }
 }

@@ -2,9 +2,10 @@ using System.Net;
 using System.Text.Json;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.Users;
-using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
@@ -34,18 +35,10 @@ public sealed class InitiateChangeEmailAddressNodeRequesterTests
             }
         );
 
-        autoMocker.MockResponse(
-            new GetUserProfileRequest {
-                UserId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258"),
-            },
-            new GetUserProfileResponse {
-                IsEntra = false,
-                IsInternalUser = false,
-                FirstName = "Alex",
-                LastName = "Cooper",
-                EmailAddress = "alex.cooper@example.com",
-            }
-        );
+        var userLookupServiceMock = autoMocker.GetMock<IUserLookupService>();
+        userLookupServiceMock
+            .Setup(x => x.GetUserEmailAddressAsync(new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258")))
+            .ReturnsAsync("alex.cooper@example.com");
 
         autoMocker.MockResponse(
             new GetUserStatusRequest { EmailAddress = "alex.other@example.com" },
@@ -69,7 +62,8 @@ public sealed class InitiateChangeEmailAddressNodeRequesterTests
         return new InitiateChangeEmailAddressNodeRequester(
             directoriesClient,
             autoMocker.Get<IInteractionDispatcher>(),
-            autoMocker.Get<IInteractionLimiter>()
+            autoMocker.Get<IInteractionLimiter>(),
+            userLookupServiceMock.Object
         );
     }
 

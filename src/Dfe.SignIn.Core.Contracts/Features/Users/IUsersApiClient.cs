@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
+using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.Core.Contracts.Users;
 using Refit;
 
@@ -29,7 +30,12 @@ public interface IUsersApiClient
     /// </summary>
     /// <returns>A task representing the number of pending approvals</returns>
     [Get(UsersApiRoutes.PendingApprovalCounter)]
-
     Task<PendingApprovalCountResponse> PendingApprovalCount();
 
+    /// Retrieves the profile information of a user based on the provided request.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose profile information is being requested.</param>
+    /// <returns>A task representing the asynchronous operation, containing the user's profile information.</returns>
+    [Get(UsersApiRoutes.GetUserProfile)]
+    Task<GetUserProfileResponse> GetUserProfile(Guid userId);
 }
