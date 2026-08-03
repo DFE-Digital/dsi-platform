@@ -1,7 +1,9 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +16,9 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/change-name")]
 public sealed class ChangeNameController(
-    IInteractionDispatcher interaction
+    IUsersApiClient usersApiClient,
+    IValidator<ChangeNameViewModel> changeNameValidator,
+    ILogger<ChangeNameController> logger
 ) : Controller
 {
     [HttpGet]
@@ -33,13 +37,25 @@ public sealed class ChangeNameController(
     public async Task<IActionResult> PostIndex(
         ChangeNameViewModel viewModel)
     {
-        await interaction.MapRequestFromViewModel<ChangeNameRequest>(this, viewModel)
-            .Use(request => request with {
-                UserId = this.User.GetUserId(),
-            })
-            .DispatchAsync();
+        var validationResult = await changeNameValidator.ValidateAsync(viewModel);
 
-        if (!this.ModelState.IsValid) {
+        if (!validationResult.IsValid) {
+            validationResult.AddToModelState(this.ModelState);
+            return this.Index();
+        }
+
+        try {
+            var request = new ChangeNameRequest {
+                UserId = this.User.GetUserId(),
+                FirstName = viewModel.FirstNameInput ?? string.Empty,
+                LastName = viewModel.LastNameInput ?? string.Empty,
+            };
+
+            await usersApiClient.ChangeName(request);
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "An error occurred while changing the user's name.");
+            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
             return this.Index();
         }
 

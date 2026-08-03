@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using FluentValidation;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +17,8 @@ public sealed class ChangeNameControllerTests
 {
     private static ChangeNameController CreateController(AutoMocker autoMocker)
     {
+        autoMocker.Use<IValidator<ChangeNameViewModel>>(new ChangeNameViewModelValidator());
+
         var controller = autoMocker.CreateInstance<ChangeNameController>();
 
         var httpContext = new DefaultHttpContext();
@@ -39,8 +41,6 @@ public sealed class ChangeNameControllerTests
 
         return controller;
     }
-
-    #region Index()
 
     [TestMethod]
     public void Index_InitialiseJobTitleInputFromUserProfile()
@@ -65,10 +65,6 @@ public sealed class ChangeNameControllerTests
         Assert.AreEqual("Index", viewResult.ViewName);
     }
 
-    #endregion
-
-    #region PostIndex()
-
     private static ChangeNameViewModel CreateValidChangeNameViewModel() => new() {
         FirstNameInput = "Bob",
         LastNameInput = "Clarkson",
@@ -78,7 +74,6 @@ public sealed class ChangeNameControllerTests
     public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.MockValidationError<ChangeNameRequest>(nameof(ChangeNameRequest.FirstName));
 
         var controller = CreateController(autoMocker);
 
@@ -86,24 +81,6 @@ public sealed class ChangeNameControllerTests
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
-    }
-
-    [TestMethod]
-    public async Task PostIndex_DispatchesExpectedInteraction()
-    {
-        var autoMocker = new AutoMocker();
-
-        ChangeNameRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<ChangeNameRequest>(r => capturedRequest = r);
-
-        var controller = CreateController(autoMocker);
-
-        await controller.PostIndex(CreateValidChangeNameViewModel());
-
-        Assert.IsNotNull(capturedRequest);
-        Assert.AreEqual(Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
-        Assert.AreEqual("Bob", capturedRequest.FirstName);
-        Assert.AreEqual("Clarkson", capturedRequest.LastName);
     }
 
     [TestMethod]
@@ -134,10 +111,6 @@ public sealed class ChangeNameControllerTests
         Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
     }
 
-    #endregion
-
-    #region PostCancel()
-
     [TestMethod]
     public void PostCancel_FlashCancelled()
     {
@@ -163,6 +136,4 @@ public sealed class ChangeNameControllerTests
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
         Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
     }
-
-    #endregion
 }

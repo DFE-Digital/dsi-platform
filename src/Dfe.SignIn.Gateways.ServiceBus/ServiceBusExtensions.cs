@@ -1,5 +1,6 @@
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -189,6 +190,7 @@ public static class ServiceBusExtensions
         });
 
         services.AddScoped<AuditWriterWithServiceBus>();
+        services.AddScoped<IAuditWriter>(sp => sp.GetRequiredService<AuditWriterWithServiceBus>());
 
         //Todo: remove this guy
         services.AddInteractor<WriteToAuditWithServiceBus>();

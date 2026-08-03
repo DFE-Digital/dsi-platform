@@ -32,11 +32,9 @@ public static class UserUseCaseExtensions
         services.AddInteractor<CreateUserUseCase>();
         services.AddInteractor<GetOrganisationsAssociatedWithUserUseCase>();
         services.AddInteractor<GetUserOrganisationIdentifiersUseCase>();
-        services.AddInteractor<GetUserProfileUseCase>();
         services.AddInteractor<GetUserStatusUseCase>();
         services.AddInteractor<LinkEntraUserToDsiUseCase>();
         services.AddInteractor<IsOrganisationApproverUseCase>();
-        services.AddInteractor<ChangeNameUseCase>();
         services.AddInteractor<PendingApprovalCountUseCase>();
         services
             .Configure<BlockedEmailAddressOptions>(options => {

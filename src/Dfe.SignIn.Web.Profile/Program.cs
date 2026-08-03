@@ -16,6 +16,7 @@ using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -112,6 +113,11 @@ builder.Services
     .AddSingleton<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>()
     .AddSingleton<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>();
 
+builder.Services
+    .AddUsersApiClient(tokenCredential);
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
 
@@ -145,6 +151,7 @@ if (!app.Environment.IsEnvironment("Local")) {
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseHealthChecks();
+app.UseLogContextEnrichment();
 
 var rewriteOptions = new RewriteOptions();
 rewriteOptions.AddRedirect("(.*)/$", "$1", statusCode: 301);
@@ -163,3 +170,9 @@ app.MapControllerRoute(
 );
 
 await app.RunAsync();
+
+// Expose the Program class to the integration tests project
+/// <summary>
+/// The entry point class for the application.
+/// </summary>
+internal sealed partial class Program { }

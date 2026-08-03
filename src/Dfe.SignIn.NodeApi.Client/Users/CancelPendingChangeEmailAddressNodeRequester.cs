@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +13,8 @@ namespace Dfe.SignIn.NodeApi.Client.Users;
 [ApiRequester, NodeApi(NodeApiName.Directories)]
 public sealed class CancelPendingChangeEmailAddressNodeRequester(
     [FromKeyedServices(NodeApiName.Directories)] HttpClient directoriesClient,
-    IInteractionDispatcher interaction
+    IInteractionDispatcher interaction,
+    IUserLookupService userLookupService
 ) : Interactor<CancelPendingChangeEmailAddressRequest, CancelPendingChangeEmailAddressResponse>
 {
     /// <inheritdoc/>
@@ -22,17 +24,13 @@ public sealed class CancelPendingChangeEmailAddressNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var userProfile = await interaction.DispatchAsync(
-            new GetUserProfileRequest {
-                UserId = context.Request.UserId,
-            }
-        ).To<GetUserProfileResponse>();
+        var userEmail = await userLookupService.GetUserEmailAddressAsync(context.Request.UserId, cancellationToken);
 
         await interaction.DispatchAsync(
             new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.CancelChangeEmail,
-                Message = $"Cancel change email request from {userProfile.EmailAddress} (id: {context.Request.UserId})",
+                Message = $"Cancel change email request from {userEmail} (id: {context.Request.UserId})",
             }
         );
 

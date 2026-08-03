@@ -1,27 +1,35 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.ServiceBus;
+using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
+using Dfe.SignIn.InternalApi.Features;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Configuration.AddUserSecrets<Program>();
 }
+
 builder.Configuration.AddEnvironmentVariables();
 
-// Add OpenTelemetry and configure it to use Azure Monitor.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
+// Add OpenTelemetry and configure it to use Azure Monitor when connection details are available.
+if (builder.Configuration.GetSection("AzureMonitor").Exists()
+    && !string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"])) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
@@ -32,8 +40,9 @@ builder.Services
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions();
 
-builder.Services.SetupSwagger();
+builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
+builder.Services.AddGlobalExceptionHandler();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 #if !DEBUG // Exclude when debugging locally.
@@ -46,6 +55,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 ;
 
 var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
+authorizationBuilder.SetFallbackPolicy(
+    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
+);
 #if DEBUG // Include when debugging locally.
 if (builder.Environment.IsEnvironment("Local")) {
     authorizationBuilder.SetDefaultPolicy(
@@ -78,11 +90,11 @@ builder.Services
     .AddUserUseCases(builder.Configuration);
 
 builder.Services
-    .AddUnitOfWorkEntityFrameworkServices(
+    .AddEntityFrameworkServices(
         builder.Configuration.GetRequiredSection("EntityFramework"),
-        addDirectoriesUnitOfWork: true,
-        addOrganisationsUnitOfWork: true,
-        addAuditUnitOfWork: false
+        addDirectories: true,
+        addOrganisations: true,
+        addAudit: false
     );
 
 builder.Services
@@ -98,23 +110,27 @@ builder.Services
 
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
+    builder.Services.AddScoped<IAuditWriter, NullAuditWriter>();
 }
 else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
+builder.Services.AddFeaturesServices();
+builder.Services.AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
+
 var app = builder.Build();
+
+app.UseExceptionHandler();
+app.UseLogContextEnrichment();
 
 app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
+app.UseSwagger();
+
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseSwagger();
-app.UseSwaggerUI(options => {
-    options.SwaggerEndpoint("v1/swagger.json", "DfE Sign-in Internal API");
-});
 
 app.UseHttpsRedirection();
 app.UseHealthChecks();
@@ -124,6 +140,8 @@ app.UseOrganisationEndpoints();
 app.UsePublicApiEndpoints();
 app.UseSupportTicketEndpoints();
 app.UseUserEndpoints();
+
+app.MapFeaturesEndpoints();
 
 await app.RunAsync();
 

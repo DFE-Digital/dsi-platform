@@ -6,22 +6,23 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-if (!string.IsNullOrEmpty(builder.Configuration.GetConnectionString("AppConfiguration"))) {
+builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: true);
+
+var appConfigurationConnectionString = builder.Configuration.GetConnectionString("AppConfiguration");
+if (!string.IsNullOrEmpty(appConfigurationConnectionString)) {
     var appConfigurationTag = builder.Configuration["AppConfiguration:Tag"];
     if (string.IsNullOrEmpty(appConfigurationTag)) {
         throw new ArgumentNullException("AppConfiguration Tag missing");
     }
+
     builder.Configuration.AddAzureAppConfiguration(options => {
-        options.Connect(builder.Configuration["ConnectionStrings:AppConfiguration"])
-               .Select(KeyFilter.Any, "dev");
-
-        options.ConfigureKeyVault(kv => {
-            kv.SetCredential(new DefaultAzureCredential());
-        });
+        options.Connect(appConfigurationConnectionString)
+               .Select(KeyFilter.Any, appConfigurationTag)
+               .ConfigureKeyVault(kv => kv.SetCredential(new DefaultAzureCredential()));
     });
-}
 
-builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: true);
+    builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: true);
+}
 
 #pragma warning disable ASPIRECERTIFICATES001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 var redis = builder.AddRedis("infra-redis")

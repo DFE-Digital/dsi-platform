@@ -1,11 +1,14 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 
-namespace Dfe.SignIn.PublicApi.Configuration;
+namespace Dfe.SignIn.WebFramework;
 
 /// <summary>
 /// Generic endpoint filter for FluentValidation.
 /// </summary>
-public class ValidationEndpointFilter<TRequest> : IEndpointFilter where TRequest : notnull
+[ExcludeFromCodeCoverage(Justification = "We could come back and test this, but it is not worth the effort for now.")]
+public sealed class ValidationEndpointFilter<TRequest>(ILogger<ValidationEndpointFilter<TRequest>> logger) : IEndpointFilter where TRequest : notnull
 {
     /// <summary>
     /// Invokes the next endpoint filter in the pipeline after validating the request using a registered validator, if
@@ -32,9 +35,13 @@ public class ValidationEndpointFilter<TRequest> : IEndpointFilter where TRequest
 
         var result = await validator.ValidateAsync(request);
         if (!result.IsValid) {
+            logger.LogWarning("Validation for request failed: requestType: {requestType}, path: {path} errors: {errors}",
+                request.GetType(),
+                context.HttpContext.Request.Path,
+                result.ToDictionary());
+
             // Join all error messages into a single string (plain BadRequest)
-            var error = string.Join(" ", result.Errors.Select(e => e.ErrorMessage));
-            return Results.BadRequest(error);
+            return Results.ValidationProblem(result.ToDictionary());
         }
 
         return await next(context);

@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 
 namespace Dfe.SignIn.Core.Contracts.UnitTests.Users;
 

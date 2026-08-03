@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -11,7 +11,7 @@ namespace Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionSubmit;
 
 public sealed class AttributeCollectionSubmitHandler(
     ILogger<AttributeCollectionSubmitHandler> logger,
-    IInteractionValidator interactionValidator)
+    IValidator<ChangeNameRequest> changeNameValidator)
 {
     [Function("OnAttributeCollectionSubmit")]
     public async Task<IActionResult> Run(
@@ -51,23 +51,37 @@ public sealed class AttributeCollectionSubmitHandler(
     {
         var validationResults = new List<ValidationResult>();
 
-        bool isValid = interactionValidator.TryValidateRequest(new ChangeNameRequest {
+        var changeNameRequest = new ChangeNameRequest {
             UserId = Guid.NewGuid(), // ID is not needed for validation.
             FirstName = givenName,
             LastName = surname,
-        }, validationResults);
+        };
+
+        var fvResult = changeNameValidator.Validate(changeNameRequest);
+
+        if (!fvResult.IsValid) {
+            foreach (var error in fvResult.Errors) {
+                validationResults.Add(new ValidationResult(error.ErrorMessage, [error.PropertyName]));
+            }
+        }
+
+        bool isValid = fvResult.IsValid;
 
         if (isValid) {
             return null;
         }
 
+        var attributeErrors = fvResult.Errors
+            .Where(failure => AttributeNameMappings.ContainsKey(failure.PropertyName))
+            .GroupBy(failure => AttributeNameMappings[failure.PropertyName])
+            .ToDictionary(
+                group => group.Key,
+                group => group.First().ErrorMessage ?? "Invalid value."
+            );
+
         return ResponseAction(new ShowValidationErrorAction {
             Message = "Please fix the below errors to proceed.",
-            AttributeErrors = validationResults
-                .GroupBy(result => result.MemberNames.First())
-                .Where(group => AttributeNameMappings.ContainsKey(group.Key))
-                .Select(group => (key: AttributeNameMappings[group.Key], message: group.First().ErrorMessage))
-                .ToDictionary(entry => entry.key, entry => entry.message ?? "Invalid value."),
+            AttributeErrors = attributeErrors
         });
     }
 

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users.Exceptions;
 using Dfe.SignIn.Core.Contracts.Graph;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
