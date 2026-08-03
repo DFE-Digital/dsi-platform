@@ -64,6 +64,5 @@ public static partial class InteractionEndpoints
         app.Map<GetUserOrganisationIdentifiersRequest, GetUserOrganisationIdentifiersResponse>();
         app.Map<GetUserStatusRequest, GetUserStatusResponse>();
         app.Map<LinkEntraUserToDsiRequest, LinkEntraUserToDsiResponse>();
-        app.Map<GetPendingApprovalCountRequest, PendingApprovalCountResponse>();
     }
 }

@@ -26,6 +26,13 @@ public interface IUsersApiClient
     Task<IsOrganisationApproverResponse> IsApprover();
 
     /// <summary>
+    /// Gets the number of pending approval requests for the logged in approver
+    /// </summary>
+    /// <returns>A task representing the number of pending approvals</returns>
+    [Get(UsersApiRoutes.PendingApprovalCounter)]
+    Task<PendingApprovalCountResponse> PendingApprovalCount();
+
+    /// <summary>
     /// Retrieves the profile information of a user based on the provided request.
     /// </summary>
     /// <param name="userId">The ID of the user whose profile information is being requested.</param>

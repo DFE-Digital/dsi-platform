@@ -34,7 +34,7 @@ public static class UserUseCaseExtensions
         services.AddInteractor<GetUserOrganisationIdentifiersUseCase>();
         services.AddInteractor<GetUserStatusUseCase>();
         services.AddInteractor<LinkEntraUserToDsiUseCase>();
-        services.AddInteractor<PendingApprovalCountUseCase>();
+
         services
             .Configure<BlockedEmailAddressOptions>(options => {
                 var section = configuration.GetSection("BlockedEmailAddresses");

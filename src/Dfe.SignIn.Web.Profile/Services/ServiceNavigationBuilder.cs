@@ -1,6 +1,5 @@
 using System.Security.Claims;
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Models;
 using Microsoft.Extensions.Options;
@@ -21,13 +20,13 @@ public interface IServiceNavigationBuilder
 public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
 {
     private readonly PlatformOptions platformOptions;
-    private readonly IInteractionDispatcher interaction;
+    private readonly IUsersApiClient userApiClient;
 
     public ServiceNavigationBuilder(
-        IOptions<PlatformOptions> platformOptionsAccessor, IInteractionDispatcher interaction)
+        IOptions<PlatformOptions> platformOptionsAccessor, IUsersApiClient userApiClient)
     {
         this.platformOptions = platformOptionsAccessor.Value;
-        this.interaction = interaction;
+        this.userApiClient = userApiClient;
     }
 
     public async Task<NavigationItemViewModel[]> Build(
@@ -53,8 +52,7 @@ public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
 
         if (user.HasApproverClaim()) {
 
-            var pendingapproverCount = await this.interaction.DispatchAsync(new GetPendingApprovalCountRequest { UserId = user.GetUserId() })
-                .To<PendingApprovalCountResponse>();
+            var pendingapproverCount = await this.userApiClient.PendingApprovalCount();
 
             items.Add(new StandardNavigationItemViewModel {
                 Href = new Uri(this.platformOptions.ServicesUrl, "approvals/users"),
