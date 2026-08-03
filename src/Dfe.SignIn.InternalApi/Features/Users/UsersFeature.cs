@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
+using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 

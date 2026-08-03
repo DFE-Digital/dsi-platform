@@ -4,7 +4,7 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dfe.SignIn.InternalApi.Features.Users.IsApprover;
+namespace Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 
 /// <summary>
 /// 
