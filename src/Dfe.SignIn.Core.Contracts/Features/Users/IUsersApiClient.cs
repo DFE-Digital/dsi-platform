@@ -25,6 +25,7 @@ public interface IUsersApiClient
     [Get(UsersApiRoutes.IsApprover)]
     Task<IsOrganisationApproverResponse> IsApprover();
 
+    /// <summary>
     /// Retrieves the profile information of a user based on the provided request.
     /// </summary>
     /// <param name="userId">The ID of the user whose profile information is being requested.</param>
