@@ -19,7 +19,8 @@ public static class UsersApiRoutes
     /// The API route for getting the number of pending approval requests
     /// </summary>
     public const string PendingApprovalCounter = "/interaction/users/{userId}/pending-approval-counter";
-    
+
+    /// <summary>
     /// The API route for retrieving a user's profile.
     /// </summary>
     public const string GetUserProfile = "/interaction/{userId}/Users.GetUserProfile";
