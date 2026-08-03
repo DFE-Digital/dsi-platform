@@ -5,7 +5,6 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.InternalApi.Contracts;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Assert = Xunit.Assert;
