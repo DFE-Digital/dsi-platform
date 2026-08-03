@@ -14,6 +14,15 @@ public sealed class UserEntityConfigurationTests
     // insert would silently succeed there and this test would never be able to verify
     // the constraint added in UserEntityConfiguration. SQLite enforces UNIQUE constraints
     // for real, which is what's needed to prove the index behaves as intended.
+    //
+    // Scope limitation: this only proves exact-match uniqueness is enforced. SQLite's
+    // in-memory TEXT unique index uses BINARY (case-sensitive) collation by default, not
+    // SQL Server's SQL_Latin1_General_CP1_CI_AS (case-insensitive, accent-sensitive) used
+    // by the live [user].email column. So this test cannot (and, without configuring a
+    // SQLite collation in a way that wouldn't be a like-for-like check anyway, structurally
+    // shouldn't try to) independently verify case-insensitive duplicate detection e.g.
+    // "a@b.com" vs "A@B.com". That guarantee rests on the confirmed production column
+    // collation (verified separately), not on this test.
     [TestMethod]
     public async Task Email_MustBeUnique()
     {
