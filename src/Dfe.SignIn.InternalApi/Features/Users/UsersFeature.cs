@@ -22,6 +22,7 @@ public static class UsersFeature
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
+        PendingApprovalCounterEndpoint.Map(app);
     }
 
     /// <summary>
