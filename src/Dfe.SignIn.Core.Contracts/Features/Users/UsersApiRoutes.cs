@@ -13,9 +13,9 @@ public static class UsersApiRoutes
     /// <summary>
     /// The API route for determining if a user is an approver.
     /// </summary>
-    /// 
     public const string IsApprover = "/interaction/users/{userId}/is-approver";
-    
+
+    /// <summary>
     /// The API route for retrieving a user's profile.
     /// </summary>
     public const string GetUserProfile = "/interaction/{userId}/Users.GetUserProfile";
