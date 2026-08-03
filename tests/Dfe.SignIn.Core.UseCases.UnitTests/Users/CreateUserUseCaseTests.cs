@@ -1,8 +1,11 @@
 using Dfe.SignIn.Core.Contracts.Search;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
+using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -143,5 +146,84 @@ public sealed class CreateUserUseCaseTests
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual(user.UserId, capturedRequest.UserId);
+    }
+
+    [TestMethod]
+    public async Task RecoversWhenConcurrentRequestWinsTheRace()
+    {
+        var autoMocker = new AutoMocker();
+
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var ctx = new DbDirectoriesContext(options);
+
+        var raceWinnerId = Guid.Parse("8f6a9b1e-9e3a-4b8e-9f1a-9b2c3d4e5f6a");
+
+        var mockUnitOfWork = autoMocker.GetMock<IUnitOfWorkDirectories>();
+        mockUnitOfWork.Setup(u => u.Repository<UserEntity>()).Returns(ctx.Users);
+        mockUnitOfWork
+            .Setup(u => u.AddAsync(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        mockUnitOfWork
+            .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => {
+                ctx.Users.Add(new UserEntity {
+                    Sub = raceWinnerId,
+                    Email = "race@example.com",
+                    FirstName = "Race",
+                    LastName = "Winner",
+                    Password = "",
+                    Salt = "",
+                    Status = 1,
+                    IsEntra = true,
+                    EntraOid = Guid.Parse("1111e11e-1111-4111-8111-111111111111"),
+                });
+                ctx.SaveChanges();
+            })
+            .ThrowsAsync(new DbUpdateException("Violation of UNIQUE KEY constraint 'IDX__user__email__unique'."));
+
+        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+
+        var response = await interactor.InvokeAsync(
+            new CreateUserRequest {
+                EmailAddress = "race@example.com",
+                FirstName = "joe",
+                LastName = "brown",
+                EntraUserId = Guid.Parse("2222e22e-2222-4222-8222-222222222222")
+            });
+
+        Assert.AreEqual(raceWinnerId, response.UserId);
+    }
+
+    [TestMethod]
+    public async Task RethrowsWhen_SaveFailsButNoMatchingUserIsFound()
+    {
+        var autoMocker = new AutoMocker();
+
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var ctx = new DbDirectoriesContext(options);
+
+        var mockUnitOfWork = autoMocker.GetMock<IUnitOfWorkDirectories>();
+        mockUnitOfWork.Setup(u => u.Repository<UserEntity>()).Returns(ctx.Users);
+        mockUnitOfWork
+            .Setup(u => u.AddAsync(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        mockUnitOfWork
+            .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new DbUpdateException("Some unrelated database error."));
+
+        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+
+        await Assert.ThrowsExactlyAsync<DbUpdateException>(()
+            => interactor.InvokeAsync(
+                new CreateUserRequest {
+                    EmailAddress = "joe.brown@example.com",
+                    FirstName = "joe",
+                    LastName = "brown",
+                    EntraUserId = Guid.Parse("fa70e11c-f1eb-4bab-9fa0-ff36a9620066")
+                }));
     }
 }

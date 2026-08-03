@@ -60,7 +60,29 @@ public sealed class CreateUserUseCase(
         };
 
         await unitOfWork.AddAsync(newUser, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        try {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException) {
+            // A concurrent request may have won the race to create this user (e.g. two
+            // simultaneous registration attempts for the same email). Resolve to whichever
+            // row now exists instead of failing.
+            var raceWinner = await unitOfWork.Repository<UserEntity>()
+                    .Where(x =>
+                        x.Email == context.Request.EmailAddress ||
+                        x.EntraOid == context.Request.EntraUserId)
+                    .Select(x => new { x.Sub })
+                    .SingleOrDefaultAsync(cancellationToken);
+
+            if (raceWinner is null) {
+                throw;
+            }
+
+            return new CreateUserResponse {
+                UserId = raceWinner.Sub
+            };
+        }
 
         await interaction.DispatchAsync(
             new UpdateUserInSearchIndexRequest {
