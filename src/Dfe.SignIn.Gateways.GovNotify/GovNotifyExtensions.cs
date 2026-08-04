@@ -30,6 +30,8 @@ public static class GovNotifyExtensions
             return new NotificationClient(optionsAccessor.Value.ApiKey);
         });
 
+        services.AddScoped<INotificationService, EmailNotificationServiceWithGovNotify>();
+
         return services;
     }
 }

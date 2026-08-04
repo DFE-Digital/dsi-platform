@@ -1,9 +1,16 @@
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.Gateways.GovNotify;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.UserCode;
 
+/// <summary>
+/// Defines a service for managing user verification codes related to changing email addresses.
+/// This service provides methods to delete existing codes and create new verification codes,
+/// ensuring that only one valid code exists for a user at any given time.
+/// It also logs audit events related to the creation of verification codes.
+/// </summary>
 public interface IUserCodeService
 {
     /// <summary>
@@ -18,16 +25,28 @@ public interface IUserCodeService
     /// Creates a new verification code for changing the email address of a user and persists it to the database. The code is generated using a secure random generator and is associated with the specified user ID, new email address, and client ID. After saving the code, an audit log entry is created to record the event.
     /// </summary>
     /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="existingEmailAddress">The existing email address of the user.</param>
     /// <param name="newEmailAddress">The new email address to associate with the verification code.</param>
     /// <param name="clientId">The client ID associated with the request.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task CreateNewVerificationCodeAsync(Guid userId, string newEmailAddress, string clientId, CancellationToken cancellationToken);
+    Task CreateNewVerificationCodeAsync(Guid userId, string existingEmailAddress, string newEmailAddress, string clientId, CancellationToken cancellationToken);
 }
 
+/// <summary>
+/// A service that manages user verification codes for changing email addresses.
+/// It provides methods to delete existing codes and create new verification codes,
+/// ensuring that only one valid code exists for a user at any given time.
+/// The service also logs audit events related to the creation of verification codes.
+/// </summary>
+/// <param name="dbDirectoriesContext">The database context for accessing user codes.</param>
+/// <param name="auditWriter">The audit writer for logging audit events.</param>
+/// <param name="notificationService">The notification service for sending notifications.</param>
+/// <param name="logger">The logger for logging information and errors.</param>
 public class UserCodeService(
     DbDirectoriesContext dbDirectoriesContext,
     IAuditWriter auditWriter,
+    INotificationService notificationService,
     ILogger<UserCodeService> logger
     ) : IUserCodeService
 {
@@ -49,7 +68,12 @@ public class UserCodeService(
     }
 
     /// <inheritdoc/>
-    public async Task CreateNewVerificationCodeAsync(Guid userId, string newEmailAddress, string clientId, CancellationToken cancellationToken)
+    public async Task CreateNewVerificationCodeAsync(
+        Guid userId,
+        string existingEmailAddress,
+        string newEmailAddress,
+        string clientId,
+        CancellationToken cancellationToken)
     {
         const string codeType = ChangeEmailCodeType; //todo: consider moving this to a constant in a shared location if it is used in multiple places
 
@@ -84,36 +108,38 @@ public class UserCodeService(
                 UserId = userId,
             }));
 
-        // Node.js sends GOV.Notify immediately after the verification code is persisted.
-        // Equivalent Node code:
-        //
-        // const sendNotification = async (user, code, req, uid) => {
-        //   const client = new NotificationClient({
-        //     connectionString: config.notifications.connectionString,
-        //   });
-        //
-        //   if (!code || !user) {
-        //     return Promise.reject("user code or user object is null");
-        //   }
-        //
-        //   if (code.codeType.toLowerCase() === "changeemail") {
-        //     const emailUid = req.body.selfInvoked ? undefined : uid;
-        //     await client.sendVerifyChangeEmail(
-        //       code.email,
-        //       user.given_name,
-        //       user.family_name,
-        //       code.code,
-        //       emailUid,
-        //     );
-        //     return client.sendNotifyMigratedEmail(
-        //       user.email,
-        //       user.given_name,
-        //       user.family_name,
-        //       code.email,
-        //     );
-        //   }
-        // };
-        //
-        // TODO: wire this notification send back in if GOV.Notify is reintroduced.
+        await this.SendVerifyChangeEmailNotification(newEmailAddress, "FirstName", "LastName", verificationCode);
+        await this.SendNotifyMigratedEmailNotification(existingEmailAddress, "FirstName", "LastName", newEmailAddress);
+    }
+
+    private async Task SendVerifyChangeEmailNotification(string email, string firstName, string lastName, string code)
+    {
+        await notificationService.SendAsync(
+            recipientEmailAddress: email,
+            templateId: "8a6b7625-87d5-41bc-bc58-035343571d81",
+            personalisation: new Dictionary<string, dynamic> {
+                    { "firstName",  firstName},
+                    { "lastName",  lastName},
+                    { "code",  code},
+                    { "email", email},
+                    { "helpUrl", ""},
+                    { "returnUrl", ""}
+                }
+        );
+    }
+
+    private async Task SendNotifyMigratedEmailNotification(string email, string firstName, string lastName, string newEmail)
+    {
+        await notificationService.SendAsync(
+            recipientEmailAddress: email,
+            templateId: "18e0e804-04c6-4f73-9462-ab3cbf8b990f",
+            personalisation: new Dictionary<string, dynamic> {
+                    {"firstName",  firstName},
+                    {"lastName",  lastName},
+                    {"newEmail",  newEmail},
+                    {"profileUrl", ""},
+                    {"helpUrl", ""}
+                }
+        );
     }
 }

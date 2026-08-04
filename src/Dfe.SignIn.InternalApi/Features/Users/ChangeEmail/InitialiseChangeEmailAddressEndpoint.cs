@@ -42,11 +42,11 @@ public sealed class InitialiseChangeEmailAddressEndpoint : IEndpoint
         logger.LogInformation("Initiating change of email address for user {UserId}", request.UserId);
 
         var existingUserEmail = await userLookupService.GetUserEmailAddressAsync(request.UserId, cancellationToken);
-        var userStatus = await userLookupService.GetUserStatusByEmailAddressAsync(request.NewEmailAddress, cancellationToken);
+        var existingUserWithNewEmailStatus = await userLookupService.GetUserStatusByEmailAddressAsync(request.NewEmailAddress, cancellationToken);
 
-        if (userStatus.UserExists) {
+        if (existingUserWithNewEmailStatus.UserExists) {
 
-            if (userStatus.UserId == request.UserId) {
+            if (existingUserWithNewEmailStatus.UserId == request.UserId) {
                 return Results.BadRequest(new { Message = "Input an email address that is different from your current email address." });
             }
 
@@ -60,6 +60,11 @@ public sealed class InitialiseChangeEmailAddressEndpoint : IEndpoint
                 }));
 
             return Results.BadRequest(new { Message = "The email address is already in use by another" });
+        }
+
+        if (string.IsNullOrEmpty(existingUserEmail)) {
+            logger.LogWarning("User {UserId} not found when attempting to change email address", request.UserId);
+            return Results.NotFound(new { Message = "User not found" });
         }
 
         //todo: review this, ideal response should be 429 with a Retry-After header, but the current implementation throws an exception which results in a 500 response
@@ -82,7 +87,7 @@ public sealed class InitialiseChangeEmailAddressEndpoint : IEndpoint
             }));
 
         await userCodeService.DeleteExistingCodesAsync(request.UserId, cancellationToken);
-        await userCodeService.CreateNewVerificationCodeAsync(request.UserId, request.NewEmailAddress, request.ClientId, cancellationToken);
+        await userCodeService.CreateNewVerificationCodeAsync(request.UserId, existingUserEmail, request.NewEmailAddress, request.ClientId, cancellationToken);
 
         logger.LogInformation("Successfully initiated change of email address for user {UserId}", request.UserId);
 

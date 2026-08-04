@@ -5,6 +5,7 @@ using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
+using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Dfe.SignIn.InternalApi.Client;
@@ -116,6 +117,7 @@ else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
+builder.Services.AddGovNotify();
 builder.Services.AddFeaturesServices();
 builder.Services.AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
 
