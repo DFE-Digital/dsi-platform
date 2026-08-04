@@ -16,7 +16,7 @@ public sealed class ChangeJobTitleRequestValidator : AbstractValidator<ChangeJob
 
         this.RuleFor(x => x.NewJobTitle)
             .NotEmpty()
-            .MaximumLength(50).WithMessage("Max length of 400")
+            .MaximumLength(60)
             .Matches(StringPatterns.JobTitlePattern)
             .WithMessage("Special characters cannot be used in job title.");
     }
