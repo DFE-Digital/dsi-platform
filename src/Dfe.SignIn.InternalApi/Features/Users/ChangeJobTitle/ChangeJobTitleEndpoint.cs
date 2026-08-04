@@ -59,7 +59,7 @@ public sealed class ChangeJobTitleEndpoint : IEndpoint
             return Results.Ok();
         }
 
-        var normalisedJobTitle = request.NewJobTitle.NormalizeWhitespace();
+        var normalisedJobTitle = request.NewJobTitle?.NormalizeWhitespace();
 
         user.JobTitle = normalisedJobTitle;
 
