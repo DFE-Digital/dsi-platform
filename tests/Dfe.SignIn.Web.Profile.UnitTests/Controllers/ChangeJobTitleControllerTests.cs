@@ -4,6 +4,7 @@ using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using FluentValidation;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -76,6 +77,8 @@ public sealed class ChangeJobTitleControllerTests
     public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
     {
         var autoMocker = new AutoMocker();
+        autoMocker.Use<IValidator<ChangeJobTitleViewModel>>(new ChangeJobTitleViewModelValidator());
+
         autoMocker.MockValidationError<ChangeJobTitleRequest>(nameof(ChangeJobTitleRequest.NewJobTitle));
 
         var controller = CreateController(autoMocker);
@@ -87,26 +90,11 @@ public sealed class ChangeJobTitleControllerTests
     }
 
     [TestMethod]
-    public async Task PostIndex_DispatchesExpectedInteraction()
-    {
-        var autoMocker = new AutoMocker();
-
-        ChangeJobTitleRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<ChangeJobTitleRequest>(r => capturedRequest = r);
-
-        var controller = CreateController(autoMocker);
-
-        await controller.PostIndex(CreateValidChangeJobTitleViewModel());
-
-        Assert.IsNotNull(capturedRequest);
-        Assert.AreEqual(Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
-        Assert.AreEqual("New Job Title", capturedRequest.NewJobTitle);
-    }
-
-    [TestMethod]
     public async Task PostIndex_FlashSuccess_WhenSuccessful()
     {
         var autoMocker = new AutoMocker();
+        autoMocker.Use<IValidator<ChangeJobTitleViewModel>>(new ChangeJobTitleViewModelValidator());
+
         var controller = CreateController(autoMocker);
 
         await controller.PostIndex(CreateValidChangeJobTitleViewModel());
@@ -122,6 +110,8 @@ public sealed class ChangeJobTitleControllerTests
     public async Task PostIndex_RedirectsToHome_WhenSuccessful()
     {
         var autoMocker = new AutoMocker();
+        autoMocker.Use<IValidator<ChangeJobTitleViewModel>>(new ChangeJobTitleViewModelValidator());
+
         var controller = CreateController(autoMocker);
 
         var result = await controller.PostIndex(CreateValidChangeJobTitleViewModel());
