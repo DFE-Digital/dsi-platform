@@ -79,7 +79,7 @@ public sealed class ChangeNameEndpoint : IEndpoint
                 UserId = request.UserId,
             }));
 
-        logger.LogInformation("Successfully changed name for user {UserId} to {FirstName} {LastName}", request.UserId, user.FirstName, user.LastName);
+        logger.LogInformation("Successfully changed name for user {UserId}", request.UserId);
 
         return Results.Ok();
     }

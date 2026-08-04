@@ -2,7 +2,6 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Interfaces.Graph;
 using Dfe.SignIn.Gateways.DistributedCache;
@@ -86,7 +85,7 @@ builder.Services
 builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache,
         builder.Configuration.GetRequiredSection("GeneralRedisCache"))
-    .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(builder.Configuration);
+    .AddInteractionLimiter<Dfe.SignIn.Core.Contracts.Users.InitiateChangeEmailAddressRequest>(builder.Configuration);
 
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);

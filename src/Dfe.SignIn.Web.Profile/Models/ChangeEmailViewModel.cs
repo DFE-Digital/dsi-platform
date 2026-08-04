@@ -1,5 +1,3 @@
-using Dfe.SignIn.Core.Contracts.Users;
-
 namespace Dfe.SignIn.Web.Profile.Models;
 
 /// <summary>
@@ -10,6 +8,6 @@ public sealed class ChangeEmailViewModel
     /// <summary>
     /// Gets or sets the email address of the user.
     /// </summary>
-    [MapTo<InitiateChangeEmailAddressRequest>(nameof(InitiateChangeEmailAddressRequest.NewEmailAddress))]
+    [MapTo<Core.Contracts.Users.InitiateChangeEmailAddressRequest>(nameof(Core.Contracts.Users.InitiateChangeEmailAddressRequest.NewEmailAddress))]
     public string? EmailAddressInput { get; set; }
 }

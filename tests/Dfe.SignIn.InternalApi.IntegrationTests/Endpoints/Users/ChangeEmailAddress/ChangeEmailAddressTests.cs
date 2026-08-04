@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
@@ -10,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
-namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmail;
+namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAddress;
 
 [Trait("Category", "Integration")]
-public class InitiateChangeEmailTests : InternalApiIntegrationEndpointTestBase
+public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 {
     private const string endpoint = "interaction/Users.InitiateChangeEmail";
 
-    public InitiateChangeEmailTests(InternalApiWebApplicationFactory factory)
+    public ChangeEmailAddressTests(InternalApiWebApplicationFactory factory)
         : base(factory)
     {
     }
@@ -324,9 +323,9 @@ public class InitiateChangeEmailTests : InternalApiIntegrationEndpointTestBase
         return Task.CompletedTask;
     }
 
-    private InitiateChangeEmailAddressRequest CreateRequest(Guid userId, string newEmailAddress)
+    private Core.Contracts.Users.InitiateChangeEmailAddressRequest CreateRequest(Guid userId, string newEmailAddress)
     {
-        return new InitiateChangeEmailAddressRequest {
+        return new Core.Contracts.Users.InitiateChangeEmailAddressRequest {
             UserId = userId,
             ClientId = "test-client",
             IsSelfInvoked = true,

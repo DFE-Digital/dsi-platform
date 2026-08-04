@@ -103,6 +103,11 @@ public static class AuditChangeEmailEventNames
     public const string RequestToChangeEmail = "request-to-change-email";
 
     /// <summary>
+    /// Indicates that a change email verification code was created or updated and sent.
+    /// </summary>
+    public const string VerificationCodeSent = "verification-code";
+
+    /// <summary>
     /// Indicates that the user attempted to use an existing email address.
     /// </summary>
     public const string RequestedExistingEmail = "requested-existing-email";

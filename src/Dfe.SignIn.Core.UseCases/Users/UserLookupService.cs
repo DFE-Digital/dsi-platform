@@ -1,4 +1,7 @@
+using Dfe.SignIn.Base.Framework.Internal;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +28,30 @@ public class UserLookupService(DbDirectoriesContext dbDirectoriesContext) : IUse
             .FirstOrDefaultAsync(cancellationToken);
 
         return userEmail;
+    }
+
+    /// <summary>
+    /// Gets the status information of a user based on their email address.
+    /// </summary>
+    /// <param name="emailAddress">The email address of the user.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The status information of the user.</returns>
+    public async Task<UserStatusInfo> GetUserStatusByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken = default)
+    {
+        var user = await dbDirectoriesContext.Users
+            .AsNoTracking()
+            .Where(x => x.Email == emailAddress)
+            .Select(x => new {
+                x.Sub,
+                x.Status
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (user is null) {
+            return UserStatusInfo.NotFound();
+        }
+
+        return UserStatusInfo.Found(user.Sub, EnumHelpers.MapEnum<AccountStatus>((int)user.Status));
     }
 }
 

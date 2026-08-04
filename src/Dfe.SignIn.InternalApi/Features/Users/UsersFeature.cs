@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
+using Dfe.SignIn.InternalApi.Features.Users.UserCode;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 
@@ -30,6 +31,7 @@ public static class UsersFeature
     public static IServiceCollection AddUserServices(this IServiceCollection services)
     {
         services.AddScoped<IUserLookupService, UserLookupService>();
+        services.AddScoped<IUserCodeService, UserCodeService>();
         return services;
     }
 }
