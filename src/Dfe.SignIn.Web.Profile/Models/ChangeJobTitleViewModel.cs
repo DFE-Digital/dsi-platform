@@ -1,5 +1,3 @@
-using Dfe.SignIn.Core.Contracts.Users;
-
 namespace Dfe.SignIn.Web.Profile.Models;
 
 /// <summary>
@@ -10,6 +8,5 @@ public sealed class ChangeJobTitleViewModel
     /// <summary>
     /// Gets or sets the job title of the user.
     /// </summary>
-    [MapTo<ChangeJobTitleRequest>(nameof(ChangeJobTitleRequest.NewJobTitle))]
     public string? JobTitleInput { get; set; }
 }

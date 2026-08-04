@@ -28,7 +28,6 @@ public static class UserUseCaseExtensions
         ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
 
         services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
-        services.AddInteractor<ChangeJobTitleUseCase>();
         services.AddInteractor<CreateUserUseCase>();
         services.AddInteractor<GetOrganisationsAssociatedWithUserUseCase>();
         services.AddInteractor<GetUserOrganisationIdentifiersUseCase>();
