@@ -5,6 +5,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace migrations.Directories
 {
+    // IMPORTANT — READ BEFORE APPLYING THIS MIGRATION
+    //
+    // This is a baseline capture of the already-existing live Directories database
+    // (DbDirectoriesContext) — it is the first-ever EF Core migration for this
+    // DbContext, scaffolded from the current production schema. It has never actually
+    // run against that database and must NEVER be applied to it via a naive
+    // `dotnet ef database update`, because the tables it creates already exist there.
+    //
+    // Before any subsequent migration can be applied for real against a live
+    // Directories database, `__EFMigrationsHistory` must first be seeded with a row
+    // for this migration (MigrationId "20260803140253_InitialCreate") WITHOUT
+    // executing its Up() method. Only once that baseline row exists should EF be
+    // allowed to apply migrations after this one. See migrations/README.md for the
+    // full process.
+    //
+    // Down() below is destructive — it drops the entire schema (every table created
+    // by Up()) — and must never be run against a live environment.
     /// <inheritdoc />
     public partial class InitialCreate : Migration
     {

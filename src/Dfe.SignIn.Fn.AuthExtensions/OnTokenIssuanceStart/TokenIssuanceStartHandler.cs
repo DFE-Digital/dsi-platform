@@ -39,16 +39,34 @@ public sealed class TokenIssuanceStartHandler(
             ).To<AutoLinkEntraUserToDsiResponse>();
         }
         catch (Exception ex) when (ex is CannotLinkInactiveUserException or CannotCreateNewUserException) {
-            // Permanent failure: retrying (e.g. on the user's next sign-in attempt) will hit
-            // the same conflict every time, unlike transient errors which self-heal. Audit it
-            // so support has visibility, then rethrow — this extension point has no way to
-            // return a custom error response to Entra, only claims for a successful token.
-            await interaction.DispatchAsync(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.Auth,
-                EventName = AuditAuthEventNames.LinkFailed,
-                Message = $"Failed to link Entra account {@event.Data.AuthenticationContext.User.Id} ({@event.Data.AuthenticationContext.User.Mail.Trim()}) to a DfE Sign-In user: {ex.GetType().Name}",
-                WasFailure = true,
-            });
+            // CannotLinkInactiveUserException is a permanent failure requiring account
+            // reactivation: retrying (e.g. on the user's next sign-in attempt) will hit the
+            // same conflict every time. CannotCreateNewUserException is not reliably
+            // permanent — it may occur because of the registration race window in
+            // CreateUserUseCase's pre-check, in which case the user's next sign-in attempt
+            // will find the now-committed row by email via
+            // AutoLinkEntraUserToDsiUseCase.LinkToExistingDsiUserAsync and self-heal. Audit
+            // either way so support has visibility, then rethrow — this extension point has
+            // no way to return a custom error response to Entra, only claims for a
+            // successful token.
+            string outcomeGuidance = ex is CannotLinkInactiveUserException
+                ? "permanent failure requiring account reactivation"
+                : "may self-heal on the user's next sign-in if this was a registration race, but investigate if recurring for the same account";
+
+            try {
+                await interaction.DispatchAsync(new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.Auth,
+                    EventName = AuditAuthEventNames.LinkFailed,
+                    Message = $"Failed to link Entra account {@event.Data.AuthenticationContext.User.Id} ({@event.Data.AuthenticationContext.User.Mail.Trim()}) to a DfE Sign-In user: {ex.GetType().Name} ({outcomeGuidance}).",
+                    WasFailure = true,
+                });
+            }
+            catch (Exception auditEx) {
+                // Never let an audit-infrastructure failure mask the original exception
+                // being handled here — log it and continue to the rethrow below.
+                logger.LogError(auditEx, "Failed to write link-failure audit entry.");
+            }
+
             throw;
         }
 

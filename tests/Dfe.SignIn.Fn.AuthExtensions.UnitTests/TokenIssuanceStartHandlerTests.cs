@@ -228,6 +228,7 @@ public class TokenIssuanceStartHandlerTests
         Assert.AreEqual(AuditEventCategoryNames.Auth, capturedWriteToAudit[0].EventCategory);
         Assert.AreEqual(AuditAuthEventNames.LinkFailed, capturedWriteToAudit[0].EventName);
         Assert.IsTrue(capturedWriteToAudit[0].WasFailure);
+        StringAssert.Contains(capturedWriteToAudit[0].Message, "permanent failure requiring account reactivation");
     }
 
     [TestMethod]
@@ -250,6 +251,25 @@ public class TokenIssuanceStartHandlerTests
 
         Assert.HasCount(1, capturedWriteToAudit);
         Assert.AreEqual(AuditAuthEventNames.LinkFailed, capturedWriteToAudit[0].EventName);
+        StringAssert.Contains(capturedWriteToAudit[0].Message, "may self-heal on the user's next sign-in");
+    }
+
+    [TestMethod]
+    public async Task RethrowsOriginalException_WhenAuditDispatchItselfThrows()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.MockThrows<AutoLinkEntraUserToDsiRequest>(new CannotLinkInactiveUserException());
+        autoMocker.MockThrows<WriteToAuditRequest>(new InvalidOperationException("Audit service unavailable."));
+
+        var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
+
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent);
+
+        // The original, diagnosable exception must still propagate even though writing
+        // the audit entry itself failed — an audit-infrastructure error must never mask it.
+        await Assert.ThrowsAsync<CannotLinkInactiveUserException>(()
+            => handler.Run(fakeRequest));
     }
 
     [TestMethod]

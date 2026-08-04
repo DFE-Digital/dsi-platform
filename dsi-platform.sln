@@ -107,6 +107,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.AppHost", "src\D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.SignIn.ServiceDefaults", "src\Dfe.SignIn.ServiceDefaults\Dfe.SignIn.ServiceDefaults.csproj", "{282680D1-4103-4AC6-9238-0038A937DAA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "migrations", "migrations\migrations.csproj", "{4C276B0D-1D14-46CF-896D-FC296AFD30DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -717,6 +719,18 @@ Global
 		{282680D1-4103-4AC6-9238-0038A937DAA2}.Release|x64.Build.0 = Release|Any CPU
 		{282680D1-4103-4AC6-9238-0038A937DAA2}.Release|x86.ActiveCfg = Release|Any CPU
 		{282680D1-4103-4AC6-9238-0038A937DAA2}.Release|x86.Build.0 = Release|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Debug|x64.Build.0 = Debug|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Debug|x86.Build.0 = Debug|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Release|x64.ActiveCfg = Release|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Release|x64.Build.0 = Release|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Release|x86.ActiveCfg = Release|Any CPU
+		{4C276B0D-1D14-46CF-896D-FC296AFD30DA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
