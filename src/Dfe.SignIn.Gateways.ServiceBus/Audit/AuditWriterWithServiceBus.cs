@@ -1,5 +1,4 @@
 using Azure.Messaging.ServiceBus;
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,14 +16,13 @@ public sealed class AuditWriterWithServiceBus(IAuditContextBuilder contextAccess
     /// <summary>
     /// Implementation of an audit logger.
     /// </summary>
-    /// <param name="context"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<WriteToAuditResponse> Log(
-       InteractionContext<WriteToAuditRequest> context)
+    public async Task<WriteToAuditResponse> Log(WriteToAuditRequest request)
     {
         var auditContext = contextAccessor.BuildAuditContext();
 
-        string json = AuditSerializer.SerializeMessageBody(auditContext, context.Request);
+        string json = AuditSerializer.SerializeMessageBody(auditContext, request);
 
         var message = new ServiceBusMessage(json);
         await sender.SendMessageAsync(message, CancellationToken.None);
@@ -41,10 +39,9 @@ public sealed class NullAuditWriter : IAuditWriter
     /// <summary>
     /// Implementation of an audit logger.
     /// </summary>
-    /// <param name="context"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<WriteToAuditResponse> Log(
-       InteractionContext<WriteToAuditRequest> context)
+    public async Task<WriteToAuditResponse> Log(WriteToAuditRequest request)
     {
         return await Task.FromResult(new WriteToAuditResponse());
     }

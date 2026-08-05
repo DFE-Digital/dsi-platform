@@ -100,13 +100,12 @@ public class UserCodeService(
             throw;
         }
 
-        await auditWriter.Log(new Base.Framework.InteractionContext<WriteToAuditRequest>(
-            new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangeEmail,
-                EventName = AuditChangeEmailEventNames.VerificationCodeSent,
-                Message = $"Change email verification code {verificationCode} sent to email {newEmailAddress}. code expiry={now:O}, code type={codeType}",
-                UserId = userId,
-            }));
+        await auditWriter.Log(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.ChangeEmail,
+            EventName = AuditChangeEmailEventNames.VerificationCodeSent,
+            Message = $"Change email verification code {verificationCode} sent to email {newEmailAddress}. code expiry={now:O}, code type={codeType}",
+            UserId = userId
+        });
 
         await this.SendVerifyChangeEmailNotification(newEmailAddress, "FirstName", "LastName", verificationCode);
         await this.SendNotifyMigratedEmailNotification(existingEmailAddress, "FirstName", "LastName", newEmailAddress);

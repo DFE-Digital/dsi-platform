@@ -72,12 +72,11 @@ public sealed class ChangeNameEndpoint : IEndpoint
 
         await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
-        await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
-            new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangeName,
-                Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
-                UserId = request.UserId,
-            }));
+        await auditWriter.Log(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.ChangeName,
+            Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
+            UserId = request.UserId,
+        });
 
         logger.LogInformation("Successfully changed name for user {UserId}", request.UserId);
 

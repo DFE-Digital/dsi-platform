@@ -55,13 +55,12 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
             }
 
             // the email address is already in use by another user
-            await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
-                new WriteToAuditRequest {
-                    EventCategory = AuditEventCategoryNames.ChangeEmail,
-                    EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
-                    Message = $"Request to change email from {existingUserEmail} to existing user {request.NewEmailAddress}",
-                    UserId = request.UserId,
-                }));
+            await auditWriter.Log(new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangeEmail,
+                EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
+                Message = $"Request to change email from {existingUserEmail} to existing user {request.NewEmailAddress}",
+                UserId = request.UserId,
+            });
 
             return Results.BadRequest(new { Message = "The email address is already in use by another" });
         }
@@ -80,13 +79,12 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
         }
 
         //todo: remove the interactioncontext and use the auditwriter directly
-        await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
-            new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangeEmail,
-                EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
-                Message = $"Request to change email from {existingUserEmail} to {request.NewEmailAddress}",
-                UserId = request.UserId,
-            }));
+        await auditWriter.Log(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.ChangeEmail,
+            EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
+            Message = $"Request to change email from {existingUserEmail} to {request.NewEmailAddress}",
+            UserId = request.UserId,
+        });
 
         await userCodeService.DeleteExistingCodesAsync(request.UserId, cancellationToken);
         await userCodeService.CreateNewVerificationCodeAsync(request.UserId, existingUserEmail, request.NewEmailAddress, request.ClientId, cancellationToken);
