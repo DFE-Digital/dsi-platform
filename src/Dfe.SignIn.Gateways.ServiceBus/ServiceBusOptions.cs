@@ -10,7 +10,12 @@ public sealed class ServiceBusOptions : IOptions<ServiceBusOptions>
     /// <summary>
     /// Gets or sets the Service Bus namespace.
     /// </summary>
-    public required string Namespace { get; set; }
+    public string? Namespace { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Service Bus connection string (used for local emulator / development).
+    /// </summary>
+    public string? ConnectionString { get; set; }
 
     /// <inheritdoc/>
     ServiceBusOptions IOptions<ServiceBusOptions>.Value => this;
