@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.Redis" />
 	<PackageReference Include="Aspire.Hosting.Azure.ServiceBus" />
+	<PackageReference Include="AJP.Aspire.Hosting.AsbEmulatorUi" />
 	<PackageReference Include="Aspire.Hosting.NodeJs" />
 	<PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" />	  
     <PackageReference Include="MessagePack" />	  
