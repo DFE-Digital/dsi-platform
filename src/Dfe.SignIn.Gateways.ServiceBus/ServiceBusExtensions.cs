@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
@@ -13,6 +14,49 @@ namespace Dfe.SignIn.Gateways.ServiceBus;
 /// </summary>
 public static class ServiceBusExtensions
 {
+    /// <summary>
+    /// Registers a <see cref="ServiceBusClient"/> singleton using the <c>ServiceBus</c>
+    /// configuration section. Supports both connection-string (local emulator) and
+    /// namespace + <see cref="TokenCredential"/> (Azure) authentication.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The root configuration.</param>
+    /// <param name="tokenCredential">Token credential to connect to Azure Service Bus.</param>
+    /// <returns>
+    ///   <para>The <paramref name="services"/> instance for chained calls.</para>
+    /// </returns>
+    public static IServiceCollection AddServiceBusClient(
+        this IServiceCollection services, IConfigurationRoot configuration, TokenCredential tokenCredential)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
+        ExceptionHelpers.ThrowIfArgumentNull(tokenCredential, nameof(tokenCredential));
+
+        var serviceBusSection = configuration.GetSection("ServiceBus");
+        if (!serviceBusSection.Exists()) {
+            return services;
+        }
+
+        var options = Activator.CreateInstance<ServiceBusOptions>();
+        serviceBusSection.Bind(options);
+
+        services.AddSingleton(provider => {
+            if (!string.IsNullOrWhiteSpace(options.ConnectionString)) {
+                return new ServiceBusClient(options.ConnectionString);
+            }
+
+            if (!string.IsNullOrWhiteSpace(options.Namespace)) {
+                return new ServiceBusClient(options.Namespace, tokenCredential, new() {
+                    TransportType = ServiceBusTransportType.AmqpWebSockets,
+                });
+            }
+
+            throw new InvalidOperationException("Neither ConnectionString nor Namespace was provided for Service Bus.");
+        });
+
+        return services;
+    }
+
     /// <summary>
     /// Gets any configuration that has been associated with a Service Bus topic.
     /// </summary>

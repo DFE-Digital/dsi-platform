@@ -30,34 +30,14 @@ public static class ServiceBusIntegrationExtensions
     public static IServiceCollection AddServiceBusIntegration(
         this IServiceCollection services, IConfigurationRoot configuration, TokenCredential tokenCredential)
     {
-        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
-        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
-        ExceptionHelpers.ThrowIfArgumentNull(tokenCredential, nameof(tokenCredential));
+        services.AddServiceBusClient(configuration, tokenCredential);
 
         var serviceBusSection = configuration.GetSection("ServiceBus");
-        if (!serviceBusSection.Exists()) {
-            // Service Bus has not been configured; do nothing.
-            return services;
+        if (serviceBusSection.Exists()) {
+            var options = Activator.CreateInstance<ServiceBusOptions>();
+            serviceBusSection.Bind(options);
+            AddServiceBusProcessors(services, configuration, options, tokenCredential);
         }
-
-        var options = Activator.CreateInstance<ServiceBusOptions>();
-        serviceBusSection.Bind(options);
-
-        services.AddSingleton(provider => {
-            if (!string.IsNullOrWhiteSpace(options.ConnectionString)) {
-                return new ServiceBusClient(options.ConnectionString);
-            }
-
-            if (!string.IsNullOrWhiteSpace(options.Namespace)) {
-                return new ServiceBusClient(options.Namespace, tokenCredential, new() {
-                    TransportType = ServiceBusTransportType.AmqpWebSockets,
-                });
-            }
-
-            throw new InvalidOperationException("Neither ConnectionString nor Namespace was provided for Service Bus.");
-        });
-
-        AddServiceBusProcessors(services, configuration, options, tokenCredential);
 
         return services;
     }

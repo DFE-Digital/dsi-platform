@@ -112,7 +112,7 @@ builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
 builder.Services
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
+    .AddServiceBusClient(builder.Configuration, azureTokenCredential);
 
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();

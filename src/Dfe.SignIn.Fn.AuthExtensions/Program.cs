@@ -2,7 +2,6 @@ using Azure.Identity;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.UseCases.Users;
-using Dfe.SignIn.Fn.AuthExtensions.Configuration;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
@@ -61,7 +60,7 @@ builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
 builder.Services
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
+    .AddServiceBusClient(builder.Configuration, azureTokenCredential)
     .AddAuditingWithServiceBus(builder.Configuration);
 
 builder.Services
