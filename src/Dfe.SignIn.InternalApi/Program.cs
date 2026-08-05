@@ -57,9 +57,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 ;
 
 var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
-authorizationBuilder.SetFallbackPolicy(
-    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
-);
+//todo: need to fix local development to use the same auth as dev and prod, so that we can test auth properly in local dev.
+// For now, we need  we will just allow all requests through when running locally
+if (!builder.Environment.IsEnvironment("Local")) {
+    authorizationBuilder.SetFallbackPolicy(
+        new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
+    );
+}
 #if DEBUG // Include when debugging locally.
 if (builder.Environment.IsEnvironment("Local")) {
     authorizationBuilder.SetDefaultPolicy(
@@ -119,7 +123,7 @@ else {
 }
 
 builder.Services
-    .AddGovNotify()
+    .AddGovNotify(builder.Configuration)
     .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache, builder.Configuration.GetRequiredSection("GeneralRedisCache"))
     .AddFeaturesServices(builder.Configuration)
     .AddValidatorsFromAssemblyContaining<CoreContractsMarker>();

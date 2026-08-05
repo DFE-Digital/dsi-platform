@@ -54,6 +54,11 @@ public sealed class ChangeEmailController(
         try {
             await usersApiClient.InitiateChangeEmailAddress(request);
         }
+        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+            var message = ex.Content?.ToString() ?? "We couldn't change your email address right now. Please try again.";
+            this.ModelState.AddModelError(nameof(ChangeEmailViewModel.EmailAddressInput), message);
+            return this.View("Index");
+        }
         catch (Refit.ValidationApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests) {
             var errorMessage = ex.Content?.ToString()
                 ?? "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";

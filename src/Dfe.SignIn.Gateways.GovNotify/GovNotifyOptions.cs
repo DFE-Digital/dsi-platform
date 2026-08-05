@@ -8,6 +8,11 @@ namespace Dfe.SignIn.Gateways.GovNotify;
 public sealed class GovNotifyOptions : IOptions<GovNotifyOptions>
 {
     /// <summary>
+    /// Gets the name of the configuration section that contains the GOV Notify options.
+    /// </summary>
+    public const string SectionName = "GovNotify";
+
+    /// <summary>
     /// Gets the key that enables the application to interact with GOV Notify.
     /// </summary>
     public required string ApiKey { get; set; }
