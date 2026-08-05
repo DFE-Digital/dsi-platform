@@ -1,9 +1,10 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
-using Humanizer;
+using Dfe.SignIn.WebFramework.Mvc.Validation;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,8 +18,9 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/change-email")]
 public sealed class ChangeEmailController(
     IOptionsMonitor<ApplicationOidcOptions> oidcOptionsAccessor,
-    IOptionsMonitor<DistributedCacheInteractionLimiterOptions> limiterOptions,
     IInteractionDispatcher interaction,
+    IUsersApiClient usersApiClient,
+    IValidator<ChangeEmailViewModel> changeEmailValidator,
     ILogger<ChangeEmailController> logger
 ) : Controller
 {
@@ -36,51 +38,44 @@ public sealed class ChangeEmailController(
     {
         bool hideResendVerificationBanner = false;
 
-        try {
-            await interaction.MapRequestFromViewModel<InitiateChangeEmailAddressRequest>(this, viewModel)
-                .Use(request => request with {
-                    ClientId = oidcOptionsAccessor.CurrentValue.ClientId,
-                    UserId = this.User.GetUserId(),
-                    IsSelfInvoked = true,
-                })
-                .DispatchAsync();
-
-            if (resend == true) {
-                this.SetFlashSuccess(
-                    heading: "Verification code resent",
-                    message: $"""
-                    We have sent an account verification email to {viewModel.EmailAddressInput}.
-                    If the email address you provided is valid you will receive an email containing a verification code.
-                    """
-                );
-            }
-
-            if (!this.ModelState.IsValid) {
-                return this.View("Index");
-            }
+        var validationResult = await changeEmailValidator.ValidateAsync(viewModel);
+        if (!validationResult.IsValid) {
+            validationResult.AddToModelState(this.ModelState);
+            return this.View("Index");
         }
-        catch (InteractionRejectedByLimiterException) {
-            var options = limiterOptions.Get<InitiateChangeEmailAddressRequest>();
-            var timePeriod = TimeSpan.FromSeconds(options.TimePeriodInSeconds).Humanize();
-            string reason = $"Wait {timePeriod} before trying again.";
 
-            var pendingChange = await this.GetPendingChangeEmailAddress(this.User.GetUserId());
-            if (pendingChange is not null) {
-                reason = $"Wait {timePeriod} before raising another request, or enter your verification code below.";
-            }
+        var request = new Core.Contracts.Features.Users.ChangeEmailAddress.InitiateChangeEmailAddressRequest(
+            oidcOptionsAccessor.CurrentValue.ClientId,
+            this.User.GetUserId(),
+            viewModel.EmailAddressInput ?? string.Empty,
+            true
+        );
+
+        try {
+            await usersApiClient.InitiateChangeEmailAddress(request);
+        }
+        catch (Refit.ValidationApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests) {
+            var errorMessage = ex.Content?.ToString()
+                ?? "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";
 
             this.SetFlashNotification(
                 heading: "Verification code limit reached",
-                message: $"""
-                For security, only {options.InteractionsPerTimePeriod} verification code requests can be sent.
-                {reason}
-                """
+                message: errorMessage
             );
             hideResendVerificationBanner = true;
         }
 
-        this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = hideResendVerificationBanner;
+        if (resend == true) {
+            this.SetFlashSuccess(
+                heading: "Verification code resent",
+                message: $"""
+                        We have sent an account verification email to {viewModel.EmailAddressInput}.
+                        If the email address you provided is valid you will receive an email containing a verification code.
+                        """
+            );
+        }
 
+        this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = hideResendVerificationBanner;
         return this.RedirectToAction(nameof(VerificationCode));
     }
 

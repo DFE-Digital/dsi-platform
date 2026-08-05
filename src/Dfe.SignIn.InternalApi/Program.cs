@@ -4,6 +4,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
+using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
@@ -117,9 +118,11 @@ else {
     builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
-builder.Services.AddGovNotify();
-builder.Services.AddFeaturesServices();
-builder.Services.AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
+builder.Services
+    .AddGovNotify()
+    .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache, builder.Configuration.GetRequiredSection("GeneralRedisCache"))
+    .AddFeaturesServices(builder.Configuration)
+    .AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
 
 var app = builder.Build();
 

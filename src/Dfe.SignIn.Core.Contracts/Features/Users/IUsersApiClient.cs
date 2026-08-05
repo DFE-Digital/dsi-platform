@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Refit;
@@ -24,4 +25,12 @@ public interface IUsersApiClient
     /// <returns>A task representing the asynchronous operation, containing the user's profile information.</returns>
     [Get(UsersApiRoutes.GetUserProfile)]
     Task<GetUserProfileResponse> GetUserProfile(Guid userId);
+
+    /// <summary>
+    /// Initiates the process of changing a user's email address based on the provided request.
+    /// </summary>
+    /// <param name="request">The request containing the user's new email address information.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Post(UsersApiRoutes.InitiateChangeEmail)]
+    Task InitiateChangeEmailAddress([Body] InitiateChangeEmailAddressRequest request);
 }

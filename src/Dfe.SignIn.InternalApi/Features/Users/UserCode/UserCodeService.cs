@@ -1,6 +1,6 @@
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.Gateways.GovNotify;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.UserCode;

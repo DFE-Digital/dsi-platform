@@ -2,15 +2,18 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 
 /// <summary>
-/// An endpoint to change the name of a user.
+/// An endpoint to initiate the change of a user's email address.
 /// </summary>
-public sealed class InitialiseChangeEmailAddressEndpoint : IEndpoint
+public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
 {
     /// <summary>
     /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -18,8 +21,8 @@ public sealed class InitialiseChangeEmailAddressEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost(UsersApiRoutes.ChangeName, Handler)
-            .WithName("Change Email Address")
+        app.MapPost(UsersApiRoutes.InitiateChangeEmail, Handler)
+            .WithName("Initiate Change Email Address")
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
@@ -35,7 +38,8 @@ public sealed class InitialiseChangeEmailAddressEndpoint : IEndpoint
         IUserLookupService userLookupService,
         IUserCodeService userCodeService,
         IInteractionLimiter actionRateLimiter,
-        ILogger<InitialiseChangeEmailAddressEndpoint> logger,
+        IOptionsMonitor<DistributedCacheInteractionLimiterOptions> limiterOptions,
+        ILogger<InitiateChangeEmailAddressEndpoint> logger,
         [FromBody] InitiateChangeEmailAddressRequest request,
         CancellationToken cancellationToken)
     {
@@ -67,15 +71,13 @@ public sealed class InitialiseChangeEmailAddressEndpoint : IEndpoint
             return Results.NotFound(new { Message = "User not found" });
         }
 
-        //todo: review this, ideal response should be 429 with a Retry-After header, but the current implementation throws an exception which results in a 500 response
-        //  HTTP/1.1 429 Too Many Requests
-        //  Content - Type: application / json
-        //  Retry - After: 60
-        //  {
-        //    "error": "Rate limit exceeded",
-        //    "message": "You have exceeded your request allowance. Please try again in 60 seconds."
-        //  }
-        await actionRateLimiter.LimitAndThrowAsync(request);
+        try {
+            await actionRateLimiter.LimitAndThrowAsync(request);
+        }
+        catch (InteractionRejectedByLimiterException) {
+            logger.LogWarning("Rate limit exceeded for user {UserId} when attempting to change email address", request.UserId);
+            return GetLimitExceededResult(limiterOptions.Get<InitiateChangeEmailAddressRequest>());
+        }
 
         //todo: remove the interactioncontext and use the auditwriter directly
         await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
@@ -92,5 +94,19 @@ public sealed class InitialiseChangeEmailAddressEndpoint : IEndpoint
         logger.LogInformation("Successfully initiated change of email address for user {UserId}", request.UserId);
 
         return Results.Ok();
+    }
+
+    private static IResult GetLimitExceededResult(DistributedCacheInteractionLimiterOptions options)
+    {
+        var timePeriod = TimeSpan.FromSeconds(options.TimePeriodInSeconds).Humanize();
+        string reason = $"Wait {timePeriod} before trying again.";
+
+        return Results.Problem(
+            detail: $"""
+                    For security, only {options.InteractionsPerTimePeriod} verification code requests can be sent.
+                    {reason}
+                    """,
+            title: "Rate limit exceeded",
+            statusCode: StatusCodes.Status429TooManyRequests);
     }
 }
