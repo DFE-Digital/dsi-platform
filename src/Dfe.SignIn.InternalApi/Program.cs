@@ -8,7 +8,6 @@ using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
-using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
@@ -114,13 +113,13 @@ var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOption
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
+//todo: remove this once we have migrated all the code away from using the WriteToAuditInteractor to using the ServiceBusAuditInteractor.
+//This is only needed for local development, as the ServiceBusAuditInteractor will not work locally.
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
-    builder.Services.AddScoped<IAuditWriter, NullAuditWriter>();
 }
-else {
-    builder.Services.AddAuditingWithServiceBus(builder.Configuration);
-}
+
+builder.Services.AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
 
 builder.Services
     .AddGovNotify(builder.Configuration)

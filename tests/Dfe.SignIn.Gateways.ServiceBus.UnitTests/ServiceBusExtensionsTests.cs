@@ -221,24 +221,27 @@ public sealed class ServiceBusExtensionsTests
     public void AddAuditingWithServiceBus_Throws_WhenServicesArgumentIsNull()
     {
         var configuration = new ConfigurationBuilder().Build();
+        var environment = new Mock<IHostEnvironment>().Object;
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceBusExtensions.AddAuditingWithServiceBus(null!, configuration));
+            => ServiceBusExtensions.AddAuditingWithServiceBus(null!, configuration, environment));
     }
 
     [TestMethod]
     public void AddAuditingWithServiceBus_Throws_WhenConfigurationArgumentIsNull()
     {
         var services = new ServiceCollection();
+        var environment = new Mock<IHostEnvironment>().Object;
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceBusExtensions.AddAuditingWithServiceBus(services, null!));
+            => ServiceBusExtensions.AddAuditingWithServiceBus(services, null!, environment));
     }
 
     [TestMethod]
     public void AddAuditingWithServiceBus_ReturnsServicesForChainedCalls()
     {
         var services = new ServiceCollection();
+        var environment = new Mock<IHostEnvironment>().Object;
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection([
@@ -246,7 +249,7 @@ public sealed class ServiceBusExtensionsTests
             ])
             .Build();
 
-        var result = ServiceBusExtensions.AddAuditingWithServiceBus(services, configuration);
+        var result = ServiceBusExtensions.AddAuditingWithServiceBus(services, configuration, environment);
 
         Assert.AreSame(result, services);
     }
@@ -256,9 +259,10 @@ public sealed class ServiceBusExtensionsTests
     {
         var services = new ServiceCollection();
         var configuration = new ConfigurationBuilder().Build();
+        var environment = new Mock<IHostEnvironment>().Object;
 
         var exception = Assert.ThrowsExactly<InvalidOperationException>(()
-            => ServiceBusExtensions.AddAuditingWithServiceBus(services, configuration));
+            => ServiceBusExtensions.AddAuditingWithServiceBus(services, configuration, environment));
         Assert.AreEqual("Missing topic options.", exception.Message);
     }
 
@@ -266,14 +270,14 @@ public sealed class ServiceBusExtensionsTests
     public void AddAuditingWithServiceBus_AddsRequiredServices()
     {
         var services = new ServiceCollection();
-
+        var environment = new Mock<IHostEnvironment>().Object;
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection([
                 new("ServiceBus:AuditTopic:TopicName", "test_topic"),
             ])
             .Build();
 
-        ServiceBusExtensions.AddAuditingWithServiceBus(services, configuration);
+        ServiceBusExtensions.AddAuditingWithServiceBus(services, configuration, environment);
 
         Assert.IsTrue(services.Any(descriptor =>
             (string?)descriptor.ServiceKey == ServiceBusExtensions.AuditSenderKey &&

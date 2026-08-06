@@ -164,6 +164,7 @@ public static class ServiceBusExtensions
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The root configuration.</param>
+    /// <param name="environment">The hosting environment.</param>
     /// <returns>
     ///   <para>The <paramref name="services"/> instance for chained calls.</para>
     /// </returns>
@@ -176,7 +177,7 @@ public static class ServiceBusExtensions
     ///   <para>If topic name was not specified.</para>
     /// </exception>
     public static IServiceCollection AddAuditingWithServiceBus(
-        this IServiceCollection services, IConfigurationRoot configuration)
+        this IServiceCollection services, IConfigurationRoot configuration, IHostEnvironment environment)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
@@ -189,7 +190,12 @@ public static class ServiceBusExtensions
             return client.CreateSender(options.TopicName);
         });
 
-        services.AddScoped<IAuditWriter, AuditWriterWithServiceBus>();
+        if (environment.IsEnvironment("Local")) {
+            services.AddScoped<IAuditWriter, LocalAuditWriter>();
+        }
+        else {
+            services.AddScoped<IAuditWriter, ServiceBusAuditWriter>();
+        }
 
         //Todo: remove this guy
         services.AddInteractor<WriteToAuditWithServiceBus>();

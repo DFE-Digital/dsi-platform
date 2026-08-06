@@ -93,9 +93,8 @@ builder.Services
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 }
-else {
-    builder.Services.AddAuditingWithServiceBus(builder.Configuration);
-}
+
+builder.Services.AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
 
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
