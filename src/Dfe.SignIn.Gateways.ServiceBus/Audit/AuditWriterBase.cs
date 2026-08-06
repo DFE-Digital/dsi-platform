@@ -14,14 +14,12 @@ public abstract class AuditWriterBase(IAuditContextBuilder contextAccessor) : IA
     /// </summary>
     /// <param name="request">The audit request to log.</param>
     /// <returns>The response from the audit logging operation.</returns>
-    public async Task<WriteToAuditResponse> Log(WriteToAuditRequest request)
+    public async Task Log(WriteToAuditRequest request)
     {
         var auditContext = contextAccessor.BuildAuditContext();
         string json = AuditSerializer.SerializeMessageBody(auditContext, request);
 
         await this.DispatchAuditAsync(json);
-
-        return new WriteToAuditResponse();
     }
 
     /// <summary>

@@ -10,5 +10,5 @@ public interface IAuditWriter
     /// </summary>
     /// <param name="auditRequest">The audit request to log.</param>
     /// <returns>The response from the audit log operation.</returns>
-    Task<WriteToAuditResponse> Log(WriteToAuditRequest auditRequest);
+    Task Log(WriteToAuditRequest auditRequest);
 }

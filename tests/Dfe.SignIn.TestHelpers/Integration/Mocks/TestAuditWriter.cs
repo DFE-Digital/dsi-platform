@@ -13,10 +13,10 @@ public sealed class TestAuditWriter : IAuditWriter
         this.interactorMock = interactorMock;
     }
 
-    public Task<WriteToAuditResponse> Log(WriteToAuditRequest request)
+    public Task Log(WriteToAuditRequest request)
     {
         this.CapturedRequest = request;
         this.interactorMock?.InvokeAsync(request);
-        return Task.FromResult(new WriteToAuditResponse());
+        return Task.CompletedTask;
     }
 }

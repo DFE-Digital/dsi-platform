@@ -46,7 +46,7 @@ public sealed class AuditWriterWithServiceBusTests
 
         var auditor = CreateInteractor(autoMocker);
 
-        _ = await auditor.Log(new WriteToAuditRequest {
+        await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             Message = "Example audit message",
         });
@@ -75,7 +75,7 @@ public sealed class AuditWriterWithServiceBusTests
 
         var auditor = CreateInteractor(autoMocker);
 
-        _ = await auditor.Log(new WriteToAuditRequest {
+        await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             Message = "Example audit message",
             WasFailure = wasFailure,
@@ -98,7 +98,7 @@ public sealed class AuditWriterWithServiceBusTests
 
         var auditor = CreateInteractor(autoMocker);
 
-        _ = await auditor.Log(new WriteToAuditRequest {
+        await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             EventName = "Example",
             Message = "Example audit message",
