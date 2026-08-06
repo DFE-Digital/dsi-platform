@@ -42,7 +42,8 @@ IEnumerable<NodeApiName> requiredNodeApiNames = [
 
 // Get token credential for making API requests to Node APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
-    builder.Configuration.GetRequiredSection("InternalApiClient")
+    builder.Configuration.GetRequiredSection("InternalApiClient"),
+    useLocalCredential: builder.Environment.IsEnvironment("Local")
 );
 
 builder.Services
