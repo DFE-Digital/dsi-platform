@@ -6,6 +6,8 @@ using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
+using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
+using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
@@ -25,6 +27,8 @@ public static class UsersFeature
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
         InitiateChangeEmailAddressEndpoint.Map(app);
+        IsApproverEndpoint.Map(app);
+        PendingApprovalCounterEndpoint.Map(app);
     }
 
     /// <summary>
