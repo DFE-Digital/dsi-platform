@@ -22,7 +22,6 @@
     <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.0" />
     <PackageVersion Include="Aspire.Hosting.Azure.ServiceBus" Version="13.4.0" />
-    <PackageVersion Include="AJP.Aspire.Hosting.AsbEmulatorUi" Version="1.0.23" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.9.0" />
     <!-- Dependency injection -->
     <PackageVersion Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="8.5.0" />

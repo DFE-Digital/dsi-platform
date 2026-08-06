@@ -54,8 +54,6 @@ auditTopic.AddServiceBusSubscription("audit-sub");
 var applicationsTopic = serviceBus.AddServiceBusTopic("applications");
 applicationsTopic.AddServiceBusSubscription("applications-public-api");
 
-builder.AddAsbEmulatorUi("infra-servicebus-ui", serviceBus);
-
 var frontend = builder.AddDockerfile("infra-frontend", "../../", "docker/frontend/Dockerfile")
     .WithHttpEndpoint(targetPort: 8080, name: "http");
 
