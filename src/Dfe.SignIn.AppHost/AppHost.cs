@@ -92,6 +92,7 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
     .WithEnvironment("InternalApiClient__ClientId", internalApiConfig["ClientId"])
     .WithEnvironment("InternalApiClient__ClientSecret", internalApiConfig["ClientSecret"])
+    .WithEnvironment("InternalApiClient__Resource", internalApiConfig["Resource"])
     .WithEnvironment("InternalApiClient__Tenant", internalApiConfig["Tenant"])
     .WithEnvironment("InternalApiClient__HostUrl", internalApiConfig["HostUrl"])
     .WithEnvironment("InternalApiClient__Search__BaseAddress", internalApiConfig["Search:BaseAddress"])
@@ -192,4 +193,10 @@ if (nodeComponents.GetValue("ServicesEnabled", true)) {
 if (nodeComponents.GetValue("Run-TlsProxy", false)) {
     builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
 }
+
+var dsiEnv = builder.Configuration["DsiEnvironment"] ?? "dev";
+if (nodeComponents.GetValue("Run-TokenGenerator", false)) {
+    builder.AddExecutable("tool-generate-token", "pwsh", "../../", "-Command", $"Connect-DsiEnv -Name {dsiEnv}; $t = New-DsiInternalApiToken; if ($t) {{ $t | Set-Clipboard; Set-Content -Path '$env:TEMP\\dsi-internal-api-token.txt' -Value $t; Write-Host '=================== INTERNAL API BEARER TOKEN ==================='; Write-Host 'Token copied to clipboard and saved to %TEMP%\\dsi-internal-api-token.txt'; Write-Host \"Bearer $t\"; Write-Host '================================================================='; }} Disconnect-DsiEnv");
+}
+
 await builder.Build().RunAsync();

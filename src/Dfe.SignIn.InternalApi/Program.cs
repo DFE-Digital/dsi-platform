@@ -46,30 +46,25 @@ builder.Services.AddHealthChecks();
 builder.Services.AddGlobalExceptionHandler();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-#if !DEBUG // Exclude when debugging locally.
     .AddJwtBearer(options => {
-        var section = builder.Configuration.GetRequiredSection("AzureAd");
-        options.Audience = section.GetValue<string>("Audience");
-        options.MetadataAddress = section.GetValue<string>("Instance") + "/" + section.GetValue<string>("TenantId") + "/.well-known/openid-configuration";
-    })
-#endif
-;
+        var section = builder.Configuration.GetSection("AzureAd");
+        var audience = section.GetValue<string>("Audience")
+                       ?? builder.Configuration["InternalApiClient:Resource"]
+                       ?? builder.Configuration["InternalApiClient:ClientId"];
+        var instance = section.GetValue<string>("Instance")
+                       ?? builder.Configuration["InternalApiClient:HostUrl"]
+                       ?? "https://login.microsoftonline.com";
+        var tenantId = section.GetValue<string>("TenantId")
+                       ?? builder.Configuration["InternalApiClient:Tenant"];
 
-var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
-//todo: need to fix local development to use the same auth as dev and prod, so that we can test auth properly in local dev.
-// For now, we need  we will just allow all requests through when running locally
-if (!builder.Environment.IsEnvironment("Local")) {
-    authorizationBuilder.SetFallbackPolicy(
+        options.Audience = audience;
+        options.MetadataAddress = $"{instance.TrimEnd('/')}/{tenantId}/.well-known/openid-configuration";
+    });
+
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(
         new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
     );
-}
-#if DEBUG // Include when debugging locally.
-if (builder.Environment.IsEnvironment("Local")) {
-    authorizationBuilder.SetDefaultPolicy(
-        new AuthorizationPolicyBuilder().RequireAssertion(_ => true).Build()
-    );
-}
-#endif
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Search];
 
