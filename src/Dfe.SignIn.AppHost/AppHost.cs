@@ -81,6 +81,7 @@ if (dotNetComponents.GetValue("HelpEnabled", true)) {
 
 var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-internal-api", launchProfileName: "http")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local")
+    .WithEnvironment("Authentication__LocalBypass", builder.Configuration["ASPNETCORE_ENVIRONMENT"] == "Local" ? "true" : "false")
     .WithEnvironment("EntityFramework__Directories__Host", efConfig["Directories:Host"])
     .WithEnvironment("EntityFramework__Directories__Name", efConfig["Directories:Name"])
     .WithEnvironment("EntityFramework__Directories__Username", efConfig["Directories:Username"])
