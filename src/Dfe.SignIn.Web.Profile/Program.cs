@@ -88,7 +88,7 @@ builder.Services
     .AddInteractionLimiter<Dfe.SignIn.Core.Contracts.Users.InitiateChangeEmailAddressRequest>(builder.Configuration);
 
 builder.Services
-    .AddServiceBusClient(builder.Configuration, azureTokenCredential);
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();

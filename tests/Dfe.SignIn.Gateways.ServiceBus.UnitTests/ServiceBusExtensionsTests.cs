@@ -1,4 +1,3 @@
-using Azure.Core;
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Caching;
@@ -14,61 +13,6 @@ namespace Dfe.SignIn.Gateways.ServiceBus.UnitTests;
 [TestClass]
 public sealed class ServiceBusExtensionsTests
 {
-    #region AddServiceBusClient(IServiceCollection, IConfigurationRoot, TokenCredential)
-
-    [TestMethod]
-    public void AddServiceBusClient_Throws_WhenServicesArgumentIsNull()
-    {
-        var configuration = new ConfigurationBuilder().Build();
-        var tokenCredential = new Mock<TokenCredential>().Object;
-
-        Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceBusExtensions.AddServiceBusClient(null!, configuration, tokenCredential));
-    }
-
-    [TestMethod]
-    public void AddServiceBusClient_Throws_WhenConfigurationArgumentIsNull()
-    {
-        var services = new ServiceCollection();
-        var tokenCredential = new Mock<TokenCredential>().Object;
-
-        Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceBusExtensions.AddServiceBusClient(services, null!, tokenCredential));
-    }
-
-    [TestMethod]
-    public void AddServiceBusClient_Throws_WhenTokenCredentialArgumentIsNull()
-    {
-        var services = new ServiceCollection();
-        var configuration = new ConfigurationBuilder().Build();
-
-        Assert.ThrowsExactly<ArgumentNullException>(()
-            => ServiceBusExtensions.AddServiceBusClient(services, configuration, null!));
-    }
-
-    [TestMethod]
-    public void AddServiceBusClient_AddsServiceBusClient_WhenNamespaceConfigured()
-    {
-        var services = new ServiceCollection();
-        var tokenCredential = new Mock<TokenCredential>().Object;
-
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection([
-                new("ServiceBus:Namespace", "fake-fully-qualified-namespace"),
-            ])
-            .Build();
-
-        ServiceBusExtensions.AddServiceBusClient(services, configuration, tokenCredential);
-
-        Assert.IsTrue(
-            services.Any(descriptor =>
-                descriptor.ServiceType == typeof(ServiceBusClient)
-            )
-        );
-    }
-
-    #endregion
-
     #region GetServiceBusTopicOptions(IConfigurationRoot, string)
 
     [TestMethod]

@@ -1,10 +1,9 @@
 using Azure.Core;
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Applications;
 using Dfe.SignIn.Gateways.ServiceBus;
 
-namespace Dfe.SignIn.PublicApi.Configuration;
+namespace Dfe.SignIn.InternalApi.Configuration;
 
 /// <summary>
 /// Extension methods for setting up Service Bus integration.
@@ -12,7 +11,7 @@ namespace Dfe.SignIn.PublicApi.Configuration;
 public static class ServiceBusIntegrationExtensions
 {
     /// <summary>
-    /// Adds Service Bus integration with expected topic processors.
+    /// Adds Service Bus integration.
     /// </summary>
     /// <param name="services">The services collection.</param>
     /// <param name="configuration">The root configuration.</param>
@@ -36,7 +35,6 @@ public static class ServiceBusIntegrationExtensions
 
         var serviceBusSection = configuration.GetSection("ServiceBus");
         if (!serviceBusSection.Exists()) {
-            // Service Bus has not been configured; do nothing.
             return services;
         }
 
@@ -57,35 +55,6 @@ public static class ServiceBusIntegrationExtensions
             throw new InvalidOperationException("Neither ConnectionString nor Namespace was provided for Service Bus.");
         });
 
-        AddServiceBusProcessors(services, configuration, options, tokenCredential);
-
         return services;
-    }
-
-    private static void AddServiceBusProcessors(
-        IServiceCollection services, IConfigurationRoot configuration, ServiceBusOptions options, TokenCredential tokenCredential)
-    {
-        var applicationsTopicOptions = configuration.GetServiceBusTopicOptions("ServiceBus:ApplicationsTopic");
-        if (applicationsTopicOptions is not null) {
-            services.AddServiceBusTopicProcessor(applicationsTopicOptions);
-            AddApplicationsTopicHandlers(services, applicationsTopicOptions);
-
-            services.AddHealthChecks().AddAzureServiceBusTopic(
-                fullyQualifiedNamespace: options.Namespace,
-                topicName: applicationsTopicOptions.TopicName,
-                tokenCredential,
-                name: $"topic:{applicationsTopicOptions.TopicName}"
-            );
-        }
-    }
-
-    private static void AddApplicationsTopicHandlers(
-        IServiceCollection services, ServiceBusTopicProcessorOptions topicOptions)
-    {
-        services.AddServiceBusCacheInvalidator<GetApplicationApiConfigurationRequest>(
-            topicOptions.TopicName,
-            ApplicationMessagingSubjects.ConfigurationUpdated,
-            msg => msg.ApplicationProperties["ClientId"].ToString()
-        );
     }
 }
