@@ -17,8 +17,6 @@ using Dfe.SignIn.WebFramework.Configuration;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,41 +46,36 @@ builder.Services.AddHealthChecks();
 builder.Services.AddGlobalExceptionHandler();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+#if !DEBUG // Exclude when debugging locally.
     .AddJwtBearer(options => {
-        if (builder.Environment.IsEnvironment("Local"))
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(LocalDevAuth.SigningKey));
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = key,
-                ValidateIssuer = true,
-                ValidIssuer = LocalDevAuth.Issuer,
-                ValidateAudience = true,
-                ValidAudience = LocalDevAuth.Audience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(5)
-            };
-        }
-        else
-        {
-            var section = builder.Configuration.GetRequiredSection("AzureAd");
-            options.Audience = section.GetValue<string>("Audience");
-            options.MetadataAddress = section.GetValue<string>("Instance") + "/" + section.GetValue<string>("TenantId") + "/.well-known/openid-configuration";
-        }
-    });
+        var section = builder.Configuration.GetRequiredSection("AzureAd");
+        options.Audience = section.GetValue<string>("Audience");
+        options.MetadataAddress = section.GetValue<string>("Instance") + "/" + section.GetValue<string>("TenantId") + "/.well-known/openid-configuration";
+    })
+#endif
+;
 
 var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
-authorizationBuilder.SetFallbackPolicy(
-    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
-);
+//todo: need to fix local development to use the same auth as dev and prod, so that we can test auth properly in local dev.
+// For now, we need  we will just allow all requests through when running locally
+if (!builder.Environment.IsEnvironment("Local")) {
+    authorizationBuilder.SetFallbackPolicy(
+        new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
+    );
+}
+#if DEBUG // Include when debugging locally.
+if (builder.Environment.IsEnvironment("Local")) {
+    authorizationBuilder.SetDefaultPolicy(
+        new AuthorizationPolicyBuilder().RequireAssertion(_ => true).Build()
+    );
+}
+#endif
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Search];
 
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
-    builder.Configuration.GetRequiredSection("InternalApiClient"),
-    useLocalCredential: builder.Environment.IsEnvironment("Local")
+    builder.Configuration.GetRequiredSection("InternalApiClient")
 );
 
 builder.Services

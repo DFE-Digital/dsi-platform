@@ -68,8 +68,7 @@ IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
 
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
-    builder.Configuration.GetRequiredSection("InternalApiClient"),
-    useLocalCredential: builder.Environment.IsEnvironment("Local")
+    builder.Configuration.GetRequiredSection("InternalApiClient")
 );
 
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();

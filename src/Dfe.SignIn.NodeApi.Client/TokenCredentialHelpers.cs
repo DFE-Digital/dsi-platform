@@ -10,13 +10,8 @@ namespace Dfe.SignIn.NodeApi.Client;
 public static class TokenCredentialHelpers
 {
     /// <exclude/>
-    public static TokenCredential CreateFromConfiguration(IConfiguration section, bool useLocalCredential = false)
+    public static TokenCredential CreateFromConfiguration(IConfiguration section)
     {
-        if (useLocalCredential)
-        {
-            return new LocalTokenCredential();
-        }
-
         return new ClientSecretCredential(
             tenantId: section.GetValue<string>("Tenant"),
             clientId: section.GetValue<string>("ClientId"),
