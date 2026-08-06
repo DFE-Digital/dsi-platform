@@ -17,24 +17,3 @@ public sealed record InitiateChangeEmailAddressRequest(
     /// </summary>
     public string Key => this.UserId.ToString();
 }
-//{
-//    /// <summary>
-//    /// The client ID of the application that initiated the request.
-//    /// </summary>
-//    public required string ClientId { get; init; }
-
-//    /// <summary>
-//    /// The unique ID of the user.
-//    /// </summary>
-//    public required Guid UserId { get; init; }
-
-//    /// <summary>
-//    /// The user's new email address.
-//    /// </summary>
-//    public required string NewEmailAddress { get; init; }
-
-//    /// <summary>
-//    /// A value indicating if the request is being self-invoked by the user.
-//    /// </summary>
-//    public required bool IsSelfInvoked { get; init; }
-//}
