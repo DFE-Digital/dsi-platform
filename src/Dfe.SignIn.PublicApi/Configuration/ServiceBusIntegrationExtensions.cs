@@ -44,17 +44,9 @@ public static class ServiceBusIntegrationExtensions
         serviceBusSection.Bind(options);
 
         services.AddSingleton(provider => {
-            if (!string.IsNullOrWhiteSpace(options.ConnectionString)) {
-                return new ServiceBusClient(options.ConnectionString);
-            }
-
-            if (!string.IsNullOrWhiteSpace(options.Namespace)) {
-                return new ServiceBusClient(options.Namespace, tokenCredential, new() {
-                    TransportType = ServiceBusTransportType.AmqpWebSockets,
-                });
-            }
-
-            throw new InvalidOperationException("Neither ConnectionString nor Namespace was provided for Service Bus.");
+            return new ServiceBusClient(options.Namespace, tokenCredential, new() {
+                TransportType = ServiceBusTransportType.AmqpWebSockets,
+            });
         });
 
         AddServiceBusProcessors(services, configuration, options, tokenCredential);

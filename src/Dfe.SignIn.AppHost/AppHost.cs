@@ -44,16 +44,6 @@ var dotnetRedisConnectionString = ReferenceExpression.Create(
 var nodeRedisConnectionString = ReferenceExpression.Create(
     $"redis://{redisTcpEndpoint.Property(EndpointProperty.Host)}:{redisTcpEndpoint.Property(EndpointProperty.Port)}");
 
-var serviceBus = builder.AddAzureServiceBus("infra-servicebus")
-    .RunAsEmulator(e => e
-        .WithLifetime(ContainerLifetime.Persistent));
-
-var auditTopic = serviceBus.AddServiceBusTopic("audit");
-auditTopic.AddServiceBusSubscription("audit-sub");
-
-var applicationsTopic = serviceBus.AddServiceBusTopic("applications");
-applicationsTopic.AddServiceBusSubscription("applications-public-api");
-
 var frontend = builder.AddDockerfile("infra-frontend", "../../", "docker/frontend/Dockerfile")
     .WithHttpEndpoint(targetPort: 8080, name: "http");
 
@@ -91,9 +81,6 @@ if (dotNetComponents.GetValue("HelpEnabled", true)) {
 
 var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-internal-api", launchProfileName: "http")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local")
-    .WithEnvironment("ServiceBus__ConnectionString", serviceBus)
-    .WithEnvironment("ServiceBus__AuditTopic__TopicName", "audit")
-    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", "audit-sub")
     .WithEnvironment("EntityFramework__Directories__Host", efConfig["Directories:Host"])
     .WithEnvironment("EntityFramework__Directories__Name", efConfig["Directories:Name"])
     .WithEnvironment("EntityFramework__Directories__Username", efConfig["Directories:Username"])
@@ -115,15 +102,11 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("InternalApiClient__UseProxy", "false")
     .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("GeneralRedisCache__DatabaseNumber,", generalRedisConfig["DatabaseNumber"])
-    .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
-    .WaitFor(serviceBus);
+    .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"]);
 
 if (dotNetComponents.GetValue("ProfileEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
-    .WithEnvironment("ServiceBus__ConnectionString", serviceBus)
-    .WithEnvironment("ServiceBus__AuditTopic__TopicName", "audit")
-    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", "audit-sub")
     .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("SessionRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("TokenRedisCache__ConnectionString", dotnetRedisConnectionString)
@@ -142,18 +125,12 @@ if (dotNetComponents.GetValue("ProfileEnabled", true)) {
     .WithEnvironment("Assets__BaseAddress", assets["BaseAddress"])
     .WithEnvironment("Assets__FrontendVersion", assets["FrontendVersion"])
     .WaitFor(frontend)
-    .WaitFor(redis)
-    .WaitFor(serviceBus);
+    .WaitFor(redis);
 }
 
 if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
     .WithSharedConfiguration(builder.Configuration, frontendEndpoint)
-    .WithEnvironment("ServiceBus__ConnectionString", serviceBus)
-    .WithEnvironment("ServiceBus__AuditTopic__TopicName", "audit")
-    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", "audit-sub")
-    .WithEnvironment("ServiceBus__ApplicationsTopic__TopicName", "applications")
-    .WithEnvironment("ServiceBus__ApplicationsTopic__SubscriptionName", "applications-public-api")
     .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("InteractionsRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
@@ -175,8 +152,7 @@ if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
     .WithEnvironment("EntityFramework__Audit__Name", efConfig["Audit:Name"])
     .WithEnvironment("EntityFramework__Audit__Host", efConfig["Audit:Host"])
     .WaitFor(internalApi)
-    .WaitFor(redis)
-    .WaitFor(serviceBus);
+    .WaitFor(redis);
 }
 
 var nodeRootDir = builder.Configuration["NodePlatformDirectory"]
