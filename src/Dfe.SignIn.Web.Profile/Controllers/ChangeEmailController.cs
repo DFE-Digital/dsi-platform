@@ -53,6 +53,16 @@ public sealed class ChangeEmailController(
 
         try {
             await usersApiClient.InitiateChangeEmailAddress(request);
+
+            if (resend == true) {
+                this.SetFlashSuccess(
+                    heading: "Verification code resent",
+                    message: $"""
+                        We have sent an account verification email to {viewModel.EmailAddressInput}.
+                        If the email address you provided is valid you will receive an email containing a verification code.
+                        """
+                );
+            }
         }
         catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
             var message = ex.Content?.ToString() ?? "We couldn't change your email address right now. Please try again.";
@@ -60,24 +70,19 @@ public sealed class ChangeEmailController(
             return this.View("Index");
         }
         catch (Refit.ValidationApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests) {
-            var errorMessage = ex.Content?.ToString()
-                ?? "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";
+            var errorMessage = !string.IsNullOrWhiteSpace(ex.Content?.Detail)
+                ? ex.Content.Detail
+                : "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";
+
+            //var errorMessage = ex.Content?.Detail.ToString()
+            //    ?? "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";
 
             this.SetFlashNotification(
                 heading: "Verification code limit reached",
                 message: errorMessage
             );
-            hideResendVerificationBanner = true;
-        }
 
-        if (resend == true) {
-            this.SetFlashSuccess(
-                heading: "Verification code resent",
-                message: $"""
-                        We have sent an account verification email to {viewModel.EmailAddressInput}.
-                        If the email address you provided is valid you will receive an email containing a verification code.
-                        """
-            );
+            hideResendVerificationBanner = true;
         }
 
         this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = hideResendVerificationBanner;

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
@@ -389,19 +390,9 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         Assert.Null(auditMock.CapturedRequest);
     }
 
-    private Core.Contracts.Users.InitiateChangeEmailAddressRequest CreateRequest(Guid userId, string newEmailAddress)
-    {
-        return new Core.Contracts.Users.InitiateChangeEmailAddressRequest {
-            UserId = userId,
-            ClientId = "test-client",
-            IsSelfInvoked = true,
-            NewEmailAddress = newEmailAddress,
-        };
-    }
+    private InitiateChangeEmailAddressRequest CreateRequest(Guid userId, string newEmailAddress)
+        => new("test-client", userId, newEmailAddress, true);
 
     private async Task<UserCodeEntity?> GetChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
-    {
-        return await dbContext.UserCodes
-            .SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == "changeemail");
-    }
+        => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == "changeemail");
 }
