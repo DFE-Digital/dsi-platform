@@ -13,13 +13,13 @@ using Assert = Xunit.Assert;
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAddress;
 
 [Trait("Category", "Integration")]
-public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
+public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTestBase
 {
     private const string endpoint = "/internal/users/{userId}/initiate-change-email";
 
     private static string GetEndpointForUser(Guid userId) => endpoint.Replace("{userId}", userId.ToString());
 
-    public ChangeEmailAddressTests(InternalApiWebApplicationFactory factory)
+    public InitiateChangeEmailTests(InternalApiWebApplicationFactory factory)
         : base(factory)
     {
     }
