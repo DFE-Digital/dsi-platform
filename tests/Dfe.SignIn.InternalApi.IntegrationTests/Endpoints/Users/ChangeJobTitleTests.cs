@@ -1,10 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.InternalApi.Contracts;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +16,6 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "interaction/Users.ChangeJobTitle";
-
     public ChangeJobTitleTests(InternalApiWebApplicationFactory factory)
         : base(factory)
     {
@@ -40,13 +38,12 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = expectedJobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var url = UsersApiRoutes.ChangeJobTitle
+    .Replace("{userId}", user.Sub.ToString());
+
+        var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeJobTitleResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
@@ -70,7 +67,10 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = "Senior Software Developer"
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var url = UsersApiRoutes.ChangeJobTitle
+            .Replace("{userId}", request.UserId.ToString());
+
+        var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -85,7 +85,10 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = "Senior Software Developer"
         };
 
-        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
+        var url = UsersApiRoutes.ChangeJobTitle
+            .Replace("{userId}", request.UserId.ToString());
+
+        var response = await anonymousClient.PostAsJsonAsync(url, request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -107,13 +110,12 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = jobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var url = UsersApiRoutes.ChangeJobTitle
+            .Replace("{userId}", request.UserId.ToString());
+
+        var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeJobTitleResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
@@ -140,13 +142,12 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = newjobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var url = UsersApiRoutes.ChangeJobTitle
+            .Replace("{userId}", request.UserId.ToString());
+
+        var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeJobTitleResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
@@ -171,13 +172,12 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = newJobTitle
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var url = UsersApiRoutes.ChangeJobTitle
+            .Replace("{userId}", request.UserId.ToString());
+
+        var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var body = await response.Content.ReadFromJsonAsync<InteractionResponse<ChangeJobTitleResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
@@ -210,7 +210,10 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             NewJobTitle = "Senior Software Engineer!!!" // Invalid characters in job title
         };
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var url = UsersApiRoutes.ChangeJobTitle
+            .Replace("{userId}", request.UserId.ToString());
+
+        var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -229,8 +232,10 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
             UserId = user.Sub,
             NewJobTitle = longJobTitle
         };
+        var url = UsersApiRoutes.ChangeJobTitle
+            .Replace("{userId}", request.UserId.ToString());
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

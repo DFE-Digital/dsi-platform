@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
@@ -24,6 +25,7 @@ public static class UsersFeature
         GetUserProfileEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
+        ChangeJobTitleEndpoint.Map(app);
     }
 
     /// <summary>

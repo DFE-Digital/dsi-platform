@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.Core.Contracts.Users;
@@ -39,4 +40,12 @@ public interface IUsersApiClient
     /// <returns>A task representing the asynchronous operation, containing the user's profile information.</returns>
     [Get(UsersApiRoutes.GetUserProfile)]
     Task<GetUserProfileResponse> GetUserProfile(Guid userId);
+
+    /// <summary>
+    /// Changes the job title of a user based on the provided request.
+    /// </summary>
+    /// <param name="request">The request containing the user's new name information.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Post(UsersApiRoutes.ChangeJobTitle)]
+    Task ChangeJobTitle([Body] ChangeJobTitleRequest request);
 }

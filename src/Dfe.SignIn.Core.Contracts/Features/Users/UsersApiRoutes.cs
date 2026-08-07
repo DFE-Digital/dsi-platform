@@ -24,4 +24,9 @@ public static class UsersApiRoutes
     /// The API route for retrieving a user's profile.
     /// </summary>
     public const string GetUserProfile = "/interaction/{userId}/Users.GetUserProfile";
+
+    /// <summary>
+    /// The API route for changing a user's job title.
+    /// </summary>
+    public const string ChangeJobTitle = "/interactor/users/{userId}/job-title";
 }
