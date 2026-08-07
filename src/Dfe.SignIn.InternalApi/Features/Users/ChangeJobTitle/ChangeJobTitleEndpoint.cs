@@ -65,12 +65,11 @@ public sealed class ChangeJobTitleEndpoint : IEndpoint
 
         await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
-        await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
-        new WriteToAuditRequest {
+        await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeJobTitle,
             Message = $"Successfully changed job title to {normalisedJobTitle}",
             UserId = request.UserId,
-        }));
+        });
 
         return Results.Ok();
     }
