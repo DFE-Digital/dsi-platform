@@ -12,12 +12,12 @@ public abstract class AuditWriterBase(IAuditContextBuilder contextAccessor) : IA
     /// <summary>
     /// Logs an audit event by serializing the request and dispatching it to the appropriate destination.
     /// </summary>
-    /// <param name="request">The audit request to log.</param>
+    /// <param name="auditRequest">The audit request to log.</param>
     /// <returns>The response from the audit logging operation.</returns>
-    public async Task Log(WriteToAuditRequest request)
+    public async Task Log(WriteToAuditRequest auditRequest)
     {
         var auditContext = contextAccessor.BuildAuditContext();
-        string json = AuditSerializer.SerializeMessageBody(auditContext, request);
+        string json = AuditSerializer.SerializeMessageBody(auditContext, auditRequest);
 
         await this.DispatchAuditAsync(json);
     }
