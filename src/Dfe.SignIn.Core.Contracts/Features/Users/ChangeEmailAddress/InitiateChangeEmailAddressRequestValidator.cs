@@ -18,7 +18,7 @@ public sealed class InitiateChangeEmailAddressRequestValidator : AbstractValidat
 
         this.RuleFor(x => x.NewEmailAddress)
             .NotEmpty().WithMessage("Enter an email address")
-            .MaximumLength(60).WithMessage("Enter an email address with no more than 60 characters")
+            .MaximumLength(UserConstants.MaxEmailAddressLength).WithMessage($"Enter an email address with no more than {UserConstants.MaxEmailAddressLength} characters")
             .Matches(StringPatterns.EmailAddressPattern).WithMessage("Enter a valid email address");
     }
 }

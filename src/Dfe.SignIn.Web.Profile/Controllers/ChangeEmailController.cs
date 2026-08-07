@@ -47,7 +47,7 @@ public sealed class ChangeEmailController(
         var request = new Core.Contracts.Features.Users.ChangeEmailAddress.InitiateChangeEmailAddressRequest(
             oidcOptionsAccessor.CurrentValue.ClientId,
             this.User.GetUserId(),
-            viewModel.EmailAddressInput ?? string.Empty,
+            viewModel.EmailAddressInput,
             true
         );
 

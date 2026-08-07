@@ -107,13 +107,21 @@ public sealed class ChangeEmailControllerTests
     #region PostIndex(bool?, ChangeEmailViewModel)
 
     [TestMethod]
-    public async Task PostIndex_ReturnsFormView_WhenModelStateIsInvalid()
+#pragma warning disable MSTEST0014 // DataRow should be valid
+    [DataRow("", "Email address is required.", DisplayName = "Empty email")]
+    [DataRow("invalid-email", "Invalid email format.", DisplayName = "Malformed email")]
+    [DataRow("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.cccccccccccccccccccccccccccccccccccccccccccccccccc.dddddddddddddddddddddddddddddddddddddddddddddddddd.com", "Email exceeds max length.",
+        DisplayName = "Over max length email")]
+#pragma warning restore MSTEST0014 // DataRow should be valid
+    public async Task PostIndex_ReturnsFormView_WhenModelStateIsInvalid(string emailAddress, string expectedErrorMessage)
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
 
-        controller.ModelState.AddModelError("", "Fake error.");
+        controller.ModelState.AddModelError("", expectedErrorMessage);
 
-        var result = await controller.PostIndex(resend: false, viewModel: new());
+        var result = await controller.PostIndex(resend: false, viewModel: new() {
+            EmailAddressInput = emailAddress,
+        });
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);

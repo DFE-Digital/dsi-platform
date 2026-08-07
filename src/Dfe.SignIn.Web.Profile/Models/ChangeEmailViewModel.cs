@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using FluentValidation;
 
 namespace Dfe.SignIn.Web.Profile.Models;
@@ -10,7 +11,7 @@ public sealed class ChangeEmailViewModel
     /// <summary>
     /// Gets or sets the email address of the user.
     /// </summary>
-    public string? EmailAddressInput { get; set; }
+    public required string EmailAddressInput { get; set; }
 }
 
 public sealed class ChangeEmailViewModelValidator : AbstractValidator<ChangeEmailViewModel>
@@ -20,7 +21,7 @@ public sealed class ChangeEmailViewModelValidator : AbstractValidator<ChangeEmai
     {
         this.RuleFor(x => x.EmailAddressInput)
             .NotEmpty().WithMessage("Enter an email address")
-            .MaximumLength(254).WithMessage("Enter an email address with no more than 254 characters")
+            .MaximumLength(UserConstants.MaxEmailAddressLength).WithMessage($"Enter an email address with no more than {UserConstants.MaxEmailAddressLength} characters")
             .EmailAddress().WithMessage("Enter a valid email address");
     }
 }
