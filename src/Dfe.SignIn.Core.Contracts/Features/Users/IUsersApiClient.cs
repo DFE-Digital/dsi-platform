@@ -53,8 +53,9 @@ public interface IUsersApiClient
     /// <summary>
     /// Initiates the process of changing a user's email address based on the provided request.
     /// </summary>
+    /// <param name="userId">The ID of the user whose email address is being changed.</param>
     /// <param name="request">The request containing the user's new email address information.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.InitiateChangeEmail)]
-    Task InitiateChangeEmailAddress([Body] InitiateChangeEmailAddressRequest request);
+    Task InitiateChangeEmailAddress(Guid userId, [Body] InitiateChangeEmailAddressRequest request);
 }

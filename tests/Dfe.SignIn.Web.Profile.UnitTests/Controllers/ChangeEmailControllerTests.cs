@@ -107,12 +107,10 @@ public sealed class ChangeEmailControllerTests
     #region PostIndex(bool?, ChangeEmailViewModel)
 
     [TestMethod]
-#pragma warning disable MSTEST0014 // DataRow should be valid
     [DataRow("", "Email address is required.", DisplayName = "Empty email")]
     [DataRow("invalid-email", "Invalid email format.", DisplayName = "Malformed email")]
     [DataRow("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.cccccccccccccccccccccccccccccccccccccccccccccccccc.dddddddddddddddddddddddddddddddddddddddddddddddddd.com", "Email exceeds max length.",
         DisplayName = "Over max length email")]
-#pragma warning restore MSTEST0014 // DataRow should be valid
     public async Task PostIndex_ReturnsFormView_WhenModelStateIsInvalid(string emailAddress, string expectedErrorMessage)
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
@@ -134,8 +132,8 @@ public sealed class ChangeEmailControllerTests
 
         InitiateChangeEmailAddressRequest? capturedRequest = null;
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<InitiateChangeEmailAddressRequest>()))
-            .Callback<InitiateChangeEmailAddressRequest>(req => capturedRequest = req)
+            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
+            .Callback<Guid, InitiateChangeEmailAddressRequest>((userId, req) => capturedRequest = req)
             .Returns(Task.CompletedTask);
 
         var controller = CreateControllerAuthenticated(autoMocker);
@@ -146,7 +144,6 @@ public sealed class ChangeEmailControllerTests
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("test", capturedRequest.ClientId);
-        Assert.AreEqual(new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
         Assert.IsTrue(capturedRequest.IsSelfInvoked);
     }
 
@@ -198,7 +195,7 @@ public sealed class ChangeEmailControllerTests
 
         var ex = await RefitTestHelper.ValidationException(HttpStatusCode.TooManyRequests, "For security, only 4 verification code requests can be sent. Wait 10 seconds before raising another request, or enter your verification code below.");
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<InitiateChangeEmailAddressRequest>()))
+            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
             .ThrowsAsync(ex);
 
         autoMocker.MockResponse(
@@ -240,7 +237,7 @@ public sealed class ChangeEmailControllerTests
         var ex = await RefitTestHelper.ValidationException(HttpStatusCode.TooManyRequests, "For security, only 4 verification code requests can be sent. Wait 10 seconds before trying again.");
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<InitiateChangeEmailAddressRequest>()))
+            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
             .ThrowsAsync(ex);
 
         var controller = CreateControllerAuthenticated(autoMocker);

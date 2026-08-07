@@ -46,13 +46,12 @@ public sealed class ChangeEmailController(
 
         var request = new Core.Contracts.Features.Users.ChangeEmailAddress.InitiateChangeEmailAddressRequest(
             oidcOptionsAccessor.CurrentValue.ClientId,
-            this.User.GetUserId(),
             viewModel.EmailAddressInput,
             true
         );
 
         try {
-            await usersApiClient.InitiateChangeEmailAddress(request);
+            await usersApiClient.InitiateChangeEmailAddress(this.User.GetUserId(), request);
 
             if (resend == true) {
                 this.SetFlashSuccess(

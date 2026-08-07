@@ -41,16 +41,17 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
         IOptionsMonitor<DistributedCacheInteractionLimiterOptions> limiterOptions,
         ILogger<InitiateChangeEmailAddressEndpoint> logger,
         [FromBody] InitiateChangeEmailAddressRequest request,
+        [FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Initiating change of email address for user {UserId}", request.UserId);
+        logger.LogInformation("Initiating change of email address for user {UserId}", userId);
 
-        var existingUserEmail = await userLookupService.GetUserEmailAddressAsync(request.UserId, cancellationToken);
+        var existingUserEmail = await userLookupService.GetUserEmailAddressAsync(userId, cancellationToken);
         var existingUserWithNewEmailStatus = await userLookupService.GetUserStatusByEmailAddressAsync(request.NewEmailAddress, cancellationToken);
 
         if (existingUserWithNewEmailStatus.UserExists) {
 
-            if (existingUserWithNewEmailStatus.UserId == request.UserId) {
+            if (existingUserWithNewEmailStatus.UserId == userId) {
                 return Results.BadRequest(new { Message = "Input an email address that is different from your current email address." });
             }
 
@@ -59,22 +60,22 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
                 Message = $"Request to change email from {existingUserEmail} to existing user {request.NewEmailAddress}",
-                UserId = request.UserId,
+                UserId = userId,
             });
 
             return Results.BadRequest(new { Message = "The email address is already in use by another" });
         }
 
         if (string.IsNullOrEmpty(existingUserEmail)) {
-            logger.LogWarning("User {UserId} not found when attempting to change email address", request.UserId);
+            logger.LogWarning("User {UserId} not found when attempting to change email address", userId);
             return Results.NotFound(new { Message = "User not found" });
         }
 
         try {
-            await actionRateLimiter.LimitAndThrowAsync(request);
+            await actionRateLimiter.LimitAndThrowAsync(request, userId.ToString());
         }
         catch (InteractionRejectedByLimiterException) {
-            logger.LogWarning("Rate limit exceeded for user {UserId} when attempting to change email address", request.UserId);
+            logger.LogWarning("Rate limit exceeded for user {UserId} when attempting to change email address", userId);
             return GetLimitExceededResult(limiterOptions.Get<InitiateChangeEmailAddressRequest>());
         }
 
@@ -83,13 +84,13 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
             EventCategory = AuditEventCategoryNames.ChangeEmail,
             EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
             Message = $"Request to change email from {existingUserEmail} to {request.NewEmailAddress}",
-            UserId = request.UserId,
+            UserId = userId,
         });
 
-        await userCodeService.DeleteExistingCodesAsync(request.UserId, cancellationToken);
-        await userCodeService.CreateNewVerificationCodeAsync(request.UserId, existingUserEmail, request.NewEmailAddress, request.ClientId, cancellationToken);
+        await userCodeService.DeleteExistingCodesAsync(userId, cancellationToken);
+        await userCodeService.CreateNewVerificationCodeAsync(userId, existingUserEmail, request.NewEmailAddress, request.ClientId, cancellationToken);
 
-        logger.LogInformation("Successfully initiated change of email address for user {UserId}", request.UserId);
+        logger.LogInformation("Successfully initiated change of email address for user {UserId}", userId);
 
         return Results.Ok();
     }

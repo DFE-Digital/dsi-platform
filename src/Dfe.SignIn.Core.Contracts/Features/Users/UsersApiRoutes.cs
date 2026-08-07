@@ -33,5 +33,8 @@ public static class UsersApiRoutes
     /// <summary>
     /// The API route for changing a user's email address.
     /// </summary>
-    public const string InitiateChangeEmail = "/interaction/Users.InitiateChangeEmail";
+    public const string InitiateChangeEmail = "/internal/users/{userId}/initiate-change-email";
+
+    //public const string InitiateChangeEmail = "/internal/users/{userid}/initiate-change-email";
+    //public const string InitiateChangeEmail = "/internal/applications/{applicationId}/roles";
 }

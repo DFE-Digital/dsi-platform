@@ -15,7 +15,9 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAdd
 [Trait("Category", "Integration")]
 public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "interaction/Users.InitiateChangeEmail";
+    private const string endpoint = "/internal/users/{userId}/initiate-change-email";
+
+    private static string GetEndpointForUser(Guid userId) => endpoint.Replace("{userId}", userId.ToString());
 
     public ChangeEmailAddressTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -33,16 +35,16 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = this.CreateRequest(user.Sub, "john.doe@new.example.com");
+        var request = CreateRequest("john.doe@new.example.com");
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
-        var pendingCode = await this.GetChangeEmailCode(assertionDbContext, user.Sub);
+        var pendingCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
         Assert.NotNull(pendingCode);
         Assert.Equal(user.Sub, pendingCode.Uid);
         Assert.Equal("changeemail", pendingCode.CodeType);
@@ -84,9 +86,9 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(existingCode);
 
-        var request = this.CreateRequest(user.Sub, "alex.new@example.com");
+        var request = CreateRequest("alex.new@example.com");
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -114,13 +116,13 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var firstRequest = this.CreateRequest(user.Sub, "first.new@example.com");
-        var secondRequest = this.CreateRequest(user.Sub, "second.new@example.com");
+        var firstRequest = CreateRequest("first.new@example.com");
+        var secondRequest = CreateRequest("second.new@example.com");
 
-        var firstResponse = await authenticatedClient.PostAsJsonAsync(endpoint, firstRequest);
+        var firstResponse = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), firstRequest);
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
-        var secondResponse = await authenticatedClient.PostAsJsonAsync(endpoint, secondRequest);
+        var secondResponse = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), secondRequest);
         Assert.Equal(HttpStatusCode.OK, secondResponse.StatusCode);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
@@ -139,9 +141,10 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
     {
         var anonymousClient = this.CreateClient();
 
-        var request = this.CreateRequest(Guid.NewGuid(), "jane.smith@example.com");
+        var userId = Guid.NewGuid();
+        var request = CreateRequest("jane.smith@example.com");
 
-        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
+        var response = await anonymousClient.PostAsJsonAsync(GetEndpointForUser(userId), request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -154,7 +157,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = this.CreateRequest(user.Sub, string.Empty);
+        var request = CreateRequest(string.Empty);
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
@@ -169,7 +172,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = this.CreateRequest(user.Sub, "invalid-email");
+        var request = CreateRequest("invalid-email");
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
@@ -188,7 +191,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = this.CreateRequest(user.Sub, currentEmail);
+        var request = CreateRequest(currentEmail);
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
@@ -197,7 +200,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
-        var pendingCode = await this.GetChangeEmailCode(assertionDbContext, user.Sub);
+        var pendingCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
         Assert.Null(pendingCode);
 
         Assert.Null(auditMock.CapturedRequest);
@@ -218,16 +221,16 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>([requester, existingUser]);
 
-        var request = this.CreateRequest(requester.Sub, "already.in.use@example.com");
+        var request = CreateRequest("already.in.use@example.com");
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(requester.Sub), request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
-        var pendingCode = await this.GetChangeEmailCode(assertionDbContext, requester.Sub);
+        var pendingCode = await GetChangeEmailCode(assertionDbContext, requester.Sub);
         Assert.Null(pendingCode);
 
         var auditRequest = auditMock.CapturedRequest;
@@ -246,7 +249,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = this.CreateRequest(user.Sub, "not-an-email");
+        var request = CreateRequest("not-an-email");
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
 
@@ -255,7 +258,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
-        var pendingCode = await this.GetChangeEmailCode(assertionDbContext, user.Sub);
+        var pendingCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
         Assert.Null(pendingCode);
     }
 
@@ -272,16 +275,16 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = this.CreateRequest(user.Sub, "john.doe@new.example.com");
+        var request = CreateRequest("john.doe@new.example.com");
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
         Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
-        var pendingCode = await this.GetChangeEmailCode(assertionDbContext, user.Sub);
+        var pendingCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
         Assert.Null(pendingCode);
 
         Assert.Null(auditMock.CapturedRequest);
@@ -303,16 +306,16 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = this.CreateRequest(user.Sub, newEmail);
+        var request = CreateRequest(newEmail);
 
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
-        var pendingCode = await this.GetChangeEmailCode(assertionDbContext, user.Sub);
+        var pendingCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
         Assert.NotNull(pendingCode);
 
         var trackedRequests = this.FakeEmailRequestTracker.Requests.ToArray();
@@ -351,7 +354,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(validationFailureUser);
 
-        var validationFailureRequest = this.CreateRequest(validationFailureUser.Sub, "invalid-email");
+        var validationFailureRequest = CreateRequest("invalid-email");
 
         var validationFailureResponse = await authenticatedClient.PostAsJsonAsync(endpoint, validationFailureRequest);
 
@@ -360,7 +363,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 
         await using (var validationAssertionScope = this.WebAppFactory.Services.CreateAsyncScope()) {
             var validationAssertionDbContext = validationAssertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-            var validationFailurePendingCode = await this.GetChangeEmailCode(validationAssertionDbContext, validationFailureUser.Sub);
+            var validationFailurePendingCode = await GetChangeEmailCode(validationAssertionDbContext, validationFailureUser.Sub);
             Assert.Null(validationFailurePendingCode);
         }
 
@@ -374,25 +377,25 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(rateLimitedUser);
 
-        var rateLimitedRequest = this.CreateRequest(rateLimitedUser.Sub, "john.doe@new.example.com");
+        var rateLimitedRequest = CreateRequest("john.doe@new.example.com");
 
-        var rateLimitedResponse = await authenticatedClient.PostAsJsonAsync(endpoint, rateLimitedRequest);
+        var rateLimitedResponse = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(rateLimitedUser.Sub), rateLimitedRequest);
 
         Assert.Equal(HttpStatusCode.TooManyRequests, rateLimitedResponse.StatusCode);
         Assert.Empty(this.FakeEmailRequestTracker.Requests);
 
         await using (var rateLimitedAssertionScope = this.WebAppFactory.Services.CreateAsyncScope()) {
             var rateLimitedAssertionDbContext = rateLimitedAssertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-            var rateLimitedPendingCode = await this.GetChangeEmailCode(rateLimitedAssertionDbContext, rateLimitedUser.Sub);
+            var rateLimitedPendingCode = await GetChangeEmailCode(rateLimitedAssertionDbContext, rateLimitedUser.Sub);
             Assert.Null(rateLimitedPendingCode);
         }
 
         Assert.Null(auditMock.CapturedRequest);
     }
 
-    private InitiateChangeEmailAddressRequest CreateRequest(Guid userId, string newEmailAddress)
-        => new("test-client", userId, newEmailAddress, true);
+    private static InitiateChangeEmailAddressRequest CreateRequest(string newEmailAddress)
+        => new("test-client", newEmailAddress, true);
 
-    private async Task<UserCodeEntity?> GetChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
+    private static async Task<UserCodeEntity?> GetChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
         => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == "changeemail");
 }

@@ -20,7 +20,7 @@ public sealed class FakeInteractionLimiter : IInteractionLimiter
     public bool ShouldAlwaysReject { get; set; }
 
     /// <inheritdoc/>
-    public Task<InteractionLimiterResult> LimitActionAsync(IKeyedRequest request)
+    public Task<InteractionLimiterResult> LimitActionAsync(IKeyedRequest request, string? key = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -28,8 +28,8 @@ public sealed class FakeInteractionLimiter : IInteractionLimiter
             return Task.FromResult(new InteractionLimiterResult { WasRejected = true });
         }
 
-        string key = $"{request.GetType().Name}:{request.Key}";
-        int currentCount = this.counts.AddOrUpdate(key, 1, (_, existingCount) => existingCount + 1);
+        string requestKey = key ?? $"{request.GetType().Name}:{request.Key}";
+        int currentCount = this.counts.AddOrUpdate(requestKey, 1, (_, existingCount) => existingCount + 1);
 
         bool wasRejected = currentCount > this.MaxAllowedInteractions;
 

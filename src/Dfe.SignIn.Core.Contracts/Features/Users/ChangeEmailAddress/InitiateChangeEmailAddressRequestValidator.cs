@@ -13,9 +13,6 @@ public sealed class InitiateChangeEmailAddressRequestValidator : AbstractValidat
         this.RuleFor(x => x.ClientId)
             .NotEmpty().WithMessage("ClientId is required.");
 
-        this.RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("UserId is required.");
-
         this.RuleFor(x => x.NewEmailAddress)
             .NotEmpty().WithMessage("Enter an email address")
             .MaximumLength(UserConstants.MaxEmailAddressLength).WithMessage($"Enter an email address with no more than {UserConstants.MaxEmailAddressLength} characters")
