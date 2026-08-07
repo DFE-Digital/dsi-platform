@@ -26,6 +26,11 @@ public static class UsersApiRoutes
     public const string GetUserProfile = "/interaction/{userId}/Users.GetUserProfile";
 
     /// <summary>
+    /// The API route for changing a user's job title.
+    /// </summary>
+    public const string ChangeJobTitle = "/interactor/users/{userId}/job-title";
+
+    /// <summary>
     /// The API route for changing a user's email address.
     /// </summary>
     public const string InitiateChangeEmail = "/interaction/Users.InitiateChangeEmail";

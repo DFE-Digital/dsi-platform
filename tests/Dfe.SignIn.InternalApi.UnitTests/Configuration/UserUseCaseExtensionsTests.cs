@@ -38,9 +38,7 @@ public sealed class UserUseCaseExtensionsTests
         Assert.IsTrue(
             services.HasInteractor<AutoLinkEntraUserToDsiRequest, AutoLinkEntraUserToDsiUseCase>()
         );
-        Assert.IsTrue(
-            services.HasInteractor<ChangeJobTitleRequest, ChangeJobTitleUseCase>()
-        );
+
         Assert.IsTrue(
             services.HasInteractor<CheckIsBlockedEmailAddressRequest, CheckIsBlockedEmailAddressUseCase>()
         );

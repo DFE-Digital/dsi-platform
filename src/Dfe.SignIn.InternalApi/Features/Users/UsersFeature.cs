@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
@@ -29,6 +30,7 @@ public static class UsersFeature
         InitiateChangeEmailAddressEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
+        ChangeJobTitleEndpoint.Map(app);
     }
 
     /// <summary>
