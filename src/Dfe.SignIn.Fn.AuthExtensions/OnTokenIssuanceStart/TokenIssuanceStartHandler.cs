@@ -50,21 +50,14 @@ public sealed class TokenIssuanceStartHandler(
             // will find the now-committed row by email via
             // AutoLinkEntraUserToDsiUseCase.LinkToExistingDsiUserAsync and self-heal. Other
             // linking-conflict exceptions indicate a genuine conflict that will not resolve
-            // without support intervention.
+            // without support intervention. Audit either way so support has visibility, then
+            // rethrow — this extension point has no way to return a custom error response to
+            // Entra, only claims for a successful token.
             string outcomeGuidance = ex switch {
                 CannotLinkInactiveUserException => "permanent failure requiring account reactivation",
                 CannotCreateNewUserException => "may self-heal on the user's next sign-in if this was a registration race, but investigate if recurring for the same account",
                 _ => "permanent failure requiring support investigation",
             };
-            // CreateUserUseCase's pre-check, in which case the user's next sign-in attempt
-            // will find the now-committed row by email via
-            // AutoLinkEntraUserToDsiUseCase.LinkToExistingDsiUserAsync and self-heal. Audit
-            // either way so support has visibility, then rethrow — this extension point has
-            // no way to return a custom error response to Entra, only claims for a
-            // successful token.
-            string outcomeGuidance = ex is CannotLinkInactiveUserException
-                ? "permanent failure requiring account reactivation"
-                : "may self-heal on the user's next sign-in if this was a registration race, but investigate if recurring for the same account";
 
             try {
                 await interaction.DispatchAsync(new WriteToAuditRequest {
