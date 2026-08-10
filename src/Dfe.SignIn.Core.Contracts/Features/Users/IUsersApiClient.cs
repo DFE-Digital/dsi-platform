@@ -8,7 +8,7 @@ using Refit;
 namespace Dfe.SignIn.Core.Contracts.Features.Users;
 
 /// <summary>
-/// Represents a client for interacting with user-related API endpoints.
+/// Represents a client for interacting with user-related API endpoints..
 /// </summary>
 public interface IUsersApiClient
 {
