@@ -1,4 +1,7 @@
+using Dfe.SignIn.Base.Framework.Internal;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,20 +14,60 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 public class UserLookupService(DbDirectoriesContext dbDirectoriesContext) : IUserLookupService
 {
     /// <summary>
-    /// Gets the email address of a user based on their user ID.
+    /// Gets the user information based on their user ID.
     /// </summary>
     /// <param name="userId">The ID of the user.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    /// <returns>The email address of the user, or null if not found.</returns>
-    public async Task<string?> GetUserEmailAddressAsync(Guid userId, CancellationToken cancellationToken = default)
+    /// <returns>The user information, or null if not found.</returns>
+    public async Task<UserInfo?> GetUserInfoAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var userEmail = await dbDirectoriesContext.Users
+        var user = await dbDirectoriesContext.Users
             .AsNoTracking()
             .Where(x => x.Sub == userId)
-            .Select(x => x.Email)
+            .Select(x => new {
+                x.Sub,
+                x.Email,
+                x.FirstName,
+                x.LastName,
+                x.Status
+            })
             .FirstOrDefaultAsync(cancellationToken);
 
-        return userEmail;
+        if (user is null) {
+            return null;
+        }
+
+        return new UserInfo(
+            user.Sub,
+            user.Email,
+            user.FirstName,
+            user.LastName,
+            EnumHelpers.MapEnum<AccountStatus>((int)user.Status)
+        );
+    }
+
+    /// <summary>
+    /// Gets the status information of a user based on their email address.
+    /// </summary>
+    /// <param name="emailAddress">The email address of the user.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The status information of the user.</returns>
+    public async Task<UserStatusInfo> GetUserStatusByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken = default)
+    {
+        var user = await dbDirectoriesContext.Users
+            .AsNoTracking()
+            .Where(x => x.Email == emailAddress)
+            .Select(x => new {
+                x.Sub,
+                x.Status
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (user is null) {
+            return UserStatusInfo.NotFound();
+        }
+
+        return UserStatusInfo.Found(user.Sub, EnumHelpers.MapEnum<AccountStatus>((int)user.Status));
     }
 }
 

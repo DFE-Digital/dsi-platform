@@ -31,27 +31,29 @@ public sealed class ChangeJobTitleEndpoint : IEndpoint
     }
 
     /// <summary>
-    /// Changes the name of a user.
+    /// Changes the job title of a user.
     /// </summary>
+    /// <param name="userId">The ID of the user whose job title is to be changed.</param>
     /// <param name="directoriesDbContext">The database context to use for accessing user data.</param>
     /// <param name="auditWriter">The audit writer to log audit events.</param>
     /// <param name="logger">The logger to use for logging information.</param>
-    /// <param name="request">The request containing the user ID and new name.</param>
+    /// <param name="request">The request containing the user ID and new job title.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
     public static async Task<IResult> Handler(
+        [FromRoute] Guid userId,
+        [FromBody] ChangeJobTitleRequest request,
         DbDirectoriesContext directoriesDbContext,
         IAuditWriter auditWriter,
         ILogger<ChangeJobTitleEndpoint> logger,
-        [FromBody] ChangeJobTitleRequest request,
         CancellationToken cancellationToken)
     {
         var user = await directoriesDbContext.Users
-            .Where(x => x.Sub == request.UserId)
+            .Where(x => x.Sub == userId)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (user is null) {
-            logger.LogWarning("User {userId} not found", request.UserId);
+            logger.LogWarning("User {UserId} not found", userId);
             return Results.NotFound();
         }
 
@@ -65,12 +67,11 @@ public sealed class ChangeJobTitleEndpoint : IEndpoint
 
         await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
-        await auditWriter.Log(new InteractionContext<WriteToAuditRequest>(
-        new WriteToAuditRequest {
+        await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeJobTitle,
             Message = $"Successfully changed job title to {normalisedJobTitle}",
-            UserId = request.UserId,
-        }));
+            UserId = userId,
+        });
 
         return Results.Ok();
     }

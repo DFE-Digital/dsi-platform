@@ -42,8 +42,7 @@ public sealed class ChangeJobTitleController(
             return this.Index();
         }
 
-        await usersApiClient.ChangeJobTitle(new ChangeJobTitleRequest {
-            UserId = this.User.GetUserId(),
+        await usersApiClient.ChangeJobTitle(this.User.GetUserId(), new ChangeJobTitleRequest {
             NewJobTitle = viewModel.JobTitleInput
         });
 

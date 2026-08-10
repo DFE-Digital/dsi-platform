@@ -1,5 +1,3 @@
-using Dfe.SignIn.Base.Framework;
-
 namespace Dfe.SignIn.Core.Contracts.Audit;
 
 /// <summary>
@@ -10,8 +8,7 @@ public interface IAuditWriter
     /// <summary>
     /// Implementation of an audit logger.
     /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    Task<WriteToAuditResponse> Log(
-       InteractionContext<WriteToAuditRequest> context);
+    /// <param name="auditRequest">The audit request to log.</param>
+    /// <returns>The response from the audit log operation.</returns>
+    Task Log(WriteToAuditRequest auditRequest);
 }

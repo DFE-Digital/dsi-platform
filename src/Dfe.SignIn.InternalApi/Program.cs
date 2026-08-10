@@ -4,9 +4,10 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
+using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
+using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
-using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
@@ -14,8 +15,6 @@ using Dfe.SignIn.InternalApi.Features;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,32 +41,11 @@ builder.Services
 
 builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
-builder.Services.AddGlobalExceptionHandler();
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-#if !DEBUG // Exclude when debugging locally.
-    .AddJwtBearer(options => {
-        var section = builder.Configuration.GetRequiredSection("AzureAd");
-        options.Audience = section.GetValue<string>("Audience");
-        options.MetadataAddress = section.GetValue<string>("Instance") + "/" + section.GetValue<string>("TenantId") + "/.well-known/openid-configuration";
-    })
-#endif
-;
-
-var authorizationBuilder = builder.Services.AddAuthorizationBuilder();
-authorizationBuilder.SetFallbackPolicy(
-    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
-);
-#if DEBUG // Include when debugging locally.
-if (builder.Environment.IsEnvironment("Local")) {
-    authorizationBuilder.SetDefaultPolicy(
-        new AuthorizationPolicyBuilder().RequireAssertion(_ => true).Build()
-    );
-}
-#endif
+builder.Services
+    .AddGlobalExceptionHandler()
+    .AddInternalApiAuthentication(builder.Configuration, builder.Environment);
 
 IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Search];
-
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient")
@@ -108,16 +86,19 @@ var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOption
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
 
+//todo: remove this once we have migrated all the code away from using the WriteToAuditInteractor to using the ServiceBusAuditInteractor.
+//This is only needed for local development, as the ServiceBusAuditInteractor will not work locally.
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
-    builder.Services.AddScoped<IAuditWriter, NullAuditWriter>();
-}
-else {
-    builder.Services.AddAuditingWithServiceBus(builder.Configuration);
 }
 
-builder.Services.AddFeaturesServices();
-builder.Services.AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
+builder.Services.AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
+
+builder.Services
+    .AddGovNotify(builder.Configuration)
+    .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache, builder.Configuration.GetRequiredSection("GeneralRedisCache"))
+    .AddFeaturesServices(builder.Configuration)
+    .AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
 
 var app = builder.Build();
 

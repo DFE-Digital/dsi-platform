@@ -2,6 +2,7 @@ using System.Net;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.Users;
 using Moq;
@@ -31,9 +32,16 @@ public sealed class CancelPendingChangeEmailAddressNodeRequesterTests
         };
 
         var userLookupServiceMock = autoMocker.GetMock<IUserLookupService>();
+        var userId = new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258");
+
         userLookupServiceMock
-            .Setup(x => x.GetUserEmailAddressAsync(new Guid("51a50a75-e4fa-4b6e-9c72-581538ee5258")))
-            .ReturnsAsync("alex.johnson@example.com");
+            .Setup(x => x.GetUserInfoAsync(userId, CancellationToken.None))
+            .ReturnsAsync(new UserInfo(
+                userId,
+                "alex.johnson@example.com",
+                "Alex",
+                "Johnson",
+                AccountStatus.Active));
 
         return new CancelPendingChangeEmailAddressNodeRequester(
             directoriesClient,

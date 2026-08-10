@@ -1,11 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.Gateways.DistributedCache.Interactions;
+using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
+using Dfe.SignIn.InternalApi.Features.Users.UserCode;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 
@@ -23,6 +27,7 @@ public static class UsersFeature
     {
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
+        InitiateChangeEmailAddressEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
         ChangeJobTitleEndpoint.Map(app);
@@ -32,10 +37,14 @@ public static class UsersFeature
     /// Adds the <see cref="IUserLookupService"/> to the service collection.
     /// </summary>
     /// <param name="services">The service collection to add the service to.</param>
+    /// <param name="configuration">The configuration root to retrieve configuration settings from.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddUserServices(this IServiceCollection services)
+    public static IServiceCollection AddUserServices(this IServiceCollection services, IConfigurationRoot configuration)
     {
         services.AddScoped<IUserLookupService, UserLookupService>();
+        services.AddScoped<IUserCodeService, UserCodeService>();
+
+        services.AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
         return services;
     }
 }

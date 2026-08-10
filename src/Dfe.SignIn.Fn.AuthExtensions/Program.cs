@@ -62,7 +62,7 @@ var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOption
 
 builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
-    .AddAuditingWithServiceBus(builder.Configuration);
+    .AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
 
 builder.Services
     .Configure<BlockedEmailAddressOptions>(options => {

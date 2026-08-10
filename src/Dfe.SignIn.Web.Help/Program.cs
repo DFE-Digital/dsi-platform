@@ -85,8 +85,7 @@ builder.Services.SetupContentProcessing();
 builder.Services.AddSingleton<IServiceNavigationBuilder, ServiceNavigationBuilder>();
 
 builder.Services
-    .Configure<GovNotifyOptions>(builder.Configuration.GetRequiredSection("GovNotify"))
-    .AddGovNotify()
+    .AddGovNotify(builder.Configuration)
     .AddInteractor<SendEmailNotificationWithGovNotifyUseCase>();
 
 builder.Services

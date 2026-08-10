@@ -52,11 +52,10 @@ public sealed class AttributeCollectionSubmitHandler(
         var validationResults = new List<ValidationResult>();
 
         var changeNameRequest = new ChangeNameRequest {
-            UserId = Guid.NewGuid(), // ID is not needed for validation.
+            UserId = Guid.NewGuid(),
             FirstName = givenName,
-            LastName = surname,
-        };
-
+            LastName = surname
+        };  // ID is not needed for validation.
         var fvResult = changeNameValidator.Validate(changeNameRequest);
 
         if (!fvResult.IsValid) {

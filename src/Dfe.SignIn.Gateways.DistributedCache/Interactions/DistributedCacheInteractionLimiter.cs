@@ -56,12 +56,20 @@ public sealed class DistributedCacheInteractionLimiter(
     }
 
     /// <inheritdoc/>
-    public async Task<InteractionLimiterResult> LimitActionAsync(IKeyedRequest request)
+    public async Task<InteractionLimiterResult> LimitActionAsync(IKeyedRequest request, string? key = null)
     {
         ExceptionHelpers.ThrowIfArgumentNull(request, nameof(request));
 
-        string requestTypeName = request.GetType().Name;
-        string key = $"Limiter:{requestTypeName}:{request.Key}";
+        return await this.LimitActionAsync(request.GetType().Name, key ?? request.Key);
+    }
+
+    /// <inheritdoc/>
+    private async Task<InteractionLimiterResult> LimitActionAsync(string requestTypeName, string requestKey)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(requestTypeName, nameof(requestTypeName));
+        ExceptionHelpers.ThrowIfArgumentNull(requestKey, nameof(requestKey));
+
+        string key = $"Limiter:{requestTypeName}:{requestKey}";
         var options = limiterOptionsAccessor.Get(requestTypeName);
 
         var cacheEntry = JsonSerializer.Deserialize<CacheEntry>(await cache.GetStringAsync(key) ?? "null")

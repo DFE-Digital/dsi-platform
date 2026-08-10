@@ -54,9 +54,11 @@ public static class ExceptionHandlerExtensions
     /// Adds the global exception handler to the service collection.
     /// </summary>
     /// <param name="services"></param>
-    public static void AddGlobalExceptionHandler(this IServiceCollection services)
+    public static IServiceCollection AddGlobalExceptionHandler(this IServiceCollection services)
     {
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
+
+        return services;
     }
 }

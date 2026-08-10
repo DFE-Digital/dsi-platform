@@ -1,17 +1,20 @@
+using System.Net;
 using System.Security.Claims;
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using FluentValidation;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
@@ -43,6 +46,8 @@ public sealed class ChangeEmailControllerTests
 
     private static ChangeEmailController CreateControllerAuthenticated(AutoMocker autoMocker)
     {
+        autoMocker.Use<IValidator<ChangeEmailViewModel>>(new ChangeEmailViewModelValidator());
+
         var httpContext = new DefaultHttpContext();
         httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature {
             UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
@@ -69,10 +74,10 @@ public sealed class ChangeEmailControllerTests
     private static void SetupFakePendingEmailChange(AutoMocker autoMocker)
     {
         autoMocker.MockResponse(
-            new GetPendingChangeEmailAddressRequest {
+            new Core.Contracts.Users.GetPendingChangeEmailAddressRequest {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             },
-            new GetPendingChangeEmailAddressResponse {
+            new Core.Contracts.Users.GetPendingChangeEmailAddressResponse {
                 PendingChangeEmailAddress = new() {
                     UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                     NewEmailAddress = "alex.new@example.com",
@@ -102,13 +107,19 @@ public sealed class ChangeEmailControllerTests
     #region PostIndex(bool?, ChangeEmailViewModel)
 
     [TestMethod]
-    public async Task PostIndex_ReturnsFormView_WhenModelStateIsInvalid()
+    [DataRow("", "Email address is required.", DisplayName = "Empty email")]
+    [DataRow("invalid-email", "Invalid email format.", DisplayName = "Malformed email")]
+    [DataRow("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.cccccccccccccccccccccccccccccccccccccccccccccccccc.dddddddddddddddddddddddddddddddddddddddddddddddddd.com", "Email exceeds max length.",
+        DisplayName = "Over max length email")]
+    public async Task PostIndex_ReturnsFormView_WhenModelStateIsInvalid(string emailAddress, string expectedErrorMessage)
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
 
-        controller.ModelState.AddModelError("", "Fake error.");
+        controller.ModelState.AddModelError("", expectedErrorMessage);
 
-        var result = await controller.PostIndex(resend: false, viewModel: new());
+        var result = await controller.PostIndex(resend: false, viewModel: new() {
+            EmailAddressInput = emailAddress,
+        });
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -120,7 +131,14 @@ public sealed class ChangeEmailControllerTests
         var autoMocker = new AutoMocker();
 
         InitiateChangeEmailAddressRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<InitiateChangeEmailAddressRequest>(req => capturedRequest = req);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.InitiateChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<InitiateChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, InitiateChangeEmailAddressRequest, CancellationToken>(
+                (userId, req, ct) => capturedRequest = req)
+            .Returns(Task.CompletedTask);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -130,7 +148,6 @@ public sealed class ChangeEmailControllerTests
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("test", capturedRequest.ClientId);
-        Assert.AreEqual(new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
         Assert.IsTrue(capturedRequest.IsSelfInvoked);
     }
 
@@ -180,15 +197,16 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockThrows<InitiateChangeEmailAddressRequest>(
-            new InteractionRejectedByLimiterException()
-        );
+        var ex = await RefitTestHelper.ValidationException(HttpStatusCode.TooManyRequests, "For security, only 4 verification code requests can be sent. Wait 10 seconds before raising another request, or enter your verification code below.");
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
+            .ThrowsAsync(ex);
 
         autoMocker.MockResponse(
-            new GetPendingChangeEmailAddressRequest {
+            new Core.Contracts.Users.GetPendingChangeEmailAddressRequest {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             },
-            new GetPendingChangeEmailAddressResponse {
+            new Core.Contracts.Users.GetPendingChangeEmailAddressResponse {
                 PendingChangeEmailAddress = new() {
                     UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                     NewEmailAddress = "alex.new@example.com",
@@ -220,16 +238,11 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockThrows<InitiateChangeEmailAddressRequest>(
-            new InteractionRejectedByLimiterException()
-        );
+        var ex = await RefitTestHelper.ValidationException(HttpStatusCode.TooManyRequests, "For security, only 4 verification code requests can be sent. Wait 10 seconds before trying again.");
 
-        autoMocker.MockResponse(
-            new GetPendingChangeEmailAddressRequest {
-                UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            },
-            new GetPendingChangeEmailAddressResponse()
-        );
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
+            .ThrowsAsync(ex);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -269,10 +282,10 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
         autoMocker.MockResponse(
-            new GetPendingChangeEmailAddressRequest {
+            new Core.Contracts.Users.GetPendingChangeEmailAddressRequest {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             },
-            new GetPendingChangeEmailAddressResponse()
+            new Core.Contracts.Users.GetPendingChangeEmailAddressResponse()
         );
 
         var controller = CreateControllerAuthenticated(autoMocker);
@@ -339,10 +352,10 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
         autoMocker.MockResponse(
-            new GetPendingChangeEmailAddressRequest {
+            new Core.Contracts.Users.GetPendingChangeEmailAddressRequest {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             },
-            new GetPendingChangeEmailAddressResponse()
+            new Core.Contracts.Users.GetPendingChangeEmailAddressResponse()
         );
 
         var controller = CreateControllerAnonymous(autoMocker);
@@ -413,8 +426,8 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockThrows<ConfirmChangeEmailAddressRequest>(
-            new NoPendingChangeEmailException()
+        autoMocker.MockThrows<Core.Contracts.Users.ConfirmChangeEmailAddressRequest>(
+            new Core.Contracts.Users.NoPendingChangeEmailException()
         );
 
         var controller = CreateControllerAuthenticated(autoMocker);
@@ -480,8 +493,8 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockThrows<ConfirmChangeEmailAddressRequest>(
-            new FailedToUpdateAuthenticationMethodException()
+        autoMocker.MockThrows<Core.Contracts.Users.ConfirmChangeEmailAddressRequest>(
+            new Core.Contracts.Users.FailedToUpdateAuthenticationMethodException()
         );
 
         var controller = CreateControllerAuthenticated(autoMocker);
@@ -503,7 +516,7 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockThrows<ConfirmChangeEmailAddressRequest>(
+        autoMocker.MockThrows<Core.Contracts.Users.ConfirmChangeEmailAddressRequest>(
             new InvalidOperationException()
         );
 
@@ -575,8 +588,8 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        CancelPendingChangeEmailAddressRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<CancelPendingChangeEmailAddressRequest>(req => capturedRequest = req);
+        Core.Contracts.Users.CancelPendingChangeEmailAddressRequest? capturedRequest = null;
+        autoMocker.CaptureRequest<Core.Contracts.Users.CancelPendingChangeEmailAddressRequest>(req => capturedRequest = req);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 

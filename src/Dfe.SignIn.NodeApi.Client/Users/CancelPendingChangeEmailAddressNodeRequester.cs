@@ -24,13 +24,13 @@ public sealed class CancelPendingChangeEmailAddressNodeRequester(
     {
         context.ThrowIfHasValidationErrors();
 
-        var userEmail = await userLookupService.GetUserEmailAddressAsync(context.Request.UserId, cancellationToken);
+        var userInfo = await userLookupService.GetUserInfoAsync(context.Request.UserId, cancellationToken);
 
         await interaction.DispatchAsync(
             new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.CancelChangeEmail,
-                Message = $"Cancel change email request from {userEmail} (id: {context.Request.UserId})",
+                Message = $"Cancel change email request from {userInfo!.EmailAddress} (id: {context.Request.UserId})",
             }
         );
 

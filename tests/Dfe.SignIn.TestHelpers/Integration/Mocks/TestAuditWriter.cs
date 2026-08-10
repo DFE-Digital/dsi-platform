@@ -1,4 +1,3 @@
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 
 namespace Dfe.SignIn.TestHelpers.Integration.Mocks;
@@ -14,10 +13,10 @@ public sealed class TestAuditWriter : IAuditWriter
         this.interactorMock = interactorMock;
     }
 
-    public Task<WriteToAuditResponse> Log(InteractionContext<WriteToAuditRequest> context)
+    public Task Log(WriteToAuditRequest request)
     {
-        this.CapturedRequest = context.Request;
-        this.interactorMock?.InvokeAsync(context);
-        return Task.FromResult(new WriteToAuditResponse());
+        this.CapturedRequest = request;
+        this.interactorMock?.InvokeAsync(request);
+        return Task.CompletedTask;
     }
 }

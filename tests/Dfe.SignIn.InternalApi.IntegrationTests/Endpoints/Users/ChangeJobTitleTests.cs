@@ -34,7 +34,6 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var request = new ChangeJobTitleRequest {
-            UserId = user.Sub,
             NewJobTitle = expectedJobTitle
         };
 
@@ -61,14 +60,14 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
     public async Task ChangeJobTitle_Returns404_WhenUserDoesNotExist()
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
+        var userId = Guid.NewGuid();
 
         var request = new ChangeJobTitleRequest {
-            UserId = Guid.NewGuid(),
             NewJobTitle = "Senior Software Developer"
         };
 
         var url = UsersApiRoutes.ChangeJobTitle
-            .Replace("{userId}", request.UserId.ToString());
+            .Replace("{userId}", userId.ToString());
 
         var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
@@ -79,14 +78,14 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
     public async Task ChangeJobTitle_Returns401_WhenUnauthenticated()
     {
         var anonymousClient = this.CreateClient();
+        var userId = Guid.NewGuid();
 
         var request = new ChangeJobTitleRequest {
-            UserId = Guid.NewGuid(),
             NewJobTitle = "Senior Software Developer"
         };
 
         var url = UsersApiRoutes.ChangeJobTitle
-            .Replace("{userId}", request.UserId.ToString());
+            .Replace("{userId}", userId.ToString());
 
         var response = await anonymousClient.PostAsJsonAsync(url, request);
 
@@ -106,12 +105,11 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var request = new ChangeJobTitleRequest {
-            UserId = user.Sub,
             NewJobTitle = jobTitle
         };
 
         var url = UsersApiRoutes.ChangeJobTitle
-            .Replace("{userId}", request.UserId.ToString());
+            .Replace("{userId}", user.Sub.ToString());
 
         var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
@@ -138,12 +136,11 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var request = new ChangeJobTitleRequest {
-            UserId = user.Sub,
             NewJobTitle = newjobTitle
         };
 
         var url = UsersApiRoutes.ChangeJobTitle
-            .Replace("{userId}", request.UserId.ToString());
+            .Replace("{userId}", user.Sub.ToString());
 
         var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
@@ -168,12 +165,11 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         var userToUpdate = users[1];
 
         var request = new ChangeJobTitleRequest {
-            UserId = userToUpdate.Sub,
             NewJobTitle = newJobTitle
         };
 
         var url = UsersApiRoutes.ChangeJobTitle
-            .Replace("{userId}", request.UserId.ToString());
+            .Replace("{userId}", userToUpdate.Sub.ToString());
 
         var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
@@ -206,12 +202,11 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var request = new ChangeJobTitleRequest {
-            UserId = user.Sub,
             NewJobTitle = "Senior Software Engineer!!!" // Invalid characters in job title
         };
 
         var url = UsersApiRoutes.ChangeJobTitle
-            .Replace("{userId}", request.UserId.ToString());
+            .Replace("{userId}", user.Sub.ToString());
 
         var response = await authenticatedClient.PostAsJsonAsync(url, request);
 
@@ -229,11 +224,10 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var request = new ChangeJobTitleRequest {
-            UserId = user.Sub,
             NewJobTitle = longJobTitle
         };
         var url = UsersApiRoutes.ChangeJobTitle
-            .Replace("{userId}", request.UserId.ToString());
+            .Replace("{userId}", user.Sub.ToString());
 
         var response = await authenticatedClient.PostAsJsonAsync(url, request);
 

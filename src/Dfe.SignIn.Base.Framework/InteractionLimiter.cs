@@ -9,17 +9,18 @@ public interface IInteractionLimiter
     /// Attempts to limit an action based on the provided keyed request.
     /// </summary>
     /// <param name="request">The request containing a unique key for limiting.</param>
+    /// <param name="key">The unique key associated with the request. If null, the key from the request will be used.</param>
     /// <returns>
     ///   <para>A result indicating whether the action was rejected.</para>
     /// </returns>
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="request"/> is null.</para>
     /// </exception>
-    Task<InteractionLimiterResult> LimitActionAsync(IKeyedRequest request);
+    Task<InteractionLimiterResult> LimitActionAsync(IKeyedRequest request, string? key = null);
 
     /// <summary>
     /// Reset cache associated with a keyed request so that the next use of
-    /// <see cref="LimitActionAsync(IKeyedRequest)"/> is not limited.
+    /// <see cref="LimitActionAsync(IKeyedRequest, string?)"/> is not limited.
     /// </summary>
     /// <param name="request">The request containing a unique key for limiting.</param>
     /// <exception cref="ArgumentException">
@@ -49,6 +50,7 @@ public static class InteractionLimiterExtensions
     /// </summary>
     /// <param name="limiter">The interaction limiter instance.</param>
     /// <param name="request">The keyed request to limit.</param>
+    /// <param name="key">The unique key associated with the request.</param>
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="limiter"/> is null.</para>
     ///   <para>- or -</para>
@@ -57,13 +59,13 @@ public static class InteractionLimiterExtensions
     /// <exception cref="InteractionRejectedByLimiterException">
     ///   <para>If the interaction is rejected by the limiter.</para>
     /// </exception>
-    public static async Task LimitAndThrowAsync(this IInteractionLimiter limiter, IKeyedRequest request)
+    public static async Task LimitAndThrowAsync(this IInteractionLimiter limiter, IKeyedRequest request, string? key = null)
     {
         ExceptionHelpers.ThrowIfArgumentNull(limiter, nameof(limiter));
 
-        var result = await limiter.LimitActionAsync(request);
+        var result = await limiter.LimitActionAsync(request, key);
         if (result.WasRejected) {
-            throw new InteractionRejectedByLimiterException(request.GetType().Name, request.Key);
+            throw new InteractionRejectedByLimiterException(request.GetType().Name, key ?? request.Key);
         }
     }
 }

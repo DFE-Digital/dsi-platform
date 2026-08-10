@@ -24,7 +24,7 @@ public sealed class ServiceNavigationBuilderTests
 
         var userClientMock = new Mock<IUsersApiClient>();
 
-        userClientMock.Setup(x => x.PendingApprovalCount())
+        userClientMock.Setup(x => x.PendingApprovalCount(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var options = Options.Create(
@@ -64,7 +64,7 @@ public sealed class ServiceNavigationBuilderTests
         var result = await snb.Build(userCtx);
 
         // Assert
-        userClientMock.Verify(x => x.PendingApprovalCount(), Times.Never);
+        userClientMock.Verify(x => x.PendingApprovalCount(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
 
         Assert.AreEqual(4, result.Length);
         Assert.IsTrue(result.Any(x => x.Text == "Services" && x.Href.AbsoluteUri == $"{options.Value.ServicesUrl}my-services"));
@@ -85,7 +85,7 @@ public sealed class ServiceNavigationBuilderTests
 
         var userClientMock = new Mock<IUsersApiClient>();
 
-        userClientMock.Setup(x => x.PendingApprovalCount())
+        userClientMock.Setup(x => x.PendingApprovalCount(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var options = Options.Create(
@@ -101,7 +101,7 @@ public sealed class ServiceNavigationBuilderTests
         var result = await snb.Build(userCtx);
 
         // Assert
-        userClientMock.Verify(x => x.PendingApprovalCount(), Times.Once);
+        userClientMock.Verify(x => x.PendingApprovalCount(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
 
         Assert.AreEqual(6, result.Length);
         Assert.IsTrue(result.Any(x => x.Text == "Services" && x.Href.AbsoluteUri == $"{options.Value.ServicesUrl}my-services"));

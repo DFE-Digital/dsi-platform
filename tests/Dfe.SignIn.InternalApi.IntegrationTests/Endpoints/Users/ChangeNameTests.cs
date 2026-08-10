@@ -15,7 +15,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "interaction/Users.ChangeName";
+    private const string endpoint = "internal/Users.ChangeName";
 
     public ChangeNameTests(InternalApiWebApplicationFactory factory)
         : base(factory)

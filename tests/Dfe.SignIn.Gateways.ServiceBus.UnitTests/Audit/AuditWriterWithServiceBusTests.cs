@@ -11,7 +11,7 @@ namespace Dfe.SignIn.Gateways.ServiceBus.UnitTests.Audit;
 [TestClass]
 public sealed class AuditWriterWithServiceBusTests
 {
-    private static AuditWriterWithServiceBus CreateInteractor(AutoMocker autoMocker)
+    private static ServiceBusAuditWriter CreateInteractor(AutoMocker autoMocker)
     {
         autoMocker.GetMock<IAuditContextBuilder>()
             .Setup(x => x.BuildAuditContext())
@@ -23,7 +23,7 @@ public sealed class AuditWriterWithServiceBusTests
                 SourceUserId = new Guid("b1e26154-9b8a-4399-8662-5b4c1ffc01c3"),
             });
 
-        return autoMocker.CreateInstance<AuditWriterWithServiceBus>();
+        return autoMocker.CreateInstance<ServiceBusAuditWriter>();
     }
 
     private static void CaptureServiceBusMessage(AutoMocker autoMocker, Action<ServiceBusMessage, CancellationToken> captureMessage)
@@ -46,7 +46,7 @@ public sealed class AuditWriterWithServiceBusTests
 
         var auditor = CreateInteractor(autoMocker);
 
-        _ = await auditor.Log(new WriteToAuditRequest {
+        await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             Message = "Example audit message",
         });
@@ -75,7 +75,7 @@ public sealed class AuditWriterWithServiceBusTests
 
         var auditor = CreateInteractor(autoMocker);
 
-        _ = await auditor.Log(new WriteToAuditRequest {
+        await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             Message = "Example audit message",
             WasFailure = wasFailure,
@@ -98,7 +98,7 @@ public sealed class AuditWriterWithServiceBusTests
 
         var auditor = CreateInteractor(autoMocker);
 
-        _ = await auditor.Log(new WriteToAuditRequest {
+        await auditor.Log(new WriteToAuditRequest {
             EventCategory = "Login",
             EventName = "Example",
             Message = "Example audit message",

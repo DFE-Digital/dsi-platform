@@ -1,11 +1,13 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Notifications;
 using Dfe.SignIn.TestHelpers.Integration;
 using Dfe.SignIn.TestHelpers.Integration.Mocks;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Notify.Interfaces;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
@@ -15,6 +17,9 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     private readonly List<IAsyncDisposable> createdFactories = [];
 
     protected InternalApiWebApplicationFactory WebAppFactory { get; } = webAppFactory;
+
+    protected readonly FakeInteractionLimiter FakeLimiter = new();
+    protected readonly FakeEmailRequestTracker FakeEmailRequestTracker = new();
 
     public async Task InitializeAsync()
     {
@@ -38,6 +43,8 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
         var auditMock = new CapturingWriteToAuditInteractor();
         var auditWriterMock = new TestAuditWriter(auditMock);
 
+        var fakeEmailNotificationService = new FakeEmailNotificationService(this.FakeEmailRequestTracker);
+
         var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
             builder.ConfigureTestServices(services => {
                 services.RemoveAll<IInteractor<WriteToAuditRequest>>();
@@ -45,6 +52,13 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
                 services.RemoveAll<IAuditWriter>();
                 services.AddSingleton<IAuditWriter>(auditWriterMock);
+
+                services.RemoveAll<IAsyncNotificationClient>();
+                services.RemoveAll<INotificationService>();
+                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
+
+                services.RemoveAll<IInteractionLimiter>();
+                services.AddSingleton<IInteractionLimiter>(this.FakeLimiter);
             });
         });
 
@@ -85,6 +99,10 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
     protected HttpClient CreateClient()
     {
+        var emailRequestTracker = new FakeEmailRequestTracker();
+        var fakeEmailNotificationService = new FakeEmailNotificationService(emailRequestTracker);
+        var fakeLimiter = new FakeInteractionLimiter();
+
         var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
             builder.ConfigureTestServices(services => {
                 services.RemoveAll<IInteractor<WriteToAuditRequest>>();
@@ -92,6 +110,13 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
                 services.RemoveAll<IAuditWriter>();
                 services.AddSingleton<IAuditWriter, TestAuditWriter>();
+
+                services.RemoveAll<IAsyncNotificationClient>();
+                services.RemoveAll<INotificationService>();
+                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
+
+                services.RemoveAll<IInteractionLimiter>();
+                services.AddSingleton<IInteractionLimiter>(fakeLimiter);
             });
         });
 

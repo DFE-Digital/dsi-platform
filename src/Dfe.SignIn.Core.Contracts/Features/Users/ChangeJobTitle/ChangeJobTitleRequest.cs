@@ -6,11 +6,6 @@ namespace Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 public sealed record ChangeJobTitleRequest
 {
     /// <summary>
-    /// The unique ID of the user.
-    /// </summary>
-    public required Guid UserId { get; init; }
-
-    /// <summary>
     /// The user's job title.
     /// </summary>
     public required string? NewJobTitle { get; init; }

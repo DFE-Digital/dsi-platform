@@ -22,7 +22,7 @@
     <PackageReference Include="Microsoft.Identity.Web" />
     <PackageReference Include="Microsoft.Kiota.Abstractions" />
     <PackageReference Include="FluentValidation" />
-    <PackageReference Include="FluentValidation.AspNetCore" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
   </ItemGroup>
 
   <ItemGroup>
