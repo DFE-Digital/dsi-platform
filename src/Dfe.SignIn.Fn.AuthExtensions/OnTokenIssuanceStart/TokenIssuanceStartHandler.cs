@@ -38,11 +38,24 @@ public sealed class TokenIssuanceStartHandler(
                 }
             ).To<AutoLinkEntraUserToDsiResponse>();
         }
-        catch (Exception ex) when (ex is CannotLinkInactiveUserException or CannotCreateNewUserException) {
+        catch (Exception ex) when (ex is CannotLinkInactiveUserException
+            or CannotCreateNewUserException
+            or UserAlreadyLinkedToEntraAccountException
+            or EntraAccountAlreadyLinkedToDifferentUserException) {
             // CannotLinkInactiveUserException is a permanent failure requiring account
             // reactivation: retrying (e.g. on the user's next sign-in attempt) will hit the
             // same conflict every time. CannotCreateNewUserException is not reliably
             // permanent — it may occur because of the registration race window in
+            // CreateUserUseCase's pre-check, in which case the user's next sign-in attempt
+            // will find the now-committed row by email via
+            // AutoLinkEntraUserToDsiUseCase.LinkToExistingDsiUserAsync and self-heal. Other
+            // linking-conflict exceptions indicate a genuine conflict that will not resolve
+            // without support intervention.
+            string outcomeGuidance = ex switch {
+                CannotLinkInactiveUserException => "permanent failure requiring account reactivation",
+                CannotCreateNewUserException => "may self-heal on the user's next sign-in if this was a registration race, but investigate if recurring for the same account",
+                _ => "permanent failure requiring support investigation",
+            };
             // CreateUserUseCase's pre-check, in which case the user's next sign-in attempt
             // will find the now-committed row by email via
             // AutoLinkEntraUserToDsiUseCase.LinkToExistingDsiUserAsync and self-heal. Audit
