@@ -10,10 +10,6 @@ public sealed class ChangeJobTitleRequestValidator : AbstractValidator<ChangeJob
     /// <inheritdoc />
     public ChangeJobTitleRequestValidator()
     {
-        this.RuleFor(x => x.UserId)
-            .NotEmpty()
-            .WithMessage("UserId is required.");
-
         this.RuleFor(x => x.NewJobTitle)
             .NotEmpty()
             .MaximumLength(60)

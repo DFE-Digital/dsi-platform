@@ -36,6 +36,8 @@ public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
             return [];
         }
 
+        var userId = user.GetUserId();
+
         var items = new List<NavigationItemViewModel>
         {
             new StandardNavigationItemViewModel()
@@ -52,7 +54,7 @@ public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
 
         if (user.HasApproverClaim()) {
 
-            var pendingapproverCount = await this.userApiClient.PendingApprovalCount();
+            var pendingapproverCount = await this.userApiClient.PendingApprovalCount(userId, CancellationToken.None);
 
             items.Add(new StandardNavigationItemViewModel {
                 Href = new Uri(this.platformOptions.ServicesUrl, "approvals/users"),

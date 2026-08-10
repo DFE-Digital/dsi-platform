@@ -29,7 +29,8 @@ public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : I
 
         var identity = (ClaimsIdentity)principal.Identity;
 
-        var response = await usersApiClient.IsApprover();
+        var userId = principal.GetUserId();
+        var response = await usersApiClient.IsApprover(userId, CancellationToken.None);
 
         if (response.IsApprover) {
             if (!identity.HasClaim(c => c.Type == OrganisationRoles.Approver.Name)) {

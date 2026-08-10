@@ -33,7 +33,8 @@ public sealed class ChangeJobTitleController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
-        ChangeJobTitleViewModel viewModel)
+        ChangeJobTitleViewModel viewModel,
+        CancellationToken cancellationToken)
     {
         var validationResult = await changeJobTitleValidator.ValidateAsync(viewModel);
 
@@ -42,10 +43,9 @@ public sealed class ChangeJobTitleController(
             return this.Index();
         }
 
-        await usersApiClient.ChangeJobTitle(new ChangeJobTitleRequest {
-            UserId = this.User.GetUserId(),
+        await usersApiClient.ChangeJobTitle(this.User.GetUserId(), new ChangeJobTitleRequest {
             NewJobTitle = viewModel.JobTitleInput
-        });
+        }, cancellationToken);
 
         this.SetFlashSuccess(
             heading: "Job title updated successfully",
