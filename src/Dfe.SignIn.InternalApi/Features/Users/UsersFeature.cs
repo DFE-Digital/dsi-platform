@@ -10,6 +10,8 @@ using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
+using Dfe.SignIn.Core.Interfaces.ExternalAuth;
+using Dfe.SignIn.Core.Interfaces.Notifications;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 
@@ -28,6 +30,7 @@ public static class UsersFeature
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
         InitiateChangeEmailAddressEndpoint.Map(app);
+        ConfirmChangeEmailAddressEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
         ChangeJobTitleEndpoint.Map(app);
@@ -43,6 +46,8 @@ public static class UsersFeature
     {
         services.AddScoped<IUserLookupService, UserLookupService>();
         services.AddScoped<IUserCodeService, UserCodeService>();
+        services.AddScoped<IExternalAuthService, StubExternalAuthService>();
+        services.AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
 
         services.AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
         return services;

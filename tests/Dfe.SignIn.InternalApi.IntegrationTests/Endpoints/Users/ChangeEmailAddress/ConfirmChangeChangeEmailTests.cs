@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
@@ -28,6 +29,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     public async Task ConfirmChangeEmail_ReturnsSuccess_UpdatesEmail_DeletesCode_AndWritesAudit_WhenCodeValid()
     {
         var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        this.FakeUserUpdatedPublisher.Clear();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -76,6 +78,14 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         var editedFields = Assert.Single(auditRequest.CustomProperties, x => x.Key == "editedFields");
         Assert.NotNull(editedFields.Value);
+
+        // Assert user updated publisher published event
+        var publishedEvent = Assert.Single(this.FakeUserUpdatedPublisher.PublishedEvents);
+        Assert.Equal(user.Sub, publishedEvent.UserId);
+        Assert.Equal("john.doe@new.example.com", publishedEvent.EmailAddress);
+        Assert.Equal(user.FirstName, publishedEvent.FirstName);
+        Assert.Equal(user.LastName, publishedEvent.LastName);
+        Assert.Equal(user.Status, publishedEvent.Status);
     }
 
     [Fact]
@@ -214,12 +224,22 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             ClientId = "test-client",
             RedirectUri = "n/a",
             ContextData = null,
-            CreatedAt = DateTime.UtcNow.AddHours(-2),
-            UpdatedAt = DateTime.UtcNow.AddHours(-2),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
         };
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(expiredCode);
+
+        // Override CreatedAt/UpdatedAt using a separate DbContext context to bypass TimestampInterceptor State == EntityState.Added overwrite
+        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
+            var codeToExpire = await db.UserCodes.SingleAsync(x => x.Uid == user.Sub && x.CodeType == "changeemail");
+            codeToExpire.CreatedAt = DateTime.UtcNow.AddHours(-2);
+            codeToExpire.UpdatedAt = DateTime.UtcNow.AddHours(-2);
+            await db.SaveChangesAsync();
+        }
 
         var request = CreateConfirmRequest(user.Sub, "VALIDCODE");
 
@@ -262,34 +282,23 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
-    [Fact(Skip = "External auth service/interface does not exist yet on .NET platform")]
-    public async Task ConfirmChangeEmail_MapsAuthMethodUpdateFailure_AsCurrentBehaviour()
-    {
-        // Replicating patchUser.js Entra MFA failure logic (retains DB update, returns error)
-        await Task.CompletedTask;
-    }
-
     [Fact]
-    public async Task ConfirmChangeEmail_WritesFailureAudit_WhenDownstreamPatchFails()
+    public async Task ConfirmChangeEmail_MapsAuthMethodUpdateFailure_AsCurrentBehaviour()
     {
         var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
-        // Target user with a pending change
-        var targetUser = EntityFaker.User
-            .RuleFor(x => x.Email, (_, _) => "target@example.com")
-            .Generate();
-
-        // Conflict user who already owns the new email, causing a DB unique constraint failure
-        var conflictUser = EntityFaker.User
-            .RuleFor(x => x.Email, (_, _) => "conflict@example.com")
+        var user = EntityFaker.User
+            .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
+            .RuleFor(x => x.IsEntra, (_, _) => true)
+            .RuleFor(x => x.EntraOid, (_, _) => Guid.NewGuid())
             .Generate();
 
         var pendingCode = new UserCodeEntity
         {
-            Uid = targetUser.Sub,
+            Uid = user.Sub,
             CodeType = "changeemail",
-            Code = "CODE123",
-            Email = "conflict@example.com", // causes DB update collision
+            Code = "ABC1234",
+            Email = "john.doe@new.example.com",
             ClientId = "test-client",
             RedirectUri = "n/a",
             ContextData = null,
@@ -297,12 +306,68 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             UpdatedAt = DateTime.UtcNow,
         };
 
-        await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>([targetUser, conflictUser]);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest(targetUser.Sub, "CODE123");
+        // Set up the fake to throw the expected exception
+        this.FakeExternalAuthService.OnChangeEmail = (externalUserId, newEmail, ct) =>
+            throw new FailedToUpdateAuthenticationMethodException(user.Sub);
 
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(targetUser.Sub), request);
+        var request = CreateConfirmRequest(user.Sub, "ABC1234");
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+        // Check mapped JSON error matches legacy contract
+        var error = await response.Content.ReadFromJsonAsync<ErrorMessageDto>();
+        Assert.NotNull(error);
+        Assert.Equal("ChangeEmailAddressAuthenticationMethodError", error.Type);
+
+        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
+        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
+
+        // Retains DB update (not rolled back)
+        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        Assert.Equal("john.doe@new.example.com", updatedUser.Email);
+
+        // Failure audit is logged
+        var failureAudit = Assert.Single(auditMock.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
+        Assert.True(failureAudit.WasFailure);
+        Assert.Contains("FailedToUpdateAuthenticationMethodException", failureAudit.Message);
+    }
+
+    [Fact]
+    public async Task ConfirmChangeEmail_WritesFailureAudit_WhenDownstreamPatchFails()
+    {
+        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+
+        var user = EntityFaker.User
+            .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
+            .Generate();
+
+        var pendingCode = new UserCodeEntity
+        {
+            Uid = user.Sub,
+            CodeType = "changeemail",
+            Code = "CODE123",
+            Email = "john.doe@new.example.com",
+            ClientId = "test-client",
+            RedirectUri = "n/a",
+            ContextData = null,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
+
+        // Configure interceptor to simulate database save failure
+        this.TestTimestampInterceptor.ShouldFail = true;
+
+        var request = CreateConfirmRequest(user.Sub, "CODE123");
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -310,19 +375,19 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
         // Email remains unchanged
-        var dbUser = await assertionDbContext.Users.SingleOrDefaultAsync(x => x.Sub == targetUser.Sub);
+        var dbUser = await assertionDbContext.Users.SingleOrDefaultAsync(x => x.Sub == user.Sub);
         Assert.NotNull(dbUser);
-        Assert.Equal("target@example.com", dbUser.Email);
+        Assert.Equal("john.doe@old.example.com", dbUser.Email);
 
         // Pending code still exists
-        var dbCode = await GetChangeEmailCode(assertionDbContext, targetUser.Sub);
+        var dbCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
         Assert.NotNull(dbCode);
 
         // Failure audit is written
         var failureAudit = Assert.Single(auditMock.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
         Assert.Contains("Failed changed email", failureAudit.Message);
-        Assert.Equal(targetUser.Sub, failureAudit.UserId);
+        Assert.Equal(user.Sub, failureAudit.UserId);
     }
 
     [Fact]
@@ -401,22 +466,18 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_DoesNotDeletePendingCode_WhenCommitFails()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var (authenticatedClient, _) = this.CreateClientWithAuditMock();
 
-        var targetUser = EntityFaker.User
-            .RuleFor(x => x.Email, (_, _) => "target@example.com")
-            .Generate();
-
-        var conflictUser = EntityFaker.User
-            .RuleFor(x => x.Email, (_, _) => "conflict@example.com")
+        var user = EntityFaker.User
+            .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
             .Generate();
 
         var pendingCode = new UserCodeEntity
         {
-            Uid = targetUser.Sub,
+            Uid = user.Sub,
             CodeType = "changeemail",
             Code = "CODE123",
-            Email = "conflict@example.com", // causes DB collision on update
+            Email = "john.doe@new.example.com",
             ClientId = "test-client",
             RedirectUri = "n/a",
             ContextData = null,
@@ -424,12 +485,15 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             UpdatedAt = DateTime.UtcNow,
         };
 
-        await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>([targetUser, conflictUser]);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest(targetUser.Sub, "CODE123");
+        // Configure interceptor to simulate database save failure
+        this.TestTimestampInterceptor.ShouldFail = true;
 
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(targetUser.Sub), request);
+        var request = CreateConfirmRequest(user.Sub, "CODE123");
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -437,7 +501,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
         // Pending code must still exist
-        var dbCode = await GetChangeEmailCode(assertionDbContext, targetUser.Sub);
+        var dbCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
         Assert.NotNull(dbCode);
     }
 
@@ -511,4 +575,8 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
     private static async Task<UserCodeEntity?> GetChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
         => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == "changeemail");
+
+    private record ErrorMessageDto(
+        [property: JsonPropertyName("type")] string Type,
+        [property: JsonPropertyName("message")] string Message);
 }

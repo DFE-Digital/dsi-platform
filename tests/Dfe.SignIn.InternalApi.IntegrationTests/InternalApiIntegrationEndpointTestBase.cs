@@ -3,6 +3,10 @@ using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Notifications;
 using Dfe.SignIn.TestHelpers.Integration;
 using Dfe.SignIn.TestHelpers.Integration.Mocks;
+using Dfe.SignIn.Core.Interfaces.ExternalAuth;
+using Dfe.SignIn.Core.Interfaces.Notifications;
+using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,10 +24,16 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
     protected readonly FakeInteractionLimiter FakeLimiter = new();
     protected readonly FakeEmailRequestTracker FakeEmailRequestTracker = new();
+    protected readonly FakeExternalAuthService FakeExternalAuthService = new();
+    protected readonly FakeUserUpdatedPublisher FakeUserUpdatedPublisher = new();
+    internal readonly TestTimestampInterceptor TestTimestampInterceptor = new(TimeProvider.System);
 
     public async Task InitializeAsync()
     {
         await this.WebAppFactory.ResetDatabasesAsync();
+        this.FakeExternalAuthService.OnChangeEmail = null;
+        this.FakeUserUpdatedPublisher.Clear();
+        this.TestTimestampInterceptor.ShouldFail = false;
     }
 
     public Task DisposeAsync()
@@ -59,6 +69,15 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
                 services.RemoveAll<IInteractionLimiter>();
                 services.AddSingleton<IInteractionLimiter>(this.FakeLimiter);
+
+                services.RemoveAll<IExternalAuthService>();
+                services.AddSingleton<IExternalAuthService>(this.FakeExternalAuthService);
+
+                services.RemoveAll<IUserUpdatedPublisher>();
+                services.AddSingleton<IUserUpdatedPublisher>(this.FakeUserUpdatedPublisher);
+
+                services.RemoveAll<TimestampInterceptor>();
+                services.AddSingleton<TimestampInterceptor>(this.TestTimestampInterceptor);
             });
         });
 

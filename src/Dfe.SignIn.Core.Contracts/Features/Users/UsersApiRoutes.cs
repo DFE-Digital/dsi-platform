@@ -34,4 +34,9 @@ public static class UsersApiRoutes
     /// The API route for changing a user's email address.
     /// </summary>
     public const string InitiateChangeEmail = "/internal/users/{userId}/initiate-change-email";
+
+    /// <summary>
+    /// The API route for confirming the change of a user's email address.
+    /// </summary>
+    public const string ConfirmChangeEmail = "/internal/users/{userId}/confirm-change-email";
 }
