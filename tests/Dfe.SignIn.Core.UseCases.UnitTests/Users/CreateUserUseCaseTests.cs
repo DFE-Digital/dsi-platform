@@ -159,6 +159,7 @@ public sealed class CreateUserUseCaseTests
         using var ctx = new DbDirectoriesContext(options);
 
         var raceWinnerId = Guid.Parse("8f6a9b1e-9e3a-4b8e-9f1a-9b2c3d4e5f6a");
+        var raceEntraOid = Guid.Parse("2222e22e-2222-4222-8222-222222222222");
 
         var mockUnitOfWork = autoMocker.GetMock<IUnitOfWorkDirectories>();
         mockUnitOfWork.Setup(u => u.Repository<UserEntity>()).Returns(ctx.Users);
@@ -168,6 +169,9 @@ public sealed class CreateUserUseCaseTests
         mockUnitOfWork
             .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .Callback(() => {
+                // Same email AND same entra_oid as the losing request below - this is
+                // the genuine race: the same Entra identity signing in twice
+                // concurrently, and the other request's insert committed first.
                 ctx.Users.Add(new UserEntity {
                     Sub = raceWinnerId,
                     Email = "race@example.com",
@@ -177,7 +181,7 @@ public sealed class CreateUserUseCaseTests
                     Salt = "",
                     Status = 1,
                     IsEntra = true,
-                    EntraOid = Guid.Parse("1111e11e-1111-4111-8111-111111111111"),
+                    EntraOid = raceEntraOid,
                 });
                 ctx.SaveChanges();
             })
@@ -190,10 +194,60 @@ public sealed class CreateUserUseCaseTests
                 EmailAddress = "race@example.com",
                 FirstName = "joe",
                 LastName = "brown",
-                EntraUserId = Guid.Parse("2222e22e-2222-4222-8222-222222222222")
+                EntraUserId = raceEntraOid
             });
 
         Assert.AreEqual(raceWinnerId, response.UserId);
+    }
+
+    [TestMethod]
+    public async Task RethrowsWhen_EmailAlreadyUsedByADifferentEntraIdentity()
+    {
+        // Not a self-race: a row already exists with the same email but a DIFFERENT
+        // entra_oid. Recovering here would silently return someone else's account -
+        // this must surface as the original exception instead.
+        var autoMocker = new AutoMocker();
+
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var ctx = new DbDirectoriesContext(options);
+
+        var conflictingUserId = Guid.Parse("8f6a9b1e-9e3a-4b8e-9f1a-9b2c3d4e5f6a");
+
+        var mockUnitOfWork = autoMocker.GetMock<IUnitOfWorkDirectories>();
+        mockUnitOfWork.Setup(u => u.Repository<UserEntity>()).Returns(ctx.Users);
+        mockUnitOfWork
+            .Setup(u => u.AddAsync(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        mockUnitOfWork
+            .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => {
+                ctx.Users.Add(new UserEntity {
+                    Sub = conflictingUserId,
+                    Email = "race@example.com",
+                    FirstName = "Someone",
+                    LastName = "Else",
+                    Password = "",
+                    Salt = "",
+                    Status = 1,
+                    IsEntra = true,
+                    EntraOid = Guid.Parse("1111e11e-1111-4111-8111-111111111111"),
+                });
+                ctx.SaveChanges();
+            })
+            .ThrowsAsync(new DbUpdateException("Violation of UNIQUE KEY constraint 'IDX__user__email__unique'."));
+
+        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+
+        await Assert.ThrowsExactlyAsync<DbUpdateException>(()
+            => interactor.InvokeAsync(
+                new CreateUserRequest {
+                    EmailAddress = "race@example.com",
+                    FirstName = "joe",
+                    LastName = "brown",
+                    EntraUserId = Guid.Parse("2222e22e-2222-4222-8222-222222222222")
+                }));
     }
 
     [TestMethod]
@@ -224,6 +278,59 @@ public sealed class CreateUserUseCaseTests
                     FirstName = "joe",
                     LastName = "brown",
                     EntraUserId = Guid.Parse("fa70e11c-f1eb-4bab-9fa0-ff36a9620066")
+                }));
+    }
+
+    [TestMethod]
+    public async Task DoesNotAttemptRecovery_WhenSaveFailureIsNotAUniqueConstraintViolation()
+    {
+        // A DbUpdateException from an unrelated cause (FK violation, timeout, etc.)
+        // must not be reinterpreted as a race. A row matching this request by both
+        // email and entra_oid is inserted at the moment SaveChangesAsync is called
+        // (simulating a genuine concurrent race, the same way
+        // RecoversWhenConcurrentRequestWinsTheRace does) - if the `when` filter were
+        // missing or too broad, this would incorrectly recover instead of rethrowing.
+        var autoMocker = new AutoMocker();
+
+        var options = new DbContextOptionsBuilder<DbDirectoriesContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var ctx = new DbDirectoriesContext(options);
+
+        var requestEntraOid = Guid.Parse("fa70e11c-f1eb-4bab-9fa0-ff36a9620066");
+
+        var mockUnitOfWork = autoMocker.GetMock<IUnitOfWorkDirectories>();
+        mockUnitOfWork.Setup(u => u.Repository<UserEntity>()).Returns(ctx.Users);
+        mockUnitOfWork
+            .Setup(u => u.AddAsync(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        mockUnitOfWork
+            .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => {
+                ctx.Users.Add(new UserEntity {
+                    Sub = Guid.Parse("8f6a9b1e-9e3a-4b8e-9f1a-9b2c3d4e5f6a"),
+                    Email = "joe.brown@example.com",
+                    FirstName = "joe",
+                    LastName = "brown",
+                    Password = "",
+                    Salt = "",
+                    Status = 1,
+                    IsEntra = true,
+                    EntraOid = requestEntraOid,
+                });
+                ctx.SaveChanges();
+            })
+            .ThrowsAsync(new DbUpdateException("The INSERT statement conflicted with the FOREIGN KEY constraint."));
+
+        var interactor = autoMocker.CreateInstance<CreateUserUseCase>();
+
+        await Assert.ThrowsExactlyAsync<DbUpdateException>(()
+            => interactor.InvokeAsync(
+                new CreateUserRequest {
+                    EmailAddress = "joe.brown@example.com",
+                    FirstName = "joe",
+                    LastName = "brown",
+                    EntraUserId = requestEntraOid
                 }));
     }
 }

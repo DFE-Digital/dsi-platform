@@ -64,13 +64,18 @@ public sealed class CreateUserUseCase(
         try {
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException) {
-            // A concurrent request may have won the race to create this user (e.g. two
-            // simultaneous registration attempts for the same email). Resolve to whichever
-            // row now exists instead of failing.
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex)) {
+            // A concurrent request for the same Entra identity may have won the race to
+            // create this user (e.g. two simultaneous sign-ins for the same account).
+            // Email and EntraOid are each independently enforced as unique, so a row
+            // matching both values is the unambiguous race winner. A row matching only
+            // one of the two (e.g. the email is already used by a different Entra
+            // identity) is a genuine conflict, not a self-race - that must surface as
+            // the original exception rather than silently resolving to someone else's
+            // account.
             var raceWinner = await unitOfWork.Repository<UserEntity>()
                     .Where(x =>
-                        x.Email == context.Request.EmailAddress ||
+                        x.Email == context.Request.EmailAddress &&
                         x.EntraOid == context.Request.EntraUserId)
                     .Select(x => new { x.Sub })
                     .SingleOrDefaultAsync(cancellationToken);
@@ -93,5 +98,18 @@ public sealed class CreateUserUseCase(
         return new CreateUserResponse {
             UserId = newUser.Sub
         };
+    }
+
+    // SqlException's constructors are internal, so it can't be inspected by type/Number
+    // here without a hard dependency on Microsoft.Data.SqlClient in this layer. Matching
+    // on the well-known SQL Server unique-violation message text (2601: unique index,
+    // 2627: named unique constraint - this table has both, see UserEntityConfiguration)
+    // keeps this scoped to actual unique-constraint races, not any other DbUpdateException
+    // cause (e.g. FK violations, timeouts) that recovery-by-lookup would misinterpret.
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+    {
+        var message = ex.InnerException?.Message ?? ex.Message;
+        return message.Contains("UNIQUE KEY constraint", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("duplicate key row", StringComparison.OrdinalIgnoreCase);
     }
 }
