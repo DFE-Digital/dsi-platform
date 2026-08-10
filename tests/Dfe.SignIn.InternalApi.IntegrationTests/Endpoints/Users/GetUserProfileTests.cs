@@ -12,7 +12,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "interaction/{userId}/Users.GetUserProfile";
+    private const string endpoint = "internal/{userId}/Users.GetUserProfile";
 
     private string GetEndpointUrl(Guid userId) => endpoint.Replace("{userId}", userId.ToString());
 

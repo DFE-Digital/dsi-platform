@@ -8,5 +8,5 @@ public static class UserConstants
     /// <summary>
     /// Gets the maximum length allowed for an email address.
     /// </summary>
-    public const int MaxEmailAddressLength = 254;
+    public const int MaxEmailAddressLength = 255;
 }

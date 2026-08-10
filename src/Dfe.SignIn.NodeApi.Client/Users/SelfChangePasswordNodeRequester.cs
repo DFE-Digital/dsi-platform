@@ -69,7 +69,6 @@ public sealed class SelfChangePasswordNodeRequester(
         var userId = context.Request.UserId;
         await Task.FromResult(userId);
 
-        //var userEmail = await userLookupService.GetUserEmailAddressAsync(context.Request.UserId, CancellationToken.None);
         var userInfo = await userLookupService.GetUserInfoAsync(context.Request.UserId, CancellationToken.None);
 
         try {

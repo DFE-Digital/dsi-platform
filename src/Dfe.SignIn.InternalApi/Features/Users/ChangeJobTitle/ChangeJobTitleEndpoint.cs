@@ -53,7 +53,7 @@ public sealed class ChangeJobTitleEndpoint : IEndpoint
             .FirstOrDefaultAsync(cancellationToken);
 
         if (user is null) {
-            logger.LogWarning("User {userId} not found", userId);
+            logger.LogWarning("User {UserId} not found", userId);
             return Results.NotFound();
         }
 

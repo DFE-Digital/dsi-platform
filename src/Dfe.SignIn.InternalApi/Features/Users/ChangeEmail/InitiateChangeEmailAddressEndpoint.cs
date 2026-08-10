@@ -74,8 +74,8 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
         try {
             await actionRateLimiter.LimitAndThrowAsync(request, existingUserInfo.UserId.ToString());
         }
-        catch (InteractionRejectedByLimiterException) {
-            logger.LogWarning("Rate limit exceeded for user {UserId} when attempting to change email address", existingUserInfo.UserId);
+        catch (InteractionRejectedByLimiterException ex) {
+            logger.LogWarning(ex, "Rate limit exceeded for user {UserId} when attempting to change email address", existingUserInfo.UserId);
             return GetLimitExceededResult(limiterOptions.Get<InitiateChangeEmailAddressRequest>());
         }
 

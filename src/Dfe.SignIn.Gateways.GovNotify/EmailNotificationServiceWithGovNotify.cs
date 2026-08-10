@@ -19,14 +19,13 @@ public class EmailNotificationServiceWithGovNotify(
     public async Task SendAsync(string recipientEmailAddress, string templateId, IReadOnlyDictionary<string, dynamic> personalisation)
     {
         try {
-            var response = await notificationClient.SendEmailAsync(
+            await notificationClient.SendEmailAsync(
                 recipientEmailAddress,
                 templateId,
                 personalisation.ToDictionary()
             );
         }
         catch (NotifyClientException ex) {
-            //todo: could do with including masked emails to the logs
             logger.LogError(ex, "Failed to send email notification to using template {TemplateId}.", templateId);
             throw new NotificationGatewayException("Failed to send email notification.", ex);
         }
