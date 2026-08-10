@@ -73,9 +73,6 @@ public sealed class ChangeEmailController(
                 ? ex.Content.Detail
                 : "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";
 
-            //var errorMessage = ex.Content?.Detail.ToString()
-            //    ?? "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";
-
             this.SetFlashNotification(
                 heading: "Verification code limit reached",
                 message: errorMessage

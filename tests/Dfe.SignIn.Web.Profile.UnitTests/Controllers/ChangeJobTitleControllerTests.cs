@@ -83,7 +83,7 @@ public sealed class ChangeJobTitleControllerTests
 
         var controller = CreateController(autoMocker);
 
-        var result = await controller.PostIndex(new ChangeJobTitleViewModel(), CancellationToken.None);
+        var result = await controller.PostIndex(new ChangeJobTitleViewModel());
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -97,7 +97,7 @@ public sealed class ChangeJobTitleControllerTests
 
         var controller = CreateController(autoMocker);
 
-        await controller.PostIndex(CreateValidChangeJobTitleViewModel(), CancellationToken.None);
+        await controller.PostIndex(CreateValidChangeJobTitleViewModel());
 
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNotNull(flashNotification);
@@ -114,7 +114,7 @@ public sealed class ChangeJobTitleControllerTests
 
         var controller = CreateController(autoMocker);
 
-        var result = await controller.PostIndex(CreateValidChangeJobTitleViewModel(), CancellationToken.None);
+        var result = await controller.PostIndex(CreateValidChangeJobTitleViewModel());
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);

@@ -132,8 +132,12 @@ public sealed class ChangeEmailControllerTests
 
         InitiateChangeEmailAddressRequest? capturedRequest = null;
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
-            .Callback<Guid, InitiateChangeEmailAddressRequest>((userId, req) => capturedRequest = req)
+            .Setup(x => x.InitiateChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<InitiateChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, InitiateChangeEmailAddressRequest, CancellationToken>(
+                (userId, req, ct) => capturedRequest = req)
             .Returns(Task.CompletedTask);
 
         var controller = CreateControllerAuthenticated(autoMocker);
