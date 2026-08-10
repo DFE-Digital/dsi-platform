@@ -56,7 +56,7 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         var auditRequest = auditMock.CapturedRequest;
         Assert.NotNull(auditRequest);
         Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditRequest.EventCategory);
-        Assert.Equal(AuditChangeEmailEventNames.VerificationCodeSent, auditRequest.EventName);
+        Assert.Equal(AuditChangeEmailEventNames.VerificationCode, auditRequest.EventName);
         //todo: update audit mock to support multiple events and assert the second event is the expected one
         //Assert.Equal("Request to change email from john.doe@old.example.com to john.doe@new.example.com", auditRequest.Message);
         Assert.Equal(user.Sub, auditRequest.UserId);
@@ -325,19 +325,19 @@ public class ChangeEmailAddressTests : InternalApiIntegrationEndpointTestBase
         Assert.Equal("8a6b7625-87d5-41bc-bc58-035343571d81", verificationRequest.TemplateId);
         Assert.Equal(newEmail, verificationRequest.Personalisation["email"]);
         Assert.Equal(pendingCode.Code, verificationRequest.Personalisation["code"]);
-        Assert.Equal("FirstName", verificationRequest.Personalisation["firstName"]);
-        Assert.Equal("LastName", verificationRequest.Personalisation["lastName"]);
+        Assert.Equal(user.FirstName, verificationRequest.Personalisation["firstName"]);
+        Assert.Equal(user.LastName, verificationRequest.Personalisation["lastName"]);
 
         var migratedEmailRequest = Assert.Single(trackedRequests, x => x.RecipientEmailAddress == existingEmail);
         Assert.Equal("18e0e804-04c6-4f73-9462-ab3cbf8b990f", migratedEmailRequest.TemplateId);
         Assert.Equal(newEmail, migratedEmailRequest.Personalisation["newEmail"]);
-        Assert.Equal("FirstName", migratedEmailRequest.Personalisation["firstName"]);
-        Assert.Equal("LastName", migratedEmailRequest.Personalisation["lastName"]);
+        Assert.Equal(user.FirstName, migratedEmailRequest.Personalisation["firstName"]);
+        Assert.Equal(user.LastName, migratedEmailRequest.Personalisation["lastName"]);
 
         var auditRequest = auditMock.CapturedRequest;
         Assert.NotNull(auditRequest);
         Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditRequest.EventCategory);
-        Assert.Equal(AuditChangeEmailEventNames.VerificationCodeSent, auditRequest.EventName);
+        Assert.Equal(AuditChangeEmailEventNames.VerificationCode, auditRequest.EventName);
         Assert.Equal(user.Sub, auditRequest.UserId);
     }
 

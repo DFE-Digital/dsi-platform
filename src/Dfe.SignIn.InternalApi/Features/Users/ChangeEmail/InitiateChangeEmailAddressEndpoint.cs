@@ -46,12 +46,17 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
     {
         logger.LogInformation("Initiating change of email address for user {UserId}", userId);
 
-        var existingUserEmail = await userLookupService.GetUserEmailAddressAsync(userId, cancellationToken);
+        var existingUserInfo = await userLookupService.GetUserInfoAsync(userId, cancellationToken);
         var existingUserWithNewEmailStatus = await userLookupService.GetUserStatusByEmailAddressAsync(request.NewEmailAddress, cancellationToken);
+
+        if (existingUserInfo is null) {
+            logger.LogWarning("User {UserId} not found when attempting to change email address", userId);
+            return Results.NotFound(new { Message = "User not found" });
+        }
 
         if (existingUserWithNewEmailStatus.UserExists) {
 
-            if (existingUserWithNewEmailStatus.UserId == userId) {
+            if (existingUserWithNewEmailStatus.UserId == existingUserInfo.UserId) {
                 return Results.BadRequest(new { Message = "Input an email address that is different from your current email address." });
             }
 
@@ -59,38 +64,32 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
             await auditWriter.Log(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
-                Message = $"Request to change email from {existingUserEmail} to existing user {request.NewEmailAddress}",
-                UserId = userId,
+                Message = $"Request to change email from {existingUserInfo.EmailAddress} to existing user {request.NewEmailAddress}",
+                UserId = existingUserInfo.UserId,
             });
 
             return Results.BadRequest(new { Message = "The email address is already in use by another" });
         }
 
-        if (string.IsNullOrEmpty(existingUserEmail)) {
-            logger.LogWarning("User {UserId} not found when attempting to change email address", userId);
-            return Results.NotFound(new { Message = "User not found" });
-        }
-
         try {
-            await actionRateLimiter.LimitAndThrowAsync(request, userId.ToString());
+            await actionRateLimiter.LimitAndThrowAsync(request, existingUserInfo.UserId.ToString());
         }
         catch (InteractionRejectedByLimiterException) {
-            logger.LogWarning("Rate limit exceeded for user {UserId} when attempting to change email address", userId);
+            logger.LogWarning("Rate limit exceeded for user {UserId} when attempting to change email address", existingUserInfo.UserId);
             return GetLimitExceededResult(limiterOptions.Get<InitiateChangeEmailAddressRequest>());
         }
 
-        //todo: remove the interactioncontext and use the auditwriter directly
         await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeEmail,
             EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
-            Message = $"Request to change email from {existingUserEmail} to {request.NewEmailAddress}",
-            UserId = userId,
+            Message = $"Request to change email from {existingUserInfo.EmailAddress} to {request.NewEmailAddress}",
+            UserId = existingUserInfo.UserId,
         });
 
-        await userCodeService.DeleteExistingCodesAsync(userId, cancellationToken);
-        await userCodeService.CreateNewVerificationCodeAsync(userId, existingUserEmail, request.NewEmailAddress, request.ClientId, cancellationToken);
+        await userCodeService.DeleteExistingCodesAsync(existingUserInfo.UserId, cancellationToken);
+        await userCodeService.CreateNewVerificationCodeAsync(existingUserInfo, request.NewEmailAddress, request.ClientId, cancellationToken);
 
-        logger.LogInformation("Successfully initiated change of email address for user {UserId}", userId);
+        logger.LogInformation("Successfully initiated change of email address for user {UserId}", existingUserInfo.UserId);
 
         return Results.Ok();
     }

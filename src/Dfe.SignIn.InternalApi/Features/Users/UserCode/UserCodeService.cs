@@ -1,5 +1,7 @@
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Notifications;
+using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,13 +26,12 @@ public interface IUserCodeService
     /// <summary>
     /// Creates a new verification code for changing the email address of a user and persists it to the database. The code is generated using a secure random generator and is associated with the specified user ID, new email address, and client ID. After saving the code, an audit log entry is created to record the event.
     /// </summary>
-    /// <param name="userId">The unique identifier of the user.</param>
-    /// <param name="existingEmailAddress">The existing email address of the user.</param>
+    /// <param name="userInfo"></param>
     /// <param name="newEmailAddress">The new email address to associate with the verification code.</param>
     /// <param name="clientId">The client ID associated with the request.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task CreateNewVerificationCodeAsync(Guid userId, string existingEmailAddress, string newEmailAddress, string clientId, CancellationToken cancellationToken);
+    Task CreateNewVerificationCodeAsync(UserInfo userInfo, string newEmailAddress, string clientId, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -69,8 +70,7 @@ public class UserCodeService(
 
     /// <inheritdoc/>
     public async Task CreateNewVerificationCodeAsync(
-        Guid userId,
-        string existingEmailAddress,
+        UserInfo userInfo,
         string newEmailAddress,
         string clientId,
         CancellationToken cancellationToken)
@@ -80,8 +80,8 @@ public class UserCodeService(
         var verificationCode = CodeGenerator.Generate(8, CodeGenerator.FullCharset);
         var now = DateTime.UtcNow;
 
-        dbDirectoriesContext.UserCodes.Add(new() {
-            Uid = userId,
+        var userCode = new UserCodeEntity {
+            Uid = userInfo.UserId,
             CodeType = codeType,
             Code = verificationCode,
             ClientId = clientId,
@@ -90,25 +90,27 @@ public class UserCodeService(
             ContextData = null,
             CreatedAt = now,
             UpdatedAt = now,
-        });
+        };
+
+        dbDirectoriesContext.UserCodes.Add(userCode);
 
         try {
             await dbDirectoriesContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException ex) {
-            logger.LogError(ex, "Error saving new verification code for user {UserId}", userId);
+            logger.LogError(ex, "Error saving new verification code for user {UserId}", userInfo.UserId);
             throw;
         }
 
         await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeEmail,
-            EventName = AuditChangeEmailEventNames.VerificationCodeSent,
-            Message = $"Change email verification code {verificationCode} sent to email {newEmailAddress}. code expiry={now:O}, code type={codeType}",
-            UserId = userId
+            EventName = AuditChangeEmailEventNames.VerificationCode,
+            Message = $"Change email verification code {userCode.Code} sent to email {userCode.Email}. code expiry={userCode.CreatedAt:O}, code type={userCode.CodeType.ToLower()}",
+            UserId = userInfo.UserId,
         });
 
-        await this.SendVerifyChangeEmailNotification(newEmailAddress, "FirstName", "LastName", verificationCode);
-        await this.SendNotifyMigratedEmailNotification(existingEmailAddress, "FirstName", "LastName", newEmailAddress);
+        await this.SendVerifyChangeEmailNotification(userCode.Email, userInfo.FirstName, userInfo.LastName, userCode.Code);
+        await this.SendNotifyMigratedEmailNotification(userInfo.EmailAddress, userInfo.FirstName, userInfo.LastName, userCode.Email);
     }
 
     private async Task SendVerifyChangeEmailNotification(string email, string firstName, string lastName, string code)

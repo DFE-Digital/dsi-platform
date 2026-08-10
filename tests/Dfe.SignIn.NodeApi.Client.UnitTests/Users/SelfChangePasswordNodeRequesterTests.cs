@@ -3,6 +3,7 @@ using System.Text.Json;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Interfaces.Graph;
 using Dfe.SignIn.NodeApi.Client.Users;
@@ -33,9 +34,16 @@ public sealed class SelfChangePasswordNodeRequesterTests
         };
 
         var userLookupServiceMock = autoMocker.GetMock<IUserLookupService>();
+        var userId = new Guid("97c1d42e-88fd-4645-b110-84ccaac347a3");
+
         userLookupServiceMock
-            .Setup(x => x.GetUserEmailAddressAsync(new Guid("97c1d42e-88fd-4645-b110-84ccaac347a3")))
-            .ReturnsAsync("alex.cooper@example.com");
+            .Setup(x => x.GetUserInfoAsync(userId))
+            .ReturnsAsync(new UserInfo(
+                userId,
+                "alex.cooper@example.com",
+                "Alex",
+                "Cooper",
+                AccountStatus.Active));
 
         return new SelfChangePasswordNodeRequester(
             directoriesClient,
