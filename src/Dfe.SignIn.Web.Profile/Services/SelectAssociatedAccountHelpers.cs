@@ -127,7 +127,7 @@ public sealed class SelectAssociatedAccountHelper(
             SelectAssociatedReturnLocation.ChangePassword => urlHelper.Action(
                 nameof(ChangePasswordController.Index), MvcNaming.Controller<ChangePasswordController>()),
             SelectAssociatedReturnLocation.ChangeNameDetails => urlHelper.Action(
-            nameof(ChangeNameController), MvcNaming.Controller<ChangeNameController>()),
+            nameof(ChangeNameController.Index), MvcNaming.Controller<ChangeNameController>()),
             _ => "/",
         } ?? "/";
     }
