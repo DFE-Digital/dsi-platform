@@ -44,7 +44,7 @@ public sealed class GraphApiChangeUserPersonalDetails(
                 Surname = lastName
             });
         }
-        catch (ODataError error) {
+        catch (ODataError) {
             throw;
         }
     }
