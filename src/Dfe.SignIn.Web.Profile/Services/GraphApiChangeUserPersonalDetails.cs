@@ -17,7 +17,7 @@ public sealed class GraphApiChangeUserPersonalDetails(
     {
         ExceptionHelpers.ThrowIfArgumentNull(forename, nameof(forename));
         ExceptionHelpers.ThrowIfArgumentNull(lastName, nameof(lastName));
-        ExceptionHelpers.ThrowIfArgumentNull(graphAccessToken, nameof(graphAccessToken));
+        ExceptionHelpers.ThrowIfArgumentNull(graphAccessToken!, nameof(graphAccessToken));
 
         if (graphAccessToken is null) {
             throw new InvalidOperationException("Missing user access token.");
