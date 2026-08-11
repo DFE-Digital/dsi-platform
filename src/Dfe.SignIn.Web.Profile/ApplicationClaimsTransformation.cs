@@ -30,17 +30,15 @@ public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient, ILo
 
         var identity = (ClaimsIdentity)principal.Identity;
 
-        var userId = Guid.Empty;
+        //Safe to set to empty since Guid.Parse will fail if not valid guid
+        //and if its missing, the GetUserId() will also throw an exception
+        //if it fails to parse.
+        Guid userId = Guid.Empty;
         if (principal.Claims.Any(c => c.Type == DsiClaimTypes.UserId)) {
             userId = Guid.Parse(principal.Claims.First(c => c.Type == DsiClaimTypes.UserId).Value);
         }
         else {
             userId = principal.GetUserId();
-        }
-
-        if (userId == Guid.Empty) {
-            logger.LogWarning("Cannot find userId for user!!");
-            return principal;
         }
 
         var response = await usersApiClient.IsApprover(userId, CancellationToken.None);
