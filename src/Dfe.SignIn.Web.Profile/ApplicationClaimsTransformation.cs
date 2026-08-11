@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Public;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Dfe.SignIn.Web.Profile;
@@ -10,7 +11,7 @@ namespace Dfe.SignIn.Web.Profile;
 /// based claims.
 /// </summary>
 /// <param name="usersApiClient"></param>
-public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : IClaimsTransformation
+public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient, ILogger<ApplicationClaimsTransformation> logger) : IClaimsTransformation
 {
     /// <summary>
     /// Transforms the current claims principal and adds claims if required
@@ -29,7 +30,19 @@ public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : I
 
         var identity = (ClaimsIdentity)principal.Identity;
 
-        var userId = principal.GetUserId();
+        var userId = Guid.Empty;
+        if (principal.Claims.Any(c => c.Type == DsiClaimTypes.UserId)) {
+            userId = Guid.Parse(principal.Claims.First(c => c.Type == DsiClaimTypes.UserId).Value);
+        }
+        else {
+            userId = principal.GetUserId();
+        }
+
+        if (userId == Guid.Empty) {
+            logger.LogWarning("Cannot find userId for user!!");
+            return principal;
+        }
+
         var response = await usersApiClient.IsApprover(userId, CancellationToken.None);
 
         if (response.IsApprover) {

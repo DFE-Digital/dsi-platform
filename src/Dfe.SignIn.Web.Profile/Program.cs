@@ -2,8 +2,10 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Interfaces.Graph;
+using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
@@ -107,7 +109,8 @@ builder.Services
 builder.Services
     .AddHttpContextAccessor()
     .AddSingleton<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>()
-    .AddSingleton<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>();
+    .AddSingleton<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>()
+    .AddSingleton<IGraphApiChangeUserPersonalDetails, GraphApiChangeUserPersonalDetails>();
 
 builder.Services
     .AddUsersApiClient(tokenCredential);

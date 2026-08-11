@@ -1,6 +1,8 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
+using Dfe.SignIn.Core.Contracts.Graph;
 using Dfe.SignIn.Web.Profile.Models;
+using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
 using FluentValidation;
@@ -18,13 +20,23 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 public sealed class ChangeNameController(
     IUsersApiClient usersApiClient,
     IValidator<ChangeNameViewModel> changeNameValidator,
+    ISelectAssociatedAccountHelper selectAssociatedAccountHelper,
+    IGraphApiChangeUserPersonalDetails graphApiChangeUserPersonalDetails,
     ILogger<ChangeNameController> logger
 ) : Controller
 {
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
+
+        if (userProfileFeature.IsEntra) {
+            var actionResult = await selectAssociatedAccountHelper.AuthenticateAssociatedAccount(
+                this, ["https://graph.microsoft.com/.default"], SelectAssociatedReturnLocation.ChangeNameDetails);
+            if (actionResult is not null) {
+                return actionResult;
+            }
+        }
 
         return this.View("Index", new ChangeNameViewModel {
             FirstNameInput = userProfileFeature.FirstName,
@@ -39,9 +51,15 @@ public sealed class ChangeNameController(
     {
         var validationResult = await changeNameValidator.ValidateAsync(viewModel);
 
+        var userDetails = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
+
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
-            return this.Index();
+            return await this.Index();
+        }
+
+        if (viewModel.FirstNameInput.ToLower() == userDetails.FirstName && viewModel.LastNameInput == userDetails.LastName) {
+            return await this.Index();
         }
 
         try {
@@ -56,7 +74,25 @@ public sealed class ChangeNameController(
         catch (Exception ex) {
             logger.LogError(ex, "An error occurred while changing the user's name.");
             this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
-            return this.Index();
+            return await this.Index();
+        }
+
+        if (userDetails.IsEntra) {
+            try {
+                GraphAccessToken? graphAccessToken = null;
+                graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
+                    this, ["https://graph.microsoft.com/.default"]) ?? throw new Exception("Provided graph token for user is null");
+
+                await graphApiChangeUserPersonalDetails.ChangeName(viewModel.FirstNameInput,
+                    viewModel.LastNameInput, graphAccessToken);
+            }
+
+            catch (Exception ex) {
+                await this.Rollback(userDetails.FirstName, userDetails.LastName);
+                logger.LogError(ex, "An error occurred while changing the user's name.");
+                this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
+                return await this.Index();
+            }
         }
 
         this.SetFlashSuccess(
@@ -77,5 +113,22 @@ public sealed class ChangeNameController(
         );
 
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
+    }
+
+    /// <summary>
+    /// If entra fails, we apply a roll back to prevent de-sync issues.
+    /// </summary>
+    /// <param name="forename"></param>
+    /// <param name="surname"></param>
+    /// <returns></returns>
+    private async Task Rollback(string forename, string surname)
+    {
+        var request = new ChangeNameRequest {
+            UserId = this.User.GetUserId(),
+            FirstName = forename,
+            LastName = surname
+        };
+
+        await usersApiClient.ChangeName(request);
     }
 }
