@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Graph;
@@ -10,6 +11,7 @@ namespace Dfe.SignIn.Web.Profile.Services;
 /// 
 /// </summary>
 /// <param name="graphClientFactory"></param>
+[ExcludeFromCodeCoverage]
 public sealed class GraphApiChangeUserPersonalDetails(
     IPersonalGraphServiceFactory graphClientFactory) : IGraphApiChangeUserPersonalDetails
 {
