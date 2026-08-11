@@ -9,12 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dfe.SignIn.Base.Framework\Dfe.SignIn.Base.Framework.csproj" />
-    <ProjectReference Include="..\Dfe.SignIn.Core.Contracts\Dfe.SignIn.Core.Contracts.csproj" />
+    <Compile Remove="DataAccess\**" />
+    <EmbeddedResource Remove="DataAccess\**" />
+    <None Remove="DataAccess\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DataAccess\" />
+    <ProjectReference Include="..\Dfe.SignIn.Base.Framework\Dfe.SignIn.Base.Framework.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.Core.Contracts\Dfe.SignIn.Core.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

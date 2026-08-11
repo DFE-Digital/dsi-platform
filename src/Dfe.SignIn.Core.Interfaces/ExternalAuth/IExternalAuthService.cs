@@ -12,7 +12,7 @@ public interface IExternalAuthService
     /// <param name="newEmailAddress">The user's new email address.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="Dfe.SignIn.Core.Contracts.Users.FailedToUpdateAuthenticationMethodException">
+    /// <exception cref="Contracts.Users.FailedToUpdateAuthenticationMethodException">
     /// Thrown when Entra MFA authentication method update fails.
     /// </exception>
     Task ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken);

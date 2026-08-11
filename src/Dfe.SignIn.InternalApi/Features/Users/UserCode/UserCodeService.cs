@@ -65,6 +65,7 @@ public class UserCodeService(
     public async Task<UserCodeEntity?> GetPendingChangeEmailCodeAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await dbDirectoriesContext.UserCodes
+            .AsNoTracking()
             .Where(x => x.Uid == userId)
             .Where(x => x.CodeType == ChangeEmailCodeType)
             .FirstOrDefaultAsync(cancellationToken);

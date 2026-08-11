@@ -35,8 +35,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
             .Generate();
 
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "ABC1234",
@@ -80,12 +79,12 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.NotNull(editedFields.Value);
 
         // Assert user updated publisher published event
-        var publishedEvent = Assert.Single(this.FakeUserUpdatedPublisher.PublishedEvents);
-        Assert.Equal(user.Sub, publishedEvent.UserId);
-        Assert.Equal("john.doe@new.example.com", publishedEvent.EmailAddress);
-        Assert.Equal(user.FirstName, publishedEvent.FirstName);
-        Assert.Equal(user.LastName, publishedEvent.LastName);
-        Assert.Equal(user.Status, publishedEvent.Status);
+        var (UserId, EmailAddress, FirstName, LastName, Status) = Assert.Single(this.FakeUserUpdatedPublisher.PublishedEvents);
+        Assert.Equal(user.Sub, UserId);
+        Assert.Equal("john.doe@new.example.com", EmailAddress);
+        Assert.Equal(user.FirstName, FirstName);
+        Assert.Equal(user.LastName, LastName);
+        Assert.Equal(user.Status, Status);
     }
 
     [Fact]
@@ -103,8 +102,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "bystander@example.com")
             .Generate();
 
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = targetUser.Sub,
             CodeType = "changeemail",
             Code = "XYZ789",
@@ -165,8 +163,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
             .Generate();
 
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "CORRECT",
@@ -215,8 +212,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
             .Generate();
 
-        var expiredCode = new UserCodeEntity
-        {
+        var expiredCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "VALIDCODE",
@@ -232,8 +228,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(expiredCode);
 
         // Override CreatedAt/UpdatedAt using a separate DbContext context to bypass TimestampInterceptor State == EntityState.Added overwrite
-        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope())
-        {
+        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
             var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
             var codeToExpire = await db.UserCodes.SingleAsync(x => x.Uid == user.Sub && x.CodeType == "changeemail");
             codeToExpire.CreatedAt = DateTime.UtcNow.AddHours(-2);
@@ -293,8 +288,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.EntraOid, (_, _) => Guid.NewGuid())
             .Generate();
 
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "ABC1234",
@@ -346,8 +340,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
             .Generate();
 
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "CODE123",
@@ -413,8 +406,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .Generate();
 
         // 1. Wrong code scenario
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "CORRECT",
@@ -433,8 +425,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var responseWrong = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), requestWrong);
         Assert.Equal(HttpStatusCode.BadRequest, responseWrong.StatusCode);
 
-        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope())
-        {
+        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
             var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
             var dbUser = await db.Users.SingleAsync(x => x.Sub == user.Sub);
             Assert.Equal("john.doe@old.example.com", dbUser.Email);
@@ -443,9 +434,8 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         // 2. Expired code scenario
         pendingCode.CreatedAt = DateTime.UtcNow.AddHours(-2);
         pendingCode.UpdatedAt = DateTime.UtcNow.AddHours(-2);
-        
-        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope())
-        {
+
+        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
             var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
             db.UserCodes.Update(pendingCode);
             await db.SaveChangesAsync();
@@ -455,8 +445,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var responseExpired = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), requestExpired);
         Assert.Equal(HttpStatusCode.BadRequest, responseExpired.StatusCode);
 
-        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope())
-        {
+        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
             var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
             var dbUser = await db.Users.SingleAsync(x => x.Sub == user.Sub);
             Assert.Equal("john.doe@old.example.com", dbUser.Email);
@@ -472,8 +461,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
             .Generate();
 
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "CODE123",
@@ -511,8 +499,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
 
         var user = EntityFaker.User.Generate();
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "CODE123",
@@ -544,8 +531,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         this.FakeEmailRequestTracker.Clear();
 
         var user = EntityFaker.User.Generate();
-        var pendingCode = new UserCodeEntity
-        {
+        var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
             Code = "CODE123",
