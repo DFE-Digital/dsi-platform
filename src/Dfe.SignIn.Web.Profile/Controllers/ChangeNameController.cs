@@ -58,8 +58,12 @@ public sealed class ChangeNameController(
             return await this.Index();
         }
 
+        if (string.IsNullOrEmpty(viewModel.FirstNameInput) || string.IsNullOrEmpty(viewModel.LastNameInput)) {
+            return await this.Index();
+        }
+
         if (viewModel.FirstNameInput?.ToLower() == userDetails.FirstName.ToLower() &&
-            viewModel.LastNameInput?.ToLower() == userDetails.LastName.ToLower()) {
+        viewModel.LastNameInput?.ToLower() == userDetails.LastName.ToLower()) {
             return await this.Index();
         }
 
@@ -79,13 +83,14 @@ public sealed class ChangeNameController(
         }
 
         if (userDetails.IsEntra) {
+
             try {
                 GraphAccessToken? graphAccessToken = null;
                 graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
                     this, ["https://graph.microsoft.com/.default"]) ?? throw new Exception("Provided graph token for user is null");
 
-                await graphApiChangeUserPersonalDetails.ChangeName(viewModel.FirstNameInput,
-                    viewModel.LastNameInput, graphAccessToken);
+                await graphApiChangeUserPersonalDetails.ChangeName(viewModel.FirstNameInput!,
+                    viewModel.LastNameInput!, graphAccessToken);
             }
 
             catch (Exception ex) {
