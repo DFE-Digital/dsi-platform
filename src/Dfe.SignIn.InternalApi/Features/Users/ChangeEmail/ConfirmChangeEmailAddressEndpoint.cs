@@ -145,7 +145,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
         }
 
         // Audit, Publish Notification and Cleanup on Success
-        await TryToPublishNotification(auditWriter, userUpdatedPublisher, userCodeService, logger, userId, newEmail, user, cancellationToken);
+        await PublishNotification(auditWriter, userUpdatedPublisher, userCodeService, logger, userId, newEmail, user, cancellationToken);
 
         logger.LogInformation("Successfully confirmed email change to {NewEmail} for user {UserId}", newEmail, userId);
         return Results.Ok();
@@ -191,7 +191,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
         return false;
     }
 
-    private static async Task TryToPublishNotification(
+    private static async Task PublishNotification(
         IAuditWriter auditWriter,
         IUserUpdatedPublisher userUpdatedPublisher,
         IUserCodeService userCodeService,

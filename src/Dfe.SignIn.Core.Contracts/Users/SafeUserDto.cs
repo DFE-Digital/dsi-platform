@@ -1,41 +1,6 @@
 using System.Text.Json.Serialization;
-using Dfe.SignIn.Core.Interfaces.Notifications;
 
-namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
-
-//todo: this is just a placeholder for now, we will implement this properly when we have an notification service to send messages to. For now, we just log the call to this method.
-
-/// <summary>
-/// A no-op implementation of <see cref="IUserUpdatedPublisher"/> for presentation use.
-/// </summary>
-public sealed class StubUserUpdatedPublisher(ILogger<StubUserUpdatedPublisher> logger) : IUserUpdatedPublisher
-{
-    /// <inheritdoc/>
-    public Task PublishUserUpdatedAsync(Guid userId, string emailAddress, string firstName, string lastName, short status, CancellationToken cancellationToken)
-    {
-        var safeUserDto = new SafeUserDto(
-            Sub: userId.ToString(),
-            GivenName: firstName,
-            FamilyName: lastName,
-            Email: emailAddress,
-            JobTitle: null,
-            Id: userId.ToString(),
-            Status: status.ToString(),
-            LegacyUsername: null,
-            PhoneNumber: null,
-            LastLogin: null,
-            PrevLogin: null,
-            IsEntra: null,
-            EntraOid: null,
-            EntraLinked: null,
-            IsInternalUser: null,
-            EntraDeferUntil: null
-        );
-
-        logger.LogInformation("StubUserUpdatedPublisher: PublishUserUpdatedAsync called for user {UserId} with email {Email}. SafeUserDto: {@SafeUserDto}", userId, emailAddress, safeUserDto);
-        return Task.CompletedTask;
-    }
-}
+namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a safe user data transfer object (DTO) that contains user information.
