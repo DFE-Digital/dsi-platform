@@ -1,6 +1,7 @@
 using System.Globalization;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Interfaces.ExternalAuth;
@@ -15,7 +16,6 @@ namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 /// <summary>
 /// An endpoint to confirm the change of a user's email address.
 /// </summary>
-///
 public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
 {
     private const int VerificationCodeExpiryHours = 1;

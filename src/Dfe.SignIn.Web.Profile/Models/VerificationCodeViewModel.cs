@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Contracts.Users;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Dfe.SignIn.Web.Profile.Models;
@@ -28,6 +28,15 @@ public sealed class VerificationCodeViewModel
     /// <summary>
     /// Gets or sets the user's verification code.
     /// </summary>
-    [MapTo<ConfirmChangeEmailAddressRequest>(nameof(ConfirmChangeEmailAddressRequest.VerificationCode))]
     public string? VerificationCodeInput { get; set; }
+}
+
+public sealed class VerificationCodeViewModelValidator : AbstractValidator<VerificationCodeViewModel>
+{
+    /// <inheritdoc />
+    public VerificationCodeViewModelValidator()
+    {
+        this.RuleFor(x => x.VerificationCodeInput)
+            .NotEmpty().WithMessage("Enter a verification code");
+    }
 }

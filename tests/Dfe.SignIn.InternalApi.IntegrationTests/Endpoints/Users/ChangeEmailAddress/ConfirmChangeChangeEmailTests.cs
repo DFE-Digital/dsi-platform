@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
@@ -50,7 +51,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest(user.Sub, "ABC1234");
+        var request = CreateConfirmRequest("ABC1234");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -117,7 +118,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>([targetUser, bystanderUser]);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest(targetUser.Sub, "XYZ789");
+        var request = CreateConfirmRequest("XYZ789");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(targetUser.Sub), request);
 
@@ -147,7 +148,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateConfirmRequest(user.Sub, string.Empty);
+        var request = CreateConfirmRequest(string.Empty);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -178,7 +179,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest(user.Sub, "WRONG");
+        var request = CreateConfirmRequest("WRONG");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -236,7 +237,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             await db.SaveChangesAsync();
         }
 
-        var request = CreateConfirmRequest(user.Sub, "VALIDCODE");
+        var request = CreateConfirmRequest("VALIDCODE");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -269,7 +270,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateConfirmRequest(user.Sub, "ANYCODE");
+        var request = CreateConfirmRequest("ANYCODE");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -307,7 +308,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         this.FakeExternalAuthService.OnChangeEmail = (externalUserId, newEmail, ct) =>
             throw new FailedToUpdateAuthenticationMethodException(user.Sub);
 
-        var request = CreateConfirmRequest(user.Sub, "ABC1234");
+        var request = CreateConfirmRequest("ABC1234");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -358,7 +359,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         // Configure interceptor to simulate database save failure
         this.TestTimestampInterceptor.ShouldFail = true;
 
-        var request = CreateConfirmRequest(user.Sub, "CODE123");
+        var request = CreateConfirmRequest("CODE123");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -389,7 +390,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var anonymousClient = this.CreateClient();
 
         var userId = Guid.NewGuid();
-        var request = CreateConfirmRequest(userId, "ANYCODE");
+        var request = CreateConfirmRequest("ANYCODE");
 
         var response = await anonymousClient.PostAsJsonAsync(GetEndpointForUser(userId), request);
 
@@ -421,7 +422,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var requestWrong = CreateConfirmRequest(user.Sub, "WRONG");
+        var requestWrong = CreateConfirmRequest("WRONG");
         var responseWrong = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), requestWrong);
         Assert.Equal(HttpStatusCode.BadRequest, responseWrong.StatusCode);
 
@@ -441,7 +442,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             await db.SaveChangesAsync();
         }
 
-        var requestExpired = CreateConfirmRequest(user.Sub, "CORRECT");
+        var requestExpired = CreateConfirmRequest("CORRECT");
         var responseExpired = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), requestExpired);
         Assert.Equal(HttpStatusCode.BadRequest, responseExpired.StatusCode);
 
@@ -479,7 +480,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         // Configure interceptor to simulate database save failure
         this.TestTimestampInterceptor.ShouldFail = true;
 
-        var request = CreateConfirmRequest(user.Sub, "CODE123");
+        var request = CreateConfirmRequest("CODE123");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -514,7 +515,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest(user.Sub, "WRONGCODE");
+        var request = CreateConfirmRequest("WRONGCODE");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -546,7 +547,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest(user.Sub, "WRONGCODE");
+        var request = CreateConfirmRequest("WRONGCODE");
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
 
@@ -556,8 +557,8 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.Empty(this.FakeEmailRequestTracker.Requests);
     }
 
-    private static ConfirmChangeEmailAddressRequest CreateConfirmRequest(Guid userId, string verificationCode)
-        => new() { UserId = userId, VerificationCode = verificationCode };
+    private static ConfirmChangeEmailAddressRequest CreateConfirmRequest(string verificationCode)
+        => new() { VerificationCode = verificationCode };
 
     private static async Task<UserCodeEntity?> GetChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
         => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == "changeemail");
