@@ -8,8 +8,8 @@ public sealed class FakeExternalAuthService : IExternalAuthService
 
     public Task ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken)
     {
-        return OnChangeEmail != null
-            ? OnChangeEmail(externalUserId, newEmailAddress, cancellationToken)
+        return this.OnChangeEmail != null
+            ? this.OnChangeEmail(externalUserId, newEmailAddress, cancellationToken)
             : Task.CompletedTask;
     }
 }

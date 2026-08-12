@@ -8,12 +8,12 @@ public sealed class FakeUserUpdatedPublisher : IUserUpdatedPublisher
 
     public Task PublishUserUpdatedAsync(Guid userId, string emailAddress, string firstName, string lastName, short status, CancellationToken cancellationToken)
     {
-        PublishedEvents.Add((userId, emailAddress, firstName, lastName, status));
+        this.PublishedEvents.Add((userId, emailAddress, firstName, lastName, status));
         return Task.CompletedTask;
     }
 
     public void Clear()
     {
-        PublishedEvents.Clear();
+        this.PublishedEvents.Clear();
     }
 }
