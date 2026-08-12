@@ -11,7 +11,7 @@ namespace Dfe.SignIn.Web.Profile;
 /// based claims.
 /// </summary>
 /// <param name="usersApiClient"></param>
-public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient, ILogger<ApplicationClaimsTransformation> logger) : IClaimsTransformation
+public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : IClaimsTransformation
 {
     /// <summary>
     /// Transforms the current claims principal and adds claims if required
