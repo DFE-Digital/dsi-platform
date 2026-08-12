@@ -58,10 +58,6 @@ public sealed class ChangeNameController(
             return await this.Index();
         }
 
-        if (string.IsNullOrEmpty(viewModel.FirstNameInput) || string.IsNullOrEmpty(viewModel.LastNameInput)) {
-            return await this.Index();
-        }
-
         if (viewModel.FirstNameInput?.ToLower() == userDetails.FirstName.ToLower() &&
         viewModel.LastNameInput?.ToLower() == userDetails.LastName.ToLower()) {
             return await this.Index();
