@@ -215,7 +215,7 @@ public sealed class ChangeNameControllerTests
            .ReturnsAsync(graphAccessToken);
 
         graphApiMock
-    .Setup(x => x.ChangeName(
+    .Setup(x => x.ChangeName(It.IsAny<Guid>(),
         "Bob",
         "Clarkson",
         graphAccessToken))

@@ -25,6 +25,8 @@ public sealed class ChangeNameController(
     ILogger<ChangeNameController> logger
 ) : Controller
 {
+    private const string GraphApiEndpoint = "https://graph.microsoft.com/.default";
+
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -32,7 +34,7 @@ public sealed class ChangeNameController(
 
         if (userProfileFeature.IsEntra) {
             var actionResult = await selectAssociatedAccountHelper.AuthenticateAssociatedAccount(
-                this, ["https://graph.microsoft.com/.default"], SelectAssociatedReturnLocation.ChangeNameDetails);
+                this, [GraphApiEndpoint], SelectAssociatedReturnLocation.ChangeNameDetails);
             if (actionResult is not null) {
                 return actionResult;
             }
@@ -85,7 +87,8 @@ public sealed class ChangeNameController(
                 graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
                     this, ["https://graph.microsoft.com/.default"]) ?? throw new Exception("Provided graph token for user is null");
 
-                await graphApiChangeUserPersonalDetails.ChangeName(viewModel.FirstNameInput!,
+                await graphApiChangeUserPersonalDetails.ChangeName(this.User.GetUserId(),
+                    viewModel.FirstNameInput!,
                     viewModel.LastNameInput!, graphAccessToken);
             }
 

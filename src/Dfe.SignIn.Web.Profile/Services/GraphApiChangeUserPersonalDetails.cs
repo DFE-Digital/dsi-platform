@@ -13,9 +13,10 @@ namespace Dfe.SignIn.Web.Profile.Services;
 /// <param name="graphClientFactory"></param>
 [ExcludeFromCodeCoverage]
 public sealed class GraphApiChangeUserPersonalDetails(
-    IPersonalGraphServiceFactory graphClientFactory) : IGraphApiChangeUserPersonalDetails
+    IPersonalGraphServiceFactory graphClientFactory,
+    ILogger<GraphApiChangeUserPersonalDetails> logger) : IGraphApiChangeUserPersonalDetails
 {
-    public async Task ChangeName(string forename, string lastName, GraphAccessToken? graphAccessToken)
+    public async Task ChangeName(Guid userId, string forename, string lastName, GraphAccessToken? graphAccessToken)
     {
         ExceptionHelpers.ThrowIfArgumentNull(forename, nameof(forename));
         ExceptionHelpers.ThrowIfArgumentNull(lastName, nameof(lastName));
@@ -46,7 +47,8 @@ public sealed class GraphApiChangeUserPersonalDetails(
                 Surname = lastName
             });
         }
-        catch (ODataError) {
+        catch (ODataError ex) {
+            logger.LogError("failed to patch user userId: {0} ex: {1}", userId, ex);
             throw;
         }
     }
