@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Graph;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
@@ -159,7 +161,8 @@ public sealed class ChangeNameControllerTests
         selectedAccountMock.Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(),
         It.Is<string[]>(scopes =>
             scopes.Length == 1 &&
-            scopes[0] == "https://graph.microsoft.com/.default"))).ReturnsAsync(graphAccessToken);
+            scopes[0] == "https://graph.microsoft.com/.default")))
+            .ReturnsAsync(graphAccessToken);
 
         var autoMocker = new AutoMocker();
         autoMocker.Use(selectedAccountMock);
@@ -192,5 +195,44 @@ public sealed class ChangeNameControllerTests
         It.IsAny<Controller>(),
         It.IsAny<string[]>()),
     Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EntraAccountNameUpdateFailsCausesDSIToRollback()
+    {
+        var graphAccessToken = new GraphAccessToken { Token = "abc", ExpiresOn = DateTime.UtcNow };
+
+        Mock<ISelectAssociatedAccountHelper> selectedAccountMock = new();
+        Mock<IGraphApiChangeUserPersonalDetails> graphApiMock = new();
+        Mock<IUsersApiClient> userClientMock = new();
+
+        var autoMocker = new AutoMocker();
+
+        selectedAccountMock.Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(),
+       It.Is<string[]>(scopes =>
+           scopes.Length == 1 &&
+           scopes[0] == "https://graph.microsoft.com/.default")))
+           .ReturnsAsync(graphAccessToken);
+
+        graphApiMock
+    .Setup(x => x.ChangeName(
+        "Bob",
+        "Clarkson",
+        graphAccessToken))
+    .ThrowsAsync(new Exception("Something went wrong"));
+
+        autoMocker.Use(selectedAccountMock);
+        autoMocker.Use(userClientMock);
+        autoMocker.Use(graphApiMock);
+
+        var controller = CreateController(autoMocker, isEntra: true);
+
+        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
+
+        userClientMock.Verify(
+             x => x.ChangeName(It.Is<ChangeNameRequest>(request =>
+                 request.FirstName == "Alex" &&
+                 request.LastName == "Johnson")),
+             Times.Once);
     }
 }
