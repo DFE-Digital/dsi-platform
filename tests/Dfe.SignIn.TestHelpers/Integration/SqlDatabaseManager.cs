@@ -26,8 +26,7 @@ public sealed record DatabaseCatalog(string CatalogName, string ConfigKey, Type 
 /// </summary>
 public sealed class SqlDatabaseManager : IAsyncDisposable
 {
-    private readonly MsSqlContainer _container = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+    private readonly MsSqlContainer _container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
 
     private readonly Dictionary<string, string> _connectionStrings = [];

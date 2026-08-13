@@ -100,6 +100,11 @@ public enum SelectAssociatedReturnLocation
     /// Change password interface.
     /// </summary>
     ChangePassword = 1,
+
+    /// <summary>
+    /// Change name interface
+    /// </summary>
+    ChangeNameDetails = 3,
 }
 
 /// <summary>
@@ -121,6 +126,8 @@ public sealed class SelectAssociatedAccountHelper(
                 nameof(HomeController.Index), MvcNaming.Controller<HomeController>()),
             SelectAssociatedReturnLocation.ChangePassword => urlHelper.Action(
                 nameof(ChangePasswordController.Index), MvcNaming.Controller<ChangePasswordController>()),
+            SelectAssociatedReturnLocation.ChangeNameDetails => urlHelper.Action(
+            nameof(ChangeNameController.Index), MvcNaming.Controller<ChangeNameController>()),
             _ => "/",
         } ?? "/";
     }
