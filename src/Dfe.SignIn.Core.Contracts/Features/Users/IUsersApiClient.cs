@@ -68,7 +68,6 @@ public interface IUsersApiClient
     [Post(UsersApiRoutes.InitiateChangeEmail)]
     Task InitiateChangeEmailAddress(Guid userId, [Body] InitiateChangeEmailAddressRequest request, CancellationToken cancellationToken = default);
 
-
     /// <summary>
     /// Confirms the change of a user's email address based on the provided request.
     /// </summary>
