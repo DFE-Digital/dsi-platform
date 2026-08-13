@@ -77,4 +77,13 @@ public interface IUsersApiClient
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.ConfirmChangeEmail)]
     Task ConfirmChangeEmailAddress(Guid userId, [Body] ConfirmChangeEmailAddressRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Cancels the process of changing a user's email address.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose email address change is being cancelled.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Delete(UsersApiRoutes.CancelChangeEmail)]
+    Task CancelChangeEmailAddress(Guid userId, CancellationToken cancellationToken = default);
 }

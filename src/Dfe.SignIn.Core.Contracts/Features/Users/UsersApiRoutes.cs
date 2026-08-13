@@ -39,4 +39,9 @@ public static class UsersApiRoutes
     /// The API route for confirming the change of a user's email address.
     /// </summary>
     public const string ConfirmChangeEmail = "/internal/users/{userId}/confirm-change-email";
+
+    /// <summary>
+    /// The API route for cancelling the change of a user's email address.
+    /// </summary>
+    public const string CancelChangeEmail = "/internal/users/{userId}/cancel-change-email";
 }

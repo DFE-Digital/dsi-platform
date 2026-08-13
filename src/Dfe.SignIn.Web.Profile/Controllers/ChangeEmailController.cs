@@ -143,7 +143,7 @@ public sealed class ChangeEmailController(
             return this.RedirectToAction(nameof(Complete));
         }
         catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
-            var errorMessage = ExtractErrorMessage(ex.Content)
+            var errorMessage = this.ExtractErrorMessage(ex.Content)
             ?? "We couldn't change your email address right now. Please try again.";
 
             // No pending change → redirect to restart the flow
@@ -203,11 +203,7 @@ public sealed class ChangeEmailController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostCancel()
     {
-        await interaction.DispatchAsync(
-            new CancelPendingChangeEmailAddressRequest {
-                UserId = this.User.GetUserId(),
-            }
-        );
+        await usersApiClient.CancelChangeEmailAddress(this.User.GetUserId());
 
         this.SetFlashNotification(
             heading: "Email change cancelled",
