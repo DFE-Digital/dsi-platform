@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Graph;
