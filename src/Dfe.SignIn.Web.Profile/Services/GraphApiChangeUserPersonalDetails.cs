@@ -11,7 +11,6 @@ namespace Dfe.SignIn.Web.Profile.Services;
 /// 
 /// </summary>
 /// <param name="graphClientFactory"></param>
-[ExcludeFromCodeCoverage]
 public sealed class GraphApiChangeUserPersonalDetails(
     IPersonalGraphServiceFactory graphClientFactory,
     ILogger<GraphApiChangeUserPersonalDetails> logger) : IGraphApiChangeUserPersonalDetails
