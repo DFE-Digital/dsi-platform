@@ -48,7 +48,7 @@ public sealed class GraphApiChangeUserPersonalDetails(
             });
         }
         catch (ODataError ex) {
-            logger.LogError("failed to patch user userId: {0} ex: {1}", userId, ex);
+            logger.LogError(ex, "Failed to patch user userId: {userId}", userId);
             throw;
         }
     }

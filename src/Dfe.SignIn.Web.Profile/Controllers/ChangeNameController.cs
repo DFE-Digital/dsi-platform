@@ -60,8 +60,8 @@ public sealed class ChangeNameController(
             return await this.Index();
         }
 
-        if (viewModel.FirstNameInput?.ToLower() == userDetails.FirstName.ToLower() &&
-        viewModel.LastNameInput?.ToLower() == userDetails.LastName.ToLower()) {
+        if (string.Equals(viewModel.FirstNameInput, userDetails.FirstName, StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(viewModel.LastNameInput, userDetails.LastName, StringComparison.InvariantCultureIgnoreCase)){
             return await this.Index();
         }
 
