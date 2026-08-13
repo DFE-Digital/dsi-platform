@@ -116,6 +116,44 @@ public sealed class SelectAssociatedAccountHelperTests
             ));
     }
 
+    [TestMethod]
+    [DataRow(
+     SelectAssociatedReturnLocation.Home,
+     nameof(HomeController.Index),
+     "/home")]
+    [DataRow(
+     SelectAssociatedReturnLocation.ChangePassword,
+     nameof(ChangePasswordController.Index),
+     "/change-password")]
+    [DataRow(
+     SelectAssociatedReturnLocation.ChangeNameDetails,
+     nameof(ChangeNameController.Index),
+     "/change-name")]
+    public void GetUrlFromReturnLocation_ReturnsExpectedUrl(
+     SelectAssociatedReturnLocation returnLocation,
+     string expectedAction,
+     string expectedUrl)
+    {
+        // Arrange
+        var autoMocker = new AutoMocker();
+
+        var urlHelperMock = autoMocker.GetMock<IUrlHelper>();
+
+        urlHelperMock
+            .Setup(x => x.Action(It.Is<UrlActionContext>(context =>
+                context.Action == expectedAction)))
+            .Returns(expectedUrl);
+
+        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+
+        // Act
+        var result = service.GetUrlFromReturnLocation(
+            urlHelperMock.Object,
+            returnLocation);
+
+        // Assert
+        Assert.AreEqual(expectedUrl, result);
+    }
     #endregion
 
     #region AuthenticateAssociatedAccount(Controller, string[], string?, bool)
