@@ -30,4 +30,15 @@ public static class EntityFaker
         .RuleFor(x => x.Status, _ => (int)OrganisationStatus.Open)
         .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
         .RuleFor(x => x.UpdatedAt, (f, org) => f.Date.Between(org.CreatedAt, DateTime.UtcNow));
+
+    public static Faker<UserCodeEntity> UserCode => new Faker<UserCodeEntity>()
+        .RuleFor(x => x.Uid, f => f.Random.Guid())
+        .RuleFor(x => x.CodeType, _ => "changeemail")
+        .RuleFor(x => x.Code, f => f.Random.AlphaNumeric(7))
+        .RuleFor(x => x.Email, f => f.Internet.Email())
+        .RuleFor(x => x.ClientId, _ => "test-client")
+        .RuleFor(x => x.RedirectUri, _ => "n/a")
+        .RuleFor(x => x.ContextData, _ => null)
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, code) => f.Date.Between(code.CreatedAt, DateTime.UtcNow));
 }
