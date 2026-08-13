@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
@@ -21,6 +22,7 @@ public sealed class ChangeEmailController(
     IInteractionDispatcher interaction,
     IUsersApiClient usersApiClient,
     IValidator<ChangeEmailViewModel> changeEmailValidator,
+    IValidator<VerificationCodeViewModel> verificationCodeValidator,
     ILogger<ChangeEmailController> logger
 ) : Controller
 {
@@ -44,7 +46,7 @@ public sealed class ChangeEmailController(
             return this.View("Index");
         }
 
-        var request = new Core.Contracts.Features.Users.ChangeEmailAddress.InitiateChangeEmailAddressRequest(
+        var request = new InitiateChangeEmailAddressRequest(
             oidcOptionsAccessor.CurrentValue.ClientId,
             viewModel.EmailAddressInput,
             true
@@ -125,16 +127,44 @@ public sealed class ChangeEmailController(
         [FromRoute] Guid userId,
         VerificationCodeViewModel viewModel)
     {
-        try {
-            await interaction.MapRequestFromViewModel<ConfirmChangeEmailAddressRequest>(this, viewModel)
-                .Use(request => request with { UserId = userId })
-                .DispatchAsync();
+        var validationResult = await verificationCodeValidator.ValidateAsync(viewModel);
 
-            if (!this.ModelState.IsValid) {
+        try {
+
+            if (!validationResult.IsValid) {
                 return await this.VerificationCodeHelper(userId);
             }
 
+            var request = new ConfirmChangeEmailAddressRequest {
+                VerificationCode = viewModel.VerificationCodeInput!,
+            };
+
+            await usersApiClient.ConfirmChangeEmailAddress(userId, request);
             return this.RedirectToAction(nameof(Complete));
+        }
+        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+            var errorMessage = this.ExtractErrorMessage(ex.Content)
+            ?? "We couldn't change your email address right now. Please try again.";
+
+            // No pending change → redirect to restart the flow
+            if (errorMessage.Contains("No pending change",
+            StringComparison.OrdinalIgnoreCase)) {
+                return this.RedirectToAction(nameof(Index));
+            }
+
+            // Validation error (incorrect code / expired code) → show on form
+            this.ModelState.AddModelError(
+            nameof(VerificationCodeViewModel.VerificationCodeInput), errorMessage);
+            return await this.VerificationCodeHelper(userId);
+        }
+        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.InternalServerError) {
+            if (ex.Content?.Contains("ChangeEmailAddressAuthenticationMethodError",
+            StringComparison.Ordinal) == true) {
+                logger.LogError(ex, "Partially failed to change email address.");
+                return this.ErrorView("ErrorUpdateAuthenticationMethod");
+            }
+            logger.LogError(ex, "Failed to change email address.");
+            return this.ErrorView("ErrorUpdateEmailAddress");
         }
         catch (NoPendingChangeEmailException) {
             return this.RedirectToAction(nameof(Index));
@@ -196,5 +226,25 @@ public sealed class ChangeEmailController(
         ).To<GetPendingChangeEmailAddressResponse>();
 
         return pendingChangeEmailAddressResponse.PendingChangeEmailAddress;
+    }
+
+    /// <summary>
+    /// Extracts the "message" field from a JSON error response body (e.g. { "message": "..." }).
+    /// </summary>
+    private string? ExtractErrorMessage(string? responseContent)
+    {
+        if (string.IsNullOrWhiteSpace(responseContent)) {
+            return null;
+        }
+        try {
+            using var doc = System.Text.Json.JsonDocument.Parse(responseContent);
+            return doc.RootElement.TryGetProperty("detail", out var messageProp)
+            ? messageProp.GetString()
+            : null;
+        }
+        catch (Exception ex) {
+            logger.LogWarning(ex, "Failed to parse error response content: {ResponseContent}", responseContent);
+            return null;
+        }
     }
 }

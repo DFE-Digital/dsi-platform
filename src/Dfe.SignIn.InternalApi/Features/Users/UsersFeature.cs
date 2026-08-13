@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Core.Interfaces.ExternalAuth;
+using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
@@ -28,6 +30,7 @@ public static class UsersFeature
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
         InitiateChangeEmailAddressEndpoint.Map(app);
+        ConfirmChangeEmailAddressEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
         ChangeJobTitleEndpoint.Map(app);
@@ -43,6 +46,8 @@ public static class UsersFeature
     {
         services.AddScoped<IUserLookupService, UserLookupService>();
         services.AddScoped<IUserCodeService, UserCodeService>();
+        services.AddScoped<IExternalAuthService, StubExternalAuthService>();
+        services.AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
 
         services.AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
         return services;

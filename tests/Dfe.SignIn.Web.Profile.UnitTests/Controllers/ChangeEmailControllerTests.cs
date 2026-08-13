@@ -47,6 +47,7 @@ public sealed class ChangeEmailControllerTests
     private static ChangeEmailController CreateControllerAuthenticated(AutoMocker autoMocker)
     {
         autoMocker.Use<IValidator<ChangeEmailViewModel>>(new ChangeEmailViewModelValidator());
+        autoMocker.Use<IValidator<VerificationCodeViewModel>>(new VerificationCodeViewModelValidator());
 
         var httpContext = new DefaultHttpContext();
         httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature {
@@ -426,9 +427,17 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockThrows<Core.Contracts.Users.ConfirmChangeEmailAddressRequest>(
-            new Core.Contracts.Users.NoPendingChangeEmailException()
+        var ex = await RefitTestHelper.ValidationException(
+            HttpStatusCode.BadRequest,
+            "No pending change"
         );
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ConfirmChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(ex);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -437,6 +446,7 @@ public sealed class ChangeEmailControllerTests
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
+                VerificationCodeInput = "ABC1234"
             }
         );
 
@@ -481,6 +491,7 @@ public sealed class ChangeEmailControllerTests
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
+                VerificationCodeInput = "ABC1234"
             }
         );
 
@@ -493,9 +504,17 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockThrows<Core.Contracts.Users.ConfirmChangeEmailAddressRequest>(
-            new Core.Contracts.Users.FailedToUpdateAuthenticationMethodException()
+        var ex = await RefitTestHelper.ValidationException(
+            HttpStatusCode.InternalServerError,
+            "ChangeEmailAddressAuthenticationMethodError"
         );
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ConfirmChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(ex);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -504,6 +523,7 @@ public sealed class ChangeEmailControllerTests
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
+                VerificationCodeInput = "ABC1234"
             }
         );
 
@@ -516,9 +536,17 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockThrows<Core.Contracts.Users.ConfirmChangeEmailAddressRequest>(
-            new InvalidOperationException()
+        var ex = await RefitTestHelper.ValidationException(
+            HttpStatusCode.InternalServerError,
+            "PostVerificationCode_PresentsError_WhenUnexpectedFailureOccurs"
         );
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ConfirmChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(ex);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -527,6 +555,7 @@ public sealed class ChangeEmailControllerTests
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
+                VerificationCodeInput = "ABC1234"
             }
         );
 

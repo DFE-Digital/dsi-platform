@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+    <InternalsVisibleTo Include="Dfe.SignIn.InternalApi.IntegrationTests" />
   </ItemGroup>
 
   <ItemGroup>

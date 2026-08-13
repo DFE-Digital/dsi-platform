@@ -32,6 +32,14 @@ public interface IUserCodeService
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task CreateNewVerificationCodeAsync(UserInfo userInfo, string newEmailAddress, string clientId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the pending change email code for the specified user, if one exists.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation, returning the pending code or null.</returns>
+    Task<UserCodeEntity?> GetPendingChangeEmailCodeAsync(Guid userId, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -52,6 +60,16 @@ public class UserCodeService(
     ) : IUserCodeService
 {
     private const string ChangeEmailCodeType = "changeemail";
+
+    /// <inheritdoc/>
+    public async Task<UserCodeEntity?> GetPendingChangeEmailCodeAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await dbDirectoriesContext.UserCodes
+            .AsNoTracking()
+            .Where(x => x.Uid == userId)
+            .Where(x => x.CodeType == ChangeEmailCodeType)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 
     /// <inheritdoc/>
     public async Task DeleteExistingCodesAsync(Guid userId, CancellationToken cancellationToken)
