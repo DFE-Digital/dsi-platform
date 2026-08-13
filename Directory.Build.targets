@@ -24,4 +24,9 @@
     />
   </Target>
 
+  <ItemGroup>
+    <!-- CVE-2026-48798 -->
+    <PackageReference Include="SSH.NET" />
+  </ItemGroup>
+
 </Project>
