@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Core.Interfaces.ExternalAuth;
+using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
@@ -10,8 +12,6 @@ using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
-using Dfe.SignIn.Core.Interfaces.ExternalAuth;
-using Dfe.SignIn.Core.Interfaces.Notifications;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 

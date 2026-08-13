@@ -13,8 +13,7 @@ internal sealed class TestTimestampInterceptor(TimeProvider timeProvider) : Time
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
-        if (this.ShouldFail)
-        {
+        if (this.ShouldFail) {
             throw new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"));
         }
 

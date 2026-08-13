@@ -1,12 +1,12 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Notifications;
-using Dfe.SignIn.TestHelpers.Integration;
-using Dfe.SignIn.TestHelpers.Integration.Mocks;
 using Dfe.SignIn.Core.Interfaces.ExternalAuth;
 using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
+using Dfe.SignIn.TestHelpers.Integration;
+using Dfe.SignIn.TestHelpers.Integration.Mocks;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
