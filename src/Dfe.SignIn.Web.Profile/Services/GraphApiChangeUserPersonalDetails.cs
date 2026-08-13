@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Azure.Core;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Graph;
@@ -7,9 +8,10 @@ using Microsoft.Graph.Models.ODataErrors;
 namespace Dfe.SignIn.Web.Profile.Services;
 
 /// <summary>
-/// 
+/// Graph wrapper to change the user name via entra
 /// </summary>
 /// <param name="graphClientFactory"></param>
+[ExcludeFromCodeCoverage]
 public sealed class GraphApiChangeUserPersonalDetails(
     IPersonalGraphServiceFactory graphClientFactory,
     ILogger<GraphApiChangeUserPersonalDetails> logger) : IGraphApiChangeUserPersonalDetails
