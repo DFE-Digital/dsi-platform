@@ -61,7 +61,7 @@ public sealed class ChangeNameController(
         }
 
         if (string.Equals(viewModel.FirstNameInput, userDetails.FirstName, StringComparison.InvariantCultureIgnoreCase)
-            && string.Equals(viewModel.LastNameInput, userDetails.LastName, StringComparison.InvariantCultureIgnoreCase)){
+            && string.Equals(viewModel.LastNameInput, userDetails.LastName, StringComparison.InvariantCultureIgnoreCase)) {
             return await this.Index();
         }
 
