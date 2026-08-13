@@ -34,6 +34,7 @@ public static class UsersFeature
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
         ChangeJobTitleEndpoint.Map(app);
+        CancelChangeEmailAddressEndpoint.Map(app);
     }
 
     /// <summary>

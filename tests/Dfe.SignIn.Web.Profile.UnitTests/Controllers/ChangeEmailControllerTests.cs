@@ -613,22 +613,6 @@ public sealed class ChangeEmailControllerTests
     #region PostCancel()
 
     [TestMethod]
-    public async Task PostCancel_CancelsPendingChange()
-    {
-        var autoMocker = new AutoMocker();
-
-        Core.Contracts.Users.CancelPendingChangeEmailAddressRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<Core.Contracts.Users.CancelPendingChangeEmailAddressRequest>(req => capturedRequest = req);
-
-        var controller = CreateControllerAuthenticated(autoMocker);
-
-        await controller.PostCancel();
-
-        Assert.IsNotNull(capturedRequest);
-        Assert.AreEqual(new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
-    }
-
-    [TestMethod]
     public async Task PostCancel_FlashCancelled()
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());

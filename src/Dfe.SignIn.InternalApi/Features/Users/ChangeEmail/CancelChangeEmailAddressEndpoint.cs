@@ -17,7 +17,7 @@ public sealed class CancelChangeEmailAddressEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost(UsersApiRoutes.CancelChangeEmail, Handler)
+        app.MapDelete(UsersApiRoutes.CancelChangeEmail, Handler)
             .WithName("Cancel Change Email Address")
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)

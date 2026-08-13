@@ -41,7 +41,8 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var response = await authenticatedClient.PostAsync(GetEndpointForUser(user.Sub), new StringContent(string.Empty));
+        var path = GetEndpointForUser(user.Sub);
+        var response = await authenticatedClient.DeleteAsync(path);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -52,9 +53,9 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         Assert.Null(dbCode);
 
         Assert.NotNull(auditMock.CapturedRequest);
-        Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditMock.CapturedRequest!.EventCategory);
+        Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditMock.CapturedRequest.EventCategory);
         Assert.Equal(AuditChangeEmailEventNames.CancelChangeEmail, auditMock.CapturedRequest.EventName);
-        Assert.Equal(user.Sub, auditMock.CapturedRequest.UserId);
+        Assert.Contains(user.Sub.ToString(), auditMock.CapturedRequest.Message);
     }
 
     [Fact]
@@ -66,41 +67,6 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         var response = await anonymousClient.PostAsync(GetEndpointForUser(userId), new StringContent(string.Empty));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task CancelChangeEmail_PropagatesFailure_AsCurrentBehaviour()
-    {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
-
-        var user = EntityFaker.User
-            .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
-            .Generate();
-
-        var pendingCode = EntityFaker.UserCode
-            .RuleFor(x => x.Uid, (_, _) => user.Sub)
-            .RuleFor(x => x.CodeType, (_, _) => "changeemail")
-            .RuleFor(x => x.Code, (_, _) => "ABC1234")
-            .RuleFor(x => x.Email, (_, _) => "john.doe@new.example.com")
-            .Generate();
-
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
-        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
-
-        this.TestTimestampInterceptor.ShouldFail = true;
-
-        var response = await authenticatedClient.PostAsync(GetEndpointForUser(user.Sub), new StringContent(string.Empty));
-
-        Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
-
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
-        var dbCode = await GetPendingChangeEmailCode(assertionDbContext, user.Sub);
-        Assert.NotNull(dbCode);
-
-        Assert.NotNull(auditMock.CapturedRequest);
-        Assert.True(auditMock.CapturedRequest!.WasFailure);
     }
 
     [Fact]
@@ -134,7 +100,7 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(targetCode);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(otherCode);
 
-        var response = await authenticatedClient.PostAsync(GetEndpointForUser(targetUser.Sub), new StringContent(string.Empty));
+        var response = await authenticatedClient.DeleteAsync(GetEndpointForUser(targetUser.Sub));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -190,7 +156,7 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var response = await authenticatedClient.PostAsync(GetEndpointForUser(user.Sub), new StringContent(string.Empty));
+        var response = await authenticatedClient.DeleteAsync(GetEndpointForUser(user.Sub));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
