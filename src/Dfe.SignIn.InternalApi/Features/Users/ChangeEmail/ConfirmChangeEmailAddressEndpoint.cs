@@ -80,7 +80,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
         string? newEmailNullable = pendingCode.Email;
 
         if (string.IsNullOrWhiteSpace(newEmailNullable)) {
-            logger.LogWarning("Pending change email request for user {UserId} has no associated email address.", userId);
+            logger.LogWarning("Pending change email request for user {UserId} has no associated email address", userId);
             return Results.BadRequest(new { Message = "The pending change email request is invalid." });
         }
 
@@ -124,13 +124,13 @@ public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
             }
             catch (Exception ex) {
                 // Other Entra updates failed - roll back database write
-                logger.LogError(ex, "Failed external authentication sync for user {UserId}. Rolling back DB change.", userId);
+                logger.LogError(ex, "Failed external authentication sync for user {UserId}. Rolling back DB change", userId);
                 try {
                     user.Email = originalEmail;
                     await directoriesDbContext.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception rollbackEx) {
-                    logger.LogCritical(rollbackEx, "Failed to roll back database write for user {UserId} after Entra sync failure.", userId);
+                    logger.LogCritical(rollbackEx, "Failed to roll back database write for user {UserId} after Entra sync failure", userId);
                 }
 
                 await auditWriter.Log(new WriteToAuditRequest {

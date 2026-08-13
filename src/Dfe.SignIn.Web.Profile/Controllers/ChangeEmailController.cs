@@ -231,7 +231,7 @@ public sealed class ChangeEmailController(
     /// <summary>
     /// Extracts the "message" field from a JSON error response body (e.g. { "message": "..." }).
     /// </summary>
-    private static string? ExtractErrorMessage(string? responseContent)
+    private string? ExtractErrorMessage(string? responseContent)
     {
         if (string.IsNullOrWhiteSpace(responseContent)) {
             return null;
@@ -242,7 +242,8 @@ public sealed class ChangeEmailController(
             ? messageProp.GetString()
             : null;
         }
-        catch {
+        catch (Exception ex) {
+            logger.LogWarning(ex, "Failed to parse error response content: {ResponseContent}", responseContent);
             return null;
         }
     }
