@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
+using Dfe.SignIn.Core.Public;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Dfe.SignIn.Web.Profile;
@@ -29,7 +30,17 @@ public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : I
 
         var identity = (ClaimsIdentity)principal.Identity;
 
-        var userId = principal.GetUserId();
+        //Safe to set to empty since Guid.Parse will fail if not valid guid
+        //and if its missing, the GetUserId() will also throw an exception
+        //if it fails to parse.
+        Guid userId = Guid.Empty;
+        if (principal.Claims.Any(c => c.Type == DsiClaimTypes.UserId)) {
+            userId = Guid.Parse(principal.Claims.First(c => c.Type == DsiClaimTypes.UserId).Value);
+        }
+        else {
+            userId = principal.GetUserId();
+        }
+
         var response = await usersApiClient.IsApprover(userId, CancellationToken.None);
 
         if (response.IsApprover) {

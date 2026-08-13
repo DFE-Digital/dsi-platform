@@ -106,8 +106,9 @@ builder.Services
 
 builder.Services
     .AddHttpContextAccessor()
-    .AddSingleton<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>()
-    .AddSingleton<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>();
+    .AddScoped<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>()
+    .AddScoped<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>()
+    .AddScoped<IGraphApiChangeUserPersonalDetails, GraphApiChangeUserPersonalDetails>();
 
 builder.Services
     .AddUsersApiClient(tokenCredential);

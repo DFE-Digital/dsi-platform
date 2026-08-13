@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Public;
 using Moq;
 using Moq.AutoMock;
 
@@ -81,5 +82,54 @@ public sealed class ApplicationClaimsTransormationTests
         // Assert
         Assert.AreEqual(1, result.Claims.Count());
         Assert.AreEqual(1, result.Claims.Count(c => c.Type == ClaimTypes.NameIdentifier && c.Value == userId.ToString()));
+    }
+
+    [TestMethod]
+    public async Task ThrowsInvalidExceptionWhenUserIdClaimIsMissing()
+    {
+        // Arrange
+        var autoMocker = new AutoMocker();
+        var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
+        var userId = Guid.Empty;
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IsOrganisationApproverResponse(false));
+
+        var principal = new ClaimsPrincipal([
+            new ClaimsIdentity((IEnumerable<Claim>?)[],
+            authenticationType: "TestAuth")
+          ]);
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.TransformAsync(principal));
+    }
+
+    [TestMethod]
+    public async Task CallsIsApproverWithCorrectUserIdWhenUserHasDsi_User_Id_Claim()
+    {
+        // Arrange
+        var autoMocker = new AutoMocker();
+        var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
+        var userId = Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd");
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IsOrganisationApproverResponse(false));
+
+        var principal = new ClaimsPrincipal([
+            new ClaimsIdentity((IEnumerable<Claim>?)[
+                new(DsiClaimTypes.UserId, userId.ToString())
+            ],
+            authenticationType: "TestAuth")
+          ]);
+
+        // Act
+        var result = await service.TransformAsync(principal);
+
+        // Assert
+        autoMocker.GetMock<IUsersApiClient>().Verify(x => x.IsApprover(
+            It.Is<Guid>(x => x == userId),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }
