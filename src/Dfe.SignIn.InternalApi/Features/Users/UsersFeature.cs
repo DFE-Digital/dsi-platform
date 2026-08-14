@@ -21,6 +21,9 @@ namespace Dfe.SignIn.InternalApi.Features.Users;
 [ExcludeFromCodeCoverage]
 public static class UsersFeature
 {
+    private static readonly EndpointRegistry NewEndpointRegistry = new EndpointRegistry()
+        .Add<CancelChangeEmailAddressEndpoint>();
+
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.
     /// </summary>
@@ -34,7 +37,9 @@ public static class UsersFeature
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
         ChangeJobTitleEndpoint.Map(app);
-        CancelChangeEmailAddressEndpoint.Map(app);
+
+        // New class-based endpoint mapped via registry
+        NewEndpointRegistry.MapRoutes(app);
     }
 
     /// <summary>
@@ -51,6 +56,10 @@ public static class UsersFeature
         services.AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
 
         services.AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
+
+        // Register class-based endpoints with DI
+        NewEndpointRegistry.RegisterServices(services);
+
         return services;
     }
 }

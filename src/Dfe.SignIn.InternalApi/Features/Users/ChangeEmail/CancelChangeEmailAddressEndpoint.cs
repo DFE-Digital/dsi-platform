@@ -9,7 +9,11 @@ namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 /// <summary>
 /// An endpoint to cancel the change of a user's email address.
 /// </summary>
-public sealed class CancelChangeEmailAddressEndpoint : IEndpoint
+public sealed class CancelChangeEmailAddressEndpoint(
+    DbDirectoriesContext directoriesDbContext,
+    IAuditWriter auditWriter,
+    ILogger<CancelChangeEmailAddressEndpoint> logger,
+    IUserLookupService userLookupService) : IEndpoint
 {
     /// <summary>
     /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -17,7 +21,11 @@ public sealed class CancelChangeEmailAddressEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapDelete(UsersApiRoutes.CancelChangeEmail, Handler)
+        app.MapDelete(UsersApiRoutes.CancelChangeEmail, async (
+            [FromRoute] Guid userId,
+            [FromServices] CancelChangeEmailAddressEndpoint endpoint,
+            CancellationToken cancellationToken) =>
+            await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Cancel Change Email Address")
             .WithTags("Users")
             .Produces(StatusCodes.Status200OK)
@@ -28,14 +36,10 @@ public sealed class CancelChangeEmailAddressEndpoint : IEndpoint
     }
 
     /// <summary>
-    /// Handles the confirmation of a user's email address change request.
+    /// Handles the cancellation of a user's email address change request.
     /// </summary>
-    public static async Task<IResult> Handler(
-        [FromRoute] Guid userId,
-        DbDirectoriesContext directoriesDbContext,
-        IAuditWriter auditWriter,
-        ILogger<CancelChangeEmailAddressEndpoint> logger,
-        IUserLookupService userLookupService,
+    public async Task<IResult> HandleAsync(
+        Guid userId,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Cancelling email change for user {UserId}", userId);
