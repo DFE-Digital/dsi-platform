@@ -1,5 +1,6 @@
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Microsoft.AspNetCore.Mvc;
@@ -61,7 +62,7 @@ public sealed class CancelChangeEmailAddressEndpoint(
         try {
             await directoriesDbContext.UserCodes
                 .Where(uc => uc.Uid == userId)
-                .Where(uc => uc.CodeType == "changeemail") //todo: strongly type this
+                .Where(uc => uc.CodeType == UserCodeType.ChangeEmail.ToDbValue())
                 .ExecuteDeleteAsync(cancellationToken);
         }
         catch (Exception ex) {

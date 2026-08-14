@@ -24,5 +24,3 @@ public partial class UserCodeEntity
 
     public string? ContextData { get; set; }
 }
-#pragma warning restore CS1591
-
