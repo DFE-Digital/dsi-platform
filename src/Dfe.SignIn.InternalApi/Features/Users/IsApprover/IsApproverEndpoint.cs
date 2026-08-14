@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Microsoft.EntityFrameworkCore;
 

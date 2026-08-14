@@ -7,6 +7,7 @@ using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Interfaces.ExternalAuth;
 using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

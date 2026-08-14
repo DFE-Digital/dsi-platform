@@ -203,11 +203,7 @@ public sealed class ChangeEmailController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostCancel()
     {
-        await interaction.DispatchAsync(
-            new CancelPendingChangeEmailAddressRequest {
-                UserId = this.User.GetUserId(),
-            }
-        );
+        await usersApiClient.CancelChangeEmailAddress(this.User.GetUserId());
 
         this.SetFlashNotification(
             heading: "Email change cancelled",

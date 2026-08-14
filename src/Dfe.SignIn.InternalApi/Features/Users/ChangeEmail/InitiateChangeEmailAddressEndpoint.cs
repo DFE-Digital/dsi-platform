@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
+using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
