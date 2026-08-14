@@ -44,4 +44,9 @@ public static class UsersApiRoutes
     /// The API route for cancelling the change of a user's email address.
     /// </summary>
     public const string CancelChangeEmail = "/internal/users/{userId}/cancel-change-email";
+
+    /// <summary>
+    /// The API route for retrieving a pending change email request.
+    /// </summary>
+    public const string GetPendingChangeEmail = "/internal/users/{userId}/pending-change-email";
 }

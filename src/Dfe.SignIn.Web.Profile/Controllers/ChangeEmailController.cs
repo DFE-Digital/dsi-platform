@@ -1,4 +1,3 @@
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Users;
@@ -19,7 +18,6 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/change-email")]
 public sealed class ChangeEmailController(
     IOptionsMonitor<ApplicationOidcOptions> oidcOptionsAccessor,
-    IInteractionDispatcher interaction,
     IUsersApiClient usersApiClient,
     IValidator<ChangeEmailViewModel> changeEmailValidator,
     IValidator<VerificationCodeViewModel> verificationCodeValidator,
@@ -213,15 +211,14 @@ public sealed class ChangeEmailController(
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
     }
 
-    private async Task<PendingChangeEmailAddress?> GetPendingChangeEmailAddress(Guid userId)
+    private async Task<GetPendingChangeEmailResponse?> GetPendingChangeEmailAddress(Guid userId)
     {
-        var pendingChangeEmailAddressResponse = await interaction.DispatchAsync(
-            new GetPendingChangeEmailAddressRequest {
-                UserId = userId,
-            }
-        ).To<GetPendingChangeEmailAddressResponse>();
-
-        return pendingChangeEmailAddressResponse.PendingChangeEmailAddress;
+        try {
+            return await usersApiClient.GetPendingChangeEmail(userId);
+        }
+        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+            return null;
+        }
     }
 
     /// <summary>

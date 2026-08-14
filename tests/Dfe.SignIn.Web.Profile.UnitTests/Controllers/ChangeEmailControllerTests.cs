@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
+using Refit;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
 
@@ -74,20 +75,31 @@ public sealed class ChangeEmailControllerTests
 
     private static void SetupFakePendingEmailChange(AutoMocker autoMocker)
     {
-        autoMocker.MockResponse(
-            new Core.Contracts.Users.GetPendingChangeEmailAddressRequest {
-                UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            },
-            new Core.Contracts.Users.GetPendingChangeEmailAddressResponse {
-                PendingChangeEmailAddress = new() {
-                    UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-                    NewEmailAddress = "alex.new@example.com",
-                    VerificationCode = "ABC1234",
-                    ExpiryTimeUtc = new DateTime(2025, 11, 15, 12, 43, 11, DateTimeKind.Utc),
-                    HasExpired = false,
-                },
-            }
-        );
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.GetPendingChangeEmail(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetPendingChangeEmailResponse {
+                NewEmailAddress = "alex.new@example.com",
+                CreatedAtUtc = new DateTime(2025, 11, 15, 11, 43, 11, DateTimeKind.Utc),
+                ExpiryTimeUtc = new DateTime(2025, 11, 15, 12, 43, 11, DateTimeKind.Utc),
+                HasExpired = false,
+            });
+    }
+
+    private static void SetupNoPendingEmailChange(AutoMocker autoMocker)
+    {
+        var notFoundException = ApiException.Create(
+            new HttpRequestMessage(),
+            HttpMethod.Get,
+            new HttpResponseMessage(HttpStatusCode.NotFound),
+            new RefitSettings()).Result;
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.GetPendingChangeEmail(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(notFoundException);
     }
 
     #region Index()
@@ -203,20 +215,7 @@ public sealed class ChangeEmailControllerTests
             .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
             .ThrowsAsync(ex);
 
-        autoMocker.MockResponse(
-            new Core.Contracts.Users.GetPendingChangeEmailAddressRequest {
-                UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            },
-            new Core.Contracts.Users.GetPendingChangeEmailAddressResponse {
-                PendingChangeEmailAddress = new() {
-                    UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-                    NewEmailAddress = "alex.new@example.com",
-                    VerificationCode = "ABC1234",
-                    ExpiryTimeUtc = new DateTime(2025, 11, 15, 12, 43, 11, DateTimeKind.Utc),
-                    HasExpired = false,
-                },
-            }
-        );
+        SetupFakePendingEmailChange(autoMocker);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -282,12 +281,7 @@ public sealed class ChangeEmailControllerTests
     public async Task VerificationCode_RedirectsHomeWhenNoPendingChange()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.MockResponse(
-            new Core.Contracts.Users.GetPendingChangeEmailAddressRequest {
-                UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            },
-            new Core.Contracts.Users.GetPendingChangeEmailAddressResponse()
-        );
+        SetupNoPendingEmailChange(autoMocker);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -352,12 +346,7 @@ public sealed class ChangeEmailControllerTests
     public async Task VerificationCodeAnonymous_RedirectsHome_WhenNoPendingChange()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.MockResponse(
-            new Core.Contracts.Users.GetPendingChangeEmailAddressRequest {
-                UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            },
-            new Core.Contracts.Users.GetPendingChangeEmailAddressResponse()
-        );
+        SetupNoPendingEmailChange(autoMocker);
 
         var controller = CreateControllerAnonymous(autoMocker);
 
