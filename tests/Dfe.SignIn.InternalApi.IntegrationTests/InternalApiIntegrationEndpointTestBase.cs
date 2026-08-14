@@ -15,8 +15,8 @@ using Notify.Interfaces;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
-[Collection("InternalApiIntegrationTestCollection")]
-public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebApplicationFactory webAppFactory) : IAsyncLifetime
+[Collection( "InternalApiIntegrationTestCollection" )]
+public abstract class InternalApiIntegrationEndpointTestBase( InternalApiWebApplicationFactory webAppFactory ) : IAsyncLifetime
 {
     private readonly List<IAsyncDisposable> createdFactories = [];
 
@@ -26,7 +26,20 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected readonly FakeEmailRequestTracker FakeEmailRequestTracker = new();
     protected readonly FakeExternalAuthService FakeExternalAuthService = new();
     protected readonly FakeUserUpdatedPublisher FakeUserUpdatedPublisher = new();
-    internal readonly TestTimestampInterceptor TestTimestampInterceptor = new(TimeProvider.System);
+    internal readonly TestTimestampInterceptor TestTimestampInterceptor = new( TimeProvider.System );
+
+    /// <summary>
+    /// Entry point for fluently configuring and building an HttpClient with test context.
+    /// </summary>
+    protected InternalApiClientBuilder SetupClient() => new(
+        this.WebAppFactory,
+        this.createdFactories,
+        this.FakeLimiter,
+        this.FakeEmailRequestTracker,
+        this.FakeExternalAuthService,
+        this.FakeUserUpdatedPublisher,
+        this.TestTimestampInterceptor
+    );
 
     public async Task InitializeAsync()
     {
@@ -51,59 +64,59 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected (HttpClient Client, CapturingWriteToAuditInteractor AuditMock) CreateClientWithAuditMock()
     {
         var auditMock = new CapturingWriteToAuditInteractor();
-        var auditWriterMock = new TestAuditWriter(auditMock);
+        var auditWriterMock = new TestAuditWriter( auditMock );
 
-        var fakeEmailNotificationService = new FakeEmailNotificationService(this.FakeEmailRequestTracker);
+        var fakeEmailNotificationService = new FakeEmailNotificationService( this.FakeEmailRequestTracker );
 
-        var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
-            builder.ConfigureTestServices(services => {
+        var customisedFactory = this.WebAppFactory.WithWebHostBuilder( builder => {
+            builder.ConfigureTestServices( services => {
                 services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-                services.AddSingleton<IInteractor<WriteToAuditRequest>>(auditMock);
+                services.AddSingleton<IInteractor<WriteToAuditRequest>>( auditMock );
 
                 services.RemoveAll<IAuditWriter>();
-                services.AddSingleton<IAuditWriter>(auditWriterMock);
+                services.AddSingleton<IAuditWriter>( auditWriterMock );
 
                 services.RemoveAll<IAsyncNotificationClient>();
                 services.RemoveAll<INotificationService>();
-                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
+                services.AddSingleton<INotificationService>( fakeEmailNotificationService );
 
                 services.RemoveAll<IInteractionLimiter>();
-                services.AddSingleton<IInteractionLimiter>(this.FakeLimiter);
+                services.AddSingleton<IInteractionLimiter>( this.FakeLimiter );
 
                 services.RemoveAll<IExternalAuthService>();
-                services.AddSingleton<IExternalAuthService>(this.FakeExternalAuthService);
+                services.AddSingleton<IExternalAuthService>( this.FakeExternalAuthService );
 
                 services.RemoveAll<IUserUpdatedPublisher>();
-                services.AddSingleton<IUserUpdatedPublisher>(this.FakeUserUpdatedPublisher);
+                services.AddSingleton<IUserUpdatedPublisher>( this.FakeUserUpdatedPublisher );
 
                 services.RemoveAll<TimestampInterceptor>();
-                services.AddSingleton<TimestampInterceptor>(this.TestTimestampInterceptor);
-            });
-        });
+                services.AddSingleton<TimestampInterceptor>( this.TestTimestampInterceptor );
+            } );
+        } );
 
-        this.createdFactories.Add(customisedFactory);
+        this.createdFactories.Add( customisedFactory );
 
         var client = customisedFactory.CreateClient();
-        client.DefaultRequestHeaders.Add(TestAuthHandler.EnableAuthHeaderName, bool.TrueString);
+        client.DefaultRequestHeaders.Add( TestAuthHandler.EnableAuthHeaderName, bool.TrueString );
 
         return (client, auditMock);
     }
 
-    protected async Task InsertEntityAsync<TContext, TEntity>(TEntity entity)
+    protected async Task InsertEntityAsync<TContext, TEntity>( TEntity entity )
         where TContext : DbContext
         where TEntity : class
     {
-        await this.InsertEntitiesAsync<TContext, TEntity>([entity]);
+        await this.InsertEntitiesAsync<TContext, TEntity>( [entity] );
     }
 
-    protected async Task InsertEntitiesAsync<TContext, TEntity>(IEnumerable<TEntity> entities)
+    protected async Task InsertEntitiesAsync<TContext, TEntity>( IEnumerable<TEntity> entities )
         where TContext : DbContext
         where TEntity : class
     {
         await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
 
-        dbContext.AddRange(entities);
+        dbContext.AddRange( entities );
         await dbContext.SaveChangesAsync();
     }
 
@@ -119,11 +132,11 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected HttpClient CreateClient()
     {
         var emailRequestTracker = new FakeEmailRequestTracker();
-        var fakeEmailNotificationService = new FakeEmailNotificationService(emailRequestTracker);
+        var fakeEmailNotificationService = new FakeEmailNotificationService( emailRequestTracker );
         var fakeLimiter = new FakeInteractionLimiter();
 
-        var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
-            builder.ConfigureTestServices(services => {
+        var customisedFactory = this.WebAppFactory.WithWebHostBuilder( builder => {
+            builder.ConfigureTestServices( services => {
                 services.RemoveAll<IInteractor<WriteToAuditRequest>>();
                 services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 
@@ -132,14 +145,14 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
                 services.RemoveAll<IAsyncNotificationClient>();
                 services.RemoveAll<INotificationService>();
-                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
+                services.AddSingleton<INotificationService>( fakeEmailNotificationService );
 
                 services.RemoveAll<IInteractionLimiter>();
-                services.AddSingleton<IInteractionLimiter>(fakeLimiter);
-            });
-        });
+                services.AddSingleton<IInteractionLimiter>( fakeLimiter );
+            } );
+        } );
 
-        this.createdFactories.Add(customisedFactory);
+        this.createdFactories.Add( customisedFactory );
 
         return customisedFactory.CreateClient();
     }

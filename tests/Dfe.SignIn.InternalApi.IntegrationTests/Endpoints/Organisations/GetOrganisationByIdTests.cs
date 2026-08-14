@@ -4,61 +4,59 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
+using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Organisations;
 
-[Trait("Category", "Integration")]
+[Trait( "Category", "Integration" )]
 public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
 {
     private const string endpoint = "interaction/Organisations.GetOrganisationById";
 
-    public GetOrganisationByIdTests(InternalApiWebApplicationFactory factory)
-        : base(factory)
+    public GetOrganisationByIdTests( InternalApiWebApplicationFactory factory )
+        : base( factory )
     {
     }
 
     [Fact]
     public async Task GetOrganisationById_ReturnsOrganisation_WhenExists()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
 
         // Arrange: Seed an organisation
         var orgId = Guid.NewGuid();
         var expectedName = "Test Academy Trust";
 
-        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
-        dbContext.Organisations.Add(new OrganisationEntity {
-            Id = orgId,
-            Name = expectedName,
-            Category = "001",
-            Status = 1,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
-        await dbContext.SaveChangesAsync();
+        var organisation = EntityFaker.Organisation
+            .RuleFor( o => o.Id, f => orgId )
+            .RuleFor( o => o.Name, f => expectedName );
+
+        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>( organisation );
 
         var request = new GetOrganisationByIdRequest {
             OrganisationId = orgId
         };
 
         // Act: POST to the endpoint
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.PostAsJsonAsync( endpoint, request );
 
         // Assert
         if (response.StatusCode != HttpStatusCode.OK) {
             var errorContent = await response.Content.ReadAsStringAsync();
-            Assert.Fail($"Request failed with status {response.StatusCode}. Response: {errorContent}");
+            Assert.Fail( $"Request failed with status {response.StatusCode}. Response: {errorContent}" );
         }
 
         var body = await response.Content.ReadFromJsonAsync<InteractionResponse<GetOrganisationByIdResponse>>();
-        Assert.NotNull(body);
-        Assert.NotNull(body.Data);
-        Assert.Equal(orgId, body.Data.Organisation.Id);
-        Assert.Equal(expectedName, body.Data.Organisation.Name);
+        Assert.NotNull( body );
+        Assert.NotNull( body.Data );
+        Assert.Equal( orgId, body.Data.Organisation.Id );
+        Assert.Equal( expectedName, body.Data.Organisation.Name );
     }
 
     [Fact]
@@ -73,10 +71,10 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
         };
 
         // Act
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await authenticatedClient.PostAsJsonAsync( endpoint, request );
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal( HttpStatusCode.NotFound, response.StatusCode );
     }
 
     [Fact]
@@ -88,8 +86,8 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
             OrganisationId = Guid.NewGuid()
         };
 
-        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
+        var response = await anonymousClient.PostAsJsonAsync( endpoint, request );
 
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal( HttpStatusCode.Unauthorized, response.StatusCode );
     }
 }
