@@ -17,14 +17,14 @@ public sealed class GetPendingChangeEmailEndpoint : IEndpoint
     /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
     /// </summary>
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
-    public static void Map( IEndpointRouteBuilder app )
+    public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet( UsersApiRoutes.GetPendingChangeEmail, Handler )
-            .WithName( "Get Pending Change Email" )
-            .WithTags( "Users" )
-            .Produces<GetPendingChangeEmailResponse>( StatusCodes.Status200OK )
-            .Produces( StatusCodes.Status404NotFound )
-            .Produces( StatusCodes.Status401Unauthorized )
+        app.MapGet(UsersApiRoutes.GetPendingChangeEmail, Handler)
+            .WithName("Get Pending Change Email")
+            .WithTags("Users")
+            .Produces<GetPendingChangeEmailResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi();
     }
 
@@ -36,25 +36,25 @@ public sealed class GetPendingChangeEmailEndpoint : IEndpoint
         IUserCodeService userCodeService,
         TimeProvider timeProvider,
         ILogger<GetPendingChangeEmailEndpoint> logger,
-        CancellationToken cancellationToken )
+        CancellationToken cancellationToken)
     {
-        logger.LogInformation( "Getting pending change email for user {UserId}", userId );
+        logger.LogInformation("Getting pending change email for user {UserId}", userId);
 
-        var pendingCode = await userCodeService.GetPendingChangeEmailCodeAsync( userId, cancellationToken );
+        var pendingCode = await userCodeService.GetPendingChangeEmailCodeAsync(userId, cancellationToken);
 
-        if (pendingCode is null || string.IsNullOrWhiteSpace( pendingCode.Email )) {
-            logger.LogInformation( "No pending change email request found for user {UserId}", userId );
-            return Results.NotFound( new { Message = "No pending change email request found" } );
+        if (pendingCode is null || string.IsNullOrWhiteSpace(pendingCode.Email)) {
+            logger.LogInformation("No pending change email request found for user {UserId}", userId);
+            return Results.NotFound(new { Message = "No pending change email request found" });
         }
 
-        var expiryTime = pendingCode.CreatedAt.AddHours( VerificationCodeExpiryHours );
+        var expiryTime = pendingCode.CreatedAt.AddHours(VerificationCodeExpiryHours);
         var hasExpired = timeProvider.GetUtcNow().UtcDateTime > expiryTime;
 
-        return Results.Ok( new GetPendingChangeEmailResponse {
+        return Results.Ok(new GetPendingChangeEmailResponse {
             NewEmailAddress = pendingCode.Email,
             CreatedAtUtc = pendingCode.CreatedAt,
             ExpiryTimeUtc = expiryTime,
             HasExpired = hasExpired,
-        } );
+        });
     }
 }

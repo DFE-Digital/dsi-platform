@@ -24,10 +24,11 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
     [Fact]
     public async Task GetPendingChangeEmail_Returns200OK_WithPendingDetails_WhenValidCodeExists()
     {
-        var client = this.CreateClient().WithAuthentication();
+        var client = this.CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User.Generate();
-        var createdAt = DateTime.UtcNow.AddMinutes(-10);
+        var createdAt = DateTime.UtcNow;
         var pendingCode = new UserCodeEntity {
             Uid = user.Sub,
             CodeType = "changeemail",
@@ -57,7 +58,12 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
     [Fact]
     public async Task GetPendingChangeEmail_Returns200OK_WithHasExpiredTrue_WhenCodeIsExpired()
     {
-        var client = this.CreateClient().WithAuthentication();
+        var dateTimeNow = new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero).DateTime;
+
+        var client = this.CreateClient(dateTimeNow)
+            .WithAuthentication();
+
+        var createdAt = dateTimeNow.AddHours(-2);
 
         var user = EntityFaker.User.Generate();
         var pendingCode = new UserCodeEntity {
@@ -68,8 +74,8 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             ClientId = "test-client",
             RedirectUri = "n/a",
             ContextData = null,
-            CreatedAt = DateTime.UtcNow.AddHours(-2),
-            UpdatedAt = DateTime.UtcNow.AddHours(-2),
+            CreatedAt = createdAt,
+            UpdatedAt = createdAt,
         };
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
