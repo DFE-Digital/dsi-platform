@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Dfe.SignIn.InternalApi;
+namespace Dfe.SignIn.InternalApi.Endpoints;
 
 /// <summary>
 /// A compile-time safe registry for class-based Minimal API endpoints.
@@ -10,8 +7,8 @@ namespace Dfe.SignIn.InternalApi;
 /// </summary>
 public sealed class EndpointRegistry
 {
-    private readonly List<(Type Type, ServiceLifetime Lifetime)> _endpoints = [];
-    private readonly List<Action<IEndpointRouteBuilder>> _mappers = [];
+    private readonly List<(Type Type, ServiceLifetime Lifetime)> endpoints = [];
+    private readonly List<Action<IEndpointRouteBuilder>> mappers = [];
 
     /// <summary>
     /// Registers an endpoint class for DI and captures its static Map delegate.
@@ -21,8 +18,8 @@ public sealed class EndpointRegistry
     public EndpointRegistry Add<T>(ServiceLifetime lifetime = ServiceLifetime.Transient)
         where T : class, IEndpoint
     {
-        _endpoints.Add((typeof(T), lifetime));
-        _mappers.Add(T.Map);
+        this.endpoints.Add((typeof(T), lifetime));
+        this.mappers.Add(T.Map);
         return this;
     }
 
@@ -31,8 +28,7 @@ public sealed class EndpointRegistry
     /// </summary>
     public void RegisterServices(IServiceCollection services)
     {
-        foreach (var (type, lifetime) in _endpoints)
-        {
+        foreach (var (type, lifetime) in this.endpoints) {
             services.Add(new ServiceDescriptor(type, type, lifetime));
         }
     }
@@ -42,8 +38,7 @@ public sealed class EndpointRegistry
     /// </summary>
     public void MapRoutes(IEndpointRouteBuilder app)
     {
-        foreach (var map in _mappers)
-        {
+        foreach (var map in this.mappers) {
             map(app);
         }
     }

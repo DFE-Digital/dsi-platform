@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.InternalApi;
+namespace Dfe.SignIn.InternalApi.Endpoints;
 
 /// <summary>
 /// Defines a contract for an endpoint that can be mapped to an <see cref="IEndpointRouteBuilder"/>.
