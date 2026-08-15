@@ -5,7 +5,6 @@ using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
 using Dfe.SignIn.TestHelpers.Integration.Data;
-using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Organisations;
@@ -62,7 +61,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_Returns404_WhenDoesNotExist()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this.SetupClient().WithAuthentication().Build().Client;
 
         // Arrange
         var missingOrgId = Guid.NewGuid();
@@ -80,7 +79,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_Returns401_WhenUnauthenticated()
     {
-        var anonymousClient = this.CreateClient();
+        var anonymousClient = this.SetupClient().Build().Client;
 
         var request = new GetOrganisationByIdRequest {
             OrganisationId = Guid.NewGuid()

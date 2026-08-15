@@ -11,15 +11,15 @@ using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 
-[Trait("Category", "Integration")]
+[Trait( "Category", "Integration" )]
 public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
 {
     private const string endpoint = UsersApiRoutes.PendingApprovalCounter;
 
     private const short ActiveUserOrganisationStatus = 1;
 
-    public PendingApprovalCountTests(InternalApiWebApplicationFactory factory)
-        : base(factory)
+    public PendingApprovalCountTests( InternalApiWebApplicationFactory factory )
+        : base( factory )
     {
     }
 
@@ -32,25 +32,25 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
         var userId = Guid.NewGuid();
 
         var url = UsersApiRoutes.PendingApprovalCounter
-            .Replace("{userId}", userId.ToString());
+            .Replace( "{userId}", userId.ToString() );
 
         var org = EntityFaker.Organisation.Generate();
 
         // Seed Organisation
-        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(org);
+        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>( org );
 
         // Seed UserOrganisation as Approver
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>(new UserOrganisationEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>( new UserOrganisationEntity {
             UserId = userId,
             OrganisationId = org.Id,
             RoleId = OrganisationRoles.Approver.Id,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Status = ActiveUserOrganisationStatus
-        });
+        } );
 
         // Seed 2 active pending service requests & 1 active pending org request
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserServiceRequestEntity>([
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserServiceRequestEntity>( [
             new UserServiceRequestEntity {
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
@@ -85,9 +85,9 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             }
-        ]);
+        ] );
 
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationRequestEntity>([
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationRequestEntity>( [
             new UserOrganisationRequestEntity {
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
@@ -107,15 +107,15 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             }
-        ]);
+        ] );
 
-        var response = await authenticatedClient.GetAsync(url);
+        var response = await authenticatedClient.GetAsync( url );
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
 
         var body = await response.Content.ReadFromJsonAsync<PendingApprovalCountResponse>();
-        Assert.NotNull(body);
-        Assert.Equal(3, body.Count);
+        Assert.NotNull( body );
+        Assert.Equal( 3, body.Count );
     }
 
     [Fact]
@@ -127,16 +127,16 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
         var userId = Guid.NewGuid();
 
         var url = UsersApiRoutes.PendingApprovalCounter
-           .Replace("{userId}", userId.ToString());
+           .Replace( "{userId}", userId.ToString() );
 
         var orgA = EntityFaker.Organisation.Generate(); // User is Approver
         var orgB = EntityFaker.Organisation.Generate(); // User is End User
         var orgC = EntityFaker.Organisation.Generate(); // User is Not Associated
 
-        await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>([orgA, orgB, orgC]);
+        await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>( [orgA, orgB, orgC] );
 
         // Seed UserOrganisation: Approver for Org A, End User for Org B
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>([
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>( [
             new UserOrganisationEntity {
                 UserId = userId,
                 OrganisationId = orgA.Id,
@@ -153,10 +153,10 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
                 UpdatedAt = DateTime.UtcNow,
                 Status = ActiveUserOrganisationStatus
             }
-        ]);
+        ] );
 
         // Org A: 2 pending requests
-        await this.InsertEntityAsync<DbOrganisationsContext, UserServiceRequestEntity>(new UserServiceRequestEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserServiceRequestEntity>( new UserServiceRequestEntity {
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             ServiceId = Guid.NewGuid(),
@@ -166,9 +166,9 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             ActionedAt = null,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
-        });
+        } );
 
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationRequestEntity>(new UserOrganisationRequestEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationRequestEntity>( new UserOrganisationRequestEntity {
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             OrganisationId = orgA.Id,
@@ -176,10 +176,10 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             ActionedAt = null,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
-        });
+        } );
 
         // Org B (End User): 3 pending requests
-        await this.InsertEntityAsync<DbOrganisationsContext, UserServiceRequestEntity>(new UserServiceRequestEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserServiceRequestEntity>( new UserServiceRequestEntity {
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             ServiceId = Guid.NewGuid(),
@@ -189,10 +189,10 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             ActionedAt = null,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
-        });
+        } );
 
         // Org C (Unassociated): 4 pending requests
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationRequestEntity>(new UserOrganisationRequestEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationRequestEntity>( new UserOrganisationRequestEntity {
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             OrganisationId = orgC.Id,
@@ -200,43 +200,42 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             ActionedAt = null,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
-        });
+        } );
 
-        var response = await authenticatedClient.GetAsync(url);
+        var response = await authenticatedClient.GetAsync( url );
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
 
         var body = await response.Content.ReadFromJsonAsync<PendingApprovalCountResponse>();
-        Assert.NotNull(body);
-        Assert.Equal(2, body.Count);
+        Assert.NotNull( body );
+        Assert.Equal( 2, body.Count );
     }
 
     [Fact]
     public async Task GetPendingApprovalCount_ReturnsZero_WhenUserIsEndUserOnly()
     {
-        var authenticatedClient = this.CreateClient()
-            .WithAuthentication();
+        var authenticatedClient = this.SetupClient().WithAuthentication().Build().Client;
 
         var userId = Guid.NewGuid();
 
         var url = UsersApiRoutes.PendingApprovalCounter
-            .Replace("{userId}", userId.ToString());
+            .Replace( "{userId}", userId.ToString() );
 
         var org = EntityFaker.Organisation.Generate();
 
-        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(org);
+        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>( org );
 
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>(new UserOrganisationEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>( new UserOrganisationEntity {
             UserId = userId,
             OrganisationId = org.Id,
             RoleId = OrganisationRoles.EndUser.Id,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Status = ActiveUserOrganisationStatus
-        });
+        } );
 
         // Seed pending request for the organisation
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationRequestEntity>(new UserOrganisationRequestEntity {
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationRequestEntity>( new UserOrganisationRequestEntity {
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             OrganisationId = org.Id,
@@ -244,64 +243,62 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             ActionedAt = null,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
-        });
+        } );
 
-        var response = await authenticatedClient.GetAsync(url);
+        var response = await authenticatedClient.GetAsync( url );
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
 
         var body = await response.Content.ReadFromJsonAsync<PendingApprovalCountResponse>();
-        Assert.NotNull(body);
-        Assert.Equal(0, body.Count);
+        Assert.NotNull( body );
+        Assert.Equal( 0, body.Count );
     }
 
     [Fact]
     public async Task GetPendingApprovalCount_ReturnsZero_WhenUserHasNoAssociatedOrganisations()
     {
-        var authenticatedClient = this.CreateClient()
-            .WithAuthentication();
+        var authenticatedClient = this.SetupClient().WithAuthentication().Build().Client;
 
         var userId = Guid.NewGuid();
 
         var url = UsersApiRoutes.PendingApprovalCounter
-            .Replace("{userId}", userId.ToString());
+            .Replace( "{userId}", userId.ToString() );
 
-        var response = await authenticatedClient.GetAsync(url);
+        var response = await authenticatedClient.GetAsync( url );
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
 
         var body = await response.Content.ReadFromJsonAsync<PendingApprovalCountResponse>();
-        Assert.NotNull(body);
-        Assert.Equal(0, body.Count);
+        Assert.NotNull( body );
+        Assert.Equal( 0, body.Count );
     }
 
     [Fact]
     public async Task GetPendingApprovalCount_Returns400_WhenUserIdIsEmpty()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this.SetupClient().WithAuthentication().Build().Client;
 
-        var response = await authenticatedClient.GetAsync(endpoint);
+        var response = await authenticatedClient.GetAsync( endpoint );
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal( HttpStatusCode.BadRequest, response.StatusCode );
     }
 
     [Fact]
     public async Task GetPendingApprovalCount_Returns400_WhenRequestBodyIsInvalid()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this.SetupClient().WithAuthentication().Build().Client;
+        var response = await authenticatedClient.GetAsync( endpoint );
 
-        var response = await authenticatedClient.GetAsync(endpoint);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal( HttpStatusCode.BadRequest, response.StatusCode );
     }
 
     [Fact]
     public async Task GetPendingApprovalCount_Returns401_WhenUnauthenticated()
     {
-        var anonymousClient = this.CreateClient();
+        var anonymousClient = this.SetupClient().Build().Client;
 
-        var response = await anonymousClient.GetAsync(endpoint);
+        var response = await anonymousClient.GetAsync( endpoint );
 
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal( HttpStatusCode.Unauthorized, response.StatusCode );
     }
 }
