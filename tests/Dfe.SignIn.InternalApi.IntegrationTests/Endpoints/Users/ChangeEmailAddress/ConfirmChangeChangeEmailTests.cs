@@ -28,7 +28,14 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_ReturnsSuccess_UpdatesEmail_DeletesCode_AndWritesAudit_WhenCodeValid()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
+
         this.FakeUserUpdatedPublisher.Clear();
 
         var user = EntityFaker.User

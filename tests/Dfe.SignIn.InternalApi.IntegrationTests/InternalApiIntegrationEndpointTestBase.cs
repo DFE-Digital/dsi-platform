@@ -1,11 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Notifications;
-using Dfe.SignIn.Core.Interfaces.ExternalAuth;
-using Dfe.SignIn.Core.Interfaces.Notifications;
-using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
-using Dfe.SignIn.TestHelpers.Integration;
 using Dfe.SignIn.TestHelpers.Integration.Mocks;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -61,46 +57,46 @@ public abstract class InternalApiIntegrationEndpointTestBase( InternalApiWebAppl
     /// NOTE: When we move to a simpler IAuditorService implementation, this method can be removed and the tests can be updated to use the real implementation of IAuditorService.
     /// </summary>
     /// <returns></returns>
-    protected (HttpClient Client, CapturingWriteToAuditInteractor AuditMock) CreateClientWithAuditMock()
-    {
-        var auditMock = new CapturingWriteToAuditInteractor();
-        var auditWriterMock = new TestAuditWriter( auditMock );
+    //protected (HttpClient Client, CapturingWriteToAuditInteractor AuditMock) CreateClientWithAuditMock()
+    //{
+    //    var auditMock = new CapturingWriteToAuditInteractor();
+    //    var auditWriterMock = new TestAuditWriter( auditMock );
 
-        var fakeEmailNotificationService = new FakeEmailNotificationService( this.FakeEmailRequestTracker );
+    //    var fakeEmailNotificationService = new FakeEmailNotificationService( this.FakeEmailRequestTracker );
 
-        var customisedFactory = this.WebAppFactory.WithWebHostBuilder( builder => {
-            builder.ConfigureTestServices( services => {
-                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-                services.AddSingleton<IInteractor<WriteToAuditRequest>>( auditMock );
+    //    var customisedFactory = this.WebAppFactory.WithWebHostBuilder( builder => {
+    //        builder.ConfigureTestServices( services => {
+    //            services.RemoveAll<IInteractor<WriteToAuditRequest>>();
+    //            services.AddSingleton<IInteractor<WriteToAuditRequest>>( auditMock );
 
-                services.RemoveAll<IAuditWriter>();
-                services.AddSingleton<IAuditWriter>( auditWriterMock );
+    //            services.RemoveAll<IAuditWriter>();
+    //            services.AddSingleton<IAuditWriter>( auditWriterMock );
 
-                services.RemoveAll<IAsyncNotificationClient>();
-                services.RemoveAll<INotificationService>();
-                services.AddSingleton<INotificationService>( fakeEmailNotificationService );
+    //            services.RemoveAll<IAsyncNotificationClient>();
+    //            services.RemoveAll<INotificationService>();
+    //            services.AddSingleton<INotificationService>( fakeEmailNotificationService );
 
-                services.RemoveAll<IInteractionLimiter>();
-                services.AddSingleton<IInteractionLimiter>( this.FakeLimiter );
+    //            services.RemoveAll<IInteractionLimiter>();
+    //            services.AddSingleton<IInteractionLimiter>( this.FakeLimiter );
 
-                services.RemoveAll<IExternalAuthService>();
-                services.AddSingleton<IExternalAuthService>( this.FakeExternalAuthService );
+    //            services.RemoveAll<IExternalAuthService>();
+    //            services.AddSingleton<IExternalAuthService>( this.FakeExternalAuthService );
 
-                services.RemoveAll<IUserUpdatedPublisher>();
-                services.AddSingleton<IUserUpdatedPublisher>( this.FakeUserUpdatedPublisher );
+    //            services.RemoveAll<IUserUpdatedPublisher>();
+    //            services.AddSingleton<IUserUpdatedPublisher>( this.FakeUserUpdatedPublisher );
 
-                services.RemoveAll<TimestampInterceptor>();
-                services.AddSingleton<TimestampInterceptor>( this.TestTimestampInterceptor );
-            } );
-        } );
+    //            services.RemoveAll<TimestampInterceptor>();
+    //            services.AddSingleton<TimestampInterceptor>( this.TestTimestampInterceptor );
+    //        } );
+    //    } );
 
-        this.createdFactories.Add( customisedFactory );
+    //    this.createdFactories.Add( customisedFactory );
 
-        var client = customisedFactory.CreateClient();
-        client.DefaultRequestHeaders.Add( TestAuthHandler.EnableAuthHeaderName, bool.TrueString );
+    //    var client = customisedFactory.CreateClient();
+    //    client.DefaultRequestHeaders.Add( TestAuthHandler.EnableAuthHeaderName, bool.TrueString );
 
-        return (client, auditMock);
-    }
+    //    return (client, auditMock);
+    //}
 
     protected async Task InsertEntityAsync<TContext, TEntity>( TEntity entity )
         where TContext : DbContext

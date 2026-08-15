@@ -5,7 +5,6 @@ using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
-using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
@@ -27,7 +26,13 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_ReturnsSuccess_WritesAudit_AndCreatesVerificationCode_WhenEmailAvailable()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         var user = EntityFaker.User
             .RuleFor( x => x.Email, ( _, _ ) => "john.doe@old.example.com" )
@@ -65,7 +70,13 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_CreatesOrReplacesPendingCodeRecord_InPersistence()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         var user = EntityFaker.User
             .RuleFor( x => x.Email, ( _, _ ) => "alex.old@example.com" )
@@ -111,7 +122,11 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_EnsuresSingleActivePendingCode_ForUser()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
 
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
@@ -139,7 +154,7 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_Returns401_WhenUnauthenticated()
     {
-        var anonymousClient = this.CreateClient();
+        var anonymousClient = this.SetupClient().Build().Client;
 
         var userId = Guid.NewGuid();
         var request = CreateRequest( "jane.smith@example.com" );
@@ -152,7 +167,11 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_Returns400_WhenNewEmailMissing()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
 
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
@@ -167,7 +186,11 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_Returns400_WhenNewEmailInvalid()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
 
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
@@ -182,7 +205,13 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_Returns400_WhenNewEmailMatchesCurrentEmail()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         var currentEmail = "matching.email@example.com";
         var user = EntityFaker.User
@@ -209,7 +238,13 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_Returns400_AndWritesAudit_WhenNewEmailBelongsToDifferentUser()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         var requester = EntityFaker.User
             .RuleFor( x => x.Email, ( _, _ ) => "requester@example.com" )
@@ -244,7 +279,11 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_DoesNotCreateOrMutatePendingCode_WhenValidationFails()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
 
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
@@ -265,7 +304,13 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_ReturnsLimiterMappedStatus_WhenRateLimited()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         this.FakeLimiter.ShouldAlwaysReject = true;
 
@@ -293,7 +338,13 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_SendsEmailOrNotification_WhenApplicable()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         this.FakeLimiter.ShouldAlwaysReject = false;
         this.FakeEmailRequestTracker.Clear();
@@ -344,7 +395,13 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     [Fact]
     public async Task InitiateChangeEmail_DoesNotSendEmailOrNotification_OnValidationOrLimiterFailure_WhenApplicable()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         this.FakeLimiter.ShouldAlwaysReject = true;
 

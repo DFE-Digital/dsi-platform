@@ -3,7 +3,6 @@ using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
-using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
@@ -25,7 +24,13 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
     [Fact]
     public async Task CancelChangeEmail_ReturnsSuccess_WritesAudit_AndDeletesCode()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         var user = EntityFaker.User
             .RuleFor( x => x.Email, ( _, _ ) => "john.doe@old.example.com" )
@@ -76,6 +81,8 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
             .WithAuthentication()
             .Build();
 
+        var authenticatedClient = testContext.Client;
+
         var targetUser = EntityFaker.User
             .RuleFor( x => x.Email, ( _, _ ) => "target.old@example.com" )
             .Generate();
@@ -123,7 +130,13 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
     [Fact]
     public async Task CancelChangeEmail_DoesNotWriteSuccessPathAudit_WhenDeleteFails()
     {
-        var (authenticatedClient, auditMock) = this.CreateClientWithAuditMock();
+        var testContext = this.SetupClient()
+            .WithAuthentication()
+            .WithAuditMock()
+            .Build();
+
+        var authenticatedClient = testContext.Client;
+        var auditMock = testContext.AuditMock;
 
         var user = EntityFaker.User
             .RuleFor( x => x.Email, ( _, _ ) => "john.doe@old.example.com" )
