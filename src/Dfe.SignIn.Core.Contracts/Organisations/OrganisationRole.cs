@@ -1,40 +1,48 @@
 namespace Dfe.SignIn.Core.Contracts.Organisations;
 
+public sealed partial record OrganisationRole
+{
+    /// <summary>
+    /// The standard end user role (Value = 0, Name = "End user").
+    /// </summary>
+    public static readonly OrganisationRole EndUser = new( 0, "End user" );
+
+    /// <summary>
+    /// The approver role (Value = 10000, Name = "Approver").
+    /// </summary>
+    public static readonly OrganisationRole Approver = new( 10000, "Approver" );
+}
+
 /// <summary>
 /// Represents an organisation role with an identifier and a display name.
 /// </summary>
-/// <param name="Id">The unique short identifier for the role.</param>
-/// <param name="Name">The display name of the role.</param>
-public sealed record OrganisationRole(short Id, string Name);
-
-/// <summary>
-/// Provides static references and lookup methods for well-known organisation roles.
-/// </summary>
-public static class OrganisationRoles
+public sealed partial record OrganisationRole
 {
     /// <summary>
-    /// The standard end user role (Id = 0, Name = "End user").
+    /// Gets the unique short identifier for the role.
     /// </summary>
-    public static readonly OrganisationRole EndUser = new(0, "End user");
+    public short Value { get; }
 
     /// <summary>
-    /// The approver role (Id = 10000, Name = "Approver").
+    /// Gets the display name of the role.
     /// </summary>
-    public static readonly OrganisationRole Approver = new(10000, "Approver");
+    public string Name { get; }
 
-    /// <summary>
-    /// Internal lookup dictionary for roles by their short Id.
-    /// </summary>
+    private OrganisationRole( short value, string name )
+    {
+        this.Value = value;
+        this.Name = name;
+    }
+
     private static readonly IReadOnlyDictionary<short, OrganisationRole> ById =
         new Dictionary<short, OrganisationRole> {
-            [EndUser.Id] = EndUser,
-            [Approver.Id] = Approver
+            [EndUser.Value] = EndUser,
+            [Approver.Value] = Approver
         };
 
     /// <summary>
-    /// Gets a known <see cref="OrganisationRole"/> by its Id, or null if not found.
+    /// Gets a known <see cref="OrganisationRole"/> by its Value, or null if not found.
     /// </summary>
-    /// <param name="roleId">The short Id of the role.</param>
-    /// <returns>The matching <see cref="OrganisationRole"/>, or null if not found.</returns>
-    public static OrganisationRole? FromId(short roleId) => ById.TryGetValue(roleId, out var role) ? role : null;
+    public static OrganisationRole? FromValue( short value )
+        => ById.TryGetValue( value, out var role ) ? role : null;
 }

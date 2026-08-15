@@ -14,12 +14,12 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Get the service users for a given service (client).
 /// </summary>
 /// <param name="organisationsDbContext"></param>
-public sealed class GetServiceUsersUseCase(DbOrganisationsContext organisationsDbContext) : Interactor<GetServiceUsersRequest, GetServiceUsersResponse>
+public sealed class GetServiceUsersUseCase( DbOrganisationsContext organisationsDbContext ) : Interactor<GetServiceUsersRequest, GetServiceUsersResponse>
 {
     /// <inheritdoc/>
     public override async Task<GetServiceUsersResponse> InvokeAsync(
         InteractionContext<GetServiceUsersRequest> context,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default )
     {
         context.ThrowIfHasValidationErrors();
 
@@ -29,50 +29,50 @@ public sealed class GetServiceUsersUseCase(DbOrganisationsContext organisationsD
 
         var query = organisationsDbContext.UserServices
             .AsNoTracking()
-            .Include(x => x.User)
-            .Include(x => x.Organisation)
-            .Where(x => x.ServiceId == applicationId)
-            .Where(x => x.User != null)
-            .Where(x => x.Organisation != null);
+            .Include( x => x.User )
+            .Include( x => x.Organisation )
+            .Where( x => x.ServiceId == applicationId )
+            .Where( x => x.User != null )
+            .Where( x => x.Organisation != null );
 
         // Apply optional filters
         if (context.Request.UserStatus.HasValue) {
-            query = query.Where(x => x.User!.Status == (short)context.Request.UserStatus.Value);
+            query = query.Where( x => x.User!.Status == (short)context.Request.UserStatus.Value );
         }
 
         if (context.Request.DateFrom.HasValue) {
-            query = query.Where(x => x.User!.UpdatedAt >= context.Request.DateFrom.Value);
+            query = query.Where( x => x.User!.UpdatedAt >= context.Request.DateFrom.Value );
         }
 
         if (context.Request.DateTo.HasValue) {
-            query = query.Where(x => x.User!.UpdatedAt <= context.Request.DateTo.Value);
+            query = query.Where( x => x.User!.UpdatedAt <= context.Request.DateTo.Value );
         }
 
-        var totalRecords = await query.CountAsync(cancellationToken);
+        var totalRecords = await query.CountAsync( cancellationToken );
         if (totalRecords == 0) {
-            return GetServiceUsersResponse.Empty(pageNumber);
+            return GetServiceUsersResponse.Empty( pageNumber );
         }
 
         var pagedEntities = await query
-            .OrderBy(x => x.UserId)
-            .ThenBy(x => x.OrganisationId)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+            .OrderBy( x => x.UserId )
+            .ThenBy( x => x.OrganisationId )
+            .Skip( (pageNumber - 1) * pageSize )
+            .Take( pageSize )
             .AsSplitQuery()
-            .ToListAsync(cancellationToken);
+            .ToListAsync( cancellationToken );
 
-        var userIds = pagedEntities.Select(us => us.UserId).Distinct().ToList();
+        var userIds = pagedEntities.Select( us => us.UserId ).Distinct().ToList();
 
-        var rolesLookup = await this.GetServiceRolesLookupAsync(applicationId, userIds, cancellationToken);
-        var orgRolesLookup = await this.GetOrgRolesLookupAsync(userIds, cancellationToken);
+        var rolesLookup = await this.GetServiceRolesLookupAsync( applicationId, userIds, cancellationToken );
+        var orgRolesLookup = await this.GetOrgRolesLookupAsync( userIds, cancellationToken );
 
-        var mappedUsers = pagedEntities.Select(entity =>
-            MapToServiceUserDto(entity, rolesLookup, orgRolesLookup)).ToList();
+        var mappedUsers = pagedEntities.Select( entity =>
+            MapToServiceUserDto( entity, rolesLookup, orgRolesLookup ) ).ToList();
 
         // Added to make sure it is backwards compatible with existing data where email might be missing,
         // and to prevent potential issues in the UI or other layers that expect an email address.
-        if (mappedUsers.All(u => string.IsNullOrEmpty(u.Email))) {
-            return GetServiceUsersResponse.Empty(pageNumber);
+        if (mappedUsers.All( u => string.IsNullOrEmpty( u.Email ) )) {
+            return GetServiceUsersResponse.Empty( pageNumber );
         }
 
         return GetServiceUsersResponse.FromUsers(
@@ -84,14 +84,14 @@ public sealed class GetServiceUsersUseCase(DbOrganisationsContext organisationsD
     }
 
     private async Task<ILookup<(Guid UserId, Guid OrgId), ServiceUserRoleDto>> GetServiceRolesLookupAsync(
-        Guid appId, List<Guid> userIds, CancellationToken ct)
+        Guid appId, List<Guid> userIds, CancellationToken ct )
     {
         var roles = await organisationsDbContext.UserServiceRoles
             .AsNoTracking()
-            .Include(x => x.Role)
-            .Where(x => x.ServiceId == appId)
-            .Where(x => userIds.Contains(x.UserId))
-            .ToListAsync(ct);
+            .Include( x => x.Role )
+            .Where( x => x.ServiceId == appId )
+            .Where( x => userIds.Contains( x.UserId ) )
+            .ToListAsync( ct );
 
         return roles.ToLookup(
             key => (key.UserId, key.OrganisationId),
@@ -101,35 +101,35 @@ public sealed class GetServiceUsersUseCase(DbOrganisationsContext organisationsD
                 Code = val.Role?.Code ?? string.Empty,
                 NumericId = val.Role?.NumericId.ToString() ?? string.Empty,
                 Status = val.Role?.Status ?? (int)ApplicationRoleStatus.Inactive
-            });
+            } );
     }
 
     private async Task<ILookup<Guid, (Guid OrgId, short RoleId)>> GetOrgRolesLookupAsync(
-        List<Guid> userIds, CancellationToken ct)
+        List<Guid> userIds, CancellationToken ct )
     {
         var orgRoles = await organisationsDbContext.UserOrganisations
             .AsNoTracking()
-            .Where(x => userIds.Contains(x.UserId))
-            .Select(x => new { x.UserId, x.OrganisationId, x.RoleId })
-            .ToListAsync(ct);
+            .Where( x => userIds.Contains( x.UserId ) )
+            .Select( x => new { x.UserId, x.OrganisationId, x.RoleId } )
+            .ToListAsync( ct );
 
-        return orgRoles.ToLookup(x => x.UserId, x => (x.OrganisationId, x.RoleId));
+        return orgRoles.ToLookup( x => x.UserId, x => (x.OrganisationId, x.RoleId) );
     }
 
     private static ServiceUserDto MapToServiceUserDto(
         UserServiceEntity entity,
         ILookup<(Guid, Guid), ServiceUserRoleDto> rolesLookup,
-        ILookup<Guid, (Guid OrgId, short RoleId)> orgRolesLookup)
+        ILookup<Guid, (Guid OrgId, short RoleId)> orgRolesLookup )
     {
         var user = entity.User;
         var org = entity.Organisation;
 
         var orgRoleId = orgRolesLookup[entity.UserId]
-            .Where(x => x.OrgId == entity.OrganisationId)
-            .Select(x => (short?)x.RoleId)
+            .Where( x => x.OrgId == entity.OrganisationId )
+            .Select( x => (short?)x.RoleId )
             .FirstOrDefault();
 
-        var userOrgRole = orgRoleId != null ? OrganisationRoles.FromId(orgRoleId.Value) : null;
+        var userOrgRole = orgRoleId != null ? OrganisationRole.FromValue( orgRoleId.Value ) : null;
 
         var userRoles = rolesLookup[(entity.UserId, entity.OrganisationId ?? Guid.Empty)].ToList();
 
@@ -142,13 +142,13 @@ public sealed class GetServiceUsersUseCase(DbOrganisationsContext organisationsD
             ApprovedAt = user?.CreatedAt.ToUtc(),
             UpdatedAt = user?.UpdatedAt.ToUtc(),
             RoleName = userOrgRole?.Name ?? string.Empty,
-            RoleId = userOrgRole?.Id,
+            RoleId = userOrgRole?.Value,
             Roles = userRoles,
-            Organisation = MapOrganisationDto(org, entity.UserId, user)
+            Organisation = MapOrganisationDto( org, entity.UserId, user )
         };
     }
 
-    private static ServiceUserOrganisationDto? MapOrganisationDto(OrganisationEntity? org, Guid userId, UserEntity? user)
+    private static ServiceUserOrganisationDto? MapOrganisationDto( OrganisationEntity? org, Guid userId, UserEntity? user )
     {
         if (org == null) {
             return null;

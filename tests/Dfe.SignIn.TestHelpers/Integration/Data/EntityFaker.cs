@@ -39,7 +39,7 @@ public static class EntityFaker
     public static Faker<UserOrganisationEntity> UserOrganisation => new Faker<UserOrganisationEntity>()
         .RuleFor( x => x.UserId, f => f.Random.Guid() )
         .RuleFor( x => x.OrganisationId, f => f.Random.Guid() )
-        .RuleFor( x => x.RoleId, _ => OrganisationRoles.EndUser.Id )
+        .RuleFor( x => x.RoleId, _ => OrganisationRole.EndUser.Value )
         .RuleFor( x => x.Status, _ => ActiveUserOrganisationStatus )
         .RuleFor( x => x.CreatedAt, f => f.Date.Past( 2 ) )
         .RuleFor( x => x.UpdatedAt, ( f, userOrg ) => f.Date.Between( userOrg.CreatedAt, DateTime.UtcNow ) );

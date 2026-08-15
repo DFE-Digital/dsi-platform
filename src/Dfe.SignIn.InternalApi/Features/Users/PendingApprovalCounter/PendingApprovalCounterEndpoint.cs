@@ -16,13 +16,13 @@ public class PendingApprovalCounterEndpoint : IEndpoint
     /// Endpoint mapping method holding configuration.
     /// </summary>
     /// <param name="app">The endpoint route builder to map the endpoint to</param>
-    public static void Map(IEndpointRouteBuilder app)
+    public static void Map( IEndpointRouteBuilder app )
     {
-        app.MapGet(UsersApiRoutes.PendingApprovalCounter, Handler)
-            .WithName("Pending Approval Counter")
-            .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
+        app.MapGet( UsersApiRoutes.PendingApprovalCounter, Handler )
+            .WithName( "Pending Approval Counter" )
+            .WithTags( "Users" )
+            .Produces( StatusCodes.Status200OK )
+            .Produces( StatusCodes.Status400BadRequest )
             .RequireAuthorization()
             .WithOpenApi();
     }
@@ -39,22 +39,22 @@ public class PendingApprovalCounterEndpoint : IEndpoint
         DbOrganisationsContext organisationsDbContext,
         Guid userId,
         ILogger<PendingApprovalCounterEndpoint> logger,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken )
     {
         var orgIds = await organisationsDbContext.UserOrganisations
                    .AsNoTracking()
-                   .Include(x => x.Organisation)
-                   .Where(x => x.UserId == userId && x.RoleId == OrganisationRoles.Approver.Id)
-                   .Select(x => x.OrganisationId)
-                   .ToListAsync(cancellationToken);
+                   .Include( x => x.Organisation )
+                   .Where( x => x.UserId == userId && x.RoleId == OrganisationRole.Approver.Value )
+                   .Select( x => x.OrganisationId )
+                   .ToListAsync( cancellationToken );
 
         var pendingServiceNotificationCount = await organisationsDbContext.UserServiceRequests
             .AsNoTracking()
-            .CountAsync(x => orgIds.Contains(x.OrganisationId) && !x.ActionedAt.HasValue, cancellationToken);
+            .CountAsync( x => orgIds.Contains( x.OrganisationId ) && !x.ActionedAt.HasValue, cancellationToken );
 
         var pendingOrganisationNotificationCount = await organisationsDbContext.UserOrganisationRequests
             .AsNoTracking()
-            .CountAsync(x => orgIds.Contains(x.OrganisationId) && !x.ActionedAt.HasValue, cancellationToken);
+            .CountAsync( x => orgIds.Contains( x.OrganisationId ) && !x.ActionedAt.HasValue, cancellationToken );
 
         var pendingCount = pendingServiceNotificationCount + pendingOrganisationNotificationCount;
 

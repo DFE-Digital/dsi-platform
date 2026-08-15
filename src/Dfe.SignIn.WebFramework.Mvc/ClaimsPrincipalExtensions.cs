@@ -20,13 +20,13 @@ public static class ClaimsPrincipalExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="principal"/> is null.</para>
     /// </exception>
-    public static bool TryGetUserId(this ClaimsPrincipal principal, out Guid? userId)
+    public static bool TryGetUserId( this ClaimsPrincipal principal, out Guid? userId )
     {
-        ExceptionHelpers.ThrowIfArgumentNull(principal, nameof(principal));
+        ExceptionHelpers.ThrowIfArgumentNull( principal, nameof( principal ) );
 
-        var claim = principal.FindFirst(ClaimTypes.NameIdentifier);
+        var claim = principal.FindFirst( ClaimTypes.NameIdentifier );
         userId = claim is not null
-            ? new Guid(claim.Value)
+            ? new Guid( claim.Value )
             : null;
         return claim is not null;
     }
@@ -44,13 +44,13 @@ public static class ClaimsPrincipalExtensions
     /// <exception cref="InvalidOperationException">
     ///   <para>If the <see cref="ClaimTypes.NameIdentifier"/> claim is missing.</para>
     /// </exception>
-    public static Guid GetUserId(this ClaimsPrincipal principal)
+    public static Guid GetUserId( this ClaimsPrincipal principal )
     {
-        ExceptionHelpers.ThrowIfArgumentNull(principal, nameof(principal));
+        ExceptionHelpers.ThrowIfArgumentNull( principal, nameof( principal ) );
 
-        var claim = principal.FindFirst(ClaimTypes.NameIdentifier)
-             ?? throw new InvalidOperationException("Missing user ID.");
-        return new Guid(claim.Value);
+        var claim = principal.FindFirst( ClaimTypes.NameIdentifier )
+             ?? throw new InvalidOperationException( "Missing user ID." );
+        return new Guid( claim.Value );
     }
 
     /// <summary>
@@ -63,9 +63,9 @@ public static class ClaimsPrincipalExtensions
     /// <exception cref="InvalidOperationException">
     ///   <para>If the <see cref="ClaimTypes.NameIdentifier"/> claim is missing.</para>
     /// </exception>
-    public static bool HasApproverClaim(this ClaimsPrincipal principal)
+    public static bool HasApproverClaim( this ClaimsPrincipal principal )
     {
-        ExceptionHelpers.ThrowIfArgumentNull(principal, nameof(principal));
-        return principal.Claims.Any(x => x.Type == OrganisationRoles.Approver.Name);
+        ExceptionHelpers.ThrowIfArgumentNull( principal, nameof( principal ) );
+        return principal.Claims.Any( x => x.Type == OrganisationRole.Approver.Name );
     }
 }

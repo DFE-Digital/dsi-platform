@@ -76,8 +76,6 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
             .WithAuthentication()
             .Build();
 
-        var authenticatedClient = testContext.Client;
-
         var targetUser = EntityFaker.User
             .RuleFor( x => x.Email, ( _, _ ) => "target.old@example.com" )
             .Generate();

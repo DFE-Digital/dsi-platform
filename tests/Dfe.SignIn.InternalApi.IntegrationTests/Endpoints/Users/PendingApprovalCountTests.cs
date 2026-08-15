@@ -43,7 +43,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>( new UserOrganisationEntity {
             UserId = userId,
             OrganisationId = org.Id,
-            RoleId = OrganisationRoles.Approver.Id,
+            RoleId = OrganisationRole.Approver.Value,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Status = ActiveUserOrganisationStatus
@@ -140,7 +140,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             new UserOrganisationEntity {
                 UserId = userId,
                 OrganisationId = orgA.Id,
-                RoleId = OrganisationRoles.Approver.Id,
+                RoleId = OrganisationRole.Approver.Value,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Status = ActiveUserOrganisationStatus
@@ -148,7 +148,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
             new UserOrganisationEntity {
                 UserId = userId,
                 OrganisationId = orgB.Id,
-                RoleId = OrganisationRoles.EndUser.Id,
+                RoleId = OrganisationRole.EndUser.Value,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Status = ActiveUserOrganisationStatus
@@ -228,7 +228,7 @@ public class PendingApprovalCountTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>( new UserOrganisationEntity {
             UserId = userId,
             OrganisationId = org.Id,
-            RoleId = OrganisationRoles.EndUser.Id,
+            RoleId = OrganisationRole.EndUser.Value,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Status = ActiveUserOrganisationStatus

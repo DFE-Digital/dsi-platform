@@ -19,13 +19,13 @@ public sealed class ApplicationClaimsTransormationTests
         var autoMocker = new AutoMocker();
         var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
 
-        var principal = new ClaimsPrincipal(new ClaimsIdentity());
+        var principal = new ClaimsPrincipal( new ClaimsIdentity() );
 
         // Act
-        var result = await service.TransformAsync(principal);
+        var result = await service.TransformAsync( principal );
 
         // Assert
-        Assert.AreSame(principal, result);
+        Assert.AreSame( principal, result );
     }
 
     [TestMethod]
@@ -34,27 +34,27 @@ public sealed class ApplicationClaimsTransormationTests
         // Arrange
         var autoMocker = new AutoMocker();
 
-        var userId = Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd");
+        var userId = Guid.Parse( "286101e9-a2dd-4894-bb3b-aefa8ea60ecd" );
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IsOrganisationApproverResponse(true));
+            .Setup( x => x.IsApprover( userId, It.IsAny<CancellationToken>() ) )
+            .ReturnsAsync( new IsOrganisationApproverResponse( true ) );
 
         var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
 
-        var principal = new ClaimsPrincipal([
+        var principal = new ClaimsPrincipal( [
                    new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, userId.ToString())
             ],   authenticationType: "TestAuth")
-               ]);
+               ] );
 
         // Act
-        var result = await service.TransformAsync(principal);
+        var result = await service.TransformAsync( principal );
 
         // Assert
-        Assert.AreEqual(2, result.Claims.Count());
-        Assert.AreEqual(1, result.Claims.Count(c => c.Type == ClaimTypes.NameIdentifier && c.Value == userId.ToString()));
-        Assert.AreEqual(1, result.Claims.Count(c => c.Type == OrganisationRoles.Approver.Name));
+        Assert.AreEqual( 2, result.Claims.Count() );
+        Assert.AreEqual( 1, result.Claims.Count( c => c.Type == ClaimTypes.NameIdentifier && c.Value == userId.ToString() ) );
+        Assert.AreEqual( 1, result.Claims.Count( c => c.Type == OrganisationRole.Approver.Name ) );
     }
 
     [TestMethod]
@@ -63,25 +63,25 @@ public sealed class ApplicationClaimsTransormationTests
         // Arrange
         var autoMocker = new AutoMocker();
         var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
-        var userId = Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd");
+        var userId = Guid.Parse( "286101e9-a2dd-4894-bb3b-aefa8ea60ecd" );
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IsOrganisationApproverResponse(false));
+            .Setup( x => x.IsApprover( userId, It.IsAny<CancellationToken>() ) )
+            .ReturnsAsync( new IsOrganisationApproverResponse( false ) );
 
-        var principal = new ClaimsPrincipal([
+        var principal = new ClaimsPrincipal( [
             new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, userId.ToString())
             ],
             authenticationType: "TestAuth")
-          ]);
+          ] );
 
         // Act
-        var result = await service.TransformAsync(principal);
+        var result = await service.TransformAsync( principal );
 
         // Assert
-        Assert.AreEqual(1, result.Claims.Count());
-        Assert.AreEqual(1, result.Claims.Count(c => c.Type == ClaimTypes.NameIdentifier && c.Value == userId.ToString()));
+        Assert.AreEqual( 1, result.Claims.Count() );
+        Assert.AreEqual( 1, result.Claims.Count( c => c.Type == ClaimTypes.NameIdentifier && c.Value == userId.ToString() ) );
     }
 
     [TestMethod]
@@ -93,16 +93,16 @@ public sealed class ApplicationClaimsTransormationTests
         var userId = Guid.Empty;
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IsOrganisationApproverResponse(false));
+            .Setup( x => x.IsApprover( userId, It.IsAny<CancellationToken>() ) )
+            .ReturnsAsync( new IsOrganisationApproverResponse( false ) );
 
-        var principal = new ClaimsPrincipal([
+        var principal = new ClaimsPrincipal( [
             new ClaimsIdentity((IEnumerable<Claim>?)[],
             authenticationType: "TestAuth")
-          ]);
+          ] );
 
         // Act
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.TransformAsync(principal));
+        await Assert.ThrowsAsync<InvalidOperationException>( () => service.TransformAsync( principal ) );
     }
 
     [TestMethod]
@@ -111,25 +111,25 @@ public sealed class ApplicationClaimsTransormationTests
         // Arrange
         var autoMocker = new AutoMocker();
         var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
-        var userId = Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd");
+        var userId = Guid.Parse( "286101e9-a2dd-4894-bb3b-aefa8ea60ecd" );
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IsOrganisationApproverResponse(false));
+            .Setup( x => x.IsApprover( userId, It.IsAny<CancellationToken>() ) )
+            .ReturnsAsync( new IsOrganisationApproverResponse( false ) );
 
-        var principal = new ClaimsPrincipal([
+        var principal = new ClaimsPrincipal( [
             new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(DsiClaimTypes.UserId, userId.ToString())
             ],
             authenticationType: "TestAuth")
-          ]);
+          ] );
 
         // Act
-        var result = await service.TransformAsync(principal);
+        var result = await service.TransformAsync( principal );
 
         // Assert
-        autoMocker.GetMock<IUsersApiClient>().Verify(x => x.IsApprover(
-            It.Is<Guid>(x => x == userId),
-            It.IsAny<CancellationToken>()), Times.Once);
+        autoMocker.GetMock<IUsersApiClient>().Verify( x => x.IsApprover(
+            It.Is<Guid>( x => x == userId ),
+            It.IsAny<CancellationToken>() ), Times.Once );
     }
 }
