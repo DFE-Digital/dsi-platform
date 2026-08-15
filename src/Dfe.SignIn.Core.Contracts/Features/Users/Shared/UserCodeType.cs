@@ -1,38 +1,19 @@
 namespace Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 
 /// <summary>
-/// Represents the type of user code used for various user actions, such as changing email or resetting password.
+/// Represents the type of user code, defined as a smart enum with a unique short identifier and a display name.
 /// </summary>
-public enum UserCodeType
+public sealed record UserCodeType : SmartEnum<UserCodeType, string>
 {
-    /// <summary>
-    /// Represents a user code type used for changing a user's email address.
-    /// </summary>
-    ChangeEmail,
+    /// <inheritdoc/>
+    private UserCodeType( string value, string name ) : base( value, name ) { }
 
     /// <summary>
-    /// Represents a user code type used for password reset actions.
+    /// The user code type for changing a user's email address (Value = "changeemail", Name = "Change Email").
     /// </summary>
-    PasswordReset,
-}
-
-/// <summary>
-/// Provides extension methods for the <see cref="UserCodeType"/> enum to convert it to database values.
-/// </summary>
-public static class UserCodeTypeExtensions
-{
+    public static readonly UserCodeType ChangeEmail = new( "changeemail", "Change Email" );
     /// <summary>
-    /// Converts the <see cref="UserCodeType"/> enum value to its corresponding database string representation.
+    /// The user code type for password reset actions (Value = "PasswordReset", Name = "Password Reset").
     /// </summary>
-    /// <param name="codeType">The <see cref="UserCodeType"/> enum value to convert.</param>
-    /// <returns>The database string representation of the <see cref="UserCodeType"/> enum value.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when the <see cref="UserCodeType"/> value is not recognized.</exception>
-    public static string ToDbValue(this UserCodeType codeType)
-    {
-        return codeType switch {
-            UserCodeType.ChangeEmail => "changeemail",
-            UserCodeType.PasswordReset => "PasswordReset",
-            _ => throw new ArgumentOutOfRangeException(nameof(codeType), codeType, null)
-        };
-    }
+    public static readonly UserCodeType PasswordReset = new( "PasswordReset", "Password Reset" );
 }
