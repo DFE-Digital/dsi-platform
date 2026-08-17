@@ -1,13 +1,7 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Notifications;
 using Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
 using Dfe.SignIn.TestHelpers.Integration.Mocks;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Notify.Interfaces;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
@@ -22,12 +16,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected FakeExternalAuthService FakeExternalAuthService => this.WebAppFactory.FakeExternalAuth;
     protected FakeUserUpdatedPublisher FakeUserUpdatedPublisher => this.WebAppFactory.FakeUserUpdatedPublisher;
     protected CapturingWriteToAuditInteractor AuditCapturer => this.WebAppFactory.AuditCapturer;
-    internal TestTimestampInterceptor TestTimestampInterceptor => this.WebAppFactory.TimestampInterceptor;
-
-    /// <summary>
-    /// Entry point for fluently configuring and building an HttpClient with test context.
-    /// </summary>
-    protected InternalApiClientBuilder SetupClient() => new(this.WebAppFactory);
+    internal FakeTimestampInterceptor TimestampInterceptor => this.WebAppFactory.TimestampInterceptor;
 
     public async Task InitializeAsync()
     {

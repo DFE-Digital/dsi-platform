@@ -7,6 +7,7 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
+using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
@@ -28,13 +29,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_ReturnsSuccess_UpdatesEmail_DeletesCode_AndWritesAudit_WhenCodeValid()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .WithAuditMock()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
-        var auditMock = testContext.AuditMock;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         this.FakeUserUpdatedPublisher.Clear();
 
@@ -76,7 +73,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.Null(dbCode);
 
         // Assert audit event is written
-        var auditRequest = auditMock.CapturedRequest;
+        var auditRequest = this.AuditCapturer.CapturedRequests[0];
         Assert.NotNull(auditRequest);
         Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditRequest.EventCategory);
         Assert.Equal($"Successfully changed email to john.doe@new.example.com", auditRequest.Message);
@@ -97,11 +94,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_UpdatesOnlyTargetUsersEmail_WithoutMutatingUnrelatedFields()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var targetUser = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "target.old@example.com")
@@ -153,11 +148,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_Returns400_WhenVerificationCodeMissing()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
@@ -172,13 +165,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_Returns400_AndWritesFailureAudit_WhenVerificationCodeInvalid()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .WithAuditMock()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
-        var auditMock = testContext.AuditMock;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -218,7 +207,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.NotNull(dbCode);
 
         // Failure audit is written
-        var failureAudit = Assert.Single(auditMock.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
+        var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
         Assert.Equal($"Failed changed email to john.doe@new.example.com - invalid code", failureAudit.Message);
         Assert.Equal(user.Sub, failureAudit.UserId);
@@ -227,13 +216,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_Returns400_AndWritesExpiredAudit_WhenVerificationCodeExpired()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .WithAuditMock()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
-        var auditMock = testContext.AuditMock;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -277,7 +262,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.NotNull(dbCode);
 
         // Expired audit is written
-        var expiredAudit = Assert.Single(auditMock.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EnteredExpiredCode);
+        var expiredAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EnteredExpiredCode);
         Assert.True(expiredAudit.WasFailure);
         Assert.Contains("expired", expiredAudit.Message);
         Assert.Equal(user.Sub, expiredAudit.UserId);
@@ -286,12 +271,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_ReturnsNoPendingMappedStatus_WhenNoPendingChange()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
-        var auditMock = testContext.AuditMock;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
@@ -307,13 +289,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_MapsAuthMethodUpdateFailure_AsCurrentBehaviour()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .WithAuditMock()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
-        var auditMock = testContext.AuditMock;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -354,7 +332,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.Equal("john.doe@new.example.com", updatedUser.Email);
 
         // Failure audit is logged
-        var failureAudit = Assert.Single(auditMock.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
+        var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
         Assert.Contains("FailedToUpdateAuthenticationMethodException", failureAudit.Message);
     }
@@ -362,13 +340,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_WritesFailureAudit_WhenDownstreamPatchFails()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .WithAuditMock()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
-        var auditMock = testContext.AuditMock;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -385,7 +359,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
         // Configure interceptor to simulate database save failure
-        this.TestTimestampInterceptor.ShouldFail = true;
+        this.TimestampInterceptor.ShouldFail = true;
 
         var request = CreateConfirmRequest("CODE123");
 
@@ -406,7 +380,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.NotNull(dbCode);
 
         // Failure audit is written
-        var failureAudit = Assert.Single(auditMock.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
+        var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
         Assert.Contains("Failed changed email", failureAudit.Message);
         Assert.Equal(user.Sub, failureAudit.UserId);
@@ -415,7 +389,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_Returns401_WhenUnauthenticated()
     {
-        var anonymousClient = this.SetupClient().Build().Client;
+        var anonymousClient = this.CreateClient();
 
         var userId = Guid.NewGuid();
         var request = CreateConfirmRequest("ANYCODE");
@@ -428,7 +402,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_DoesNotUpdateEmail_WhenVerificationCodeInvalidOrExpired()
     {
-        var authenticatedClient = this.SetupClient().WithAuthentication().Build().Client;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -452,6 +428,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         var requestWrong = CreateConfirmRequest("WRONG");
         var responseWrong = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), requestWrong);
+
         Assert.Equal(HttpStatusCode.BadRequest, responseWrong.StatusCode);
 
         await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
@@ -484,12 +461,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_DoesNotDeletePendingCode_WhenCommitFails()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
-        var auditMock = testContext.AuditMock;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -506,7 +480,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
         // Configure interceptor to simulate database save failure
-        this.TestTimestampInterceptor.ShouldFail = true;
+        this.TimestampInterceptor.ShouldFail = true;
 
         var request = CreateConfirmRequest("CODE123");
 
@@ -525,13 +499,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_DoesNotWriteSuccessAudit_OnFailurePaths()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .WithAuditMock()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
-        var auditMock = testContext.AuditMock;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User.Generate();
         var pendingCode = EntityFaker.UserCode
@@ -551,17 +521,15 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         // Verify there is no success audit captured
-        Assert.DoesNotContain(auditMock.CapturedRequests, x => x.Message.Contains("Successfully changed email"));
+        Assert.DoesNotContain(this.AuditCapturer.CapturedRequests, x => x.Message.Contains("Successfully changed email"));
     }
 
     [Fact]
     public async Task ConfirmChangeEmail_DoesNotSendEmailOrNotification_OnFailure_WhenApplicable()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         this.FakeEmailRequestTracker.Clear();
 

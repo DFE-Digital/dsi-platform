@@ -5,6 +5,7 @@ using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
 using Dfe.SignIn.TestHelpers.Integration.Data;
+using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Organisations;
@@ -22,11 +23,8 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_ReturnsOrganisation_WhenExists()
     {
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .Build();
-
-        var authenticatedClient = testContext.Client;
+        var authenticatedClient = this.CreateClient()
+            .WithAuthentication();
 
         // Arrange: Seed an organisation
         var orgId = Guid.NewGuid();
@@ -61,7 +59,8 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_Returns404_WhenDoesNotExist()
     {
-        var authenticatedClient = this.SetupClient().WithAuthentication().Build().Client;
+        var httpClient = this.CreateClient()
+            .WithAuthentication();
 
         // Arrange
         var missingOrgId = Guid.NewGuid();
@@ -70,7 +69,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
         };
 
         // Act
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await httpClient.PostAsJsonAsync(endpoint, request);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -79,7 +78,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_Returns401_WhenUnauthenticated()
     {
-        var anonymousClient = this.SetupClient().Build().Client;
+        var anonymousClient = this.CreateClient();
 
         var request = new GetOrganisationByIdRequest {
             OrganisationId = Guid.NewGuid()

@@ -60,13 +60,11 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
     {
         var dateTimeNow = new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero);
         var timeProvider = new MockTimeProvider(dateTimeNow);
+        this.TimestampInterceptor.Setup(timeProvider, shouldSkipTimestamps: true);
 
-        var testContext = this.SetupClient()
-            .WithAuthentication()
-            .WithTimeProvider(timeProvider, shouldSkipTimestamps: true)
-            .Build();
-
-        var client = testContext.Client;
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var createdAt = dateTimeNow.DateTime.AddHours(-2);
 
@@ -83,10 +81,10 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             UpdatedAt = createdAt,
         };
 
-        await testContext.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
-        await testContext.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
+        var response = await authenticatedClient.GetAsync(GetEndpointForUser(user.Sub));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 

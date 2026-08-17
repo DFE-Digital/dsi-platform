@@ -30,7 +30,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
     public FakeExternalAuthService FakeExternalAuth { get; } = new();
     public FakeUserUpdatedPublisher FakeUserUpdatedPublisher { get; } = new();
     public CapturingWriteToAuditInteractor AuditCapturer { get; } = new();
-    internal TestTimestampInterceptor TimestampInterceptor { get; } = new();
+    internal FakeTimestampInterceptor TimestampInterceptor { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
