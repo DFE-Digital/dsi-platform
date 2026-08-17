@@ -9,6 +9,12 @@ public sealed class CapturingWriteToAuditInteractor : IInteractor<WriteToAuditRe
     public IReadOnlyList<WriteToAuditRequest> CapturedRequests => this.capturedRequests;
     private readonly List<WriteToAuditRequest> capturedRequests = [];
 
+    public void Clear()
+    {
+        this.CapturedRequest = null;
+        this.capturedRequests.Clear();
+    }
+
     public Task<object> InvokeAsync(
         InteractionContext<WriteToAuditRequest> context,
         CancellationToken cancellationToken = default)

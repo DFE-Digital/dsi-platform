@@ -4,22 +4,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
-public sealed record IntegrationTestContext
+public sealed record IntegrationTestContext : IDisposable
 {
     /// <summary>
     /// The HttpClient instance to use for making requests to the internal API.
     /// </summary>
     public required HttpClient Client { get; init; }
 
-    /// <summary>
-    /// Populated if .WithAuditMock() was called on the builder.
-    /// </summary>
-    public CapturingWriteToAuditInteractor? AuditMock { get; init; }
+    public required CapturingWriteToAuditInteractor AuditMock { get; init; }
 
-    /// <summary>
-    /// Direct access to the email request tracker for verifying notifications.
-    /// </summary>
-    public FakeEmailRequestTracker? EmailTracker { get; init; }
+    public required FakeEmailRequestTracker EmailTracker { get; init; }
 
     /// <summary>
     /// The DI container backing this client, reflecting any WithX(...) overrides applied.
@@ -57,4 +51,6 @@ public sealed record IntegrationTestContext
         dbContext.AddRange(entities);
         await dbContext.SaveChangesAsync();
     }
+
+    public void Dispose() => this.Client.Dispose();
 }

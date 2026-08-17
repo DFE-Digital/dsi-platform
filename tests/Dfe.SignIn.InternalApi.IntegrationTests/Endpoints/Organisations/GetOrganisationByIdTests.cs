@@ -36,7 +36,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(o => o.Id, f => orgId)
             .RuleFor(o => o.Name, f => expectedName);
 
-        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(organisation, testContext.Services);
+        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(organisation);
 
         var request = new GetOrganisationByIdRequest {
             OrganisationId = orgId

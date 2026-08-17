@@ -17,36 +17,11 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests;
 public class InternalApiClientBuilder
 {
     private readonly InternalApiWebApplicationFactory factory;
-    private readonly List<IAsyncDisposable> createdFactories;
-    private readonly List<Action<IServiceCollection>> serviceOverrides = [];
     private readonly List<Action<HttpClient>> clientConfigurators = [];
 
-    // Base default fakes passed from the test base
-    private readonly FakeInteractionLimiter fakeLimiter;
-    private readonly FakeEmailRequestTracker fakeEmailRequestTracker;
-    private readonly FakeExternalAuthService fakeExternalAuthService;
-    private readonly FakeUserUpdatedPublisher fakeUserUpdatedPublisher;
-    private readonly TestTimestampInterceptor testTimestampInterceptor;
-
-    // Optional test-specific captures
-    private CapturingWriteToAuditInteractor? auditMock;
-
-    internal InternalApiClientBuilder(
-        InternalApiWebApplicationFactory factory,
-        List<IAsyncDisposable> createdFactories,
-        FakeInteractionLimiter fakeLimiter,
-        FakeEmailRequestTracker fakeEmailRequestTracker,
-        FakeExternalAuthService fakeExternalAuthService,
-        FakeUserUpdatedPublisher fakeUserUpdatedPublisher,
-        TestTimestampInterceptor testTimestampInterceptor)
+    internal InternalApiClientBuilder(InternalApiWebApplicationFactory factory)
     {
         this.factory = factory;
-        this.createdFactories = createdFactories;
-        this.fakeLimiter = fakeLimiter;
-        this.fakeEmailRequestTracker = fakeEmailRequestTracker;
-        this.fakeExternalAuthService = fakeExternalAuthService;
-        this.fakeUserUpdatedPublisher = fakeUserUpdatedPublisher;
-        this.testTimestampInterceptor = testTimestampInterceptor;
     }
 
     /// <summary>
@@ -73,67 +48,19 @@ public class InternalApiClientBuilder
     }
 
     /// <summary>
-    /// Injects an audit interceptor mock to capture and assert on audit logs.
+    /// Retained for backward compatibility. The audit capturer is always active
+    /// in the root factory, so this is effectively a no-op.
     /// </summary>
-    public InternalApiClientBuilder WithAuditMock()
-    {
-        this.auditMock = new CapturingWriteToAuditInteractor();
-        var auditWriterMock = new TestAuditWriter(this.auditMock);
-
-        this.serviceOverrides.Add(services => {
-            services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-            services.AddSingleton<IInteractor<WriteToAuditRequest>>(this.auditMock);
-
-            services.RemoveAll<IAuditWriter>();
-            services.AddSingleton<IAuditWriter>(auditWriterMock);
-        });
-
-        return this;
-    }
-
-    /// <summary>
-    /// Allows generic service registration overrides for custom test implementations.
-    /// </summary>
-    public InternalApiClientBuilder WithService<TInterface, TImplementation>()
-        where TInterface : class
-        where TImplementation : class, TInterface
-    {
-        this.serviceOverrides.Add(services => {
-            services.RemoveAll<TInterface>();
-            services.AddSingleton<TInterface, TImplementation>();
-        });
-        return this;
-    }
-
-    /// <summary>
-    /// Allows injecting a pre-configured instance for a service interface.
-    /// </summary>
-    public InternalApiClientBuilder WithService<TInterface>(TInterface instance)
-        where TInterface : class
-    {
-        this.serviceOverrides.Add(services => {
-            services.RemoveAll<TInterface>();
-            services.AddSingleton(instance);
-        });
-        return this;
-    }
+    public InternalApiClientBuilder WithAuditMock() => this;
 
     /// <summary>
     /// Overrides the timestamp interceptor with a specific time provider.
     /// </summary>
     public InternalApiClientBuilder WithTimeProvider(TimeProvider timeProvider, bool shouldSkipTimestamps = false, bool shouldFail = false)
     {
-        var testTimestampInterceptor = new TestTimestampInterceptor(timeProvider) {
-            ShouldSkipTimestamps = shouldSkipTimestamps,
-            ShouldFail = shouldFail
-        };
-
-        this.serviceOverrides.Add(services => {
-            services.RemoveAll<TimeProvider>();
-            services.AddSingleton(timeProvider);
-            services.RemoveAll<TimestampInterceptor>();
-            services.AddSingleton<TimestampInterceptor>(testTimestampInterceptor);
-        });
+        this.factory.TimestampInterceptor.TimeProvider = timeProvider;
+        this.factory.TimestampInterceptor.ShouldSkipTimestamps = shouldSkipTimestamps;
+        this.factory.TimestampInterceptor.ShouldFail = shouldFail;
         return this;
     }
 
@@ -142,44 +69,7 @@ public class InternalApiClientBuilder
     /// </summary>
     public IntegrationTestContext Build()
     {
-        var fakeEmailNotificationService = new FakeEmailNotificationService(this.fakeEmailRequestTracker);
-
-        var customisedFactory = this.factory.WithWebHostBuilder(builder => {
-            builder.ConfigureTestServices(services => {
-
-                // Default fallback mock configurations
-                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-                services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
-
-                services.RemoveAll<IAuditWriter>();
-                services.AddSingleton<IAuditWriter, TestAuditWriter>();
-
-                services.RemoveAll<IAsyncNotificationClient>();
-                services.RemoveAll<INotificationService>();
-                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
-
-                services.RemoveAll<IInteractionLimiter>();
-                services.AddSingleton<IInteractionLimiter>(this.fakeLimiter);
-
-                services.RemoveAll<IExternalAuthService>();
-                services.AddSingleton<IExternalAuthService>(this.fakeExternalAuthService);
-
-                services.RemoveAll<IUserUpdatedPublisher>();
-                services.AddSingleton<IUserUpdatedPublisher>(this.fakeUserUpdatedPublisher);
-
-                services.RemoveAll<TimestampInterceptor>();
-                services.AddSingleton<TimestampInterceptor>(this.testTimestampInterceptor);
-
-                // Apply any custom overrides requested via the builder
-                foreach (var overrideAction in this.serviceOverrides) {
-                    overrideAction(services);
-                }
-            });
-        });
-
-        this.createdFactories.Add(customisedFactory);
-
-        var client = customisedFactory.CreateClient();
+        var client = this.factory.CreateClient();
 
         foreach (var configAction in this.clientConfigurators) {
             configAction(client);
@@ -187,9 +77,9 @@ public class InternalApiClientBuilder
 
         return new IntegrationTestContext {
             Client = client,
-            Services = customisedFactory.Services,
-            AuditMock = this.auditMock,
-            EmailTracker = this.fakeEmailRequestTracker
+            Services = this.factory.Services,
+            AuditMock = this.factory.AuditCapturer,
+            EmailTracker = this.factory.FakeEmailTracker
         };
     }
 }
