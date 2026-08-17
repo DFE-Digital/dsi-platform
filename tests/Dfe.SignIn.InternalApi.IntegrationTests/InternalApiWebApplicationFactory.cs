@@ -24,7 +24,6 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         new("dsi-organisations-test", "Organisations", typeof(DbOrganisationsContext))
     ];
 
-    // ── Shared, configurable test doubles ──
     public FakeInteractionLimiter FakeLimiter { get; } = new();
     public FakeEmailRequestTracker FakeEmailTracker { get; } = new();
     public FakeExternalAuthService FakeExternalAuth { get; } = new();

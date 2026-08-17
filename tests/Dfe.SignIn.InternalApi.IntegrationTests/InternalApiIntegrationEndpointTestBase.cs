@@ -11,6 +11,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected InternalApiWebApplicationFactory WebAppFactory { get; } = webAppFactory;
 
     // Delegate to factory's shared singleton fakes
+    // todo: could these just be removed and when needed access directly from factory?
     protected FakeInteractionLimiter FakeLimiter => this.WebAppFactory.FakeLimiter;
     protected FakeEmailRequestTracker FakeEmailRequestTracker => this.WebAppFactory.FakeEmailTracker;
     protected FakeExternalAuthService FakeExternalAuthService => this.WebAppFactory.FakeExternalAuth;
@@ -24,6 +25,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
         this.WebAppFactory.ResetAllFakes();
     }
 
+    //todo: potentially remove this
     public Task DisposeAsync() => Task.CompletedTask;
 
     protected async Task InsertEntityAsync<TContext, TEntity>(TEntity entity)
