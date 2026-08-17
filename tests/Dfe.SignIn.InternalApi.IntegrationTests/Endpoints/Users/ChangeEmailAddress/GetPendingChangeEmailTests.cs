@@ -9,15 +9,15 @@ using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAddress;
 
-[Trait( "Category", "Integration" )]
+[Trait("Category", "Integration")]
 public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointTestBase
 {
     private const string Endpoint = "/internal/users/{userId}/pending-change-email";
 
-    private static string GetEndpointForUser( Guid userId ) => Endpoint.Replace( "{userId}", userId.ToString() );
+    private static string GetEndpointForUser(Guid userId) => Endpoint.Replace("{userId}", userId.ToString());
 
-    public GetPendingChangeEmailTests( InternalApiWebApplicationFactory factory )
-        : base( factory )
+    public GetPendingChangeEmailTests(InternalApiWebApplicationFactory factory)
+        : base(factory)
     {
     }
 
@@ -41,18 +41,18 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             UpdatedAt = createdAt,
         };
 
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
-        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>( pendingCode );
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var response = await client.GetAsync( GetEndpointForUser( user.Sub ) );
+        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
 
-        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<GetPendingChangeEmailResponse>();
-        Assert.NotNull( result );
-        Assert.Equal( "new.email@example.com", result.NewEmailAddress );
-        Assert.False( result.HasExpired );
-        Assert.Equal( createdAt.AddHours( 1 ), result.ExpiryTimeUtc, TimeSpan.FromSeconds( 1 ) );
+        Assert.NotNull(result);
+        Assert.Equal("new.email@example.com", result.NewEmailAddress);
+        Assert.False(result.HasExpired);
+        Assert.Equal(createdAt.AddHours(1), result.ExpiryTimeUtc, TimeSpan.FromSeconds(1));
     }
 
     [Fact]
@@ -60,8 +60,10 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
     {
         var dateTimeNow = new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero).DateTime;
 
-        var client = this.CreateClient(dateTimeNow)
-            .WithAuthentication();
+        var client = this.SetupClient()
+            .WithAuthentication()
+            .Build()
+            .Client;
 
         var createdAt = dateTimeNow.AddHours(-2);
 
@@ -78,17 +80,17 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             UpdatedAt = createdAt,
         };
 
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
-        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>( pendingCode );
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var response = await client.GetAsync( GetEndpointForUser( user.Sub ) );
+        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
 
-        Assert.Equal( HttpStatusCode.OK, response.StatusCode );
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<GetPendingChangeEmailResponse>();
-        Assert.NotNull( result );
-        Assert.Equal( "expired.email@example.com", result.NewEmailAddress );
-        Assert.True( result.HasExpired );
+        Assert.NotNull(result);
+        Assert.Equal("expired.email@example.com", result.NewEmailAddress);
+        Assert.True(result.HasExpired);
     }
 
     [Fact]
@@ -96,11 +98,11 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
     {
         var client = this.CreateClient().WithAuthentication();
         var user = EntityFaker.User.Generate();
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var response = await client.GetAsync( GetEndpointForUser( user.Sub ) );
+        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
 
-        Assert.Equal( HttpStatusCode.NotFound, response.StatusCode );
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -122,14 +124,14 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             UpdatedAt = DateTime.UtcNow,
         };
 
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( userA );
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( userB );
-        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>( codeForB );
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(userA);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(userB);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(codeForB);
 
         // Request pending change for User A, but the code belongs to User B
-        var response = await client.GetAsync( GetEndpointForUser( userA.Sub ) );
+        var response = await client.GetAsync(GetEndpointForUser(userA.Sub));
 
-        Assert.Equal( HttpStatusCode.NotFound, response.StatusCode );
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -150,12 +152,12 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             UpdatedAt = DateTime.UtcNow,
         };
 
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
-        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>( passwordResetCode );
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(passwordResetCode);
 
-        var response = await client.GetAsync( GetEndpointForUser( user.Sub ) );
+        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
 
-        Assert.Equal( HttpStatusCode.NotFound, response.StatusCode );
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -176,12 +178,12 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             UpdatedAt = DateTime.UtcNow,
         };
 
-        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>( user );
-        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>( emptyEmailCode );
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(emptyEmailCode);
 
-        var response = await client.GetAsync( GetEndpointForUser( user.Sub ) );
+        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
 
-        Assert.Equal( HttpStatusCode.NotFound, response.StatusCode );
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -190,8 +192,8 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
         var unauthenticatedClient = this.CreateClient();
         var userId = Guid.NewGuid();
 
-        var response = await unauthenticatedClient.GetAsync( GetEndpointForUser( userId ) );
+        var response = await unauthenticatedClient.GetAsync(GetEndpointForUser(userId));
 
-        Assert.Equal( HttpStatusCode.Unauthorized, response.StatusCode );
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }
