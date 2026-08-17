@@ -59,8 +59,9 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
     public async Task GetPendingChangeEmail_Returns200OK_WithHasExpiredTrue_WhenCodeIsExpired()
     {
         var dateTimeNow = new DateTimeOffset(2025, 11, 18, 17, 56, 45, TimeSpan.Zero);
-        var timeProvider = new MockTimeProvider(dateTimeNow);
-        this.TimestampInterceptor.Setup(timeProvider, shouldSkipTimestamps: true);
+        var mockTimeProvider = new MockTimeProvider(dateTimeNow);
+
+        this.TimestampInterceptor.Setup(mockTimeProvider);
 
         var authenticatedClient = this
             .CreateClient()
@@ -77,8 +78,8 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             ClientId = "test-client",
             RedirectUri = "n/a",
             ContextData = null,
-            CreatedAt = createdAt,
-            UpdatedAt = createdAt,
+            //CreatedAt = createdAt,
+            //UpdatedAt = createdAt,
         };
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);

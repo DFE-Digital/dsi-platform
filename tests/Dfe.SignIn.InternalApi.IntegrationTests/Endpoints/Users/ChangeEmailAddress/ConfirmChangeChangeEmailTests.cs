@@ -359,7 +359,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
         // Configure interceptor to simulate database save failure
-        this.TimestampInterceptor.ShouldFail = true;
+        this.TimestampInterceptor.Setup(
+            onSavingChangesError: () => new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"))
+        );
 
         var request = CreateConfirmRequest("CODE123");
 
@@ -480,7 +482,10 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
         // Configure interceptor to simulate database save failure
-        this.TimestampInterceptor.ShouldFail = true;
+
+        this.TimestampInterceptor.Setup(
+            onSavingChangesError: () => new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"))
+        );
 
         var request = CreateConfirmRequest("CODE123");
 

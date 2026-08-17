@@ -1,5 +1,4 @@
 using Dfe.SignIn.Gateways.EntityFramework;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
@@ -23,7 +22,7 @@ internal sealed class FakeTimestampInterceptor : TimestampInterceptor
         set => this.mutableTimeProvider.Inner = value;
     }
 
-    public bool ShouldFail { get; set; }
+    public Func<Exception>? OnSavingChangesError { get; set; }
 
     public bool ShouldSkipTimestamps { get; set; }
 
@@ -34,13 +33,16 @@ internal sealed class FakeTimestampInterceptor : TimestampInterceptor
     /// <param name="shouldFail">Whether the interceptor should simulate a failure.</param>
     /// <param name="shouldSkipTimestamps">Whether the interceptor should skip timestamp updates.</param>
     /// <returns>The configured interceptor.</returns>
-    public FakeTimestampInterceptor Setup(TimeProvider? timeProvider, bool shouldFail = false, bool shouldSkipTimestamps = false)
+    public FakeTimestampInterceptor Setup(TimeProvider? timeProvider = null, bool shouldSkipTimestamps = false, Func<Exception>? onSavingChangesError = null)
     {
         if (timeProvider != null) {
             this.TimeProvider = timeProvider;
         }
 
-        this.ShouldFail = shouldFail;
+        if (onSavingChangesError is not null) {
+            this.OnSavingChangesError = onSavingChangesError;
+        }
+
         this.ShouldSkipTimestamps = shouldSkipTimestamps;
 
         return this;
@@ -51,8 +53,8 @@ internal sealed class FakeTimestampInterceptor : TimestampInterceptor
     /// </summary>
     public void Reset()
     {
-        this.ShouldFail = false;
         this.ShouldSkipTimestamps = false;
+        this.OnSavingChangesError = null;
         this.TimeProvider = TimeProvider.System;
     }
 
@@ -61,8 +63,8 @@ internal sealed class FakeTimestampInterceptor : TimestampInterceptor
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
-        if (this.ShouldFail) {
-            throw new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"));
+        if (this.OnSavingChangesError is not null) {
+            throw this.OnSavingChangesError();
         }
 
         if (this.ShouldSkipTimestamps) {

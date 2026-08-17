@@ -66,7 +66,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             services.RemoveAll<IUserUpdatedPublisher>();
             services.AddSingleton<IUserUpdatedPublisher>(this.FakeUserUpdatedPublisher);
 
-            // Timestamp interceptor
+            //// Timestamp interceptor
             services.RemoveAll<TimestampInterceptor>();
             services.AddSingleton<TimestampInterceptor>(this.TimestampInterceptor);
         });
