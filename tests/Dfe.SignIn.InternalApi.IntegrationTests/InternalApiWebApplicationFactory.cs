@@ -15,17 +15,17 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         new("dsi-organisations-test", "Organisations", typeof(DbOrganisationsContext))
     ];
 
-    protected override void ConfigureWebHost( IWebHostBuilder builder )
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        base.ConfigureWebHost( builder );
+        base.ConfigureWebHost(builder);
 
-        builder.ConfigureTestServices( services => {
-            services.AddAuthentication( options => {
+        builder.ConfigureTestServices(services => {
+            services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = "TestScheme";
                 options.DefaultChallengeScheme = "TestScheme";
-            } )
-            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>( "TestScheme", _ => { } );
-        } );
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", _ => { });
+        });
     }
 
     public async Task InitializeAsync()

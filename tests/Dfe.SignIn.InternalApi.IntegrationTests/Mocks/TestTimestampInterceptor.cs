@@ -8,6 +8,8 @@ internal sealed class TestTimestampInterceptor(TimeProvider timeProvider) : Time
 {
     public bool ShouldFail { get; set; }
 
+    public bool ShouldSkipTimestamps { get; set; }
+
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
@@ -15,6 +17,10 @@ internal sealed class TestTimestampInterceptor(TimeProvider timeProvider) : Time
     {
         if (this.ShouldFail) {
             throw new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"));
+        }
+
+        if (this.ShouldSkipTimestamps) {
+            return new ValueTask<InterceptionResult<int>>(result);
         }
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);

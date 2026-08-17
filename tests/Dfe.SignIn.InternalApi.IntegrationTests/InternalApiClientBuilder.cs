@@ -38,7 +38,7 @@ public class InternalApiClientBuilder
         FakeEmailRequestTracker fakeEmailRequestTracker,
         FakeExternalAuthService fakeExternalAuthService,
         FakeUserUpdatedPublisher fakeUserUpdatedPublisher,
-        TestTimestampInterceptor testTimestampInterceptor )
+        TestTimestampInterceptor testTimestampInterceptor)
     {
         this.factory = factory;
         this.createdFactories = createdFactories;
@@ -52,23 +52,23 @@ public class InternalApiClientBuilder
     /// <summary>
     /// Configures the client to authenticate using test header conventions.
     /// </summary>
-    public InternalApiClientBuilder WithAuthentication( string? userId = null, string? userName = null, params string[] roles )
+    public InternalApiClientBuilder WithAuthentication(string? userId = null, string? userName = null, params string[] roles)
     {
-        this.clientConfigurators.Add( client => {
-            client.DefaultRequestHeaders.Add( TestAuthHandler.EnableAuthHeaderName, bool.TrueString );
+        this.clientConfigurators.Add(client => {
+            client.DefaultRequestHeaders.Add(TestAuthHandler.EnableAuthHeaderName, bool.TrueString);
 
-            if (!string.IsNullOrWhiteSpace( userId )) {
-                client.DefaultRequestHeaders.Add( TestAuthHandler.UserIdHeaderName, userId );
+            if (!string.IsNullOrWhiteSpace(userId)) {
+                client.DefaultRequestHeaders.Add(TestAuthHandler.UserIdHeaderName, userId);
             }
 
-            if (!string.IsNullOrWhiteSpace( userName )) {
-                client.DefaultRequestHeaders.Add( TestAuthHandler.UserNameHeaderName, userName );
+            if (!string.IsNullOrWhiteSpace(userName)) {
+                client.DefaultRequestHeaders.Add(TestAuthHandler.UserNameHeaderName, userName);
             }
 
-            foreach (var role in roles.Where( static r => !string.IsNullOrWhiteSpace( r ) )) {
-                client.DefaultRequestHeaders.Add( TestAuthHandler.RoleHeaderName, role );
+            foreach (var role in roles.Where(static r => !string.IsNullOrWhiteSpace(r))) {
+                client.DefaultRequestHeaders.Add(TestAuthHandler.RoleHeaderName, role);
             }
-        } );
+        });
         return this;
     }
 
@@ -78,15 +78,15 @@ public class InternalApiClientBuilder
     public InternalApiClientBuilder WithAuditMock()
     {
         this.auditMock = new CapturingWriteToAuditInteractor();
-        var auditWriterMock = new TestAuditWriter( this.auditMock );
+        var auditWriterMock = new TestAuditWriter(this.auditMock);
 
-        this.serviceOverrides.Add( services => {
+        this.serviceOverrides.Add(services => {
             services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-            services.AddSingleton<IInteractor<WriteToAuditRequest>>( this.auditMock );
+            services.AddSingleton<IInteractor<WriteToAuditRequest>>(this.auditMock);
 
             services.RemoveAll<IAuditWriter>();
-            services.AddSingleton<IAuditWriter>( auditWriterMock );
-        } );
+            services.AddSingleton<IAuditWriter>(auditWriterMock);
+        });
 
         return this;
     }
@@ -98,35 +98,42 @@ public class InternalApiClientBuilder
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        this.serviceOverrides.Add( services => {
+        this.serviceOverrides.Add(services => {
             services.RemoveAll<TInterface>();
             services.AddSingleton<TInterface, TImplementation>();
-        } );
+        });
         return this;
     }
 
     /// <summary>
     /// Allows injecting a pre-configured instance for a service interface.
     /// </summary>
-    public InternalApiClientBuilder WithService<TInterface>( TInterface instance )
+    public InternalApiClientBuilder WithService<TInterface>(TInterface instance)
         where TInterface : class
     {
-        this.serviceOverrides.Add( services => {
+        this.serviceOverrides.Add(services => {
             services.RemoveAll<TInterface>();
-            services.AddSingleton( instance );
-        } );
+            services.AddSingleton(instance);
+        });
         return this;
     }
 
     /// <summary>
     /// Overrides the timestamp interceptor with a specific time provider.
     /// </summary>
-    public InternalApiClientBuilder WithTimeProvider( TimeProvider timeProvider )
+    public InternalApiClientBuilder WithTimeProvider(TimeProvider timeProvider, bool shouldSkipTimestamps = false, bool shouldFail = false)
     {
-        this.serviceOverrides.Add( services => {
+        var testTimestampInterceptor = new TestTimestampInterceptor(timeProvider) {
+            ShouldSkipTimestamps = shouldSkipTimestamps,
+            ShouldFail = shouldFail
+        };
+
+        this.serviceOverrides.Add(services => {
+            services.RemoveAll<TimeProvider>();
+            services.AddSingleton(timeProvider);
             services.RemoveAll<TimestampInterceptor>();
-            services.AddSingleton<TimestampInterceptor>( new TestTimestampInterceptor( timeProvider ) );
-        } );
+            services.AddSingleton<TimestampInterceptor>(testTimestampInterceptor);
+        });
         return this;
     }
 
@@ -135,10 +142,10 @@ public class InternalApiClientBuilder
     /// </summary>
     public IntegrationTestContext Build()
     {
-        var fakeEmailNotificationService = new FakeEmailNotificationService( this.fakeEmailRequestTracker );
+        var fakeEmailNotificationService = new FakeEmailNotificationService(this.fakeEmailRequestTracker);
 
-        var customisedFactory = this.factory.WithWebHostBuilder( builder => {
-            builder.ConfigureTestServices( services => {
+        var customisedFactory = this.factory.WithWebHostBuilder(builder => {
+            builder.ConfigureTestServices(services => {
 
                 // Default fallback mock configurations
                 services.RemoveAll<IInteractor<WriteToAuditRequest>>();
@@ -149,37 +156,38 @@ public class InternalApiClientBuilder
 
                 services.RemoveAll<IAsyncNotificationClient>();
                 services.RemoveAll<INotificationService>();
-                services.AddSingleton<INotificationService>( fakeEmailNotificationService );
+                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
 
                 services.RemoveAll<IInteractionLimiter>();
-                services.AddSingleton<IInteractionLimiter>( this.fakeLimiter );
+                services.AddSingleton<IInteractionLimiter>(this.fakeLimiter);
 
                 services.RemoveAll<IExternalAuthService>();
-                services.AddSingleton<IExternalAuthService>( this.fakeExternalAuthService );
+                services.AddSingleton<IExternalAuthService>(this.fakeExternalAuthService);
 
                 services.RemoveAll<IUserUpdatedPublisher>();
-                services.AddSingleton<IUserUpdatedPublisher>( this.fakeUserUpdatedPublisher );
+                services.AddSingleton<IUserUpdatedPublisher>(this.fakeUserUpdatedPublisher);
 
                 services.RemoveAll<TimestampInterceptor>();
-                services.AddSingleton<TimestampInterceptor>( this.testTimestampInterceptor );
+                services.AddSingleton<TimestampInterceptor>(this.testTimestampInterceptor);
 
                 // Apply any custom overrides requested via the builder
                 foreach (var overrideAction in this.serviceOverrides) {
-                    overrideAction( services );
+                    overrideAction(services);
                 }
-            } );
-        } );
+            });
+        });
 
-        this.createdFactories.Add( customisedFactory );
+        this.createdFactories.Add(customisedFactory);
 
         var client = customisedFactory.CreateClient();
 
         foreach (var configAction in this.clientConfigurators) {
-            configAction( client );
+            configAction(client);
         }
 
         return new IntegrationTestContext {
             Client = client,
+            Services = customisedFactory.Services,
             AuditMock = this.auditMock,
             EmailTracker = this.fakeEmailRequestTracker
         };

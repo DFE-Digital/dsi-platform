@@ -6,14 +6,15 @@ namespace Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 public sealed record UserCodeType : SmartEnum<UserCodeType, string>
 {
     /// <inheritdoc/>
-    private UserCodeType( string value, string name ) : base( value, name ) { }
+    private UserCodeType(string value, string name) : base(value, name) { }
 
     /// <summary>
     /// The user code type for changing a user's email address (Value = "changeemail", Name = "Change Email").
     /// </summary>
-    public static readonly UserCodeType ChangeEmail = new( "changeemail", "Change Email" );
+    public static readonly UserCodeType ChangeEmail = new("changeemail", "Change Email");
+
     /// <summary>
     /// The user code type for password reset actions (Value = "PasswordReset", Name = "Password Reset").
     /// </summary>
-    public static readonly UserCodeType PasswordReset = new( "PasswordReset", "Password Reset" );
+    public static readonly UserCodeType PasswordReset = new("PasswordReset", "Password Reset");
 }

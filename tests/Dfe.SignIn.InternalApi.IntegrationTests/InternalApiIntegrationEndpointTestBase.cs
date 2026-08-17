@@ -11,8 +11,8 @@ using Notify.Interfaces;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
-[Collection( "InternalApiIntegrationTestCollection" )]
-public abstract class InternalApiIntegrationEndpointTestBase( InternalApiWebApplicationFactory webAppFactory ) : IAsyncLifetime
+[Collection("InternalApiIntegrationTestCollection")]
+public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebApplicationFactory webAppFactory) : IAsyncLifetime
 {
     private readonly List<IAsyncDisposable> createdFactories = [];
 
@@ -22,7 +22,7 @@ public abstract class InternalApiIntegrationEndpointTestBase( InternalApiWebAppl
     protected readonly FakeEmailRequestTracker FakeEmailRequestTracker = new();
     protected readonly FakeExternalAuthService FakeExternalAuthService = new();
     protected readonly FakeUserUpdatedPublisher FakeUserUpdatedPublisher = new();
-    internal readonly TestTimestampInterceptor TestTimestampInterceptor = new( TimeProvider.System );
+    internal readonly TestTimestampInterceptor TestTimestampInterceptor = new(TimeProvider.System);
 
     /// <summary>
     /// Entry point for fluently configuring and building an HttpClient with test context.
@@ -98,21 +98,23 @@ public abstract class InternalApiIntegrationEndpointTestBase( InternalApiWebAppl
     //    return (client, auditMock);
     //}
 
-    protected async Task InsertEntityAsync<TContext, TEntity>( TEntity entity )
+    protected async Task InsertEntityAsync<TContext, TEntity>(TEntity entity, IServiceProvider? serviceProvider = null)
         where TContext : DbContext
         where TEntity : class
     {
-        await this.InsertEntitiesAsync<TContext, TEntity>( [entity] );
+        await this.InsertEntitiesAsync<TContext, TEntity>([entity], serviceProvider);
     }
 
-    protected async Task InsertEntitiesAsync<TContext, TEntity>( IEnumerable<TEntity> entities )
+    protected async Task InsertEntitiesAsync<TContext, TEntity>(IEnumerable<TEntity> entities, IServiceProvider? serviceProvider = null)
         where TContext : DbContext
         where TEntity : class
     {
-        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
+        //todo: Consider using a shared scope for multiple inserts in a single test to improve performance.
+        //todo: remove the null check once we have updated all the tests
+        await using var scope = serviceProvider?.CreateAsyncScope() ?? this.WebAppFactory.Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
 
-        dbContext.AddRange( entities );
+        dbContext.AddRange(entities);
         await dbContext.SaveChangesAsync();
     }
 
@@ -128,11 +130,11 @@ public abstract class InternalApiIntegrationEndpointTestBase( InternalApiWebAppl
     protected HttpClient CreateClient()
     {
         var emailRequestTracker = new FakeEmailRequestTracker();
-        var fakeEmailNotificationService = new FakeEmailNotificationService( emailRequestTracker );
+        var fakeEmailNotificationService = new FakeEmailNotificationService(emailRequestTracker);
         var fakeLimiter = new FakeInteractionLimiter();
 
-        var customisedFactory = this.WebAppFactory.WithWebHostBuilder( builder => {
-            builder.ConfigureTestServices( services => {
+        var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
+            builder.ConfigureTestServices(services => {
                 services.RemoveAll<IInteractor<WriteToAuditRequest>>();
                 services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 
@@ -141,14 +143,14 @@ public abstract class InternalApiIntegrationEndpointTestBase( InternalApiWebAppl
 
                 services.RemoveAll<IAsyncNotificationClient>();
                 services.RemoveAll<INotificationService>();
-                services.AddSingleton<INotificationService>( fakeEmailNotificationService );
+                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
 
                 services.RemoveAll<IInteractionLimiter>();
-                services.AddSingleton<IInteractionLimiter>( fakeLimiter );
-            } );
-        } );
+                services.AddSingleton<IInteractionLimiter>(fakeLimiter);
+            });
+        });
 
-        this.createdFactories.Add( customisedFactory );
+        this.createdFactories.Add(customisedFactory);
 
         return customisedFactory.CreateClient();
     }
