@@ -8,7 +8,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests;
 [Collection("InternalApiIntegrationTestCollection")]
 public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebApplicationFactory webAppFactory) : IAsyncLifetime
 {
-    protected InternalApiWebApplicationFactory WebAppFactory { get; } = webAppFactory;
+    private InternalApiWebApplicationFactory WebAppFactory { get; } = webAppFactory;
 
     // Delegate to factory's shared singleton fakes
     protected FakeInteractionLimiter FakeLimiter => this.WebAppFactory.FakeLimiter;
@@ -17,6 +17,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected FakeUserUpdatedPublisher FakeUserUpdatedPublisher => this.WebAppFactory.FakeUserUpdatedPublisher;
     protected CapturingWriteToAuditInteractor AuditCapturer => this.WebAppFactory.AuditCapturer;
     internal FakeTimestampInterceptor TimestampInterceptor => this.WebAppFactory.TimestampInterceptor;
+    internal FailingDbCommandInterceptor FailingDbCommandInterceptor => this.WebAppFactory.FailingDbCommandInterceptor;
 
     public async Task InitializeAsync()
     {
@@ -26,6 +27,13 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
     public Task DisposeAsync() => Task.CompletedTask;
 
+    /// <summary>
+    /// Inserts a single entity into the specified database context.
+    /// </summary>
+    /// <typeparam name="TContext">The type of the database context.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entity">The entity to insert.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task InsertEntityAsync<TContext, TEntity>(TEntity entity)
         where TContext : DbContext
         where TEntity : class
@@ -33,6 +41,13 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
         await this.InsertEntitiesAsync<TContext, TEntity>([entity]);
     }
 
+    /// <summary>
+    /// Inserts a collection of entities into the specified database context.
+    /// </summary>
+    /// <typeparam name="TContext">The type of the database context.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entities">The collection of entities to insert.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task InsertEntitiesAsync<TContext, TEntity>(IEnumerable<TEntity> entities)
         where TContext : DbContext
         where TEntity : class
@@ -42,6 +57,21 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
         dbContext.AddRange(entities);
         await dbContext.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Executes a query against the database context, returning the result.
+    /// </summary>
+    /// <typeparam name="TContext">The type of the database context.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">The query to execute.</param>
+    /// <returns>The result of the query.</returns>
+    protected async Task<TResult> ExecuteDbContextAsync<TContext, TResult>(Func<TContext, Task<TResult>> query)
+        where TContext : DbContext
+    {
+        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
+        return await query(dbContext);
     }
 
     /// <summary>

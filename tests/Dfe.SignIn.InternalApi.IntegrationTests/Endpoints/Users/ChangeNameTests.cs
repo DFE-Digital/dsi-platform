@@ -7,7 +7,6 @@ using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
@@ -46,9 +45,7 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal(expectedFirstName, updatedUser.FirstName);
         Assert.Equal(expectedLastName, updatedUser.LastName);
 
@@ -117,9 +114,7 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal(firstName, updatedUser.FirstName);
         Assert.Equal(lastName, updatedUser.LastName);
 
@@ -149,9 +144,7 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal(expectedFirstName, updatedUser.FirstName);
         Assert.Equal(expectedLastName, updatedUser.LastName);
     }
@@ -179,13 +172,9 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
         var userSubs = users.Select(u => u.Sub).ToList();
-        var assertionUsers = await assertionDbContext.Users
-            .Where(x => userSubs.Contains(x.Sub))
-            .ToListAsync();
+        var assertionUsers = await this.ExecuteDbContextAsync<DbDirectoriesContext, List<UserEntity>>(db =>
+            db.Users.Where(x => userSubs.Contains(x.Sub)).ToListAsync());
 
         var updatedUser = assertionUsers.Single(x => x.Sub == userToUpdate.Sub);
         Assert.Equal(newFirstName, updatedUser.FirstName);
@@ -308,9 +297,7 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal(newFirstName, updatedUser.FirstName);
         Assert.Equal(initialLastName, updatedUser.LastName);
 
@@ -346,9 +333,7 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal(initialFirstName, updatedUser.FirstName);
         Assert.Equal(newLastName, updatedUser.LastName);
 
@@ -381,9 +366,7 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal(expectedFirstName, updatedUser.FirstName);
         Assert.Equal(expectedLastName, updatedUser.LastName);
     }

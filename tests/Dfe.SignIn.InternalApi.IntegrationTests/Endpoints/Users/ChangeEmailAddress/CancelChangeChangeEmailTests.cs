@@ -1,11 +1,11 @@
 using System.Net;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAddress;
@@ -45,10 +45,7 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
-        var dbCode = await GetPendingChangeEmailCode(assertionDbContext, user.Sub);
+        var dbCode = await this.GetPendingChangeEmailCode(user.Sub);
         Assert.Null(dbCode);
 
         var auditRequest = this.AuditCapturer.CapturedRequests[0];
@@ -103,16 +100,14 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
-        var targetUserRow = await assertionDbContext.Users.SingleAsync(x => x.Sub == targetUser.Sub);
+        var targetUserRow = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(
+            dbContext => dbContext.Users.SingleAsync(x => x.Sub == targetUser.Sub));
         Assert.Equal("target.old@example.com", targetUserRow.Email);
 
-        var targetPending = await GetPendingChangeEmailCode(assertionDbContext, targetUser.Sub);
+        var targetPending = await this.GetPendingChangeEmailCode(targetUser.Sub);
         Assert.Null(targetPending);
 
-        var otherPending = await GetPendingChangeEmailCode(assertionDbContext, otherUser.Sub);
+        var otherPending = await this.GetPendingChangeEmailCode(otherUser.Sub);
         Assert.NotNull(otherPending);
         Assert.Equal("other.new@example.com", otherPending.Email);
     }
@@ -138,7 +133,7 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        this.WebAppFactory.FailingDbCommandInterceptor.IsEnabled = true;
+        this.FailingDbCommandInterceptor.IsEnabled = true;
 
         var response = await authenticatedClient.DeleteAsync(GetEndpoint(user.Sub));
 
@@ -163,13 +158,16 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
-        var dbCode = await GetPendingChangeEmailCode(assertionDbContext, user.Sub);
+        var dbCode = await this.GetPendingChangeEmailCode(user.Sub);
         Assert.Null(dbCode);
     }
 
-    private static async Task<UserCodeEntity?> GetPendingChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
-        => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == "changeemail");
+    private async Task<UserCodeEntity?> GetPendingChangeEmailCode(Guid userId)
+    {
+        return await this.ExecuteDbContextAsync<DbDirectoriesContext, UserCodeEntity?>(async dbContext => {
+            return await dbContext.UserCodes
+            .Where(x => x.CodeType == UserCodeType.ChangeEmail.Value)
+            .SingleOrDefaultAsync(x => x.Uid == userId);
+        });
+    }
 }

@@ -10,7 +10,6 @@ using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAddress;
@@ -53,16 +52,15 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
         // Assert user email is updated
-        var updatedUser = await assertionDbContext.Users.SingleOrDefaultAsync(x => x.Sub == user.Sub);
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(
+            db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+
         Assert.NotNull(updatedUser);
         Assert.Equal("john.doe@new.example.com", updatedUser.Email);
 
         // Assert pending code is deleted
-        var dbCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
+        var dbCode = await this.GetChangeEmailCode(user.Sub);
         Assert.Null(dbCode);
 
         // Assert audit event is written
@@ -116,18 +114,15 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
         // Target user email is updated, but names are not
-        var updatedTarget = await assertionDbContext.Users.SingleOrDefaultAsync(x => x.Sub == targetUser.Sub);
+        var updatedTarget = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity?>(db => db.Users.SingleOrDefaultAsync(x => x.Sub == targetUser.Sub));
         Assert.NotNull(updatedTarget);
         Assert.Equal("target.new@example.com", updatedTarget.Email);
         Assert.Equal("TargetFirstName", updatedTarget.FirstName);
         Assert.Equal("TargetLastName", updatedTarget.LastName);
 
         // Bystander is untouched
-        var updatedBystander = await assertionDbContext.Users.SingleOrDefaultAsync(x => x.Sub == bystanderUser.Sub);
+        var updatedBystander = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity?>(db => db.Users.SingleOrDefaultAsync(x => x.Sub == bystanderUser.Sub));
         Assert.NotNull(updatedBystander);
         Assert.Equal("bystander@example.com", updatedBystander.Email);
     }
@@ -175,16 +170,13 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
         // Email remains unchanged
-        var dbUser = await assertionDbContext.Users.SingleOrDefaultAsync(x => x.Sub == user.Sub);
+        var dbUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity?>(db => db.Users.SingleOrDefaultAsync(x => x.Sub == user.Sub));
         Assert.NotNull(dbUser);
         Assert.Equal("john.doe@old.example.com", dbUser.Email);
 
         // Pending code still exists
-        var dbCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
+        var dbCode = await this.GetChangeEmailCode(user.Sub);
         Assert.NotNull(dbCode);
 
         // Failure audit is written
@@ -197,6 +189,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     [Fact]
     public async Task ConfirmChangeEmail_Returns400_AndWritesExpiredAudit_WhenVerificationCodeExpired()
     {
+        var pastTime = DateTimeOffset.UtcNow.AddHours(-2);
+        this.TimestampInterceptor.Setup(timeProvider: new MockTimeProvider(pastTime));
+
         var authenticatedClient = this
             .CreateClient()
             .WithAuthentication();
@@ -215,31 +210,19 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(expiredCode);
 
-        // Override CreatedAt/UpdatedAt using a separate DbContext context to bypass TimestampInterceptor State == EntityState.Added overwrite
-        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
-            var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-            var codeToExpire = await db.UserCodes.SingleAsync(x => x.Uid == user.Sub && x.CodeType == "changeemail");
-            codeToExpire.CreatedAt = DateTime.UtcNow.AddHours(-2);
-            codeToExpire.UpdatedAt = DateTime.UtcNow.AddHours(-2);
-            await db.SaveChangesAsync();
-        }
-
-        var request = CreateConfirmRequest("VALIDCODE");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("VALIDCODE"));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
         // Email remains unchanged
-        var dbUser = await assertionDbContext.Users.SingleOrDefaultAsync(x => x.Sub == user.Sub);
+        var dbUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity?>(db => db.Users.SingleOrDefaultAsync(x => x.Sub == user.Sub));
         Assert.NotNull(dbUser);
         Assert.Equal("john.doe@old.example.com", dbUser.Email);
 
         // Pending code still exists
-        var dbCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
+        var dbCode = await this.GetChangeEmailCode(user.Sub);
         Assert.NotNull(dbCode);
 
         // Expired audit is written
@@ -305,11 +288,8 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.NotNull(error);
         Assert.Equal("ChangeEmailAddressAuthenticationMethodError", error.Type);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
         // Retains DB update (not rolled back)
-        var updatedUser = await assertionDbContext.Users.SingleAsync(x => x.Sub == user.Sub);
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal("john.doe@new.example.com", updatedUser.Email);
 
         // Failure audit is logged
@@ -350,16 +330,13 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
         // Email remains unchanged
-        var dbUser = await assertionDbContext.Users.SingleOrDefaultAsync(x => x.Sub == user.Sub);
+        var dbUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity?>(db => db.Users.SingleOrDefaultAsync(x => x.Sub == user.Sub));
         Assert.NotNull(dbUser);
         Assert.Equal("john.doe@old.example.com", dbUser.Email);
 
         // Pending code still exists
-        var dbCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
+        var dbCode = await this.GetChangeEmailCode(user.Sub);
         Assert.NotNull(dbCode);
 
         // Failure audit is written
@@ -383,8 +360,11 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     }
 
     [Fact]
-    public async Task ConfirmChangeEmail_DoesNotUpdateEmail_WhenVerificationCodeInvalidOrExpired()
+    public async Task ConfirmChangeEmail_DoesNotUpdateEmail_WhenVerificationCodeInvalid()
     {
+        var pastTime = DateTimeOffset.UtcNow.AddHours(-2);
+        this.TimestampInterceptor.Setup(timeProvider: new MockTimeProvider(pastTime));
+
         var authenticatedClient = this
             .CreateClient()
             .WithAuthentication();
@@ -409,31 +389,40 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         Assert.Equal(HttpStatusCode.BadRequest, responseWrong.StatusCode);
 
-        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
-            var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-            var dbUser = await db.Users.SingleAsync(x => x.Sub == user.Sub);
-            Assert.Equal("john.doe@old.example.com", dbUser.Email);
-        }
+        var dbUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+        Assert.Equal("john.doe@old.example.com", dbUser.Email);
+    }
 
-        // 2. Expired code scenario
-        pendingCode.CreatedAt = DateTime.UtcNow.AddHours(-2);
-        pendingCode.UpdatedAt = DateTime.UtcNow.AddHours(-2);
+    [Fact]
+    public async Task ConfirmChangeEmail_DoesNotUpdateEmail_WhenVerificationCodeExpired()
+    {
+        var pastTime = DateTimeOffset.UtcNow.AddHours(-2);
+        this.TimestampInterceptor.Setup(timeProvider: new MockTimeProvider(pastTime));
 
-        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
-            var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-            db.UserCodes.Update(pendingCode);
-            await db.SaveChangesAsync();
-        }
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var user = EntityFaker.User
+            .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
+            .Generate();
+
+        // 1. Wrong code scenario
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "CORRECT")
+            .RuleFor(x => x.Email, (_, _) => "john.doe@new.example.com")
+            .Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
         var requestExpired = CreateConfirmRequest("CORRECT");
         var responseExpired = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), requestExpired);
         Assert.Equal(HttpStatusCode.BadRequest, responseExpired.StatusCode);
 
-        await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
-            var db = scope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-            var dbUser = await db.Users.SingleAsync(x => x.Sub == user.Sub);
-            Assert.Equal("john.doe@old.example.com", dbUser.Email);
-        }
+        var updatedDbUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+        Assert.Equal("john.doe@old.example.com", updatedDbUser.Email);
     }
 
     [Fact]
@@ -467,11 +456,8 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
 
-        await using var assertionScope = this.WebAppFactory.Services.CreateAsyncScope();
-        var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
-
         // Pending code must still exist
-        var dbCode = await GetChangeEmailCode(assertionDbContext, user.Sub);
+        var dbCode = await this.GetChangeEmailCode(user.Sub);
         Assert.NotNull(dbCode);
     }
 
@@ -536,8 +522,11 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     private static ConfirmChangeEmailAddressRequest CreateConfirmRequest(string verificationCode)
         => new() { VerificationCode = verificationCode };
 
-    private static async Task<UserCodeEntity?> GetChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
-        => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == UserCodeType.ChangeEmail.Value);
+    private async Task<UserCodeEntity?> GetChangeEmailCode(Guid userId)
+    {
+        return await this.ExecuteDbContextAsync<DbDirectoriesContext, UserCodeEntity?>(
+            db => db.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == UserCodeType.ChangeEmail.Value));
+    }
 
     private record ErrorMessageDto(
         [property: JsonPropertyName("type")] string Type,
