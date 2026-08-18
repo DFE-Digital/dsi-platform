@@ -11,7 +11,6 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected InternalApiWebApplicationFactory WebAppFactory { get; } = webAppFactory;
 
     // Delegate to factory's shared singleton fakes
-    // todo: could these just be removed and when needed access directly from factory?
     protected FakeInteractionLimiter FakeLimiter => this.WebAppFactory.FakeLimiter;
     protected FakeEmailRequestTracker FakeEmailRequestTracker => this.WebAppFactory.FakeEmailTracker;
     protected FakeExternalAuthService FakeExternalAuthService => this.WebAppFactory.FakeExternalAuth;
@@ -25,7 +24,6 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
         this.WebAppFactory.ResetAllFakes();
     }
 
-    //todo: potentially remove this
     public Task DisposeAsync() => Task.CompletedTask;
 
     protected async Task InsertEntityAsync<TContext, TEntity>(TEntity entity)
@@ -44,16 +42,6 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
 
         dbContext.AddRange(entities);
         await dbContext.SaveChangesAsync();
-    }
-
-    /// <summary>
-    /// Forces a database connection failure for the specified DbContext type by setting an invalid connection string.
-    /// </summary>
-    protected async Task ForceDbConnectionFailure<TContext>() where TContext : DbContext
-    {
-        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
-        dbContext.Database.SetConnectionString("Server=my_fake_server;Database=fake;User Id=fake;Password=fake;");
     }
 
     /// <summary>

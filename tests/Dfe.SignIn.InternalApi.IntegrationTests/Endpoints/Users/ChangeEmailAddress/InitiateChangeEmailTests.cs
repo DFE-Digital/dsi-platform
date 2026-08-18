@@ -288,7 +288,7 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
             .CreateClient()
             .WithAuthentication();
 
-        this.FakeLimiter.ShouldAlwaysReject = true;
+        this.WebAppFactory.FakeLimiter.ShouldAlwaysReject = true;
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -318,8 +318,8 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
             .CreateClient()
             .WithAuthentication();
 
-        this.FakeLimiter.ShouldAlwaysReject = false;
-        this.FakeEmailRequestTracker.Clear();
+        this.WebAppFactory.FakeLimiter.ShouldAlwaysReject = false;
+        this.WebAppFactory.FakeEmailTracker.Clear();
 
         var existingEmail = "john.doe@old.example.com";
         var newEmail = "john.doe@new.example.com";
