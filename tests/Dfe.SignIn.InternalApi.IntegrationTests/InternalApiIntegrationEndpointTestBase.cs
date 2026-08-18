@@ -47,6 +47,16 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     }
 
     /// <summary>
+    /// Forces a database connection failure for the specified DbContext type by setting an invalid connection string.
+    /// </summary>
+    protected async Task ForceDbConnectionFailure<TContext>() where TContext : DbContext
+    {
+        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
+        dbContext.Database.SetConnectionString("Server=my_fake_server;Database=fake;User Id=fake;Password=fake;");
+    }
+
+    /// <summary>
     /// Creates an HttpClient directly from the root factory.
     /// Supports legacy pattern: this.CreateClient().WithAuthentication()
     /// </summary>

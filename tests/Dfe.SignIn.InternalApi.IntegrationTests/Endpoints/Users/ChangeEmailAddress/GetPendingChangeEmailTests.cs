@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
@@ -12,9 +13,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAdd
 [Trait("Category", "Integration")]
 public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string Endpoint = "/internal/users/{userId}/pending-change-email";
-
-    private static string GetEndpointForUser(Guid userId) => Endpoint.Replace("{userId}", userId.ToString());
+    private static string GetEndpoint(Guid? userId) => $"/internal/users/{userId}/pending-change-email";
 
     public GetPendingChangeEmailTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -24,27 +23,22 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
     [Fact]
     public async Task GetPendingChangeEmail_Returns200OK_WithPendingDetails_WhenValidCodeExists()
     {
-        var client = this.CreateClient()
+        var client = this
+            .CreateClient()
             .WithAuthentication();
 
         var user = EntityFaker.User.Generate();
-        var createdAt = DateTime.UtcNow;
-        var pendingCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "changeemail",
-            Code = "12345678",
-            Email = "new.email@example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = createdAt,
-            UpdatedAt = createdAt,
-        };
+
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "12345678")
+            .RuleFor(x => x.Email, (_, _) => "new.email@example.com")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
+        var response = await client.GetAsync(GetEndpoint(user.Sub));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -52,7 +46,7 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
         Assert.NotNull(result);
         Assert.Equal("new.email@example.com", result.NewEmailAddress);
         Assert.False(result.HasExpired);
-        Assert.Equal(createdAt.AddHours(1), result.ExpiryTimeUtc, TimeSpan.FromSeconds(1));
+        Assert.Equal(DateTime.UtcNow.AddHours(1), result.ExpiryTimeUtc, TimeSpan.FromSeconds(1));
     }
 
     [Fact]
@@ -67,23 +61,17 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             .CreateClient()
             .WithAuthentication();
 
-        var createdAt = dateTimeNow.DateTime.AddHours(-2);
-
         var user = EntityFaker.User.Generate();
-        var pendingCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "changeemail",
-            Code = "12345678",
-            Email = "expired.email@example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-        };
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "12345678")
+            .RuleFor(x => x.Email, (_, _) => "expired.email@example.com")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var response = await authenticatedClient.GetAsync(GetEndpointForUser(user.Sub));
+        var response = await authenticatedClient.GetAsync(GetEndpoint(user.Sub));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -100,7 +88,7 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
+        var response = await client.GetAsync(GetEndpoint(user.Sub));
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -112,24 +100,19 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
 
         var userA = EntityFaker.User.Generate();
         var userB = EntityFaker.User.Generate();
-        var codeForB = new UserCodeEntity {
-            Uid = userB.Sub,
-            CodeType = "changeemail",
-            Code = "87654321",
-            Email = "userb.new@example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+
+        var codeForB = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => userB.Sub)
+            .RuleFor(x => x.Code, (_, _) => "87654321")
+            .RuleFor(x => x.Email, (_, _) => "userb.new@example.com")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(userA);
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(userB);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(codeForB);
 
         // Request pending change for User A, but the code belongs to User B
-        var response = await client.GetAsync(GetEndpointForUser(userA.Sub));
+        var response = await client.GetAsync(GetEndpoint(userA.Sub));
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -140,22 +123,18 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
         var client = this.CreateClient().WithAuthentication();
 
         var user = EntityFaker.User.Generate();
-        var passwordResetCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "passwordreset",
-            Code = "12345678",
-            Email = "some.email@example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+
+        var passwordResetCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.CodeType, (_, _) => UserCodeType.PasswordReset.Value)
+            .RuleFor(x => x.Code, (_, _) => "12345678")
+            .RuleFor(x => x.Email, (_, _) => "some.email@example.com")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(passwordResetCode);
 
-        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
+        var response = await client.GetAsync(GetEndpoint(user.Sub));
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -166,22 +145,17 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
         var client = this.CreateClient().WithAuthentication();
 
         var user = EntityFaker.User.Generate();
-        var emptyEmailCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "changeemail",
-            Code = "12345678",
-            Email = "",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+
+        var emptyEmailCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "12345678")
+            .RuleFor(x => x.Email, (_, _) => "")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(emptyEmailCode);
 
-        var response = await client.GetAsync(GetEndpointForUser(user.Sub));
+        var response = await client.GetAsync(GetEndpoint(user.Sub));
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -192,7 +166,7 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
         var unauthenticatedClient = this.CreateClient();
         var userId = Guid.NewGuid();
 
-        var response = await unauthenticatedClient.GetAsync(GetEndpointForUser(userId));
+        var response = await unauthenticatedClient.GetAsync(GetEndpoint(userId));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }

@@ -10,6 +10,7 @@ using Dfe.SignIn.TestHelpers.Integration.Mocks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Notify.Interfaces;
@@ -30,6 +31,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
     public FakeUserUpdatedPublisher FakeUserUpdatedPublisher { get; } = new();
     public CapturingWriteToAuditInteractor AuditCapturer { get; } = new();
     internal FakeTimestampInterceptor TimestampInterceptor { get; } = new();
+    internal FailingDbCommandInterceptor FailingDbCommandInterceptor { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -65,9 +67,12 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             services.RemoveAll<IUserUpdatedPublisher>();
             services.AddSingleton<IUserUpdatedPublisher>(this.FakeUserUpdatedPublisher);
 
-            //// Timestamp interceptor
+            // Timestamp interceptor
             services.RemoveAll<TimestampInterceptor>();
             services.AddSingleton<TimestampInterceptor>(this.TimestampInterceptor);
+
+            // Failing DB command interceptor
+            services.AddSingleton<DbCommandInterceptor>(this.FailingDbCommandInterceptor);
         });
     }
 
@@ -83,6 +88,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         this.FakeUserUpdatedPublisher.Clear();
         this.AuditCapturer.Clear();
         this.TimestampInterceptor.Reset();
+        this.FailingDbCommandInterceptor.Reset();
     }
 
     public async Task InitializeAsync()

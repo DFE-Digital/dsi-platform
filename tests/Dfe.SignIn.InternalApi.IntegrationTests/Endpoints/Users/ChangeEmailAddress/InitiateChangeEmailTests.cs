@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
@@ -15,9 +16,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAdd
 [Trait("Category", "Integration")]
 public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "/internal/users/{userId}/initiate-change-email";
-
-    private static string GetEndpointForUser(Guid userId) => endpoint.Replace("{userId}", userId.ToString());
+    private static string GetEndpoint(Guid? userId) => $"/internal/users/{userId}/initiate-change-email";
 
     public InitiateChangeEmailTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -37,9 +36,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateRequest("john.doe@new.example.com");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest("john.doe@new.example.com"));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -80,24 +79,20 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
             .RuleFor(x => x.Email, (_, _) => "alex.old@example.com")
             .Generate();
 
-        var existingCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "changeemail",
-            Code = "OLD1234",
-            Email = "old-target@example.com",
-            ClientId = "old-client",
-            RedirectUri = "old-uri",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow.AddHours(-2),
-            UpdatedAt = DateTime.UtcNow.AddHours(-2),
-        };
+        var existingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "OLD1234")
+            .RuleFor(x => x.Email, (_, _) => "old-target@example.com")
+            .RuleFor(x => x.ClientId, (_, _) => "old-client")
+            .RuleFor(x => x.RedirectUri, (_, _) => "old-uri")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(existingCode);
 
-        var request = CreateRequest("alex.new@example.com");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest("alex.new@example.com"));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -105,7 +100,7 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         var assertionDbContext = assertionScope.ServiceProvider.GetRequiredService<DbDirectoriesContext>();
 
         var userCodes = await assertionDbContext.UserCodes
-            .Where(x => x.Uid == user.Sub && x.CodeType == "changeemail")
+            .Where(x => x.Uid == user.Sub && x.CodeType == UserCodeType.ChangeEmail.Value)
             .ToListAsync();
 
         Assert.Single(userCodes);
@@ -127,14 +122,15 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var firstRequest = CreateRequest("first.new@example.com");
-        var secondRequest = CreateRequest("second.new@example.com");
-
-        var firstResponse = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), firstRequest);
+        var firstResponse = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest("first.new@example.com"));
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
-        var secondResponse = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), secondRequest);
+        var secondResponse = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest("second.new@example.com"));
 
         Assert.Equal(HttpStatusCode.OK, secondResponse.StatusCode);
 
@@ -154,10 +150,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
     {
         var anonymousClient = this.CreateClient();
 
-        var userId = Guid.NewGuid();
-        var request = CreateRequest("jane.smith@example.com");
-
-        var response = await anonymousClient.PostAsJsonAsync(GetEndpointForUser(userId), request);
+        var response = await anonymousClient.PostAsJsonAsync(
+            GetEndpoint(Guid.NewGuid()),
+            CreateRequest("jane.smith@example.com"));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -172,9 +167,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateRequest(string.Empty);
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest(string.Empty));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -189,9 +184,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateRequest("invalid-email");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest("invalid-email"));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -210,9 +205,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateRequest(currentEmail);
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest(currentEmail));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -242,9 +237,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
 
         await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>([requester, existingUser]);
 
-        var request = CreateRequest("already.in.use@example.com");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(requester.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(requester.Sub),
+            CreateRequest("already.in.use@example.com"));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -273,9 +268,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateRequest("not-an-email");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest("not-an-email"));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -301,9 +296,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateRequest("john.doe@new.example.com");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest("john.doe@new.example.com"));
 
         Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
 
@@ -334,9 +329,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateRequest(newEmail);
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateRequest(newEmail));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -387,9 +382,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(validationFailureUser);
 
-        var validationFailureRequest = CreateRequest("invalid-email");
-
-        var validationFailureResponse = await authenticatedClient.PostAsJsonAsync(endpoint, validationFailureRequest);
+        var validationFailureResponse = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(validationFailureUser.Sub),
+            CreateRequest("invalid-email"));
 
         Assert.Equal(HttpStatusCode.BadRequest, validationFailureResponse.StatusCode);
         Assert.Empty(this.FakeEmailRequestTracker.Requests);
@@ -410,9 +405,9 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(rateLimitedUser);
 
-        var rateLimitedRequest = CreateRequest("john.doe@new.example.com");
-
-        var rateLimitedResponse = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(rateLimitedUser.Sub), rateLimitedRequest);
+        var rateLimitedResponse = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(rateLimitedUser.Sub),
+            CreateRequest("john.doe@new.example.com"));
 
         Assert.Equal(HttpStatusCode.TooManyRequests, rateLimitedResponse.StatusCode);
         Assert.Empty(this.FakeEmailRequestTracker.Requests);
@@ -423,7 +418,6 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
             Assert.Null(rateLimitedPendingCode);
         }
 
-        //Assert.Null(this.AuditCapturer.CapturedRequest);
         Assert.Empty(this.AuditCapturer.CapturedRequests);
     }
 
@@ -431,5 +425,5 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         => new("test-client", newEmailAddress, true);
 
     private static async Task<UserCodeEntity?> GetChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
-        => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == "changeemail");
+        => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == UserCodeType.ChangeEmail.Value);
 }

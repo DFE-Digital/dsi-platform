@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
@@ -17,9 +18,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAdd
 [Trait("Category", "Integration")]
 public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "/internal/users/{userId}/confirm-change-email";
-
-    private static string GetEndpointForUser(Guid userId) => endpoint.Replace("{userId}", userId.ToString());
+    private static string GetEndpoint(Guid? userId) => $"/internal/users/{userId}/confirm-change-email";
 
     public ConfirmChangeChangeEmailTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -39,24 +38,18 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
             .Generate();
 
-        var pendingCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "changeemail",
-            Code = "ABC1234",
-            Email = "john.doe@new.example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "ABC1234")
+            .RuleFor(x => x.Email, (_, _) => "john.doe@new.example.com")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest("ABC1234");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("ABC1234"));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -108,24 +101,18 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "bystander@example.com")
             .Generate();
 
-        var pendingCode = new UserCodeEntity {
-            Uid = targetUser.Sub,
-            CodeType = "changeemail",
-            Code = "XYZ789",
-            Email = "target.new@example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => targetUser.Sub)
+            .RuleFor(x => x.Code, (_, _) => "XYZ789")
+            .RuleFor(x => x.Email, (_, _) => "target.new@example.com")
+            .Generate();
 
         await this.InsertEntitiesAsync<DbDirectoriesContext, UserEntity>([targetUser, bystanderUser]);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest("XYZ789");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(targetUser.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(targetUser.Sub),
+            CreateConfirmRequest("XYZ789"));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -155,9 +142,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateConfirmRequest(string.Empty);
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest(string.Empty));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -173,24 +160,18 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
             .Generate();
 
-        var pendingCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "changeemail",
-            Code = "CORRECT",
-            Email = "john.doe@new.example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "CORRECT")
+            .RuleFor(x => x.Email, (_, _) => "john.doe@new.example.com")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest("WRONG");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("WRONG"));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -245,7 +226,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         var request = CreateConfirmRequest("VALIDCODE");
 
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -278,9 +259,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var user = EntityFaker.User.Generate();
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = CreateConfirmRequest("ANYCODE");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("ANYCODE"));
 
         // Mapped status should be a non-success code, e.g., BadRequest or NotFound.
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
@@ -313,9 +294,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         this.FakeExternalAuthService.OnChangeEmail = (externalUserId, newEmail, ct) =>
             throw new FailedToUpdateAuthenticationMethodException(user.Sub);
 
-        var request = CreateConfirmRequest("ABC1234");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("ABC1234"));
 
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
@@ -358,14 +339,14 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        // Configure interceptor to simulate database save failure
+        // This simulates a failure during the SaveChangesAsync call, which would occur after the email is updated but before the transaction is committed.
         this.TimestampInterceptor.Setup(
             onSavingChangesError: () => new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"))
         );
 
-        var request = CreateConfirmRequest("CODE123");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("CODE123"));
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -394,9 +375,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var anonymousClient = this.CreateClient();
 
         var userId = Guid.NewGuid();
-        var request = CreateConfirmRequest("ANYCODE");
-
-        var response = await anonymousClient.PostAsJsonAsync(GetEndpointForUser(userId), request);
+        var response = await anonymousClient.PostAsJsonAsync(
+            GetEndpoint(userId),
+            CreateConfirmRequest("ANYCODE"));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -413,23 +394,18 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .Generate();
 
         // 1. Wrong code scenario
-        var pendingCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "changeemail",
-            Code = "CORRECT",
-            Email = "john.doe@new.example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "CORRECT")
+            .RuleFor(x => x.Email, (_, _) => "john.doe@new.example.com")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var requestWrong = CreateConfirmRequest("WRONG");
-        var responseWrong = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), requestWrong);
+        var responseWrong = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("WRONG"));
 
         Assert.Equal(HttpStatusCode.BadRequest, responseWrong.StatusCode);
 
@@ -450,7 +426,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         }
 
         var requestExpired = CreateConfirmRequest("CORRECT");
-        var responseExpired = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), requestExpired);
+        var responseExpired = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), requestExpired);
         Assert.Equal(HttpStatusCode.BadRequest, responseExpired.StatusCode);
 
         await using (var scope = this.WebAppFactory.Services.CreateAsyncScope()) {
@@ -473,7 +449,6 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         var pendingCode = EntityFaker.UserCode
             .RuleFor(x => x.Uid, (_, _) => user.Sub)
-            .RuleFor(x => x.CodeType, (_, _) => "changeemail")
             .RuleFor(x => x.Code, (_, _) => "CODE123")
             .RuleFor(x => x.Email, (_, _) => "john.doe@new.example.com")
             .Generate();
@@ -482,14 +457,13 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
         // Configure interceptor to simulate database save failure
-
         this.TimestampInterceptor.Setup(
             onSavingChangesError: () => new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"))
         );
 
-        var request = CreateConfirmRequest("CODE123");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("CODE123"));
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -519,9 +493,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest("WRONGCODE");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("WRONGCODE"));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -539,24 +513,19 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         this.FakeEmailRequestTracker.Clear();
 
         var user = EntityFaker.User.Generate();
-        var pendingCode = new UserCodeEntity {
-            Uid = user.Sub,
-            CodeType = "changeemail",
-            Code = "CODE123",
-            Email = "new@example.com",
-            ClientId = "test-client",
-            RedirectUri = "n/a",
-            ContextData = null,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "CODE123")
+            .RuleFor(x => x.Email, (_, _) => "new@example.com")
+            .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var request = CreateConfirmRequest("WRONGCODE");
-
-        var response = await authenticatedClient.PostAsJsonAsync(GetEndpointForUser(user.Sub), request);
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("WRONGCODE"));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -568,7 +537,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         => new() { VerificationCode = verificationCode };
 
     private static async Task<UserCodeEntity?> GetChangeEmailCode(DbDirectoriesContext dbContext, Guid userId)
-        => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == "changeemail");
+        => await dbContext.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == UserCodeType.ChangeEmail.Value);
 
     private record ErrorMessageDto(
         [property: JsonPropertyName("type")] string Type,

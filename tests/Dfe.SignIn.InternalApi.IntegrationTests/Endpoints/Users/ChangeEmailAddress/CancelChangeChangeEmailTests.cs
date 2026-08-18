@@ -13,9 +13,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAdd
 [Trait("Category", "Integration")]
 public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "/internal/users/{userId}/cancel-change-email";
-
-    private static string GetEndpointForUser(Guid userId) => endpoint.Replace("{userId}", userId.ToString());
+    private static string GetEndpoint(Guid? userId) => $"/internal/users/{userId}/cancel-change-email";
 
     public CancelChangeChangeEmailTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -43,8 +41,7 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        var path = GetEndpointForUser(user.Sub);
-        var response = await authenticatedClient.DeleteAsync(path);
+        var response = await authenticatedClient.DeleteAsync(GetEndpoint(user.Sub));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -65,8 +62,7 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
     public async Task CancelChangeEmail_Returns401_WhenUnauthenticated()
     {
         var anonymousClient = this.CreateClient();
-        var userId = Guid.NewGuid();
-        var response = await anonymousClient.PostAsync(GetEndpointForUser(userId), new StringContent(string.Empty));
+        var response = await anonymousClient.DeleteAsync(GetEndpoint(Guid.NewGuid()));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -103,7 +99,7 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(targetCode);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(otherCode);
 
-        var response = await authenticatedClient.DeleteAsync(GetEndpointForUser(targetUser.Sub));
+        var response = await authenticatedClient.DeleteAsync(GetEndpoint(targetUser.Sub));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -142,16 +138,12 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        // This MUST be done after the user and code have been inserted,
-        // otherwise the exception will be thrown during the insert and the test will fail.
-        this.TimestampInterceptor.Setup(
-            onSavingChangesError: () => new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"))
-        );
+        this.WebAppFactory.FailingDbCommandInterceptor.IsEnabled = true;
 
-        var response = await authenticatedClient.PostAsync(GetEndpointForUser(user.Sub), new StringContent(string.Empty));
+        var response = await authenticatedClient.DeleteAsync(GetEndpoint(user.Sub));
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
-        Assert.DoesNotContain(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.CancelChangeEmail && !x.WasFailure);
+        Assert.Contains(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.CancelChangeEmail && !x.WasFailure);
     }
 
     [Fact]
@@ -167,7 +159,7 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var response = await authenticatedClient.DeleteAsync(GetEndpointForUser(user.Sub));
+        var response = await authenticatedClient.DeleteAsync(GetEndpoint(user.Sub));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
