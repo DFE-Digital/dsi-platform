@@ -16,6 +16,14 @@ public interface IUserLookupService
     Task<UserInfo?> GetUserInfoAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Checks if a user exists in the database based on their user ID.
+    /// </summary>
+    /// <param name="userId">The ID of the user.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>True if the user exists, otherwise false.</returns>
+    Task<bool> UserExists(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets the status of a user based on their email address.
     /// </summary>
     /// <param name="emailAddress">The email address of the user.</param>

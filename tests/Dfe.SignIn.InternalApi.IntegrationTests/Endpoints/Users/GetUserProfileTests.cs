@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
@@ -12,9 +13,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "internal/{userId}/Users.GetUserProfile";
-
-    private string GetEndpointUrl(Guid userId) => endpoint.Replace("{userId}", userId.ToString());
+    private static string GetEndpointUrl(Guid? userId) => $"internal/{userId}/Users.GetUserProfile";
 
     public GetUserProfileTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -33,12 +32,12 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.LastName, (_, _) => "Smith")
             .RuleFor(x => x.JobTitle, (_, _) => "Software Developer")
             .RuleFor(x => x.Email, (_, _) => "jane.smith@example.com")
-            .RuleFor(x => x.Status, (_, _) => (short)1)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Active)
             .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(user.Sub));
+        var response = await authenticatedClient.GetAsync(GetEndpointUrl(user.Sub));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<GetUserProfileResponse>();
@@ -58,7 +57,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(Guid.NewGuid()));
+        var response = await authenticatedClient.GetAsync(GetEndpointUrl(Guid.NewGuid()));
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -67,7 +66,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
     {
         var anonymousClient = this.CreateClient();
 
-        var response = await anonymousClient.GetAsync(this.GetEndpointUrl(Guid.NewGuid()));
+        var response = await anonymousClient.GetAsync(GetEndpointUrl(Guid.NewGuid()));
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -76,7 +75,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
 
-        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(Guid.Empty));
+        var response = await authenticatedClient.GetAsync(GetEndpointUrl(Guid.Empty));
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -94,7 +93,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(user.Sub));
+        var response = await authenticatedClient.GetAsync(GetEndpointUrl(user.Sub));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<GetUserProfileResponse>();
@@ -119,7 +118,7 @@ public class GetUserProfileTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var response = await authenticatedClient.GetAsync(this.GetEndpointUrl(user.Sub));
+        var response = await authenticatedClient.GetAsync(GetEndpointUrl(user.Sub));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<GetUserProfileResponse>();

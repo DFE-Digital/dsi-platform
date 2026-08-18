@@ -13,7 +13,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
 {
-    private const string endpoint = "interaction/Users.GetUserStatus";
+    private static string GetEndpoint() => $"interaction/Users.GetUserStatus";
 
     public GetUserStatusTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -21,24 +21,24 @@ public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
     }
 
     [Theory]
-    [InlineData(0, AccountStatus.Inactive)]
-    [InlineData(1, AccountStatus.Active)]
-    public async Task GetUserStatus_ReturnsSuccess_WithUserExistsTrue_WhenUserExistsByEmail(short dbStatus, AccountStatus expectedStatus)
+    [InlineData(AccountStatus.Inactive, AccountStatus.Inactive)]
+    [InlineData(AccountStatus.Active, AccountStatus.Active)]
+    public async Task GetUserStatus_ReturnsSuccess_WithUserExistsTrue_WhenUserExistsByEmail(AccountStatus dbStatus, AccountStatus expectedStatus)
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "test.user@example.com")
-            .RuleFor(x => x.Status, (_, _) => dbStatus)
+            .RuleFor(x => x.Status, (_, _) => (short)dbStatus)
             .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = new GetUserStatusRequest {
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(), new GetUserStatusRequest {
             EmailAddress = "test.user@example.com"
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -51,25 +51,25 @@ public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
     }
 
     [Theory]
-    [InlineData(0, AccountStatus.Inactive)]
-    [InlineData(1, AccountStatus.Active)]
-    public async Task GetUserStatus_ReturnsSuccess_WithUserExistsTrue_WhenUserExistsByEntraOid(short dbStatus, AccountStatus expectedStatus)
+    [InlineData(AccountStatus.Inactive, AccountStatus.Inactive)]
+    [InlineData(AccountStatus.Active, AccountStatus.Active)]
+    public async Task GetUserStatus_ReturnsSuccess_WithUserExistsTrue_WhenUserExistsByEntraOid(AccountStatus dbStatus, AccountStatus expectedStatus)
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
         var entraOid = Guid.NewGuid();
         var user = EntityFaker.User
             .RuleFor(x => x.EntraOid, (_, _) => entraOid)
-            .RuleFor(x => x.Status, (_, _) => dbStatus)
+            .RuleFor(x => x.Status, (_, _) => (short)dbStatus)
             .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var request = new GetUserStatusRequest {
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(), new GetUserStatusRequest {
             EntraUserId = entraOid
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -84,13 +84,13 @@ public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetUserStatus_ReturnsSuccess_WithUserExistsFalse_WhenUserDoesNotExistByEmail()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
-        var request = new GetUserStatusRequest {
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(), new GetUserStatusRequest {
             EmailAddress = "nonexistent@example.com"
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -105,13 +105,13 @@ public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetUserStatus_ReturnsSuccess_WithUserExistsFalse_WhenUserDoesNotExistByEntraOid()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
-        var request = new GetUserStatusRequest {
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(), new GetUserStatusRequest {
             EntraUserId = Guid.NewGuid()
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -128,11 +128,9 @@ public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
     {
         var anonymousClient = this.CreateClient();
 
-        var request = new GetUserStatusRequest {
+        var response = await anonymousClient.PostAsJsonAsync(GetEndpoint(), new GetUserStatusRequest {
             EmailAddress = "test@example.com"
-        };
-
-        var response = await anonymousClient.PostAsJsonAsync(endpoint, request);
+        });
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -140,14 +138,14 @@ public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetUserStatus_Returns400_WhenBothEmailAndEntraUserIdProvided()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
-        var request = new GetUserStatusRequest {
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(), new GetUserStatusRequest {
             EmailAddress = "test@example.com",
             EntraUserId = Guid.NewGuid()
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -155,14 +153,14 @@ public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetUserStatus_Returns400_WhenNeitherEmailNorEntraUserIdProvided()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
-        var request = new GetUserStatusRequest {
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(), new GetUserStatusRequest {
             EmailAddress = null,
             EntraUserId = null
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -170,13 +168,13 @@ public class GetUserStatusTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetUserStatus_Returns400_WhenEmailIsInvalid()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
-        var request = new GetUserStatusRequest {
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(), new GetUserStatusRequest {
             EmailAddress = "invalid-email-format"
-        };
-
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

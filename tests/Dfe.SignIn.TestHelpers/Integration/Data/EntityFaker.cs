@@ -1,4 +1,5 @@
 using Bogus;
+using Dfe.SignIn.Core.Contracts.Features.Shared;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
@@ -13,10 +14,6 @@ namespace Dfe.SignIn.TestHelpers.Integration.Data;
 /// </summary>
 public static class EntityFaker
 {
-    private const short ActiveUserOrganisationStatus = 1;
-
-    // login.dfe.organisations\src\infrastructure\repository\index.js
-
     public static Faker<UserEntity> User => new Faker<UserEntity>()
         .RuleFor(x => x.Sub, f => f.Random.Guid())
         .RuleFor(x => x.Email, f => f.Internet.Email())
@@ -41,7 +38,7 @@ public static class EntityFaker
         .RuleFor(x => x.UserId, f => f.Random.Guid())
         .RuleFor(x => x.OrganisationId, f => f.Random.Guid())
         .RuleFor(x => x.RoleId, _ => OrganisationRole.EndUser.Value)
-        .RuleFor(x => x.Status, _ => ActiveUserOrganisationStatus)
+        .RuleFor(x => x.Status, _ => UserOrganisationStatus.Approved.Value)
         .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
         .RuleFor(x => x.UpdatedAt, (f, userOrg) => f.Date.Between(userOrg.CreatedAt, DateTime.UtcNow));
 
@@ -49,60 +46,30 @@ public static class EntityFaker
         .RuleFor(x => x.Id, f => f.Random.Guid())
         .RuleFor(x => x.UserId, f => f.Random.Guid())
         .RuleFor(x => x.OrganisationId, f => f.Random.Guid())
-        .RuleFor(x => x.Status, _ => 0) // Assuming 0 is the default status for a pending request
+        .RuleFor(x => x.Status, _ => OrganisationRequestStatus.Pending.Value)
         .RuleFor(x => x.ActionedAt, _ => null)
         .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
         .RuleFor(x => x.UpdatedAt, (f, request) => f.Date.Between(request.CreatedAt, DateTime.UtcNow));
 
-    //  model.organisationRequestStatus = [
-    //  { id: -1, name: "Rejected" },
-    //  { id: 0, name: "Pending" },
-    //  { id: 1, name: "Approved" },
-    //  { id: 2, name: "Overdue" },
-    //  { id: 3, name: "No Approvers" },
-    //];
-
-    //  model.organisationStatus = [
-    //  { id: 0, name: "Hidden", tagColor: "grey" },
-    //  { id: 1, name: "Open", tagColor: "green" },
-    //  { id: 2, name: "Closed", tagColor: "red" },
-    //  { id: 3, name: "Proposed to close", tagColor: "orange" },
-    //  { id: 4, name: "Proposed to open", tagColor: "blue" },
-    //  { id: 5, name: "Dissolved", tagColor: "red" },
-    //  { id: 6, name: "In Liquidation", tagColor: "red" },
-    //  { id: 8, name: "Locked Duplicate", tagColor: "purple" },
-    //  { id: 9, name: "Created in error", tagColor: "red" },
-    //  { id: 10, name: "Locked Restructure", tagColor: "purple" },
-    //];
-
-    //    await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>( new UserOrganisationEntity {
-    //        UserId = userId,
-    //            OrganisationId = org.Id,
-    //            RoleId = OrganisationRoles.EndUser.Id,
-    //            CreatedAt = DateTime.UtcNow,
-    //            UpdatedAt = DateTime.UtcNow,
-    //            Status = ActiveUserOrganisationStatus
-    //    } );
-
-    //        // Seed pending request for the organisation
-    //        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationRequestEntity>( new UserOrganisationRequestEntity {
-    //        Id = Guid.NewGuid(),
-    //            UserId = Guid.NewGuid(),
-    //            OrganisationId = org.Id,
-    //            Status = 0,
-    //            ActionedAt = null,
-    //            CreatedAt = DateTime.UtcNow,
-    //            UpdatedAt = DateTime.UtcNow
-    //} );
+    public static Faker<UserServiceRequestEntity> UserServiceRequest => new Faker<UserServiceRequestEntity>()
+        .RuleFor(x => x.Id, f => f.Random.Guid())
+        .RuleFor(x => x.UserId, f => f.Random.Guid())
+        .RuleFor(x => x.ServiceId, f => f.Random.Guid())
+        .RuleFor(x => x.OrganisationId, f => f.Random.Guid())
+        .RuleFor(x => x.Status, _ => ServiceRequestStatus.Pending.Value)
+        .RuleFor(x => x.RequestType, _ => ServiceRequestType.Service.Value)
+        .RuleFor(x => x.ActionedAt, _ => null)
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, userService) => f.Date.Between(userService.CreatedAt, DateTime.UtcNow));
 
     public static Faker<UserCodeEntity> UserCode => new Faker<UserCodeEntity>()
-                .RuleFor(x => x.Uid, f => f.Random.Guid())
-                .RuleFor(x => x.CodeType, _ => UserCodeType.ChangeEmail.Value)
-                .RuleFor(x => x.Code, f => f.Random.AlphaNumeric(7))
-                .RuleFor(x => x.Email, f => f.Internet.Email())
-                .RuleFor(x => x.ClientId, _ => "test-client")
-                .RuleFor(x => x.RedirectUri, _ => "n/a")
-                .RuleFor(x => x.ContextData, _ => null)
-                .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
-                .RuleFor(x => x.UpdatedAt, (f, code) => f.Date.Between(code.CreatedAt, DateTime.UtcNow));
+        .RuleFor(x => x.Uid, f => f.Random.Guid())
+        .RuleFor(x => x.CodeType, _ => UserCodeType.ChangeEmail.Value)
+        .RuleFor(x => x.Code, f => f.Random.AlphaNumeric(7))
+        .RuleFor(x => x.Email, f => f.Internet.Email())
+        .RuleFor(x => x.ClientId, _ => "test-client")
+        .RuleFor(x => x.RedirectUri, _ => "n/a")
+        .RuleFor(x => x.ContextData, _ => null)
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, code) => f.Date.Between(code.CreatedAt, DateTime.UtcNow));
 }

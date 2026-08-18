@@ -78,8 +78,6 @@ public sealed class GetPendingChangeEmailTests : InternalApiIntegrationEndpointT
             ClientId = "test-client",
             RedirectUri = "n/a",
             ContextData = null,
-            //CreatedAt = createdAt,
-            //UpdatedAt = createdAt,
         };
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);

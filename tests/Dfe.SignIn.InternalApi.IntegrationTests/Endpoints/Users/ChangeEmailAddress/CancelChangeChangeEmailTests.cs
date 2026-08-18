@@ -142,7 +142,8 @@ public sealed class CancelChangeChangeEmailTests : InternalApiIntegrationEndpoin
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        // must be after the test data insert
+        // This MUST be done after the user and code have been inserted,
+        // otherwise the exception will be thrown during the insert and the test will fail.
         this.TimestampInterceptor.Setup(
             onSavingChangesError: () => new DbUpdateException("Simulated database failure during save.", new Exception("Inner database exception constraint violation"))
         );

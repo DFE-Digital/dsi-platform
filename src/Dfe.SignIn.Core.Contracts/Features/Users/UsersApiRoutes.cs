@@ -28,7 +28,7 @@ public static class UsersApiRoutes
     /// <summary>
     /// The API route for changing a user's job title.
     /// </summary>
-    public const string ChangeJobTitle = "/internal/users/{userId}/job-title";
+    public const string ChangeJobTitle = "/internal/users/{userId}/change-job-title";
 
     /// <summary>
     /// The API route for changing a user's email address.
