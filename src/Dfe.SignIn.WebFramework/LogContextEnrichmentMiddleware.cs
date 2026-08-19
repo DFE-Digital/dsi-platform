@@ -48,7 +48,9 @@ public sealed class LogContextEnrichmentMiddleware(RequestDelegate next, ILogger
     /// <param name="context">The current HTTP context.</param>
     public async Task InvokeAsync(HttpContext context)
     {
-        var scope = new Dictionary<string, object>();
+        var scope = new Dictionary<string, object> {
+            ["AppPlatform"] = "dotnet"
+        };
 
         // x-correlation-id header (client-provided, optional)
         var clientCorrelationId = context.Request.Headers["x-correlation-id"].FirstOrDefault();
@@ -62,12 +64,7 @@ public sealed class LogContextEnrichmentMiddleware(RequestDelegate next, ILogger
             scope["UserId"] = userClaim.Value;
         }
 
-        if (scope.Count > 0) {
-            using (logger.BeginScope(scope)) {
-                await next(context);
-            }
-        }
-        else {
+        using (logger.BeginScope(scope)) {
             await next(context);
         }
     }
