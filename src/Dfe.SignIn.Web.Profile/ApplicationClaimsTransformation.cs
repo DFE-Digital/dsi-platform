@@ -20,23 +20,24 @@ public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : I
     /// <returns>New claims principle with added claims</returns>
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
-        if (principal.Identity is null) {
+        if (principal.Identity is not ClaimsIdentity { IsAuthenticated: true }) {
             return principal;
         }
 
-        if (!principal.Identity.IsAuthenticated) {
+        if (principal.HasClaim(c => c.Type == OrganisationRole.Approver.Name)) {
             return principal;
         }
 
         var identity = (ClaimsIdentity)principal.Identity;
 
-        //Safe to set to empty since Guid.Parse will fail if not valid guid
-        //and if its missing, the GetUserId() will also throw an exception
-        //if it fails to parse.
-
-        // The userId claim is not always present in the claims principal,
-        // so we need to check for it and use the GetUserId() method if it's not present.
+        //Safe to set to empty since Guid.Parse will fail if not valid guid and if its missing, the GetUserId() will also throw an exception if it fails to parse.
         Guid userId = Guid.Empty;
+
+        // The application supports two authentication schemes which use different claim schemas.
+        // 1. App-specific users: The user ID is stored in our custom 'DsiClaimTypes.UserId' claim.
+        // 2. Entra ID users: The user ID is stored in the standard OIDC 'ClaimTypes.NameIdentifier' claim.
+        // We check for the custom app claim first. If it is missing, we fall back to GetUserId(), 
+        // which handles extracting the ID from the Entra ID NameIdentifier claim.
         if (principal.Claims.Any(c => c.Type == DsiClaimTypes.UserId)) {
             userId = Guid.Parse(principal.Claims.First(c => c.Type == DsiClaimTypes.UserId).Value);
         }
@@ -44,14 +45,15 @@ public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : I
             userId = principal.GetUserId();
         }
 
+        var clone = principal.Clone();
+        var cloneIdentity = (ClaimsIdentity)clone.Identity!;
+
         var response = await usersApiClient.IsApprover(userId, CancellationToken.None);
 
         if (response.IsApprover) {
-            if (!identity.HasClaim(c => c.Type == OrganisationRole.Approver.Name)) {
-                identity.AddClaim(new Claim(OrganisationRole.Approver.Name, string.Empty));
-            }
+            cloneIdentity.AddClaim(new Claim(OrganisationRole.Approver.Name, string.Empty));
         }
 
-        return principal;
+        return clone;
     }
 }
