@@ -98,7 +98,7 @@ public class GraphApiChangeUserPersonalDetailsTests
                 CreateAccessToken()));
 
         // Assert
-        Assert.AreEqual("Missing forname", exception.Message);
+        Assert.AreEqual("Missing firstName", exception.Message);
 
         this.graphClientFactory.Verify(
             x => x.GetClient(It.IsAny<AccessToken>()),
