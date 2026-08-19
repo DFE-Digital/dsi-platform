@@ -54,7 +54,7 @@ public interface ISelectAssociatedAccountHelper
     ///   <para>If <paramref name="scopes"/> is null.</para>
     /// </exception>
     Task<IActionResult?> AuthenticateAssociatedAccount(
-        Controller controller, string[] scopes, SelectAssociatedReturnLocation returnLocation, bool force = false);
+        Controller controller, string[] scopes, SelectAssociatedReturnLocation returnLocation, bool force = false, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates an access token for the external account that is associated with
@@ -83,7 +83,7 @@ public interface ISelectAssociatedAccountHelper
     ///   user's DfE Sign-In account.</para>
     /// </exception>
     Task<GraphAccessToken?> CreateAccessTokenForAssociatedAccount(
-        Controller controller, string[] scopes);
+        Controller controller, string[] scopes, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -134,7 +134,7 @@ public sealed class SelectAssociatedAccountHelper(
 
     /// <inheritdoc/>
     public async Task<IActionResult?> AuthenticateAssociatedAccount(
-        Controller controller, string[] scopes, SelectAssociatedReturnLocation returnLocation, bool force = false)
+        Controller controller, string[] scopes, SelectAssociatedReturnLocation returnLocation, bool force = false, CancellationToken cancellationToken = default)
     {
         ExceptionHelpers.ThrowIfArgumentNull(controller, nameof(controller));
         ExceptionHelpers.ThrowIfArgumentNull(scopes, nameof(scopes));
@@ -185,7 +185,7 @@ public sealed class SelectAssociatedAccountHelper(
 
     /// <inheritdoc/>
     public async Task<GraphAccessToken?> CreateAccessTokenForAssociatedAccount(
-        Controller controller, string[] scopes)
+        Controller controller, string[] scopes, CancellationToken cancellationToken = default)
     {
         ExceptionHelpers.ThrowIfArgumentNull(controller, nameof(controller));
         ExceptionHelpers.ThrowIfArgumentNull(scopes, nameof(scopes));

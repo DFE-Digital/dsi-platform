@@ -127,6 +127,7 @@ public class GraphApiChangeUserPersonalDetailsTests
             Times.Never);
     }
 
+    //todo: review these tests and implement them once the GraphServiceClient is properly mocked and configured.
     //[TestMethod]
     //public async Task ChangeName_WhenValidRequest_GetsGraphClientWithCorrectAccessToken()
     //{

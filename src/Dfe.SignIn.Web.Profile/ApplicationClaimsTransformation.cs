@@ -11,14 +11,14 @@ namespace Dfe.SignIn.Web.Profile;
 /// based claims.
 /// </summary>
 /// <param name="usersApiClient"></param>
-public class ApplicationClaimsTransformation( IUsersApiClient usersApiClient ) : IClaimsTransformation
+public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : IClaimsTransformation
 {
     /// <summary>
     /// Transforms the current claims principal and adds claims if required
     /// </summary>
     /// <param name="principal"></param>
     /// <returns>New claims principle with added claims</returns>
-    public async Task<ClaimsPrincipal> TransformAsync( ClaimsPrincipal principal )
+    public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         if (principal.Identity is null) {
             return principal;
@@ -33,18 +33,22 @@ public class ApplicationClaimsTransformation( IUsersApiClient usersApiClient ) :
         //Safe to set to empty since Guid.Parse will fail if not valid guid
         //and if its missing, the GetUserId() will also throw an exception
         //if it fails to parse.
+
+        // The userId claim is not always present in the claims principal,
+        // so we need to check for it and use the GetUserId() method if it's not present.
         Guid userId = Guid.Empty;
-        if (principal.Claims.Any( c => c.Type == DsiClaimTypes.UserId )) {
-            userId = Guid.Parse( principal.Claims.First( c => c.Type == DsiClaimTypes.UserId ).Value );
-        } else {
+        if (principal.Claims.Any(c => c.Type == DsiClaimTypes.UserId)) {
+            userId = Guid.Parse(principal.Claims.First(c => c.Type == DsiClaimTypes.UserId).Value);
+        }
+        else {
             userId = principal.GetUserId();
         }
 
-        var response = await usersApiClient.IsApprover( userId, CancellationToken.None );
+        var response = await usersApiClient.IsApprover(userId, CancellationToken.None);
 
         if (response.IsApprover) {
-            if (!identity.HasClaim( c => c.Type == OrganisationRole.Approver.Name )) {
-                identity.AddClaim( new Claim( OrganisationRole.Approver.Name, string.Empty ) );
+            if (!identity.HasClaim(c => c.Type == OrganisationRole.Approver.Name)) {
+                identity.AddClaim(new Claim(OrganisationRole.Approver.Name, string.Empty));
             }
         }
 

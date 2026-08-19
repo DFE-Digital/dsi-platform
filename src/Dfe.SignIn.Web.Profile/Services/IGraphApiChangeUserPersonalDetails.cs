@@ -7,5 +7,5 @@ namespace Dfe.SignIn.Web.Profile.Services;
 /// </summary>
 public interface IGraphApiChangeUserPersonalDetails
 {
-    Task ChangeName(Guid userId, string forename, string lastName, GraphAccessToken? graphAccessToken);
+    Task ChangeName(Guid userId, string firstName, string lastName, GraphAccessToken? graphAccessToken, CancellationToken cancellationToken = default);
 }

@@ -28,13 +28,13 @@ public sealed class ChangeNameController(
     private const string GraphApiEndpoint = "https://graph.microsoft.com/.default";
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
         if (userProfileFeature.IsEntra) {
             var actionResult = await selectAssociatedAccountHelper.AuthenticateAssociatedAccount(
-                this, [GraphApiEndpoint], SelectAssociatedReturnLocation.ChangeNameDetails);
+                this, [GraphApiEndpoint], SelectAssociatedReturnLocation.ChangeNameDetails, cancellationToken: cancellationToken);
             if (actionResult is not null) {
                 return actionResult;
             }
@@ -49,9 +49,10 @@ public sealed class ChangeNameController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
-        ChangeNameViewModel viewModel)
+        ChangeNameViewModel viewModel,
+        CancellationToken cancellationToken = default)
     {
-        var validationResult = await changeNameValidator.ValidateAsync(viewModel);
+        var validationResult = await changeNameValidator.ValidateAsync(viewModel, cancellationToken);
 
         var userDetails = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
@@ -85,11 +86,11 @@ public sealed class ChangeNameController(
             try {
                 GraphAccessToken? graphAccessToken = null;
                 graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
-                    this, ["https://graph.microsoft.com/.default"]) ?? throw new Exception("Provided graph token for user is null");
+                    this, ["https://graph.microsoft.com/.default"], cancellationToken) ?? throw new Exception("Provided graph token for user is null");
 
                 await graphApiChangeUserPersonalDetails.ChangeName(this.User.GetUserId(),
                     viewModel.FirstNameInput!,
-                    viewModel.LastNameInput!, graphAccessToken);
+                    viewModel.LastNameInput!, graphAccessToken, cancellationToken);
             }
 
             catch (Exception ex) {
