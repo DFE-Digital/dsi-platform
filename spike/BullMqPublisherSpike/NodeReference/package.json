@@ -1,0 +1,15 @@
+{
+  "name": "bullmq-node-reference",
+  "version": "1.0.0",
+  "description": "Reference BullMQ publisher and worker simulation",
+  "main": "publish-node.js",
+  "scripts": {
+    "publish": "node publish-node.js",
+    "worker": "node worker-node.js",
+    "simulate": "node simulate-lifecycle.js"
+  },
+  "dependencies": {
+    "bullmq": "^5.65.1",
+    "dotenv": "^17.2.3"
+  }
+}
