@@ -50,7 +50,7 @@ public class IsApproverEndpoint : IEndpoint
         var isApprover = await organisationsDbContext.UserOrganisations
             .AsNoTracking()
             .Where(x => x.UserId == userId)
-            .AnyAsync(x => x.RoleId == OrganisationRoles.Approver.Id, cancellationToken);
+            .AnyAsync(x => x.RoleId == OrganisationRole.Approver.Value, cancellationToken);
 
         logger.LogInformation("User {userId} is approver status: {isApprover}", userId, isApprover);
 

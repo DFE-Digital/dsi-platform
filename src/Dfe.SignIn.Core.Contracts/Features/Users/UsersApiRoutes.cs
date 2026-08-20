@@ -28,7 +28,7 @@ public static class UsersApiRoutes
     /// <summary>
     /// The API route for changing a user's job title.
     /// </summary>
-    public const string ChangeJobTitle = "/internal/users/{userId}/job-title";
+    public const string ChangeJobTitle = "/internal/users/{userId}/change-job-title";
 
     /// <summary>
     /// The API route for changing a user's email address.
@@ -44,4 +44,9 @@ public static class UsersApiRoutes
     /// The API route for cancelling the change of a user's email address.
     /// </summary>
     public const string CancelChangeEmail = "/internal/users/{userId}/cancel-change-email";
+
+    /// <summary>
+    /// The API route for retrieving a pending change email request.
+    /// </summary>
+    public const string GetPendingChangeEmail = "/internal/users/{userId}/pending-change-email";
 }

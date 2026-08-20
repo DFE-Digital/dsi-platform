@@ -1,94 +1,39 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Notifications;
-using Dfe.SignIn.Core.Interfaces.ExternalAuth;
-using Dfe.SignIn.Core.Interfaces.Notifications;
-using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
-using Dfe.SignIn.TestHelpers.Integration;
 using Dfe.SignIn.TestHelpers.Integration.Mocks;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Notify.Interfaces;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests;
 
 [Collection("InternalApiIntegrationTestCollection")]
 public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebApplicationFactory webAppFactory) : IAsyncLifetime
 {
-    private readonly List<IAsyncDisposable> createdFactories = [];
+    private InternalApiWebApplicationFactory WebAppFactory { get; } = webAppFactory;
 
-    protected InternalApiWebApplicationFactory WebAppFactory { get; } = webAppFactory;
-
-    protected readonly FakeInteractionLimiter FakeLimiter = new();
-    protected readonly FakeEmailRequestTracker FakeEmailRequestTracker = new();
-    protected readonly FakeExternalAuthService FakeExternalAuthService = new();
-    protected readonly FakeUserUpdatedPublisher FakeUserUpdatedPublisher = new();
-    internal readonly TestTimestampInterceptor TestTimestampInterceptor = new(TimeProvider.System);
+    // Delegate to factory's shared singleton fakes
+    protected FakeInteractionLimiter FakeLimiter => this.WebAppFactory.FakeLimiter;
+    protected FakeEmailRequestTracker FakeEmailRequestTracker => this.WebAppFactory.FakeEmailTracker;
+    protected FakeExternalAuthService FakeExternalAuthService => this.WebAppFactory.FakeExternalAuth;
+    protected FakeUserUpdatedPublisher FakeUserUpdatedPublisher => this.WebAppFactory.FakeUserUpdatedPublisher;
+    protected CapturingWriteToAuditInteractor AuditCapturer => this.WebAppFactory.AuditCapturer;
+    internal FakeTimestampInterceptor TimestampInterceptor => this.WebAppFactory.TimestampInterceptor;
+    internal FailingDbCommandInterceptor FailingDbCommandInterceptor => this.WebAppFactory.FailingDbCommandInterceptor;
 
     public async Task InitializeAsync()
     {
         await this.WebAppFactory.ResetDatabasesAsync();
-        this.FakeExternalAuthService.OnChangeEmail = null;
-        this.FakeUserUpdatedPublisher.Clear();
-        this.TestTimestampInterceptor.ShouldFail = false;
+        this.WebAppFactory.ResetAllFakes();
     }
 
-    public Task DisposeAsync()
-    {
-        return this.DisposeCreatedFactoriesAsync();
-    }
+    public Task DisposeAsync() => Task.CompletedTask;
 
     /// <summary>
-    /// This method creates a new HttpClient instance with a mock implementation of the IInteractor<WriteToAuditRequest> interface.
-    /// The mock implementation captures the WriteToAuditRequest passed to it, allowing for verification of audit logging behavior during integration tests.
-    /// NOTE: This has only been added to support the interator that writes to audit, so that we can verify that the correct audit events are being written during integration tests.
-    /// NOTE: When we move to a simpler IAuditorService implementation, this method can be removed and the tests can be updated to use the real implementation of IAuditorService.
+    /// Inserts a single entity into the specified database context.
     /// </summary>
-    /// <returns></returns>
-    protected (HttpClient Client, CapturingWriteToAuditInteractor AuditMock) CreateClientWithAuditMock()
-    {
-        var auditMock = new CapturingWriteToAuditInteractor();
-        var auditWriterMock = new TestAuditWriter(auditMock);
-
-        var fakeEmailNotificationService = new FakeEmailNotificationService(this.FakeEmailRequestTracker);
-
-        var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
-            builder.ConfigureTestServices(services => {
-                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-                services.AddSingleton<IInteractor<WriteToAuditRequest>>(auditMock);
-
-                services.RemoveAll<IAuditWriter>();
-                services.AddSingleton<IAuditWriter>(auditWriterMock);
-
-                services.RemoveAll<IAsyncNotificationClient>();
-                services.RemoveAll<INotificationService>();
-                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
-
-                services.RemoveAll<IInteractionLimiter>();
-                services.AddSingleton<IInteractionLimiter>(this.FakeLimiter);
-
-                services.RemoveAll<IExternalAuthService>();
-                services.AddSingleton<IExternalAuthService>(this.FakeExternalAuthService);
-
-                services.RemoveAll<IUserUpdatedPublisher>();
-                services.AddSingleton<IUserUpdatedPublisher>(this.FakeUserUpdatedPublisher);
-
-                services.RemoveAll<TimestampInterceptor>();
-                services.AddSingleton<TimestampInterceptor>(this.TestTimestampInterceptor);
-            });
-        });
-
-        this.createdFactories.Add(customisedFactory);
-
-        var client = customisedFactory.CreateClient();
-        client.DefaultRequestHeaders.Add(TestAuthHandler.EnableAuthHeaderName, bool.TrueString);
-
-        return (client, auditMock);
-    }
-
+    /// <typeparam name="TContext">The type of the database context.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entity">The entity to insert.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task InsertEntityAsync<TContext, TEntity>(TEntity entity)
         where TContext : DbContext
         where TEntity : class
@@ -96,6 +41,13 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
         await this.InsertEntitiesAsync<TContext, TEntity>([entity]);
     }
 
+    /// <summary>
+    /// Inserts a collection of entities into the specified database context.
+    /// </summary>
+    /// <typeparam name="TContext">The type of the database context.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entities">The collection of entities to insert.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task InsertEntitiesAsync<TContext, TEntity>(IEnumerable<TEntity> entities)
         where TContext : DbContext
         where TEntity : class
@@ -107,40 +59,24 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
         await dbContext.SaveChangesAsync();
     }
 
-    private async Task DisposeCreatedFactoriesAsync()
+    /// <summary>
+    /// Executes a query against the database context, returning the result.
+    /// </summary>
+    /// <typeparam name="TContext">The type of the database context.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">The query to execute.</param>
+    /// <returns>The result of the query.</returns>
+    protected async Task<TResult> ExecuteDbContextAsync<TContext, TResult>(Func<TContext, Task<TResult>> query)
+        where TContext : DbContext
     {
-        foreach (var createdFactory in this.createdFactories) {
-            await createdFactory.DisposeAsync();
-        }
-
-        this.createdFactories.Clear();
+        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
+        return await query(dbContext);
     }
 
-    protected HttpClient CreateClient()
-    {
-        var emailRequestTracker = new FakeEmailRequestTracker();
-        var fakeEmailNotificationService = new FakeEmailNotificationService(emailRequestTracker);
-        var fakeLimiter = new FakeInteractionLimiter();
-
-        var customisedFactory = this.WebAppFactory.WithWebHostBuilder(builder => {
-            builder.ConfigureTestServices(services => {
-                services.RemoveAll<IInteractor<WriteToAuditRequest>>();
-                services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
-
-                services.RemoveAll<IAuditWriter>();
-                services.AddSingleton<IAuditWriter, TestAuditWriter>();
-
-                services.RemoveAll<IAsyncNotificationClient>();
-                services.RemoveAll<INotificationService>();
-                services.AddSingleton<INotificationService>(fakeEmailNotificationService);
-
-                services.RemoveAll<IInteractionLimiter>();
-                services.AddSingleton<IInteractionLimiter>(fakeLimiter);
-            });
-        });
-
-        this.createdFactories.Add(customisedFactory);
-
-        return customisedFactory.CreateClient();
-    }
+    /// <summary>
+    /// Creates an HttpClient directly from the root factory.
+    /// Supports legacy pattern: this.CreateClient().WithAuthentication()
+    /// </summary>
+    protected HttpClient CreateClient() => this.WebAppFactory.CreateClient();
 }

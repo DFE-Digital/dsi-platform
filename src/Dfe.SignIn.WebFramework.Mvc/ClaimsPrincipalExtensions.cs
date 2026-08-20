@@ -66,6 +66,6 @@ public static class ClaimsPrincipalExtensions
     public static bool HasApproverClaim(this ClaimsPrincipal principal)
     {
         ExceptionHelpers.ThrowIfArgumentNull(principal, nameof(principal));
-        return principal.Claims.Any(x => x.Type == OrganisationRoles.Approver.Name);
+        return principal.Claims.Any(x => x.Type == OrganisationRole.Approver.Name);
     }
 }

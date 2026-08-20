@@ -34,7 +34,7 @@ public class GetUserOrganisationServiceMappingTests
             RoleName = roleName,
             RoleCode = roleCode,
 
-            OrgRoleId = OrganisationRoles.Approver.Id,
+            OrgRoleId = OrganisationRole.Approver.Value,
             IsInService = inService
         };
     }
@@ -258,6 +258,6 @@ public class GetUserOrganisationServiceMappingTests
             .Organisations
             .Single();
 
-        Assert.AreEqual(org.OrgRoleName, OrganisationRoles.Approver.Name);
+        Assert.AreEqual(org.OrgRoleName, OrganisationRole.Approver.Name);
     }
 }

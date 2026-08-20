@@ -86,4 +86,14 @@ public interface IUsersApiClient
     /// <returns>A task representing the asynchronous operation.</returns>
     [Delete(UsersApiRoutes.CancelChangeEmail)]
     Task CancelChangeEmailAddress(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves the pending email change request for a user if one exists.
+    /// Returns 404 if no pending change exists.
+    /// </summary>
+    /// <param name="userId">The ID of the user.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>The pending email change details.</returns>
+    [Get(UsersApiRoutes.GetPendingChangeEmail)]
+    Task<GetPendingChangeEmailResponse> GetPendingChangeEmail(Guid userId, CancellationToken cancellationToken = default);
 }

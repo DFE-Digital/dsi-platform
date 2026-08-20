@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Organisations;
@@ -14,7 +14,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBase
 {
-    private const short ActiveUserOrganisationStatus = 1;
+    private static string GetEndpoint(Guid? userId) => $"/internal/users/{userId}/is-approver";
 
     public IsOrganisationApproverTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -26,28 +26,23 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     {
         var userId = Guid.NewGuid();
 
-        var url = UsersApiRoutes.IsApprover
-            .Replace("{userId}", userId.ToString());
-
-        var authenticatedClient = this.CreateClient()
+        var authenticatedClient = this
+            .CreateClient()
             .WithAuthentication(userId.ToString());
 
         var org = EntityFaker.Organisation.Generate();
+        var orgUser = EntityFaker.UserOrganisation
+            .RuleFor(u => u.UserId, userId)
+            .RuleFor(u => u.OrganisationId, org.Id)
+            .RuleFor(u => u.Status, UserOrganisationStatus.Approved.Value)
+            .RuleFor(u => u.RoleId, OrganisationRole.Approver.Value)
+            .Generate();
 
-        // Seed Organisation
         await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(org);
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>(orgUser);
 
-        // Seed UserOrganisation as Approver (RoleId = 10000)
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>(new UserOrganisationEntity {
-            UserId = userId,
-            OrganisationId = org.Id,
-            RoleId = OrganisationRoles.Approver.Id,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            Status = ActiveUserOrganisationStatus
-        });
-
-        var response = await authenticatedClient.GetAsync(url);
+        var endpoint = GetEndpoint(userId);
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -61,40 +56,33 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     {
         var userId = Guid.NewGuid();
 
-        var url = UsersApiRoutes.IsApprover
-            .Replace("{userId}", userId.ToString());
-
-        var authenticatedClient = this.CreateClient()
+        var authenticatedClient = this
+            .CreateClient()
             .WithAuthentication(userId.ToString());
 
         var organisations = EntityFaker.Organisation.Generate(2);
         var org1 = organisations[0];
         var org2 = organisations[1];
 
-        // Seed Organisations
+        var orgUser1 = EntityFaker.UserOrganisation
+            .RuleFor(u => u.UserId, userId)
+            .RuleFor(u => u.OrganisationId, org1.Id)
+            .RuleFor(u => u.Status, UserOrganisationStatus.Approved.Value)
+            .RuleFor(u => u.RoleId, OrganisationRole.EndUser.Value)
+            .Generate();
+
+        var orgUser2 = EntityFaker.UserOrganisation
+            .RuleFor(u => u.UserId, userId)
+            .RuleFor(u => u.OrganisationId, org2.Id)
+            .RuleFor(u => u.Status, UserOrganisationStatus.Approved.Value)
+            .RuleFor(u => u.RoleId, OrganisationRole.Approver.Value)
+            .Generate();
+
         await this.InsertEntitiesAsync<DbOrganisationsContext, OrganisationEntity>([org1, org2]);
+        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>([orgUser1, orgUser2]);
 
-        // Seed UserOrganisations
-        await this.InsertEntitiesAsync<DbOrganisationsContext, UserOrganisationEntity>([
-            new UserOrganisationEntity {
-                UserId = userId,
-                OrganisationId = org1.Id,
-                RoleId = OrganisationRoles.EndUser.Id,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                Status = ActiveUserOrganisationStatus
-            },
-            new UserOrganisationEntity {
-                UserId = userId,
-                OrganisationId = org2.Id,
-                RoleId = OrganisationRoles.Approver.Id,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                Status = ActiveUserOrganisationStatus
-            }
-        ]);
-
-        var response = await authenticatedClient.GetAsync(url);
+        var endpoint = GetEndpoint(userId);
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -108,28 +96,24 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     {
         var userId = Guid.NewGuid();
 
-        var url = UsersApiRoutes.IsApprover
-            .Replace("{userId}", userId.ToString());
-
-        var authenticatedClient = this.CreateClient()
+        var authenticatedClient = this
+            .CreateClient()
             .WithAuthentication(userId.ToString());
 
         var org = EntityFaker.Organisation.Generate();
 
-        // Seed Organisation
+        var orgUser = EntityFaker.UserOrganisation
+            .RuleFor(u => u.UserId, userId)
+            .RuleFor(u => u.OrganisationId, org.Id)
+            .RuleFor(u => u.Status, UserOrganisationStatus.Approved.Value)
+            .RuleFor(u => u.RoleId, OrganisationRole.EndUser.Value)
+            .Generate();
+
         await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(org);
+        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>(orgUser);
 
-        // Seed UserOrganisation as End User (RoleId = 0)
-        await this.InsertEntityAsync<DbOrganisationsContext, UserOrganisationEntity>(new UserOrganisationEntity {
-            UserId = userId,
-            OrganisationId = org.Id,
-            RoleId = OrganisationRoles.EndUser.Id,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            Status = ActiveUserOrganisationStatus
-        });
-
-        var response = await authenticatedClient.GetAsync(url);
+        var endpoint = GetEndpoint(userId);
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -141,13 +125,12 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     [Fact]
     public async Task IsOrganisationApprover_ReturnsFalse_WhenUserHasNoAssociatedOrganisations()
     {
-        var authenticatedClient = this.CreateClient()
+        var authenticatedClient = this
+            .CreateClient()
             .WithAuthentication();
 
-        var url = UsersApiRoutes.IsApprover
-            .Replace("{userId}", Guid.NewGuid().ToString());
-
-        var response = await authenticatedClient.GetAsync(url);
+        var endpoint = GetEndpoint(Guid.NewGuid());
+        var response = await authenticatedClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -161,10 +144,8 @@ public class IsOrganisationApproverTests : InternalApiIntegrationEndpointTestBas
     {
         var anonymousClient = this.CreateClient();
 
-        var url = UsersApiRoutes.IsApprover
-           .Replace("{userId}", Guid.NewGuid().ToString());
-
-        var response = await anonymousClient.GetAsync(url);
+        var endpoint = GetEndpoint(Guid.NewGuid());
+        var response = await anonymousClient.GetAsync(endpoint);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }

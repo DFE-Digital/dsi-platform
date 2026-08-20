@@ -4,8 +4,8 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Entities.Organisations;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Contracts;
+using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Organisations;
@@ -23,23 +23,18 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_ReturnsOrganisation_WhenExists()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var authenticatedClient = this.CreateClient()
+            .WithAuthentication();
 
         // Arrange: Seed an organisation
         var orgId = Guid.NewGuid();
         var expectedName = "Test Academy Trust";
 
-        await using var scope = this.WebAppFactory.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DbOrganisationsContext>();
-        dbContext.Organisations.Add(new OrganisationEntity {
-            Id = orgId,
-            Name = expectedName,
-            Category = "001",
-            Status = 1,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
-        await dbContext.SaveChangesAsync();
+        var organisation = EntityFaker.Organisation
+            .RuleFor(o => o.Id, f => orgId)
+            .RuleFor(o => o.Name, f => expectedName);
+
+        await this.InsertEntityAsync<DbOrganisationsContext, OrganisationEntity>(organisation);
 
         var request = new GetOrganisationByIdRequest {
             OrganisationId = orgId
@@ -64,7 +59,8 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
     [Fact]
     public async Task GetOrganisationById_Returns404_WhenDoesNotExist()
     {
-        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var httpClient = this.CreateClient()
+            .WithAuthentication();
 
         // Arrange
         var missingOrgId = Guid.NewGuid();
@@ -73,7 +69,7 @@ public class GetOrganisationByIdTests : InternalApiIntegrationEndpointTestBase
         };
 
         // Act
-        var response = await authenticatedClient.PostAsJsonAsync(endpoint, request);
+        var response = await httpClient.PostAsJsonAsync(endpoint, request);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

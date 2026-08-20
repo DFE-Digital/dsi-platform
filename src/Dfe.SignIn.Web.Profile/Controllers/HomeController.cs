@@ -1,5 +1,5 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +14,8 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/")]
 public sealed class HomeController(
-    IInteractionDispatcher interaction
+    IUsersApiClient usersApiClient,
+    ILogger<HomeController> logger
 ) : Controller
 {
     [HttpGet]
@@ -22,17 +23,22 @@ public sealed class HomeController(
     {
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
-        var pendingChangeEmailAddressResponse = await interaction.DispatchAsync(
-            new GetPendingChangeEmailAddressRequest {
-                UserId = userProfileFeature.UserId,
-            }
-        ).To<GetPendingChangeEmailAddressResponse>();
+        GetPendingChangeEmailResponse? pendingResponse = null;
+        try {
+            pendingResponse = await usersApiClient.GetPendingChangeEmail(userProfileFeature.UserId);
+        }
+        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+            // No pending email change — this is expected
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "Failed to retrieve pending change email for user {UserId}", userProfileFeature.UserId);
+        }
 
         return this.View(new HomeViewModel {
             FullName = $"{userProfileFeature.FirstName} {userProfileFeature.LastName}",
             JobTitle = userProfileFeature.JobTitle,
             EmailAddress = userProfileFeature.EmailAddress,
-            PendingEmailAddress = pendingChangeEmailAddressResponse.PendingChangeEmailAddress?.NewEmailAddress,
+            PendingEmailAddress = pendingResponse?.NewEmailAddress,
         });
     }
 }

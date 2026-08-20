@@ -1,4 +1,7 @@
 using Bogus;
+using Dfe.SignIn.Core.Contracts.Features.Shared;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
+using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Entities.Organisations;
@@ -31,9 +34,37 @@ public static class EntityFaker
         .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
         .RuleFor(x => x.UpdatedAt, (f, org) => f.Date.Between(org.CreatedAt, DateTime.UtcNow));
 
+    public static Faker<UserOrganisationEntity> UserOrganisation => new Faker<UserOrganisationEntity>()
+        .RuleFor(x => x.UserId, f => f.Random.Guid())
+        .RuleFor(x => x.OrganisationId, f => f.Random.Guid())
+        .RuleFor(x => x.RoleId, _ => OrganisationRole.EndUser.Value)
+        .RuleFor(x => x.Status, _ => UserOrganisationStatus.Approved.Value)
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, userOrg) => f.Date.Between(userOrg.CreatedAt, DateTime.UtcNow));
+
+    public static Faker<UserOrganisationRequestEntity> UserOrganisationRequest => new Faker<UserOrganisationRequestEntity>()
+        .RuleFor(x => x.Id, f => f.Random.Guid())
+        .RuleFor(x => x.UserId, f => f.Random.Guid())
+        .RuleFor(x => x.OrganisationId, f => f.Random.Guid())
+        .RuleFor(x => x.Status, _ => OrganisationRequestStatus.Pending.Value)
+        .RuleFor(x => x.ActionedAt, _ => null)
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, request) => f.Date.Between(request.CreatedAt, DateTime.UtcNow));
+
+    public static Faker<UserServiceRequestEntity> UserServiceRequest => new Faker<UserServiceRequestEntity>()
+        .RuleFor(x => x.Id, f => f.Random.Guid())
+        .RuleFor(x => x.UserId, f => f.Random.Guid())
+        .RuleFor(x => x.ServiceId, f => f.Random.Guid())
+        .RuleFor(x => x.OrganisationId, f => f.Random.Guid())
+        .RuleFor(x => x.Status, _ => ServiceRequestStatus.Pending.Value)
+        .RuleFor(x => x.RequestType, _ => ServiceRequestType.Service.Value)
+        .RuleFor(x => x.ActionedAt, _ => null)
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, userService) => f.Date.Between(userService.CreatedAt, DateTime.UtcNow));
+
     public static Faker<UserCodeEntity> UserCode => new Faker<UserCodeEntity>()
         .RuleFor(x => x.Uid, f => f.Random.Guid())
-        .RuleFor(x => x.CodeType, _ => "changeemail")
+        .RuleFor(x => x.CodeType, _ => UserCodeType.ChangeEmail.Value)
         .RuleFor(x => x.Code, f => f.Random.AlphaNumeric(7))
         .RuleFor(x => x.Email, f => f.Internet.Email())
         .RuleFor(x => x.ClientId, _ => "test-client")

@@ -16,9 +16,9 @@ public sealed class GraphApiChangeUserPersonalDetails(
     IPersonalGraphServiceFactory graphClientFactory,
     ILogger<GraphApiChangeUserPersonalDetails> logger) : IGraphApiChangeUserPersonalDetails
 {
-    public async Task ChangeName(Guid userId, string forename, string lastName, GraphAccessToken? graphAccessToken)
+    public async Task ChangeName(Guid userId, string firstName, string lastName, GraphAccessToken? graphAccessToken, CancellationToken cancellationToken = default)
     {
-        ExceptionHelpers.ThrowIfArgumentNull(forename, nameof(forename));
+        ExceptionHelpers.ThrowIfArgumentNull(firstName, nameof(firstName));
         ExceptionHelpers.ThrowIfArgumentNull(lastName, nameof(lastName));
         ExceptionHelpers.ThrowIfArgumentNull(graphAccessToken!, nameof(graphAccessToken));
 
@@ -26,8 +26,8 @@ public sealed class GraphApiChangeUserPersonalDetails(
             throw new InvalidOperationException("Missing user access token.");
         }
 
-        if (string.IsNullOrEmpty(forename)) {
-            throw new InvalidOperationException("Missing forname");
+        if (string.IsNullOrEmpty(firstName)) {
+            throw new InvalidOperationException("Missing firstName");
         }
 
         if (string.IsNullOrEmpty(lastName)) {
@@ -43,12 +43,12 @@ public sealed class GraphApiChangeUserPersonalDetails(
 
         try {
             await graphClient.Me.PatchAsync(new User {
-                GivenName = forename,
+                GivenName = firstName,
                 Surname = lastName
-            });
+            }, cancellationToken: cancellationToken);
         }
         catch (ODataError ex) {
-            logger.LogError(ex, "Failed to patch user userId: {userId}", userId);
+            logger.LogError(ex, "Failed to patch user userId: {UserId}", userId);
             throw;
         }
     }

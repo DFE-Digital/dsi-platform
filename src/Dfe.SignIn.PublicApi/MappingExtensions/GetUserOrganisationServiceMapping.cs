@@ -94,7 +94,7 @@ public static class GetUserOrganisationServiceMapping
                     Services = orgGroup.ToServiceDtos(),
 
                     OrgRoleId = o.OrgRoleId ?? 0,
-                    OrgRoleName = o.OrgRoleId.HasValue ? OrganisationRoles.FromId(o.OrgRoleId.Value)?.Name : null
+                    OrgRoleName = o.OrgRoleId.HasValue ? OrganisationRole.FromValue(o.OrgRoleId.Value)?.Name : null
                 };
             });
 

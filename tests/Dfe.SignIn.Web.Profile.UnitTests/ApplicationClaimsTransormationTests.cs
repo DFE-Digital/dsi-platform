@@ -54,7 +54,7 @@ public sealed class ApplicationClaimsTransormationTests
         // Assert
         Assert.AreEqual(2, result.Claims.Count());
         Assert.AreEqual(1, result.Claims.Count(c => c.Type == ClaimTypes.NameIdentifier && c.Value == userId.ToString()));
-        Assert.AreEqual(1, result.Claims.Count(c => c.Type == OrganisationRoles.Approver.Name));
+        Assert.AreEqual(1, result.Claims.Count(c => c.Type == OrganisationRole.Approver.Name));
     }
 
     [TestMethod]

@@ -32,19 +32,27 @@ public class PendingApprovalCounterEndpoint : IEndpoint
     /// </summary>
     /// <param name="organisationsDbContext">The database context to use for accessing user data.</param>
     /// <param name="userId">The userId that the request belongs to</param>
+    /// <param name="userLookupService">The service to use for looking up user information.</param>
     /// <param name="logger">The logger to use for logging information.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
-    public static async Task<PendingApprovalCountResponse> Handler(
+    public static async Task<IResult> Handler(
         DbOrganisationsContext organisationsDbContext,
         Guid userId,
+        IUserLookupService userLookupService,
         ILogger<PendingApprovalCounterEndpoint> logger,
         CancellationToken cancellationToken)
     {
+        var userExists = await userLookupService.UserExists(userId, cancellationToken);
+        if (!userExists) {
+            return Results.NotFound(new { Message = "User not found" });
+        }
+
         var orgIds = await organisationsDbContext.UserOrganisations
                    .AsNoTracking()
                    .Include(x => x.Organisation)
-                   .Where(x => x.UserId == userId && x.RoleId == OrganisationRoles.Approver.Id)
+                   .Where(x => x.UserId == userId)
+                   .Where(x => x.RoleId == OrganisationRole.Approver.Value)
                    .Select(x => x.OrganisationId)
                    .ToListAsync(cancellationToken);
 
@@ -58,6 +66,6 @@ public class PendingApprovalCounterEndpoint : IEndpoint
 
         var pendingCount = pendingServiceNotificationCount + pendingOrganisationNotificationCount;
 
-        return new PendingApprovalCountResponse { Count = pendingCount };
+        return Results.Ok(new PendingApprovalCountResponse { Count = pendingCount });
     }
 }

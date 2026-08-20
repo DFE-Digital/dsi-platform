@@ -62,7 +62,7 @@ public sealed class CancelChangeEmailAddressEndpoint(
         try {
             await directoriesDbContext.UserCodes
                 .Where(uc => uc.Uid == userId)
-                .Where(uc => uc.CodeType == UserCodeType.ChangeEmail.ToDbValue())
+                .Where(uc => uc.CodeType == UserCodeType.ChangeEmail.Value)
                 .ExecuteDeleteAsync(cancellationToken);
         }
         catch (Exception ex) {

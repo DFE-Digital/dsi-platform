@@ -108,7 +108,7 @@ public sealed class ClaimsPrincipalExtensionsTests
         var principal = new ClaimsPrincipal([
                    new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd"),
-                new(OrganisationRoles.Approver.Name, string.Empty),
+                new(OrganisationRole.Approver.Name, string.Empty),
             ])
                ]);
         // Act

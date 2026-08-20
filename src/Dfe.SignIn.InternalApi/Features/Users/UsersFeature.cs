@@ -35,6 +35,7 @@ public static class UsersFeature
         GetUserProfileEndpoint.Map(app);
         InitiateChangeEmailAddressEndpoint.Map(app);
         ConfirmChangeEmailAddressEndpoint.Map(app);
+        GetPendingChangeEmailEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
         ChangeJobTitleEndpoint.Map(app);

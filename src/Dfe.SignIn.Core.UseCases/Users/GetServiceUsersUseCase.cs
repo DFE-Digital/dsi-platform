@@ -129,7 +129,7 @@ public sealed class GetServiceUsersUseCase(DbOrganisationsContext organisationsD
             .Select(x => (short?)x.RoleId)
             .FirstOrDefault();
 
-        var userOrgRole = orgRoleId != null ? OrganisationRoles.FromId(orgRoleId.Value) : null;
+        var userOrgRole = orgRoleId != null ? OrganisationRole.FromValue(orgRoleId.Value) : null;
 
         var userRoles = rolesLookup[(entity.UserId, entity.OrganisationId ?? Guid.Empty)].ToList();
 
@@ -142,7 +142,7 @@ public sealed class GetServiceUsersUseCase(DbOrganisationsContext organisationsD
             ApprovedAt = user?.CreatedAt.ToUtc(),
             UpdatedAt = user?.UpdatedAt.ToUtc(),
             RoleName = userOrgRole?.Name ?? string.Empty,
-            RoleId = userOrgRole?.Id,
+            RoleId = userOrgRole?.Value,
             Roles = userRoles,
             Organisation = MapOrganisationDto(org, entity.UserId, user)
         };

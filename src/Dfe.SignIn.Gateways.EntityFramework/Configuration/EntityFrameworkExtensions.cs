@@ -2,6 +2,7 @@
 using Dfe.SignIn.Base.Framework;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -124,11 +125,16 @@ public static class EntityFrameworkExtensions
         };
 
         services.AddDbContext<TDbContext>((sp, options) => {
-            var timestampInterceptor = sp.GetRequiredService<TimestampInterceptor>();
             options.UseSqlServer(connectionBuilder.ConnectionString, sqlOptions => {
                 sqlOptions.EnableRetryOnFailure();
             });
+
+            var timestampInterceptor = sp.GetRequiredService<TimestampInterceptor>();
             options.AddInterceptors(timestampInterceptor);
+
+            foreach (var commandInterceptor in sp.GetServices<DbCommandInterceptor>()) {
+                options.AddInterceptors(commandInterceptor);
+            }
         });
     }
 }
