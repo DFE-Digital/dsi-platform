@@ -16,13 +16,13 @@ public static class GetUserOrganisationServiceMapping
     /// </summary>
     /// <param name="models"></param>
     /// <returns></returns>
-    public static IEnumerable<GetUserOrganisationServicesResponse> ToUserDtos( this IEnumerable<GetUserOrganisationService> models )
+    public static IEnumerable<GetUserOrganisationServicesResponse> ToUserDtos(this IEnumerable<GetUserOrganisationService> models)
     {
-        var hasService = models.Any( x => x.IsInService == 1 );
+        var hasService = models.Any(x => x.IsInService == 1);
 
         return models
-            .GroupBy( x => x.UserId )
-            .Select( userGroup => {
+            .GroupBy(x => x.UserId)
+            .Select(userGroup => {
                 var u = userGroup.First();
 
                 return new GetUserOrganisationServicesResponse {
@@ -35,7 +35,7 @@ public static class GetUserOrganisationServiceMapping
                         ? userGroup.ToOrganisationDtos()
                         : []
                 };
-            } );
+            });
     }
 
     /// <summary>
@@ -44,12 +44,12 @@ public static class GetUserOrganisationServiceMapping
     /// <param name="userGroup"></param>
     /// <returns></returns>
     public static IEnumerable<OrganisationDto> ToOrganisationDtos(
-    this IGrouping<Guid, GetUserOrganisationService> userGroup )
+    this IGrouping<Guid, GetUserOrganisationService> userGroup)
     {
         return userGroup
-            .Where( x => x.OrganisationId.HasValue )
-            .GroupBy( x => x.OrganisationId!.Value )
-            .Select( static orgGroup => {
+            .Where(x => x.OrganisationId.HasValue)
+            .GroupBy(x => x.OrganisationId!.Value)
+            .Select(static orgGroup => {
                 var o = orgGroup.First();
 
                 return new OrganisationDto {
@@ -58,7 +58,7 @@ public static class GetUserOrganisationServiceMapping
 
                     Category = new CategoryDto {
                         Id = o.CategoryId,
-                        Name = EnumHelpers.MapEnum<OrganisationCategory>( o.CategoryId ).GetDescription()
+                        Name = EnumHelpers.MapEnum<OrganisationCategory>(o.CategoryId).GetDescription()
                     },
 
                     Urn = o.Urn,
@@ -69,7 +69,7 @@ public static class GetUserOrganisationServiceMapping
                     Status = o.StatusId.HasValue
                         ? new StatusDto {
                             Id = o.StatusId.Value,
-                            Name = EnumHelpers.MapEnum<OrganisationStatus>( o.StatusId ).GetDescription()
+                            Name = EnumHelpers.MapEnum<OrganisationStatus>(o.StatusId).GetDescription()
                         }
                         : new StatusDto(),
 
@@ -94,9 +94,9 @@ public static class GetUserOrganisationServiceMapping
                     Services = orgGroup.ToServiceDtos(),
 
                     OrgRoleId = o.OrgRoleId ?? 0,
-                    OrgRoleName = o.OrgRoleId.HasValue ? OrganisationRole.FromValue( o.OrgRoleId.Value )?.Name : null
+                    OrgRoleName = o.OrgRoleId.HasValue ? OrganisationRole.FromValue(o.OrgRoleId.Value)?.Name : null
                 };
-            } );
+            });
 
     }
 
@@ -106,12 +106,12 @@ public static class GetUserOrganisationServiceMapping
     /// <param name="orgGroup"></param>
     /// <returns></returns>
     public static IEnumerable<ServiceDto> ToServiceDtos(
-    this IGrouping<Guid, GetUserOrganisationService> orgGroup )
+    this IGrouping<Guid, GetUserOrganisationService> orgGroup)
     {
         return orgGroup
-            .GroupBy( x => x.ServiceName ?? string.Empty )
-            .OrderBy( x => x.Key )
-            .Select( serviceGroup => {
+            .GroupBy(x => x.ServiceName ?? string.Empty)
+            .OrderBy(x => x.Key)
+            .Select(serviceGroup => {
                 GetUserOrganisationService s = serviceGroup.First();
 
                 return new ServiceDto {
@@ -120,7 +120,7 @@ public static class GetUserOrganisationServiceMapping
                     Roles = serviceGroup.ToRoleDtos()
                 };
 
-            } );
+            });
     }
 
     /// <summary>
@@ -129,15 +129,15 @@ public static class GetUserOrganisationServiceMapping
     /// <param name="serviceGroup"></param>
     /// <returns></returns>
     public static IEnumerable<RoleDto> ToRoleDtos(
-        this IGrouping<string, GetUserOrganisationService> serviceGroup )
+        this IGrouping<string, GetUserOrganisationService> serviceGroup)
     {
         return serviceGroup
-            .Where( r => r.RoleName != null )
-            .Select( r => new RoleDto {
+            .Where(r => r.RoleName != null)
+            .Select(r => new RoleDto {
                 Name = r.RoleName,
                 Code = r.RoleCode
-            } )
-            .DistinctBy( r => new { r.Name, r.Code } );
+            })
+            .DistinctBy(r => new { r.Name, r.Code });
     }
 }
 

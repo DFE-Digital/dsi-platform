@@ -18,13 +18,13 @@ public class IsApproverEndpoint : IEndpoint
     /// Endpoint mapping method holding configuration.
     /// </summary>
     /// <param name="app">The endpoint route builder to map the endpoint to</param>
-    public static void Map( IEndpointRouteBuilder app )
+    public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet( UsersApiRoutes.IsApprover, Handler )
-            .WithName( "Is Approver" )
-            .WithTags( "Users" )
-            .Produces( StatusCodes.Status200OK )
-            .Produces( StatusCodes.Status400BadRequest )
+        app.MapGet(UsersApiRoutes.IsApprover, Handler)
+            .WithName("Is Approver")
+            .WithTags("Users")
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
             .RequireAuthorization()
             .WithOpenApi();
     }
@@ -43,17 +43,17 @@ public class IsApproverEndpoint : IEndpoint
         DbOrganisationsContext organisationsDbContext,
         ClaimsPrincipal principal,
         ILogger<ChangeNameEndpoint> logger,
-        CancellationToken cancellationToken )
+        CancellationToken cancellationToken)
     {
-        logger.LogInformation( "Checking if user {userId} is an approver ", userId );
+        logger.LogInformation("Checking if user {userId} is an approver ", userId);
 
         var isApprover = await organisationsDbContext.UserOrganisations
             .AsNoTracking()
-            .Where( x => x.UserId == userId )
-            .AnyAsync( x => x.RoleId == OrganisationRole.Approver.Value, cancellationToken );
+            .Where(x => x.UserId == userId)
+            .AnyAsync(x => x.RoleId == OrganisationRole.Approver.Value, cancellationToken);
 
-        logger.LogInformation( "User {userId} is approver status: {isApprover}", userId, isApprover );
+        logger.LogInformation("User {userId} is approver status: {isApprover}", userId, isApprover);
 
-        return new IsOrganisationApproverResponse( isApprover );
+        return new IsOrganisationApproverResponse(isApprover);
     }
 }

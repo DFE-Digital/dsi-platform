@@ -24,20 +24,17 @@ public sealed class HomeControllerTests
     {
         var usersApiClientMock = autoMocker.GetMock<IUsersApiClient>();
 
-        if (getPendingException is not null)
-        {
+        if (getPendingException is not null) {
             usersApiClientMock
                 .Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(getPendingException);
         }
-        else if (pendingResponse is not null)
-        {
+        else if (pendingResponse is not null) {
             usersApiClientMock
                 .Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(pendingResponse);
         }
-        else
-        {
+        else {
             // No pending change = 404 from API
             var notFoundException = ApiException.Create(
                 new HttpRequestMessage(),

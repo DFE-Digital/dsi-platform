@@ -14,7 +14,7 @@ public class GetUserOrganisationServiceMappingTests
         string? serviceName,
         string? roleName,
         string? roleCode,
-        int inService = 1 )
+        int inService = 1)
     {
         return new GetUserOrganisationService {
             UserId = userId,
@@ -53,12 +53,12 @@ public class GetUserOrganisationServiceMappingTests
 
         var result = models.ToUserDtos().Single();
 
-        Assert.IsEmpty( result.Organisations );
-        Assert.AreEqual( userId, result.UserId );
-        Assert.AreEqual( "test@test.com", result.Email );
-        Assert.AreEqual( "Doe", result.FamilyName );
-        Assert.AreEqual( "John", result.GivenName );
-        Assert.AreEqual( 1, result.UserStatus );
+        Assert.IsEmpty(result.Organisations);
+        Assert.AreEqual(userId, result.UserId);
+        Assert.AreEqual("test@test.com", result.Email);
+        Assert.AreEqual("Doe", result.FamilyName);
+        Assert.AreEqual("John", result.GivenName);
+        Assert.AreEqual(1, result.UserStatus);
     }
 
     [TestMethod]
@@ -74,8 +74,8 @@ public class GetUserOrganisationServiceMappingTests
 
         var result = models.ToUserDtos().ToList();
 
-        Assert.HasCount( 1, result );
-        Assert.AreEqual( userId, result[0].UserId );
+        Assert.HasCount(1, result);
+        Assert.AreEqual(userId, result[0].UserId);
     }
 
     [TestMethod]
@@ -83,14 +83,14 @@ public class GetUserOrganisationServiceMappingTests
     {
         var userId = Guid.NewGuid();
 
-        var model = CreateUserOrganisationServiceModel( userId, Guid.NewGuid(), "ServiceA", "Role1", "R1" );
+        var model = CreateUserOrganisationServiceModel(userId, Guid.NewGuid(), "ServiceA", "Role1", "R1");
 
         var result = new[] { model }.ToUserDtos().Single();
 
-        Assert.AreEqual( model.Email, result.Email );
-        Assert.AreEqual( model.FamilyName, result.FamilyName );
-        Assert.AreEqual( model.GivenName, result.GivenName );
-        Assert.AreEqual( model.UserStatus, result.UserStatus );
+        Assert.AreEqual(model.Email, result.Email);
+        Assert.AreEqual(model.FamilyName, result.FamilyName);
+        Assert.AreEqual(model.GivenName, result.GivenName);
+        Assert.AreEqual(model.UserStatus, result.UserStatus);
     }
 
     [TestMethod]
@@ -107,7 +107,7 @@ public class GetUserOrganisationServiceMappingTests
 
         var result = models.ToUserDtos().Single();
 
-        Assert.AreEqual( 1, result.Organisations.Count() );
+        Assert.AreEqual(1, result.Organisations.Count());
     }
 
     [TestMethod]
@@ -116,7 +116,7 @@ public class GetUserOrganisationServiceMappingTests
         var userId = Guid.NewGuid();
         var orgId = Guid.NewGuid();
 
-        var model = CreateUserOrganisationServiceModel( userId, orgId, "ServiceA", "Role1", "R1" );
+        var model = CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1");
 
         var org = new[] { model }
             .ToUserDtos()
@@ -124,10 +124,10 @@ public class GetUserOrganisationServiceMappingTests
             .Organisations
             .Single();
 
-        Assert.AreEqual( model.OrganisationId, org.Id );
-        Assert.AreEqual( model.OrganisationName, org.Name );
-        Assert.AreEqual( model.CategoryId, org.Category?.Id );
-        Assert.AreEqual( model.StatusId, org.Status?.Id );
+        Assert.AreEqual(model.OrganisationId, org.Id);
+        Assert.AreEqual(model.OrganisationName, org.Name);
+        Assert.AreEqual(model.CategoryId, org.Category?.Id);
+        Assert.AreEqual(model.StatusId, org.Status?.Id);
     }
 
     [TestMethod]
@@ -149,7 +149,7 @@ public class GetUserOrganisationServiceMappingTests
             .Single()
             .Services;
 
-        Assert.AreEqual( 1, services.Count() );
+        Assert.AreEqual(1, services.Count());
     }
 
     [TestMethod]
@@ -172,8 +172,8 @@ public class GetUserOrganisationServiceMappingTests
             .Services
             .ToList();
 
-        Assert.AreEqual( "AService", services[0].Name );
-        Assert.AreEqual( "BService", services[1].Name );
+        Assert.AreEqual("AService", services[0].Name);
+        Assert.AreEqual("BService", services[1].Name);
     }
 
     [TestMethod]
@@ -197,7 +197,7 @@ public class GetUserOrganisationServiceMappingTests
             .Single()
             .Roles;
 
-        Assert.AreEqual( 1, roles.Count() );
+        Assert.AreEqual(1, roles.Count());
     }
 
     [TestMethod]
@@ -222,8 +222,8 @@ public class GetUserOrganisationServiceMappingTests
             .Roles
             .ToList();
 
-        Assert.HasCount( 1, roles );
-        Assert.AreEqual( "Role1", roles[0].Name );
+        Assert.HasCount(1, roles);
+        Assert.AreEqual("Role1", roles[0].Name);
     }
 
     [TestMethod]
@@ -232,7 +232,7 @@ public class GetUserOrganisationServiceMappingTests
         var userId = Guid.NewGuid();
         var orgId = Guid.NewGuid();
 
-        var model = CreateUserOrganisationServiceModel( userId, orgId, "ServiceA", "Role1", "R1" );
+        var model = CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1");
         model.LegacyId = 12345;
 
         var org = new[] { model }
@@ -241,7 +241,7 @@ public class GetUserOrganisationServiceMappingTests
             .Organisations
             .Single();
 
-        Assert.AreEqual( "12345", org.LegacyId );
+        Assert.AreEqual("12345", org.LegacyId);
     }
 
     [TestMethod]
@@ -250,7 +250,7 @@ public class GetUserOrganisationServiceMappingTests
         var userId = Guid.NewGuid();
         var orgId = Guid.NewGuid();
 
-        var model = CreateUserOrganisationServiceModel( userId, orgId, "ServiceA", "Role1", "R1" );
+        var model = CreateUserOrganisationServiceModel(userId, orgId, "ServiceA", "Role1", "R1");
 
         var org = new[] { model }
             .ToUserDtos()
@@ -258,6 +258,6 @@ public class GetUserOrganisationServiceMappingTests
             .Organisations
             .Single();
 
-        Assert.AreEqual( org.OrgRoleName, OrganisationRole.Approver.Name );
+        Assert.AreEqual(org.OrgRoleName, OrganisationRole.Approver.Name);
     }
 }

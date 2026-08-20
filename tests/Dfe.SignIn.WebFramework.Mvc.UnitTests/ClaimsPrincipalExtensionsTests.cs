@@ -11,22 +11,22 @@ public sealed class ClaimsPrincipalExtensionsTests
     [TestMethod]
     public void TryGetUserId_Throws_WhenPrincipalArgumentIsNull()
     {
-        Assert.ThrowsExactly<ArgumentNullException>( ()
-            => ClaimsPrincipalExtensions.TryGetUserId( null!, out _ ) );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ClaimsPrincipalExtensions.TryGetUserId(null!, out _));
     }
 
     [TestMethod]
     public void TryGetUserId_ReturnsTrue_WhenClaimIsPresent()
     {
-        var principal = new ClaimsPrincipal( [
+        var principal = new ClaimsPrincipal([
             new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd")
             ])
-        ] );
+        ]);
 
-        bool result = ClaimsPrincipalExtensions.TryGetUserId( principal, out var userId );
-        Assert.IsTrue( result );
-        Assert.AreEqual( Guid.Parse( "286101e9-a2dd-4894-bb3b-aefa8ea60ecd" ), userId );
+        bool result = ClaimsPrincipalExtensions.TryGetUserId(principal, out var userId);
+        Assert.IsTrue(result);
+        Assert.AreEqual(Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd"), userId);
     }
 
     [TestMethod]
@@ -34,8 +34,8 @@ public sealed class ClaimsPrincipalExtensionsTests
     {
         var principal = new ClaimsPrincipal();
 
-        bool result = ClaimsPrincipalExtensions.TryGetUserId( principal, out var userId );
-        Assert.IsFalse( result );
+        bool result = ClaimsPrincipalExtensions.TryGetUserId(principal, out var userId);
+        Assert.IsFalse(result);
     }
 
     #endregion
@@ -45,8 +45,8 @@ public sealed class ClaimsPrincipalExtensionsTests
     [TestMethod]
     public void GetUserId_Throws_WhenPrincipalArgumentIsNull()
     {
-        Assert.ThrowsExactly<ArgumentNullException>( ()
-            => ClaimsPrincipalExtensions.GetUserId( null! ) );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ClaimsPrincipalExtensions.GetUserId(null!));
     }
 
     [TestMethod]
@@ -54,23 +54,23 @@ public sealed class ClaimsPrincipalExtensionsTests
     {
         var principal = new ClaimsPrincipal();
 
-        var exception = Assert.ThrowsExactly<InvalidOperationException>( ()
-            => ClaimsPrincipalExtensions.GetUserId( principal ) );
-        Assert.AreEqual( "Missing user ID.", exception.Message );
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(()
+            => ClaimsPrincipalExtensions.GetUserId(principal));
+        Assert.AreEqual("Missing user ID.", exception.Message);
     }
 
     [TestMethod]
     public void GetUserId_ReturnsUserId()
     {
-        var principal = new ClaimsPrincipal( [
+        var principal = new ClaimsPrincipal([
             new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd")
             ])
-        ] );
+        ]);
 
-        var userId = ClaimsPrincipalExtensions.GetUserId( principal );
+        var userId = ClaimsPrincipalExtensions.GetUserId(principal);
 
-        Assert.AreEqual( Guid.Parse( "286101e9-a2dd-4894-bb3b-aefa8ea60ecd" ), userId );
+        Assert.AreEqual(Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd"), userId);
     }
 
     #endregion
@@ -81,41 +81,41 @@ public sealed class ClaimsPrincipalExtensionsTests
     public void HasApproverClaim_Throws_WhenPrincipalArgumentIsNull()
     {
         // Act
-        Assert.ThrowsExactly<ArgumentNullException>( ()
-            => ClaimsPrincipalExtensions.HasApproverClaim( null! ) );
+        Assert.ThrowsExactly<ArgumentNullException>(()
+            => ClaimsPrincipalExtensions.HasApproverClaim(null!));
     }
 
     [TestMethod]
     public void HasApproverClaim_Returns_FalseWhenClaimIsMissing()
     {
         // Arrange
-        var principal = new ClaimsPrincipal( [
+        var principal = new ClaimsPrincipal([
                    new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd")
             ])
-               ] );
+               ]);
         // Act
-        var result = ClaimsPrincipalExtensions.HasApproverClaim( principal );
+        var result = ClaimsPrincipalExtensions.HasApproverClaim(principal);
 
         // Assert
-        Assert.IsFalse( result );
+        Assert.IsFalse(result);
     }
 
     [TestMethod]
     public void HasApproverClaim_Returns_TrueWhenClaimIsPresent()
     {
         // Arrange
-        var principal = new ClaimsPrincipal( [
+        var principal = new ClaimsPrincipal([
                    new ClaimsIdentity((IEnumerable<Claim>?)[
                 new(ClaimTypes.NameIdentifier, "286101e9-a2dd-4894-bb3b-aefa8ea60ecd"),
                 new(OrganisationRole.Approver.Name, string.Empty),
             ])
-               ] );
+               ]);
         // Act
-        var result = ClaimsPrincipalExtensions.HasApproverClaim( principal );
+        var result = ClaimsPrincipalExtensions.HasApproverClaim(principal);
 
         // Assert
-        Assert.IsTrue( result );
+        Assert.IsTrue(result);
     }
     #endregion
 }
