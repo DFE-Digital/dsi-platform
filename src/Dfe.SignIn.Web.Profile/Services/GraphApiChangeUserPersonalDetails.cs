@@ -45,7 +45,7 @@ public sealed class GraphApiChangeUserPersonalDetails(
             await graphClient.Me.PatchAsync(new User {
                 GivenName = firstName,
                 Surname = lastName
-            });
+            }, cancellationToken: cancellationToken);
         }
         catch (ODataError ex) {
             logger.LogError(ex, "Failed to patch user userId: {UserId}", userId);
