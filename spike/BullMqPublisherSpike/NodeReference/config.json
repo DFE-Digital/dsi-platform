@@ -1,6 +1,6 @@
 {
   "redis": {
-    "connectionString": "redis://localhost:57432"
+    "connectionString": "redis://localhost:57464"
   },
   "queue": {
     "name": "approveraccessrequest_v1"
