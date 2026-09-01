@@ -5,6 +5,10 @@ updates:
     directory: /
     target-branch: develop
 
+    exclude-paths:
+      - "src/Dfe.SignIn.AppHost/**"
+      - "tests/**"
+      
     schedule:
       interval: weekly
       day: monday
