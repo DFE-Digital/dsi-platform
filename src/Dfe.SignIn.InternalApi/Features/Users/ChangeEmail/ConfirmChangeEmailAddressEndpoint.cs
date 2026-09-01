@@ -2,10 +2,11 @@ using System.Globalization;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Interfaces.ExternalAuth;
-using Dfe.SignIn.Core.Interfaces.Notifications;
+using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
@@ -48,7 +49,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
         IAuditWriter auditWriter,
         IUserCodeService userCodeService,
         IExternalAuthService externalAuthService,
-        IUserUpdatedPublisher userUpdatedPublisher,
+        IEventPublisher eventPublisher,
         ILogger<ConfirmChangeEmailAddressEndpoint> logger,
         CancellationToken cancellationToken)
     {
@@ -146,7 +147,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
         }
 
         // Audit, Publish Notification and Cleanup on Success
-        await PublishNotification(auditWriter, userUpdatedPublisher, userCodeService, logger, userId, newEmail, user, cancellationToken);
+        await PublishNotification(auditWriter, userCodeService, logger, eventPublisher, userId, newEmail, user, cancellationToken);
 
         logger.LogInformation("Successfully confirmed email change to {NewEmail} for user {UserId}", newEmail, userId);
         return Results.Ok();
@@ -194,9 +195,9 @@ public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
 
     private static async Task PublishNotification(
         IAuditWriter auditWriter,
-        IUserUpdatedPublisher userUpdatedPublisher,
         IUserCodeService userCodeService,
         ILogger logger,
+        IEventPublisher eventPublisher,
         Guid userId,
         string newEmail,
         UserEntity user,
@@ -215,8 +216,14 @@ public sealed class ConfirmChangeEmailAddressEndpoint : IEndpoint
                 ]
             });
 
-            // Publish downstream notification event (legacy userupdated_v1)
-            await userUpdatedPublisher.PublishUserUpdatedAsync(userId, newEmail, user.FirstName, user.LastName, user.Status, cancellationToken);
+            // Publish downstream notification event (new userupdated_v1)
+            await eventPublisher.PublishAsync(new UserUpdatedEvent {
+                UserId = userId,
+                Email = newEmail,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Status = user.Status
+            }, cancellationToken);
 
             // Clean up verification code
             await userCodeService.DeleteExistingCodesAsync(userId, cancellationToken);

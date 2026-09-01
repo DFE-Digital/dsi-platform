@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using Dfe.SignIn.Core.Contracts.Notifications;
+using Dfe.SignIn.Core.Interfaces.Notifications;
 
 namespace Dfe.SignIn.TestHelpers.Integration.Mocks;
 

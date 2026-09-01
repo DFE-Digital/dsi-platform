@@ -103,6 +103,7 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("InternalApiClient__UseProxy", "false")
     .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("GeneralRedisCache__DatabaseNumber,", generalRedisConfig["DatabaseNumber"])
+    .WithEnvironment("BullMQ__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
     .WithEnvironment("ServiceBus__AuditTopic__TopicName", "audit")
     .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", "audit-sub");

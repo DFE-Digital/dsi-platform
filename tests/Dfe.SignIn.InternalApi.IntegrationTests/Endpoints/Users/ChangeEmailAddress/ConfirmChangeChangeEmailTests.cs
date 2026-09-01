@@ -31,7 +31,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .CreateClient()
             .WithAuthentication();
 
-        this.FakeUserUpdatedPublisher.Clear();
+        this.FakeEventPublisher.Clear();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -74,12 +74,12 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.NotNull(editedFields.Value);
 
         // Assert user updated publisher published event
-        var (UserId, EmailAddress, FirstName, LastName, Status) = Assert.Single(this.FakeUserUpdatedPublisher.PublishedEvents);
-        Assert.Equal(user.Sub, UserId);
-        Assert.Equal("john.doe@new.example.com", EmailAddress);
-        Assert.Equal(user.FirstName, FirstName);
-        Assert.Equal(user.LastName, LastName);
-        Assert.Equal(user.Status, Status);
+        var pubishedEvent = (UserUpdatedEvent)Assert.Single(this.FakeEventPublisher.PublishedEvents);
+        Assert.Equal(user.Sub, pubishedEvent.UserId);
+        Assert.Equal("john.doe@new.example.com", pubishedEvent.Email);
+        Assert.Equal(user.FirstName, pubishedEvent.FirstName);
+        Assert.Equal(user.LastName, pubishedEvent.LastName);
+        Assert.Equal(user.Status, pubishedEvent.Status);
     }
 
     [Fact]

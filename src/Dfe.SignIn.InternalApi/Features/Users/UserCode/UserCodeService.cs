@@ -1,7 +1,7 @@
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
-using Dfe.SignIn.Core.Contracts.Notifications;
 using Dfe.SignIn.Core.Entities.Directories;
+using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 

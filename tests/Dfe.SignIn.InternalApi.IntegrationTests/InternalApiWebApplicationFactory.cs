@@ -1,7 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Notifications;
 using Dfe.SignIn.Core.Interfaces.ExternalAuth;
+using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
@@ -28,7 +28,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
     public FakeInteractionLimiter FakeLimiter { get; } = new();
     public FakeEmailRequestTracker FakeEmailTracker { get; } = new();
     public FakeExternalAuthService FakeExternalAuth { get; } = new();
-    public FakeUserUpdatedPublisher FakeUserUpdatedPublisher { get; } = new();
+    public FakeEventPublisher FakeEventPublisher { get; } = new();
     public CapturingWriteToAuditInteractor AuditCapturer { get; } = new();
     internal FakeTimestampInterceptor TimestampInterceptor { get; } = new();
     internal FailingDbCommandInterceptor FailingDbCommandInterceptor { get; } = new();
@@ -64,8 +64,8 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             services.AddSingleton<IExternalAuthService>(this.FakeExternalAuth);
 
             // User updated publisher
-            services.RemoveAll<IUserUpdatedPublisher>();
-            services.AddSingleton<IUserUpdatedPublisher>(this.FakeUserUpdatedPublisher);
+            services.RemoveAll<IEventPublisher>();
+            services.AddSingleton<IEventPublisher>(this.FakeEventPublisher);
 
             // Timestamp interceptor
             services.RemoveAll<TimestampInterceptor>();
@@ -85,7 +85,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         this.FakeLimiter.ResetAll();
         this.FakeEmailTracker.Clear();
         this.FakeExternalAuth.OnChangeEmail = null;
-        this.FakeUserUpdatedPublisher.Clear();
+        this.FakeEventPublisher.Clear();
         this.AuditCapturer.Clear();
         this.TimestampInterceptor.Reset();
         this.FailingDbCommandInterceptor.Reset();

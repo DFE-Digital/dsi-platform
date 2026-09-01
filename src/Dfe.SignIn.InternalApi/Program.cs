@@ -93,6 +93,7 @@ if (builder.Environment.IsEnvironment("Local")) {
 }
 
 builder.Services.AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
+builder.Services.AddMessagingServices();
 
 builder.Services
     .AddGovNotify(builder.Configuration)
