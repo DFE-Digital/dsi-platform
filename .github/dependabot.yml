@@ -14,17 +14,3 @@ updates:
     labels:
       - dependencies
       - dotnet
-
-    groups:
-      minor-and-patch:
-        update-types:
-          - "minor"
-          - "patch"
-        patterns:
-          - "*"
-
-      major-updates:
-        update-types:
-          - "major"
-        patterns:
-          - "*"
