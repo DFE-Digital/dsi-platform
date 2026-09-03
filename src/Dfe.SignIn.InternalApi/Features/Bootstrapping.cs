@@ -13,9 +13,10 @@ public static class Bootstrapping
     /// Maps the feature endpoints for the application, including user-related endpoints.
     /// </summary>
     /// <param name="app">The application builder.</param>
-    public static void MapFeaturesEndpoints(this WebApplication app)
+    public static WebApplication MapFeaturesEndpoints(this WebApplication app)
     {
         app.MapUsersEndpoints();
+        return app;
     }
 
     /// <summary>

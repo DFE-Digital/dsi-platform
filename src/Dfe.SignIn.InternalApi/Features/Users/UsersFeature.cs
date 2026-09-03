@@ -9,6 +9,7 @@ using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
+using Dfe.SignIn.InternalApi.Features.Users.ChangePassword;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
@@ -23,13 +24,14 @@ namespace Dfe.SignIn.InternalApi.Features.Users;
 public static class UsersFeature
 {
     private static readonly EndpointRegistry NewEndpointRegistry = new EndpointRegistry()
-        .Add<CancelChangeEmailAddressEndpoint>();
+        .Add<CancelChangeEmailAddressEndpoint>()
+        .Add<ChangePasswordEndpoint>();
 
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.
     /// </summary>
     /// <param name="app">The endpoint route builder to map the endpoints to.</param>
-    public static void MapUsersEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
@@ -42,6 +44,8 @@ public static class UsersFeature
 
         // New class-based endpoint mapped via registry
         NewEndpointRegistry.MapRoutes(app);
+
+        return app;
     }
 
     /// <summary>
