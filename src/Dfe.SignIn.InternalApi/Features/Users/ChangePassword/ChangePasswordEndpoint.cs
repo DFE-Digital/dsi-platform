@@ -28,10 +28,11 @@ public sealed class ChangePasswordEndpoint(
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost(UsersApiRoutes.ChangePassword, async (
+            [FromRoute] Guid userId,
             [FromBody] ChangePasswordRequest request,
             [FromServices] ChangePasswordEndpoint endpoint,
             CancellationToken cancellationToken) =>
-            await endpoint.HandleAsync(request, cancellationToken))
+            await endpoint.HandleAsync(request with { UserId = userId }, cancellationToken))
             .WithName("Change Password")
             .WithTags("Users")
             .WithStandardResponses<ChangePasswordRequest>();
@@ -62,7 +63,7 @@ public sealed class ChangePasswordEndpoint(
 
         if (await this.IsAttemptingToReusePasswordAsync(user, request.NewPassword, cancellationToken)) {
             return Results.ValidationProblem(new Dictionary<string, string[]> {
-                [nameof(request.NewPassword)] = ["Cannot reuse a recent password"],
+                [nameof(request.NewPassword)] = ["Your new password cannot be one you have used recently"],
             });
         }
 

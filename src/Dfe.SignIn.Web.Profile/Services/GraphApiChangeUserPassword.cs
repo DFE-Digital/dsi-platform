@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Azure.Core;
+using Dfe.SignIn.Core.Contracts.Graph;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Interfaces.Graph;
@@ -15,33 +16,20 @@ public sealed partial class GraphApiChangeUserPassword(
 ) : IGraphApiChangeUserPassword
 {
     /// <inheritdoc/>
-    public async Task ChangePassword(InteractionContext<SelfChangePasswordRequest> context)
+    public async Task ChangePassword(string currentPassword, string newPassword, GraphAccessToken graphAccessToken, CancellationToken cancellationToken = default)
     {
-        ExceptionHelpers.ThrowIfArgumentNull(context, nameof(context));
-
-        var request = context.Request;
-
-        if (request.GraphAccessToken is null) {
-            throw new InvalidOperationException("Missing user access token.");
-        }
-        if (request.ConfirmNewPassword != request.NewPassword) {
-            // Belts and braces validation since this aspect of the request should
-            // have already been validated by the time this method has been called.
-            throw new InvalidOperationException("Confirmed password does not match new password.");
-        }
-
         var accessToken = new AccessToken(
-            request.GraphAccessToken.Token,
-            request.GraphAccessToken.ExpiresOn
+            graphAccessToken.Token,
+            graphAccessToken.ExpiresOn
         );
 
         var graphClient = graphClientFactory.GetClient(accessToken);
 
         try {
             await graphClient.Me.ChangePassword.PostAsync(new() {
-                CurrentPassword = request.CurrentPassword,
-                NewPassword = request.NewPassword,
-            });
+                CurrentPassword = currentPassword,
+                NewPassword = newPassword,
+            }, cancellationToken: cancellationToken);
         }
         catch (ODataError error) {
             var match = GraphErrorMessagePattern().Match(error.Message);
@@ -49,15 +37,15 @@ public sealed partial class GraphApiChangeUserPassword(
                 string paramName = match.Groups[3].Value;
                 string message = match.Groups[1].Value;
                 if (paramName == "oldPassword") {
-                    context.AddValidationError(
-                        "Please enter your current password",
-                        nameof(request.CurrentPassword)
-                    );
+                    throw new FluentValidation.ValidationException(new[] { 
+                        new FluentValidation.Results.ValidationFailure("CurrentPasswordInput", "Please enter your current password") 
+                    });
                 }
                 else if (paramName == "newPassword") {
-                    context.AddValidationError(message, nameof(request.NewPassword));
+                    throw new FluentValidation.ValidationException(new[] { 
+                        new FluentValidation.Results.ValidationFailure("NewPasswordInput", message) 
+                    });
                 }
-                context.ThrowIfHasValidationErrors();
             }
             throw;
         }
