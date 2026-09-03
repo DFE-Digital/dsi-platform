@@ -63,6 +63,8 @@ public static class UsersFeature
 
         services.AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
 
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);
 
