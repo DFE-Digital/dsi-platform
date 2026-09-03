@@ -49,4 +49,9 @@ public static class UsersApiRoutes
     /// The API route for retrieving a pending change email request.
     /// </summary>
     public const string GetPendingChangeEmail = "/internal/users/{userId}/pending-change-email";
+
+    /// <summary>
+    /// The API route for changing a user's password.
+    /// </summary>
+    public const string ChangePassword = "/internal/users/{userId}/change-password";
 }
