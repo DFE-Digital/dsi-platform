@@ -123,25 +123,34 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
-        var policy = new UserPasswordPolicyEntity {
-            Id = Guid.NewGuid(),
-            Uid = user.Sub,
-            PolicyCode = "v4",
-            PasswordHistoryLimit = 3,
-            CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow,
-        };
+        var policy = EntityFaker.UserPasswordPolicy
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .Generate();
+
         await this.InsertEntityAsync<DbDirectoriesContext, UserPasswordPolicyEntity>(policy);
 
         // Seed 3 history records (oldest to newest)
-        var h1 = new PasswordHistoryEntity { Id = Guid.NewGuid(), Password = this.hasher.Hash("v4", "OldPassw0rd1!", "salt1"), Salt = "salt1", CreatedAt = DateTime.UtcNow.AddDays(-3), UpdatedAt = DateTime.UtcNow.AddDays(-3) };
-        var h2 = new PasswordHistoryEntity { Id = Guid.NewGuid(), Password = this.hasher.Hash("v4", "OldPassw0rd2!", "salt2"), Salt = "salt2", CreatedAt = DateTime.UtcNow.AddDays(-2), UpdatedAt = DateTime.UtcNow.AddDays(-2) };
-        var h3 = new PasswordHistoryEntity { Id = Guid.NewGuid(), Password = this.hasher.Hash("v4", "OldPassw0rd3!", "salt3"), Salt = "salt3", CreatedAt = DateTime.UtcNow.AddDays(-1), UpdatedAt = DateTime.UtcNow.AddDays(-1) };
+        var historyEntities = EntityFaker.PasswordHistory
+            .RuleFor(x => x.Id, (_, _) => Guid.NewGuid())
+            .RuleFor(x => x.CreatedAt, f => DateTime.UtcNow.AddDays(-(3 - f.IndexFaker)))
+            .RuleFor(x => x.UpdatedAt, f => DateTime.UtcNow.AddDays(-(3 - f.IndexFaker)))
+            .Generate(3);
+
+        var h1 = historyEntities[0];
+        var h2 = historyEntities[1];
+        var h3 = historyEntities[2];
         await this.InsertEntitiesAsync<DbDirectoriesContext, PasswordHistoryEntity>([h1, h2, h3]);
 
-        var uh1 = new UserPasswordHistoryEntity { PasswordHistoryId = h1.Id, UserSub = user.Sub, CreatedAt = h1.CreatedAt, UpdatedAt = h1.UpdatedAt };
-        var uh2 = new UserPasswordHistoryEntity { PasswordHistoryId = h2.Id, UserSub = user.Sub, CreatedAt = h2.CreatedAt, UpdatedAt = h2.UpdatedAt };
-        var uh3 = new UserPasswordHistoryEntity { PasswordHistoryId = h3.Id, UserSub = user.Sub, CreatedAt = h3.CreatedAt, UpdatedAt = h3.UpdatedAt };
+        var userHistories = EntityFaker.UserPasswordHistory
+            .RuleFor(x => x.UserSub, user.Sub)
+            .RuleFor(x => x.PasswordHistoryId, f => historyEntities[f.IndexFaker].Id)
+            .RuleFor(x => x.CreatedAt, f => historyEntities[f.IndexFaker].CreatedAt)
+            .RuleFor(x => x.UpdatedAt, f => historyEntities[f.IndexFaker].UpdatedAt)
+            .Generate(historyEntities.Count());
+
+        var uh1 = userHistories[0];
+        var uh2 = userHistories[1];
+        var uh3 = userHistories[2];
         await this.InsertEntitiesAsync<DbDirectoriesContext, UserPasswordHistoryEntity>([uh1, uh2, uh3]);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
@@ -180,22 +189,24 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var histSalt = this.hasher.GenerateSalt();
-        var histEntry = new PasswordHistoryEntity {
-            Id = Guid.NewGuid(),
-            Password = this.hasher.Hash("v2", historicalPassword, histSalt),
-            Salt = histSalt,
-            CreatedAt = DateTime.UtcNow.AddDays(-1),
-            UpdatedAt = DateTime.UtcNow.AddDays(-1),
-        };
-        await this.InsertEntityAsync<DbDirectoriesContext, PasswordHistoryEntity>(histEntry);
 
-        var userHist = new UserPasswordHistoryEntity {
-            PasswordHistoryId = histEntry.Id,
-            UserSub = user.Sub,
-            CreatedAt = histEntry.CreatedAt,
-            UpdatedAt = histEntry.UpdatedAt,
-        };
-        await this.InsertEntityAsync<DbDirectoriesContext, UserPasswordHistoryEntity>(userHist);
+        var historyEntity = EntityFaker.PasswordHistory
+            .RuleFor(x => x.Password, (_, _) => this.hasher.Hash("v2", historicalPassword, histSalt))
+            .RuleFor(x => x.Salt, (_, _) => histSalt)
+            .RuleFor(x => x.CreatedAt, f => DateTime.UtcNow.AddDays(-1))
+            .RuleFor(x => x.UpdatedAt, f => DateTime.UtcNow.AddDays(-1))
+            .Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, PasswordHistoryEntity>(historyEntity);
+
+        var userHistory = EntityFaker.UserPasswordHistory
+            .RuleFor(x => x.UserSub, (_, _) => user.Sub)
+            .RuleFor(x => x.PasswordHistoryId, (_, _) => historyEntity.Id)
+            .RuleFor(x => x.CreatedAt, f => historyEntity.CreatedAt)
+            .RuleFor(x => x.UpdatedAt, f => historyEntity.UpdatedAt)
+            .Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserPasswordHistoryEntity>(userHistory);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
             UserId = user.Sub,
