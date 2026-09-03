@@ -16,14 +16,19 @@ public interface IPasswordHasher
     string HashWithLatestPolicy(string rawPassword, string salt);
 
     /// <summary>
-    /// Resolves the effective policy code for a user from their linked policies.#
+    /// Resolves the effective policy code for a user from their linked policies.
     /// </summary>
-    string ResolveUserPolicyCode(IEnumerable<string> userPolicyCodes);
+    string ResolveUserPolicyCode(IEnumerable<string>? userPolicyCodes);
 
     /// <summary>
     /// Generates a new random salt using the DfE Sign-in salt charset.
     /// </summary>
     string GenerateSalt();
+
+    /// <summary>
+    /// Checks whether the supplied password matches any previously used password in the user's password history.
+    /// </summary>
+    bool IsAttemptingToReusePassword(string policyCode, string newPassword, IEnumerable<(string PasswordHash, string Salt)> passwordHistory);
 
     /// <summary>
     /// Gets the latest password hashing policy code.

@@ -1,12 +1,17 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.ChangePassword;
 
 /// <summary>
 /// Provides functionality for hashing passwords and managing password hashing policies.
 /// </summary>
-public sealed class PasswordHasher : IPasswordHasher
+/// <remarks>
+/// This class is declared as <c>partial</c> to enable the C# compile-time source generator
+/// for regular expressions (<see cref="GeneratedRegexAttribute"/>).
+/// </remarks>
+public sealed partial class PasswordHasher : IPasswordHasher
 {
     private const string SaltCharset = "ABCDEFGHJKMNPQRSTWXYZabcdefghjkmnpqrstwxyz23456789-.><!@%&*+_";
     private const string LegacyPolicyCode = "v2";
@@ -45,16 +50,21 @@ public sealed class PasswordHasher : IPasswordHasher
     }
 
     /// <inheritdoc/>
-    public string ResolveUserPolicyCode(IEnumerable<string> userPolicyCodes)
+    public string ResolveUserPolicyCode(IEnumerable<string>? userPolicyCodes)
     {
+        if (userPolicyCodes == null) {
+            return LegacyPolicyCode;
+        }
+
         var versions = userPolicyCodes
-            .Where(code => System.Text.RegularExpressions.Regex.IsMatch(code, "^v[1-9][0-9]*$"))
+            .Where(code => !string.IsNullOrEmpty(code) && PolicyVersionRegex().IsMatch(code))
             .Select(code => int.Parse(code[1..]))
             .ToList();
 
         if (versions.Count == 0) {
             return LegacyPolicyCode;
         }
+
         return $"v{Math.Max(2, versions.Max())}";
     }
 
@@ -62,10 +72,41 @@ public sealed class PasswordHasher : IPasswordHasher
     public string GenerateSalt()
     {
         Span<char> buffer = stackalloc char[25];
-        for (int i = 0 ; i < buffer.Length ; i++) {
+        for (int i = 0; i < buffer.Length; i++) {
             buffer[i] = SaltCharset[RandomNumberGenerator.GetInt32(SaltCharset.Length)];
         }
 
         return new string(buffer);
     }
+
+    /// <inheritdoc/>
+    public bool IsAttemptingToReusePassword(
+        string policyCode,
+        string newPassword,
+        IEnumerable<(string PasswordHash, string Salt)> passwordHistory)
+    {
+        if (passwordHistory == null) {
+            return false;
+        }
+
+        foreach (var (historicalHash, historicalSalt) in passwordHistory) {
+            string derivedKey = this.Hash(policyCode, newPassword, historicalSalt);
+
+            byte[] derivedBytes = Encoding.UTF8.GetBytes(derivedKey);
+            byte[] historyBytes = Encoding.UTF8.GetBytes(historicalHash);
+
+            if (CryptographicOperations.FixedTimeEquals(derivedBytes, historyBytes)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Matches valid policy version codes (e.g. "v2", "v3", "v4").
+    /// Uses compile-time source generation for optimal performance and zero runtime compilation overhead.
+    /// </summary>
+    [GeneratedRegex(@"^v[1-9][0-9]*$")]
+    private static partial Regex PolicyVersionRegex();
 }
