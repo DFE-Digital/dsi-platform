@@ -64,13 +64,6 @@ builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
     .AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
 
-builder.Services
-    .Configure<BlockedEmailAddressOptions>(options => {
-        var section = builder.Configuration.GetSection("BlockedEmailAddresses");
-        options.BlockedDomains = section.GetJsonList("BlockedDomains");
-        options.BlockedNames = section.GetJsonList("BlockedNames");
-    })
-    .AddInteractor<CheckIsBlockedEmailAddressUseCase>()
-    .AddInteractor<AutoLinkEntraUserToDsiUseCase>();
+builder.Services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
 
 await builder.Build().RunAsync();

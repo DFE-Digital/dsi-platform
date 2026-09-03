@@ -49,4 +49,10 @@ public static class UsersApiRoutes
     /// The API route for retrieving a pending change email request.
     /// </summary>
     public const string GetPendingChangeEmail = "/internal/users/{userId}/pending-change-email";
+
+    /// <summary>
+    /// The API route for determining if a passed in email address is part of
+    /// the blacklist.
+    /// </summary>
+    public const string CheckEmailBlocked = "/internal/email/check";
 }
