@@ -28,7 +28,7 @@ public interface IPasswordHasher
     /// <summary>
     /// Checks whether the supplied password matches any previously used password in the user's password history.
     /// </summary>
-    bool IsAttemptingToReusePassword(string policyCode, string newPassword, IEnumerable<(string PasswordHash, string Salt)> passwordHistory);
+    bool IsAttemptingToReusePassword(string newPassword, IEnumerable<(string PolicyCode, string PasswordHash, string Salt)>? passwordHistory);
 
     /// <summary>
     /// Gets the latest password hashing policy code.

@@ -1,43 +1,48 @@
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.ChangePassword;
 
 /// <summary>
 /// Provides functionality for hashing passwords and managing password hashing policies.
 /// </summary>
-/// <remarks>
-/// This class is declared as <c>partial</c> to enable the C# compile-time source generator
-/// for regular expressions (<see cref="GeneratedRegexAttribute"/>).
-/// </remarks>
 public sealed partial class PasswordHasher : IPasswordHasher
 {
+    // A carefully selected character set for salts that avoids ambiguous characters 
+    // while providing high entropy.
     private const string SaltCharset = "ABCDEFGHJKMNPQRSTWXYZabcdefghjkmnpqrstwxyz23456789-.><!@%&*+_";
+
+    // The fallback policy used for legacy users or when no policy history exists.
     private const string LegacyPolicyCode = "v2";
 
     /// <inheritdoc/>
     public string LatestPolicyCode => "v4";
 
-    private static readonly Dictionary<string, (int Iterations, int KeyLenBytes)> Policies = new() {
-        ["v2"] = (10_000, 512),
-        ["v3"] = (120_000, 512),
-        ["v4"] = (210_000, 64),
+    /// <summary>
+    /// Maps a policy code to its specific PBKDF2 cryptographic parameters.
+    /// Uses a switch expression for zero-allocation, highly optimised lookup.
+    /// </summary>
+    private static (int Iterations, int KeyLenBytes) GetPolicy(string policyCode) => policyCode switch {
+        "v4" => (210_000, 64),
+        "v3" => (120_000, 512),
+        "v2" => (10_000, 512),
+        _ => throw new ArgumentException($"Invalid policy code '{policyCode}'.", nameof(policyCode))
     };
 
     /// <inheritdoc/>
     public string Hash(string policyCode, string rawPassword, string salt)
     {
-        if (!Policies.TryGetValue(policyCode, out var policy)) {
-            throw new ArgumentException($"Invalid policy code '{policyCode}'.", nameof(policyCode));
-        }
+        var (iterations, keyLenBytes) = GetPolicy(policyCode);
 
+        // PBKDF2 (Password-Based Key Derivation Function 2) applies a pseudorandom function 
+        // to the input password along with a salt value and repeats the process many times 
+        // to produce a derived key, preventing dictionary and brute-force attacks.
         byte[] derivedKey = Rfc2898DeriveBytes.Pbkdf2(
             password: Encoding.UTF8.GetBytes(rawPassword),
             salt: Encoding.UTF8.GetBytes(salt),
-            iterations: policy.Iterations,
+            iterations: iterations,
             hashAlgorithm: HashAlgorithmName.SHA512,
-            outputLength: policy.KeyLenBytes
+            outputLength: keyLenBytes
         );
 
         return Convert.ToBase64String(derivedKey);
@@ -52,61 +57,75 @@ public sealed partial class PasswordHasher : IPasswordHasher
     /// <inheritdoc/>
     public string ResolveUserPolicyCode(IEnumerable<string>? userPolicyCodes)
     {
-        if (userPolicyCodes == null) {
+        if (userPolicyCodes is null) {
             return LegacyPolicyCode;
         }
 
-        var versions = userPolicyCodes
-            .Where(code => !string.IsNullOrEmpty(code) && PolicyVersionRegex().IsMatch(code))
-            .Select(code => int.Parse(code[1..]))
-            .ToList();
+        int maxVersion = -1;
 
-        if (versions.Count == 0) {
-            return LegacyPolicyCode;
+        // Iterates through the list of policies associated with the user's history
+        // to find the highest version number they have used.
+        foreach (var code in userPolicyCodes) {
+            if (string.IsNullOrEmpty(code) || !PasswordHasherRegex.PolicyVersionRegex().IsMatch(code)) {
+                continue;
+            }
+
+            // Extracts the numeric version (e.g., "v3" -> 3) using a slice to avoid allocation
+            if (int.TryParse(code.AsSpan(1), out int version) && version > maxVersion) {
+                maxVersion = version;
+            }
         }
 
-        return $"v{Math.Max(2, versions.Max())}";
+        // Ensure we never downgrade below the legacy baseline (v2)
+        return maxVersion < 2 ? LegacyPolicyCode : $"v{maxVersion}";
     }
 
     /// <inheritdoc/>
     public string GenerateSalt()
     {
-        Span<char> buffer = stackalloc char[25];
-        for (int i = 0; i < buffer.Length; i++) {
-            buffer[i] = SaltCharset[RandomNumberGenerator.GetInt32(SaltCharset.Length)];
-        }
-
-        return new string(buffer);
+        // string.Create is used here for high performance. It allocates the exact memory 
+        // needed for the string on the heap once and writes directly to it using a Span,
+        // avoiding intermediate array allocations.
+        return string.Create(25, SaltCharset, static (span, charset) => {
+            for (int i = 0 ; i < span.Length ; i++) {
+                // Cryptographically secure random number generation for salt creation
+                span[i] = charset[RandomNumberGenerator.GetInt32(charset.Length)];
+            }
+        });
     }
 
     /// <inheritdoc/>
-    public bool IsAttemptingToReusePassword(
-        string policyCode,
-        string newPassword,
-        IEnumerable<(string PasswordHash, string Salt)> passwordHistory)
+    public bool IsAttemptingToReusePassword(string newPassword, IEnumerable<(string PolicyCode, string PasswordHash, string Salt)>? passwordHistory)
     {
-        if (passwordHistory == null) {
+        if (passwordHistory is null) {
             return false;
         }
 
-        foreach (var (historicalHash, historicalSalt) in passwordHistory) {
-            string derivedKey = this.Hash(policyCode, newPassword, historicalSalt);
+        // Verify the new password against every previous password hash in the user's history.
+        // It is critical that we use the specific historicalPolicyCode for each iteration,
+        // otherwise the generated hashes won't match if the iterations/key lengths differ.
+        foreach (var (historicalPolicyCode, historicalHash, historicalSalt) in passwordHistory) {
+            var (iterations, keyLenBytes) = GetPolicy(historicalPolicyCode);
 
-            byte[] derivedBytes = Encoding.UTF8.GetBytes(derivedKey);
-            byte[] historyBytes = Encoding.UTF8.GetBytes(historicalHash);
+            byte[] derivedKeyBytes = Rfc2898DeriveBytes.Pbkdf2(
+                password: Encoding.UTF8.GetBytes(newPassword),
+                salt: Encoding.UTF8.GetBytes(historicalSalt),
+                iterations: iterations,
+                hashAlgorithm: HashAlgorithmName.SHA512,
+                outputLength: keyLenBytes
+            );
 
-            if (CryptographicOperations.FixedTimeEquals(derivedBytes, historyBytes)) {
+            // Decode the stored base64 string back into raw bytes for a clean comparison
+            byte[] historyBytes = Convert.FromBase64String(historicalHash);
+
+            // FixedTimeEquals is strictly required here to prevent Timing Attacks. 
+            // It ensures the comparison takes the exact same amount of time regardless 
+            // of how many bytes match, masking the length of the matching prefix from attackers.
+            if (CryptographicOperations.FixedTimeEquals(derivedKeyBytes, historyBytes)) {
                 return true;
             }
         }
 
         return false;
     }
-
-    /// <summary>
-    /// Matches valid policy version codes (e.g. "v2", "v3", "v4").
-    /// Uses compile-time source generation for optimal performance and zero runtime compilation overhead.
-    /// </summary>
-    [GeneratedRegex(@"^v[1-9][0-9]*$")]
-    private static partial Regex PolicyVersionRegex();
 }

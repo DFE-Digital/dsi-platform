@@ -68,11 +68,11 @@ public class PasswordHasherTests
     [DataRow(new string[0], "v2")]
     [DataRow(new[] { "v3" }, "v3")]
     [DataRow(new[] { "v2", "v3", "v4" }, "v4")]
-    [DataRow(new[] { "v2", "v4", "v3" }, "v4")] // preserves max regardless of ordering
-    [DataRow(new[] { "v0" }, "v2")]              // floors at 2
-    [DataRow(new[] { "v1" }, "v2")]              // floors at 2
-    [DataRow(new[] { "invalid", "v3" }, "v3")]   // ignores non-policy strings
-    [DataRow(new string[] { null!, "v3" }, "v3")] // handles null items safely
+    [DataRow(new[] { "v2", "v4", "v3" }, "v4")]
+    [DataRow(new[] { "v0" }, "v2")]
+    [DataRow(new[] { "v1" }, "v2")]
+    [DataRow(new[] { "invalid", "v3" }, "v3")]
+    [DataRow(new string[] { null!, "v3" }, "v3")]
     public void ResolveUserPolicyCode_ReturnsHighestOrLegacyDefault(string[]? codes, string expected)
     {
         Assert.AreEqual(expected, this.hasher.ResolveUserPolicyCode(codes));
@@ -86,9 +86,8 @@ public class PasswordHasherTests
         var salt = this.hasher.GenerateSalt();
 
         Assert.AreEqual(25, salt.Length);
-        Assert.IsTrue(salt.All(c => expectedCharset.Contains(c)));
+        Assert.IsTrue(salt.All(expectedCharset.Contains));
 
-        // Generates different salts across calls
         var secondSalt = this.hasher.GenerateSalt();
         Assert.AreNotEqual(salt, secondSalt);
     }
@@ -96,28 +95,31 @@ public class PasswordHasherTests
     [TestMethod]
     public void IsAttemptingToReusePassword_ReturnsTrue_WhenPasswordMatchesHistory()
     {
-        var history = new List<(string PasswordHash, string Salt)>
+        var history = new List<(string PolicyCode, string PasswordHash, string Salt)>
         {
-            ("Eg8WRPb/61Jjgh3kIMs4iu3E18BYjUZuWpAA97oOjw5lljq2g7we/TlcpR49HZYBm/Ot6QKnUwnRVJ7KFCaiIg==", "8217a892-03af-463d-a878-a6fbb9e64b9a"),
-            ("pu/KIHS6C7R6sxkizzq72TDa18Ho/e8oszP/FdnCqRepuLgGCIwuP2O2vbWYbVvaiNt8FTFD4KIYsXVk2HuRKw==", "3d8e9a86-b919-4cc9-8151-06efa565e9f4"),
-            ("Fl7I5Fifvlq+20OC6GUDnhofWK1jS1iE6Uru2QhmVVNq8fNAHcVQmdtpzCrfhOwAXrKloSacwWMQOhB8BUhEAg==", "13e4a2b6-1833-4d58-97ff-90451284e59a"),
+            ("v4", "Eg8WRPb/61Jjgh3kIMs4iu3E18BYjUZuWpAA97oOjw5lljq2g7we/TlcpR49HZYBm/Ot6QKnUwnRVJ7KFCaiIg==", "8217a892-03af-463d-a878-a6fbb9e64b9a"),
+            ("v4", "pu/KIHS6C7R6sxkizzq72TDa18Ho/e8oszP/FdnCqRepuLgGCIwuP2O2vbWYbVvaiNt8FTFD4KIYsXVk2HuRKw==", "3d8e9a86-b919-4cc9-8151-06efa565e9f4"),
+            ("v4", "Fl7I5Fifvlq+20OC6GUDnhofWK1jS1iE6Uru2QhmVVNq8fNAHcVQmdtpzCrfhOwAXrKloSacwWMQOhB8BUhEAg==", "13e4a2b6-1833-4d58-97ff-90451284e59a"),
+            ("v3", "1cWELhY5s7WIDtizvJgpi1fMmTOzmr3bMwfAg+SllzXZAUx8yGuoboowTmQ+bu3kYO8giqiAudCVJe2bNQpcVJMHzdvzoamP0lwbWiiJemZCJjx7BfilLbysq7WKnjDysT6L/QC58pROfS4x44BBrKxIWWYBRvKbHnBUQqqjI/EOpEsLhrqoaSaXXzrosb/T4XtNpHr3oshJCp0R1P5PmaOGNCtWR9SVCNWSQRWz0swg5Tlpc6z/UZWmkydljgcJK9zZ3aQ0eD4WxA94gfdj1mM7UZJlKUOvhnpXf79QtUyyMW3+HcJ3R7/Js2FKz3MiSJJOh2NqTfoZwbx5sC0KjmOIjqiovMRRMAE+M0hIFpghjkcZyn7IgBqXnY4YD04KjGwxMoGEvGUzqGflyCtzIBbliB5j8wwhwevIJPqZYS9QqT2C9YtstSQ2vMzkJBHCdGxF+77M01V2E7AvWEZ27/m7Gb3y3gox31hzbK4HpQbKdOg4L9GHa1k5jiGmSujnLFBOomiD6xV62duOL5veiK9NUJm6Xj0Vf1q4TMuhMnag4Z8zsEtBSWi5OsIOXfjyItmTi2TlrFwXvUQK6m1cfAu2ZrQWuRti3CCah4P3qjNshhdsdmKFZp1zYZ1wRXkkcpCKuJgjCI7/X9cwsx7MdC5E+td4gF1vwMXQmkvh8VM=", "8780e6bb-8097-40a4-a60d-c5cc74ec9e52")
         };
 
-        var result = this.hasher.IsAttemptingToReusePassword("v4", "example-password", history);
-
+        var result = this.hasher.IsAttemptingToReusePassword("example-password", history);
         Assert.IsTrue(result);
+
+        var legacyResult = this.hasher.IsAttemptingToReusePassword("short password", history);
+        Assert.IsTrue(legacyResult);
     }
 
     [TestMethod]
     public void IsAttemptingToReusePassword_ReturnsFalse_WhenPasswordDoesNotMatchHistory()
     {
-        var history = new List<(string PasswordHash, string Salt)>
+        var history = new List<(string PolicyCode, string PasswordHash, string Salt)>
         {
-            ("Eg8WRPb/61Jjgh3kIMs4iu3E18BYjUZuWpAA97oOjw5lljq2g7we/TlcpR49HZYBm/Ot6QKnUwnRVJ7KFCaiIg==", "8217a892-03af-463d-a878-a6fbb9e64b9a"),
-            ("pu/KIHS6C7R6sxkizzq72TDa18Ho/e8oszP/FdnCqRepuLgGCIwuP2O2vbWYbVvaiNt8FTFD4KIYsXVk2HuRKw==", "3d8e9a86-b919-4cc9-8151-06efa565e9f4"),
+            ("v4", "Eg8WRPb/61Jjgh3kIMs4iu3E18BYjUZuWpAA97oOjw5lljq2g7we/TlcpR49HZYBm/Ot6QKnUwnRVJ7KFCaiIg==", "8217a892-03af-463d-a878-a6fbb9e64b9a"),
+            ("v4", "pu/KIHS6C7R6sxkizzq72TDa18Ho/e8oszP/FdnCqRepuLgGCIwuP2O2vbWYbVvaiNt8FTFD4KIYsXVk2HuRKw==", "3d8e9a86-b919-4cc9-8151-06efa565e9f4"),
         };
 
-        var result = this.hasher.IsAttemptingToReusePassword("v4", "a-different-password", history);
+        var result = this.hasher.IsAttemptingToReusePassword("a-different-password", history);
 
         Assert.IsFalse(result);
     }
