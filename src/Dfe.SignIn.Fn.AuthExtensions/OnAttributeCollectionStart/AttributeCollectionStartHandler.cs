@@ -1,18 +1,17 @@
 using System.Net.Http.Json;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
-using Dfe.SignIn.InternalApi.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionStart;
 
 public sealed class AttributeCollectionStartHandler(
     ILogger<AttributeCollectionStartHandler> logger,
-    [FromKeyedServices(InternalApiServiceCollectionExtensions.InternalApiKey)] HttpClient client)
+    IUsersApiClient usersApiClient)
 {
     [Function("OnAttributeCollectionStart")]
     public async Task<IActionResult> Run(
@@ -28,15 +27,11 @@ public sealed class AttributeCollectionStartHandler(
 
         @event.Validate();
 
-        var response = await client.PostAsJsonAsync("/internal/email/check", new CheckIsBlockedEmailAddressRequest {
+        var response = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
             EmailAddress = @event.Data.UserSignUpInfo.Identities[0].IssuerAssignedId
         });
 
-        response.EnsureSuccessStatusCode();
-
-        var checkEmailResponse = await response.Content.ReadFromJsonAsync<CheckIsBlockedEmailAddressResponse>();
-
-        if (checkEmailResponse is null || checkEmailResponse.IsBlocked) {
+        if (response is null || response.IsBlocked) {
             logger.LogInformation("Email address was blocked by policy requirements.");
             return ResponseAction(new ShowBlockPageAction {
                 Message = MessageConstants.BlockedEmailAddress,
@@ -51,7 +46,7 @@ public sealed class AttributeCollectionStartHandler(
         return new OkObjectResult(new ResponseObject {
             Data = new AttributeCollectionStartEventResponseData {
                 Actions = [action],
-            },
+            }
         });
     }
 }

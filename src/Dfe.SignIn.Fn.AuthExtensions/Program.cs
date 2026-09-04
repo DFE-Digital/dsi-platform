@@ -66,4 +66,7 @@ builder.Services
 
 builder.Services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
 
+builder.Services
+    .AddUsersApiClient(tokenCredential);
+
 await builder.Build().RunAsync();

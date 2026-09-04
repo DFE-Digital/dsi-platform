@@ -39,7 +39,7 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
     /// <summary>
     /// Handler to determine if the email address provided is blacklisted.
     /// </summary>
-    /// <param name="emailAddress">value to check</param>
+    /// <param name="request">value to check</param>
     /// <returns></returns>
     public IResult Handle(
         CheckIsBlockedEmailAddressRequest request)

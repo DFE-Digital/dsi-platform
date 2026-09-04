@@ -96,4 +96,13 @@ public interface IUsersApiClient
     /// <returns>The pending email change details.</returns>
     [Get(UsersApiRoutes.GetPendingChangeEmail)]
     Task<GetPendingChangeEmailResponse> GetPendingChangeEmail(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Determines if the provided email address is on the blacklist.
+    /// </summary>
+    /// <param name="request">An object representing the email address to check.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns></returns>
+    [Post(UsersApiRoutes.CheckEmailBlocked)]
+    Task<CheckIsBlockedEmailAddressResponse> CheckIfEmailAddressIsBlocked(CheckIsBlockedEmailAddressRequest request, CancellationToken cancellationToken = default);
 }
