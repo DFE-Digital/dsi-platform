@@ -11,15 +11,14 @@ public static class EndpointMetadataExtensions
     /// <typeparam name="TRequest"> The type of the request payload.</typeparam>
     /// <param name="builder"> The route handler builder.</param>
     /// <returns> The updated route handler builder.</returns>
-    public static RouteHandlerBuilder WithStandardResponses<TRequest>(this RouteHandlerBuilder builder) where TRequest : notnull
+    public static RouteHandlerBuilder WithStandardResponses(this RouteHandlerBuilder builder)
     {
         return builder
             .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status500InternalServerError)
-            .WithValidationFilter<TRequest>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi();
     }
 }

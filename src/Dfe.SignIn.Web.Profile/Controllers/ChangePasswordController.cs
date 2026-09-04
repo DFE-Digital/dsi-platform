@@ -84,10 +84,10 @@ public sealed partial class ChangePasswordController(
                 this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
                 return await this.Index();
             }
-        } else {
+        }
+        else {
             try {
                 var request = new ChangePasswordRequest {
-                    UserId = userProfileFeature.UserId,
                     CurrentPassword = viewModel.CurrentPasswordInput!,
                     NewPassword = viewModel.NewPasswordInput!,
                     ConfirmNewPassword = viewModel.ConfirmNewPasswordInput!,

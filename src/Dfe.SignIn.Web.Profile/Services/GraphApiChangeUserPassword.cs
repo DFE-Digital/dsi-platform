@@ -1,8 +1,6 @@
 using System.Text.RegularExpressions;
 using Azure.Core;
 using Dfe.SignIn.Core.Contracts.Graph;
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Interfaces.Graph;
 using Microsoft.Graph.Models.ODataErrors;
 
@@ -37,13 +35,13 @@ public sealed partial class GraphApiChangeUserPassword(
                 string paramName = match.Groups[3].Value;
                 string message = match.Groups[1].Value;
                 if (paramName == "oldPassword") {
-                    throw new FluentValidation.ValidationException(new[] { 
-                        new FluentValidation.Results.ValidationFailure("CurrentPasswordInput", "Please enter your current password") 
+                    throw new FluentValidation.ValidationException(new[] {
+                        new FluentValidation.Results.ValidationFailure("CurrentPasswordInput", "Please enter your current password")
                     });
                 }
                 else if (paramName == "newPassword") {
-                    throw new FluentValidation.ValidationException(new[] { 
-                        new FluentValidation.Results.ValidationFailure("NewPasswordInput", message) 
+                    throw new FluentValidation.ValidationException(new[] {
+                        new FluentValidation.Results.ValidationFailure("NewPasswordInput", message)
                     });
                 }
             }

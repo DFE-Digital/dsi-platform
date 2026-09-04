@@ -10,9 +10,6 @@ public sealed class ChangePasswordRequestValidator : AbstractValidator<ChangePas
     /// <inheritdoc />
     public ChangePasswordRequestValidator()
     {
-        this.RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("UserId is required.");
-
         this.RuleFor(x => x.CurrentPassword)
             .NotEmpty().WithMessage("Please enter your current password");
 

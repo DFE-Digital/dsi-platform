@@ -32,30 +32,33 @@ public sealed class ChangePasswordEndpoint(
             [FromBody] ChangePasswordRequest request,
             [FromServices] ChangePasswordEndpoint endpoint,
             CancellationToken cancellationToken) =>
-            await endpoint.HandleAsync(request with { UserId = userId }, cancellationToken))
+            await endpoint.HandleAsync(userId, request, cancellationToken))
             .WithName("Change Password")
             .WithTags("Users")
-            .WithStandardResponses<ChangePasswordRequest>();
+            .WithStandardResponses()
+            .WithValidationFilter<ChangePasswordRequest>();
     }
 
     /// <summary>
     /// Handles the change of a user's password.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="userId">The unique identifier of the user whose password is to be changed.</param>
+    /// <param name="request">The request containing the current and new passwords.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result of the operation.</returns>
     public async Task<IResult> HandleAsync(
-        [FromBody] ChangePasswordRequest request,
+        Guid userId,
+        ChangePasswordRequest request,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Changing password for user {UserId}", request.UserId);
+        logger.LogInformation("Changing password for user {UserId}", userId);
 
-        var user = await this.GetUserAsync(request.UserId, cancellationToken);
+        var user = await this.GetUserAsync(userId, cancellationToken);
         if (user is null) {
             return Results.NotFound();
         }
 
-        if (!await this.ValidateCurrentPasswordAsync(user, request.CurrentPassword, request.UserId)) {
+        if (!await this.ValidateCurrentPasswordAsync(user, request.CurrentPassword, userId)) {
             return Results.ValidationProblem(new Dictionary<string, string[]> {
                 [nameof(request.CurrentPassword)] = ["The password you entered was not recognised"],
             });
@@ -71,9 +74,9 @@ public sealed class ChangePasswordEndpoint(
         this.UpdateUserPassword(user, request.NewPassword);
 
         await dbDirectoriesContext.SaveChangesAsync(cancellationToken);
-        await this.LogSuccessAsync(request.UserId);
+        await this.LogSuccessAsync(userId);
 
-        logger.LogInformation("Successfully changed password for user {UserId}", request.UserId);
+        logger.LogInformation("Successfully changed password for user {UserId}", userId);
         return Results.Ok();
     }
 

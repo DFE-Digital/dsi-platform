@@ -6,11 +6,6 @@ namespace Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 public sealed record ChangePasswordRequest
 {
     /// <summary>
-    /// Gets or sets the unique identifier of the user whose password is to be changed.
-    /// </summary>
-    public required Guid UserId { get; init; }
-
-    /// <summary>
     /// Gets or sets the current password of the user.
     /// </summary>
     public required string CurrentPassword { get; init; }

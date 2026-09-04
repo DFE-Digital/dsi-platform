@@ -1,5 +1,3 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Contracts.Graph;
 
 namespace Dfe.SignIn.Core.Interfaces.Graph;

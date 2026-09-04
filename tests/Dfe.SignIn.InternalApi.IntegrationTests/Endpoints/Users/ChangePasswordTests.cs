@@ -38,7 +38,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
-            UserId = user.Sub,
             CurrentPassword = currentPassword,
             NewPassword = newPassword,
             ConfirmNewPassword = newPassword,
@@ -74,7 +73,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
-            UserId = user.Sub,
             CurrentPassword = "WrongPassword1!",
             NewPassword = "BrandNewPassw0rd!",
             ConfirmNewPassword = "BrandNewPassw0rd!",
@@ -94,7 +92,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         var userId = Guid.NewGuid();
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(userId), new ChangePasswordRequest {
-            UserId = userId,
             CurrentPassword = "whatever",
             NewPassword = "BrandNewPassw0rd!",
             ConfirmNewPassword = "BrandNewPassw0rd!",
@@ -154,7 +151,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntitiesAsync<DbDirectoriesContext, UserPasswordHistoryEntity>([uh1, uh2, uh3]);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
-            UserId = user.Sub,
             CurrentPassword = currentPassword,
             NewPassword = newPassword,
             ConfirmNewPassword = newPassword,
@@ -209,7 +205,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserPasswordHistoryEntity>(userHistory);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
-            UserId = user.Sub,
             CurrentPassword = currentPassword,
             NewPassword = historicalPassword,
             ConfirmNewPassword = historicalPassword,
@@ -235,7 +230,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
-            UserId = user.Sub,
             CurrentPassword = currentPassword,
             NewPassword = newPassword,
             ConfirmNewPassword = newPassword,
@@ -263,7 +257,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
-            UserId = user.Sub,
             CurrentPassword = currentPassword,
             NewPassword = currentPassword,
             ConfirmNewPassword = currentPassword,
@@ -287,7 +280,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
-            UserId = user.Sub,
             CurrentPassword = currentPassword,
             NewPassword = "BrandNewPassw0rd1!",
             ConfirmNewPassword = "BrandNewPassw0rd2!",
@@ -301,7 +293,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
     {
         var anonymousClient = this.CreateClient();
         var response = await anonymousClient.PostAsJsonAsync(GetEndpoint(Guid.NewGuid()), new ChangePasswordRequest {
-            UserId = Guid.NewGuid(),
             CurrentPassword = "x",
             NewPassword = "BrandNewPassw0rd!",
             ConfirmNewPassword = "BrandNewPassw0rd!",
@@ -321,7 +312,6 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
-            UserId = user.Sub,
             CurrentPassword = "irrelevant",
             NewPassword = newPassword,
             ConfirmNewPassword = confirm,
