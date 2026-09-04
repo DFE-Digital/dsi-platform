@@ -34,7 +34,6 @@ public static class UserUseCaseExtensions
         services.AddInteractor<GetUserStatusUseCase>();
         services.AddInteractor<LinkEntraUserToDsiUseCase>();
 
-
         return services;
     }
 }
