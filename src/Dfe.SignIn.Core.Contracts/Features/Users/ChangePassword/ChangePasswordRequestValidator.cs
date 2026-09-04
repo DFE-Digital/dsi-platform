@@ -15,8 +15,8 @@ public sealed class ChangePasswordRequestValidator : AbstractValidator<ChangePas
 
         this.RuleFor(x => x.NewPassword)
             .NotEmpty().WithMessage("Please enter your new password")
-            .MinimumLength(8).WithMessage("Please create a more secure password")
-            .MaximumLength(64).WithMessage("Maximum length of password is 64 characters");
+            .MinimumLength(PasswordRequirements.MinimumLength).WithMessage("Please create a more secure password")
+            .MaximumLength(PasswordRequirements.MaximumLength).WithMessage("Maximum length of password is 64 characters");
 
         this.RuleFor(x => x.ConfirmNewPassword)
             .NotEmpty().WithMessage("Please confirm your new password")
@@ -27,29 +27,7 @@ public sealed class ChangePasswordRequestValidator : AbstractValidator<ChangePas
             .WithMessage("Your new password cannot be one you have used recently");
 
         this.RuleFor(x => x.NewPassword)
-            .Must(MeetsComplexityRequirement)
+            .Must(PasswordRequirements.MeetsComplexityRequirement)
             .WithMessage("Please create a more secure password");
-    }
-
-    private static bool MeetsComplexityRequirement(string password)
-    {
-        int requirementsMet = 0;
-        if (password.Any(char.IsLower)) {
-            requirementsMet++;
-        }
-
-        if (password.Any(char.IsUpper)) {
-            requirementsMet++;
-        }
-
-        if (password.Any(char.IsDigit)) {
-            requirementsMet++;
-        }
-
-        if (password.Any(c => !char.IsLetterOrDigit(c))) {
-            requirementsMet++;
-        }
-
-        return requirementsMet >= 3;
     }
 }

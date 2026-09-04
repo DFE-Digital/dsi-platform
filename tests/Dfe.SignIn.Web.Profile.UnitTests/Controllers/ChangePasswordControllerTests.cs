@@ -1,3 +1,4 @@
+using System.Net;
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
@@ -8,14 +9,13 @@ using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
-using FluentValidation;
-using FluentValidation.Results;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Moq.AutoMock;
+using Refit;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
 
@@ -24,8 +24,12 @@ public sealed class ChangePasswordControllerTests
 {
     private static ChangePasswordController CreateController(AutoMocker autoMocker, bool isEntraUser)
     {
-        // Setup actual validator so we don't have to mock it
-        autoMocker.Use<IValidator<ChangePasswordViewModel>>(new ChangePasswordViewModelValidator());
+        var mockResponse = new Mock<IApiResponse>();
+        mockResponse.SetupGet(r => r.IsSuccessStatusCode).Returns(true);
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockResponse.Object);
 
         var controller = autoMocker.CreateInstance<ChangePasswordController>();
 
@@ -225,6 +229,54 @@ public sealed class ChangePasswordControllerTests
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
         Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_AddsModelErrorsAndPresentsView_WhenApiReturnsValidationProblemDetails()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker, isEntraUser: false);
+
+        var problemDetails = new ValidationProblemDetails {
+            Errors = {
+                [nameof(ChangePasswordRequest.NewPassword)] = ["Password has been breached and is unsafe to use."]
+            }
+        };
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse(HttpStatusCode.BadRequest, problemDetails));
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsFalse(controller.ModelState.IsValid);
+        Assert.IsTrue(controller.ModelState.ContainsKey(nameof(ChangePasswordViewModel.NewPasswordInput)));
+        Assert.AreEqual("Password has been breached and is unsafe to use.", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_AddsDefaultErrorAndPresentsView_WhenApiReturnsNonSuccessWithoutProblemDetails()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker, isEntraUser: false);
+
+        var mockResponse = new Mock<IApiResponse>();
+        mockResponse.SetupGet(r => r.IsSuccessStatusCode).Returns(false);
+        mockResponse.SetupGet(r => r.StatusCode).Returns(HttpStatusCode.InternalServerError);
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockResponse.Object);
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsFalse(controller.ModelState.IsValid);
+        Assert.IsTrue(controller.ModelState.ContainsKey(string.Empty));
+        Assert.AreEqual("We couldn't process your request right now. Please try again.", controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
     }
 
     #endregion

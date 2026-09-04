@@ -8,21 +8,20 @@ using Dfe.SignIn.WebFramework.Mvc.Features;
 using Dfe.SignIn.WebFramework.Mvc.Policies;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Refit;
 
 namespace Dfe.SignIn.Web.Profile.Controllers;
 
 /// <summary>
 /// The controller that allows the user to change their password.
 /// </summary>
-[Microsoft.AspNetCore.Authorization.Authorize(Policy = PolicyNames.CanChangeOwnPassword)]
+[Authorize(Policy = PolicyNames.CanChangeOwnPassword)]
 [Route("/change-password")]
 public sealed partial class ChangePasswordController(
     IUsersApiClient usersApiClient,
     IGraphApiChangeUserPassword graphApiChangeUserPassword,
-    IValidator<ChangePasswordViewModel> changePasswordValidator,
     ISelectAssociatedAccountHelper selectAssociatedAccountHelper,
     ILogger<ChangePasswordController> logger
 ) : Controller
@@ -54,20 +53,18 @@ public sealed partial class ChangePasswordController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(ChangePasswordViewModel viewModel)
     {
-        var validationResult = await changePasswordValidator.ValidateAsync(viewModel);
-
+        var validationResult = await viewModel.ValidateAsync<ChangePasswordViewModelValidator, ChangePasswordViewModel>();
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
             return await this.Index();
         }
 
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
-
+        // 1. Entra ID Branch
         if (userProfileFeature.IsEntra) {
             try {
                 GraphAccessToken? graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
                     this, [GraphApiEndpoint]) ?? throw new Exception("Provided graph token for user is null");
-
                 await graphApiChangeUserPassword.ChangePassword(
                     viewModel.CurrentPasswordInput!,
                     viewModel.NewPasswordInput!,
@@ -85,38 +82,17 @@ public sealed partial class ChangePasswordController(
                 return await this.Index();
             }
         }
+        // 2. DSI Internal API Branch
         else {
-            try {
-                var request = new ChangePasswordRequest {
-                    CurrentPassword = viewModel.CurrentPasswordInput!,
-                    NewPassword = viewModel.NewPasswordInput!,
-                    ConfirmNewPassword = viewModel.ConfirmNewPasswordInput!,
-                };
-                await usersApiClient.ChangePassword(userProfileFeature.UserId, request);
-            }
-            catch (ApiException ex) when (ex.Content is not null) {
-                var problemDetails = await ex.GetContentAsAsync<ValidationProblemDetails>();
-                if (problemDetails?.Errors != null) {
-                    foreach (var error in problemDetails.Errors) {
-                        // Map specific error messages to the view model properties
-                        string propertyName = error.Key switch {
-                            nameof(ChangePasswordRequest.CurrentPassword) => nameof(ChangePasswordViewModel.CurrentPasswordInput),
-                            nameof(ChangePasswordRequest.NewPassword) => nameof(ChangePasswordViewModel.NewPasswordInput),
-                            _ => string.Empty
-                        };
-                        foreach (var message in error.Value) {
-                            this.ModelState.AddModelError(propertyName, message);
-                        }
-                    }
-                    return await this.Index();
-                }
-                logger.LogError(ex, "An API error occurred while changing the user's password.");
-                this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
-                return await this.Index();
-            }
-            catch (Exception ex) {
-                logger.LogError(ex, "An error occurred while changing the user's password.");
-                this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
+            var request = new ChangePasswordRequest {
+                CurrentPassword = viewModel.CurrentPasswordInput!,
+                NewPassword = viewModel.NewPasswordInput!,
+                ConfirmNewPassword = viewModel.ConfirmNewPasswordInput!,
+            };
+
+            var response = await usersApiClient.ChangePassword(userProfileFeature.UserId, request);
+            if (await response.TryAddProblemDetailsToModelStateAsync(this.ModelState, ChangePasswordViewModelExtensions.PropertyMap)) {
+                logger.LogWarning("Failed to change password for user {UserId}. Response: {Response}", userProfileFeature.UserId, response);
                 return await this.Index();
             }
         }

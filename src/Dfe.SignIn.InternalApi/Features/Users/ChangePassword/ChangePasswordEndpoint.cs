@@ -16,8 +16,7 @@ public sealed class ChangePasswordEndpoint(
     DbDirectoriesContext dbDirectoriesContext,
     IAuditWriter auditWriter,
     IPasswordHasher passwordHasher,
-    ILogger<ChangePasswordEndpoint> logger
-    ) : IEndpoint
+    ILogger<ChangePasswordEndpoint> logger) : IEndpoint
 {
     private const int PasswordHistoryLimit = 3;
 
@@ -89,27 +88,28 @@ public sealed class ChangePasswordEndpoint(
         if (user is null) {
             logger.LogWarning("User {UserId} not found", userId);
         }
+
         return user;
     }
 
     private async Task<bool> ValidateCurrentPasswordAsync(UserEntity user, string currentPassword, Guid userId)
     {
-        string currentPolicyCode = passwordHasher.ResolveUserPolicyCode(
-            user.UserPasswordPolicies.Select(p => p.PolicyCode));
-        string suppliedHash = passwordHasher.Hash(currentPolicyCode, currentPassword, user.Salt);
+        var currentPolicyCode = passwordHasher.ResolveUserPolicyCode(user.UserPasswordPolicies.Select(p => p.PolicyCode));
+        var suppliedHash = passwordHasher.Hash(currentPolicyCode, currentPassword, user.Salt);
 
-        if (suppliedHash != user.Password) {
-            await auditWriter.Log(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangePassword,
-                EventName = AuditChangePasswordEventNames.IncorrectPassword,
-                Message = "Failed changed password - Incorrect current password",
-                UserId = userId,
-                WasFailure = true,
-            });
-            return false;
+        if (suppliedHash == user.Password) {
+            return true;
         }
 
-        return true;
+        await auditWriter.Log(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.ChangePassword,
+            EventName = AuditChangePasswordEventNames.IncorrectPassword,
+            Message = "Failed changed password - Incorrect current password",
+            UserId = userId,
+            WasFailure = true,
+        });
+
+        return false;
     }
 
     private async Task<bool> IsAttemptingToReusePasswordAsync(UserEntity user, string newPassword, CancellationToken cancellationToken)
@@ -127,9 +127,7 @@ public sealed class ChangePasswordEndpoint(
             .Where(x => historyIds.Contains(x.Id))
             .ToListAsync(cancellationToken);
 
-        string currentPolicyCode = passwordHasher.ResolveUserPolicyCode(
-            user.UserPasswordPolicies.Select(p => p.PolicyCode));
-
+        var currentPolicyCode = passwordHasher.ResolveUserPolicyCode(user.UserPasswordPolicies.Select(p => p.PolicyCode));
         var historyTuples = passwordHistories.Select(ph => (currentPolicyCode, ph.Password, ph.Salt));
 
         return passwordHasher.IsAttemptingToReusePassword(newPassword, historyTuples);
@@ -137,21 +135,22 @@ public sealed class ChangePasswordEndpoint(
 
     private void UpdateUserPassword(UserEntity user, string newPassword)
     {
-        string newSalt = passwordHasher.GenerateSalt();
+        var newSalt = passwordHasher.GenerateSalt();
         user.Salt = newSalt;
         user.Password = passwordHasher.HashWithLatestPolicy(newPassword, newSalt);
         user.PasswordResetRequired = false;
 
-        bool hasLatestPolicy = user.UserPasswordPolicies
-            .Any(p => p.PolicyCode == passwordHasher.LatestPolicyCode);
-        if (!hasLatestPolicy) {
-            dbDirectoriesContext.UserPasswordPolicies.Add(new UserPasswordPolicyEntity {
-                Id = Guid.NewGuid(),
-                Uid = user.Sub,
-                PolicyCode = passwordHasher.LatestPolicyCode,
-                PasswordHistoryLimit = PasswordHistoryLimit
-            });
+        var hasLatestPolicy = user.UserPasswordPolicies.Any(p => p.PolicyCode == passwordHasher.LatestPolicyCode);
+        if (hasLatestPolicy) {
+            return;
         }
+
+        dbDirectoriesContext.UserPasswordPolicies.Add(new UserPasswordPolicyEntity {
+            Id = Guid.NewGuid(),
+            Uid = user.Sub,
+            PolicyCode = passwordHasher.LatestPolicyCode,
+            PasswordHistoryLimit = PasswordHistoryLimit
+        });
     }
 
     private async Task LogSuccessAsync(Guid userId)
@@ -174,10 +173,12 @@ public sealed class ChangePasswordEndpoint(
 
         if (historyIds.Count >= PasswordHistoryLimit) {
             var oldestId = historyIds[0];
-            dbDirectoriesContext.UserPasswordHistories.RemoveRange(
-                dbDirectoriesContext.UserPasswordHistories.Where(x => x.PasswordHistoryId == oldestId));
-            dbDirectoriesContext.PasswordHistories.RemoveRange(
-                dbDirectoriesContext.PasswordHistories.Where(x => x.Id == oldestId));
+
+            var userPasswordHistoriesQuery = dbDirectoriesContext.UserPasswordHistories.Where(x => x.PasswordHistoryId == oldestId);
+            dbDirectoriesContext.UserPasswordHistories.RemoveRange(userPasswordHistoriesQuery);
+
+            var passwordHistoriesQuery = dbDirectoriesContext.PasswordHistories.Where(x => x.Id == oldestId);
+            dbDirectoriesContext.PasswordHistories.RemoveRange(passwordHistoriesQuery);
         }
 
         var newHistoryId = Guid.NewGuid();

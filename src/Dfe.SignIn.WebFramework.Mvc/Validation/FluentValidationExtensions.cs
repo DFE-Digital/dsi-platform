@@ -1,3 +1,4 @@
+using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -29,5 +30,19 @@ public static class FluentValidationExtensions
 
             modelState.AddModelError(key, error.ErrorMessage);
         }
+    }
+
+    /// <summary>
+    /// Validates the model using the specified validator and returns the validation result
+    /// </summary>
+    /// <typeparam name="TValidator">The type of the validator</typeparam>
+    /// <typeparam name="TModel">The type of the model</typeparam>
+    /// <param name="model">The model to validate</param>
+    /// <returns>The validation result</returns>
+    public static async Task<ValidationResult> ValidateAsync<TValidator, TModel>(this TModel model)
+        where TValidator : AbstractValidator<TModel>, new()
+    {
+        var validator = new TValidator();
+        return await validator.ValidateAsync(model);
     }
 }

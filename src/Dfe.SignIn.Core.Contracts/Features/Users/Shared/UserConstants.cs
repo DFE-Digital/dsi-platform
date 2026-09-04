@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.Core.Contracts.Features.Users;
+namespace Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 
 /// <summary>
 /// Contains constants related to user management, such as maximum lengths for user-related fields.

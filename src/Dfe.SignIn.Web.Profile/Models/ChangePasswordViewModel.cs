@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using FluentValidation;
 
 namespace Dfe.SignIn.Web.Profile.Models;
@@ -27,6 +28,15 @@ public sealed class ChangePasswordViewModel
     public string? ConfirmNewPasswordInput { get; set; }
 }
 
+public static class ChangePasswordViewModelExtensions
+{
+    public static readonly Dictionary<string, string> PropertyMap = new() {
+        [nameof(ChangePasswordRequest.CurrentPassword)] = nameof(ChangePasswordViewModel.CurrentPasswordInput),
+        [nameof(ChangePasswordRequest.NewPassword)] = nameof(ChangePasswordViewModel.NewPasswordInput),
+        [nameof(ChangePasswordRequest.ConfirmNewPassword)] = nameof(ChangePasswordViewModel.ConfirmNewPasswordInput),
+    };
+}
+
 /// <summary>
 /// Validator for the <see cref="ChangePasswordViewModel"/>.
 /// </summary>
@@ -39,28 +49,13 @@ public sealed class ChangePasswordViewModelValidator : AbstractValidator<ChangeP
 
         this.RuleFor(x => x.NewPasswordInput)
             .NotEmpty().WithMessage("Please enter a new password")
-            .MinimumLength(8).WithMessage("Your password must be at least 8 characters")
-            .MaximumLength(64).WithMessage("Your password must not exceed 64 characters")
-            .Must(HasComplexity).WithMessage("Your password must contain at least 3 of these: uppercase letters, lowercase letters, numbers, special characters")
+            .MinimumLength(PasswordRequirements.MinimumLength).WithMessage("Your password must be at least 8 characters")
+            .MaximumLength(PasswordRequirements.MaximumLength).WithMessage("Your password must not exceed 64 characters")
+            .Must(PasswordRequirements.MeetsComplexityRequirement).WithMessage("Your password must contain at least 3 of these: uppercase letters, lowercase letters, numbers, special characters")
             .NotEqual(x => x.CurrentPasswordInput).WithMessage("Your new password cannot be the same as your current password");
 
         this.RuleFor(x => x.ConfirmNewPasswordInput)
             .NotEmpty().WithMessage("Please confirm your new password")
             .Equal(x => x.NewPasswordInput).WithMessage("Passwords do not match");
-    }
-
-    private static bool HasComplexity(string? password)
-    {
-        if (string.IsNullOrEmpty(password)) {
-            return false;
-        }
-
-        int requirements = 0;
-        if (password.Any(char.IsUpper)) requirements++;
-        if (password.Any(char.IsLower)) requirements++;
-        if (password.Any(char.IsDigit)) requirements++;
-        if (password.Any(c => !char.IsLetterOrDigit(c))) requirements++;
-
-        return requirements >= 3;
     }
 }

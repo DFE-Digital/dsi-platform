@@ -106,5 +106,5 @@ public interface IUsersApiClient
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.ChangePassword)]
-    Task ChangePassword(Guid userId, [Body] ChangePasswordRequest request, CancellationToken cancellationToken = default);
+    Task<IApiResponse> ChangePassword(Guid userId, [Body] ChangePasswordRequest request, CancellationToken cancellationToken = default);
 }

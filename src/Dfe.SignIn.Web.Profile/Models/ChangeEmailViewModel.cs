@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using FluentValidation;
 
 namespace Dfe.SignIn.Web.Profile.Models;
