@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.Core.UseCases.Users;
+namespace Dfe.SignIn.InternalApi.Configuration;
 
 /// <summary>
 /// Options for Blocked Email address configuration/>.

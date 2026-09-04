@@ -1,6 +1,6 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.UseCases.Users;
+using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,7 @@ namespace Dfe.SignIn.InternalApi.Features.Users.EmailBlocked;
 /// </summary>
 /// <param name="blockedEmailAddressOptions">Configuration options containing the values for blacklisting</param>
 /// <param name="logger"></param>
-public class CheckIsBlockedEmailAddressEndpoint(
+public sealed class CheckIsBlockedEmailAddressEndpoint(
     IOptions<BlockedEmailAddressOptions> blockedEmailAddressOptions,
     ILogger<CheckIsBlockedEmailAddressEndpoint> logger) : IEndpoint
 {
@@ -50,15 +50,15 @@ public class CheckIsBlockedEmailAddressEndpoint(
             return Results.BadRequest("Email address is required.");
         }
 
-        string[] parts = request.EmailAddress.Split('@');
-        string localPart = parts[0];
-        string domain = parts[1];
+        var parts = request.EmailAddress.Split('@');
+        var localPart = parts[0];
+        var domain = parts[1];
 
         var blockedDomains = blockedEmailAddressOptions.Value.BlockedDomains;
         var blockedNames = blockedEmailAddressOptions.Value.BlockedNames;
 
-        bool isBlockedDomain = blockedDomains.Contains(domain, StringComparer.OrdinalIgnoreCase);
-        bool isBlockedName = blockedNames.Any(blockedName => {
+        var isBlockedDomain = blockedDomains.Contains(domain, StringComparer.OrdinalIgnoreCase);
+        var isBlockedName = blockedNames.Any(blockedName => {
             if (!localPart.StartsWith(blockedName, StringComparison.OrdinalIgnoreCase)) {
                 return false;
             }

@@ -4,7 +4,6 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
-using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.GovNotify;
