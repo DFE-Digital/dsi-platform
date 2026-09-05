@@ -60,7 +60,6 @@ public sealed partial class ChangePasswordController(
         }
 
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
-        // 1. Entra ID Branch
         if (userProfileFeature.IsEntra) {
             try {
                 GraphAccessToken? graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
@@ -81,9 +80,7 @@ public sealed partial class ChangePasswordController(
                 this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
                 return await this.Index();
             }
-        }
-        // 2. DSI Internal API Branch
-        else {
+        } else {
             var request = new ChangePasswordRequest {
                 CurrentPassword = viewModel.CurrentPasswordInput!,
                 NewPassword = viewModel.NewPasswordInput!,
@@ -91,7 +88,8 @@ public sealed partial class ChangePasswordController(
             };
 
             var response = await usersApiClient.ChangePassword(userProfileFeature.UserId, request);
-            if (await response.TryAddProblemDetailsToModelStateAsync(this.ModelState, ChangePasswordViewModelExtensions.PropertyMap)) {
+            if (!response.IsSuccessStatusCode) {
+                await response.TryAddProblemDetailsToModelStateAsync(this.ModelState, ChangePasswordViewModelExtensions.PropertyMap);
                 logger.LogWarning("Failed to change password for user {UserId}. Response: {Response}", userProfileFeature.UserId, response);
                 return await this.Index();
             }

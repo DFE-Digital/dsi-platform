@@ -19,17 +19,13 @@ public static class ProblemDetailsMvcExtensions
     /// <param name="fallbackField">The field to assign unmapped general problem details to (defaults to empty string for model-level).</param>
     /// <param name="defaultErrorMessage">Default error message if response has no content.</param>
     /// <returns>True if errors were added to ModelState; otherwise false.</returns>
-    public static async Task<bool> TryAddProblemDetailsToModelStateAsync(
+    public static async Task TryAddProblemDetailsToModelStateAsync(
         this IApiResponse response,
         ModelStateDictionary modelState,
         IReadOnlyDictionary<string, string>? propertyMap = null,
         string fallbackField = "",
         string defaultErrorMessage = "We couldn't process your request right now. Please try again.")
     {
-        if (response.IsSuccessStatusCode) {
-            return false;
-        }
-
         if (response.Error is ApiException { HasContent: true } apiException) {
             // 1. Try extracting RFC 7807 ValidationProblemDetails (key -> string[] errors)
             var validationProblem = await apiException.GetContentAsAsync<ValidationProblemDetails>();
@@ -40,19 +36,16 @@ public static class ProblemDetailsMvcExtensions
                         modelState.AddModelError(targetField, message);
                     }
                 }
-                return true;
             }
 
             // 2. Fall back to standard ProblemDetails (single 'detail' string)
             var problem = await apiException.GetContentAsAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
             if (!string.IsNullOrWhiteSpace(problem?.Detail)) {
                 modelState.AddModelError(fallbackField, problem.Detail);
-                return true;
             }
         }
 
         modelState.AddModelError(string.Empty, defaultErrorMessage);
-        return true;
     }
 
     /// <summary>
