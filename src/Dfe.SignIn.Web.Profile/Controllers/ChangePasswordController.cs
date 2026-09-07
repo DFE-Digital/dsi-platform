@@ -63,7 +63,7 @@ public sealed partial class ChangePasswordController(
         if (userProfileFeature.IsEntra) {
             try {
                 GraphAccessToken? graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
-                    this, [GraphApiEndpoint]) ?? throw new Exception("Provided graph token for user is null");
+                    this, [GraphApiEndpoint]) ?? throw new InvalidOperationException("Provided graph token for user is null");
                 await graphApiChangeUserPassword.ChangePassword(
                     viewModel.CurrentPasswordInput!,
                     viewModel.NewPasswordInput!,

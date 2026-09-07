@@ -83,7 +83,7 @@ internal class TimestampInterceptor(TimeProvider timeProvider) : SaveChangesInte
             entry.CurrentValues[prop] = value;
         }
         else {
-            entry.CurrentValues[prop] = value.DateTime;
+            entry.CurrentValues[prop] = value.UtcDateTime;
         }
     }
 }
