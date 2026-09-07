@@ -25,7 +25,8 @@ namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
 [TestClass]
 public sealed class ChangeEmailControllerTests
 {
-    private static ChangeEmailController CreateController(AutoMocker autoMocker, HttpContext httpContext)
+    private static ChangeEmailController CreateController(AutoMocker autoMocker, HttpContext httpContext,
+        bool isEmailValidationEnabled = false)
     {
         autoMocker.GetMock<IOptionsMonitor<ApplicationOidcOptions>>()
             .Setup(x => x.CurrentValue)
@@ -40,14 +41,24 @@ public sealed class ChangeEmailControllerTests
                 TimePeriodInSeconds = 10,
             });
 
+        var configuration = new ConfigurationBuilder()
+          .AddInMemoryCollection(new Dictionary<string, string?> {
+              ["EmailValidation"] = isEmailValidationEnabled.ToString()
+          })
+          .Build();
+
+        autoMocker.Use<IConfiguration>(configuration);
+
         var controller = autoMocker.CreateInstance<ChangeEmailController>();
+
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         controller.TempData = autoMocker.CreateInstance<TempDataDictionary>();
 
         return controller;
     }
 
-    private static ChangeEmailController CreateControllerAuthenticated(AutoMocker autoMocker)
+    private static ChangeEmailController CreateControllerAuthenticated(AutoMocker autoMocker,
+        bool isEmailBlacklistBehaviourEnabled = false)
     {
         autoMocker.Use<IValidator<ChangeEmailViewModel>>(new ChangeEmailViewModelValidator());
         autoMocker.Use<IValidator<VerificationCodeViewModel>>(new VerificationCodeViewModelValidator());
@@ -67,12 +78,12 @@ public sealed class ChangeEmailControllerTests
             new(ClaimTypes.NameIdentifier, "15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
         ], "TestAuth"));
 
-        return CreateController(autoMocker, httpContext);
+        return CreateController(autoMocker, httpContext, isEmailBlacklistBehaviourEnabled);
     }
 
-    private static ChangeEmailController CreateControllerAnonymous(AutoMocker autoMocker)
+    private static ChangeEmailController CreateControllerAnonymous(AutoMocker autoMocker, bool isEmailBlacklistBehaviourEnabled = false)
     {
-        return CreateController(autoMocker, new DefaultHttpContext());
+        return CreateController(autoMocker, new DefaultHttpContext(), isEmailBlacklistBehaviourEnabled);
     }
 
     private static void SetupFakePendingEmailChange(AutoMocker autoMocker)
@@ -197,7 +208,7 @@ public sealed class ChangeEmailControllerTests
     [TestMethod]
     public async Task PostIndex_DoesNotHideResend()
     {
-        var controller = CreateControllerAuthenticated(new AutoMocker());
+        var controller = CreateControllerAuthenticated(new AutoMocker(), false);
 
         await controller.PostIndex(resend: false, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
@@ -286,16 +297,9 @@ public sealed class ChangeEmailControllerTests
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = true });
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["EmailValidation"] = "true"
-            })
-            .Build();
-
-        autoMock.Use<IConfiguration>(configuration);
         autoMock.Use(usersApiClient);
 
-        var controller = CreateControllerAuthenticated(autoMock);
+        var controller = CreateControllerAuthenticated(autoMock, true);
 
         var result = await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
@@ -312,7 +316,7 @@ public sealed class ChangeEmailControllerTests
     }
 
     [TestMethod]
-    public async Task PostIndex_ReturnsSucessWhenEmailIsOnBlacklistAndEmailValidationDisabled()
+    public async Task PostIndex_ReturnsSuccessWhenEmailIsOnBlacklistAndEmailValidationDisabled()
     {
         var autoMock = new AutoMocker();
         var usersApiClient = new Mock<IUsersApiClient>();
@@ -322,16 +326,9 @@ public sealed class ChangeEmailControllerTests
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = true });
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["EmailValidation"] = "false"
-            })
-            .Build();
-
-        autoMock.Use<IConfiguration>(configuration);
         autoMock.Use(usersApiClient);
 
-        var controller = CreateControllerAuthenticated(autoMock);
+        var controller = CreateControllerAuthenticated(autoMock, false);
 
         var result = await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
@@ -353,16 +350,9 @@ public sealed class ChangeEmailControllerTests
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = false });
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["EmailValidation"] = "true"
-            })
-            .Build();
-
-        autoMock.Use<IConfiguration>(configuration);
         autoMock.Use(usersApiClient);
 
-        var controller = CreateControllerAuthenticated(autoMock);
+        var controller = CreateControllerAuthenticated(autoMock, true);
 
         var result = await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
