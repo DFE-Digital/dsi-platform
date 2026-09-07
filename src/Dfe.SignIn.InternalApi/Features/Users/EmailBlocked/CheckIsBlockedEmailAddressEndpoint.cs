@@ -51,7 +51,7 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
         }
 
         var isValid = Core.Contracts.StringPatterns.EmailAddressRegex()
-    .IsMatch(request.EmailAddress);
+                    .IsMatch(request.EmailAddress);
 
         if (!isValid) {
             return Results.BadRequest("Email address is invalid.");
