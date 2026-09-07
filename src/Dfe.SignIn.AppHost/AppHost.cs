@@ -62,6 +62,7 @@ var internalApiConfig = builder.Configuration.GetSection("InternalApiClient");
 var efConfig = builder.Configuration.GetSection("EntityFramework");
 var assets = builder.Configuration.GetSection("Assets");
 var generalRedisConfig = builder.Configuration.GetSection("GeneralRedisCache");
+var serviceBusConfig = builder.Configuration.GetSection("ServiceBus");
 
 var dotNetComponents = builder.Configuration.GetSection("Components:DotNet");
 var nodeComponents = builder.Configuration.GetSection("Components:Node");
@@ -104,8 +105,9 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("GeneralRedisCache__DatabaseNumber,", generalRedisConfig["DatabaseNumber"])
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
-    .WithEnvironment("ServiceBus__AuditTopic__TopicName", "audit")
-    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", "audit-sub");
+    .WithEnvironment("ServiceBus__AuditTopic__TopicName", serviceBusConfig["AuditTopic:TopicName"])
+    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", serviceBusConfig["AuditTopic:SubscriptionName"])
+    .WithEnvironment("ServiceBus__Namespace", serviceBusConfig["Namespace"]);
 
 if (dotNetComponents.GetValue("ProfileEnabled", true)) {
     builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
@@ -127,8 +129,9 @@ if (dotNetComponents.GetValue("ProfileEnabled", true)) {
     .WithEnvironment("Session__NotifyRemainingMinutes", sessionConfig["NotifyRemainingMinutes"])
     .WithEnvironment("Assets__BaseAddress", assets["BaseAddress"])
     .WithEnvironment("Assets__FrontendVersion", assets["FrontendVersion"])
-    .WithEnvironment("ServiceBus__AuditTopic__TopicName", "audit")
-    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", "audit-sub")
+    .WithEnvironment("ServiceBus__AuditTopic__TopicName", serviceBusConfig["AuditTopic:TopicName"])
+    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", serviceBusConfig["AuditTopic:SubscriptionName"])
+    .WithEnvironment("ServiceBus__Namespace", serviceBusConfig["Namespace"])
     .WaitFor(frontend)
     .WaitFor(redis);
 }
@@ -156,8 +159,9 @@ if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
     .WithEnvironment("EntityFramework__Audit__Password", efConfig["Audit:Password"])
     .WithEnvironment("EntityFramework__Audit__Name", efConfig["Audit:Name"])
     .WithEnvironment("EntityFramework__Audit__Host", efConfig["Audit:Host"])
-    .WithEnvironment("ServiceBus__AuditTopic__TopicName", "audit")
-    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", "audit-sub")
+    .WithEnvironment("ServiceBus__AuditTopic__TopicName", serviceBusConfig["AuditTopic:TopicName"])
+    .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", serviceBusConfig["AuditTopic:SubscriptionName"])
+    .WithEnvironment("ServiceBus__Namespace", serviceBusConfig["Namespace"])
     .WaitFor(internalApi)
     .WaitFor(redis);
 }

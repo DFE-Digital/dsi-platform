@@ -80,7 +80,8 @@ public sealed partial class ChangePasswordController(
                 this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
                 return await this.Index();
             }
-        } else {
+        }
+        else {
             var request = new ChangePasswordRequest {
                 CurrentPassword = viewModel.CurrentPasswordInput!,
                 NewPassword = viewModel.NewPasswordInput!,
@@ -89,7 +90,7 @@ public sealed partial class ChangePasswordController(
 
             var response = await usersApiClient.ChangePassword(userProfileFeature.UserId, request);
             if (!response.IsSuccessStatusCode) {
-                await response.TryAddProblemDetailsToModelStateAsync(this.ModelState, ChangePasswordViewModelExtensions.PropertyMap);
+                await response.TryAddProblemDetailsToModelStateAsync(this.ModelState, ChangePasswordViewModel.RequestPropertyMap);
                 logger.LogWarning("Failed to change password for user {UserId}. Response: {Response}", userProfileFeature.UserId, response);
                 return await this.Index();
             }

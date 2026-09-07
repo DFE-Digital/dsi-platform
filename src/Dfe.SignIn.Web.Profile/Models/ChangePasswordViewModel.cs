@@ -26,14 +26,14 @@ public sealed class ChangePasswordViewModel
     /// </summary>
     [DataType(DataType.Password)]
     public string? ConfirmNewPasswordInput { get; set; }
-}
 
-public static class ChangePasswordViewModelExtensions
-{
-    public static readonly Dictionary<string, string> PropertyMap = new() {
-        [nameof(ChangePasswordRequest.CurrentPassword)] = nameof(ChangePasswordViewModel.CurrentPasswordInput),
-        [nameof(ChangePasswordRequest.NewPassword)] = nameof(ChangePasswordViewModel.NewPasswordInput),
-        [nameof(ChangePasswordRequest.ConfirmNewPassword)] = nameof(ChangePasswordViewModel.ConfirmNewPasswordInput),
+    /// <summary>
+    /// Gets a mapping of the properties of this view model to the properties of a <see cref="ChangePasswordRequest"/>.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> RequestPropertyMap = new Dictionary<string, string>() {
+        [nameof(ChangePasswordRequest.CurrentPassword)] = nameof(CurrentPasswordInput),
+        [nameof(ChangePasswordRequest.NewPassword)] = nameof(NewPasswordInput),
+        [nameof(ChangePasswordRequest.ConfirmNewPassword)] = nameof(ConfirmNewPasswordInput),
     };
 }
 
