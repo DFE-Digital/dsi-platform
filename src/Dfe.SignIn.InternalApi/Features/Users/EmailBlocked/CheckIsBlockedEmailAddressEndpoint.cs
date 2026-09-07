@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.InternalApi.Configuration;
@@ -50,7 +51,15 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
             return Results.BadRequest("Email address is required.");
         }
 
+        var isValid = new EmailAddressAttribute()
+            .IsValid(request.EmailAddress);
+
+        if (!isValid) {
+            return Results.BadRequest("Email address is invalid.");
+        }
+
         var parts = request.EmailAddress.Split('@');
+
         var localPart = parts[0];
         var domain = parts[1];
 
@@ -67,6 +76,9 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
                 return true;
             }
 
+            //"Does the email local part equal a blocked name,
+            //or start with a blocked name followed by a digit,
+            //dot, hyphen, or underscore?"
             char nextChar = localPart[blockedName.Length];
             return char.IsDigit(nextChar)
                 || nextChar is '.' or '-' or '_';

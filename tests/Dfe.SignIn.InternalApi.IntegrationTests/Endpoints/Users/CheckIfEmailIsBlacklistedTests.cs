@@ -17,14 +17,17 @@ public class CheckIfEmailIsBlacklistedTests : InternalApiIntegrationEndpointTest
     {
     }
 
-    [Fact]
-    public async Task ReturnsFalseWhenEmailIsEmpty()
+    [Theory]
+    [InlineData("")]
+    [InlineData("test@test@ab.com")]
+    [InlineData("testtestab.com")]
+    public async Task ReturnsFalseWhenEmailIsInvalid(string emailAddress)
     {
         var authenticatedClient = this.CreateClient()
             .WithAuthentication();
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpointUrl, new CheckIsBlockedEmailAddressRequest {
-            EmailAddress = string.Empty
+            EmailAddress = emailAddress
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
