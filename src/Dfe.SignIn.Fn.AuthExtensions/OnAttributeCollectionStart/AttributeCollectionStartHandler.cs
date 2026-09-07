@@ -1,4 +1,5 @@
-using Dfe.SignIn.Base.Framework;
+using System.Net.Http.Json;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +11,7 @@ namespace Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionStart;
 
 public sealed class AttributeCollectionStartHandler(
     ILogger<AttributeCollectionStartHandler> logger,
-    IInteractionDispatcher interaction)
+    IUsersApiClient usersApiClient)
 {
     [Function("OnAttributeCollectionStart")]
     public async Task<IActionResult> Run(
@@ -26,13 +27,11 @@ public sealed class AttributeCollectionStartHandler(
 
         @event.Validate();
 
-        var checkEmailResponse = await interaction.DispatchAsync(
-            new CheckIsBlockedEmailAddressRequest {
-                EmailAddress = @event.Data.UserSignUpInfo.Identities[0].IssuerAssignedId,
-            }
-        ).To<CheckIsBlockedEmailAddressResponse>();
+        var response = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
+            EmailAddress = @event.Data.UserSignUpInfo.Identities[0].IssuerAssignedId
+        });
 
-        if (checkEmailResponse.IsBlocked) {
+        if (response is null || response.IsBlocked) {
             logger.LogInformation("Email address was blocked by policy requirements.");
             return ResponseAction(new ShowBlockPageAction {
                 Message = MessageConstants.BlockedEmailAddress,
@@ -47,7 +46,7 @@ public sealed class AttributeCollectionStartHandler(
         return new OkObjectResult(new ResponseObject {
             Data = new AttributeCollectionStartEventResponseData {
                 Actions = [action],
-            },
+            }
         });
     }
 }

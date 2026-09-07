@@ -9,6 +9,7 @@ using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
+using Dfe.SignIn.InternalApi.Features.Users.EmailBlocked;
 using Dfe.SignIn.InternalApi.Features.Users.ChangePassword;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
@@ -25,6 +26,7 @@ public static class UsersFeature
 {
     private static readonly EndpointRegistry NewEndpointRegistry = new EndpointRegistry()
         .Add<CancelChangeEmailAddressEndpoint>()
+        .Add<CheckIsBlockedEmailAddressEndpoint>()
         .Add<ChangePasswordEndpoint>();
 
     /// <summary>

@@ -99,6 +99,15 @@ public interface IUsersApiClient
     Task<GetPendingChangeEmailResponse> GetPendingChangeEmail(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Determines if the provided email address is on the blacklist.
+    /// </summary>
+    /// <param name="request">An object representing the email address to check.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns></returns>
+    [Post(UsersApiRoutes.CheckEmailBlocked)]
+    Task<CheckIsBlockedEmailAddressResponse> CheckIfEmailAddressIsBlocked([Body] CheckIsBlockedEmailAddressRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Changes the password of a user based on the provided request.
     /// </summary>
     /// <param name="userId">The ID of the user whose password is being changed.</param>

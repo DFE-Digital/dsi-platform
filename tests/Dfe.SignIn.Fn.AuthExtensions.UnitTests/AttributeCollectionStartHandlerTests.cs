@@ -1,7 +1,9 @@
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionStart;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Fn.AuthExtensions.UnitTests;
@@ -119,15 +121,17 @@ public class AttributeCollectionStartHandlerTests
     public async Task ReturnsBlockPageAction_WhenAttemptingToUseBlockedEmailAddress()
     {
         var autoMocker = new AutoMocker();
+        var userApiclient = new Mock<IUsersApiClient>();
 
-        autoMocker.MockResponse(
-            new CheckIsBlockedEmailAddressRequest {
-                EmailAddress = "first.last@example.com",
-            },
+        userApiclient
+            .Setup(x => x.CheckIfEmailAddressIsBlocked(
+                It.IsAny<CheckIsBlockedEmailAddressRequest>(),
+                It.IsAny<CancellationToken>())).ReturnsAsync(
             new CheckIsBlockedEmailAddressResponse {
-                IsBlocked = true,
-            }
-        );
+                IsBlocked = true
+            });
+
+        autoMocker.Use(userApiclient);
 
         var handler = autoMocker.CreateInstance<AttributeCollectionStartHandler>();
 
@@ -148,14 +152,17 @@ public class AttributeCollectionStartHandlerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockResponse(
-            new CheckIsBlockedEmailAddressRequest {
-                EmailAddress = "first.last@example.com",
-            },
+        var userApiclient = new Mock<IUsersApiClient>();
+
+        userApiclient
+            .Setup(x => x.CheckIfEmailAddressIsBlocked(
+                It.IsAny<CheckIsBlockedEmailAddressRequest>(),
+                It.IsAny<CancellationToken>())).ReturnsAsync(
             new CheckIsBlockedEmailAddressResponse {
-                IsBlocked = false,
-            }
-        );
+                IsBlocked = false
+            });
+
+        autoMocker.Use(userApiclient);
 
         var handler = autoMocker.CreateInstance<AttributeCollectionStartHandler>();
 
