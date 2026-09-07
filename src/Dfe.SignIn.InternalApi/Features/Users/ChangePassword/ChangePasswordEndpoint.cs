@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
@@ -97,7 +99,10 @@ public sealed class ChangePasswordEndpoint(
         var currentPolicyCode = passwordHasher.ResolveUserPolicyCode(user.UserPasswordPolicies.Select(p => p.PolicyCode));
         var suppliedHash = passwordHasher.Hash(currentPolicyCode, currentPassword, user.Salt);
 
-        if (suppliedHash == user.Password) {
+        ReadOnlySpan<byte> suppliedBytes = Encoding.UTF8.GetBytes(suppliedHash);
+        ReadOnlySpan<byte> storedBytes = Encoding.UTF8.GetBytes(user.Password ?? string.Empty);
+
+        if (CryptographicOperations.FixedTimeEquals(suppliedBytes, storedBytes)) {
             return true;
         }
 
