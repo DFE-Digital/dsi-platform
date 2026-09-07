@@ -9,6 +9,7 @@ using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
+using Dfe.SignIn.InternalApi.Features.Users.EmailBlocked;
 using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
@@ -23,7 +24,8 @@ namespace Dfe.SignIn.InternalApi.Features.Users;
 public static class UsersFeature
 {
     private static readonly EndpointRegistry NewEndpointRegistry = new EndpointRegistry()
-        .Add<CancelChangeEmailAddressEndpoint>();
+        .Add<CancelChangeEmailAddressEndpoint>()
+        .Add<CheckIsBlockedEmailAddressEndpoint>();
 
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.

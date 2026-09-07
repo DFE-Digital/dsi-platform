@@ -79,6 +79,13 @@ builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
     .SetupAuditContext();
 
+builder.Services
+    .Configure<BlockedEmailAddressOptions>(options => {
+        var section = builder.Configuration.GetSection("BlockedEmailAddresses");
+        options.BlockedDomains = section.GetJsonList("BlockedDomains");
+        options.BlockedNames = section.GetJsonList("BlockedNames");
+    });
+
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);

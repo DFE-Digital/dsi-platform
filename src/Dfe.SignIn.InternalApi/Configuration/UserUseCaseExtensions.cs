@@ -34,14 +34,6 @@ public static class UserUseCaseExtensions
         services.AddInteractor<GetUserStatusUseCase>();
         services.AddInteractor<LinkEntraUserToDsiUseCase>();
 
-        services
-            .Configure<BlockedEmailAddressOptions>(options => {
-                var section = configuration.GetSection("BlockedEmailAddresses");
-                options.BlockedDomains = section.GetJsonList("BlockedDomains");
-                options.BlockedNames = section.GetJsonList("BlockedNames");
-            })
-            .AddInteractor<CheckIsBlockedEmailAddressUseCase>();
-
         return services;
     }
 }
