@@ -21,6 +21,7 @@ public sealed class ChangeEmailController(
     IUsersApiClient usersApiClient,
     IValidator<ChangeEmailViewModel> changeEmailValidator,
     IValidator<VerificationCodeViewModel> verificationCodeValidator,
+    //TODO: Review and remove dependency on IConfiguration
     IConfiguration configuration,
     ILogger<ChangeEmailController> logger
 ) : Controller
