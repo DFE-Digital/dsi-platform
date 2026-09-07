@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.InternalApi.Configuration;
