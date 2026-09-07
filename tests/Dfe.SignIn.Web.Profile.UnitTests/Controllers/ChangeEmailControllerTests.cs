@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
@@ -13,6 +14,7 @@ using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
@@ -271,6 +273,104 @@ public sealed class ChangeEmailControllerTests
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(ChangeEmailController.VerificationCode), redirectResult.ActionName);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_ShowsModelErrorWhenEmailIsOnBlacklistAndEmailValidationEnabled()
+    {
+        var autoMock = new AutoMocker();
+        var usersApiClient = new Mock<IUsersApiClient>();
+
+        usersApiClient.Setup(x => x.CheckIfEmailAddressIsBlocked(
+            It.IsAny<CheckIsBlockedEmailAddressRequest>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = true });
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["EmailValidation"] = "true"
+            })
+            .Build();
+
+        autoMock.Use<IConfiguration>(configuration);
+        autoMock.Use(usersApiClient);
+
+        var controller = CreateControllerAuthenticated(autoMock);
+
+        var result = await controller.PostIndex(resend: true, viewModel: new() {
+            EmailAddressInput = "alex.new@example.com",
+        });
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsFalse(controller.ModelState.IsValid);
+
+        var error = controller.ModelState[nameof(ChangeEmailViewModel.EmailAddressInput)]?.Errors.Single();
+
+        Assert.IsNotNull(error);
+        Assert.AreEqual("This email address is not valid for this service. Generic email names (for example, headmaster@, admin@) and domains (for example, @yahoo.co.uk, @gmail.com) compromise security. Enter an email address that is associated with your organisation.", error.ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_ReturnsSucessWhenEmailIsOnBlacklistAndEmailValidationDisabled()
+    {
+        var autoMock = new AutoMocker();
+        var usersApiClient = new Mock<IUsersApiClient>();
+
+        usersApiClient.Setup(x => x.CheckIfEmailAddressIsBlocked(
+            It.IsAny<CheckIsBlockedEmailAddressRequest>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = true });
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["EmailValidation"] = "false"
+            })
+            .Build();
+
+        autoMock.Use<IConfiguration>(configuration);
+        autoMock.Use(usersApiClient);
+
+        var controller = CreateControllerAuthenticated(autoMock);
+
+        var result = await controller.PostIndex(resend: true, viewModel: new() {
+            EmailAddressInput = "alex.new@example.com",
+        });
+
+        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
+        Assert.AreEqual(nameof(ChangeEmailController.VerificationCode), redirectResult.ActionName);
+
+    }
+
+    [TestMethod]
+    public async Task PostIndex_ReturnsSucessWhenEmailIsNotOnBlacklistAndEmailValidationEnabled()
+    {
+        var autoMock = new AutoMocker();
+        var usersApiClient = new Mock<IUsersApiClient>();
+
+        usersApiClient.Setup(x => x.CheckIfEmailAddressIsBlocked(
+            It.IsAny<CheckIsBlockedEmailAddressRequest>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = false });
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["EmailValidation"] = "true"
+            })
+            .Build();
+
+        autoMock.Use<IConfiguration>(configuration);
+        autoMock.Use(usersApiClient);
+
+        var controller = CreateControllerAuthenticated(autoMock);
+
+        var result = await controller.PostIndex(resend: true, viewModel: new() {
+            EmailAddressInput = "alex.new@example.com",
+        });
+
+        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
+        Assert.AreEqual(nameof(ChangeEmailController.VerificationCode), redirectResult.ActionName);
+
     }
 
     #endregion

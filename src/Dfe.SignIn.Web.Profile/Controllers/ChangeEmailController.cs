@@ -21,6 +21,7 @@ public sealed class ChangeEmailController(
     IUsersApiClient usersApiClient,
     IValidator<ChangeEmailViewModel> changeEmailValidator,
     IValidator<VerificationCodeViewModel> verificationCodeValidator,
+    IConfiguration configuration,
     ILogger<ChangeEmailController> logger
 ) : Controller
 {
@@ -44,6 +45,18 @@ public sealed class ChangeEmailController(
             return this.View("Index");
         }
 
+        var emailValidationEnabled = configuration.GetValue<bool>("EmailValidation");
+
+        if (emailValidationEnabled) {
+            var blockedResponse = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
+                EmailAddress = viewModel.EmailAddressInput
+            });
+
+            if (blockedResponse.IsBlocked) {
+                this.ModelState.AddModelError("EmailAddressInput", "This email address is not valid for this service. Generic email names (for example, headmaster@, admin@) and domains (for example, @yahoo.co.uk, @gmail.com) compromise security. Enter an email address that is associated with your organisation.");
+                return this.View("Index");
+            }
+        }
         var request = new InitiateChangeEmailAddressRequest(
             oidcOptionsAccessor.CurrentValue.ClientId,
             viewModel.EmailAddressInput,
