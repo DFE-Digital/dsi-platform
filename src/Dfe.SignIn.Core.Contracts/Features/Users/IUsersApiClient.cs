@@ -104,5 +104,5 @@ public interface IUsersApiClient
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns></returns>
     [Post(UsersApiRoutes.CheckEmailBlocked)]
-    Task<CheckIsBlockedEmailAddressResponse> CheckIfEmailAddressIsBlocked(CheckIsBlockedEmailAddressRequest request, CancellationToken cancellationToken = default);
+    Task<CheckIsBlockedEmailAddressResponse> CheckIfEmailAddressIsBlocked([Body] CheckIsBlockedEmailAddressRequest request, CancellationToken cancellationToken = default);
 }
