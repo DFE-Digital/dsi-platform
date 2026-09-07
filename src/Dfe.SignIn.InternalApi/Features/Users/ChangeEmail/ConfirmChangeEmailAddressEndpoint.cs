@@ -55,34 +55,18 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
     {
         logger.LogInformation("Confirming email change for user {UserId}", userId);
 
-        var user = await directoriesDbContext.Users
-            .Where(x => x.Sub == userId)
-            .FirstOrDefaultAsync(cancellationToken);
-
+        var user = await this.GetUserAsync(userId, cancellationToken);
         if (user is null) {
             logger.LogWarning("User {UserId} not found when attempting to confirm email change", userId);
             return Results.NotFound();
         }
 
-        var pendingCode = await userCodeService.GetPendingChangeEmailCodeAsync(userId, cancellationToken);
-        if (pendingCode is null) {
-            logger.LogWarning("No pending email change request found for user {UserId}", userId);
-            return Results.ValidationProblem(
-                new Dictionary<string, string[]> {
-                    [nameof(request.VerificationCode)] = ["No pending change email request found"],
-                },
-                detail: "No pending change email request found");
-        }
-
-        var validationResult = await this.ValidatePendingCodeAsync(request.VerificationCode, pendingCode, userId);
+        var validationResult = await this.ValidatePendingEmailChangeAsync(user, request.VerificationCode, cancellationToken);
         if (validationResult.IsFailure) {
-            return Results.ValidationProblem(
-                new Dictionary<string, string[]> {
-                    [nameof(request.VerificationCode)] = [validationResult.Error.Description],
-                },
-                detail: validationResult.Error.Description);
+            return ValidationProblem(nameof(request.VerificationCode), validationResult.Error.Description);
         }
 
+        var pendingCode = validationResult.Value;
         string originalEmail = user.Email;
         string newEmail = pendingCode.Email!;
 
@@ -99,44 +83,62 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         return Results.Ok();
     }
 
-    private async Task<Result> ValidatePendingCodeAsync(
-        string verificationCode,
-        UserCodeEntity pendingCode,
-        Guid userId)
+    private async Task<UserEntity?> GetUserAsync(Guid userId, CancellationToken cancellationToken)
     {
+        return await directoriesDbContext.Users
+            .Where(x => x.Sub == userId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<Result<UserCodeEntity>> ValidatePendingEmailChangeAsync(
+        UserEntity user,
+        string verificationCode,
+        CancellationToken cancellationToken)
+    {
+        var pendingCode = await userCodeService.GetPendingChangeEmailCodeAsync(user.Sub, cancellationToken);
+        if (pendingCode is null) {
+            logger.LogWarning("No pending email change request found for user {UserId}", user.Sub);
+            return Result.Failure<UserCodeEntity>(new Error("ChangeEmail.NoPendingRequest", "No pending change email request found"));
+        }
+
         if (!string.Equals(verificationCode, pendingCode.Code, StringComparison.OrdinalIgnoreCase)) {
-            logger.LogWarning("Invalid verification code provided for user {UserId}", userId);
+            logger.LogWarning("Invalid verification code provided for user {UserId}", user.Sub);
             await auditWriter.Log(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.EmailChangeFailed,
                 Message = $"Failed changed email to {pendingCode.Email} - invalid code",
-                UserId = userId,
+                UserId = user.Sub,
                 WasFailure = true,
             });
-            return Result.Failure(new Error("ChangeEmail.InvalidCode", "The verification code you entered is incorrect"));
+            return Result.Failure<UserCodeEntity>(new Error("ChangeEmail.InvalidCode", "The verification code you entered is incorrect"));
         }
 
         var expiryTime = pendingCode.CreatedAt.AddHours(VerificationCodeExpiryHours);
         if (DateTime.UtcNow > expiryTime) {
-            logger.LogWarning("Expired verification code provided for user {UserId}", userId);
+            logger.LogWarning("Expired verification code provided for user {UserId}", user.Sub);
             string formattedExpiryTime = expiryTime.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             await auditWriter.Log(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.EnteredExpiredCode,
                 Message = $"Verification code {pendingCode.Code} expired at {formattedExpiryTime}",
-                UserId = userId,
+                UserId = user.Sub,
                 WasFailure = true,
             });
-            return Result.Failure(new Error("ChangeEmail.CodeExpired", "The verification code has expired"));
+            return Result.Failure<UserCodeEntity>(new Error("ChangeEmail.CodeExpired", "The verification code has expired"));
         }
 
         if (string.IsNullOrWhiteSpace(pendingCode.Email)) {
-            logger.LogWarning("Pending change email request for user {UserId} has no associated email address", userId);
-            return Result.Failure(new Error("ChangeEmail.InvalidRequest", "The pending change email request is invalid."));
+            logger.LogWarning("Pending change email request for user {UserId} has no associated email address", user.Sub);
+            return Result.Failure<UserCodeEntity>(new Error("ChangeEmail.InvalidRequest", "The pending change email request is invalid."));
         }
 
-        return Result.Success();
+        return Result.Success(pendingCode);
     }
+
+    private static IResult ValidationProblem(string propertyName, string message) =>
+        Results.ValidationProblem(
+            new Dictionary<string, string[]> { [propertyName] = [message] },
+            detail: message);
 
     private async Task SaveEmailChangeAsync(UserEntity user, string newEmail, CancellationToken cancellationToken)
     {
