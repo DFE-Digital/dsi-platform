@@ -1,12 +1,10 @@
-using System.Net;
-using System.Net.Http.Json;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionStart;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Moq.AutoMock;
-using Moq.Protected;
 
 namespace Dfe.SignIn.Fn.AuthExtensions.UnitTests;
 
@@ -123,8 +121,17 @@ public class AttributeCollectionStartHandlerTests
     public async Task ReturnsBlockPageAction_WhenAttemptingToUseBlockedEmailAddress()
     {
         var autoMocker = new AutoMocker();
+        var userApiclient = new Mock<IUsersApiClient>();
 
-        autoMocker.Use(this.SetupHttpHandlerForValidatingEmail(true));
+        userApiclient
+            .Setup(x => x.CheckIfEmailAddressIsBlocked(
+                It.IsAny<CheckIsBlockedEmailAddressRequest>(),
+                It.IsAny<CancellationToken>())).ReturnsAsync(
+            new CheckIsBlockedEmailAddressResponse {
+                IsBlocked = true
+            });
+
+        autoMocker.Use(userApiclient);
 
         var handler = autoMocker.CreateInstance<AttributeCollectionStartHandler>();
 
@@ -145,7 +152,17 @@ public class AttributeCollectionStartHandlerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.Use(this.SetupHttpHandlerForValidatingEmail(false));
+        var userApiclient = new Mock<IUsersApiClient>();
+
+        userApiclient
+            .Setup(x => x.CheckIfEmailAddressIsBlocked(
+                It.IsAny<CheckIsBlockedEmailAddressRequest>(),
+                It.IsAny<CancellationToken>())).ReturnsAsync(
+            new CheckIsBlockedEmailAddressResponse {
+                IsBlocked = false
+            });
+
+        autoMocker.Use(userApiclient);
 
         var handler = autoMocker.CreateInstance<AttributeCollectionStartHandler>();
 
@@ -158,31 +175,5 @@ public class AttributeCollectionStartHandlerTests
         var data = TypeAssert.IsType<AttributeCollectionStartEventResponseData>(response.Data);
         Assert.HasCount(1, data.Actions);
         Assert.IsInstanceOfType<ContinueWithDefaultBehaviorAction>(data.Actions[0]);
-    }
-
-    private HttpClient SetupHttpHandlerForValidatingEmail(bool response)
-    {
-        var mockHttpHandler = new Mock<HttpMessageHandler>();
-
-        mockHttpHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == HttpMethod.Post &&
-                    req.RequestUri!.AbsolutePath == "/internal/email/check"),
-                ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage {
-                StatusCode = HttpStatusCode.OK,
-                Content = JsonContent.Create(new CheckIsBlockedEmailAddressResponse {
-                    IsBlocked = response
-                })
-            });
-
-        var httpClient = new HttpClient(mockHttpHandler.Object) {
-            BaseAddress = new Uri("https://test.local")
-        };
-
-        return httpClient;
     }
 }
