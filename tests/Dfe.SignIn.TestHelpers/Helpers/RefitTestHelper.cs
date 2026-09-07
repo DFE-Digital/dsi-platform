@@ -52,7 +52,7 @@ public static class RefitTestHelper
                 new HttpRequestMessage(HttpMethod.Post, "https://internal-api"),
                 HttpMethod.Post,
                 httpResponse,
-                new RefitSettings()).Result;
+                new RefitSettings()).GetAwaiter().GetResult();
         }
 
         var mock = new Mock<IApiResponse>();

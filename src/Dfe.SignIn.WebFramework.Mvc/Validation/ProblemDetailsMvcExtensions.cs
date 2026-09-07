@@ -18,7 +18,6 @@ public static class ProblemDetailsMvcExtensions
     /// <param name="propertyMap">Optional dictionary mapping API request field names to ViewModel property names.</param>
     /// <param name="fallbackField">The field to assign unmapped general problem details to (defaults to empty string for model-level).</param>
     /// <param name="defaultErrorMessage">Default error message if response has no content.</param>
-    /// <returns>True if errors were added to ModelState; otherwise false.</returns>
     public static async Task TryAddProblemDetailsToModelStateAsync(
         this IApiResponse response,
         ModelStateDictionary modelState,
@@ -27,7 +26,7 @@ public static class ProblemDetailsMvcExtensions
         string defaultErrorMessage = "We couldn't process your request right now. Please try again.")
     {
         if (response.Error is ApiException { HasContent: true } apiException) {
-            // 1. Try extracting RFC 7807 ValidationProblemDetails (key -> string[] errors)
+            // Try extracting RFC 7807 ValidationProblemDetails (key -> string[] errors)
             var validationProblem = await apiException.GetContentAsAsync<ValidationProblemDetails>();
             if (validationProblem?.Errors?.Count > 0) {
                 foreach (var (apiField, messages) in validationProblem.Errors) {
@@ -38,7 +37,7 @@ public static class ProblemDetailsMvcExtensions
                 }
             }
 
-            // 2. Fall back to standard ProblemDetails (single 'detail' string)
+            // Fall back to standard ProblemDetails (single 'detail' string)
             var problem = await apiException.GetContentAsAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
             if (!string.IsNullOrWhiteSpace(problem?.Detail)) {
                 modelState.AddModelError(fallbackField, problem.Detail);
