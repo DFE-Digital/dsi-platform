@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Core.Contracts.Graph;
 using Dfe.SignIn.Core.Interfaces.Graph;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.Web.Profile.Services;
