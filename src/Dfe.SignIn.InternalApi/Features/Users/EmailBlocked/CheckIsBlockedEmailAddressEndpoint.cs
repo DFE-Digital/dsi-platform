@@ -51,8 +51,8 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
             return Results.BadRequest("Email address is required.");
         }
 
-        var isValid = new EmailAddressAttribute()
-            .IsValid(request.EmailAddress);
+        var isValid = Core.Contracts.StringPatterns.EmailAddressRegex()
+    .IsMatch(request.EmailAddress);
 
         if (!isValid) {
             return Results.BadRequest("Email address is invalid.");
@@ -84,7 +84,7 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
                 || nextChar is '.' or '-' or '_';
         });
 
-        logger.LogInformation("Email address was blocked by policy requirements.");
+        logger.LogInformation("Email address blacklist check completed.");
 
         return Results.Ok(new CheckIsBlockedEmailAddressResponse {
             IsBlocked = isBlockedDomain || isBlockedName,
