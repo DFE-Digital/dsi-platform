@@ -5,6 +5,8 @@ using System.Text.Json;
 using Moq;
 using Refit;
 
+namespace Dfe.SignIn.TestHelpers.Helpers;
+
 public static class RefitTestHelper
 {
     public static async Task<ValidationApiException> ValidationException(HttpStatusCode status, string message = "")
