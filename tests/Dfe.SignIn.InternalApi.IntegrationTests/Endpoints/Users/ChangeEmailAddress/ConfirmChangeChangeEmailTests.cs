@@ -1,12 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
-using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -273,9 +274,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        // Set up the fake to throw the expected exception
+        // Set up the fake to return the expected MFA failure Result
         this.FakeExternalAuthService.OnChangeEmail = (externalUserId, newEmail, ct) =>
-            throw new FailedToUpdateAuthenticationMethodException(user.Sub);
+            Task.FromResult(Result.Failure(EntraEmailErrors.MfaAuthenticationMethodFailed("FailedToUpdateAuthenticationMethodException")));
 
         var response = await authenticatedClient.PostAsJsonAsync(
             GetEndpoint(user.Sub),

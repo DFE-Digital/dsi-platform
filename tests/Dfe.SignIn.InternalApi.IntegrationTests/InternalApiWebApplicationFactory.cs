@@ -1,9 +1,9 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Notifications;
-using Dfe.SignIn.Core.Interfaces.ExternalAuth;
 using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 using Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
 using Dfe.SignIn.TestHelpers.Integration;
 using Dfe.SignIn.TestHelpers.Integration.Mocks;
@@ -59,9 +59,9 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             services.RemoveAll<IInteractionLimiter>();
             services.AddSingleton<IInteractionLimiter>(this.FakeLimiter);
 
-            // External auth
-            services.RemoveAll<IExternalAuthService>();
-            services.AddSingleton<IExternalAuthService>(this.FakeExternalAuth);
+            // External auth (Entra)
+            services.RemoveAll<IEntraChangeEmailService>();
+            services.AddSingleton<IEntraChangeEmailService>(this.FakeExternalAuth);
 
             // User updated publisher
             services.RemoveAll<IUserUpdatedPublisher>();

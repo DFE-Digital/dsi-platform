@@ -30,11 +30,7 @@ public sealed class CancelChangeEmailAddressEndpoint(
             await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Cancel Change Email Address")
             .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .WithOpenApi();
+            .WithStandardResponses();
     }
 
     /// <summary>
@@ -50,7 +46,7 @@ public sealed class CancelChangeEmailAddressEndpoint(
 
         if (userInfo is null) {
             logger.LogWarning("User {UserId} not found", userId);
-            return Results.NotFound(new { Message = "User not found" });
+            return Results.NotFound();
         }
 
         await auditWriter.Log(new WriteToAuditRequest {

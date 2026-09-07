@@ -1,15 +1,16 @@
-using Dfe.SignIn.Core.Interfaces.ExternalAuth;
+using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
 
-public sealed class FakeExternalAuthService : IExternalAuthService
+public sealed class FakeExternalAuthService : IEntraChangeEmailService
 {
-    public Func<Guid, string, CancellationToken, Task>? OnChangeEmail { get; set; }
+    public Func<Guid, string, CancellationToken, Task<Result>>? OnChangeEmail { get; set; }
 
-    public Task ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken)
+    public Task<Result> ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken = default)
     {
         return this.OnChangeEmail != null
             ? this.OnChangeEmail(externalUserId, newEmailAddress, cancellationToken)
-            : Task.CompletedTask;
+            : Task.FromResult(Result.Success());
     }
 }

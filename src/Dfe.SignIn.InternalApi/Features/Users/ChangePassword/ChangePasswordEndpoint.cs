@@ -54,8 +54,12 @@ public sealed class ChangePasswordEndpoint(
     {
         logger.LogInformation("Changing password for user {UserId}", userId);
 
-        var user = await this.GetUserAsync(userId, cancellationToken);
+        var user = await dbDirectoriesContext.Users
+            .Include(x => x.UserPasswordPolicies)
+            .FirstOrDefaultAsync(x => x.Sub == userId, cancellationToken);
+
         if (user is null) {
+            logger.LogWarning("User {UserId} not found attempting to change password", userId);
             return Results.NotFound();
         }
 
@@ -79,19 +83,6 @@ public sealed class ChangePasswordEndpoint(
 
         logger.LogInformation("Successfully changed password for user {UserId}", userId);
         return Results.Ok();
-    }
-
-    private async Task<UserEntity?> GetUserAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var user = await dbDirectoriesContext.Users
-            .Include(x => x.UserPasswordPolicies)
-            .FirstOrDefaultAsync(x => x.Sub == userId, cancellationToken);
-
-        if (user is null) {
-            logger.LogWarning("User {UserId} not found", userId);
-        }
-
-        return user;
     }
 
     private async Task<bool> ValidateCurrentPasswordAsync(UserEntity user, string currentPassword, Guid userId)
