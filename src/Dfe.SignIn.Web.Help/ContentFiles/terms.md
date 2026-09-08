@@ -44,4 +44,6 @@ As an approver, you must also:
 
 A user’s rights to use this service may be removed, or amended, if you are found to be in breach of these terms and conditions. Our decision in the event of a breach shall be final.
 
+Your account will be deleted 12 months after it is deactivated.
+
 Your information will be used to establish your identity and permissions when using a DfE service.
