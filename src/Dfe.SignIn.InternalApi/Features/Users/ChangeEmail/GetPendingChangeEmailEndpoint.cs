@@ -11,8 +11,6 @@ namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 /// </summary>
 public sealed class GetPendingChangeEmailEndpoint : IEndpoint
 {
-    private const int VerificationCodeExpiryHours = 1;
-
     /// <summary>
     /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
     /// </summary>
@@ -47,7 +45,7 @@ public sealed class GetPendingChangeEmailEndpoint : IEndpoint
             return Results.NotFound(new { Message = "No pending change email request found" });
         }
 
-        var expiryTime = pendingCode.CreatedAt.AddHours(VerificationCodeExpiryHours);
+        var expiryTime = pendingCode.CreatedAt.AddHours(ChangeEmailConstants.VerificationCodeExpiryHours);
         var hasExpired = timeProvider.GetUtcNow().UtcDateTime > expiryTime;
 
         return Results.Ok(new GetPendingChangeEmailResponse {
