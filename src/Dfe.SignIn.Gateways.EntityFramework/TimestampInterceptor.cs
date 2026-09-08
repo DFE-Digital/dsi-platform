@@ -52,15 +52,15 @@ internal class TimestampInterceptor(TimeProvider timeProvider) : SaveChangesInte
             return;
         }
 
-        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var now = timeProvider.GetUtcNow();
 
         foreach (var entry in context.ChangeTracker.Entries()) {
             if (entry.State == EntityState.Added) {
-                SetIfExists(entry, "CreatedAt", now);
+                SetTimestampIfExists(entry, "CreatedAt", now);
             }
 
             if (entry.State is EntityState.Added or EntityState.Modified) {
-                SetIfExists(entry, "UpdatedAt", now);
+                SetTimestampIfExists(entry, "UpdatedAt", now);
             }
         }
     }
@@ -71,13 +71,19 @@ internal class TimestampInterceptor(TimeProvider timeProvider) : SaveChangesInte
     /// <param name="entry">The entity entry being updated.</param>
     /// <param name="propertyName">The name of the property to set.</param>
     /// <param name="value">The value to assign.</param>
-    private static void SetIfExists(EntityEntry entry, string propertyName, object value)
+    private static void SetTimestampIfExists(EntityEntry entry, string propertyName, DateTimeOffset value)
     {
         var prop = entry.Metadata.FindProperty(propertyName);
         if (prop is null) {
             return;
         }
 
-        entry.Property(propertyName).CurrentValue = value;
+        var actualType = Nullable.GetUnderlyingType(prop.ClrType) ?? prop.ClrType;
+        if (actualType == typeof(DateTimeOffset)) {
+            entry.CurrentValues[prop] = value;
+        }
+        else {
+            entry.CurrentValues[prop] = value.UtcDateTime;
+        }
     }
 }

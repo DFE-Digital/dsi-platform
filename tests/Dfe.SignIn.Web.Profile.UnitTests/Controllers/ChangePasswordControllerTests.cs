@@ -1,6 +1,10 @@
+using System.Net;
 using System.Security.Claims;
+using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Core.Contracts.Graph;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Interfaces.Graph;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.Web.Profile.Services;
@@ -12,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Moq.AutoMock;
+using Refit;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
 
@@ -20,6 +25,13 @@ public sealed class ChangePasswordControllerTests
 {
     private static ChangePasswordController CreateController(AutoMocker autoMocker, bool isEntraUser)
     {
+        var mockResponse = new Mock<IApiResponse>();
+        mockResponse.SetupGet(r => r.IsSuccessStatusCode).Returns(true);
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockResponse.Object);
+
         var controller = autoMocker.CreateInstance<ChangePasswordController>();
 
         var httpContext = new DefaultHttpContext();
@@ -131,46 +143,40 @@ public sealed class ChangePasswordControllerTests
 
     private static ChangePasswordViewModel CreateValidChangePasswordViewModel() => new() {
         CurrentPasswordInput = "oldpassword",
-        NewPasswordInput = "newpassword",
-        ConfirmNewPasswordInput = "newpassword",
+        NewPasswordInput = "NewPassword123!",
+        ConfirmNewPasswordInput = "NewPassword123!",
     };
 
     [TestMethod]
     public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
     {
         var autoMocker = new AutoMocker();
-        autoMocker.MockValidationError<SelfChangePasswordRequest>(nameof(SelfChangePasswordRequest.CurrentPassword));
-
         var controller = CreateController(autoMocker, isEntraUser: false);
 
         var result = await controller.PostIndex(new ChangePasswordViewModel());
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsFalse(controller.ModelState.IsValid);
     }
 
     [TestMethod]
-    public async Task PostIndex_DispatchesExpectedInteraction()
+    public async Task PostIndex_CallsUsersApiClient_WhenNonEntraUser()
     {
         var autoMocker = new AutoMocker();
-
-        SelfChangePasswordRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<SelfChangePasswordRequest>(r => capturedRequest = r);
-
         var controller = CreateController(autoMocker, isEntraUser: false);
 
         await controller.PostIndex(CreateValidChangePasswordViewModel());
 
-        Assert.IsNotNull(capturedRequest);
-        Assert.AreEqual(Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
-        Assert.IsNull(capturedRequest.GraphAccessToken);
-        Assert.AreEqual("oldpassword", capturedRequest.CurrentPassword);
-        Assert.AreEqual("newpassword", capturedRequest.NewPassword);
-        Assert.AreEqual("newpassword", capturedRequest.ConfirmNewPassword);
+        autoMocker.GetMock<IUsersApiClient>().Verify(x => x.ChangePassword(
+            Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            It.Is<ChangePasswordRequest>(r => r.CurrentPassword == "oldpassword" && r.NewPassword == "NewPassword123!" && r.ConfirmNewPassword == "NewPassword123!"),
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 
     [TestMethod]
-    public async Task PostIndex_DispatchesExpectedInteraction_WhenEntraUser()
+    public async Task PostIndex_CallsGraphApi_WhenEntraUser()
     {
         var autoMocker = new AutoMocker();
 
@@ -186,19 +192,16 @@ public sealed class ChangePasswordControllerTests
             ))
             .ReturnsAsync(fakeAccessToken);
 
-        SelfChangePasswordRequest? capturedRequest = null;
-        autoMocker.CaptureRequest<SelfChangePasswordRequest>(r => capturedRequest = r);
-
         var controller = CreateController(autoMocker, isEntraUser: true);
 
         await controller.PostIndex(CreateValidChangePasswordViewModel());
 
-        Assert.IsNotNull(capturedRequest);
-        Assert.AreEqual(Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"), capturedRequest.UserId);
-        Assert.AreSame(fakeAccessToken, capturedRequest.GraphAccessToken);
-        Assert.AreEqual("oldpassword", capturedRequest.CurrentPassword);
-        Assert.AreEqual("newpassword", capturedRequest.NewPassword);
-        Assert.AreEqual("newpassword", capturedRequest.ConfirmNewPassword);
+        autoMocker.GetMock<IGraphApiChangeUserPassword>().Verify(x => x.ChangePassword(
+            "oldpassword",
+            "NewPassword123!",
+            fakeAccessToken,
+            It.IsAny<CancellationToken>()
+        ), Times.Once);
     }
 
     [TestMethod]
@@ -227,6 +230,54 @@ public sealed class ChangePasswordControllerTests
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
         Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_AddsModelErrorsAndPresentsView_WhenApiReturnsValidationProblemDetails()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker, isEntraUser: false);
+
+        var problemDetails = new ValidationProblemDetails {
+            Errors = {
+                [nameof(ChangePasswordRequest.NewPassword)] = ["Password has been breached and is unsafe to use."]
+            }
+        };
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse(HttpStatusCode.BadRequest, problemDetails));
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsFalse(controller.ModelState.IsValid);
+        Assert.IsTrue(controller.ModelState.ContainsKey(nameof(ChangePasswordViewModel.NewPasswordInput)));
+        Assert.AreEqual("Password has been breached and is unsafe to use.", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_AddsDefaultErrorAndPresentsView_WhenApiReturnsNonSuccessWithoutProblemDetails()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker, isEntraUser: false);
+
+        var mockResponse = new Mock<IApiResponse>();
+        mockResponse.SetupGet(r => r.IsSuccessStatusCode).Returns(false);
+        mockResponse.SetupGet(r => r.StatusCode).Returns(HttpStatusCode.InternalServerError);
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockResponse.Object);
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsFalse(controller.ModelState.IsValid);
+        Assert.IsTrue(controller.ModelState.ContainsKey(string.Empty));
+        Assert.AreEqual("We couldn't process your request right now. Please try again.", controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
     }
 
     #endregion

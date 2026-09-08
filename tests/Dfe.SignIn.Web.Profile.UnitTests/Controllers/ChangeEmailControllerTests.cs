@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;

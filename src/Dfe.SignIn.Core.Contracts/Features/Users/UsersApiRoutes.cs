@@ -55,4 +55,9 @@ public static class UsersApiRoutes
     /// the blacklist.
     /// </summary>
     public const string CheckEmailBlocked = "/internal/email/check";
+
+    /// <summary>
+    /// The API route for changing a user's password.
+    /// </summary>
+    public const string ChangePassword = "/internal/users/{userId}/change-password";
 }

@@ -72,4 +72,25 @@ public static class EntityFaker
         .RuleFor(x => x.ContextData, _ => null)
         .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
         .RuleFor(x => x.UpdatedAt, (f, code) => f.Date.Between(code.CreatedAt, DateTime.UtcNow));
+
+    public static Faker<UserPasswordPolicyEntity> UserPasswordPolicy => new Faker<UserPasswordPolicyEntity>()
+        .RuleFor(x => x.Id, f => f.Random.Guid())
+        .RuleFor(x => x.Uid, f => f.Random.Guid())
+        .RuleFor(x => x.PolicyCode, _ => "v4")
+        .RuleFor(x => x.PasswordHistoryLimit, _ => (short)3)
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, p) => f.Date.BetweenOffset(p.CreatedAt, DateTimeOffset.UtcNow));
+
+    public static Faker<PasswordHistoryEntity> PasswordHistory => new Faker<PasswordHistoryEntity>()
+        .RuleFor(x => x.Id, f => f.Random.Guid())
+        .RuleFor(x => x.Password, f => Convert.ToBase64String(f.Random.Bytes(64)))
+        .RuleFor(x => x.Salt, f => f.Random.AlphaNumeric(32))
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, p) => f.Date.Between(p.CreatedAt, DateTime.UtcNow));
+
+    public static Faker<UserPasswordHistoryEntity> UserPasswordHistory => new Faker<UserPasswordHistoryEntity>()
+        .RuleFor(x => x.PasswordHistoryId, f => f.Random.Guid())
+        .RuleFor(x => x.UserSub, f => f.Random.Guid())
+        .RuleFor(x => x.CreatedAt, f => f.Date.Past(2))
+        .RuleFor(x => x.UpdatedAt, (f, h) => f.Date.Between(h.CreatedAt, DateTime.UtcNow));
 }

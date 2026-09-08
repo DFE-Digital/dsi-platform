@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using FluentValidation;
 
 namespace Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
