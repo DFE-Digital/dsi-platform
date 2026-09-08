@@ -58,14 +58,17 @@ public static class UsersFeature
     /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddUserServices(this IServiceCollection services, IConfigurationRoot configuration)
     {
-        services.AddScoped<IUserLookupService, UserLookupService>();
-        services.AddScoped<IUserCodeService, UserCodeService>();
-        services.AddEntraApplicationServices(configuration);
-        services.AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
+        services
+            .AddScoped<IUserLookupService, UserLookupService>()
+            .AddScoped<IUserCodeService, UserCodeService>()
+            .AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>()
+            .AddSingleton<IPasswordHasher, PasswordHasher>();
 
-        services.AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
+        services
+            .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
 
-        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services
+            .AddEntraApplicationServices();
 
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);

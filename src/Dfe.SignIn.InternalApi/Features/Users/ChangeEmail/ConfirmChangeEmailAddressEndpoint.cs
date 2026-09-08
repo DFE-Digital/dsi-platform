@@ -56,7 +56,10 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
     {
         logger.LogInformation("Confirming email change for user {UserId}", userId);
 
-        var user = await this.GetUserAsync(userId, cancellationToken);
+        var user = await directoriesDbContext.Users
+            .Where(x => x.Sub == userId)
+            .FirstOrDefaultAsync(cancellationToken);
+
         if (user is null) {
             logger.LogWarning("User {UserId} not found when attempting to confirm email change", userId);
             return Results.NotFound();
@@ -95,13 +98,6 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         return Results.Ok(new ConfirmChangeEmailAddressResponse {
             NewEmailAddress = newEmail,
         });
-    }
-
-    private async Task<UserEntity?> GetUserAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        return await directoriesDbContext.Users
-            .Where(x => x.Sub == userId)
-            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private async Task<Result<UserCodeEntity>> ValidatePendingEmailChangeAsync(

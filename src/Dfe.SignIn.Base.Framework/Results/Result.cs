@@ -41,17 +41,17 @@ public class Result
     public static Result Success() => new(true, Error.None);
 
     /// <summary>
-    /// Creates a failed result with the specified error.
-    /// </summary>
-    /// <param name="error">The error, if applicable.</param>
-    public static Result Failure(Error error) => new(false, error);
-
-    /// <summary>
     /// Creates a successful result with the specified value.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="value">The value.</param>
     public static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
+
+    /// <summary>
+    /// Creates a failed result with the specified error.
+    /// </summary>
+    /// <param name="error">The error, if applicable.</param>
+    public static Result Failure(Error error) => new(false, error);
 
     /// <summary>
     /// Creates a failed result with the specified error and no value.

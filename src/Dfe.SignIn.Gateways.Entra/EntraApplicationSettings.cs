@@ -3,7 +3,7 @@ namespace Dfe.SignIn.Gateways.Entra;
 /// <summary>
 /// Configuration options for connecting to Microsoft Entra ID with application credentials.
 /// </summary>
-public sealed class EntraApplicationOptions
+public sealed class EntraApplicationSettings
 {
     /// <summary>
     /// The name of the configuration section in appsettings.json for Entra application settings.
