@@ -1,3 +1,4 @@
+using System.Net;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Users;
@@ -76,12 +77,12 @@ public sealed class ChangeEmailController(
                 );
             }
         }
-        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+        catch (Refit.ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest) {
             var message = ex.Content?.ToString() ?? "We couldn't change your email address right now. Please try again.";
             this.ModelState.AddModelError(nameof(ChangeEmailViewModel.EmailAddressInput), message);
             return this.View("Index");
         }
-        catch (Refit.ValidationApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests) {
+        catch (Refit.ValidationApiException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests) {
             var errorMessage = !string.IsNullOrWhiteSpace(ex.Content?.Detail)
                 ? ex.Content.Detail
                 : "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";
@@ -139,55 +140,39 @@ public sealed class ChangeEmailController(
         VerificationCodeViewModel viewModel)
     {
         var validationResult = await verificationCodeValidator.ValidateAsync(viewModel);
+        if (!validationResult.IsValid) {
+            return await this.VerificationCodeHelper(userId);
+        }
 
-        try {
+        var request = new ConfirmChangeEmailAddressRequest {
+            VerificationCode = viewModel.VerificationCodeInput!,
+        };
 
-            if (!validationResult.IsValid) {
-                return await this.VerificationCodeHelper(userId);
+        var response = await usersApiClient.ConfirmChangeEmailAddress(userId, request);
+        if (response.IsSuccessStatusCode) {
+            if (response.Content?.HasWarning(ChangeEmailWarnings.EntraMfaSyncFailed) == true) {
+                logger.LogError("Partially failed to change email address for user {UserId}: Entra MFA sync failed.", userId);
+                return this.ErrorView("ErrorUpdateAuthenticationMethod");
             }
 
-            var request = new ConfirmChangeEmailAddressRequest {
-                VerificationCode = viewModel.VerificationCodeInput!,
-            };
-
-            await usersApiClient.ConfirmChangeEmailAddress(userId, request);
             return this.RedirectToAction(nameof(Complete));
         }
-        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
-            var errorMessage = this.ExtractErrorMessage(ex.Content)
-            ?? "We couldn't change your email address right now. Please try again.";
 
-            // No pending change → redirect to restart the flow
-            if (errorMessage.Contains("No pending change",
-            StringComparison.OrdinalIgnoreCase)) {
+        if (response.StatusCode == HttpStatusCode.BadRequest) {
+            if (await response.IsProblemType(ChangeEmailErrors.NoPendingRequest)) {
                 return this.RedirectToAction(nameof(Index));
             }
 
-            // Validation error (incorrect code / expired code) → show on form
-            this.ModelState.AddModelError(
-            nameof(VerificationCodeViewModel.VerificationCodeInput), errorMessage);
+            await response.TryAddProblemDetailsToModelStateAsync(
+                this.ModelState,
+                VerificationCodeViewModel.RequestPropertyMap,
+                fallbackField: nameof(VerificationCodeViewModel.VerificationCodeInput));
+
             return await this.VerificationCodeHelper(userId);
         }
-        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.InternalServerError) {
-            if (ex.Content?.Contains("ChangeEmailAddressAuthenticationMethodError",
-            StringComparison.Ordinal) == true) {
-                logger.LogError(ex, "Partially failed to change email address.");
-                return this.ErrorView("ErrorUpdateAuthenticationMethod");
-            }
-            logger.LogError(ex, "Failed to change email address.");
-            return this.ErrorView("ErrorUpdateEmailAddress");
-        }
-        catch (NoPendingChangeEmailException) {
-            return this.RedirectToAction(nameof(Index));
-        }
-        catch (FailedToUpdateAuthenticationMethodException ex) {
-            logger.LogError(ex, "Partially failed to change email address.");
-            return this.ErrorView("ErrorUpdateAuthenticationMethod");
-        }
-        catch (Exception ex) {
-            logger.LogError(ex, "Failed to change email address.");
-            return this.ErrorView("ErrorUpdateEmailAddress");
-        }
+
+        logger.LogError("Failed to change email address for user {UserId}. StatusCode: {StatusCode}", userId, response.StatusCode);
+        return this.ErrorView("ErrorUpdateEmailAddress");
     }
 
     [AllowAnonymous]
@@ -229,27 +214,7 @@ public sealed class ChangeEmailController(
         try {
             return await usersApiClient.GetPendingChangeEmail(userId);
         }
-        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts the "message" field from a JSON error response body (e.g. { "message": "..." }).
-    /// </summary>
-    private string? ExtractErrorMessage(string? responseContent)
-    {
-        if (string.IsNullOrWhiteSpace(responseContent)) {
-            return null;
-        }
-        try {
-            using var doc = System.Text.Json.JsonDocument.Parse(responseContent);
-            return doc.RootElement.TryGetProperty("detail", out var messageProp)
-            ? messageProp.GetString()
-            : null;
-        }
-        catch (Exception ex) {
-            logger.LogWarning(ex, "Failed to parse error response content: {ResponseContent}", responseContent);
+        catch (Refit.ApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound) {
             return null;
         }
     }

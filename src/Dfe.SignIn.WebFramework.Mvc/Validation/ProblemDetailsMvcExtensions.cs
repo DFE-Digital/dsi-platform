@@ -26,21 +26,34 @@ public static class ProblemDetailsMvcExtensions
         string defaultErrorMessage = "We couldn't process your request right now. Please try again.")
     {
         if (response.Error is ApiException { HasContent: true } apiException) {
-            // Try extracting RFC 7807 ValidationProblemDetails (key -> string[] errors)
-            var validationProblem = await apiException.GetContentAsAsync<ValidationProblemDetails>();
-            if (validationProblem?.Errors?.Count > 0) {
-                foreach (var (apiField, messages) in validationProblem.Errors) {
-                    var targetField = propertyMap?.GetValueOrDefault(apiField) ?? apiField;
-                    foreach (var message in messages) {
-                        modelState.AddModelError(targetField, message);
+            try {
+                // Try extracting RFC 7807 ValidationProblemDetails (key -> string[] errors)
+                var validationProblem = await apiException.GetContentAsAsync<ValidationProblemDetails>();
+                if (validationProblem?.Errors?.Count > 0) {
+                    foreach (var (apiField, messages) in validationProblem.Errors) {
+                        var targetField = propertyMap?.GetValueOrDefault(apiField) ?? apiField;
+                        foreach (var message in messages) {
+                            modelState.AddModelError(targetField, message);
+                        }
                     }
+
+                    return;
                 }
             }
+            catch {
+                // Ignore and fall back to standard ProblemDetails
+            }
 
-            // Fall back to standard ProblemDetails (single 'detail' string)
-            var problem = await apiException.GetContentAsAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
-            if (!string.IsNullOrWhiteSpace(problem?.Detail)) {
-                modelState.AddModelError(fallbackField, problem.Detail);
+            try {
+                // Fall back to standard ProblemDetails (single 'detail' string)
+                var problem = await apiException.GetContentAsAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+                if (!string.IsNullOrWhiteSpace(problem?.Detail)) {
+                    modelState.AddModelError(fallbackField, problem.Detail);
+                    return;
+                }
+            }
+            catch {
+                // Ignore and fall back to default error message
             }
         }
 
@@ -63,5 +76,39 @@ public static class ProblemDetailsMvcExtensions
         catch {
             return null;
         }
+    }
+
+    /// <summary>
+    /// Safely extracts the 'type' field from a standard ProblemDetails response without throwing.
+    /// </summary>
+    private static async Task<string?> GetProblemTypeAsync(this IApiResponse response)
+    {
+        if (response.Error is not ApiException { HasContent: true } apiException) {
+            return null;
+        }
+
+        try {
+            var problem = await apiException.GetContentAsAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+            return problem?.Type;
+        }
+        catch {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Determines whether the response contains a ProblemDetails error of the specified type.
+    /// </summary>
+    /// <param name="response">The Refit API response.</param>
+    /// <param name="expectedType">The expected problem type.</param>
+    /// <param name="comparison">The string comparison type to use (defaults to <see cref="StringComparison.Ordinal"/>).</param>
+    /// <returns><c>true</c> if the problem type matches; otherwise, <c>false</c>.</returns>
+    public static async Task<bool> IsProblemType(
+        this IApiResponse response,
+        string expectedType,
+        StringComparison comparison = StringComparison.Ordinal)
+    {
+        var actualType = await response.GetProblemTypeAsync();
+        return string.Equals(actualType, expectedType, comparison);
     }
 }

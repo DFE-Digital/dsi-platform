@@ -1,5 +1,5 @@
 using System.Globalization;
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Base.Framework.Results;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
@@ -9,6 +9,7 @@ using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
+using Dfe.SignIn.WebFramework.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -63,7 +64,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
 
         var validationResult = await this.ValidatePendingEmailChangeAsync(user, request.VerificationCode, cancellationToken);
         if (validationResult.IsFailure) {
-            return ValidationProblem(nameof(request.VerificationCode), validationResult.Error.Description);
+            return validationResult.Error.ToValidationProblem(nameof(request.VerificationCode));
         }
 
         var pendingCode = validationResult.Value;
@@ -74,13 +75,26 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
 
         var entraSyncResult = await this.SyncEmailWithEntraAsync(user, originalEmail, newEmail, cancellationToken);
         if (entraSyncResult.IsFailure) {
-            return MapEntraFailure(entraSyncResult.Error);
+            if (entraSyncResult.Error.Code == EntraEmailErrors.Codes.MfaAuthenticationMethodFailed) {
+                // Parity with legacy Node: code is cleaned up in finally block, but Service Bus notification is skipped
+                await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
+
+                return Results.Ok(new ConfirmChangeEmailAddressResponse {
+                    NewEmailAddress = newEmail,
+                    Warnings = [ChangeEmailWarnings.EntraMfaSyncFailedWarning(entraSyncResult.Error.Description)],
+                });
+            }
+
+            return Results.InternalServerError(new { message = entraSyncResult.Error.Description });
         }
 
-        await this.CompleteEmailChangeAsync(user, newEmail, cancellationToken);
+        await this.LogSuccessAuditAsync(user, newEmail);
+        await this.PublishNotificationAndCleanUpCodeAsync(user, newEmail, cancellationToken);
 
         logger.LogInformation("Successfully confirmed email change to {NewEmail} for user {UserId}", newEmail, userId);
-        return Results.Ok();
+        return Results.Ok(new ConfirmChangeEmailAddressResponse {
+            NewEmailAddress = newEmail,
+        });
     }
 
     private async Task<UserEntity?> GetUserAsync(Guid userId, CancellationToken cancellationToken)
@@ -98,7 +112,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         var pendingCode = await userCodeService.GetPendingChangeEmailCodeAsync(user.Sub, cancellationToken);
         if (pendingCode is null) {
             logger.LogWarning("No pending email change request found for user {UserId}", user.Sub);
-            return Result.Failure<UserCodeEntity>(new Error("ChangeEmail.NoPendingRequest", "No pending change email request found"));
+            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.NoPendingRequestError());
         }
 
         if (!string.Equals(verificationCode, pendingCode.Code, StringComparison.OrdinalIgnoreCase)) {
@@ -110,7 +124,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                 UserId = user.Sub,
                 WasFailure = true,
             });
-            return Result.Failure<UserCodeEntity>(new Error("ChangeEmail.InvalidCode", "The verification code you entered is incorrect"));
+            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidCodeError());
         }
 
         var expiryTime = pendingCode.CreatedAt.AddHours(VerificationCodeExpiryHours);
@@ -124,21 +138,16 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                 UserId = user.Sub,
                 WasFailure = true,
             });
-            return Result.Failure<UserCodeEntity>(new Error("ChangeEmail.CodeExpired", "The verification code has expired"));
+            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.CodeExpiredError());
         }
 
         if (string.IsNullOrWhiteSpace(pendingCode.Email)) {
             logger.LogWarning("Pending change email request for user {UserId} has no associated email address", user.Sub);
-            return Result.Failure<UserCodeEntity>(new Error("ChangeEmail.InvalidRequest", "The pending change email request is invalid."));
+            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidRequestError());
         }
 
         return Result.Success(pendingCode);
     }
-
-    private static IResult ValidationProblem(string propertyName, string message) =>
-        Results.ValidationProblem(
-            new Dictionary<string, string[]> { [propertyName] = [message] },
-            detail: message);
 
     private async Task SaveEmailChangeAsync(UserEntity user, string newEmail, CancellationToken cancellationToken)
     {
@@ -206,21 +215,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         return Result.Failure(entraResult.Error);
     }
 
-    private static IResult MapEntraFailure(Error error)
-    {
-        if (error.Code == EntraEmailErrors.Codes.MfaAuthenticationMethodFailed) {
-            return Results.Json(
-                new { type = "ChangeEmailAddressAuthenticationMethodError", message = error.Description },
-                statusCode: StatusCodes.Status500InternalServerError);
-        }
-
-        return Results.InternalServerError(new { message = error.Description });
-    }
-
-    private async Task CompleteEmailChangeAsync(
-        UserEntity user,
-        string newEmail,
-        CancellationToken cancellationToken)
+    private async Task LogSuccessAuditAsync(UserEntity user, string newEmail)
     {
         await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeEmail,
@@ -233,7 +228,13 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                     })
             ]
         });
+    }
 
+    private async Task PublishNotificationAndCleanUpCodeAsync(
+        UserEntity user,
+        string newEmail,
+        CancellationToken cancellationToken)
+    {
         try {
             // Publish downstream notification event (legacy userupdated_v1)
             await userUpdatedPublisher.PublishUserUpdatedAsync(user.Sub, newEmail, user.FirstName, user.LastName, user.Status, cancellationToken);

@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Base.Framework.Results;
 
 namespace Dfe.SignIn.Gateways.Entra.ChangeEmail;
 

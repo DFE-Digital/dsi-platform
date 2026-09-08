@@ -1,18 +1,4 @@
-namespace Dfe.SignIn.Base.Framework;
-
-/// <summary>
-/// Represents an error with a code, description, and optional target.
-/// </summary>
-/// <param name="Code">The error code.</param>
-/// <param name="Description">The error description.</param>
-/// <param name="Target">The target of the error, if applicable.</param>
-public sealed record Error(string Code, string Description, string? Target = null)
-{
-    /// <summary>
-    /// Represents a successful result with no error.
-    /// </summary>
-    public static readonly Error None = new(string.Empty, string.Empty);
-}
+namespace Dfe.SignIn.Base.Framework.Results;
 
 /// <summary>
 /// Represents the result of an operation, indicating success or failure and containing an error if applicable.
@@ -79,7 +65,10 @@ public class Result
     /// </summary>
     /// <param name="error">The error to convert.</param>
     /// <returns>A failed <see cref="Result"/> containing the error.</returns>
-    public static implicit operator Result(Error error) => Failure(error);
+    public static implicit operator Result(Error error)
+    {
+        return Failure(error);
+    }
 }
 
 /// <summary>

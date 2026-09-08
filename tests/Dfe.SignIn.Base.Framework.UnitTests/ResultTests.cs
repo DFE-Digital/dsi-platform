@@ -1,3 +1,5 @@
+using Dfe.SignIn.Base.Framework.Results;
+
 namespace Dfe.SignIn.Base.Framework.UnitTests;
 
 [TestClass]

@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Base.Framework.Results;
 using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Mocks;

@@ -75,9 +75,9 @@ public interface IUsersApiClient
     /// <param name="userId">The ID of the user whose email address change is being confirmed.</param>
     /// <param name="request">The request containing the verification code for confirming the email address change.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <returns>A task representing the asynchronous operation with the API response containing change email confirmation details and any warnings.</returns>
     [Post(UsersApiRoutes.ConfirmChangeEmail)]
-    Task ConfirmChangeEmailAddress(Guid userId, [Body] ConfirmChangeEmailAddressRequest request, CancellationToken cancellationToken = default);
+    Task<IApiResponse<ConfirmChangeEmailAddressResponse>> ConfirmChangeEmailAddress(Guid userId, [Body] ConfirmChangeEmailAddressRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Cancels the process of changing a user's email address.

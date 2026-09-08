@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Base.Framework.Results;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Validation;

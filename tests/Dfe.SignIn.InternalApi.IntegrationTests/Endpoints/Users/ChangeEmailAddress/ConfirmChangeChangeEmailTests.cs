@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Base.Framework.Results;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
@@ -52,6 +52,11 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             CreateConfirmRequest("ABC1234"));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var content = await response.Content.ReadFromJsonAsync<ConfirmChangeEmailAddressResponse>();
+        Assert.NotNull(content);
+        Assert.Equal("john.doe@new.example.com", content.NewEmailAddress);
+        Assert.Empty(content.Warnings);
 
         // Assert user email is updated
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(
@@ -252,11 +257,13 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
     }
 
     [Fact]
-    public async Task ConfirmChangeEmail_MapsAuthMethodUpdateFailure_AsCurrentBehaviour()
+    public async Task ConfirmChangeEmail_ReturnsOkWithWarning_DeletesCode_AndDoesNotPublishUserUpdated_WhenAuthMethodUpdateFails()
     {
         var authenticatedClient = this
             .CreateClient()
             .WithAuthentication();
+
+        this.FakeUserUpdatedPublisher.Clear();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -282,16 +289,24 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             GetEndpoint(user.Sub),
             CreateConfirmRequest("ABC1234"));
 
-        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        // Check mapped JSON error matches legacy contract
-        var error = await response.Content.ReadFromJsonAsync<ErrorMessageDto>();
-        Assert.NotNull(error);
-        Assert.Equal("ChangeEmailAddressAuthenticationMethodError", error.Type);
+        // Check mapped JSON warning matches Warning Pattern
+        var content = await response.Content.ReadFromJsonAsync<ConfirmChangeEmailAddressResponse>();
+        Assert.NotNull(content);
+        Assert.Equal("john.doe@new.example.com", content.NewEmailAddress);
+        Assert.True(content.HasWarning(ChangeEmailWarnings.EntraMfaSyncFailed));
 
         // Retains DB update (not rolled back)
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal("john.doe@new.example.com", updatedUser.Email);
+
+        // Pending code is deleted
+        var dbCode = await this.GetChangeEmailCode(user.Sub);
+        Assert.Null(dbCode);
+
+        // User updated publisher should NOT publish event (parity with legacy Node)
+        Assert.Empty(this.FakeUserUpdatedPublisher.PublishedEvents);
 
         // Failure audit is logged
         var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
@@ -358,6 +373,27 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             CreateConfirmRequest("ANYCODE"));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ConfirmChangeEmail_ReturnsBadRequestWithProblemDetails_WhenNoPendingCode()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var user = EntityFaker.User.Generate();
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("ANYCODE"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var problemDetails = await response.Content.ReadFromJsonAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+        Assert.NotNull(problemDetails);
+        Assert.Equal(ChangeEmailErrors.NoPendingRequest, problemDetails.Type);
     }
 
     [Fact]
@@ -528,8 +564,4 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         return await this.ExecuteDbContextAsync<DbDirectoriesContext, UserCodeEntity?>(
             db => db.UserCodes.SingleOrDefaultAsync(x => x.Uid == userId && x.CodeType == UserCodeType.ChangeEmail.Value));
     }
-
-    private record ErrorMessageDto(
-        [property: JsonPropertyName("type")] string Type,
-        [property: JsonPropertyName("message")] string Message);
 }

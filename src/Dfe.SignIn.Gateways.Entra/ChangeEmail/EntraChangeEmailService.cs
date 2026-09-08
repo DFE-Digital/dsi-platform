@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Base.Framework.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ODataErrors;
