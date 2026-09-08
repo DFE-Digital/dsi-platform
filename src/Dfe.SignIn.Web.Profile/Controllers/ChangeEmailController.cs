@@ -194,7 +194,14 @@ public sealed class ChangeEmailController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostCancel()
     {
-        await usersApiClient.CancelChangeEmailAddress(this.User.GetUserId());
+        var response = await usersApiClient.CancelChangeEmailAddress(this.User.GetUserId());
+        if (!response.IsSuccessStatusCode) {
+            logger.LogError(
+                "Failed to cancel change email for user {UserId}. StatusCode: {StatusCode}",
+                this.User.GetUserId(),
+                response.StatusCode);
+            return this.ErrorView("ErrorUpdateEmailAddress");
+        }
 
         this.SetFlashNotification(
             heading: "Email change cancelled",

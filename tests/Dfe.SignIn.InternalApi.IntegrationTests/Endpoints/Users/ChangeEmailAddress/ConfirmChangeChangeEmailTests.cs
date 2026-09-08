@@ -312,6 +312,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
         Assert.Contains("FailedToUpdateAuthenticationMethodException", failureAudit.Message);
+        Assert.DoesNotContain(this.AuditCapturer.CapturedRequests, x => x.Message.Contains("Successfully changed email"));
     }
 
     [Fact]

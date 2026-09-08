@@ -49,6 +49,10 @@ dotnet user-secrets set "InternalApiClient:Directories:BaseAddress"   "<value>" 
 dotnet user-secrets set "InternalApiClient:Applications:BaseAddress"  "<value>" --project src/Dfe.SignIn.AppHost
 dotnet user-secrets set "InternalApiClient:Search:BaseAddress"        "<value>" --project src/Dfe.SignIn.AppHost
 
+dotnet user-secrets set "Entra:TenantId"     "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "Entra:ClientId"     "<value>" --project src/Dfe.SignIn.AppHost
+dotnet user-secrets set "Entra:ClientSecret" "<value>" --project src/Dfe.SignIn.AppHost
+
 dotnet user-secrets set "Session:DurationInMinutes"                   "<value>" --project src/Dfe.SignIn.AppHost
 dotnet user-secrets set "Session:NotifyRemainingMinutes"              "<value>" --project src/Dfe.SignIn.AppHost
 

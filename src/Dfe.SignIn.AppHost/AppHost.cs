@@ -59,6 +59,7 @@ var bearerTokenConfig = builder.Configuration.GetSection("BearerToken");
 var publicApiSecretConfig = builder.Configuration.GetSection("PublicApiSecretEncryption");
 var selectOrgConfig = builder.Configuration.GetSection("SelectOrganisation");
 var internalApiConfig = builder.Configuration.GetSection("InternalApiClient");
+var entraConfig = builder.Configuration.GetSection("Entra");
 var efConfig = builder.Configuration.GetSection("EntityFramework");
 var assets = builder.Configuration.GetSection("Assets");
 var generalRedisConfig = builder.Configuration.GetSection("GeneralRedisCache");
@@ -102,6 +103,9 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("InternalApiClient__Directories__BaseAddress", internalApiConfig["Directories:BaseAddress"])
     .WithEnvironment("InternalApiClient__Applications__BaseAddress", internalApiConfig["Applications:BaseAddress"])
     .WithEnvironment("InternalApiClient__UseProxy", "false")
+    .WithEnvironment("Entra__TenantId", entraConfig["TenantId"])
+    .WithEnvironment("Entra__ClientId", entraConfig["ClientId"])
+    .WithEnvironment("Entra__ClientSecret", entraConfig["ClientSecret"])
     .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
     .WithEnvironment("GeneralRedisCache__DatabaseNumber,", generalRedisConfig["DatabaseNumber"])
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
