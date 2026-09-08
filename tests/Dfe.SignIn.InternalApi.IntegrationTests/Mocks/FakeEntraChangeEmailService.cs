@@ -3,7 +3,7 @@ using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
 
-public sealed class FakeExternalAuthService : IEntraChangeEmailService
+public sealed class FakeEntraChangeEmailService : IEntraChangeEmailService
 {
     public Func<Guid, string, CancellationToken, Task<Result>>? OnChangeEmail { get; set; }
 

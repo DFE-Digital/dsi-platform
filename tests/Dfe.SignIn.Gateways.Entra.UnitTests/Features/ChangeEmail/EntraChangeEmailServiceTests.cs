@@ -12,13 +12,13 @@ namespace Dfe.SignIn.Gateways.Entra.UnitTests.Features.ChangeEmail;
 [TestClass]
 public sealed class EntraChangeEmailServiceTests
 {
-    private Mock<IApplicationGraphServiceFactory> graphFactoryMock = null!;
+    private Mock<IApplicationGraphClientProvider> graphClientProviderMock = null!;
     private Mock<ILogger<EntraChangeEmailService>> loggerMock = null!;
 
     [TestInitialize]
     public void Setup()
     {
-        this.graphFactoryMock = new Mock<IApplicationGraphServiceFactory>();
+        this.graphClientProviderMock = new Mock<IApplicationGraphClientProvider>();
         this.loggerMock = new Mock<ILogger<EntraChangeEmailService>>();
     }
 
@@ -26,7 +26,7 @@ public sealed class EntraChangeEmailServiceTests
     public async Task ChangeEmailAsync_WhenNewEmailIsNullOrWhiteSpace_ThrowsArgumentException()
     {
         // Arrange
-        var sut = new EntraChangeEmailService(this.graphFactoryMock.Object, this.loggerMock.Object);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
 
         // Act & Assert
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
@@ -71,8 +71,8 @@ public sealed class EntraChangeEmailServiceTests
             return new HttpResponseMessage(HttpStatusCode.NotFound);
         });
 
-        this.graphFactoryMock.Setup(x => x.CreateClient()).Returns(client);
-        var sut = new EntraChangeEmailService(this.graphFactoryMock.Object, this.loggerMock.Object);
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
 
         // Act
         var result = await sut.ChangeEmailAsync(userId, newEmail);
@@ -126,8 +126,8 @@ public sealed class EntraChangeEmailServiceTests
             return new HttpResponseMessage(HttpStatusCode.NotFound);
         });
 
-        this.graphFactoryMock.Setup(x => x.CreateClient()).Returns(client);
-        var sut = new EntraChangeEmailService(this.graphFactoryMock.Object, this.loggerMock.Object);
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
 
         // Act
         var result = await sut.ChangeEmailAsync(userId, newEmail);
@@ -168,8 +168,8 @@ public sealed class EntraChangeEmailServiceTests
             return new HttpResponseMessage(HttpStatusCode.OK);
         });
 
-        this.graphFactoryMock.Setup(x => x.CreateClient()).Returns(client);
-        var sut = new EntraChangeEmailService(this.graphFactoryMock.Object, this.loggerMock.Object);
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
 
         // Act
         var result = await sut.ChangeEmailAsync(userId, newEmail);
@@ -213,8 +213,8 @@ public sealed class EntraChangeEmailServiceTests
             return new HttpResponseMessage(HttpStatusCode.OK);
         });
 
-        this.graphFactoryMock.Setup(x => x.CreateClient()).Returns(client);
-        var sut = new EntraChangeEmailService(this.graphFactoryMock.Object, this.loggerMock.Object);
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
 
         // Act
         var result = await sut.ChangeEmailAsync(userId, newEmail);

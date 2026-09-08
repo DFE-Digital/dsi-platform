@@ -18,7 +18,7 @@ public static class EntraGatewayExtensions
             .BindConfiguration(EntraApplicationSettings.SectionName)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IApplicationGraphServiceFactory, ApplicationGraphServiceFactory>();
+        services.AddSingleton<IApplicationGraphClientProvider, ApplicationGraphClientProvider>();
         services.AddScoped<IEntraChangeEmailService, EntraChangeEmailService>();
 
         return services;

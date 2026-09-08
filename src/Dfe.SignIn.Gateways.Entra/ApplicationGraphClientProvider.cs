@@ -5,26 +5,29 @@ using Microsoft.Graph;
 namespace Dfe.SignIn.Gateways.Entra;
 
 /// <summary>
-/// Factory for creating Microsoft Graph service clients authenticated with application credentials.
+/// Provides a shared Microsoft Graph service client authenticated with application credentials.
 /// </summary>
-public interface IApplicationGraphServiceFactory
+public interface IApplicationGraphClientProvider
 {
     /// <summary>
-    /// Creates a configured <see cref="GraphServiceClient"/> using daemon / application credentials.
+    /// Gets a configured <see cref="GraphServiceClient"/> using daemon / application credentials.
     /// </summary>
-    GraphServiceClient CreateClient();
+    GraphServiceClient GetClient();
 }
 
 /// <summary>
-/// Default implementation of <see cref="IApplicationGraphServiceFactory"/> using <see cref="ClientSecretCredential"/>.
+/// Default implementation of <see cref="IApplicationGraphClientProvider"/> using <see cref="ClientSecretCredential"/>.
 /// </summary>
-public sealed class ApplicationGraphServiceFactory(
-    IOptions<EntraApplicationSettings> options) : IApplicationGraphServiceFactory
+public sealed class ApplicationGraphClientProvider(
+    IOptions<EntraApplicationSettings> options) : IApplicationGraphClientProvider
 {
     private static readonly string[] DefaultScopes = ["https://graph.microsoft.com/.default"];
+    private readonly Lazy<GraphServiceClient> client = new(() => CreateGraphClient(options));
 
     /// <inheritdoc/>
-    public GraphServiceClient CreateClient()
+    public GraphServiceClient GetClient() => this.client.Value;
+
+    private static GraphServiceClient CreateGraphClient(IOptions<EntraApplicationSettings> options)
     {
         var config = options.Value;
 

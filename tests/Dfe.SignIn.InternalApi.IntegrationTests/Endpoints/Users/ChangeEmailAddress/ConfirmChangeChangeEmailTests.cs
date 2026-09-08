@@ -282,7 +282,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
         // Set up the fake to return the expected MFA failure Result
-        this.FakeExternalAuthService.OnChangeEmail = (externalUserId, newEmail, ct) =>
+        this.FakeEntraChangeEmailService.OnChangeEmail = (externalUserId, newEmail, ct) =>
             Task.FromResult(Result.Failure(EntraEmailErrors.MfaAuthenticationMethodFailed("FailedToUpdateAuthenticationMethodException")));
 
         var response = await authenticatedClient.PostAsJsonAsync(
@@ -312,6 +312,117 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
         Assert.Contains("FailedToUpdateAuthenticationMethodException", failureAudit.Message);
+    }
+
+    [Fact]
+    public async Task ConfirmChangeEmail_Returns500_RollsBackEmail_RetainsCode_AndDoesNotPublishUserUpdated_WhenEntraPrimaryUpdateFails()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        this.FakeUserUpdatedPublisher.Clear();
+
+        var user = EntityFaker.User
+            .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
+            .RuleFor(x => x.IsEntra, (_, _) => true)
+            .RuleFor(x => x.EntraOid, (_, _) => Guid.NewGuid())
+            .Generate();
+
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.CodeType, (_, _) => "changeemail")
+            .RuleFor(x => x.Code, (_, _) => "ABC1234")
+            .RuleFor(x => x.Email, (_, _) => "john.doe@new.example.com")
+            .Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
+
+        this.FakeEntraChangeEmailService.OnChangeEmail = (_, _, _) =>
+            Task.FromResult(Result.Failure(EntraEmailErrors.UserUpdateFailed("primary patch failed")));
+
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("ABC1234"));
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(
+            db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+        Assert.Equal("john.doe@old.example.com", updatedUser.Email);
+
+        var dbCode = await this.GetChangeEmailCode(user.Sub);
+        Assert.NotNull(dbCode);
+
+        Assert.Empty(this.FakeUserUpdatedPublisher.PublishedEvents);
+
+        var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
+        Assert.True(failureAudit.WasFailure);
+        Assert.Contains("primary patch failed", failureAudit.Message);
+        Assert.DoesNotContain(this.AuditCapturer.CapturedRequests, x => x.Message.Contains("Successfully changed email"));
+    }
+
+    [Fact]
+    public async Task ConfirmChangeEmail_ReturnsSuccess_UpdatesEmail_DeletesCode_PublishesUserUpdated_AndWritesAudit_WhenEntraSyncSucceeds()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        this.FakeUserUpdatedPublisher.Clear();
+
+        var entraOid = Guid.NewGuid();
+        var user = EntityFaker.User
+            .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
+            .RuleFor(x => x.IsEntra, (_, _) => true)
+            .RuleFor(x => x.EntraOid, (_, _) => entraOid)
+            .Generate();
+
+        var pendingCode = EntityFaker.UserCode
+            .RuleFor(x => x.Uid, (_, _) => user.Sub)
+            .RuleFor(x => x.Code, (_, _) => "ABC1234")
+            .RuleFor(x => x.Email, (_, _) => "john.doe@new.example.com")
+            .Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+        await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
+
+        Guid? capturedEntraOid = null;
+        this.FakeEntraChangeEmailService.OnChangeEmail = (externalUserId, newEmail, _) => {
+            capturedEntraOid = externalUserId;
+            return Task.FromResult(Result.Success());
+        };
+
+        var response = await authenticatedClient.PostAsJsonAsync(
+            GetEndpoint(user.Sub),
+            CreateConfirmRequest("ABC1234"));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var content = await response.Content.ReadFromJsonAsync<ConfirmChangeEmailAddressResponse>();
+        Assert.NotNull(content);
+        Assert.Equal("john.doe@new.example.com", content.NewEmailAddress);
+        Assert.Empty(content.Warnings);
+        Assert.Equal(entraOid, capturedEntraOid);
+
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(
+            db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+        Assert.Equal("john.doe@new.example.com", updatedUser.Email);
+
+        var dbCode = await this.GetChangeEmailCode(user.Sub);
+        Assert.Null(dbCode);
+
+        var auditRequest = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.Message.Contains("Successfully changed email"));
+        Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditRequest.EventCategory);
+        Assert.Equal(user.Sub, auditRequest.UserId);
+
+        var (UserId, EmailAddress, FirstName, LastName, Status) = Assert.Single(this.FakeUserUpdatedPublisher.PublishedEvents);
+        Assert.Equal(user.Sub, UserId);
+        Assert.Equal("john.doe@new.example.com", EmailAddress);
+        Assert.Equal(user.FirstName, FirstName);
+        Assert.Equal(user.LastName, LastName);
+        Assert.Equal(user.Status, Status);
     }
 
     [Fact]

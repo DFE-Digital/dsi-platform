@@ -16,8 +16,7 @@ public sealed class EntraGatewayExtensionsTests
             .AddInMemoryCollection(new Dictionary<string, string?> {
                 ["Entra:TenantId"] = "tenant-123",
                 ["Entra:ClientId"] = "client-456",
-                ["Entra:ClientSecret"] = "secret-789",
-                ["Entra:GraphEndpoint"] = "https://graph.microsoft.com/v1.0"
+                ["Entra:ClientSecret"] = "secret-789"
             })
             .Build();
 
@@ -27,20 +26,19 @@ public sealed class EntraGatewayExtensionsTests
 
         // Act
         services.AddEntraApplicationServices();
-        using var provider = services.BuildServiceProvider();
+        using var serviceProvider = services.BuildServiceProvider();
 
         // Assert
-        var options = provider.GetRequiredService<IOptions<EntraApplicationSettings>>().Value;
+        var options = serviceProvider.GetRequiredService<IOptions<EntraApplicationSettings>>().Value;
         Assert.AreEqual("tenant-123", options.TenantId);
         Assert.AreEqual("client-456", options.ClientId);
         Assert.AreEqual("secret-789", options.ClientSecret);
-        Assert.AreEqual("https://graph.microsoft.com/v1.0", options.GraphEndpoint);
 
-        var factory = provider.GetService<IApplicationGraphServiceFactory>();
-        Assert.IsNotNull(factory);
-        Assert.IsInstanceOfType<ApplicationGraphServiceFactory>(factory);
+        var graphClientProvider = serviceProvider.GetService<IApplicationGraphClientProvider>();
+        Assert.IsNotNull(graphClientProvider);
+        Assert.IsInstanceOfType<ApplicationGraphClientProvider>(graphClientProvider);
 
-        var emailService = provider.GetService<IEntraChangeEmailService>();
+        var emailService = serviceProvider.GetService<IEntraChangeEmailService>();
         Assert.IsNotNull(emailService);
         Assert.IsInstanceOfType<EntraChangeEmailService>(emailService);
     }

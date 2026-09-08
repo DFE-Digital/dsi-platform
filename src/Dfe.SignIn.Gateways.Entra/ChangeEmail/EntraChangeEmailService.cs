@@ -25,7 +25,7 @@ public interface IEntraChangeEmailService
 /// Implementation of <see cref="IEntraChangeEmailService"/> executing Microsoft Graph calls.
 /// </summary>
 public sealed class EntraChangeEmailService(
-    IApplicationGraphServiceFactory graphServiceFactory,
+    IApplicationGraphClientProvider graphClientProvider,
     ILogger<EntraChangeEmailService> logger) : IEntraChangeEmailService
 {
     /// <inheritdoc/>
@@ -36,7 +36,7 @@ public sealed class EntraChangeEmailService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(newEmailAddress);
 
-        var client = graphServiceFactory.CreateClient();
+        var client = graphClientProvider.GetClient();
         var userIdString = externalUserId.ToString();
 
         var primaryEmailResult = await this.UpdatePrimaryEmailAsync(client, userIdString, externalUserId, newEmailAddress, cancellationToken);

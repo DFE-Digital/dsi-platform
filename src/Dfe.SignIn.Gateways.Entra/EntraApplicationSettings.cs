@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Dfe.SignIn.Gateways.Entra;
 
 /// <summary>
@@ -13,20 +15,18 @@ public sealed class EntraApplicationSettings
     /// <summary>
     /// Gets or sets the tenant ID for the Entra application. This is used to identify the Azure AD tenant.
     /// </summary>
+    [Required]
     public string TenantId { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the client ID for the Entra application. This is used to identify the application in Azure AD.
     /// </summary>
+    [Required]
     public string ClientId { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the client secret for the Entra application. This is used for authenticating the application with Azure AD.
     /// </summary>
+    [Required]
     public string ClientSecret { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the Microsoft Graph API endpoint. This is used to access Microsoft Graph resources.
-    /// </summary>
-    public string GraphEndpoint { get; set; } = "https://graph.microsoft.com/v1.0";
 }

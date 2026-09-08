@@ -27,7 +27,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
 
     public FakeInteractionLimiter FakeLimiter { get; } = new();
     public FakeEmailRequestTracker FakeEmailTracker { get; } = new();
-    public FakeExternalAuthService FakeExternalAuth { get; } = new();
+    public FakeEntraChangeEmailService FakeEntraChangeEmailService { get; } = new();
     public FakeUserUpdatedPublisher FakeUserUpdatedPublisher { get; } = new();
     public CapturingWriteToAuditInteractor AuditCapturer { get; } = new();
     internal FakeTimestampInterceptor TimestampInterceptor { get; } = new();
@@ -59,9 +59,9 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             services.RemoveAll<IInteractionLimiter>();
             services.AddSingleton<IInteractionLimiter>(this.FakeLimiter);
 
-            // External auth (Entra)
+            // Entra change email
             services.RemoveAll<IEntraChangeEmailService>();
-            services.AddSingleton<IEntraChangeEmailService>(this.FakeExternalAuth);
+            services.AddSingleton<IEntraChangeEmailService>(this.FakeEntraChangeEmailService);
 
             // User updated publisher
             services.RemoveAll<IUserUpdatedPublisher>();
@@ -84,7 +84,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
     {
         this.FakeLimiter.ResetAll();
         this.FakeEmailTracker.Clear();
-        this.FakeExternalAuth.OnChangeEmail = null;
+        this.FakeEntraChangeEmailService.OnChangeEmail = null;
         this.FakeUserUpdatedPublisher.Clear();
         this.AuditCapturer.Clear();
         this.TimestampInterceptor.Reset();
