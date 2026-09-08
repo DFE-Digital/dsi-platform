@@ -19,6 +19,9 @@ internal sealed class UserEntityConfiguration : IEntityTypeConfiguration<UserEnt
                 .IsUnique()
                 .HasFilter("([entra_oid] IS NOT NULL)");
 
+        builder.HasIndex(e => e.Email, "IDX__user__email__unique")
+                .IsUnique();
+
         builder.Property(e => e.Sub)
                 .ValueGeneratedNever()
                 .HasColumnName("sub");
