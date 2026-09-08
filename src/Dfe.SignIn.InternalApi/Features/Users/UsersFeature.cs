@@ -7,6 +7,7 @@ using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
+using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail.Services;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Dfe.SignIn.InternalApi.Features.Users.ChangePassword;
@@ -61,6 +62,7 @@ public static class UsersFeature
         services
             .AddScoped<IUserLookupService, UserLookupService>()
             .AddScoped<IUserCodeService, UserCodeService>()
+            .AddScoped<IChangeEmailEntraSyncService, ChangeEmailEntraSyncService>()
             .AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>()
             .AddSingleton<IPasswordHasher, PasswordHasher>();
 

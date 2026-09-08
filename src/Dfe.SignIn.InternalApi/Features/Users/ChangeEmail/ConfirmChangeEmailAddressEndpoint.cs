@@ -6,8 +6,9 @@ using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 using Dfe.SignIn.InternalApi.Endpoints;
+using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail.Models;
+using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail.Services;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
 using Dfe.SignIn.WebFramework.Validation;
 using Microsoft.AspNetCore.Mvc;
@@ -22,12 +23,11 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
     DbDirectoriesContext directoriesDbContext,
     IAuditWriter auditWriter,
     IUserCodeService userCodeService,
-    IEntraChangeEmailService entraChangeEmailService,
+    IChangeEmailEntraSyncService changeEmailEntraSyncService,
     IUserUpdatedPublisher userUpdatedPublisher,
+    TimeProvider timeProvider,
     ILogger<ConfirmChangeEmailAddressEndpoint> logger) : IEndpoint
 {
-    private const int VerificationCodeExpiryHours = 1;
-
     /// <summary>
     /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
     /// </summary>
@@ -76,25 +76,71 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
 
         await this.SaveEmailChangeAsync(user, newEmail, cancellationToken);
 
-        var entraSyncResult = await this.SyncEmailWithEntraAsync(user, originalEmail, newEmail, cancellationToken);
-        if (entraSyncResult.IsFailure) {
-            if (entraSyncResult.Error.Code == EntraEmailErrors.Codes.MfaAuthenticationMethodFailed) {
-                // Parity with legacy Node: code is cleaned up in finally block, but Service Bus notification is skipped
-                await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
+        var entraOutcome = await changeEmailEntraSyncService.SyncConfirmedEmailChangeAsync(
+            user,
+            originalEmail,
+            newEmail,
+            cancellationToken);
 
-                return Results.Ok(new ConfirmChangeEmailAddressResponse {
-                    NewEmailAddress = newEmail,
-                    Warnings = [ChangeEmailWarnings.EntraMfaSyncFailedWarning(entraSyncResult.Error.Description)],
-                });
-            }
+        return entraOutcome.Status switch {
+            EntraSyncStatus.HardFailure => Results.Problem(
+                detail: entraOutcome.Error!.Description,
+                statusCode: StatusCodes.Status500InternalServerError),
+            EntraSyncStatus.MfaSyncFailed => await this.CompleteMfaSyncFailedChangeAsync(user, newEmail, entraOutcome.Error!, cancellationToken),
+            _ => await this.CompleteSuccessfulChangeAsync(user, newEmail, cancellationToken),
+        };
+    }
 
-            return Results.Problem(detail: entraSyncResult.Error.Description, statusCode: StatusCodes.Status500InternalServerError);
+    private async Task<IResult> CompleteMfaSyncFailedChangeAsync(
+        UserEntity user,
+        string newEmail,
+        Error entraError,
+        CancellationToken cancellationToken)
+    {
+        // Parity with legacy Node: code is cleaned up, but Service Bus notification is skipped
+        await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
+
+        return Results.Ok(new ConfirmChangeEmailAddressResponse {
+            NewEmailAddress = newEmail,
+            Warnings = [ChangeEmailWarnings.EntraMfaSyncFailedWarning(entraError.Description)],
+        });
+    }
+
+    private async Task<IResult> CompleteSuccessfulChangeAsync(
+        UserEntity user,
+        string newEmail,
+        CancellationToken cancellationToken)
+    {
+        await auditWriter.Log(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.ChangeEmail,
+            Message = $"Successfully changed email to {newEmail}",
+            UserId = user.Sub,
+            CustomProperties = [
+                new("editedFields", new object[]
+                    {
+                        new { name = "new_email", newValue = newEmail }
+                    })
+            ]
+        });
+
+        try {
+            await userUpdatedPublisher.PublishUserUpdatedAsync(
+                user.Sub,
+                newEmail,
+                user.FirstName,
+                user.LastName,
+                user.Status,
+                cancellationToken);
+
+            await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "Error executing post-update notification tasks for user {UserId}", user.Sub);
+            throw;
         }
 
-        await this.LogSuccessAuditAsync(user, newEmail);
-        await this.PublishNotificationAndCleanUpCodeAsync(user, newEmail, cancellationToken);
+        logger.LogInformation("Successfully confirmed email change to {NewEmail} for user {UserId}", newEmail, user.Sub);
 
-        logger.LogInformation("Successfully confirmed email change to {NewEmail} for user {UserId}", newEmail, userId);
         return Results.Ok(new ConfirmChangeEmailAddressResponse {
             NewEmailAddress = newEmail,
         });
@@ -123,8 +169,8 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
             return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidCodeError());
         }
 
-        var expiryTime = pendingCode.CreatedAt.AddHours(VerificationCodeExpiryHours);
-        if (DateTime.UtcNow > expiryTime) {
+        var expiryTime = pendingCode.CreatedAt.AddHours(ChangeEmailConstants.VerificationCodeExpiryHours);
+        if (timeProvider.GetUtcNow().UtcDateTime > expiryTime) {
             logger.LogWarning("Expired verification code provided for user {UserId}", user.Sub);
             string formattedExpiryTime = expiryTime.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             await auditWriter.Log(new WriteToAuditRequest {
@@ -160,86 +206,6 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                 UserId = user.Sub,
                 WasFailure = true,
             });
-            throw;
-        }
-    }
-
-    private async Task<Result> SyncEmailWithEntraAsync(
-        UserEntity user,
-        string originalEmail,
-        string newEmail,
-        CancellationToken cancellationToken)
-    {
-        if (!user.IsEntraUser()) {
-            return Result.Success();
-        }
-
-        var entraResult = await entraChangeEmailService.ChangeEmailAsync(user.EntraOid!.Value, newEmail, cancellationToken);
-        if (entraResult.IsSuccess) {
-            return Result.Success();
-        }
-
-        if (entraResult.Error.Code == EntraEmailErrors.Codes.MfaAuthenticationMethodFailed) {
-            logger.LogError("Failed to update authentication method in Entra for user {UserId}: {Error}", user.Sub, entraResult.Error.Description);
-            await auditWriter.Log(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.ChangeEmail,
-                EventName = AuditChangeEmailEventNames.EmailChangeFailed,
-                Message = $"Failed changed email to {newEmail} - FailedToUpdateAuthenticationMethodException",
-                UserId = user.Sub,
-                WasFailure = true,
-            });
-            return Result.Failure(entraResult.Error);
-        }
-
-        logger.LogError("Failed external authentication sync for user {UserId}: {Error}. Rolling back DB change", user.Sub, entraResult.Error.Description);
-        try {
-            user.Email = originalEmail;
-            await directoriesDbContext.SaveChangesAsync(cancellationToken);
-        }
-        catch (Exception rollbackEx) {
-            logger.LogCritical(rollbackEx, "Failed to roll back database write for user {UserId} after Entra sync failure", user.Sub);
-        }
-
-        await auditWriter.Log(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeEmail,
-            EventName = AuditChangeEmailEventNames.EmailChangeFailed,
-            Message = $"Failed changed email to {newEmail} - {entraResult.Error.Description}",
-            UserId = user.Sub,
-            WasFailure = true,
-        });
-
-        return Result.Failure(entraResult.Error);
-    }
-
-    private async Task LogSuccessAuditAsync(UserEntity user, string newEmail)
-    {
-        await auditWriter.Log(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeEmail,
-            Message = $"Successfully changed email to {newEmail}",
-            UserId = user.Sub,
-            CustomProperties = [
-                new("editedFields", new object[]
-                    {
-                        new { name = "new_email", newValue = newEmail }
-                    })
-            ]
-        });
-    }
-
-    private async Task PublishNotificationAndCleanUpCodeAsync(
-        UserEntity user,
-        string newEmail,
-        CancellationToken cancellationToken)
-    {
-        try {
-            // Publish downstream notification event (legacy userupdated_v1)
-            await userUpdatedPublisher.PublishUserUpdatedAsync(user.Sub, newEmail, user.FirstName, user.LastName, user.Status, cancellationToken);
-
-            // Clean up verification code
-            await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
-        }
-        catch (Exception ex) {
-            logger.LogError(ex, "Error executing post-update notification tasks for user {UserId}", user.Sub);
             throw;
         }
     }
