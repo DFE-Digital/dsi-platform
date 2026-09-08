@@ -19,7 +19,7 @@ public interface IApplicationGraphServiceFactory
 /// Default implementation of <see cref="IApplicationGraphServiceFactory"/> using <see cref="ClientSecretCredential"/>.
 /// </summary>
 public sealed class ApplicationGraphServiceFactory(
-    IOptions<EntraApplicationOptions> options) : IApplicationGraphServiceFactory
+    IOptions<EntraApplicationSettings> options) : IApplicationGraphServiceFactory
 {
     private static readonly string[] DefaultScopes = ["https://graph.microsoft.com/.default"];
 

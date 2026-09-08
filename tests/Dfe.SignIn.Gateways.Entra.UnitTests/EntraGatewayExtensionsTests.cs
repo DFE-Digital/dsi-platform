@@ -23,13 +23,14 @@ public sealed class EntraGatewayExtensionsTests
 
         var services = new ServiceCollection();
         services.AddLogging();
+        services.AddSingleton<IConfiguration>(configuration);
 
         // Act
-        services.AddEntraApplicationServices(configuration);
+        services.AddEntraApplicationServices();
         using var provider = services.BuildServiceProvider();
 
         // Assert
-        var options = provider.GetRequiredService<IOptions<EntraApplicationOptions>>().Value;
+        var options = provider.GetRequiredService<IOptions<EntraApplicationSettings>>().Value;
         Assert.AreEqual("tenant-123", options.TenantId);
         Assert.AreEqual("client-456", options.ClientId);
         Assert.AreEqual("secret-789", options.ClientSecret);

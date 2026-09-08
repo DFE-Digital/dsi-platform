@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Microsoft.Extensions.Logging;
+using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ODataErrors;
 
@@ -11,15 +12,12 @@ namespace Dfe.SignIn.Gateways.Entra.ChangeEmail;
 public interface IEntraChangeEmailService
 {
     /// <summary>
-    /// Synchronizes an email address change to Microsoft Entra ID.
-    /// Performs:
-    /// 1. Primary user email update (PATCH users/{userId}).
-    /// 2. Entra MFA email authentication method update (GET / PATCH / POST users/{userId}/authentication/emailMethods).
+    /// Changes the primary email address and updates the MFA email authentication method for a user in Microsoft Entra ID.
     /// </summary>
-    /// <param name="externalUserId">The Entra OID of the user.</param>
+    /// <param name="externalUserId">The external user ID.</param>
     /// <param name="newEmailAddress">The new email address.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A <see cref="Result"/> indicating success or the specific failure error.</returns>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result of the operation.</returns>
     Task<Result> ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken = default);
 }
 
@@ -30,13 +28,7 @@ public sealed class EntraChangeEmailService(
     IApplicationGraphServiceFactory graphServiceFactory,
     ILogger<EntraChangeEmailService> logger) : IEntraChangeEmailService
 {
-    /// <summary>
-    /// Synchronizes an email address change to Microsoft Entra ID.
-    /// </summary>
-    /// <param name="externalUserId">The Entra OID of the user.</param>
-    /// <param name="newEmailAddress">The new email address.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A <see cref="Result"/> indicating success or the specific failure error.</returns>
+    /// <inheritdoc/>
     public async Task<Result> ChangeEmailAsync(
         Guid externalUserId,
         string newEmailAddress,
@@ -47,31 +39,41 @@ public sealed class EntraChangeEmailService(
         var client = graphServiceFactory.CreateClient();
         var userIdString = externalUserId.ToString();
 
-        // ------------------------------------------------------------------
-        // Step 1: Update primary user email on Entra User object
-        // ------------------------------------------------------------------
-        try {
-            var userPatch = new User {
-                Mail = newEmailAddress
-            };
+        var primaryEmailResult = await this.UpdatePrimaryEmailAsync(client, userIdString, externalUserId, newEmailAddress, cancellationToken);
 
-            await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
-            logger.LogInformation("Successfully updated primary email for Entra user {UserId}", externalUserId);
+        if (!primaryEmailResult.IsSuccess) {
+            return primaryEmailResult;
         }
-        catch (ODataError oDataEx) {
-            var detail = oDataEx.Error?.Message ?? oDataEx.Message;
-            logger.LogError(oDataEx, "OData error updating primary email for Entra user {UserId}: {Code} - {Message}",
-                externalUserId, oDataEx.Error?.Code, detail);
-            return Result.Failure(EntraEmailErrors.UserUpdateFailed(detail));
+
+        return await this.UpdateMfaEmailMethodAsync(client, userIdString, externalUserId, newEmailAddress, cancellationToken);
+    }
+
+    private async Task<Result> UpdatePrimaryEmailAsync(
+        GraphServiceClient client,
+        string userIdString,
+        Guid externalUserId,
+        string newEmailAddress,
+        CancellationToken cancellationToken)
+    {
+        try {
+            var userPatch = new User { Mail = newEmailAddress };
+            await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
+
+            logger.LogInformation("Successfully updated primary email for Entra user {UserId}", externalUserId);
+            return Result.Success();
         }
         catch (Exception ex) {
-            logger.LogError(ex, "Unexpected error updating primary email for Entra user {UserId}", externalUserId);
-            return Result.Failure(EntraEmailErrors.UserUpdateFailed(ex.Message));
+            return this.HandleGraphException(ex, externalUserId, "updating primary email", EntraEmailErrors.UserUpdateFailed);
         }
+    }
 
-        // ------------------------------------------------------------------
-        // Step 2: Update Entra MFA Email Authentication Method
-        // ------------------------------------------------------------------
+    private async Task<Result> UpdateMfaEmailMethodAsync(
+        GraphServiceClient client,
+        string userIdString,
+        Guid externalUserId,
+        string newEmailAddress,
+        CancellationToken cancellationToken)
+    {
         try {
             var emailMethods = await client.Users[userIdString]
                 .Authentication
@@ -81,21 +83,16 @@ public sealed class EntraChangeEmailService(
             var existingMethod = emailMethods?.Value?.FirstOrDefault();
 
             if (existingMethod is not null && !string.IsNullOrEmpty(existingMethod.Id)) {
-                var methodPatch = new EmailAuthenticationMethod {
-                    EmailAddress = newEmailAddress
-                };
-
+                var methodPatch = new EmailAuthenticationMethod { EmailAddress = newEmailAddress };
                 await client.Users[userIdString]
                     .Authentication
                     .EmailMethods[existingMethod.Id]
                     .PatchAsync(methodPatch, cancellationToken: cancellationToken);
 
                 logger.LogInformation("Successfully updated existing MFA email method for Entra user {UserId}", externalUserId);
-            } else {
-                var newMethod = new EmailAuthenticationMethod {
-                    EmailAddress = newEmailAddress
-                };
-
+            }
+            else {
+                var newMethod = new EmailAuthenticationMethod { EmailAddress = newEmailAddress };
                 await client.Users[userIdString]
                     .Authentication
                     .EmailMethods
@@ -103,18 +100,33 @@ public sealed class EntraChangeEmailService(
 
                 logger.LogInformation("Successfully created new MFA email method for Entra user {UserId}", externalUserId);
             }
-        }
-        catch (ODataError oDataEx) {
-            var detail = oDataEx.Error?.Message ?? oDataEx.Message;
-            logger.LogError(oDataEx, "Failed to update MFA email authentication method in Entra for user {UserId}: {Code} - {Message}",
-                externalUserId, oDataEx.Error?.Code, detail);
-            return Result.Failure(EntraEmailErrors.MfaAuthenticationMethodFailed(detail));
+
+            return Result.Success();
         }
         catch (Exception ex) {
-            logger.LogError(ex, "Unexpected error updating MFA email authentication method in Entra for user {UserId}", externalUserId);
-            return Result.Failure(EntraEmailErrors.MfaAuthenticationMethodFailed(ex.Message));
+            return this.HandleGraphException(ex, externalUserId, "updating MFA email authentication method", EntraEmailErrors.MfaAuthenticationMethodFailed);
+        }
+    }
+
+    private Result HandleGraphException(
+        Exception ex,
+        Guid externalUserId,
+        string actionContext,
+        Func<string, Error> errorFactory)
+    {
+        if (ex is ODataError oDataEx) {
+            var detail = oDataEx.Error?.Message ?? oDataEx.Message;
+            logger.LogError(oDataEx,
+                "OData error {Context} for Entra user {UserId}: {Code} - {Message}",
+                actionContext,
+                externalUserId,
+                oDataEx.Error?.Code,
+                detail);
+
+            return Result.Failure(errorFactory(detail));
         }
 
-        return Result.Success();
+        logger.LogError(ex, "Unexpected error {Context} for Entra user {UserId}", actionContext, externalUserId);
+        return Result.Failure(errorFactory(ex.Message));
     }
 }

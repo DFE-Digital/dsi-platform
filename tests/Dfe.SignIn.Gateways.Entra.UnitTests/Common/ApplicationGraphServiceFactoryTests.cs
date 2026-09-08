@@ -9,7 +9,7 @@ public sealed class ApplicationGraphServiceFactoryTests
     public void CreateClient_WhenValidOptions_ReturnsGraphServiceClient()
     {
         // Arrange
-        var options = Options.Create(new EntraApplicationOptions {
+        var options = Options.Create(new EntraApplicationSettings {
             TenantId = "test-tenant-id",
             ClientId = "test-client-id",
             ClientSecret = "test-client-secret"
@@ -28,7 +28,7 @@ public sealed class ApplicationGraphServiceFactoryTests
     public void CreateClient_WhenTenantIdMissing_ThrowsInvalidOperationException()
     {
         // Arrange
-        var options = Options.Create(new EntraApplicationOptions {
+        var options = Options.Create(new EntraApplicationSettings {
             TenantId = "",
             ClientId = "test-client-id",
             ClientSecret = "test-client-secret"
@@ -45,7 +45,7 @@ public sealed class ApplicationGraphServiceFactoryTests
     public void CreateClient_WhenClientIdMissing_ThrowsInvalidOperationException()
     {
         // Arrange
-        var options = Options.Create(new EntraApplicationOptions {
+        var options = Options.Create(new EntraApplicationSettings {
             TenantId = "test-tenant-id",
             ClientId = "   ",
             ClientSecret = "test-client-secret"
@@ -62,7 +62,7 @@ public sealed class ApplicationGraphServiceFactoryTests
     public void CreateClient_WhenClientSecretMissing_ThrowsInvalidOperationException()
     {
         // Arrange
-        var options = Options.Create(new EntraApplicationOptions {
+        var options = Options.Create(new EntraApplicationSettings {
             TenantId = "test-tenant-id",
             ClientId = "test-client-id",
             ClientSecret = ""

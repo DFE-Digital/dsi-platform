@@ -1,5 +1,4 @@
 using Dfe.SignIn.Gateways.Entra.ChangeEmail;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.Gateways.Entra;
@@ -13,11 +12,11 @@ public static class EntraGatewayExtensions
     /// Registers Entra application (daemon) services for background and API operations.
     /// </summary>
     public static IServiceCollection AddEntraApplicationServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
+        this IServiceCollection services)
     {
-        services.Configure<EntraApplicationOptions>(
-            configuration.GetSection(EntraApplicationOptions.SectionName));
+        services.AddOptions<EntraApplicationSettings>()
+            .BindConfiguration(EntraApplicationSettings.SectionName)
+            .ValidateDataAnnotations();
 
         services.AddSingleton<IApplicationGraphServiceFactory, ApplicationGraphServiceFactory>();
         services.AddScoped<IEntraChangeEmailService, EntraChangeEmailService>();
