@@ -52,13 +52,17 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
 
         if (existingUserInfo is null) {
             logger.LogWarning("User {UserId} not found when attempting to change email address", userId);
-            return Results.NotFound(new { Message = "User not found" });
+            return Results.NotFound();
         }
 
         if (existingUserWithNewEmailStatus.UserExists) {
 
             if (existingUserWithNewEmailStatus.UserId == existingUserInfo.UserId) {
-                return Results.BadRequest(new { Message = "Input an email address that is different from your current email address." });
+                return Results.ValidationProblem(
+                    new Dictionary<string, string[]> {
+                        [nameof(request.NewEmailAddress)] = ["Input an email address that is different from your current email address."]
+                    },
+                    detail: "Input an email address that is different from your current email address.");
             }
 
             // the email address is already in use by another user
@@ -69,7 +73,11 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
                 UserId = existingUserInfo.UserId,
             });
 
-            return Results.BadRequest(new { Message = "The email address is already in use by another" });
+            return Results.ValidationProblem(
+                new Dictionary<string, string[]> {
+                    [nameof(request.NewEmailAddress)] = ["The email address is already in use by another"]
+                },
+                detail: "The email address is already in use by another");
         }
 
         try {

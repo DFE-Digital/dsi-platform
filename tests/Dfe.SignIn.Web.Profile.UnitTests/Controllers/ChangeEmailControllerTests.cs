@@ -51,6 +51,9 @@ public sealed class ChangeEmailControllerTests
 
         autoMocker.Use<IConfiguration>(configuration);
 
+        autoMocker.GetMock<IUsersApiClient>()
+            .SetReturnsDefault<Task<IApiResponse>>(Task.FromResult(RefitTestHelper.CreateSuccessResponse()));
+
         var controller = autoMocker.CreateInstance<ChangeEmailController>();
 
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
@@ -94,27 +97,21 @@ public sealed class ChangeEmailControllerTests
             .Setup(x => x.GetPendingChangeEmail(
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPendingChangeEmailResponse {
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new GetPendingChangeEmailResponse {
                 NewEmailAddress = "alex.new@example.com",
                 CreatedAtUtc = new DateTime(2025, 11, 15, 11, 43, 11, DateTimeKind.Utc),
                 ExpiryTimeUtc = new DateTime(2025, 11, 15, 12, 43, 11, DateTimeKind.Utc),
                 HasExpired = false,
-            });
+            }));
     }
 
     private static void SetupNoPendingEmailChange(AutoMocker autoMocker)
     {
-        var notFoundException = ApiException.Create(
-            new HttpRequestMessage(),
-            HttpMethod.Get,
-            new HttpResponseMessage(HttpStatusCode.NotFound),
-            new RefitSettings()).Result;
-
         autoMocker.GetMock<IUsersApiClient>()
             .Setup(x => x.GetPendingChangeEmail(
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
-            .ThrowsAsync(notFoundException);
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse<GetPendingChangeEmailResponse>(HttpStatusCode.NotFound));
     }
 
     #region Index()
@@ -166,7 +163,7 @@ public sealed class ChangeEmailControllerTests
                 It.IsAny<CancellationToken>()))
             .Callback<Guid, InitiateChangeEmailAddressRequest, CancellationToken>(
                 (userId, req, ct) => capturedRequest = req)
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse());
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -225,10 +222,13 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        var ex = await RefitTestHelper.ValidationException(HttpStatusCode.TooManyRequests, "For security, only 4 verification code requests can be sent. Wait 10 seconds before raising another request, or enter your verification code below.");
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
-            .ThrowsAsync(ex);
+            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse(
+                HttpStatusCode.TooManyRequests,
+                new ProblemDetails {
+                    Detail = "For security, only 4 verification code requests can be sent. Wait 10 seconds before raising another request, or enter your verification code below."
+                }));
 
         SetupFakePendingEmailChange(autoMocker);
 
@@ -253,11 +253,13 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        var ex = await RefitTestHelper.ValidationException(HttpStatusCode.TooManyRequests, "For security, only 4 verification code requests can be sent. Wait 10 seconds before trying again.");
-
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>()))
-            .ThrowsAsync(ex);
+            .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse(
+                HttpStatusCode.TooManyRequests,
+                new ProblemDetails {
+                    Detail = "For security, only 4 verification code requests can be sent. Wait 10 seconds before trying again."
+                }));
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -273,6 +275,58 @@ public sealed class ChangeEmailControllerTests
 
         bool hideResend = (bool)controller.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey]!;
         Assert.IsTrue(hideResend);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_PresentsFormWithModelError_WhenApiReturnsBadRequest()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.InitiateChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<InitiateChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse(
+                HttpStatusCode.BadRequest,
+                new ProblemDetails {
+                    Detail = "The email address is already in use by another"
+                }));
+
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        var result = await controller.PostIndex(resend: false, viewModel: new() {
+            EmailAddressInput = "alex.new@example.com",
+        });
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsFalse(controller.ModelState.IsValid);
+        var error = controller.ModelState[nameof(ChangeEmailViewModel.EmailAddressInput)]?.Errors.Single();
+        Assert.IsNotNull(error);
+        Assert.AreEqual("The email address is already in use by another", error.ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_PresentsErrorView_WhenApiReturnsInternalServerError()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.InitiateChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<InitiateChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse(HttpStatusCode.InternalServerError));
+
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        var result = await controller.PostIndex(resend: false, viewModel: new() {
+            EmailAddressInput = "alex.new@example.com",
+        });
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("ErrorUpdateEmailAddress", viewResult.ViewName);
     }
 
     [TestMethod]
@@ -762,6 +816,22 @@ public sealed class ChangeEmailControllerTests
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
         Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+    }
+
+    [TestMethod]
+    public async Task PostCancel_PresentsErrorView_WhenApiFails()
+    {
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.CancelChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse(HttpStatusCode.InternalServerError));
+
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        var result = await controller.PostCancel();
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("ErrorUpdateEmailAddress", viewResult.ViewName);
     }
 
     #endregion

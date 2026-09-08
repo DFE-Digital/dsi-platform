@@ -81,7 +81,7 @@ public static class ProblemDetailsMvcExtensions
     /// <summary>
     /// Safely extracts the 'type' field from a standard ProblemDetails response without throwing.
     /// </summary>
-    private static async Task<string?> GetProblemTypeAsync(this IApiResponse response)
+    public static async Task<string?> GetProblemTypeAsync(this IApiResponse response)
     {
         if (response.Error is not ApiException { HasContent: true } apiException) {
             return null;

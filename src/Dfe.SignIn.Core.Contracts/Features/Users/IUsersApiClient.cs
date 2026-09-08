@@ -65,9 +65,9 @@ public interface IUsersApiClient
     /// <param name="userId">The ID of the user whose email address is being changed.</param>
     /// <param name="request">The request containing the user's new email address information.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <returns>A task representing the asynchronous operation with the API response.</returns>
     [Post(UsersApiRoutes.InitiateChangeEmail)]
-    Task InitiateChangeEmailAddress(Guid userId, [Body] InitiateChangeEmailAddressRequest request, CancellationToken cancellationToken = default);
+    Task<IApiResponse> InitiateChangeEmailAddress(Guid userId, [Body] InitiateChangeEmailAddressRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms the change of a user's email address based on the provided request.
@@ -84,9 +84,9 @@ public interface IUsersApiClient
     /// </summary>
     /// <param name="userId">The ID of the user whose email address change is being cancelled.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <returns>A task representing the asynchronous operation with the API response.</returns>
     [Delete(UsersApiRoutes.CancelChangeEmail)]
-    Task CancelChangeEmailAddress(Guid userId, CancellationToken cancellationToken = default);
+    Task<IApiResponse> CancelChangeEmailAddress(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves the pending email change request for a user if one exists.
@@ -94,9 +94,9 @@ public interface IUsersApiClient
     /// </summary>
     /// <param name="userId">The ID of the user.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>The pending email change details.</returns>
+    /// <returns>A task representing the asynchronous operation with the API response containing pending email change details.</returns>
     [Get(UsersApiRoutes.GetPendingChangeEmail)]
-    Task<GetPendingChangeEmailResponse> GetPendingChangeEmail(Guid userId, CancellationToken cancellationToken = default);
+    Task<IApiResponse<GetPendingChangeEmailResponse>> GetPendingChangeEmail(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Determines if the provided email address is on the blacklist.

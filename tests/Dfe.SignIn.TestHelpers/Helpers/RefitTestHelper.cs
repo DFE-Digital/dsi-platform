@@ -66,6 +66,18 @@ public static class RefitTestHelper
     }
 
     /// <summary>
+    /// Creates a mock IApiResponse representing a successful response.
+    /// </summary>
+    public static IApiResponse CreateSuccessResponse(HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        var mock = new Mock<IApiResponse>();
+        mock.SetupGet(r => r.IsSuccessStatusCode).Returns(true);
+        mock.SetupGet(r => r.StatusCode).Returns(statusCode);
+
+        return mock.Object;
+    }
+
+    /// <summary>
     /// Creates a mock IApiResponse<typeparamref name="T"/> representing a successful response with the specified content.
     /// </summary>
     public static IApiResponse<T> CreateSuccessResponse<T>(T content, HttpStatusCode statusCode = HttpStatusCode.OK)

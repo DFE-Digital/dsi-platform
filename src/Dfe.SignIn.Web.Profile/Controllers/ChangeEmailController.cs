@@ -39,34 +39,34 @@ public sealed class ChangeEmailController(
         [FromQuery] bool? resend,
         ChangeEmailViewModel viewModel)
     {
-        bool hideResendVerificationBanner = false;
-
         var validationResult = await changeEmailValidator.ValidateAsync(viewModel);
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
             return this.View("Index");
         }
-        try {
-            var emailValidationEnabled = configuration.GetValue<bool>("EmailValidation");
 
-            if (emailValidationEnabled) {
-                var blockedResponse = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
-                    EmailAddress = viewModel.EmailAddressInput
-                });
+        var emailValidationEnabled = configuration.GetValue<bool>("EmailValidation");
+        if (emailValidationEnabled) {
+            var blockedResponse = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
+                EmailAddress = viewModel.EmailAddressInput
+            });
 
-                if (blockedResponse.IsBlocked) {
-                    this.ModelState.AddModelError(nameof(viewModel.EmailAddressInput), "This email address is not valid for this service. Generic email names (for example, headmaster@, admin@) and domains (for example, @yahoo.co.uk, @gmail.com) compromise security. Enter an email address that is associated with your organisation.");
-                    return this.View("Index");
-                }
+            if (blockedResponse.IsBlocked) {
+                this.ModelState.AddModelError(
+                    nameof(viewModel.EmailAddressInput),
+                    "This email address is not valid for this service. Generic email names (for example, headmaster@, admin@) and domains (for example, @yahoo.co.uk, @gmail.com) compromise security. Enter an email address that is associated with your organisation.");
+                return this.View("Index");
             }
-            var request = new InitiateChangeEmailAddressRequest(
-                oidcOptionsAccessor.CurrentValue.ClientId,
-                viewModel.EmailAddressInput,
-                true
-            );
+        }
 
-            await usersApiClient.InitiateChangeEmailAddress(this.User.GetUserId(), request);
+        var request = new InitiateChangeEmailAddressRequest(
+            oidcOptionsAccessor.CurrentValue.ClientId,
+            viewModel.EmailAddressInput,
+            true
+        );
 
+        var response = await usersApiClient.InitiateChangeEmailAddress(this.User.GetUserId(), request);
+        if (response.IsSuccessStatusCode) {
             if (resend == true) {
                 this.SetFlashSuccess(
                     heading: "Verification code resent",
@@ -76,15 +76,24 @@ public sealed class ChangeEmailController(
                         """
                 );
             }
+
+            this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = false;
+            return this.RedirectToAction(nameof(VerificationCode));
         }
-        catch (Refit.ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest) {
-            var message = ex.Content?.ToString() ?? "We couldn't change your email address right now. Please try again.";
-            this.ModelState.AddModelError(nameof(ChangeEmailViewModel.EmailAddressInput), message);
+
+        if (response.StatusCode == HttpStatusCode.BadRequest) {
+            await response.TryAddProblemDetailsToModelStateAsync(
+                this.ModelState,
+                ChangeEmailViewModel.RequestPropertyMap,
+                fallbackField: nameof(ChangeEmailViewModel.EmailAddressInput));
+
             return this.View("Index");
         }
-        catch (Refit.ValidationApiException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests) {
-            var errorMessage = !string.IsNullOrWhiteSpace(ex.Content?.Detail)
-                ? ex.Content.Detail
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests) {
+            var detail = await response.GetDetailAsync();
+            var errorMessage = !string.IsNullOrWhiteSpace(detail)
+                ? detail
                 : "For security reasons, the maximum number of verification code requests has been reached. Please try again later.";
 
             this.SetFlashNotification(
@@ -92,11 +101,12 @@ public sealed class ChangeEmailController(
                 message: errorMessage
             );
 
-            hideResendVerificationBanner = true;
+            this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = true;
+            return this.RedirectToAction(nameof(VerificationCode));
         }
 
-        this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = hideResendVerificationBanner;
-        return this.RedirectToAction(nameof(VerificationCode));
+        logger.LogError("Failed to initiate change email address for user {UserId}. StatusCode: {StatusCode}", this.User.GetUserId(), response.StatusCode);
+        return this.ErrorView("ErrorUpdateEmailAddress");
     }
 
     [HttpGet("verify")]
@@ -114,22 +124,7 @@ public sealed class ChangeEmailController(
             return this.BadRequest();
         }
 
-        return await this.VerificationCodeHelper(userId);
-    }
-
-    private async Task<IActionResult> VerificationCodeHelper(Guid userId)
-    {
-        var pendingChange = await this.GetPendingChangeEmailAddress(userId);
-        if (pendingChange is null) {
-            return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
-        }
-
-        this.ModelState.SetModelValue(nameof(VerificationCodeViewModel.VerificationCodeInput), null, "");
-
-        return this.View("VerificationCode", new VerificationCodeViewModel {
-            UserId = userId,
-            NewEmailAddress = pendingChange.NewEmailAddress,
-        });
+        return await this.RenderVerificationCodeViewAsync(userId);
     }
 
     [AllowAnonymous]
@@ -141,7 +136,7 @@ public sealed class ChangeEmailController(
     {
         var validationResult = await verificationCodeValidator.ValidateAsync(viewModel);
         if (!validationResult.IsValid) {
-            return await this.VerificationCodeHelper(userId);
+            return await this.RenderVerificationCodeViewAsync(userId);
         }
 
         var request = new ConfirmChangeEmailAddressRequest {
@@ -168,7 +163,7 @@ public sealed class ChangeEmailController(
                 VerificationCodeViewModel.RequestPropertyMap,
                 fallbackField: nameof(VerificationCodeViewModel.VerificationCodeInput));
 
-            return await this.VerificationCodeHelper(userId);
+            return await this.RenderVerificationCodeViewAsync(userId);
         }
 
         logger.LogError("Failed to change email address for user {UserId}. StatusCode: {StatusCode}", userId, response.StatusCode);
@@ -209,13 +204,32 @@ public sealed class ChangeEmailController(
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
     }
 
+    private async Task<IActionResult> RenderVerificationCodeViewAsync(Guid userId)
+    {
+        var pendingChange = await this.GetPendingChangeEmailAddress(userId);
+        if (pendingChange is null) {
+            return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
+        }
+
+        this.ModelState.SetModelValue(nameof(VerificationCodeViewModel.VerificationCodeInput), null, "");
+
+        return this.View("VerificationCode", new VerificationCodeViewModel {
+            UserId = userId,
+            NewEmailAddress = pendingChange.NewEmailAddress,
+        });
+    }
+
     private async Task<GetPendingChangeEmailResponse?> GetPendingChangeEmailAddress(Guid userId)
     {
-        try {
-            return await usersApiClient.GetPendingChangeEmail(userId);
+        var response = await usersApiClient.GetPendingChangeEmail(userId);
+        if (response.IsSuccessStatusCode) {
+            return response.Content;
         }
-        catch (Refit.ApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound) {
-            return null;
+
+        if (response.StatusCode != HttpStatusCode.NotFound) {
+            logger.LogWarning("Unexpected status code {StatusCode} when retrieving pending change email for user {UserId}", response.StatusCode, userId);
         }
+
+        return null;
     }
 }

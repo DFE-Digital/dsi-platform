@@ -88,7 +88,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                 });
             }
 
-            return Results.InternalServerError(new { message = entraSyncResult.Error.Description });
+            return Results.Problem(detail: entraSyncResult.Error.Description, statusCode: StatusCodes.Status500InternalServerError);
         }
 
         await this.LogSuccessAuditAsync(user, newEmail);
