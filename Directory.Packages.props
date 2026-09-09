@@ -34,6 +34,8 @@
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.8" />
+    <!--<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.8" />-->
     <!-- Decorator pattern -->
     <PackageVersion Include="Microsoft.Kiota.Abstractions" Version="1.22.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
@@ -154,6 +156,11 @@
     <PackageVersion Include="Testcontainers.MsSql" Version="4.10.0" />
     <PackageVersion Include="Respawn" Version="7.0.0" />
   </ItemGroup>
+  <!--Message-->
+  <ItemGroup>
+    <PackageVersion Include="BullMQ" Version="1.0.0" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.13.17" />
+  </ItemGroup>  
   <!--Advisories updates-->
   <ItemGroup>
     <!-- CVE-2026-48798 -->

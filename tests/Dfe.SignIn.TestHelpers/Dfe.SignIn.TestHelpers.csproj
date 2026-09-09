@@ -42,6 +42,7 @@
     <ProjectReference Include="../../src/Dfe.SignIn.Base.Framework/Dfe.SignIn.Base.Framework.csproj" />
     <ProjectReference Include="../../src/Dfe.SignIn.Core.Contracts/Dfe.SignIn.Core.Contracts.csproj" />
     <ProjectReference Include="../../src/Dfe.SignIn.Core.Entities/Dfe.SignIn.Core.Entities.csproj" />
+    <ProjectReference Include="..\..\src\Dfe.SignIn.Core.Interfaces\Dfe.SignIn.Core.Interfaces.csproj" />
   </ItemGroup>
 
 </Project>
