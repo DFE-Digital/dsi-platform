@@ -16,6 +16,7 @@ using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
+using Dfe.SignIn.WebFramework.Configuration;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 
@@ -70,7 +71,15 @@ public static class UsersFeature
             .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
 
         services
-            .AddEntraApplicationServices();
+            .AddEntraApplicationServices(settings: settings => {
+                var externalSection = configuration.GetSection(ExternalIdConstants.ExternalIdConfigurationSectionName);
+                settings.TenantId = externalSection.GetValue<string>("TenantId")
+                    ?? throw new InvalidOperationException("TenantId is not configured");
+                settings.ClientId = externalSection.GetValue<string>("ClientId")
+                    ?? throw new InvalidOperationException("ClientId is not configured");
+                settings.ClientSecret = externalSection.GetValue<string>("ClientSecret")
+                    ?? throw new InvalidOperationException("ClientSecret is not configured");
+            });
 
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);

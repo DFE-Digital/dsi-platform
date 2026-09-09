@@ -14,9 +14,9 @@ public sealed class EntraGatewayExtensionsTests
         // Arrange
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["Entra:TenantId"] = "tenant-123",
-                ["Entra:ClientId"] = "client-456",
-                ["Entra:ClientSecret"] = "secret-789"
+                ["TestExternalId:TenantId"] = "tenant-123",
+                ["TestExternalId:ClientId"] = "client-456",
+                ["TestExternalId:ClientSecret"] = "secret-789"
             })
             .Build();
 
@@ -25,7 +25,15 @@ public sealed class EntraGatewayExtensionsTests
         services.AddSingleton<IConfiguration>(configuration);
 
         // Act
-        services.AddEntraApplicationServices();
+        services.AddEntraApplicationServices(settings: settings => {
+            var externalSection = configuration.GetSection("TestExternalId");
+            settings.TenantId = externalSection.GetValue<string>("TenantId")
+                ?? throw new InvalidOperationException("TenantId is not configured");
+            settings.ClientId = externalSection.GetValue<string>("ClientId")
+                ?? throw new InvalidOperationException("ClientId is not configured");
+            settings.ClientSecret = externalSection.GetValue<string>("ClientSecret")
+                ?? throw new InvalidOperationException("ClientSecret is not configured");
+        });
         using var serviceProvider = services.BuildServiceProvider();
 
         // Assert

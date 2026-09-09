@@ -12,10 +12,11 @@ public static class EntraGatewayExtensions
     /// Registers Entra application (daemon) services for background and API operations.
     /// </summary>
     public static IServiceCollection AddEntraApplicationServices(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        Action<EntraApplicationSettings> settings)
     {
         services.AddOptions<EntraApplicationSettings>()
-            .BindConfiguration(EntraApplicationSettings.SectionName)
+            .Configure(settings)
             .ValidateDataAnnotations();
 
         services.AddSingleton<IApplicationGraphClientProvider, ApplicationGraphClientProvider>();
