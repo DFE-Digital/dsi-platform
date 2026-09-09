@@ -27,15 +27,15 @@ public static class ProblemDetailsMvcExtensions
     {
         if (response.Error is ApiException { HasContent: true } apiException) {
             try {
-            // Try extracting RFC 7807 ValidationProblemDetails (key -> string[] errors)
-            var validationProblem = await apiException.GetContentAsAsync<ValidationProblemDetails>();
-            if (validationProblem?.Errors?.Count > 0) {
-                foreach (var (apiField, messages) in validationProblem.Errors) {
-                    var targetField = propertyMap?.GetValueOrDefault(apiField) ?? apiField;
-                    foreach (var message in messages) {
-                        modelState.AddModelError(targetField, message);
+                // Try extracting RFC 7807 ValidationProblemDetails (key -> string[] errors)
+                var validationProblem = await apiException.GetContentAsAsync<ValidationProblemDetails>();
+                if (validationProblem?.Errors?.Count > 0) {
+                    foreach (var (apiField, messages) in validationProblem.Errors) {
+                        var targetField = propertyMap?.GetValueOrDefault(apiField) ?? apiField;
+                        foreach (var message in messages) {
+                            modelState.AddModelError(targetField, message);
+                        }
                     }
-                }
 
                     return;
                 }
@@ -45,10 +45,10 @@ public static class ProblemDetailsMvcExtensions
             }
 
             try {
-            // Fall back to standard ProblemDetails (single 'detail' string)
-            var problem = await apiException.GetContentAsAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
-            if (!string.IsNullOrWhiteSpace(problem?.Detail)) {
-                modelState.AddModelError(fallbackField, problem.Detail);
+                // Fall back to standard ProblemDetails (single 'detail' string)
+                var problem = await apiException.GetContentAsAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+                if (!string.IsNullOrWhiteSpace(problem?.Detail)) {
+                    modelState.AddModelError(fallbackField, problem.Detail);
                     return;
                 }
             }
