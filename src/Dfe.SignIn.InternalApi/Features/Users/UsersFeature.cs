@@ -81,6 +81,8 @@ public static class UsersFeature
                     ?? throw new InvalidOperationException("ClientSecret is not configured");
             });
 
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);
 
