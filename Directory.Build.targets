@@ -26,6 +26,8 @@
  <ItemGroup>
     <!-- CVE-2026-48798 -->
     <PackageReference Include="SSH.NET" />
+   <!-- CVE-2026-44503 -->
+   <PackageVersion Include="Microsoft.Kiota.Http.HttpClientLibrary" />
   </ItemGroup>
 </Project>
 

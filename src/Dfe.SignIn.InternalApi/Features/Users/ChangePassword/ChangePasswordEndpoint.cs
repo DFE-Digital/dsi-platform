@@ -85,19 +85,6 @@ public sealed class ChangePasswordEndpoint(
         return Results.Ok();
     }
 
-    private async Task<UserEntity?> GetUserAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var user = await dbDirectoriesContext.Users
-            .Include(x => x.UserPasswordPolicies)
-            .FirstOrDefaultAsync(x => x.Sub == userId, cancellationToken);
-
-        if (user is null) {
-            logger.LogWarning("User {UserId} not found", userId);
-        }
-
-        return user;
-    }
-
     private async Task<bool> ValidateCurrentPasswordAsync(UserEntity user, string currentPassword, Guid userId)
     {
         var currentPolicyCode = passwordHasher.ResolveUserPolicyCode(user.UserPasswordPolicies.Select(p => p.PolicyCode));
