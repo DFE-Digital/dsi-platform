@@ -8,7 +8,7 @@ public sealed class ApplicationGraphClientProviderTests
     [TestMethod]
     public void GetClient_WhenValidOptions_ReturnsGraphServiceClient()
     {
-        // Arrange
+        // Arrange.
         var options = Options.Create(new EntraApplicationSettings {
             TenantId = "test-tenant-id",
             ClientId = "test-client-id",
