@@ -30,7 +30,9 @@ public static class UsersFeature
         .Add<CancelChangeEmailAddressEndpoint>()
         .Add<ConfirmChangeEmailAddressEndpoint>()
         .Add<CheckIsBlockedEmailAddressEndpoint>()
-        .Add<ChangePasswordEndpoint>();
+        .Add<ChangePasswordEndpoint>()
+        .Add<GetPendingChangeEmailEndpoint>()
+        .Add<InitiateChangeEmailAddressEndpoint>();
 
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -40,8 +42,6 @@ public static class UsersFeature
     {
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
-        InitiateChangeEmailAddressEndpoint.Map(app);
-        GetPendingChangeEmailEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
         ChangeJobTitleEndpoint.Map(app);
@@ -63,7 +63,7 @@ public static class UsersFeature
         services
             .AddScoped<IUserLookupService, UserLookupService>()
             .AddScoped<IUserCodeService, UserCodeService>()
-            .AddScoped<IChangeEmailEntraSyncService, ChangeEmailEntraSyncService>()
+            .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>()
             .AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>()
             .AddSingleton<IPasswordHasher, PasswordHasher>();
 

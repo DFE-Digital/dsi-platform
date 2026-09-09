@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 using Dfe.SignIn.Base.Framework.Results;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
@@ -505,7 +504,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
 
         var problemDetails = await response.Content.ReadFromJsonAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
         Assert.NotNull(problemDetails);
-        Assert.Equal(ChangeEmailErrors.NoPendingRequest, problemDetails.Type);
+        Assert.Equal(ChangeEmailErrors.NoPendingRequest.Code, problemDetails.Type);
     }
 
     [Fact]

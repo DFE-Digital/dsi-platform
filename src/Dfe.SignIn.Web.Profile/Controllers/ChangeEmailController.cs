@@ -154,7 +154,7 @@ public sealed class ChangeEmailController(
         }
 
         if (response.StatusCode == HttpStatusCode.BadRequest) {
-            if (await response.IsProblemType(ChangeEmailErrors.NoPendingRequest)) {
+            if (await response.IsProblemType(ChangeEmailErrors.NoPendingRequest.Code)) {
                 return this.RedirectToAction(nameof(Index));
             }
 

@@ -14,7 +14,14 @@ namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 /// <summary>
 /// An endpoint to initiate the change of a user's email address.
 /// </summary>
-public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
+public sealed class InitiateChangeEmailAddressEndpoint(
+            IAuditWriter auditWriter,
+        IUserLookupService userLookupService,
+        IUserCodeService userCodeService,
+        IInteractionLimiter actionRateLimiter,
+        IOptionsMonitor<DistributedCacheInteractionLimiterOptions> limiterOptions,
+        ILogger<InitiateChangeEmailAddressEndpoint> logger
+    ) : IEndpoint
 {
     /// <summary>
     /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -22,27 +29,22 @@ public sealed class InitiateChangeEmailAddressEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost(UsersApiRoutes.InitiateChangeEmail, Handler)
+        app.MapPost(UsersApiRoutes.InitiateChangeEmail, async (
+            [FromRoute] Guid userId,
+            [FromBody] InitiateChangeEmailAddressRequest request,
+            [FromServices] InitiateChangeEmailAddressEndpoint endpoint,
+            CancellationToken cancellationToken) =>
+            await endpoint.HandleAsync(userId, request, cancellationToken))
             .WithName("Initiate Change Email Address")
             .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .WithValidationFilter<InitiateChangeEmailAddressRequest>()
-            .WithOpenApi();
+            .WithStandardResponses()
+            .WithValidationFilter<InitiateChangeEmailAddressRequest>();
     }
 
     /// <inheritdoc/>
-    public static async Task<IResult> Handler(
-        IAuditWriter auditWriter,
-        IUserLookupService userLookupService,
-        IUserCodeService userCodeService,
-        IInteractionLimiter actionRateLimiter,
-        IOptionsMonitor<DistributedCacheInteractionLimiterOptions> limiterOptions,
-        ILogger<InitiateChangeEmailAddressEndpoint> logger,
-        [FromBody] InitiateChangeEmailAddressRequest request,
-        [FromRoute] Guid userId,
+    public async Task<IResult> HandleAsync(
+        Guid userId,
+        InitiateChangeEmailAddressRequest request,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Initiating change of email address for user {UserId}", userId);

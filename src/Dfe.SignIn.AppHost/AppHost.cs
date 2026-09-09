@@ -12,7 +12,7 @@ var appConfigurationConnectionString = builder.Configuration.GetConnectionString
 if (!string.IsNullOrEmpty(appConfigurationConnectionString)) {
     var appConfigurationTag = builder.Configuration["AppConfiguration:Tag"];
     if (string.IsNullOrEmpty(appConfigurationTag)) {
-        throw new ArgumentNullException("AppConfiguration Tag missing");
+        throw new InvalidOperationException("AppConfiguration Tag missing from configuration.");
     }
 
     builder.Configuration.AddAzureAppConfiguration(options => {
@@ -59,7 +59,6 @@ var bearerTokenConfig = builder.Configuration.GetSection("BearerToken");
 var publicApiSecretConfig = builder.Configuration.GetSection("PublicApiSecretEncryption");
 var selectOrgConfig = builder.Configuration.GetSection("SelectOrganisation");
 var internalApiConfig = builder.Configuration.GetSection("InternalApiClient");
-var entraConfig = builder.Configuration.GetSection("Entra");
 var efConfig = builder.Configuration.GetSection("EntityFramework");
 var assets = builder.Configuration.GetSection("Assets");
 var generalRedisConfig = builder.Configuration.GetSection("GeneralRedisCache");

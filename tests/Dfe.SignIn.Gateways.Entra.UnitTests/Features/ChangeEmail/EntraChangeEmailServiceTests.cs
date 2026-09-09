@@ -176,7 +176,7 @@ public sealed class EntraChangeEmailServiceTests
 
         // Assert
         Assert.IsTrue(result.IsFailure);
-        Assert.AreEqual(EntraEmailErrors.Codes.UserUpdateFailed, result.Error.Code);
+        Assert.AreEqual(EntraEmailErrors.UserUpdateFailed("Resource does not exist."), result.Error);
         Assert.Contains("Resource does not exist", result.Error.Description);
         Assert.AreEqual(1, requestsRecorded.Count);
     }
@@ -221,7 +221,7 @@ public sealed class EntraChangeEmailServiceTests
 
         // Assert
         Assert.IsTrue(result.IsFailure);
-        Assert.AreEqual(EntraEmailErrors.Codes.MfaAuthenticationMethodFailed, result.Error.Code);
+        Assert.AreEqual(EntraEmailErrors.MfaAuthenticationMethodFailed("Failed to retrieve MFA methods."), result.Error);
         Assert.Contains("Failed to retrieve MFA methods", result.Error.Description);
         Assert.AreEqual(2, requestsRecorded.Count);
     }

@@ -9,7 +9,7 @@ namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail.Services;
 /// <summary>
 /// Synchronises a confirmed DSI email change with Microsoft Entra ID, including rollback on hard failure.
 /// </summary>
-public interface IChangeEmailEntraSyncService
+public interface IEntraEmailUpdater
 {
     /// <summary>
     /// Attempts to sync the confirmed email change with Entra after DSI has been updated.
@@ -19,7 +19,7 @@ public interface IChangeEmailEntraSyncService
     /// <param name="newEmail">The confirmed email address now stored in DSI.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The Entra sync outcome.</returns>
-    Task<EntraSyncOutcome> SyncConfirmedEmailChangeAsync(
+    Task<EntraEmailUpdateResult> UpdateAsync(
         UserEntity user,
         string originalEmail,
         string newEmail,
@@ -27,35 +27,36 @@ public interface IChangeEmailEntraSyncService
 }
 
 /// <summary>
-/// Default implementation of <see cref="IChangeEmailEntraSyncService"/>.
+/// Default implementation of <see cref="IEntraEmailUpdater"/>.
 /// </summary>
-public sealed class ChangeEmailEntraSyncService(
+public sealed class EntraEmailUpdater(
     DbDirectoriesContext directoriesDbContext,
     IAuditWriter auditWriter,
     IEntraChangeEmailService entraChangeEmailService,
-    ILogger<ChangeEmailEntraSyncService> logger) : IChangeEmailEntraSyncService
+    ILogger<EntraEmailUpdater> logger) : IEntraEmailUpdater
 {
     /// <inheritdoc/>
-    public async Task<EntraSyncOutcome> SyncConfirmedEmailChangeAsync(
+    public async Task<EntraEmailUpdateResult> UpdateAsync(
         UserEntity user,
         string originalEmail,
         string newEmail,
         CancellationToken cancellationToken)
     {
         if (!user.IsEntraUser()) {
-            return new EntraSyncOutcome(EntraSyncStatus.NotApplicable);
+            return new EntraEmailUpdateResult(EntraEmailUpdateStatus.NotApplicable);
         }
 
         var entraResult = await entraChangeEmailService.ChangeEmailAsync(user.EntraOid!.Value, newEmail, cancellationToken);
         if (entraResult.IsSuccess) {
-            return new EntraSyncOutcome(EntraSyncStatus.Succeeded);
+            return new EntraEmailUpdateResult(EntraEmailUpdateStatus.Succeeded);
         }
 
-        if (entraResult.Error.Code == EntraEmailErrors.Codes.MfaAuthenticationMethodFailed) {
+        if (entraResult.Error.Code == EntraEmailErrors.MfaAuthenticationMethodFailedCode) {
             logger.LogError(
                 "Failed to update authentication method in Entra for user {UserId}: {Error}",
                 user.Sub,
                 entraResult.Error.Description);
+
             await auditWriter.Log(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.EmailChangeFailed,
@@ -63,13 +64,15 @@ public sealed class ChangeEmailEntraSyncService(
                 UserId = user.Sub,
                 WasFailure = true,
             });
-            return new EntraSyncOutcome(EntraSyncStatus.MfaSyncFailed, entraResult.Error);
+
+            return new EntraEmailUpdateResult(EntraEmailUpdateStatus.MfaSyncFailed, entraResult.Error);
         }
 
         logger.LogError(
             "Failed external authentication sync for user {UserId}: {Error}. Rolling back DB change",
             user.Sub,
             entraResult.Error.Description);
+
         try {
             user.Email = originalEmail;
             await directoriesDbContext.SaveChangesAsync(cancellationToken);
@@ -89,6 +92,6 @@ public sealed class ChangeEmailEntraSyncService(
             WasFailure = true,
         });
 
-        return new EntraSyncOutcome(EntraSyncStatus.HardFailure, entraResult.Error);
+        return new EntraEmailUpdateResult(EntraEmailUpdateStatus.HardFailure, entraResult.Error);
     }
 }

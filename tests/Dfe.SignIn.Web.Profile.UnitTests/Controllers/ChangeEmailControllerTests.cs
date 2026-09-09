@@ -19,7 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
-using Refit;
 using ProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
@@ -52,7 +51,7 @@ public sealed class ChangeEmailControllerTests
         autoMocker.Use<IConfiguration>(configuration);
 
         autoMocker.GetMock<IUsersApiClient>()
-            .SetReturnsDefault<Task<IApiResponse>>(Task.FromResult(RefitTestHelper.CreateSuccessResponse()));
+            .SetReturnsDefault(Task.FromResult(RefitTestHelper.CreateSuccessResponse()));
 
         var controller = autoMocker.CreateInstance<ChangeEmailController>();
 
@@ -464,7 +463,7 @@ public sealed class ChangeEmailControllerTests
 
         var currentInputState = controller.ModelState[nameof(VerificationCodeViewModel.VerificationCodeInput)];
         Assert.IsNull(currentInputState!.RawValue);
-        Assert.AreEqual("", currentInputState!.AttemptedValue);
+        Assert.AreEqual("", currentInputState.AttemptedValue);
     }
 
     [TestMethod]
@@ -532,7 +531,7 @@ public sealed class ChangeEmailControllerTests
 
         var currentInputState = controller.ModelState[nameof(VerificationCodeViewModel.VerificationCodeInput)];
         Assert.IsNull(currentInputState!.RawValue);
-        Assert.AreEqual("", currentInputState!.AttemptedValue);
+        Assert.AreEqual("", currentInputState.AttemptedValue);
     }
 
     [TestMethod]
@@ -570,7 +569,7 @@ public sealed class ChangeEmailControllerTests
             .ReturnsAsync(RefitTestHelper.CreateProblemResponse<ConfirmChangeEmailAddressResponse>(
                 HttpStatusCode.BadRequest,
                 new ProblemDetails {
-                    Type = ChangeEmailErrors.NoPendingRequest,
+                    Type = ChangeEmailErrors.NoPendingRequest.Code,
                     Detail = "No pending change email request found"
                 }));
 

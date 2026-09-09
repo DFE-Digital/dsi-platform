@@ -23,7 +23,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
     DbDirectoriesContext directoriesDbContext,
     IAuditWriter auditWriter,
     IUserCodeService userCodeService,
-    IChangeEmailEntraSyncService changeEmailEntraSyncService,
+    IEntraEmailUpdater entraEmailUpdater,
     IUserUpdatedPublisher userUpdatedPublisher,
     TimeProvider timeProvider,
     ILogger<ConfirmChangeEmailAddressEndpoint> logger) : IEndpoint
@@ -76,19 +76,23 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
 
         await this.SaveEmailChangeAsync(user, newEmail, cancellationToken);
 
-        var entraOutcome = await changeEmailEntraSyncService.SyncConfirmedEmailChangeAsync(
+        var entraUpdateResult = await entraEmailUpdater.UpdateAsync(
             user,
             originalEmail,
             newEmail,
             cancellationToken);
 
-        return entraOutcome.Status switch {
-            EntraSyncStatus.HardFailure => Results.Problem(
-                detail: entraOutcome.Error!.Description,
-                statusCode: StatusCodes.Status500InternalServerError),
-            EntraSyncStatus.MfaSyncFailed => await this.CompleteMfaSyncFailedChangeAsync(user, newEmail, entraOutcome.Error!, cancellationToken),
-            _ => await this.CompleteSuccessfulChangeAsync(user, newEmail, cancellationToken),
-        };
+        if (entraUpdateResult.IsSuccess) {
+            return await this.CompleteSuccessfulChangeAsync(user, newEmail, cancellationToken);
+        }
+
+        if (entraUpdateResult.Status == EntraEmailUpdateStatus.MfaSyncFailed) {
+            return await this.CompleteMfaSyncFailedChangeAsync(user, newEmail, entraUpdateResult.Error!, cancellationToken);
+        }
+
+        return Results.Problem(
+                detail: entraUpdateResult.Error!.Description,
+                statusCode: StatusCodes.Status500InternalServerError);
     }
 
     private async Task<IResult> CompleteMfaSyncFailedChangeAsync(
@@ -154,7 +158,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         var pendingCode = await userCodeService.GetPendingChangeEmailCodeAsync(user.Sub, cancellationToken);
         if (pendingCode is null) {
             logger.LogWarning("No pending email change request found for user {UserId}", user.Sub);
-            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.NoPendingRequestError());
+            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.NoPendingRequest);
         }
 
         if (!string.Equals(verificationCode, pendingCode.Code, StringComparison.OrdinalIgnoreCase)) {
@@ -166,7 +170,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                 UserId = user.Sub,
                 WasFailure = true,
             });
-            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidCodeError());
+            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidCode);
         }
 
         var expiryTime = pendingCode.CreatedAt.AddHours(ChangeEmailConstants.VerificationCodeExpiryHours);
@@ -180,12 +184,12 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                 UserId = user.Sub,
                 WasFailure = true,
             });
-            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.CodeExpiredError());
+            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.CodeExpired);
         }
 
         if (string.IsNullOrWhiteSpace(pendingCode.Email)) {
             logger.LogWarning("Pending change email request for user {UserId} has no associated email address", user.Sub);
-            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidRequestError());
+            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidRequest);
         }
 
         return Result.Success(pendingCode);
