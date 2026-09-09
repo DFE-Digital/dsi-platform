@@ -1,6 +1,7 @@
 using System.Net;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
@@ -9,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Moq.AutoMock;
 using Refit;
-using Dfe.SignIn.TestHelpers.Helpers;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
 
