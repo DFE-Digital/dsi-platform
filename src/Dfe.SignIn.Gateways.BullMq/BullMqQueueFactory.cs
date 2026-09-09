@@ -15,7 +15,7 @@ public interface IBullMqQueueFactory : IAsyncDisposable
     /// </summary>
     /// <param name="queueName">The name of the queue.</param>
     /// <returns>The BullMQ queue.</returns>
-    Queue GetQueue(string queueName);
+    IBullMqQueue GetQueue(string queueName);
 
     /// <summary>
     /// Gets the default job options for BullMQ jobs.
@@ -33,22 +33,24 @@ public sealed class BullMqQueueFactory(
     IOptions<BullMqSettings> options,
     ILogger<BullMqQueueFactory> logger) : IBullMqQueueFactory
 {
-    private readonly ConcurrentDictionary<string, Queue> queues = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, IBullMqQueue> queues = new(StringComparer.OrdinalIgnoreCase);
     private readonly BullMqSettings options = options.Value;
 
     /// <inheritdoc/>
-    public Queue GetQueue(string queueName)
+    public IBullMqQueue GetQueue(string queueName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
 
         return this.queues.GetOrAdd(queueName, name => {
             logger.LogInformation("Initialising BullMQ queue '{QueueName}' on database {DbIndex}", name, this.options.DatabaseIndex);
 
-            return new Queue(name, new QueueOptions {
+            var queue = new Queue(name, new QueueOptions {
                 Connection = new ConnectionOptions {
                     ConnectionString = this.options.ConnectionString
                 }
             });
+
+            return new BullMqQueueAdapter(queue);
         });
     }
 

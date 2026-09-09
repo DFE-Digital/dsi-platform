@@ -39,8 +39,8 @@ public sealed class BullMqEventPublisher(
         var jobOptions = queueFactory.GetDefaultJobOptions();
 
         try {
-            var job = await queue.AddAsync(queueName, payload, jobOptions);
-            logger.LogInformation("Successfully enqueued job {JobId} for event {EventId}", job.Id, @event.EventId);
+            var jobId = await queue.AddAsync(queueName, payload, jobOptions);
+            logger.LogInformation("Successfully enqueued job {JobId} for event {EventId}", jobId, @event.EventId);
         }
         catch (Exception ex) {
             logger.LogError(ex, "Failed to enqueue event {EventId} to Redis queue {QueueName}", @event.EventId, queueName);
