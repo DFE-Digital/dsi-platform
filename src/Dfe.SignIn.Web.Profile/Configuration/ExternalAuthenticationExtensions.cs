@@ -29,7 +29,7 @@ public static class ExternalAuthenticationExtensions
                 openIdConnectScheme: ExternalAuthConstants.OpenIdConnectSchemeName,
                 cookieScheme: ExternalAuthConstants.CookiesSchemeName,
                 configureMicrosoftIdentityOptions: options => {
-                    configuration.GetRequiredSection("ExternalId").Bind(options);
+                    configuration.GetRequiredSection(ExternalIdConstants.ExternalIdConfigurationSectionName).Bind(options);
                     options.CallbackPath = "/auth/callback";
                 },
                 configureCookieAuthenticationOptions: options => {

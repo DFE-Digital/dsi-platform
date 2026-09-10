@@ -1,6 +1,7 @@
 using System.Net;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
@@ -32,19 +33,13 @@ public sealed class HomeControllerTests
         else if (pendingResponse is not null) {
             usersApiClientMock
                 .Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(pendingResponse);
+                .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(pendingResponse));
         }
         else {
             // No pending change = 404 from API
-            var notFoundException = ApiException.Create(
-                new HttpRequestMessage(),
-                HttpMethod.Get,
-                new HttpResponseMessage(HttpStatusCode.NotFound),
-                new RefitSettings()).Result;
-
             usersApiClientMock
                 .Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(notFoundException);
+                .ReturnsAsync(RefitTestHelper.CreateProblemResponse<GetPendingChangeEmailResponse>(HttpStatusCode.NotFound));
         }
 
         var controller = autoMocker.CreateInstance<HomeController>();
@@ -123,6 +118,33 @@ public sealed class HomeControllerTests
             new RefitSettings()).Result;
 
         var controller = CreateController(autoMocker, getPendingException: internalServerErrorException);
+
+        var result = await controller.Index();
+
+        var viewModel = TypeAssert.IsViewModelType<HomeViewModel>(result);
+        Assert.IsNull(viewModel.PendingEmailAddress);
+    }
+
+    [TestMethod]
+    public async Task Index_OmitsPendingEmailAddress_WhenApiReturnsInternalServerError()
+    {
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse<GetPendingChangeEmailResponse>(HttpStatusCode.InternalServerError));
+
+        var controller = autoMocker.CreateInstance<HomeController>();
+        var httpContext = new DefaultHttpContext();
+        httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature {
+            UserId = TestUserId,
+            IsEntra = false,
+            IsInternalUser = false,
+            FirstName = "Alex",
+            LastName = "Johnson",
+            EmailAddress = "alex.johnson@example.com",
+            JobTitle = "Software Developer",
+        });
+        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
         var result = await controller.Index();
 

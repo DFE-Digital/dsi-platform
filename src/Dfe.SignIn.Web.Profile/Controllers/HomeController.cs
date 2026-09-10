@@ -25,10 +25,10 @@ public sealed class HomeController(
 
         GetPendingChangeEmailResponse? pendingResponse = null;
         try {
-            pendingResponse = await usersApiClient.GetPendingChangeEmail(userProfileFeature.UserId);
-        }
-        catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
-            // No pending email change — this is expected
+            var response = await usersApiClient.GetPendingChangeEmail(userProfileFeature.UserId);
+            if (response.IsSuccessStatusCode) {
+                pendingResponse = response.Content;
+            }
         }
         catch (Exception ex) {
             logger.LogError(ex, "Failed to retrieve pending change email for user {UserId}", userProfileFeature.UserId);

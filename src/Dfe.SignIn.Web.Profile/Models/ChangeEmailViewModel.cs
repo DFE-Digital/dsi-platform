@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using FluentValidation;
 
@@ -8,6 +9,14 @@ namespace Dfe.SignIn.Web.Profile.Models;
 /// </summary>
 public sealed class ChangeEmailViewModel
 {
+    /// <summary>
+    /// Maps API request property names from InitiateChangeEmailAddressRequest to view model property names.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> RequestPropertyMap =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+            [nameof(InitiateChangeEmailAddressRequest.NewEmailAddress)] = nameof(EmailAddressInput),
+        };
+
     /// <summary>
     /// Gets or sets the email address of the user.
     /// </summary>

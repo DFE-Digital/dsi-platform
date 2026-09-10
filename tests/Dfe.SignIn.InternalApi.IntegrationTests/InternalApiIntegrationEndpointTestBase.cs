@@ -13,7 +13,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     // Delegate to factory's shared singleton fakes
     protected FakeInteractionLimiter FakeLimiter => this.WebAppFactory.FakeLimiter;
     protected FakeEmailRequestTracker FakeEmailRequestTracker => this.WebAppFactory.FakeEmailTracker;
-    protected FakeExternalAuthService FakeExternalAuthService => this.WebAppFactory.FakeExternalAuth;
+    protected FakeEntraChangeEmailService FakeEntraChangeEmailService => this.WebAppFactory.FakeEntraChangeEmailService;
     protected FakeUserUpdatedPublisher FakeUserUpdatedPublisher => this.WebAppFactory.FakeUserUpdatedPublisher;
     protected CapturingWriteToAuditInteractor AuditCapturer => this.WebAppFactory.AuditCapturer;
     internal FakeTimestampInterceptor TimestampInterceptor => this.WebAppFactory.TimestampInterceptor;
