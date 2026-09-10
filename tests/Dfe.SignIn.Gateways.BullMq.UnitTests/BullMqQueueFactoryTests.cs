@@ -19,7 +19,8 @@ public sealed class BullMqQueueFactoryTests
 
         return new BullMqQueueFactory(
             Options.Create(settings),
-            NullLogger<BullMqQueueFactory>.Instance);
+            NullLogger<BullMqQueueFactory>.Instance,
+            NullLoggerFactory.Instance);
     }
 
     [TestMethod]

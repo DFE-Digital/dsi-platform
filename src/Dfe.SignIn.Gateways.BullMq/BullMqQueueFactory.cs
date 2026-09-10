@@ -29,11 +29,13 @@ public interface IBullMqQueueFactory : IAsyncDisposable
 /// </summary>
 /// <param name="options">The BullMQ options.</param>
 /// <param name="logger">The logger.</param>
+/// <param name="loggerFactory">The logger factory used for queue adapters.</param>
 public sealed class BullMqQueueFactory(
     IOptions<BullMqSettings> options,
-    ILogger<BullMqQueueFactory> logger) : IBullMqQueueFactory
+    ILogger<BullMqQueueFactory> logger,
+    ILoggerFactory loggerFactory) : IBullMqQueueFactory
 {
-    private readonly ConcurrentDictionary<string, IBullMqQueue> queues = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, Lazy<IBullMqQueue>> queues = new(StringComparer.OrdinalIgnoreCase);
     private readonly BullMqSettings options = options.Value;
 
     /// <inheritdoc/>
@@ -41,17 +43,21 @@ public sealed class BullMqQueueFactory(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
 
-        return this.queues.GetOrAdd(queueName, name => {
-            logger.LogInformation("Initialising BullMQ queue '{QueueName}' on database {DbIndex}", name, this.options.DatabaseIndex);
+        var lazyQueue = this.queues.GetOrAdd(queueName, name => new Lazy<IBullMqQueue>(
+            () => {
+                logger.LogInformation("Initialising BullMQ queue '{QueueName}' on database {DbIndex}", name, this.options.DatabaseIndex);
 
-            var queue = new Queue(name, new QueueOptions {
-                Connection = new ConnectionOptions {
-                    ConnectionString = this.options.ConnectionString
-                }
-            });
+                var queue = new Queue(name, new QueueOptions {
+                    Connection = new ConnectionOptions {
+                        ConnectionString = this.options.ConnectionString
+                    }
+                });
 
-            return new BullMqQueueAdapter(queue);
-        });
+                return new BullMqQueueAdapter(queue, loggerFactory.CreateLogger<BullMqQueueAdapter>());
+            },
+            LazyThreadSafetyMode.ExecutionAndPublication));
+
+        return lazyQueue.Value;
     }
 
     /// <inheritdoc/>
@@ -71,9 +77,13 @@ public sealed class BullMqQueueFactory(
     /// <inheritdoc/>
     public async ValueTask DisposeAsync()
     {
-        foreach (var queue in this.queues.Values) {
+        foreach (var lazyQueue in this.queues.Values) {
+            if (!lazyQueue.IsValueCreated) {
+                continue;
+            }
+
             try {
-                await queue.CloseAsync();
+                await lazyQueue.Value.CloseAsync();
             }
             catch (Exception ex) {
                 logger.LogWarning(ex, "Error closing BullMQ queue connection during shutdown");

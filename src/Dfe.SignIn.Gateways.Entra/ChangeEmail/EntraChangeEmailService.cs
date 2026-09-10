@@ -1,3 +1,4 @@
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
@@ -18,6 +19,11 @@ public interface IEntraChangeEmailService
     /// <param name="newEmailAddress">The new email address.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
+    /// <remarks>
+    /// Primary email may succeed while MFA email-method update fails. Callers that treat
+    /// <see cref="EntraEmailErrors.MfaAuthenticationMethodFailedCode"/> as a soft failure
+    /// should expect Entra primary mail to already reflect <paramref name="newEmailAddress"/>.
+    /// </remarks>
     Task<Result> ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken = default);
 }
 
@@ -35,6 +41,7 @@ public sealed class EntraChangeEmailService(
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(newEmailAddress);
+        ExceptionHelpers.ThrowIfArgumentEmpty(externalUserId, nameof(externalUserId));
 
         var client = graphClientProvider.GetClient();
         var userIdString = externalUserId.ToString();

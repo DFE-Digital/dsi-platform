@@ -34,6 +34,17 @@ public sealed class EntraChangeEmailServiceTests
     }
 
     [TestMethod]
+    public async Task ChangeEmailAsync_WhenExternalUserIdIsEmpty_ThrowsArgumentException()
+    {
+        // Arrange
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act & Assert
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            sut.ChangeEmailAsync(Guid.Empty, "updated.user@example.com"));
+    }
+
+    [TestMethod]
     public async Task ChangeEmailAsync_WhenBothPrimaryAndExistingMfaSucceed_ReturnsSuccessResult()
     {
         // Arrange

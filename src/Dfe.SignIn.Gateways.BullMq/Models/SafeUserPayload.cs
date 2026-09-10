@@ -9,7 +9,7 @@ namespace Dfe.SignIn.Gateways.BullMq.Models;
 /// Wire-level DTO required by legacy login.dfe.jobs (userUpdatedHandlerV1.js).
 /// Note on Edge Cases for 100% Parity:
 /// 1. Null properties MUST be omitted from the JSON payload (using JsonIgnoreCondition.WhenWritingNull).
-/// 2. `Status` MUST be serialized as an integer/short, matching the DB type.
+/// 2. <c>Status</c> MUST be serialized as an integer/short, matching the DB type.
 /// </summary>
 public sealed record SafeUserPayload
 {
@@ -59,9 +59,13 @@ public sealed record SafeUserPayload
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? EntraLinked { get; init; }
 
+    /// <summary>
+    /// Optional internal-user flag. Left unset by <see cref="FromDomainEvent"/>;
+    /// <c>userUpdatedHandlerV1</c> does not require it and reloads the user when needed.
+    /// </summary>
     [JsonPropertyName("isInternalUser")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public bool? IsInternalUser { get; init; } = false;
+    public bool? IsInternalUser { get; init; }
 
     [JsonPropertyName("entraDeferUntil")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -94,4 +94,24 @@ public sealed class ExceptionHelpersTests
     }
 
     #endregion
+
+    [TestMethod]
+    public void ThrowIfArgumentEmpty_Throws_WhenValueIsEmptyGuid()
+    {
+        var exception = Assert.ThrowsExactly<ArgumentException>(
+            () => ExceptionHelpers.ThrowIfArgumentEmpty(Guid.Empty, "exampleParam")
+        );
+        Assert.AreEqual("exampleParam", exception.ParamName);
+    }
+
+    [TestMethod]
+    public void ThrowIfArgumentEmpty_DoesNotThrow_WhenValueIsValid()
+    {
+        try {
+            ExceptionHelpers.ThrowIfArgumentEmpty(Guid.NewGuid(), "exampleParam");
+        }
+        catch (Exception ex) {
+            Assert.Fail($"Expected no exception, but got: {ex.GetType().Name} - {ex.Message}");
+        }
+    }
 }

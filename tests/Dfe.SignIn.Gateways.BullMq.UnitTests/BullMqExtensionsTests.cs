@@ -39,6 +39,8 @@ public sealed class BullMqExtensionsTests
         var publisherDescriptor = services.Single(d => d.ServiceType == typeof(IEventPublisher));
         Assert.AreEqual(ServiceLifetime.Singleton, publisherDescriptor.Lifetime);
         Assert.AreEqual(typeof(BullMqEventPublisher), publisherDescriptor.ImplementationType);
+
+        Assert.AreEqual("BullMq", BullMqSettings.SectionName);
     }
 
     [TestMethod]
@@ -69,7 +71,36 @@ public sealed class BullMqExtensionsTests
         var parsed = ConfigurationOptions.Parse(options.ConnectionString);
         Assert.AreEqual(7, parsed.DefaultDatabase);
         Assert.AreEqual(7, options.DatabaseIndex);
-        Assert.AreEqual(BullMqSettings.SectionName, "BullMq");
+    }
+
+    [TestMethod]
+    public void AddBullMqServices_WhenConnectionStringHasPassword_PreservesPasswordAfterRewrite()
+    {
+        // Arrange
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["BullMq:ConnectionString"] = "localhost:6379,password=secret",
+                ["BullMq:DatabaseIndex"] = "4",
+                ["BullMq:RemoveOnCompleteAgeSeconds"] = "3600",
+                ["BullMq:RemoveOnCompleteCount"] = "50",
+                ["BullMq:RemoveOnFailAgeSeconds"] = "43200",
+            })
+            .Build();
+
+        var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddLogging();
+        services.AddBullMqServices();
+
+        using var provider = services.BuildServiceProvider();
+
+        // Act
+        var options = provider.GetRequiredService<IOptions<BullMqSettings>>().Value;
+
+        // Assert
+        var parsed = ConfigurationOptions.Parse(options.ConnectionString);
+        Assert.AreEqual("secret", parsed.Password);
+        Assert.AreEqual(4, parsed.DefaultDatabase);
     }
 
     [TestMethod]

@@ -4,7 +4,6 @@ namespace Dfe.SignIn.Gateways.Entra;
 
 /// <summary>
 /// Configuration options for connecting to Microsoft Entra ID with application credentials.
-/// See README.md in this project for required settings and Azure AD permissions.
 /// </summary>
 public sealed class EntraApplicationSettings
 {

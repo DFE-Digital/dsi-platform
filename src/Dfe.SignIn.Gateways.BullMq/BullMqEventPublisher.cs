@@ -13,6 +13,10 @@ namespace Dfe.SignIn.Gateways.BullMq;
 /// <param name="queueFactory">The factory instance to create BullMQ queues.</param>
 /// <param name="messagingOptions">The messaging options.</param>
 /// <param name="logger">The logger instance to use for logging.</param>
+/// <remarks>
+/// Mid-flight cancellation is not honoured because the BullMQ SDK <c>AddAsync</c> has no cancellation overload.
+/// The token is checked before enqueue begins.
+/// </remarks>
 public sealed class BullMqEventPublisher(
     IBullMqQueueFactory queueFactory,
     IOptions<MessagingSettings> messagingOptions,
@@ -25,6 +29,7 @@ public sealed class BullMqEventPublisher(
         where TEvent : class, IIntegrationEvent
     {
         ArgumentNullException.ThrowIfNull(@event);
+        ct.ThrowIfCancellationRequested();
 
         if (!this.messagingSettings.Enabled) {
             logger.LogInformation("Global messaging is disabled. Skipping event {EventId} of type {EventType}", @event.EventId, typeof(TEvent).Name);
@@ -37,6 +42,8 @@ public sealed class BullMqEventPublisher(
 
         var queue = queueFactory.GetQueue(queueName);
         var jobOptions = queueFactory.GetDefaultJobOptions();
+
+        ct.ThrowIfCancellationRequested();
 
         try {
             var jobId = await queue.AddAsync(queueName, payload, jobOptions);

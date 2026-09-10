@@ -12,9 +12,9 @@ public interface IBullMqQueue
     /// </summary>
     /// <param name="name">The job name.</param>
     /// <param name="data">The job payload.</param>
-    /// <param name="options">Optional job options.</param>
+    /// <param name="options">The job options.</param>
     /// <returns>The enqueued job id.</returns>
-    Task<string> AddAsync(string name, object data, JobsOptions? options = null);
+    Task<string> AddAsync(string name, object data, JobsOptions options);
 
     /// <summary>
     /// Closes the queue and its connection (when owned).

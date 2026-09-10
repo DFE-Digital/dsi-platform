@@ -32,6 +32,28 @@ public sealed class BullMqEventPublisherTests
     }
 
     [TestMethod]
+    public async Task PublishAsync_WhenCancellationRequested_ThrowsOperationCanceledException()
+    {
+        // Arrange
+        var autoMocker = new AutoMocker();
+        var sut = CreateSut(autoMocker);
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var @event = new UserUpdatedEvent {
+            UserId = Guid.NewGuid(),
+            Email = "user@example.com",
+            FirstName = "Ada",
+            LastName = "Lovelace",
+            Status = 1,
+        };
+
+        // Act & Assert
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(()
+            => sut.PublishAsync(@event, cts.Token));
+    }
+
+    [TestMethod]
     public async Task PublishAsync_WhenMessagingDisabled_DoesNotEnqueue()
     {
         // Arrange
@@ -82,8 +104,8 @@ public sealed class BullMqEventPublisherTests
         JobsOptions? capturedOptions = null;
 
         queueMock
-            .Setup(x => x.AddAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<JobsOptions?>()))
-            .Callback<string, object, JobsOptions?>((name, data, options) => {
+            .Setup(x => x.AddAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<JobsOptions>()))
+            .Callback<string, object, JobsOptions>((name, data, options) => {
                 capturedJobName = name;
                 capturedPayload = data as SafeUserPayload;
                 capturedOptions = options;
@@ -134,7 +156,7 @@ public sealed class BullMqEventPublisherTests
 
         var queueMock = new Mock<IBullMqQueue>();
         queueMock
-            .Setup(x => x.AddAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<JobsOptions?>()))
+            .Setup(x => x.AddAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<JobsOptions>()))
             .ThrowsAsync(new InvalidOperationException("redis unavailable"));
 
         autoMocker.GetMock<IBullMqQueueFactory>()
