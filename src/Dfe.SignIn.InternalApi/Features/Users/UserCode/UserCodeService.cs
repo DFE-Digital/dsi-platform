@@ -59,15 +59,11 @@ public class UserCodeService(
     ILogger<UserCodeService> logger
     ) : IUserCodeService
 {
-    private const string ChangeEmailCodeType = "changeemail";
-
     /// <inheritdoc/>
     public async Task<UserCodeEntity?> GetPendingChangeEmailCodeAsync(Guid userId, CancellationToken cancellationToken)
     {
-        return await dbDirectoriesContext.UserCodes
+        return await this.GetUserCodesQuery(userId)
             .AsNoTracking()
-            .Where(x => x.Uid == userId)
-            .Where(x => x.CodeType == ChangeEmailCodeType)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -75,15 +71,20 @@ public class UserCodeService(
     public async Task DeleteExistingCodesAsync(Guid userId, CancellationToken cancellationToken)
     {
         try {
-            await dbDirectoriesContext.UserCodes
-                .Where(x => x.Uid == userId)
-                .Where(x => x.CodeType == ChangeEmailCodeType)
+            await this.GetUserCodesQuery(userId)
                 .ExecuteDeleteAsync(cancellationToken);
         }
         catch (DbUpdateException ex) {
             logger.LogError(ex, "Error deleting existing user codes for user {UserId}", userId);
             throw;
         }
+    }
+
+    private IQueryable<UserCodeEntity> GetUserCodesQuery(Guid userId)
+    {
+        return dbDirectoriesContext.UserCodes
+            .Where(x => x.Uid == userId)
+            .Where(x => x.CodeType == UserCodeType.ChangeEmail.Value);
     }
 
     /// <inheritdoc/>
@@ -93,21 +94,16 @@ public class UserCodeService(
         string clientId,
         CancellationToken cancellationToken)
     {
-        const string codeType = ChangeEmailCodeType; //todo: consider moving this to a constant in a shared location if it is used in multiple places
-
         var verificationCode = CodeGenerator.Generate(8, CodeGenerator.FullCharset);
-        var now = DateTime.UtcNow;
 
         var userCode = new UserCodeEntity {
             Uid = userInfo.UserId,
-            CodeType = codeType,
+            CodeType = UserCodeType.ChangeEmail.Value,
             Code = verificationCode,
             ClientId = clientId,
             RedirectUri = "n/a",
             Email = newEmailAddress,
             ContextData = null,
-            CreatedAt = now,
-            UpdatedAt = now,
         };
 
         dbDirectoriesContext.UserCodes.Add(userCode);
@@ -135,7 +131,7 @@ public class UserCodeService(
     {
         await notificationService.SendAsync(
             recipientEmailAddress: email,
-            templateId: "8a6b7625-87d5-41bc-bc58-035343571d81",
+            templateId: "8a6b7625-87d5-41bc-bc58-035343571d81", //todo: move to config
             personalisation: new Dictionary<string, dynamic> {
                     { "firstName",  firstName},
                     { "lastName",  lastName},
@@ -151,7 +147,7 @@ public class UserCodeService(
     {
         await notificationService.SendAsync(
             recipientEmailAddress: email,
-            templateId: "18e0e804-04c6-4f73-9462-ab3cbf8b990f",
+            templateId: "18e0e804-04c6-4f73-9462-ab3cbf8b990f", //todo: move to config
             personalisation: new Dictionary<string, dynamic> {
                     {"firstName",  firstName},
                     {"lastName",  lastName},

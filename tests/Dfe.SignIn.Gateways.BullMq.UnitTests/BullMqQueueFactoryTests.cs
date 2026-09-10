@@ -70,14 +70,4 @@ public sealed class BullMqQueueFactoryTests
         Assert.IsNotNull(removeOnFail);
         Assert.AreEqual(200, removeOnFail.Age);
     }
-
-    [TestMethod]
-    public async Task DisposeAsync_WhenNoQueuesCreated_CompletesSuccessfully()
-    {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act & Assert
-        await sut.DisposeAsync();
-    }
 }

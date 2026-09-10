@@ -19,11 +19,6 @@ public sealed class FakeEmailNotificationService(FakeEmailRequestTracker? tracke
         this.tracker?.Track(new TrackedEmailRequest(recipientEmailAddress, templateId, personalisation));
         return Task.CompletedTask;
     }
-
-    public Task SendAsync(
-        string recipientEmailAddress,
-        string templateId,
-        Dictionary<string, dynamic> personalisation) => throw new NotImplementedException();
 }
 
 /// <summary>

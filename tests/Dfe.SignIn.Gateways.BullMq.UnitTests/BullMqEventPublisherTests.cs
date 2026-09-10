@@ -38,7 +38,7 @@ public sealed class BullMqEventPublisherTests
         var autoMocker = new AutoMocker();
         var sut = CreateSut(autoMocker);
         using var cts = new CancellationTokenSource();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         var @event = new UserUpdatedEvent {
             UserId = Guid.NewGuid(),
