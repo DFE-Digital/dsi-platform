@@ -42,7 +42,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
             await endpoint.HandleAsync(userId, request, cancellationToken))
             .WithName("Confirm Change Email Address")
             .WithTags("Users")
-            .WithStandardResponses()
+            .WithStandardResponses<ConfirmChangeEmailAddressResponse>()
             .WithValidationFilter<ConfirmChangeEmailAddressRequest>();
     }
 
@@ -166,7 +166,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
             await auditWriter.Log(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.EmailChangeFailed,
-                Message = $"Failed changed email to {pendingCode.Email} - invalid code",
+                Message = $"Failed to change email to {pendingCode.Email} - invalid code",
                 UserId = user.Sub,
                 WasFailure = true,
             });
@@ -206,7 +206,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
             await auditWriter.Log(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.EmailChangeFailed,
-                Message = $"Failed changed email to {newEmail} - {ex.Message}",
+                Message = $"Failed to change email to {newEmail} - {ex.Message}",
                 UserId = user.Sub,
                 WasFailure = true,
             });

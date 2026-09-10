@@ -64,8 +64,7 @@ public static class UsersFeature
             .AddScoped<IUserLookupService, UserLookupService>()
             .AddScoped<IUserCodeService, UserCodeService>()
             .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>()
-            .AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>()
-            .AddSingleton<IPasswordHasher, PasswordHasher>();
+            .AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
 
         services
             .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
