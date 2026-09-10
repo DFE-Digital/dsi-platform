@@ -10,7 +10,7 @@ internal sealed class BullMqQueueAdapter(Queue queue) : IBullMqQueue
     /// <inheritdoc/>
     public async Task<string> AddAsync(string name, object data, JobsOptions? options = null)
     {
-        var job = await queue.AddAsync(name, data, options!);
+        var job = await queue.AddAsync(name, data, options);
         return job.Id ?? string.Empty;
     }
 
