@@ -6,23 +6,49 @@ namespace Dfe.SignIn.Gateways.BullMq;
 /// <summary>
 /// Thin adapter around a sealed <see cref="Queue"/> instance.
 /// </summary>
-internal sealed class BullMqQueueAdapter(
-    Queue queue,
-    ILogger<BullMqQueueAdapter> logger) : IBullMqQueue
+internal sealed class BullMqQueueAdapter : IBullMqQueue
 {
-    /// <inheritdoc/>
-    public async Task<string> AddAsync(string name, object data, JobsOptions options)
+    private readonly Func<string, object, JobsOptions, Task<string?>> addAsync;
+    private readonly Func<Task> closeAsync;
+    private readonly ILogger<BullMqQueueAdapter> logger;
+
+    /// <summary>
+    /// Creates an adapter over a real BullMQ <see cref="Queue"/>.
+    /// </summary>
+    public BullMqQueueAdapter(Queue queue, ILogger<BullMqQueueAdapter> logger)
+        : this(
+            async (name, data, options) => (await queue.AddAsync(name, data, options)).Id,
+            queue.CloseAsync,
+            logger)
     {
-        var job = await queue.AddAsync(name, data, options);
+    }
 
-        if (string.IsNullOrEmpty(job.Id)) {
-            logger.LogWarning("BullMQ job was enqueued without an id for job name {JobName}", name);
-            return string.Empty;
-        }
-
-        return job.Id;
+    /// <summary>
+    /// Creates an adapter with injectable queue operations (for unit tests).
+    /// </summary>
+    internal BullMqQueueAdapter(
+        Func<string, object, JobsOptions, Task<string?>> addAsync,
+        Func<Task> closeAsync,
+        ILogger<BullMqQueueAdapter> logger)
+    {
+        this.addAsync = addAsync;
+        this.closeAsync = closeAsync;
+        this.logger = logger;
     }
 
     /// <inheritdoc/>
-    public Task CloseAsync() => queue.CloseAsync();
+    public async Task<string> AddAsync(string name, object data, JobsOptions options)
+    {
+        var jobId = await this.addAsync(name, data, options);
+
+        if (string.IsNullOrEmpty(jobId)) {
+            this.logger.LogWarning("BullMQ job was enqueued without an id for job name {JobName}", name);
+            return string.Empty;
+        }
+
+        return jobId;
+    }
+
+    /// <inheritdoc/>
+    public Task CloseAsync() => this.closeAsync();
 }

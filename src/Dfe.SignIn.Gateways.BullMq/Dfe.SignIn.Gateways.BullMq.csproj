@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+    <!-- Allow Moq to proxy ILogger&lt;T&gt; when T is internal (e.g. BullMqQueueAdapter). -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
   <ItemGroup>

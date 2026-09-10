@@ -27,16 +27,39 @@ public interface IBullMqQueueFactory : IAsyncDisposable
 /// <summary>
 /// Implementation of <see cref="IBullMqQueueFactory"/> that manages BullMQ queues.
 /// </summary>
-/// <param name="options">The BullMQ options.</param>
-/// <param name="logger">The logger.</param>
-/// <param name="loggerFactory">The logger factory used for queue adapters.</param>
-public sealed class BullMqQueueFactory(
-    IOptions<BullMqSettings> options,
-    ILogger<BullMqQueueFactory> logger,
-    ILoggerFactory loggerFactory) : IBullMqQueueFactory
+public sealed class BullMqQueueFactory : IBullMqQueueFactory
 {
     private readonly ConcurrentDictionary<string, Lazy<IBullMqQueue>> queues = new(StringComparer.OrdinalIgnoreCase);
-    private readonly BullMqSettings options = options.Value;
+    private readonly BullMqSettings options;
+    private readonly ILogger<BullMqQueueFactory> logger;
+    private readonly Func<string, IBullMqQueue> createQueue;
+
+    /// <summary>
+    /// Creates a factory that materialises real BullMQ queues.
+    /// </summary>
+    /// <param name="options">The BullMQ options.</param>
+    /// <param name="logger">The logger.</param>
+    /// <param name="loggerFactory">The logger factory used for queue adapters.</param>
+    public BullMqQueueFactory(
+        IOptions<BullMqSettings> options,
+        ILogger<BullMqQueueFactory> logger,
+        ILoggerFactory loggerFactory)
+        : this(options, logger, name => CreateQueueAdapter(name, options.Value, loggerFactory))
+    {
+    }
+
+    /// <summary>
+    /// Creates a factory with an injectable queue creator (for unit tests).
+    /// </summary>
+    internal BullMqQueueFactory(
+        IOptions<BullMqSettings> options,
+        ILogger<BullMqQueueFactory> logger,
+        Func<string, IBullMqQueue> createQueue)
+    {
+        this.options = options.Value;
+        this.logger = logger;
+        this.createQueue = createQueue;
+    }
 
     /// <inheritdoc/>
     public IBullMqQueue GetQueue(string queueName)
@@ -45,15 +68,12 @@ public sealed class BullMqQueueFactory(
 
         var lazyQueue = this.queues.GetOrAdd(queueName, name => new Lazy<IBullMqQueue>(
             () => {
-                logger.LogInformation("Initialising BullMQ queue '{QueueName}' on database {DbIndex}", name, this.options.DatabaseIndex);
+                this.logger.LogInformation(
+                    "Initialising BullMQ queue '{QueueName}' on database {DbIndex}",
+                    name,
+                    this.options.DatabaseIndex);
 
-                var queue = new Queue(name, new QueueOptions {
-                    Connection = new ConnectionOptions {
-                        ConnectionString = this.options.ConnectionString
-                    }
-                });
-
-                return new BullMqQueueAdapter(queue, loggerFactory.CreateLogger<BullMqQueueAdapter>());
+                return this.createQueue(name);
             },
             LazyThreadSafetyMode.ExecutionAndPublication));
 
@@ -86,10 +106,24 @@ public sealed class BullMqQueueFactory(
                 await lazyQueue.Value.CloseAsync();
             }
             catch (Exception ex) {
-                logger.LogWarning(ex, "Error closing BullMQ queue connection during shutdown");
+                this.logger.LogWarning(ex, "Error closing BullMQ queue connection during shutdown");
             }
         }
 
         this.queues.Clear();
+    }
+
+    private static IBullMqQueue CreateQueueAdapter(
+        string name,
+        BullMqSettings settings,
+        ILoggerFactory loggerFactory)
+    {
+        var queue = new Queue(name, new QueueOptions {
+            Connection = new ConnectionOptions {
+                ConnectionString = settings.ConnectionString
+            }
+        });
+
+        return new BullMqQueueAdapter(queue, loggerFactory.CreateLogger<BullMqQueueAdapter>());
     }
 }
