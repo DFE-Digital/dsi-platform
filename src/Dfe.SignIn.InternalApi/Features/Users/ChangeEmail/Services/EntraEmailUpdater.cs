@@ -60,7 +60,7 @@ public sealed class EntraEmailUpdater(
             await auditWriter.Log(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.EmailChangeFailed,
-                Message = $"Failed changed email to {newEmail} - FailedToUpdateAuthenticationMethodException",
+                Message = $"Failed to change email to {newEmail} - FailedToUpdateAuthenticationMethodException",
                 UserId = user.Sub,
                 WasFailure = true,
             });
@@ -87,7 +87,7 @@ public sealed class EntraEmailUpdater(
         await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeEmail,
             EventName = AuditChangeEmailEventNames.EmailChangeFailed,
-            Message = $"Failed changed email to {newEmail} - {entraResult.Error.Description}",
+            Message = $"Failed to change email to {newEmail} - {entraResult.Error.Description}",
             UserId = user.Sub,
             WasFailure = true,
         });

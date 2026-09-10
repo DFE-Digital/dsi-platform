@@ -44,7 +44,7 @@ public sealed class GetPendingChangeEmailEndpoint(
 
         if (pendingCode is null || string.IsNullOrWhiteSpace(pendingCode.Email)) {
             logger.LogInformation("No pending change email request found for user {UserId}", userId);
-            return Results.NotFound(new { Message = "No pending change email request found" });
+            return Results.NotFound();
         }
 
         var expiryTime = pendingCode.CreatedAt.AddHours(ChangeEmailConstants.VerificationCodeExpiryHours);
