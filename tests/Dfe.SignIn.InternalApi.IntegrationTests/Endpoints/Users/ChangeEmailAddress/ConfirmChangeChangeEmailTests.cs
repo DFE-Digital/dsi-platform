@@ -187,7 +187,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         // Failure audit is written
         var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
-        Assert.Equal($"Failed changed email to john.doe@new.example.com - invalid code", failureAudit.Message);
+        Assert.Equal($"Failed to change email to john.doe@new.example.com - invalid code", failureAudit.Message);
         Assert.Equal(user.Sub, failureAudit.UserId);
     }
 
@@ -469,7 +469,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         // Failure audit is written
         var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
-        Assert.Contains("Failed changed email", failureAudit.Message);
+        Assert.Contains("Failed to change email", failureAudit.Message);
         Assert.Equal(user.Sub, failureAudit.UserId);
     }
 
