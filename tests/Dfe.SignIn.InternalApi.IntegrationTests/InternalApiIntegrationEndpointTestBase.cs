@@ -14,7 +14,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected FakeInteractionLimiter FakeLimiter => this.WebAppFactory.FakeLimiter;
     protected FakeEmailRequestTracker FakeEmailRequestTracker => this.WebAppFactory.FakeEmailTracker;
     protected FakeEntraChangeEmailService FakeEntraChangeEmailService => this.WebAppFactory.FakeEntraChangeEmailService;
-    protected FakeUserUpdatedPublisher FakeUserUpdatedPublisher => this.WebAppFactory.FakeUserUpdatedPublisher;
+    protected FakeEventPublisher FakeEventPublisher => this.WebAppFactory.FakeEventPublisher;
     protected CapturingWriteToAuditInteractor AuditCapturer => this.WebAppFactory.AuditCapturer;
     internal FakeTimestampInterceptor TimestampInterceptor => this.WebAppFactory.TimestampInterceptor;
     internal FailingDbCommandInterceptor FailingDbCommandInterceptor => this.WebAppFactory.FailingDbCommandInterceptor;

@@ -102,7 +102,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         Error entraError,
         CancellationToken cancellationToken)
     {
-        // Parity with legacy Node: code is cleaned up, but Service Bus notification is skipped
+        // Parity with legacy Node: code is cleaned up, but user updated integration event is skipped
         await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
 
         return Results.Ok(new ConfirmChangeEmailAddressResponse {
@@ -140,7 +140,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
             await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
         }
         catch (Exception ex) {
-            logger.LogError(ex, "Error executing post-update notification tasks for user {UserId}", user.Sub);
+            logger.LogError(ex, "Error publishing UserUpdatedEvent for user {UserId}", user.Sub);
             throw;
         }
 
