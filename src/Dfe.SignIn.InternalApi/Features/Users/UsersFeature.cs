@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
-using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.Entra;
@@ -63,8 +62,7 @@ public static class UsersFeature
         services
             .AddScoped<IUserLookupService, UserLookupService>()
             .AddScoped<IUserCodeService, UserCodeService>()
-            .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>()
-            .AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
+            .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>();
 
         services
             .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
