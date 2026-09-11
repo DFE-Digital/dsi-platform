@@ -1,19 +1,16 @@
 using System.ComponentModel.DataAnnotations;
-using Dfe.SignIn.Base.Framework;
 
 namespace Dfe.SignIn.Core.Contracts.Users;
 
 /// <summary>
 /// Represents a request to automatically link an Entra user to DfE Sign-in.
 /// </summary>
-[AssociatedResponse(typeof(AutoLinkEntraUserToDsiResponse))]
-[Throws(typeof(CannotLinkInactiveUserException))]
 public sealed record AutoLinkEntraUserToDsiRequest
 {
     /// <summary>
     /// The unique ID of the user in the Entra tenant.
     /// </summary>
-    public required Guid EntraUserId { get; init; }
+    public required Guid? EntraUserId { get; init; }
 
     /// <summary>
     /// The email address of the user.

@@ -1,131 +1,131 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Contracts.Users;
+//using Dfe.SignIn.Base.Framework;
+//using Dfe.SignIn.Core.Contracts.Audit;
+//using Dfe.SignIn.Core.Contracts.Users;
 
-namespace Dfe.SignIn.Core.UseCases.Users;
+//namespace Dfe.SignIn.Core.UseCases.Users;
 
-/// <summary>
-/// Use case for automatically linking an Entra user to a DfE Sign-in user.
-/// </summary>
-/// <param name="interaction">Service to dispatch interaction requests.</param>
-public sealed class AutoLinkEntraUserToDsiUseCase(
-    IInteractionDispatcher interaction
-) : Interactor<AutoLinkEntraUserToDsiRequest, AutoLinkEntraUserToDsiResponse>
-{
-    /// <inheritdoc/>
-    public override async Task<AutoLinkEntraUserToDsiResponse> InvokeAsync(
-        InteractionContext<AutoLinkEntraUserToDsiRequest> context,
-        CancellationToken cancellationToken = default)
-    {
-        context.ThrowIfHasValidationErrors();
+///// <summary>
+///// Use case for automatically linking an Entra user to a DfE Sign-in user.
+///// </summary>
+///// <param name="interaction">Service to dispatch interaction requests.</param>
+//public sealed class AutoLinkEntraUserToDsiUseCase(
+//    IInteractionDispatcher interaction
+//) : Interactor<AutoLinkEntraUserToDsiRequest, AutoLinkEntraUserToDsiResponse>
+//{
+//    /// <inheritdoc/>
+//    public override async Task<AutoLinkEntraUserToDsiResponse> InvokeAsync(
+//        InteractionContext<AutoLinkEntraUserToDsiRequest> context,
+//        CancellationToken cancellationToken = default)
+//    {
+//        context.ThrowIfHasValidationErrors();
 
-        return new AutoLinkEntraUserToDsiResponse {
-            UserId = await this.AutoLinkUserAsync(context.Request),
-        };
-    }
+//        return new AutoLinkEntraUserToDsiResponse {
+//            UserId = await this.AutoLinkUserAsync(context.Request),
+//        };
+//    }
 
-    private async Task<Guid> AutoLinkUserAsync(AutoLinkEntraUserToDsiRequest request)
-    {
-        return await this.GetExistingLinkedUserAsync(request)
-            ?? await this.LinkToExistingDsiUserAsync(request)
-            ?? await this.CreateDsiUserAsync(request);
-    }
+//    private async Task<Guid> AutoLinkUserAsync(AutoLinkEntraUserToDsiRequest request)
+//    {
+//        return await this.GetExistingLinkedUserAsync(request)
+//            ?? await this.LinkToExistingDsiUserAsync(request)
+//            ?? await this.CreateDsiUserAsync(request);
+//    }
 
-    private async Task<Guid?> GetExistingLinkedUserAsync(AutoLinkEntraUserToDsiRequest request)
-    {
-        var userStatusResponse = await interaction.DispatchAsync(
-            new GetUserStatusRequest {
-                EntraUserId = request.EntraUserId,
-            }
-        ).To<GetUserStatusResponse>();
+//    private async Task<Guid?> GetExistingLinkedUserAsync(AutoLinkEntraUserToDsiRequest request)
+//    {
+//        var userStatusResponse = await interaction.DispatchAsync(
+//            new GetUserStatusRequest {
+//                EntraUserId = request.EntraUserId,
+//            }
+//        ).To<GetUserStatusResponse>();
 
-        if (!userStatusResponse.UserExists) {
-            return null;
-        }
+//        if (!userStatusResponse.UserExists) {
+//            return null;
+//        }
 
-        // User exists in the system; are they an active user though?
-        if (userStatusResponse.AccountStatus != AccountStatus.Active) {
-            throw new CannotLinkInactiveUserException();
-        }
+//        // User exists in the system; are they an active user though?
+//        if (userStatusResponse.AccountStatus != AccountStatus.Active) {
+//            throw new CannotLinkInactiveUserException();
+//        }
 
-        return userStatusResponse.UserId;
-    }
+//        return userStatusResponse.UserId;
+//    }
 
-    private async Task<Guid?> LinkToExistingDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
-    {
-        // Let's try to associate the Entra user object with a DSI account.
-        var userStatusResponse = await interaction.DispatchAsync(
-            new GetUserStatusRequest {
-                EmailAddress = request.EmailAddress,
-            }
-        ).To<GetUserStatusResponse>();
+//    private async Task<Guid?> LinkToExistingDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
+//    {
+//        // Let's try to associate the Entra user object with a DSI account.
+//        var userStatusResponse = await interaction.DispatchAsync(
+//            new GetUserStatusRequest {
+//                EmailAddress = request.EmailAddress,
+//            }
+//        ).To<GetUserStatusResponse>();
 
-        if (!userStatusResponse.UserExists) {
-            return null;
-        }
+//        if (!userStatusResponse.UserExists) {
+//            return null;
+//        }
 
-        // User exists in the system; are they an active user though?
-        if (userStatusResponse.AccountStatus != AccountStatus.Active) {
-            throw new CannotLinkInactiveUserException();
-        }
+//        // User exists in the system; are they an active user though?
+//        if (userStatusResponse.AccountStatus != AccountStatus.Active) {
+//            throw new CannotLinkInactiveUserException();
+//        }
 
-        await interaction.DispatchAsync(
-            new LinkEntraUserToDsiRequest {
-                DsiUserId = userStatusResponse.UserId.Value,
-                EntraUserId = request.EntraUserId,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-            }
-        ).To<LinkEntraUserToDsiResponse>();
+//        await interaction.DispatchAsync(
+//            new LinkEntraUserToDsiRequest {
+//                DsiUserId = userStatusResponse.UserId.Value,
+//                EntraUserId = request.EntraUserId,
+//                FirstName = request.FirstName,
+//                LastName = request.LastName,
+//            }
+//        ).To<LinkEntraUserToDsiResponse>();
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.Auth,
-            EventName = AuditAuthEventNames.LinkToExistingUser,
-            Message = $"Linked Entra account with existing DfE Sign-In user {request.EmailAddress}",
-            UserId = userStatusResponse.UserId,
-        });
+//        await interaction.DispatchAsync(new WriteToAuditRequest {
+//            EventCategory = AuditEventCategoryNames.Auth,
+//            EventName = AuditAuthEventNames.LinkToExistingUser,
+//            Message = $"Linked Entra account with existing DfE Sign-In user {request.EmailAddress}",
+//            UserId = userStatusResponse.UserId,
+//        });
 
-        return userStatusResponse.UserId.Value;
-    }
+//        return userStatusResponse.UserId.Value;
+//    }
 
-    private async Task<Guid> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
-    {
-        // User does not exist in the system; is there a pending invitation?
-        var completeAnyPendingInvitationResponse = await interaction.DispatchAsync(
-            new CompleteAnyPendingInvitationRequest {
-                EmailAddress = request.EmailAddress,
-                EntraUserId = request.EntraUserId,
-            }
-        ).To<CompleteAnyPendingInvitationResponse>();
+//    private async Task<Guid> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
+//    {
+//        // User does not exist in the system; is there a pending invitation?
+//        var completeAnyPendingInvitationResponse = await interaction.DispatchAsync(
+//            new CompleteAnyPendingInvitationRequest {
+//                EmailAddress = request.EmailAddress,
+//                EntraUserId = request.EntraUserId,
+//            }
+//        ).To<CompleteAnyPendingInvitationResponse>();
 
-        if (completeAnyPendingInvitationResponse.UserId is not null) {
-            await interaction.DispatchAsync(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.Auth,
-                EventName = AuditAuthEventNames.LinkToInvitedUser,
-                Message = $"Linked Entra account with pending DfE Sign-In invitation {request.EmailAddress}",
-                UserId = completeAnyPendingInvitationResponse.UserId,
-            });
+//        if (completeAnyPendingInvitationResponse.UserId is not null) {
+//            await interaction.DispatchAsync(new WriteToAuditRequest {
+//                EventCategory = AuditEventCategoryNames.Auth,
+//                EventName = AuditAuthEventNames.LinkToInvitedUser,
+//                Message = $"Linked Entra account with pending DfE Sign-In invitation {request.EmailAddress}",
+//                UserId = completeAnyPendingInvitationResponse.UserId,
+//            });
 
-            return completeAnyPendingInvitationResponse.UserId.Value;
-        }
+//            return completeAnyPendingInvitationResponse.UserId.Value;
+//        }
 
-        // Create new user in system and link to the associated Entra user.
-        var createUserResponse = await interaction.DispatchAsync(
-            new CreateUserRequest {
-                EntraUserId = request.EntraUserId,
-                EmailAddress = request.EmailAddress,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-            }
-        ).To<CreateUserResponse>();
+//        // Create new user in system and link to the associated Entra user.
+//        var createUserResponse = await interaction.DispatchAsync(
+//            new CreateUserRequest {
+//                EntraUserId = request.EntraUserId,
+//                EmailAddress = request.EmailAddress,
+//                FirstName = request.FirstName,
+//                LastName = request.LastName,
+//            }
+//        ).To<CreateUserResponse>();
 
-        await interaction.DispatchAsync(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.Auth,
-            EventName = AuditAuthEventNames.LinkToNewUser,
-            Message = $"Linked Entra account with new DfE Sign-In user {request.EmailAddress}",
-            UserId = createUserResponse.UserId,
-        });
+//        await interaction.DispatchAsync(new WriteToAuditRequest {
+//            EventCategory = AuditEventCategoryNames.Auth,
+//            EventName = AuditAuthEventNames.LinkToNewUser,
+//            Message = $"Linked Entra account with new DfE Sign-In user {request.EmailAddress}",
+//            UserId = createUserResponse.UserId,
+//        });
 
-        return createUserResponse.UserId;
-    }
-}
+//        return createUserResponse.UserId;
+//    }
+//}

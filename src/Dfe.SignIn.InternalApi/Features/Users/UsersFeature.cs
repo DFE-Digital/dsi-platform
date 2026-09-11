@@ -6,6 +6,8 @@ using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.InternalApi.Endpoints;
+using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi;
+using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
@@ -15,6 +17,7 @@ using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
+using Dfe.SignIn.InternalApi.Services.Search;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 
@@ -27,7 +30,8 @@ public static class UsersFeature
     private static readonly EndpointRegistry NewEndpointRegistry = new EndpointRegistry()
         .Add<CancelChangeEmailAddressEndpoint>()
         .Add<CheckIsBlockedEmailAddressEndpoint>()
-        .Add<ChangePasswordEndpoint>();
+        .Add<ChangePasswordEndpoint>()
+        .Add<AutoLinkEntraToDsiEndpoint>();
 
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -66,6 +70,10 @@ public static class UsersFeature
         services.AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
+        services.AddScoped<RemoveInviteService>();
+        services.AddScoped<GenericEmailCheck>();
+        services.AddScoped<IUserCreator, UserCreator>();
 
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);

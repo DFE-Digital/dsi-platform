@@ -49,4 +49,8 @@
     <Using Include="Dfe.SignIn.WebFramework" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Users\Creation\" />
+  </ItemGroup>
+
 </Project>
