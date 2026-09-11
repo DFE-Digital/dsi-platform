@@ -1,27 +1,43 @@
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
+using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Models;
 using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
 using Dfe.SignIn.InternalApi.Services.Search;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi;
 
 /// <summary>
-/// 
+/// An endpoint to link the Entra user to a DSI
+///
+/// This endpoint carries a workflow.
+///
+/// 1. if the user exists in the DSI database and can be found by the EntraId
+/// then its returned
+///
+/// 2. Invoked when the user doesn't exist via the entraId and attempts to locate
+/// it by the email address. This is typically used for migration or support purposes
+///
+/// 3. User does not exist in DSI and thus gets created.
 /// </summary>
-/// <param name="directoriesDbContext"></param>
-/// <param name="auditWriter"></param>
-/// <param name="timeProvider"></param>
-/// <param name="removeInviteService"></param>
-/// <param name="genericEmailCheck"></param>
-/// <param name="userCreator"></param>
-/// <param name="logger"></param>
+/// <param name="directoriesDbContext">The database peristence layer</param>
+/// <param name="auditWriter">The audit writer used for auditing</param>
+/// <param name="timeProvider">The ability to resolve the current system time</param>
+/// <param name="removeInviteService">Logic for removing a user invitation</param>
+/// <param name="genericEmailCheck">Guard rails to restrict email addresses used.</param>
+/// <param name="userCreator">A creator for creating the user</param>
+/// <param name="eventPublisher">An event publisher</param>
+/// <param name="notificationSettings">Application specific settings for notifications</param>
+/// <param name="logger">A generic logger for logging application level messages</param>
 public sealed class AutoLinkEntraToDsiEndpoint(
     DbDirectoriesContext directoriesDbContext,
     IAuditWriter auditWriter,
@@ -29,12 +45,14 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     RemoveInviteService removeInviteService,
     GenericEmailCheck genericEmailCheck,
     IUserCreator userCreator,
+    IEventPublisher eventPublisher,
+    IOptions<NotificationSettings> notificationSettings,
     ILogger<AutoLinkEntraToDsiEndpoint> logger) : IEndpoint
 {
     /// <summary>
-    /// 
+    ///   /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
     /// </summary>
-    /// <param name="app"></param>
+    /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost(UsersApiRoutes.AutoLinkEntraToDsi, (
@@ -48,10 +66,10 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     }
 
     /// <summary>
-    /// 
+    /// Links the Entra application user to a DSI user.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="request">The request containing the information needed to carry out the action.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     public async Task<AutoLinkEntraUserToDsiResponse> Handle(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
     {
@@ -200,7 +218,12 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         var isGenericEmail = genericEmailCheck.IsEmailGeneric(newUserResponse.Email);
 
         if (isGenericEmail) {
-            // send support an email!
+            await eventPublisher.PublishAsync(new SupportRequestEvent {
+                Email = notificationSettings.Value.SupportTeamEmail,
+                Type = "potential-generic-email-address",
+                TypeAdditionalInfo = null,
+                Message = $"New user has a potentially generic email address, please review the user: ${pendingInvite.Email} ({pendingInvite.FirstName} {pendingInvite.LastName})."
+            });
         }
 
         await auditWriter.Log(new WriteToAuditRequest {
@@ -219,7 +242,6 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             throw new CannotLinkInactiveUserException();
         }
     }
-
     private IQueryable<UserEntity> GetUserQuery(AutoLinkEntraUserToDsiRequest request)
     {
         return request.EntraUserId.HasValue

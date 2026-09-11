@@ -7,15 +7,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
 
 /// <summary>
-/// 
+/// Contract represeting the blueprint required for a UserCreator
 /// </summary>
 public interface IUserCreator
 {
     /// <summary>
-    /// 
+    /// Creates a new user in DSI
     /// </summary>
-    /// <param name="userDto"></param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="userDto">User DTO representing the user to create</param>
+    /// <param name="cancellationToken">Cancellation token representing the request</param>
     /// <returns></returns>
     Task<UserEntity> CreateAsync(User userDto, CancellationToken cancellationToken);
 }

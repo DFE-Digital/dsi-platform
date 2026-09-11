@@ -59,6 +59,7 @@ public sealed class BullMqEventPublisher(
     {
         return @event switch {
             UserUpdatedEvent uue => ("userupdated_v1", SafeUserPayload.FromDomainEvent(uue)),
+            SupportRequestEvent sre => ("supportrequest_v1", sre),
             _ => throw new NotSupportedException($"Event type {@event.GetType().Name} is not mapped for BullMQ publishing.")
         };
     }
