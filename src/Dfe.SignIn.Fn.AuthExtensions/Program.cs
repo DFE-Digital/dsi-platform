@@ -1,7 +1,6 @@
 using Azure.Identity;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Interfaces.Audit;
-using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Fn.AuthExtensions.Configuration;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
@@ -37,8 +36,8 @@ builder.Services
 builder.Services
     .AddInteractionFramework();
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [
-    NodeApiName.Access,  NodeApiName.Directories,  NodeApiName.Organisations, NodeApiName.Search];
+//IEnumerable<NodeApiName> requiredNodeApiNames = [
+//    NodeApiName.Access,  NodeApiName.Directories,  NodeApiName.Organisations, NodeApiName.Search];
 
 // Get token credential for making API requests to Node APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
@@ -48,7 +47,7 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
 builder.Services
     .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
     .SetupInternalApiClient(tokenCredential)
-    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
+    //.SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
     .SetupResiliencePipelines(builder.Configuration);
 
 builder.Services
@@ -64,7 +63,7 @@ builder.Services
     .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
     .AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
 
-builder.Services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
+//builder.Services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
 
 builder.Services
     .AddUsersApiClient(tokenCredential);

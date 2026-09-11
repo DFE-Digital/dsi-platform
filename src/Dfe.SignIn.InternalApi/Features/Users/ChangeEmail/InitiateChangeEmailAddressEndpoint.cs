@@ -15,7 +15,7 @@ namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 /// An endpoint to initiate the change of a user's email address.
 /// </summary>
 public sealed class InitiateChangeEmailAddressEndpoint(
-            IAuditWriter auditWriter,
+        IAuditWriter auditWriter,
         IUserLookupService userLookupService,
         IUserCodeService userCodeService,
         IInteractionLimiter actionRateLimiter,
@@ -72,7 +72,7 @@ public sealed class InitiateChangeEmailAddressEndpoint(
                 EventCategory = AuditEventCategoryNames.ChangeEmail,
                 EventName = AuditChangeEmailEventNames.RequestedExistingEmail,
                 Message = $"Request to change email from {existingUserInfo.EmailAddress} to existing user {request.NewEmailAddress}",
-                UserId = existingUserInfo.UserId,
+                UserId = existingUserInfo.UserId
             });
 
             return Results.ValidationProblem(
@@ -94,7 +94,7 @@ public sealed class InitiateChangeEmailAddressEndpoint(
             EventCategory = AuditEventCategoryNames.ChangeEmail,
             EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
             Message = $"Request to change email from {existingUserInfo.EmailAddress} to {request.NewEmailAddress}",
-            UserId = existingUserInfo.UserId,
+            UserId = existingUserInfo.UserId
         });
 
         await userCodeService.DeleteExistingCodesAsync(existingUserInfo.UserId, cancellationToken);

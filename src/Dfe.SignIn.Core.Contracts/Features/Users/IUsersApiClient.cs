@@ -116,4 +116,15 @@ public interface IUsersApiClient
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.ChangePassword)]
     Task<IApiResponse> ChangePassword(Guid userId, [Body] ChangePasswordRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Autolinks a Entra user to a Dsi User
+    /// </summary>
+    /// <param name="autoLinkEntraUserToDsiRequest">The request object containing the user reference details</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns></returns>
+
+    //TODO IAPiRepsonse
+    [Post(UsersApiRoutes.AutoLinkEntraToDsi)]
+    Task<AutoLinkEntraUserToDsiResponse> AutoLinkEntraUserToDsi([Body] AutoLinkEntraUserToDsiRequest autoLinkEntraUserToDsiRequest, CancellationToken cancellationToken = default);
 }

@@ -6,6 +6,8 @@ using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.InternalApi.Endpoints;
+using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi;
+using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail.Services;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
@@ -16,6 +18,7 @@ using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
+using Dfe.SignIn.InternalApi.Services.Search;
 using Dfe.SignIn.WebFramework.Configuration;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
@@ -31,6 +34,7 @@ public static class UsersFeature
         .Add<ConfirmChangeEmailAddressEndpoint>()
         .Add<CheckIsBlockedEmailAddressEndpoint>()
         .Add<ChangePasswordEndpoint>()
+        .Add<AutoLinkEntraToDsiEndpoint>()
         .Add<GetPendingChangeEmailEndpoint>()
         .Add<InitiateChangeEmailAddressEndpoint>();
 
@@ -81,6 +85,10 @@ public static class UsersFeature
             });
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
+        services.AddScoped<RemoveInviteService>();
+        services.AddScoped<GenericEmailCheck>();
+        services.AddScoped<IUserCreator, UserCreator>();
 
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);
