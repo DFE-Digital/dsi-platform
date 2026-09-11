@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
@@ -29,6 +30,13 @@ public sealed class VerificationCodeViewModel
     /// Gets or sets the user's verification code.
     /// </summary>
     public string? VerificationCodeInput { get; set; }
+
+    /// <summary>
+    /// Gets a mapping of the properties of this view model to the properties of a <see cref="ConfirmChangeEmailAddressRequest"/>.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> RequestPropertyMap = new Dictionary<string, string> {
+        [nameof(ConfirmChangeEmailAddressRequest.VerificationCode)] = nameof(VerificationCodeInput),
+    };
 }
 
 public sealed class VerificationCodeViewModelValidator : AbstractValidator<VerificationCodeViewModel>

@@ -49,6 +49,8 @@ public partial class UserEntity
     public virtual ICollection<UserPasswordPolicyEntity> UserPasswordPolicies { get; set; } = [];
 
     public virtual ICollection<UserStatusChangeReasonEntity> UserStatusChangeReasons { get; set; } = [];
+
+    public bool IsEntraUser() => this.IsEntra && this.EntraOid.HasValue;
 }
 #pragma warning restore CS1591
 

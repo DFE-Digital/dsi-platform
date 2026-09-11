@@ -1,14 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
-using Dfe.SignIn.Core.Interfaces.ExternalAuth;
 using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
+using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi;
 using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
+using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail.Services;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
 using Dfe.SignIn.InternalApi.Features.Users.ChangePassword;
@@ -18,6 +19,7 @@ using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
 using Dfe.SignIn.InternalApi.Services.Search;
+using Dfe.SignIn.WebFramework.Configuration;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
 
@@ -29,9 +31,12 @@ public static class UsersFeature
 {
     private static readonly EndpointRegistry NewEndpointRegistry = new EndpointRegistry()
         .Add<CancelChangeEmailAddressEndpoint>()
+        .Add<ConfirmChangeEmailAddressEndpoint>()
         .Add<CheckIsBlockedEmailAddressEndpoint>()
         .Add<ChangePasswordEndpoint>()
-        .Add<AutoLinkEntraToDsiEndpoint>();
+        .Add<AutoLinkEntraToDsiEndpoint>()
+        .Add<GetPendingChangeEmailEndpoint>()
+        .Add<InitiateChangeEmailAddressEndpoint>();
 
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -41,9 +46,6 @@ public static class UsersFeature
     {
         ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
-        InitiateChangeEmailAddressEndpoint.Map(app);
-        ConfirmChangeEmailAddressEndpoint.Map(app);
-        GetPendingChangeEmailEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);
         ChangeJobTitleEndpoint.Map(app);
@@ -62,12 +64,25 @@ public static class UsersFeature
     /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddUserServices(this IServiceCollection services, IConfigurationRoot configuration)
     {
-        services.AddScoped<IUserLookupService, UserLookupService>();
-        services.AddScoped<IUserCodeService, UserCodeService>();
-        services.AddScoped<IExternalAuthService, StubExternalAuthService>();
-        services.AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
+        services
+            .AddScoped<IUserLookupService, UserLookupService>()
+            .AddScoped<IUserCodeService, UserCodeService>()
+            .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>()
+            .AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
 
-        services.AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
+        services
+            .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
+
+        services
+            .AddEntraApplicationServices(settings: settings => {
+                var externalSection = configuration.GetSection(ExternalIdConstants.ExternalIdConfigurationSectionName);
+                settings.TenantId = externalSection.GetValue<string>("TenantId")
+                    ?? throw new InvalidOperationException("TenantId is not configured");
+                settings.ClientId = externalSection.GetValue<string>("ClientId")
+                    ?? throw new InvalidOperationException("ClientId is not configured");
+                settings.ClientSecret = externalSection.GetValue<string>("ClientSecret")
+                    ?? throw new InvalidOperationException("ClientSecret is not configured");
+            });
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
 

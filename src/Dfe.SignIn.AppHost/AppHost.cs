@@ -12,7 +12,7 @@ var appConfigurationConnectionString = builder.Configuration.GetConnectionString
 if (!string.IsNullOrEmpty(appConfigurationConnectionString)) {
     var appConfigurationTag = builder.Configuration["AppConfiguration:Tag"];
     if (string.IsNullOrEmpty(appConfigurationTag)) {
-        throw new ArgumentNullException("AppConfiguration Tag missing");
+        throw new InvalidOperationException("AppConfiguration Tag missing from configuration.");
     }
 
     builder.Configuration.AddAzureAppConfiguration(options => {
@@ -102,8 +102,11 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("InternalApiClient__Directories__BaseAddress", internalApiConfig["Directories:BaseAddress"])
     .WithEnvironment("InternalApiClient__Applications__BaseAddress", internalApiConfig["Applications:BaseAddress"])
     .WithEnvironment("InternalApiClient__UseProxy", "false")
+    .WithEnvironment("ExternalId__ClientId", externalIdConfig["ClientId"])
+    .WithEnvironment("ExternalId__ClientSecret", externalIdConfig["ClientSecret"])
+    .WithEnvironment("ExternalId__TenantId", externalIdConfig["TenantId"])
     .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
-    .WithEnvironment("GeneralRedisCache__DatabaseNumber,", generalRedisConfig["DatabaseNumber"])
+    .WithEnvironment("GeneralRedisCache__DatabaseNumber", generalRedisConfig["DatabaseNumber"])
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
     .WithEnvironment("ServiceBus__AuditTopic__TopicName", serviceBusConfig["AuditTopic:TopicName"])
     .WithEnvironment("ServiceBus__AuditTopic__SubscriptionName", serviceBusConfig["AuditTopic:SubscriptionName"])

@@ -9,33 +9,33 @@ namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 /// <summary>
 /// An endpoint to retrieve a pending change email request for a user.
 /// </summary>
-public sealed class GetPendingChangeEmailEndpoint : IEndpoint
+public sealed class GetPendingChangeEmailEndpoint(
+    IUserCodeService userCodeService,
+    TimeProvider timeProvider,
+    ILogger<GetPendingChangeEmailEndpoint> logger
+) : IEndpoint
 {
-    private const int VerificationCodeExpiryHours = 1;
-
     /// <summary>
     /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
     /// </summary>
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet(UsersApiRoutes.GetPendingChangeEmail, Handler)
+        app.MapGet(UsersApiRoutes.GetPendingChangeEmail, async (
+            [FromRoute] Guid userId,
+            [FromServices] GetPendingChangeEmailEndpoint endpoint,
+            CancellationToken cancellationToken) =>
+            await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Get Pending Change Email")
             .WithTags("Users")
-            .Produces<GetPendingChangeEmailResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .WithOpenApi();
+            .WithStandardResponses<GetPendingChangeEmailResponse>();
     }
 
     /// <summary>
     /// Handles the retrieval of a pending change email request.
     /// </summary>
-    public static async Task<IResult> Handler(
-        [FromRoute] Guid userId,
-        IUserCodeService userCodeService,
-        TimeProvider timeProvider,
-        ILogger<GetPendingChangeEmailEndpoint> logger,
+    public async Task<IResult> HandleAsync(
+        Guid userId,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Getting pending change email for user {UserId}", userId);
@@ -44,10 +44,10 @@ public sealed class GetPendingChangeEmailEndpoint : IEndpoint
 
         if (pendingCode is null || string.IsNullOrWhiteSpace(pendingCode.Email)) {
             logger.LogInformation("No pending change email request found for user {UserId}", userId);
-            return Results.NotFound(new { Message = "No pending change email request found" });
+            return Results.NotFound();
         }
 
-        var expiryTime = pendingCode.CreatedAt.AddHours(VerificationCodeExpiryHours);
+        var expiryTime = pendingCode.CreatedAt.AddHours(ChangeEmailConstants.VerificationCodeExpiryHours);
         var hasExpired = timeProvider.GetUtcNow().UtcDateTime > expiryTime;
 
         return Results.Ok(new GetPendingChangeEmailResponse {

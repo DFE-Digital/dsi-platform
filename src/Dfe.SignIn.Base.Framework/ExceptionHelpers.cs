@@ -76,4 +76,22 @@ public static class ExceptionHelpers
             throw new ArgumentException("White space.", paramName);
         }
     }
+
+    /// <summary>
+    /// Throws an <see cref="ArgumentException"/> if the specified <see cref="Guid"/> is empty.
+    /// </summary>
+    /// <param name="value">The GUID to check.</param>
+    /// <param name="paramName">The name of the parameter.</param>
+    /// <exception cref="ArgumentException">
+    ///   <para>If <paramref name="value"/> is <see cref="Guid.Empty"/>.</para>
+    /// </exception>
+#if NET6_0_OR_GREATER
+    [StackTraceHidden]
+#endif
+    public static void ThrowIfArgumentEmpty(Guid value, string paramName)
+    {
+        if (value == Guid.Empty) {
+            throw new ArgumentException("Empty GUID.", paramName);
+        }
+    }
 }

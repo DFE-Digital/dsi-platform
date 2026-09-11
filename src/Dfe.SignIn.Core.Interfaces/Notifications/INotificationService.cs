@@ -1,4 +1,4 @@
-namespace Dfe.SignIn.Core.Contracts.Notifications;
+namespace Dfe.SignIn.Core.Interfaces.Notifications;
 
 /// <summary>
 /// Defines a service for sending email notifications using GOV.UK Notify.

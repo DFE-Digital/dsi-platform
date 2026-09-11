@@ -1,4 +1,4 @@
-using Dfe.SignIn.Core.Contracts.Notifications;
+using Dfe.SignIn.Core.Interfaces.Notifications;
 using Microsoft.Extensions.Logging;
 using Notify.Exceptions;
 using Notify.Interfaces;
