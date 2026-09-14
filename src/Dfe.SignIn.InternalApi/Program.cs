@@ -10,7 +10,6 @@ using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.GovNotify;
 using Dfe.SignIn.Gateways.ServiceBus;
-using Dfe.SignIn.InternalApi;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
