@@ -435,12 +435,14 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
     {
         var entraId = Guid.NewGuid();
 
+        var userEmail = $"test-{Guid.NewGuid()}@Test.com";
+
         var PendingInvite = new InvitationEntity {
             Code = "123",
             FirstName = "firstName",
             LastName = "LastName",
             CreatedAt = DateTime.UtcNow,
-            Email = "test@Test.com"
+            Email = userEmail
         };
 
         await this.InsertEntityAsync<DbDirectoriesContext, InvitationEntity>(PendingInvite);
@@ -452,7 +454,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var endpoint = GetEndpoint();
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, new AutoLinkEntraUserToDsiRequest {
-            EmailAddress = "test@Test.com",
+            EmailAddress = userEmail,
             EntraUserId = entraId,
             FirstName = "Test",
             LastName = "LastName"
@@ -464,37 +466,38 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
 
         //get the user and check to see if its been created
         var createdUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db =>
-        db.Users.SingleAsync(x => x.Email == "test@Test.com"));
+        db.Users.SingleAsync(x => x.Email == userEmail));
 
         Assert.Equal(createdUser.Sub, result!.UserId);
 
         Assert.Equal(1, createdUser.Status);
         Assert.Equal("Test", createdUser.FirstName);
         Assert.Equal("LastName", createdUser.LastName);
-        Assert.Equal("test@Test.com", createdUser.Email);
+        Assert.Equal(userEmail, createdUser.Email);
     }
 
     [Fact]
     public async Task StaleInvitationsGetDeletedWhenUserCreated()
     {
         var entraId = Guid.NewGuid();
+        var userEmail = $"test-{Guid.NewGuid()}@Test.com";
 
         var activePendingInvite = new InvitationEntity {
             Id = Guid.NewGuid(),
             Code = "123",
-            FirstName = "firstName",
+            FirstName = "dave",
             LastName = "LastName",
             CreatedAt = DateTime.UtcNow,
-            Email = "test@Test.com"
+            Email = userEmail
         };
 
         var stalePendingInvite = new InvitationEntity {
             Id = Guid.NewGuid(),
             Code = "123555",
-            FirstName = "firstName",
+            FirstName = "dave",
             LastName = "LastName",
             CreatedAt = DateTime.UtcNow.AddHours(-24),
-            Email = "test@Test.com"
+            Email = userEmail
         };
 
         await this.InsertEntityAsync<DbDirectoriesContext, InvitationEntity>(stalePendingInvite);
@@ -507,9 +510,9 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var endpoint = GetEndpoint();
 
         var response = await authenticatedClient.PostAsJsonAsync(endpoint, new AutoLinkEntraUserToDsiRequest {
-            EmailAddress = "test@Test.com",
+            EmailAddress = userEmail,
             EntraUserId = entraId,
-            FirstName = "Test",
+            FirstName = "dave",
             LastName = "LastName"
         });
 
@@ -518,7 +521,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var userInvitations = await this.ExecuteDbContextAsync<DbDirectoriesContext, List<InvitationEntity>>(db =>
-        db.Invitations.Where(x => x.Email == "test@Test.com").ToListAsync());
+        db.Invitations.Where(x => x.Email == userEmail).ToListAsync());
 
         Assert.Single(userInvitations);
         Assert.Equal("123", userInvitations[0].Code);

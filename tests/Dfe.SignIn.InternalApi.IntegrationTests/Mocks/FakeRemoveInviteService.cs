@@ -8,11 +8,17 @@ public sealed class FakeRemoveInviteService : IRemoveInviteService
 
     public Task Handle(Guid userId, Guid invitationId)
     {
-        if (this.RemovedInvitationsByUserId.ContainsKey(userId)) {
-            this.RemovedInvitationsByUserId[userId].Add(invitationId);
+        if (this.RemovedInvitationsByUserId.TryGetValue(userId, out var removedInvitations)) {
+            removedInvitations.Add(invitationId);
+            return Task.CompletedTask;
         }
-        this.RemovedInvitationsByUserId.Add(userId, [invitationId]);
 
+        this.RemovedInvitationsByUserId.Add(userId, [invitationId]);
         return Task.CompletedTask;
+    }
+
+    public void Clear()
+    {
+        this.RemovedInvitationsByUserId.Clear();
     }
 }

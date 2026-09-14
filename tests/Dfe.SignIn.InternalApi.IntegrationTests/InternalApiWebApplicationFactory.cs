@@ -101,6 +101,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         this.FakeEntraChangeEmailService.OnChangeEmail = null;
         this.FakeEventPublisher.Clear();
         this.FakeUserUpdatedPublisher.Clear();
+        this.FakeRemoveInviteService.Clear();
         this.AuditCapturer.Clear();
         this.TimestampInterceptor.Reset();
         this.FailingDbCommandInterceptor.Reset();
