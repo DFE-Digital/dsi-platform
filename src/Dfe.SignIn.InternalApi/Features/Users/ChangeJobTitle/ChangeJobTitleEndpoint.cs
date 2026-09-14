@@ -34,12 +34,8 @@ public sealed class ChangeJobTitleEndpoint(
             await endpoint.HandleAsync(userId, request, cancellationToken))
             .WithName("Change Job Title")
             .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .WithValidationFilter<ChangeJobTitleRequest>()
-            .WithOpenApi();
+            .WithStandardResponses()
+            .WithValidationFilter<ChangeJobTitleRequest>();
     }
 
     /// <summary>
