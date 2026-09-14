@@ -61,6 +61,7 @@ public static class UsersApiRoutes
     /// </summary>
     public const string ChangePassword = "/internal/users/{userId}/change-password";
 
+    /// <summary>
     /// The API route for linking an Entra account to DSI.
     /// </summary>
     public const string AutoLinkEntraToDsi = "/internal/users/auto-link-entra-to-dsi";
