@@ -175,8 +175,6 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             .Where(x => x.Email == request.EmailAddress && !x.Completed)
             .FirstOrDefaultAsync(cancellationToken);
 
-        //TODO What do we do if pending invite cannot be found???
-
         if (pendingInvite is not null && pendingInvite.Uid is not null) {
             await auditWriter.Log(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.Auth,
@@ -195,24 +193,26 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             LastName = request.LastName
         }, cancellationToken);
 
-        pendingInvite.Completed = true;
-        pendingInvite.Uid = newUserResponse.Sub;
+        if (pendingInvite is not null) {
+            pendingInvite.Completed = true;
+            pendingInvite.Uid = newUserResponse.Sub;
 
-        await directoriesDbContext.SaveChangesAsync(cancellationToken);
-
-        var allStaleInvitations = await directoriesDbContext.Invitations
-            .Where(x => x.Email == request.EmailAddress
-            && x.Id != pendingInvite.Id && !x.Completed)
-            .ToListAsync(cancellationToken);
-
-        foreach (var staleInvite in allStaleInvitations) {
-            logger.LogInformation("Deleting stale invitation {staleInviteId} for email {staleInviteEmail} following completion of invitation ${invId}",
-               staleInvite.Id, staleInvite.Email, pendingInvite.Id);
-
-            directoriesDbContext.Invitations.Remove(staleInvite);
             await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
-            await removeInviteService.Handle(newUserResponse.Sub, staleInvite.Id);
+            var allStaleInvitations = await directoriesDbContext.Invitations
+                .Where(x => x.Email == request.EmailAddress
+                && x.Id != pendingInvite.Id && !x.Completed)
+                .ToListAsync(cancellationToken);
+
+            foreach (var staleInvite in allStaleInvitations) {
+                logger.LogInformation("Deleting stale invitation {staleInviteId} for email {staleInviteEmail} following completion of invitation ${invId}",
+                   staleInvite.Id, staleInvite.Email, pendingInvite.Id);
+
+                directoriesDbContext.Invitations.Remove(staleInvite);
+                await directoriesDbContext.SaveChangesAsync(cancellationToken);
+
+                await removeInviteService.Handle(newUserResponse.Sub, staleInvite.Id);
+            }
         }
 
         var isGenericEmail = genericEmailCheck.IsEmailGeneric(newUserResponse.Email);
