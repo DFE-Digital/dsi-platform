@@ -6,11 +6,6 @@ namespace Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 public sealed record ChangeNameRequest
 {
     /// <summary>
-    /// The unique ID of the user.
-    /// </summary>
-    public required Guid UserId { get; init; }
-
-    /// <summary>
     /// The user's first name.
     /// </summary>
     public required string FirstName { get; init; }

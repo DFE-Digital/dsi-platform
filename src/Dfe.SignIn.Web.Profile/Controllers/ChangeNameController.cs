@@ -67,7 +67,6 @@ public sealed class ChangeNameController(
 
         try {
             var request = new ChangeNameRequest {
-                UserId = this.User.GetUserId(),
                 FirstName = viewModel.FirstNameInput ?? string.Empty,
                 LastName = viewModel.LastNameInput ?? string.Empty,
             };
@@ -129,7 +128,6 @@ public sealed class ChangeNameController(
     private async Task Rollback(string forename, string surname)
     {
         var request = new ChangeNameRequest {
-            UserId = this.User.GetUserId(),
             FirstName = forename,
             LastName = surname
         };

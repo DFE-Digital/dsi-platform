@@ -31,7 +31,8 @@ public static class UsersFeature
         .Add<CheckIsBlockedEmailAddressEndpoint>()
         .Add<ChangePasswordEndpoint>()
         .Add<GetPendingChangeEmailEndpoint>()
-        .Add<InitiateChangeEmailAddressEndpoint>();
+        .Add<InitiateChangeEmailAddressEndpoint>()
+        .Add<ChangeNameEndpoint>();
 
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -39,7 +40,6 @@ public static class UsersFeature
     /// <param name="app">The endpoint route builder to map the endpoints to.</param>
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
-        ChangeNameEndpoint.Map(app);
         GetUserProfileEndpoint.Map(app);
         IsApproverEndpoint.Map(app);
         PendingApprovalCounterEndpoint.Map(app);

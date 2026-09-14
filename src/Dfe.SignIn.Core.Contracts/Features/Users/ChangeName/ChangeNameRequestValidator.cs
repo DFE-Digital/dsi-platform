@@ -10,9 +10,6 @@ public sealed class ChangeNameRequestValidator : AbstractValidator<ChangeNameReq
     /// <inheritdoc />
     public ChangeNameRequestValidator()
     {
-        this.RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("UserId is required.");
-
         this.RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("Enter a first name")
             .MaximumLength(60).WithMessage("Enter a name with no more than 60 characters");
