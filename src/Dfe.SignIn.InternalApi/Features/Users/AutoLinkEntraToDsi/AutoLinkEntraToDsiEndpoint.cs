@@ -94,7 +94,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         }
 
         // User exists in the system; are they an active user though?
-        this.ValidateActiveUser((AccountStatus)user.Status);
+        ValidateActiveUser((AccountStatus)user.Status);
 
         return user.Sub;
     }
@@ -111,7 +111,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         }
 
         // User exists in the system; are they an active user though?
-        this.ValidateActiveUser((AccountStatus)user.Status);
+        ValidateActiveUser((AccountStatus)user.Status);
 
         // Check if user is already linked to an Entra account; but a different one
         if (user.EntraOid is Guid userEntraOid && userEntraOid != request.EntraUserId) {
@@ -195,25 +195,12 @@ public sealed class AutoLinkEntraToDsiEndpoint(
                 }, cancellationToken);
 
                 if (pendingInvite is not null) {
-                    pendingInvite.Completed = true;
-                    pendingInvite.Uid = newUserResponse.Sub;
+                    await this.MarkPendingInviteAsCompleted(newUserResponse.Sub, pendingInvite, cancellationToken);
 
-                    await directoriesDbContext.SaveChangesAsync(cancellationToken);
-
-                    var allStaleInvitations = await directoriesDbContext.Invitations
-                        .Where(x => x.Email == request.EmailAddress
-                        && x.Id != pendingInvite.Id && !x.Completed)
-                        .ToListAsync(cancellationToken);
-
-                    foreach (var staleInvite in allStaleInvitations) {
-                        logger.LogInformation("Deleting stale invitation {staleInviteId} for email {staleInviteEmail} following completion of invitation ${invId}",
-                           staleInvite.Id, staleInvite.Email, pendingInvite.Id);
-
-                        directoriesDbContext.Invitations.Remove(staleInvite);
-                        await directoriesDbContext.SaveChangesAsync(cancellationToken);
-
-                        await removeInviteService.Handle(newUserResponse.Sub, staleInvite.Id);
-                    }
+                    await this.CleanUpOldInvites(newUserResponse.Sub,
+                        pendingInvite.Id,
+                        request.EmailAddress,
+                        cancellationToken);
                 }
 
                 var isGenericEmail = genericEmailCheck.IsEmailGeneric(newUserResponse.Email);
@@ -242,7 +229,6 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     }
 
     private static void ValidateActiveUser(AccountStatus status)
-    private static void ValidateActiveUser(AccountStatus status)
     {
         if (status != AccountStatus.Active) {
             throw new CannotLinkInactiveUserException();
@@ -253,5 +239,34 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         return request.EntraUserId.HasValue
         ? directoriesDbContext.Users.Where(x => x.EntraOid == request.EntraUserId)
         : directoriesDbContext.Users.Where(x => x.Email == request.EmailAddress);
+    }
+
+    private async Task MarkPendingInviteAsCompleted(Guid newUserId, InvitationEntity pendingInvite, CancellationToken cancellationToken)
+    {
+        if (pendingInvite is not null) {
+            pendingInvite.Completed = true;
+            pendingInvite.Uid = newUserId;
+
+            await directoriesDbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private async Task CleanUpOldInvites(Guid newUserId, Guid pendingInviteId, string emailAddress, CancellationToken cancellationToken)
+    {
+
+        var allStaleInvitations = await directoriesDbContext.Invitations
+            .Where(x => x.Email == emailAddress
+            && x.Id != pendingInviteId && !x.Completed)
+            .ToListAsync(cancellationToken);
+
+        foreach (var staleInvite in allStaleInvitations) {
+            logger.LogInformation("Deleting stale invitation {staleInviteId} for email {staleInviteEmail} following completion of invitation ${invId}",
+               staleInvite.Id, staleInvite.Email, pendingInviteId);
+
+            directoriesDbContext.Invitations.Remove(staleInvite);
+            await directoriesDbContext.SaveChangesAsync(cancellationToken);
+
+            await removeInviteService.Handle(newUserId, staleInvite.Id);
+        }
     }
 }
