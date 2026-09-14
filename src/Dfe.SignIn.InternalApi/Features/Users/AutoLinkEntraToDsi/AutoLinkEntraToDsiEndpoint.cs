@@ -224,7 +224,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
                         Type = "potential-generic-email-address",
                         TypeAdditionalInfo = null,
                         Message = $"New user has a potentially generic email address, please review the user: {request.EmailAddress} ({request.FirstName} {request.LastName})."
-                    });
+                    }, cancellationToken);
                 }
 
                 await auditWriter.Log(new WriteToAuditRequest {
