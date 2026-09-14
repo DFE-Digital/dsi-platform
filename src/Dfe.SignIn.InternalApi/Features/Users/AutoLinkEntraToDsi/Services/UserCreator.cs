@@ -56,7 +56,9 @@ public sealed class UserCreator(DbDirectoriesContext directoriesDbContext,
             Salt = salt,
             // we're an entra account.
             // We have no responsbility when it comes to password
+#pragma warning disable S2068 // Required for backwards compatibility. Ignored for Entra accounts.
             Password = "none",
+#pragma warning restore S2068
             Status = 1,
             PasswordResetRequired = false,
             IsEntra = true,
