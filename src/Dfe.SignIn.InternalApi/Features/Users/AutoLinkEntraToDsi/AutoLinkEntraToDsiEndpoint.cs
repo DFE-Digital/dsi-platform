@@ -241,7 +241,8 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         throw new Exception("Failed to link user Entra user to DSI");
     }
 
-    private void ValidateActiveUser(AccountStatus status)
+    private static void ValidateActiveUser(AccountStatus status)
+    private static void ValidateActiveUser(AccountStatus status)
     {
         if (status != AccountStatus.Active) {
             throw new CannotLinkInactiveUserException();
