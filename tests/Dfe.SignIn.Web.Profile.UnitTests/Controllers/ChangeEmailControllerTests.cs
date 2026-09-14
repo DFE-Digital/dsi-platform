@@ -347,10 +347,12 @@ public sealed class ChangeEmailControllerTests
         var autoMock = new AutoMocker();
         var usersApiClient = new Mock<IUsersApiClient>();
 
-        usersApiClient.Setup(x => x.CheckIfEmailAddressIsBlocked(
-            It.IsAny<CheckIsBlockedEmailAddressRequest>(),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = true });
+        usersApiClient
+            .Setup(x => x.CheckIfEmailAddressIsBlocked(
+                It.IsAny<CheckIsBlockedEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(
+                new CheckIsBlockedEmailAddressResponse { IsBlocked = true }));
 
         autoMock.Use(usersApiClient);
 
@@ -379,7 +381,8 @@ public sealed class ChangeEmailControllerTests
         usersApiClient.Setup(x => x.CheckIfEmailAddressIsBlocked(
             It.IsAny<CheckIsBlockedEmailAddressRequest>(),
             It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = true });
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(
+                new CheckIsBlockedEmailAddressResponse { IsBlocked = true }));
 
         autoMock.Use(usersApiClient);
 
@@ -403,7 +406,8 @@ public sealed class ChangeEmailControllerTests
         usersApiClient.Setup(x => x.CheckIfEmailAddressIsBlocked(
             It.IsAny<CheckIsBlockedEmailAddressRequest>(),
             It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CheckIsBlockedEmailAddressResponse { IsBlocked = false });
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(
+                new CheckIsBlockedEmailAddressResponse { IsBlocked = false }));
 
         autoMock.Use(usersApiClient);
 

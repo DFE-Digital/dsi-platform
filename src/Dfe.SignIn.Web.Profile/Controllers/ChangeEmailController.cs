@@ -51,7 +51,8 @@ public sealed class ChangeEmailController(
                 EmailAddress = viewModel.EmailAddressInput
             });
 
-            if (blockedResponse.IsBlocked) {
+            var isBlocked = !blockedResponse.IsSuccessStatusCode || blockedResponse.Content is null || blockedResponse.Content.IsBlocked;
+            if (isBlocked) {
                 this.ModelState.AddModelError(
                     nameof(viewModel.EmailAddressInput),
                     "This email address is not valid for this service. Generic email names (for example, headmaster@, admin@) and domains (for example, @yahoo.co.uk, @gmail.com) compromise security. Enter an email address that is associated with your organisation.");

@@ -61,7 +61,8 @@ public static class UsersFeature
         services
             .AddScoped<IUserLookupService, UserLookupService>()
             .AddScoped<IUserCodeService, UserCodeService>()
-            .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>();
+            .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>()
+            .AddScoped<IPasswordHasher, PasswordHasher>();
 
         services
             .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
@@ -76,8 +77,6 @@ public static class UsersFeature
                 settings.ClientSecret = externalSection.GetValue<string>("ClientSecret")
                     ?? throw new InvalidOperationException("ClientSecret is not configured");
             });
-
-        services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);

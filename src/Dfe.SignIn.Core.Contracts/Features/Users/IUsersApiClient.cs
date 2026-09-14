@@ -47,7 +47,7 @@ public interface IUsersApiClient
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation, containing the user's profile information.</returns>
     [Get(UsersApiRoutes.GetUserProfile)]
-    Task<GetUserProfileResponse> GetUserProfile(Guid userId, CancellationToken cancellationToken = default);
+    Task<IApiResponse<GetUserProfileResponse>> GetUserProfile(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Changes the job title of a user based on the provided request.
@@ -57,7 +57,7 @@ public interface IUsersApiClient
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.ChangeJobTitle)]
-    Task ChangeJobTitle(Guid userId, [Body] ChangeJobTitleRequest request, CancellationToken cancellationToken = default);
+    Task<IApiResponse> ChangeJobTitle(Guid userId, [Body] ChangeJobTitleRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Initiates the process of changing a user's email address based on the provided request.
@@ -105,7 +105,7 @@ public interface IUsersApiClient
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns></returns>
     [Post(UsersApiRoutes.CheckEmailBlocked)]
-    Task<CheckIsBlockedEmailAddressResponse> CheckIfEmailAddressIsBlocked([Body] CheckIsBlockedEmailAddressRequest request, CancellationToken cancellationToken = default);
+    Task<IApiResponse<CheckIsBlockedEmailAddressResponse>> CheckIfEmailAddressIsBlocked([Body] CheckIsBlockedEmailAddressRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Changes the password of a user based on the provided request.
