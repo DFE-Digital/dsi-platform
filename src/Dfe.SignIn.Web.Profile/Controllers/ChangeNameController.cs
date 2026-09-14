@@ -71,7 +71,7 @@ public sealed class ChangeNameController(
                 LastName = viewModel.LastNameInput ?? string.Empty,
             };
 
-            await usersApiClient.ChangeName(request);
+            await usersApiClient.ChangeName(this.User.GetUserId(), request);
         }
         catch (Exception ex) {
             logger.LogError(ex, "An error occurred while changing the user's name.");
@@ -131,6 +131,6 @@ public sealed class ChangeNameController(
             LastName = surname
         };
 
-        await usersApiClient.ChangeName(request);
+        await usersApiClient.ChangeName(this.User.GetUserId(), request);
     }
 }
