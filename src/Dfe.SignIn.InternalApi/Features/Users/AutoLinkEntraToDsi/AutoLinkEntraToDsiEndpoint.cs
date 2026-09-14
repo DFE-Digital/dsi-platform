@@ -222,7 +222,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
                 Email = notificationSettings.Value.SupportTeamEmail,
                 Type = "potential-generic-email-address",
                 TypeAdditionalInfo = null,
-                Message = $"New user has a potentially generic email address, please review the user: ${pendingInvite.Email} ({pendingInvite.FirstName} {pendingInvite.LastName})."
+                Message = $"New user has a potentially generic email address, please review the user: {pendingInvite.Email} ({pendingInvite.FirstName} {pendingInvite.LastName})."
             });
         }
 

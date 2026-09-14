@@ -18,7 +18,7 @@ public sealed class GenericEmailCheck(IConfiguration configuration)
     /// <returns>True, if the value is considered generic</returns>
     public bool IsEmailGeneric(string email)
     {
-        const string GenericEmailStrings = "GENERIC_EMAIL_STRINGS";
+        const string GenericEmailStrings = "GenericEmailStrings";
         var json = configuration.GetValue<string>(GenericEmailStrings);
         var genericEmailStrings =
         JsonSerializer.Deserialize<List<string>>(json ?? "[]") ?? [];

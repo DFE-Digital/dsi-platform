@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
@@ -523,45 +524,101 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         Assert.Equal("123", userInvitations[0].Code);
     }
 
-    //** Stale invitiations update the Search
+    [Fact]
+    public async Task GenericEmailSendsSupportMessage()
+    {
+        var entraId = Guid.NewGuid();
 
-    //Generic email sends support email
-    //[Fact]
-    //public async Task GenericEmailSendsSupportMessage()
-    //{
-    //    var entraId = Guid.NewGuid();
+        var activePendingInvite = new InvitationEntity {
+            Id = Guid.NewGuid(),
+            Code = "123",
+            FirstName = "Bob",
+            LastName = "Test",
+            CreatedAt = DateTime.UtcNow,
+            Email = "admin@test.com"
+        };
 
-    //    var activePendingInvite = new InvitationEntity {
-    //        Id = Guid.NewGuid(),
-    //        Code = "123",
-    //        FirstName = "firstName",
-    //        LastName = "LastName",
-    //        CreatedAt = DateTime.UtcNow,
-    //        Email = "admin@Test.com"
-    //    };
+        await this.InsertEntityAsync<DbDirectoriesContext, InvitationEntity>(activePendingInvite);
 
-    //    await this.InsertEntityAsync<DbDirectoriesContext, InvitationEntity>(activePendingInvite);
-    //    var authenticatedClient = this
-    //        .CreateClient()
-    //        .WithAuthentication();
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
 
-    //    var endpoint = GetEndpoint();
+        var endpoint = GetEndpoint();
 
-    //    var response = await authenticatedClient.PostAsJsonAsync(endpoint, new AutoLinkEntraUserToDsiRequest {
-    //        EmailAddress = "admin@Test.com",
-    //        EntraUserId = entraId,
-    //        FirstName = "Test",
-    //        LastName = "LastName"
-    //    });
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, new AutoLinkEntraUserToDsiRequest {
+            EmailAddress = "admin@test.com",
+            EntraUserId = entraId,
+            FirstName = "Bob",
+            LastName = "Test"
+        });
 
-    //    var result = await response.Content.ReadFromJsonAsync<AutoLinkEntraUserToDsiResponse>();
+        var result = await response.Content.ReadFromJsonAsync<AutoLinkEntraUserToDsiResponse>();
 
-    //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-    //    var userInvitations = await this.ExecuteDbContextAsync<DbDirectoriesContext, List<InvitationEntity>>(db =>
-    //    db.Invitations.Where(x => x.Email == "test@Test.com").ToListAsync());
+        var userInvitations = await this.ExecuteDbContextAsync<DbDirectoriesContext, List<InvitationEntity>>(db =>
+        db.Invitations.Where(x => x.Email == "admin@Test.com").ToListAsync());
 
-    //    Assert.Single(userInvitations);
-    //    Assert.Equal("123", userInvitations[0].Code);
-    //}
+        Assert.Single(userInvitations);
+        Assert.Equal("123", userInvitations[0].Code);
+
+        Assert.Single(this.FakeEventPublisher.PublishedEvents);
+
+        var publishedEvent = this.FakeEventPublisher
+            .GetPublishedEvents<SupportRequestEvent>()
+            .Single();
+
+        Assert.Equal("test@Test.com", publishedEvent.Email);
+        Assert.Equal("potential-generic-email-address", publishedEvent.Type);
+        Assert.Null(publishedEvent.TypeAdditionalInfo);
+        Assert.Null(publishedEvent.TypeAdditionalInfo);
+        Assert.Null(publishedEvent.Name);
+        Assert.Null(publishedEvent.Service);
+        Assert.Null(publishedEvent.OrgName);
+        Assert.Null(publishedEvent.Urn);
+        Assert.Equal($"New user has a potentially generic email address, please review the user: admin@test.com (Bob Test).", publishedEvent.Message);
+    }
+
+    [Fact]
+    public async Task NonGenericEmailDoesNotRaiseSupportTicket()
+    {
+        var entraId = Guid.NewGuid();
+
+        var activePendingInvite = new InvitationEntity {
+            Id = Guid.NewGuid(),
+            Code = "123",
+            FirstName = "Joe",
+            LastName = "Test",
+            CreatedAt = DateTime.UtcNow,
+            Email = "joe@test.com"
+        };
+
+        await this.InsertEntityAsync<DbDirectoriesContext, InvitationEntity>(activePendingInvite);
+
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var endpoint = GetEndpoint();
+
+        var response = await authenticatedClient.PostAsJsonAsync(endpoint, new AutoLinkEntraUserToDsiRequest {
+            EmailAddress = "joe@test.com",
+            EntraUserId = entraId,
+            FirstName = "Joe",
+            LastName = "Test"
+        });
+
+        var result = await response.Content.ReadFromJsonAsync<AutoLinkEntraUserToDsiResponse>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var userInvitations = await this.ExecuteDbContextAsync<DbDirectoriesContext, List<InvitationEntity>>(db =>
+        db.Invitations.Where(x => x.Email == "joe@test.com").ToListAsync());
+
+        Assert.Single(userInvitations);
+        Assert.Equal("123", userInvitations[0].Code);
+
+        Assert.Empty(this.FakeEventPublisher.PublishedEvents);
+    }
 }

@@ -12,7 +12,7 @@ public class GenericEmailCheckerTests
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["GENERIC_EMAIL_STRINGS"] = "[\"admin\",\"adminoffice\"]"
+                ["GenericEmailStrings"] = "[\"admin\",\"adminoffice\"]"
             }).Build();
 
         var sut = new GenericEmailCheck(configuration);

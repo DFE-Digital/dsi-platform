@@ -1,5 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
+using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.Gateways.Entra.ChangeEmail;
@@ -27,6 +28,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
     public FakeInteractionLimiter FakeLimiter { get; } = new();
     public FakeEmailRequestTracker FakeEmailTracker { get; } = new();
     public FakeEntraChangeEmailService FakeEntraChangeEmailService { get; } = new();
+    public FakeEventPublisher FakeEventPublisher { get; } = new();
     public FakeUserUpdatedPublisher FakeUserUpdatedPublisher { get; } = new();
     public CapturingWriteToAuditInteractor AuditCapturer { get; } = new();
     internal FakeTimestampInterceptor TimestampInterceptor { get; } = new();
@@ -62,9 +64,16 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             services.RemoveAll<IEntraChangeEmailService>();
             services.AddSingleton<IEntraChangeEmailService>(this.FakeEntraChangeEmailService);
 
-            // User updated publisher
+            // Event publisher
+            services.RemoveAll<IEventPublisher>();
+            services.AddSingleton<IEventPublisher>(this.FakeEventPublisher);
+
             services.RemoveAll<IUserUpdatedPublisher>();
             services.AddSingleton<IUserUpdatedPublisher>(this.FakeUserUpdatedPublisher);
+
+            // Event publisher
+            services.RemoveAll<IEventPublisher>();
+            services.AddSingleton<IEventPublisher>(this.FakeEventPublisher);
 
             // Timestamp interceptor
             services.RemoveAll<TimestampInterceptor>();
@@ -84,6 +93,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         this.FakeLimiter.ResetAll();
         this.FakeEmailTracker.Clear();
         this.FakeEntraChangeEmailService.OnChangeEmail = null;
+        this.FakeEventPublisher.Clear();
         this.FakeUserUpdatedPublisher.Clear();
         this.AuditCapturer.Clear();
         this.TimestampInterceptor.Reset();
