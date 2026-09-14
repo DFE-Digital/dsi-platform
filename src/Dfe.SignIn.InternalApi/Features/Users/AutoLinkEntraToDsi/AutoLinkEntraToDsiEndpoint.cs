@@ -231,10 +231,10 @@ public sealed class AutoLinkEntraToDsiEndpoint(
                     EventCategory = AuditEventCategoryNames.Auth,
                     EventName = AuditAuthEventNames.LinkToNewUser,
                     Message = $"Linked Entra account with new DfE Sign-In user {request.EmailAddress}",
-                    UserId = newUserResponse?.Sub
+                    UserId = newUserResponse.Sub
                 });
 
-                return newUserResponse!.Sub;
+                return newUserResponse.Sub;
             }
         }
 
