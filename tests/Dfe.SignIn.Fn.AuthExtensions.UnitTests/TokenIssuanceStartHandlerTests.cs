@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Fn.AuthExtensions.OnTokenIssuanceStart;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Fn.AuthExtensions.UnitTests;
@@ -138,18 +140,11 @@ public class TokenIssuanceStartHandlerTests
     public async Task AutomaticallyLinkEntraUserToDsi()
     {
         var autoMocker = new AutoMocker();
-
-        autoMocker.MockResponse(
-            new AutoLinkEntraUserToDsiRequest {
-                EntraUserId = new Guid("21892c65-88df-4268-b025-d06f51c52404"),
-                EmailAddress = "jo.bradford@example.com",
-                FirstName = "Jo",
-                LastName = "Bradford",
-            },
-            new AutoLinkEntraUserToDsiResponse {
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.AutoLinkEntraUserToDsi(It.IsAny<AutoLinkEntraUserToDsiRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AutoLinkEntraUserToDsiResponse {
                 UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),
-            }
-        );
+            });
 
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 
@@ -170,17 +165,11 @@ public class TokenIssuanceStartHandlerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.MockResponse(
-            new AutoLinkEntraUserToDsiRequest {
-                EntraUserId = new Guid("21892c65-88df-4268-b025-d06f51c52404"),
-                EmailAddress = "jo.bradford@example.com",
-                FirstName = "Jo",
-                LastName = "MAY - FINNEGAN",
-            },
-            new AutoLinkEntraUserToDsiResponse {
-                UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),
-            }
-        );
+        autoMocker.GetMock<IUsersApiClient>()
+    .Setup(x => x.AutoLinkEntraUserToDsi(It.IsAny<AutoLinkEntraUserToDsiRequest>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(new AutoLinkEntraUserToDsiResponse {
+        UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),
+    });
 
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 

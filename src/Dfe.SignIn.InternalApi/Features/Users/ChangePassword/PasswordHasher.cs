@@ -15,8 +15,10 @@ public sealed partial class PasswordHasher : IPasswordHasher
     // The fallback policy used for legacy users or when no policy history exists.
     private const string LegacyPolicyCode = "v2";
 
-    /// <inheritdoc/>
-    public string LatestPolicyCode => "v4";
+    /// <summary>
+    /// Gets the latest password hashing policy code.
+    /// </summary>
+    public const string LatestPolicyCode = "v4";
 
     /// <summary>
     /// Maps a policy code to its specific PBKDF2 cryptographic parameters.
@@ -51,7 +53,7 @@ public sealed partial class PasswordHasher : IPasswordHasher
     /// <inheritdoc/>
     public string HashWithLatestPolicy(string rawPassword, string salt)
     {
-        return this.Hash(this.LatestPolicyCode, rawPassword, salt);
+        return this.Hash(LatestPolicyCode, rawPassword, salt);
     }
 
     /// <inheritdoc/>

@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,7 @@ namespace Dfe.SignIn.Fn.AuthExtensions.OnTokenIssuanceStart;
 
 public sealed class TokenIssuanceStartHandler(
     ILogger<TokenIssuanceStartHandler> logger,
-    IInteractionDispatcher interaction)
+    IUsersApiClient userApiClient)
 {
     [Function("OnTokenIssuanceStart")]
     public async Task<IActionResult> Run(
@@ -26,19 +26,17 @@ public sealed class TokenIssuanceStartHandler(
 
         @event.Validate();
 
-        var checkLinkedResponse = await interaction.DispatchAsync(
-            new AutoLinkEntraUserToDsiRequest {
-                EntraUserId = @event.Data.AuthenticationContext.User.Id,
-                EmailAddress = @event.Data.AuthenticationContext.User.Mail.Trim(),
-                FirstName = @event.Data.AuthenticationContext.User.GivenName.Trim(),
-                LastName = @event.Data.AuthenticationContext.User.Surname.Trim(),
-            }
-        ).To<AutoLinkEntraUserToDsiResponse>();
+        var checkLinkedResponse = await userApiClient.AutoLinkEntraUserToDsi(new AutoLinkEntraUserToDsiRequest {
+            EntraUserId = @event.Data.AuthenticationContext.User.Id,
+            EmailAddress = @event.Data.AuthenticationContext.User.Mail.Trim(),
+            FirstName = @event.Data.AuthenticationContext.User.GivenName.Trim(),
+            LastName = @event.Data.AuthenticationContext.User.Surname.Trim()
+        });
 
         return ResponseAction(new ProvideClaimsForTokenAction {
             Claims = new() {
                 [DsiClaimTypes.UserId] = checkLinkedResponse.UserId.ToString(),
-            },
+            }
         });
     }
 
@@ -47,7 +45,7 @@ public sealed class TokenIssuanceStartHandler(
         return new OkObjectResult(new ResponseObject {
             Data = new TokenIssuanceStartEventResponseData {
                 Actions = [action],
-            },
+            }
         });
     }
 }

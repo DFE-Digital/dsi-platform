@@ -4,6 +4,8 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
+using Dfe.SignIn.Core.Interfaces.Messaging;
+using Dfe.SignIn.Gateways.BullMq;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.GovNotify;
@@ -38,6 +40,8 @@ builder.Services
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions();
+
+builder.Services.Configure<NotificationSettings>(builder.Configuration.GetRequiredSection("Notifications"));
 
 builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
@@ -106,6 +110,9 @@ builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache, builder.Configuration.GetRequiredSection("GeneralRedisCache"))
     .AddFeaturesServices(builder.Configuration)
     .AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
+
+builder.Services.AddTransient<IEventPublisher, BullMqEventPublisher>();
+builder.Services.AddScoped<IBullMqQueueFactory, BullMqQueueFactory>();
 
 var app = builder.Build();
 
