@@ -175,65 +175,70 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             .Where(x => x.Email == request.EmailAddress && !x.Completed)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (pendingInvite is not null && pendingInvite.Uid is not null) {
-            await auditWriter.Log(new WriteToAuditRequest {
-                EventCategory = AuditEventCategoryNames.Auth,
-                EventName = AuditAuthEventNames.LinkToInvitedUser,
-                Message = $"Linked Entra account with pending DfE Sign-In invitation {request.EmailAddress}",
-                UserId = pendingInvite.Uid
-            });
-
-            return pendingInvite.Uid.Value;
-        }
-
-        var newUserResponse = await userCreator.CreateAsync(new User {
-            EntraOid = request.EntraUserId!.Value,
-            Username = request.EmailAddress,
-            FirstName = request.FirstName,
-            LastName = request.LastName
-        }, cancellationToken);
-
         if (pendingInvite is not null) {
-            pendingInvite.Completed = true;
-            pendingInvite.Uid = newUserResponse.Sub;
+            if (pendingInvite.Uid is not null) {
+                await auditWriter.Log(new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.Auth,
+                    EventName = AuditAuthEventNames.LinkToInvitedUser,
+                    Message = $"Linked Entra account with pending DfE Sign-In invitation {request.EmailAddress}",
+                    UserId = pendingInvite.Uid
+                });
 
-            await directoriesDbContext.SaveChangesAsync(cancellationToken);
+                return pendingInvite.Uid.Value;
+            }
+            else {
+                var newUserResponse = await userCreator.CreateAsync(new User {
+                    EntraOid = request.EntraUserId!.Value,
+                    Username = request.EmailAddress,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName
+                }, cancellationToken);
 
-            var allStaleInvitations = await directoriesDbContext.Invitations
-                .Where(x => x.Email == request.EmailAddress
-                && x.Id != pendingInvite.Id && !x.Completed)
-                .ToListAsync(cancellationToken);
+                if (pendingInvite is not null) {
+                    pendingInvite.Completed = true;
+                    pendingInvite.Uid = newUserResponse.Sub;
 
-            foreach (var staleInvite in allStaleInvitations) {
-                logger.LogInformation("Deleting stale invitation {staleInviteId} for email {staleInviteEmail} following completion of invitation ${invId}",
-                   staleInvite.Id, staleInvite.Email, pendingInvite.Id);
+                    await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
-                directoriesDbContext.Invitations.Remove(staleInvite);
-                await directoriesDbContext.SaveChangesAsync(cancellationToken);
+                    var allStaleInvitations = await directoriesDbContext.Invitations
+                        .Where(x => x.Email == request.EmailAddress
+                        && x.Id != pendingInvite.Id && !x.Completed)
+                        .ToListAsync(cancellationToken);
 
-                await removeInviteService.Handle(newUserResponse.Sub, staleInvite.Id);
+                    foreach (var staleInvite in allStaleInvitations) {
+                        logger.LogInformation("Deleting stale invitation {staleInviteId} for email {staleInviteEmail} following completion of invitation ${invId}",
+                           staleInvite.Id, staleInvite.Email, pendingInvite.Id);
+
+                        directoriesDbContext.Invitations.Remove(staleInvite);
+                        await directoriesDbContext.SaveChangesAsync(cancellationToken);
+
+                        await removeInviteService.Handle(newUserResponse.Sub, staleInvite.Id);
+                    }
+                }
+
+                var isGenericEmail = genericEmailCheck.IsEmailGeneric(newUserResponse.Email);
+
+                if (isGenericEmail) {
+                    await eventPublisher.PublishAsync(new SupportRequestEvent {
+                        Email = notificationSettings.Value.SupportTeamEmail,
+                        Type = "potential-generic-email-address",
+                        TypeAdditionalInfo = null,
+                        Message = $"New user has a potentially generic email address, please review the user: {pendingInvite.Email} ({pendingInvite.FirstName} {pendingInvite.LastName})."
+                    });
+                }
+
+                await auditWriter.Log(new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.Auth,
+                    EventName = AuditAuthEventNames.LinkToNewUser,
+                    Message = $"Linked Entra account with new DfE Sign-In user {request.EmailAddress}",
+                    UserId = newUserResponse?.Sub
+                });
+
+                return newUserResponse!.Sub;
             }
         }
 
-        var isGenericEmail = genericEmailCheck.IsEmailGeneric(newUserResponse.Email);
-
-        if (isGenericEmail) {
-            await eventPublisher.PublishAsync(new SupportRequestEvent {
-                Email = notificationSettings.Value.SupportTeamEmail,
-                Type = "potential-generic-email-address",
-                TypeAdditionalInfo = null,
-                Message = $"New user has a potentially generic email address, please review the user: {pendingInvite.Email} ({pendingInvite.FirstName} {pendingInvite.LastName})."
-            });
-        }
-
-        await auditWriter.Log(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.Auth,
-            EventName = AuditAuthEventNames.LinkToNewUser,
-            Message = $"Linked Entra account with new DfE Sign-In user {request.EmailAddress}",
-            UserId = newUserResponse?.Sub
-        });
-
-        return newUserResponse!.Sub;
+        throw new Exception("Failed to link user Entra user to DSI");
     }
 
     private void ValidateActiveUser(AccountStatus status)
