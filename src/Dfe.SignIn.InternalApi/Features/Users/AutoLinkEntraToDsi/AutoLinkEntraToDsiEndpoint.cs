@@ -42,7 +42,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     DbDirectoriesContext directoriesDbContext,
     IAuditWriter auditWriter,
     TimeProvider timeProvider,
-    RemoveInviteService removeInviteService,
+    IRemoveInviteService removeInviteService,
     GenericEmailCheck genericEmailCheck,
     IUserCreator userCreator,
     IEventPublisher eventPublisher,

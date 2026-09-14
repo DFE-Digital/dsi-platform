@@ -19,6 +19,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     internal FakeTimestampInterceptor TimestampInterceptor => this.WebAppFactory.TimestampInterceptor;
     internal FailingDbCommandInterceptor FailingDbCommandInterceptor => this.WebAppFactory.FailingDbCommandInterceptor;
     internal FakeEventPublisher FakeEventPublisher => this.WebAppFactory.FakeEventPublisher;
+    internal FakeRemoveInviteService FakeRemoveInviteService => this.WebAppFactory.FakeRemoveInviteService;
 
     public async Task InitializeAsync()
     {

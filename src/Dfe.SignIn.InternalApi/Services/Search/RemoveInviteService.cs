@@ -3,10 +3,25 @@ using Dfe.SignIn.NodeApi.Client;
 namespace Dfe.SignIn.InternalApi.Services.Search;
 
 /// <summary>
+/// Contract representing a Removal invitation service
+/// </summary>
+public interface IRemoveInviteService
+{
+    /// <summary>
+    /// Removes the user invitation based on the invitation Id provided
+    /// from the DSI database.
+    /// </summary>
+    /// <param name="userId">ID represeting the user to remove the invitation from</param>
+    /// <param name="invitationId">ID represting the users invitation to remove</param>
+    /// <returns></returns>
+    Task Handle(Guid userId, Guid invitationId);
+}
+
+/// <summary>
 /// An implementation to remove user invitations from DSI
 /// </summary>
 public class RemoveInviteService([FromKeyedServices(NodeApiName.Search)] HttpClient searchClient,
-    ILogger<RemoveInviteService> logger)
+    ILogger<RemoveInviteService> logger) : IRemoveInviteService
 {
     /// <summary>
     /// Removes the user invitation based on the invitation Id provided

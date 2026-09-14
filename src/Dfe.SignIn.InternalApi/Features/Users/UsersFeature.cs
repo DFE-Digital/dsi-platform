@@ -86,7 +86,7 @@ public static class UsersFeature
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
-        services.AddScoped<RemoveInviteService>();
+        services.AddScoped<IRemoveInviteService, RemoveInviteService>();
         services.AddScoped<GenericEmailCheck>();
         services.AddScoped<IUserCreator, UserCreator>();
 
