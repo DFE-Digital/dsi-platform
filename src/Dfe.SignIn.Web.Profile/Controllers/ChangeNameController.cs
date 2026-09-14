@@ -80,7 +80,6 @@ public sealed class ChangeNameController(
         }
 
         if (userDetails.IsEntra) {
-
             try {
                 GraphAccessToken? graphAccessToken = null;
                 graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(

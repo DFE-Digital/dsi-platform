@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
+using Dfe.SignIn.WebFramework.Mvc.Policies;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +16,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 /// <summary>
 /// The controller that allows the user to change their email address.
 /// </summary>
-[Authorize(Policy = "CanChangeOwnEmailAddress")]
+[Authorize(Policy = PolicyNames.CanChangeOwnEmailAddress)]
 [Route("/change-email")]
 public sealed class ChangeEmailController(
     IOptionsMonitor<ApplicationOidcOptions> oidcOptionsAccessor,
