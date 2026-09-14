@@ -33,7 +33,10 @@ public static class UsersFeature
         .Add<GetPendingChangeEmailEndpoint>()
         .Add<InitiateChangeEmailAddressEndpoint>()
         .Add<ChangeNameEndpoint>()
-        .Add<ChangeJobTitleEndpoint>();
+        .Add<ChangeJobTitleEndpoint>()
+        .Add<GetUserProfileEndpoint>()
+        .Add<IsApproverEndpoint>()
+        .Add<PendingApprovalCounterEndpoint>();
 
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -41,11 +44,7 @@ public static class UsersFeature
     /// <param name="app">The endpoint route builder to map the endpoints to.</param>
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
-        GetUserProfileEndpoint.Map(app);
-        IsApproverEndpoint.Map(app);
-        PendingApprovalCounterEndpoint.Map(app);
-
-        // New class-based endpoint mapped via registry
+        // class-based endpoint mapped via registry
         NewEndpointRegistry.MapRoutes(app);
 
         return app;

@@ -20,7 +20,7 @@ public interface IUsersApiClient
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.ChangeName)]
-    Task ChangeName([Body] ChangeNameRequest request, CancellationToken cancellationToken = default);
+    Task<IApiResponse> ChangeName([Body] ChangeNameRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Determins if the authenicated user is an approver.
@@ -29,7 +29,7 @@ public interface IUsersApiClient
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation, containing the approver status.</returns>
     [Get(UsersApiRoutes.IsApprover)]
-    Task<IsOrganisationApproverResponse> IsApprover(Guid userId, CancellationToken cancellationToken = default);
+    Task<IApiResponse<IsOrganisationApproverResponse>> IsApprover(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the number of pending approval requests for the logged in approver
@@ -38,7 +38,7 @@ public interface IUsersApiClient
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the number of pending approvals</returns>
     [Get(UsersApiRoutes.PendingApprovalCounter)]
-    Task<PendingApprovalCountResponse> PendingApprovalCount(Guid userId, CancellationToken cancellationToken = default);
+    Task<IApiResponse<PendingApprovalCountResponse>> PendingApprovalCount(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves the profile information of a user based on the provided request.

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Models;
@@ -16,7 +17,7 @@ public sealed class ServiceNavigationBuilderTests
     public async Task UnauthorisedUserGetsNoMenuItems()
     {
         // Arrange
-        var userCtx = CreateUser(new Guid().ToString(), authenticated: false);
+        var userCtx = CreateUser(Guid.NewGuid().ToString(), authenticated: false);
 
         var response = new PendingApprovalCountResponse() {
             Count = 0
@@ -25,7 +26,7 @@ public sealed class ServiceNavigationBuilderTests
         var userClientMock = new Mock<IUsersApiClient>();
 
         userClientMock.Setup(x => x.PendingApprovalCount(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(response));
 
         var options = Options.Create(
             new PlatformOptions {
@@ -47,7 +48,7 @@ public sealed class ServiceNavigationBuilderTests
     public async Task StandardUserGetsReducedMenuItems()
     {
         // Arrange
-        var userCtx = CreateUser(new Guid().ToString(), authenticated: true);
+        var userCtx = CreateUser(Guid.NewGuid().ToString(), authenticated: true);
 
         var userClientMock = new Mock<IUsersApiClient>();
 
@@ -77,7 +78,7 @@ public sealed class ServiceNavigationBuilderTests
     public async Task ApproverUserGetsApprovalItemsMenuItems()
     {
         // Arrange
-        var userCtx = CreateUser(new Guid().ToString(), authenticated: true, approver: true);
+        var userCtx = CreateUser(Guid.NewGuid().ToString(), authenticated: true, approver: true);
 
         var response = new PendingApprovalCountResponse() {
             Count = 2
@@ -86,7 +87,7 @@ public sealed class ServiceNavigationBuilderTests
         var userClientMock = new Mock<IUsersApiClient>();
 
         userClientMock.Setup(x => x.PendingApprovalCount(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(response));
 
         var options = Options.Create(
             new PlatformOptions {
