@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
 using Dfe.SignIn.Fn.AuthExtensions.OnTokenIssuanceStart;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Moq.AutoMock;
@@ -142,9 +143,9 @@ public class TokenIssuanceStartHandlerTests
         var autoMocker = new AutoMocker();
         autoMocker.GetMock<IUsersApiClient>()
             .Setup(x => x.AutoLinkEntraUserToDsi(It.IsAny<AutoLinkEntraUserToDsiRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AutoLinkEntraUserToDsiResponse {
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new AutoLinkEntraUserToDsiResponse {
                 UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),
-            });
+            }));
 
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 
@@ -167,9 +168,9 @@ public class TokenIssuanceStartHandlerTests
 
         autoMocker.GetMock<IUsersApiClient>()
     .Setup(x => x.AutoLinkEntraUserToDsi(It.IsAny<AutoLinkEntraUserToDsiRequest>(), It.IsAny<CancellationToken>()))
-    .ReturnsAsync(new AutoLinkEntraUserToDsiResponse {
+    .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new AutoLinkEntraUserToDsiResponse {
         UserId = new Guid("d5ba1f44-1400-4c98-b834-5d5ba5b98995"),
-    });
+    }));
 
         var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
 

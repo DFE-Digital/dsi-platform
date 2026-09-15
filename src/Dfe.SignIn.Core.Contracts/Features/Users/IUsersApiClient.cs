@@ -123,8 +123,6 @@ public interface IUsersApiClient
     /// <param name="autoLinkEntraUserToDsiRequest">The request object containing the user reference details</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns></returns>
-
-    //TODO IAPiRepsonse
     [Post(UsersApiRoutes.AutoLinkEntraToDsi)]
-    Task<AutoLinkEntraUserToDsiResponse> AutoLinkEntraUserToDsi([Body] AutoLinkEntraUserToDsiRequest autoLinkEntraUserToDsiRequest, CancellationToken cancellationToken = default);
+    Task<IApiResponse<AutoLinkEntraUserToDsiResponse>> AutoLinkEntraUserToDsi([Body] AutoLinkEntraUserToDsiRequest autoLinkEntraUserToDsiRequest, CancellationToken cancellationToken = default);
 }

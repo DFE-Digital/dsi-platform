@@ -524,7 +524,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         db.Invitations.Where(x => x.Email == userEmail).ToListAsync());
 
         Assert.Single(userInvitations);
-        Assert.Equal("123", userInvitations[0].Code);
+        Assert.Equal(activePendingInvite.Id, userInvitations[0].Id);
     }
 
     [Fact]

@@ -62,7 +62,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             endpoint.Handle(request, cancellationToken))
             .WithName("Associates the Entra account to a Dsi")
             .WithTags("Users")
-            .WithStandardResponses();
+            .WithStandardResponses<AutoLinkEntraUserToDsiResponse>();
     }
 
     /// <summary>
@@ -85,7 +85,8 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     private async Task<Guid?> GetExistingLinkedUserAsync(AutoLinkEntraUserToDsiRequest request,
         CancellationToken cancellationToken)
     {
-        var user = await this.GetUserQuery(request)
+        var user = await directoriesDbContext.Users
+            .Where(x => x.EntraOid == request.EntraUserId)
             .Select(x => new { x.Sub, x.Status })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -102,7 +103,6 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     private async Task<Guid?> LinkToExistingDsiUserAsync(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
     {
         // Let's try to associate the Entra user object with a DSI account.
-
         var user = await directoriesDbContext.Users.Where(x => x.Email == request.EmailAddress)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -233,12 +233,6 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         if (status != AccountStatus.Active) {
             throw new CannotLinkInactiveUserException();
         }
-    }
-    private IQueryable<UserEntity> GetUserQuery(AutoLinkEntraUserToDsiRequest request)
-    {
-        return request.EntraUserId.HasValue
-        ? directoriesDbContext.Users.Where(x => x.EntraOid == request.EntraUserId)
-        : directoriesDbContext.Users.Where(x => x.Email == request.EmailAddress);
     }
 
     private async Task MarkPendingInviteAsCompleted(Guid newUserId, InvitationEntity pendingInvite, CancellationToken cancellationToken)
