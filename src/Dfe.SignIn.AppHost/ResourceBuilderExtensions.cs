@@ -10,46 +10,234 @@ namespace Dfe.SignIn.AppHost;
 public static class ResourceBuilderExtensions
 {
     /// <summary>
-    /// Configures a project resource with shared configuration settings from the application configuration.
+    /// Forwards all non-null values from a configuration section as environment variables,
+    /// converting configuration path separators (<c>:</c>) to double underscores.
     /// </summary>
-    /// <param name="builder">The resource builder to configure.</param>
-    /// <param name="configuration">The application configuration containing the settings.</param>
-    /// <param name="frontendEndpoint">The frontend endpoint reference for asset base address configuration.</param>
-    /// <returns>The configured resource builder.</returns>
-    public static IResourceBuilder<ProjectResource> WithSharedConfiguration(
-        this IResourceBuilder<ProjectResource> builder,
+    /// <typeparam name="T">The resource type that supports environment variables.</typeparam>
+    /// <param name="builder">The resource builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="sectionName">The configuration section to forward (e.g. <c>EntityFramework</c>).</param>
+    /// <returns>The resource builder.</returns>
+    public static IResourceBuilder<T> WithConfigurationSection<T>(
+        this IResourceBuilder<T> builder,
         IConfiguration configuration,
-        EndpointReference frontendEndpoint)
+        string sectionName)
+        where T : IResourceWithEnvironment
     {
-        var environment = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local";
-        var platformConfig = configuration.GetSection("Platform");
-        var securityHeaderConfig = configuration.GetSection("SecurityHeaderPolicy");
-        var internalApiConfig = configuration.GetSection("InternalApiClient");
-        var govNotifyConfig = configuration.GetSection("GovNotify");
-        var supportEmailConfig = configuration.GetSection("RaiseSupportTicketByEmail");
-        var oidcConfig = configuration.GetSection("Oidc");
-        var externalIdConfig = configuration.GetSection("ExternalId");
-        var sessionConfig = configuration.GetSection("Session");
-
-        builder
-            .WithEnvironment("ASPNETCORE_ENVIRONMENT", environment)
-            .WithEnvironment("Platform__HelpUrl", platformConfig["HelpUrl"])
-            .WithEnvironment("Platform__ProfileUrl", platformConfig["ProfileUrl"])
-            .WithEnvironment("Platform__SurveyUrl", platformConfig["SurveyUrl"])
-            .WithEnvironment("Platform__ServicesUrl", platformConfig["ServicesUrl"])
-            .WithEnvironment("InternalApiClient__BaseAddress", internalApiConfig["BaseAddress"])
-            .WithEnvironment("InternalApiClient__ClientId", internalApiConfig["ClientId"])
-            .WithEnvironment("InternalApiClient__ClientSecret", internalApiConfig["ClientSecret"])
-            .WithEnvironment("InternalApiClient__HostUrl", internalApiConfig["HostUrl"])
-            .WithEnvironment("InternalApiClient__Resource", internalApiConfig["Resource"])
-            .WithEnvironment("InternalApiClient__Tenant", internalApiConfig["Tenant"])
-            .WithEnvironment("InternalApiClient__ProxyUrl", internalApiConfig["ProxyUrl"])
-            .WithEnvironment("InternalApiClient__UseProxy", internalApiConfig["UseProxy"])
-            .WithEnvironment("InternalApiClient__Directories__BaseAddress", internalApiConfig["Directories:BaseAddress"])
-            .WithEnvironment("InternalApiClient__Applications__BaseAddress", internalApiConfig["Applications:BaseAddress"])
-            .WithEnvironment("Assets__BaseAddress", frontendEndpoint);
+        foreach (var (key, value) in EnumerateSectionAsEnvironmentVariables(configuration, sectionName)) {
+            builder.WithEnvironment(key, value);
+        }
 
         return builder;
+    }
+
+    /// <summary>
+    /// Converts a configuration section into environment variable key/value pairs.
+    /// </summary>
+    internal static IEnumerable<KeyValuePair<string, string>> EnumerateSectionAsEnvironmentVariables(
+        IConfiguration configuration,
+        string sectionName)
+    {
+        foreach (var (key, value) in configuration.GetSection(sectionName).AsEnumerable(makePathsRelative: false)) {
+            if (value is null) {
+                continue;
+            }
+
+            yield return new KeyValuePair<string, string>(key.Replace(":", "__"), value);
+        }
+    }
+
+    /// <summary>
+    /// Sets <c>ASPNETCORE_ENVIRONMENT</c> and local-auth bypass from configuration.
+    /// </summary>
+    /// <param name="builder">The project resource builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The resource builder.</returns>
+    public static IResourceBuilder<ProjectResource> WithDsiEnvironment(
+        this IResourceBuilder<ProjectResource> builder,
+        IConfiguration configuration)
+    {
+        var environment = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local";
+
+        return builder
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", environment)
+            .WithEnvironment("Authentication__LocalBypass", environment == "Local" ? "true" : "false");
+    }
+
+    /// <summary>
+    /// Sets Redis connection strings for one or more named cache configuration sections.
+    /// </summary>
+    /// <typeparam name="T">The resource type that supports environment variables.</typeparam>
+    /// <param name="builder">The resource builder.</param>
+    /// <param name="connectionString">The Redis connection string expression.</param>
+    /// <param name="cacheNames">Cache section names (e.g. <c>GeneralRedisCache</c>).</param>
+    /// <returns>The resource builder.</returns>
+    public static IResourceBuilder<T> WithRedisCaches<T>(
+        this IResourceBuilder<T> builder,
+        ReferenceExpression connectionString,
+        params string[] cacheNames)
+        where T : IResourceWithEnvironment
+    {
+        foreach (var cacheName in cacheNames) {
+            builder.WithEnvironment($"{cacheName}__ConnectionString", connectionString);
+        }
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Points the resource at the Internal API HTTPS endpoint and waits for it to be ready.
+    /// </summary>
+    /// <param name="builder">The project resource builder.</param>
+    /// <param name="internalApi">The Internal API resource.</param>
+    /// <returns>The resource builder.</returns>
+    public static IResourceBuilder<ProjectResource> WithInternalApi(
+        this IResourceBuilder<ProjectResource> builder,
+        IResourceBuilder<ProjectResource> internalApi)
+    {
+        return builder
+            .WithEnvironment("InternalApiClient__BaseAddress", internalApi.GetEndpoint("https"))
+            .WaitFor(internalApi);
+    }
+
+    /// <summary>
+    /// Sets asset base address from the frontend endpoint and optionally forwards asset version config.
+    /// </summary>
+    /// <param name="builder">The project resource builder.</param>
+    /// <param name="frontendEndpoint">The frontend HTTP endpoint.</param>
+    /// <param name="configuration">Optional configuration used to forward <c>Assets:FrontendVersion</c>.</param>
+    /// <returns>The resource builder.</returns>
+    public static IResourceBuilder<ProjectResource> WithFrontendAssets(
+        this IResourceBuilder<ProjectResource> builder,
+        EndpointReference frontendEndpoint,
+        IConfiguration? configuration = null)
+    {
+        builder.WithEnvironment("Assets__BaseAddress", frontendEndpoint);
+
+        if (configuration is not null) {
+            builder.WithEnvironment(
+                "Assets__FrontendVersion",
+                configuration["Assets:FrontendVersion"] ?? string.Empty);
+        }
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds a dashboard command that runs a PowerShell stub to generate an API key.
+    /// </summary>
+    /// <remarks>
+    /// Invokes <c>scripts/Generate-ApiKey.ps1</c>. Stdout is shown immediately in the Aspire
+    /// dashboard result dialog. Replace the script body with real generation logic when ready.
+    /// </remarks>
+    /// <param name="builder">The project resource builder.</param>
+    /// <param name="displayName">Optional dashboard label for the command.</param>
+    /// <param name="apiKind">Passed to the script as <c>-ApiKind</c> (<c>internal</c> or <c>public</c>).</param>
+    /// <returns>The resource builder.</returns>
+    public static IResourceBuilder<ProjectResource> WithGenerateApiKeyCommand(
+        this IResourceBuilder<ProjectResource> builder,
+        string displayName = "Generate API key",
+        string apiKind = "public")
+    {
+        var scriptPath = Path.Combine(
+            builder.ApplicationBuilder.AppHostDirectory,
+            "scripts",
+            "Generate-ApiKey.ps1");
+
+#pragma warning disable ASPIREPROCESSCOMMAND001 // WithProcessCommand is experimental.
+#pragma warning disable ASPIREINTERACTION001 // InteractionInput / CommandOptions.Arguments are experimental.
+        return builder.WithProcessCommand(
+            commandName: "generate-api-key",
+            displayName: displayName,
+            processSpecFactory: context => {
+                var clientName = context.Arguments.GetString("clientName") ?? "local-client";
+                var description = context.Arguments.GetString("description") ?? string.Empty;
+                var environment = context.Arguments.GetString("environment") ?? "Local";
+                var expiresDays = context.Arguments.GetString("expiresDays") ?? "90";
+                var createInactive = context.Arguments.GetString("createInactive") ?? "false";
+
+                return new ProcessCommandSpec("pwsh")
+                {
+                    WorkingDirectory = builder.ApplicationBuilder.AppHostDirectory,
+                    Arguments =
+                    [
+                        "-NoProfile",
+                        "-File",
+                        scriptPath,
+                        "-ClientName",
+                        clientName,
+                        "-ApiKind",
+                        apiKind,
+                        "-Description",
+                        description,
+                        "-Environment",
+                        environment,
+                        "-ExpiresDays",
+                        expiresDays,
+                        "-CreateInactive",
+                        createInactive,
+                    ],
+                };
+            },
+            commandOptions: new ProcessCommandOptions
+            {
+                Description = "Generate a local development API key via PowerShell (stub).",
+                IconName = "Key",
+                IconVariant = IconVariant.Filled,
+                DisplayImmediately = true,
+                Arguments =
+                [
+                    new InteractionInput
+                    {
+                        Name = "clientName",
+                        Label = "Client name",
+                        InputType = InputType.Text,
+                        Required = true,
+                        Value = "local-client",
+                        Placeholder = "e.g. my-integration",
+                    },
+                    new InteractionInput
+                    {
+                        Name = "description",
+                        Label = "Description",
+                        InputType = InputType.Text,
+                        Required = false,
+                        Placeholder = "Optional note for this key",
+                    },
+                    new InteractionInput
+                    {
+                        Name = "environment",
+                        Label = "Environment",
+                        InputType = InputType.Choice,
+                        Required = true,
+                        Value = "Local",
+                        Options =
+                        [
+                            KeyValuePair.Create("Local", "Local"),
+                            KeyValuePair.Create("Development", "Development"),
+                            KeyValuePair.Create("Test", "Test"),
+                        ],
+                    },
+                    new InteractionInput
+                    {
+                        Name = "expiresDays",
+                        Label = "Expires in (days)",
+                        InputType = InputType.Number,
+                        Required = true,
+                        Value = "90",
+                    },
+                    new InteractionInput
+                    {
+                        Name = "createInactive",
+                        Label = "Create as inactive",
+                        InputType = InputType.Boolean,
+                        Required = false,
+                        Value = "false",
+                    },
+                ],
+            });
+#pragma warning restore ASPIREINTERACTION001
+#pragma warning restore ASPIREPROCESSCOMMAND001
     }
 
     /// <summary>
@@ -79,7 +267,7 @@ public static class ResourceBuilderExtensions
     {
         var npmApp = builder.AddNpmApp(name, $"{nodeRootDir}/{appName}", scriptName)
             .WithHttpsEndpoint(port: port, targetPort: port, env: "PORT", isProxied: false)
-            .WithEnvFile($"{nodeRootDir}/{envFileName}")  // loads .env defaults first
+            .WithEnvFile($"{nodeRootDir}/{envFileName}")
             .WithEnvironment("NODE_TLS_REJECT_UNAUTHORIZED", "0");
 
         if (frontendEndpoint is not null) {

@@ -116,18 +116,18 @@ aspire stop
 
 ## What gets started
 
-| Resource            | Description                                                                                               |
-| ------------------- | --------------------------------------------------------------------------------------------------------- |
-| `infra-redis`       | Redis instance with a persistent data volume + Redis Commander UI                                         |
-| `infra-frontend`    | Frontend asset server built from `docker/frontend/Dockerfile`                                             |
-| `app-help`          | Help web app — conditional on `Components:DotNet:HelpEnabled` (default: true)                             |
-| `app-profile`       | Profile web app — conditional on `Components:DotNet:ProfileEnabled` (default: true)                       |
-| `app-public-api`    | Public API — conditional on `Components:DotNet:PublicApiEnabled` (default: true)                          |
-| `app-internal-api`  | Internal API — always started                                                                             |
-| `node-oidc`         | Node OIDC app on port 4436 — conditional on `Components:Node:OidcEnabled` (default: true)                 |
-| `node-interactions` | Node Interactions app on port 4431 — conditional on `Components:Node:InteractionsEnabled` (default: true) |
-| `node-services`     | Node Services app on port 41012 — conditional on `Components:Node:ServicesEnabled` (default: true)        |
-| `tool-tls-proxy`    | Local TLS proxy (`Start-DsiTlsProxy` PowerShell function)                                                 |
+| Resource            | Description                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------ |
+| `infra-redis`       | Redis instance with a persistent data volume + RedisInsight UI                                   |
+| `infra-frontend`    | Frontend asset server built from `docker/frontend/Dockerfile`                                    |
+| `app-help`          | Help web app — conditional on `Components:DotNet:Help` (default: true)                           |
+| `app-profile`       | Profile web app — conditional on `Components:DotNet:Profile` (default: true)                     |
+| `app-public-api`    | Public API — conditional on `Components:DotNet:PublicApi` (default: true)                        |
+| `app-internal-api`  | Internal API — always started                                                                    |
+| `node-oidc`         | Node OIDC app on port 4436 — conditional on `Components:Node:Oidc` (default: true)               |
+| `node-interactions` | Node Interactions app on port 4431 — conditional on `Components:Node:Interactions` (default: true) |
+| `node-services`     | Node Services app on port 41012 — conditional on `Components:Node:Services` (default: true)      |
+| `tool-tls-proxy`    | Local TLS proxy — conditional on `Components:Tools:TlsProxy` (default: false)                    |
 
 ## Aspire dashboard
 

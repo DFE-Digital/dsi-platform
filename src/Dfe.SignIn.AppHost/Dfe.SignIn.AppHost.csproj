@@ -5,14 +5,12 @@
     <ProjectReference Include="..\Dfe.SignIn.Web.Profile\Dfe.SignIn.Web.Profile.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.InternalApi\Dfe.SignIn.InternalApi.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.PublicApi\Dfe.SignIn.PublicApi.csproj" />
-      <ProjectReference Include="..\Dfe.SignIn.InternalApi\Dfe.SignIn.InternalApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.Redis" />
-	<PackageReference Include="Aspire.Hosting.NodeJs" />
-	<PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" />	  
-    <PackageReference Include="MessagePack" />	  
+    <PackageReference Include="Aspire.Hosting.NodeJs" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" />
   </ItemGroup>
 
@@ -23,5 +21,9 @@
     <Nullable>enable</Nullable>
     <UserSecretsId>03d41373-1462-4128-acae-dff999202b39</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dfe.SignIn.AppHost.UnitTests" />
+  </ItemGroup>
 
 </Project>
