@@ -7,7 +7,14 @@ namespace Dfe.SignIn.Gateways.Entra.ChangePassword;
 /// </summary>
 public static class EntraPasswordErrors
 {
+    /// <summary>
+    /// The error code when the provided current password is incorrect.
+    /// </summary>
     public const string InvalidCurrentPasswordCode = "Entra.Password.InvalidCurrent";
+    
+    /// <summary>
+    /// The error code when the new password violates policy or is breached.
+    /// </summary>
     public const string PasswordPolicyViolationCode = "Entra.Password.PolicyViolation";
 
     /// <summary>

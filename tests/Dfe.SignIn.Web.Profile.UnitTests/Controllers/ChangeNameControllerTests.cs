@@ -53,11 +53,11 @@ public sealed class ChangeNameControllerTests
     };
 
     [TestMethod]
-    public async Task Index_InitialiseJobTitleInputFromUserProfile()
+    public void Index_InitialiseJobTitleInputFromUserProfile()
     {
         var controller = CreateController(new AutoMocker(), isEntra: false);
 
-        var result = await controller.Index();
+        var result = controller.Index();
 
         var viewModel = TypeAssert.IsViewModelType<ChangeNameViewModel>(result);
         Assert.AreEqual("Alex", viewModel.FirstNameInput);
@@ -65,11 +65,11 @@ public sealed class ChangeNameControllerTests
     }
 
     [TestMethod]
-    public async Task Index_PresentsExpectedView()
+    public void Index_PresentsExpectedView()
     {
         var controller = CreateController(new AutoMocker(), isEntra: false);
 
-        var result = await controller.Index();
+        var result = controller.Index();
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -91,11 +91,11 @@ public sealed class ChangeNameControllerTests
     public async Task PostIndex_FlashSuccess_WhenSuccessful()
     {
         var autoMocker = new AutoMocker();
-        
+
         var userClientMock = new Mock<IUsersApiClient>();
         userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<object>(new HttpResponseMessage(HttpStatusCode.OK), null, new RefitSettings()));
-        
+
         autoMocker.Use(userClientMock.Object);
 
         var controller = CreateController(autoMocker, isEntra: false);
@@ -113,11 +113,11 @@ public sealed class ChangeNameControllerTests
     public async Task PostIndex_RedirectsToHome_WhenSuccessful()
     {
         var autoMocker = new AutoMocker();
-        
+
         var userClientMock = new Mock<IUsersApiClient>();
         userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<object>(new HttpResponseMessage(HttpStatusCode.OK), null, new RefitSettings()));
-        
+
         autoMocker.Use(userClientMock.Object);
         var controller = CreateController(autoMocker, isEntra: false);
 
@@ -132,11 +132,11 @@ public sealed class ChangeNameControllerTests
     public async Task PostIndex_ShowsErrorMessageAndReRendersView_WhenApiClientReturnsError()
     {
         var autoMocker = new AutoMocker();
-        
+
         var userClientMock = new Mock<IUsersApiClient>();
         userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<object>(new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings()));
-        
+
         autoMocker.Use(userClientMock.Object);
         var controller = CreateController(autoMocker, isEntra: true);
 
@@ -152,11 +152,11 @@ public sealed class ChangeNameControllerTests
     public async Task PostIndex_ShowsErrorMessageAndReRendersView_WhenApiClientThrows()
     {
         var autoMocker = new AutoMocker();
-        
+
         var userClientMock = new Mock<IUsersApiClient>();
         userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Network failure"));
-        
+
         autoMocker.Use(userClientMock.Object);
         var controller = CreateController(autoMocker, isEntra: true);
 

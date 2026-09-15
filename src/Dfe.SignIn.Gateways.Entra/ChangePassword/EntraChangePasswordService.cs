@@ -24,6 +24,10 @@ public interface IEntraChangePasswordService
     Task<Result> ChangePasswordAsync(string currentPassword, string newPassword, GraphAccessToken graphAccessToken, CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// A service that enables an Entra user to change their password via the Graph API using delegated permissions.
+/// </summary>
+/// <param name="logger">The logger instance.</param>
 public sealed partial class EntraChangePasswordService(ILogger<EntraChangePasswordService> logger) : IEntraChangePasswordService
 {
     private sealed class AccessTokenCredential(GraphAccessToken token) : TokenCredential
