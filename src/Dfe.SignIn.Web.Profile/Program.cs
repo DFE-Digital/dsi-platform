@@ -1,8 +1,6 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.Gateways.ServiceBus;
@@ -46,21 +44,24 @@ builder.Services.Configure<ForwardedHeadersOptions>(options => {
 builder.Services
     .AddUserSessions(builder.Configuration)
     .AddDsiAuthentication(builder.Configuration)
-    .AddExternalAuthentication(builder.Configuration);
-
-builder.Services
+    .AddExternalAuthentication(builder.Configuration)
     .AddAuthorization(options => options.AddDsiPolicies())
     .AddDsiAuthorizationHandlers();
 
-builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
-builder.Services.ConfigureDsiAntiforgeryCookie();
+builder.Services
+    .AddControllersWithViews()
+    .AddDsiMvcExtensions();
 
 builder.Services
-    .ConfigureDfeSignInJsonSerializerOptions()
-    .AddInteractionFramework();
+    .ConfigureDsiAntiforgeryCookie();
 
-builder.Services.AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>();
-builder.Services.AddScoped<IServiceNavigationBuilder, ServiceNavigationBuilder>();
+builder.Services
+    .ConfigureDfeSignInJsonSerializerOptions();
+//.AddInteractionFramework()
+
+builder.Services
+    .AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>()
+    .AddScoped<IServiceNavigationBuilder, ServiceNavigationBuilder>();
 
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
@@ -72,9 +73,9 @@ builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
 builder.Services
-    .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
-    .SetupInternalApiClient(tokenCredential)
-    .SetupResiliencePipelines(builder.Configuration)
+    //.Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
+    //.SetupInternalApiClient(tokenCredential)
+    //.SetupResiliencePipelines(builder.Configuration)
     .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
 builder.Services
@@ -82,22 +83,15 @@ builder.Services
         builder.Configuration.GetRequiredSection("GeneralRedisCache"));
 
 builder.Services
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
-
-if (builder.Environment.IsEnvironment("Local")) {
-    builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
-}
-
-builder.Services.AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
+    .SetupAuditContext()
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
+    .AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
 
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
+
 builder.Services
-    .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
-    .SetupAuditContext();
-builder.Services
-    .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
     .SetupFrontendAssets();
 
 builder.Services
@@ -105,7 +99,8 @@ builder.Services
     .AddEntraDelegatedServices()
     .AddUsersApiClient(tokenCredential);
 
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services
+    .AddValidatorsFromAssemblyContaining<Program>();
 
 // TEMP: Add fake interactor implementations.
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
@@ -126,7 +121,7 @@ if (builder.Environment.IsEnvironment("Local")) {
 
 var app = builder.Build();
 
-app.UseMiddleware<CancellationContextMiddleware>();
+//app.UseMiddleware<CancellationContextMiddleware>();
 app.UseDsiSecurityHeaderPolicy();
 
 // Configure the HTTP request pipeline.
@@ -134,7 +129,7 @@ if (!app.Environment.IsEnvironment("Local")) {
     app.UseExceptionHandler("/Error/Index");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    app.UseHttpsRedirection();
+    //app.UseHttpsRedirection();
 }
 
 app.UseForwardedHeaders();

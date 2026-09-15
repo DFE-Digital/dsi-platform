@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.WebFramework.Configuration;
 using GovUk.Frontend.AspNetCore;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Configuration;
@@ -18,6 +19,8 @@ public static class AssetConfigurationExtensions
     public static void SetupFrontendAssets(this IServiceCollection services)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+
+        services.AddOptions<AssetOptions>().BindConfiguration(AssetOptions.SectionName);
 
         services.AddGovUkFrontend((options) => {
             // Disable hosting of GDS design system assets since these are hosted from our CDN.
