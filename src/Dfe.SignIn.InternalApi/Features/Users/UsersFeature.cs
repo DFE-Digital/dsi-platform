@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
-using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Core.UseCases.Users;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.Gateways.Entra;
@@ -32,7 +31,12 @@ public static class UsersFeature
         .Add<CheckIsBlockedEmailAddressEndpoint>()
         .Add<ChangePasswordEndpoint>()
         .Add<GetPendingChangeEmailEndpoint>()
-        .Add<InitiateChangeEmailAddressEndpoint>();
+        .Add<InitiateChangeEmailAddressEndpoint>()
+        .Add<ChangeNameEndpoint>()
+        .Add<ChangeJobTitleEndpoint>()
+        .Add<GetUserProfileEndpoint>()
+        .Add<IsApproverEndpoint>()
+        .Add<PendingApprovalCounterEndpoint>();
 
     /// <summary>
     /// Maps the user-related endpoints to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -40,13 +44,7 @@ public static class UsersFeature
     /// <param name="app">The endpoint route builder to map the endpoints to.</param>
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
-        ChangeNameEndpoint.Map(app);
-        GetUserProfileEndpoint.Map(app);
-        IsApproverEndpoint.Map(app);
-        PendingApprovalCounterEndpoint.Map(app);
-        ChangeJobTitleEndpoint.Map(app);
-
-        // New class-based endpoint mapped via registry
+        // class-based endpoint mapped via registry
         NewEndpointRegistry.MapRoutes(app);
 
         return app;
@@ -64,7 +62,7 @@ public static class UsersFeature
             .AddScoped<IUserLookupService, UserLookupService>()
             .AddScoped<IUserCodeService, UserCodeService>()
             .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>()
-            .AddScoped<IUserUpdatedPublisher, StubUserUpdatedPublisher>();
+            .AddScoped<IPasswordHasher, PasswordHasher>();
 
         services
             .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
@@ -79,8 +77,6 @@ public static class UsersFeature
                 settings.ClientSecret = externalSection.GetValue<string>("ClientSecret")
                     ?? throw new InvalidOperationException("ClientSecret is not configured");
             });
-
-        services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);

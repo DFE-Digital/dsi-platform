@@ -28,8 +28,6 @@ public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : I
             return principal;
         }
 
-        var identity = (ClaimsIdentity)principal.Identity;
-
         //Safe to set to empty since Guid.Parse will fail if not valid guid and if its missing, the GetUserId() will also throw an exception if it fails to parse.
         Guid userId = Guid.Empty;
 
@@ -50,7 +48,7 @@ public class ApplicationClaimsTransformation(IUsersApiClient usersApiClient) : I
 
         var response = await usersApiClient.IsApprover(userId, CancellationToken.None);
 
-        if (response.IsApprover) {
+        if (response.IsSuccessStatusCode && (response.Content?.IsApprover ?? false)) {
             cloneIdentity.AddClaim(new Claim(OrganisationRole.Approver.Name, string.Empty));
         }
 

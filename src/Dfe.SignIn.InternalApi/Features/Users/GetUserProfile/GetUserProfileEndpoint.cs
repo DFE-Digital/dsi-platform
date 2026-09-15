@@ -10,7 +10,9 @@ namespace Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 /// <summary>
 /// An endpoint to get the profile of a user.
 /// </summary>
-public sealed class GetUserProfileEndpoint : IEndpoint
+public sealed class GetUserProfileEndpoint(
+    DbDirectoriesContext directoriesDbContext,
+        ILogger<GetUserProfileEndpoint> logger) : IEndpoint
 {
     /// <summary>
     /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
@@ -18,27 +20,23 @@ public sealed class GetUserProfileEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to.</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet(UsersApiRoutes.GetUserProfile, Handler)
+        app.MapGet(UsersApiRoutes.GetUserProfile, async (
+            [FromRoute] Guid userId,
+            [FromServices] GetUserProfileEndpoint endpoint,
+            CancellationToken cancellationToken) =>
+            await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Get User Profile")
             .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .WithOpenApi();
+            .WithStandardResponses();
     }
 
     /// <summary>
     /// Gets the profile of a user.
     /// </summary>
-    /// <param name="directoriesDbContext">The database context to use for accessing user data.</param>
-    /// <param name="logger">The logger to use for logging information.</param>
     /// <param name="userId">The ID of the user to get the profile for.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
-    public static async Task<IResult> Handler(
-        DbDirectoriesContext directoriesDbContext,
-        ILogger<GetUserProfileEndpoint> logger,
+    public async Task<IResult> HandleAsync(
         [FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {

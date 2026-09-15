@@ -94,15 +94,19 @@ public sealed class UserProfileMiddleware(
         if (context.User?.Identity?.IsAuthenticated == true) {
             Guid userId = context.User.GetUserId();
 
-            var profileResponse = await usersApiClient.GetUserProfile(userId);
+            var profileResponse = await usersApiClient.GetUserProfile(userId, context.RequestAborted);
+            if (!profileResponse.IsSuccessStatusCode || profileResponse.Content is null) {
+                throw new InvalidOperationException($"Failed to retrieve user profile for user {userId}. Status code: {profileResponse.StatusCode}");
+            }
+
             context.Features.Set<IUserProfileFeature>(new UserProfileFeature {
                 UserId = userId,
-                IsEntra = profileResponse.IsEntra,
-                IsInternalUser = profileResponse.IsInternalUser,
-                FirstName = profileResponse.FirstName,
-                LastName = profileResponse.LastName,
-                EmailAddress = profileResponse.EmailAddress,
-                JobTitle = profileResponse.JobTitle,
+                IsEntra = profileResponse.Content.IsEntra,
+                IsInternalUser = profileResponse.Content.IsInternalUser,
+                FirstName = profileResponse.Content.FirstName,
+                LastName = profileResponse.Content.LastName,
+                EmailAddress = profileResponse.Content.EmailAddress,
+                JobTitle = profileResponse.Content.JobTitle,
             });
         }
 

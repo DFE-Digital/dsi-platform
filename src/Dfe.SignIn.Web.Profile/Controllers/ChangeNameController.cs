@@ -67,12 +67,11 @@ public sealed class ChangeNameController(
 
         try {
             var request = new ChangeNameRequest {
-                UserId = this.User.GetUserId(),
                 FirstName = viewModel.FirstNameInput ?? string.Empty,
                 LastName = viewModel.LastNameInput ?? string.Empty,
             };
 
-            await usersApiClient.ChangeName(request);
+            await usersApiClient.ChangeName(this.User.GetUserId(), request);
         }
         catch (Exception ex) {
             logger.LogError(ex, "An error occurred while changing the user's name.");
@@ -81,7 +80,6 @@ public sealed class ChangeNameController(
         }
 
         if (userDetails.IsEntra) {
-
             try {
                 GraphAccessToken? graphAccessToken = null;
                 graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
@@ -129,11 +127,10 @@ public sealed class ChangeNameController(
     private async Task Rollback(string forename, string surname)
     {
         var request = new ChangeNameRequest {
-            UserId = this.User.GetUserId(),
             FirstName = forename,
             LastName = surname
         };
 
-        await usersApiClient.ChangeName(request);
+        await usersApiClient.ChangeName(this.User.GetUserId(), request);
     }
 }

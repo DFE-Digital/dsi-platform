@@ -3,8 +3,9 @@ using Dfe.SignIn.Base.Framework.Results;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Entities.Directories;
-using Dfe.SignIn.Core.Interfaces.Notifications;
+using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features.Users.ChangeEmail.Models;
@@ -24,7 +25,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
     IAuditWriter auditWriter,
     IUserCodeService userCodeService,
     IEntraEmailUpdater entraEmailUpdater,
-    IUserUpdatedPublisher userUpdatedPublisher,
+    IEventPublisher eventPublisher,
     TimeProvider timeProvider,
     ILogger<ConfirmChangeEmailAddressEndpoint> logger) : IEndpoint
 {
@@ -101,7 +102,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         Error entraError,
         CancellationToken cancellationToken)
     {
-        // Parity with legacy Node: code is cleaned up, but Service Bus notification is skipped
+        // Parity with legacy Node: code is cleaned up, but user updated integration event is skipped
         await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
 
         return Results.Ok(new ConfirmChangeEmailAddressResponse {
@@ -128,18 +129,18 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         });
 
         try {
-            await userUpdatedPublisher.PublishUserUpdatedAsync(
-                user.Sub,
-                newEmail,
-                user.FirstName,
-                user.LastName,
-                user.Status,
-                cancellationToken);
+            await eventPublisher.PublishAsync(new UserUpdatedEvent {
+                UserId = user.Sub,
+                Email = newEmail,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Status = user.Status
+            }, cancellationToken);
 
             await userCodeService.DeleteExistingCodesAsync(user.Sub, cancellationToken);
         }
         catch (Exception ex) {
-            logger.LogError(ex, "Error executing post-update notification tasks for user {UserId}", user.Sub);
+            logger.LogError(ex, "Error publishing UserUpdatedEvent for user {UserId}", user.Sub);
             throw;
         }
 

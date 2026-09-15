@@ -31,7 +31,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .CreateClient()
             .WithAuthentication();
 
-        this.FakeUserUpdatedPublisher.Clear();
+        this.FakeEventPublisher.Clear();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -79,12 +79,12 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.NotNull(editedFields.Value);
 
         // Assert user updated publisher published event
-        var (UserId, EmailAddress, FirstName, LastName, Status) = Assert.Single(this.FakeUserUpdatedPublisher.PublishedEvents);
-        Assert.Equal(user.Sub, UserId);
-        Assert.Equal("john.doe@new.example.com", EmailAddress);
-        Assert.Equal(user.FirstName, FirstName);
-        Assert.Equal(user.LastName, LastName);
-        Assert.Equal(user.Status, Status);
+        var userUpdatedEvent = Assert.Single(this.FakeEventPublisher.GetPublishedEvents<UserUpdatedEvent>());
+        Assert.Equal(user.Sub, userUpdatedEvent.UserId);
+        Assert.Equal("john.doe@new.example.com", userUpdatedEvent.Email);
+        Assert.Equal(user.FirstName, userUpdatedEvent.FirstName);
+        Assert.Equal(user.LastName, userUpdatedEvent.LastName);
+        Assert.Equal(user.Status, userUpdatedEvent.Status);
     }
 
     [Fact]
@@ -262,7 +262,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .CreateClient()
             .WithAuthentication();
 
-        this.FakeUserUpdatedPublisher.Clear();
+        this.FakeEventPublisher.Clear();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -305,7 +305,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.Null(dbCode);
 
         // User updated publisher should NOT publish event (parity with legacy Node)
-        Assert.Empty(this.FakeUserUpdatedPublisher.PublishedEvents);
+        Assert.Empty(this.FakeEventPublisher.PublishedEvents);
 
         // Failure audit is logged
         var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
@@ -321,7 +321,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .CreateClient()
             .WithAuthentication();
 
-        this.FakeUserUpdatedPublisher.Clear();
+        this.FakeEventPublisher.Clear();
 
         var user = EntityFaker.User
             .RuleFor(x => x.Email, (_, _) => "john.doe@old.example.com")
@@ -355,7 +355,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         var dbCode = await this.GetChangeEmailCode(user.Sub);
         Assert.NotNull(dbCode);
 
-        Assert.Empty(this.FakeUserUpdatedPublisher.PublishedEvents);
+        Assert.Empty(this.FakeEventPublisher.PublishedEvents);
 
         var failureAudit = Assert.Single(this.AuditCapturer.CapturedRequests, x => x.EventName == AuditChangeEmailEventNames.EmailChangeFailed);
         Assert.True(failureAudit.WasFailure);
@@ -370,7 +370,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
             .CreateClient()
             .WithAuthentication();
 
-        this.FakeUserUpdatedPublisher.Clear();
+        this.FakeEventPublisher.Clear();
 
         var entraOid = Guid.NewGuid();
         var user = EntityFaker.User
@@ -417,12 +417,12 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditRequest.EventCategory);
         Assert.Equal(user.Sub, auditRequest.UserId);
 
-        var (UserId, EmailAddress, FirstName, LastName, Status) = Assert.Single(this.FakeUserUpdatedPublisher.PublishedEvents);
-        Assert.Equal(user.Sub, UserId);
-        Assert.Equal("john.doe@new.example.com", EmailAddress);
-        Assert.Equal(user.FirstName, FirstName);
-        Assert.Equal(user.LastName, LastName);
-        Assert.Equal(user.Status, Status);
+        var userUpdatedEvent = Assert.Single(this.FakeEventPublisher.GetPublishedEvents<UserUpdatedEvent>());
+        Assert.Equal(user.Sub, userUpdatedEvent.UserId);
+        Assert.Equal("john.doe@new.example.com", userUpdatedEvent.Email);
+        Assert.Equal(user.FirstName, userUpdatedEvent.FirstName);
+        Assert.Equal(user.LastName, userUpdatedEvent.LastName);
+        Assert.Equal(user.Status, userUpdatedEvent.Status);
     }
 
     [Fact]

@@ -54,7 +54,10 @@ public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
 
         if (user.HasApproverClaim()) {
 
-            var pendingapproverCount = await this.userApiClient.PendingApprovalCount(userId, CancellationToken.None);
+            var pendingApproverCountResponse = await this.userApiClient.PendingApprovalCount(userId, CancellationToken.None);
+            var count = pendingApproverCountResponse.IsSuccessStatusCode && pendingApproverCountResponse.Content is not null
+                ? pendingApproverCountResponse.Content.Count
+                : 0;
 
             items.Add(new StandardNavigationItemViewModel {
                 Href = new Uri(this.platformOptions.ServicesUrl, "approvals/users"),
@@ -64,7 +67,7 @@ public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
             items.Add(new CountNavigationItemViewModel {
                 Href = new Uri(this.platformOptions.ServicesUrl, "access-requests"),
                 Text = "Requests",
-                Count = pendingapproverCount.Count
+                Count = count
             });
         }
 

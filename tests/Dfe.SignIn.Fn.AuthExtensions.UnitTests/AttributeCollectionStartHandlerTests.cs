@@ -2,6 +2,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionStart;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Moq.AutoMock;
@@ -124,12 +125,10 @@ public class AttributeCollectionStartHandlerTests
         var userApiclient = new Mock<IUsersApiClient>();
 
         userApiclient
-            .Setup(x => x.CheckIfEmailAddressIsBlocked(
-                It.IsAny<CheckIsBlockedEmailAddressRequest>(),
-                It.IsAny<CancellationToken>())).ReturnsAsync(
-            new CheckIsBlockedEmailAddressResponse {
+            .Setup(x => x.CheckIfEmailAddressIsBlocked(It.IsAny<CheckIsBlockedEmailAddressRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new CheckIsBlockedEmailAddressResponse {
                 IsBlocked = true
-            });
+            }));
 
         autoMocker.Use(userApiclient);
 
@@ -157,10 +156,10 @@ public class AttributeCollectionStartHandlerTests
         userApiclient
             .Setup(x => x.CheckIfEmailAddressIsBlocked(
                 It.IsAny<CheckIsBlockedEmailAddressRequest>(),
-                It.IsAny<CancellationToken>())).ReturnsAsync(
-            new CheckIsBlockedEmailAddressResponse {
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new CheckIsBlockedEmailAddressResponse {
                 IsBlocked = false
-            });
+            }));
 
         autoMocker.Use(userApiclient);
 

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -44,11 +45,11 @@ public sealed class UserProfileMiddlewareTests
     public async Task FetchesUserProfile_WhenUserIsAuthenticated()
     {
         var autoMocker = new AutoMocker();
-        var userApiClientMock = autoMocker.GetMock<IUsersApiClient>();
-        userApiClientMock
-            .Setup(x => x.GetUserProfile(new Guid("dbb88cbb-c9e6-4d78-843f-d761d14444c8")))
-            .ReturnsAsync(new GetUserProfileResponse(
-                new Guid("dbb88cbb-c9e6-4d78-843f-d761d14444c8"),
+
+        var userId = new Guid("dbb88cbb-c9e6-4d78-843f-d761d14444c8");
+
+        var apiResponse = new GetUserProfileResponse(
+                userId,
                  "Alex",
                  "Johnson",
                  "alex.johnson@example.com",
@@ -56,13 +57,18 @@ public sealed class UserProfileMiddlewareTests
                     true,
                  "Software Engineer",
                  1
-                ));
+                );
+
+        var userApiClientMock = autoMocker.GetMock<IUsersApiClient>();
+        userApiClientMock
+            .Setup(x => x.GetUserProfile(userId))
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(apiResponse));
 
         var middleware = autoMocker.CreateInstance<UserProfileMiddleware>();
         var context = new DefaultHttpContext {
             User = new ClaimsPrincipal([
                 new([
-                    new(ClaimTypes.NameIdentifier, "dbb88cbb-c9e6-4d78-843f-d761d14444c8"),
+                    new(ClaimTypes.NameIdentifier, userId.ToString()),
                 ], "TestAuthenticationType"),
             ]),
         };
@@ -71,7 +77,7 @@ public sealed class UserProfileMiddlewareTests
 
         var userProfileFeature = context.Features.Get<IUserProfileFeature>();
         Assert.IsNotNull(userProfileFeature);
-        Assert.AreEqual(Guid.Parse("dbb88cbb-c9e6-4d78-843f-d761d14444c8"), userProfileFeature.UserId);
+        Assert.AreEqual(userId, userProfileFeature.UserId);
         Assert.IsTrue(userProfileFeature.IsEntra);
         Assert.IsTrue(userProfileFeature.IsInternalUser);
         Assert.AreEqual("Alex", userProfileFeature.FirstName);
