@@ -1,6 +1,6 @@
 using System.Net;
 using System.Security.Claims;
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Core.Contracts.Graph;
@@ -35,7 +35,7 @@ public sealed class ChangePasswordControllerTests
 
         autoMocker.GetMock<IEntraChangePasswordService>()
             .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
+            .ReturnsAsync(OperationResult.Success());
 
         var controller = autoMocker.CreateInstance<ChangePasswordController>();
 
@@ -202,7 +202,7 @@ public sealed class ChangePasswordControllerTests
 
         autoMocker.GetMock<IEntraChangePasswordService>()
             .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
+            .ReturnsAsync(OperationResult.Success());
 
         var controller = CreateController(autoMocker, isEntraUser: true);
 
@@ -287,7 +287,7 @@ public sealed class ChangePasswordControllerTests
 
         autoMocker.GetMock<IEntraChangePasswordService>()
             .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure(EntraPasswordErrors.InvalidCurrentPassword));
+            .ReturnsAsync(OperationResult.Failure(EntraPasswordErrors.InvalidCurrentPassword));
 
         var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
 

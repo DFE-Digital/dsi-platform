@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
@@ -156,7 +156,7 @@ public sealed class ChangeNameEndpointTests
 
         this.entraChangeNameServiceMock
             .Setup(x => x.ChangeNameAsync(entraOid, "Jane", "Smith", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
+            .ReturnsAsync(OperationResult.Success());
 
         var endpoint = this.CreateEndpoint();
         var request = new ChangeNameRequest { FirstName = "Jane", LastName = "Smith" };
@@ -188,7 +188,7 @@ public sealed class ChangeNameEndpointTests
 
         this.entraChangeNameServiceMock
             .Setup(x => x.ChangeNameAsync(entraOid, "Jane", "Smith", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure(EntraNameErrors.UserUpdateFailed("Graph API failed.")));
+            .ReturnsAsync(OperationResult.Failure(EntraNameErrors.UserUpdateFailed("Graph API failed.")));
 
         var endpoint = this.CreateEndpoint();
         var request = new ChangeNameRequest { FirstName = "Jane", LastName = "Smith" };

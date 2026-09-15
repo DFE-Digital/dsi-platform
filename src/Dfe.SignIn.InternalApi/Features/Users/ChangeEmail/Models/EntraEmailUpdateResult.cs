@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail.Models;
 
@@ -33,7 +33,7 @@ public enum EntraEmailUpdateStatus
 /// </summary>
 /// <param name="Status">The overall sync status.</param>
 /// <param name="Error">The error detail when <see cref="Status"/> is <see cref="EntraEmailUpdateStatus.MfaSyncFailed"/> or <see cref="EntraEmailUpdateStatus.HardFailure"/>.</param>
-public sealed record EntraEmailUpdateResult(EntraEmailUpdateStatus Status, Error? Error = null)
+public sealed record EntraEmailUpdateResult(EntraEmailUpdateStatus Status, OperationError? Error = null)
 {
     /// <summary>
     /// Indicates whether the Entra sync was successful or not applicable (i.e., no sync was required).

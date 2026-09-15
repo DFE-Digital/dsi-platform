@@ -1,4 +1,3 @@
-using Dfe.SignIn.Base.Framework.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ODataErrors;
@@ -18,7 +17,7 @@ public interface IEntraChangeNameService
     /// <param name="newLastName">The new last name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
-    Task<Result> ChangeNameAsync(Guid externalUserId, string newFirstName, string newLastName, CancellationToken cancellationToken = default);
+    Task<Base.Framework.OperationResults.OperationResult> ChangeNameAsync(Guid externalUserId, string newFirstName, string newLastName, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -31,7 +30,7 @@ public sealed class EntraChangeNameService(
     ILogger<EntraChangeNameService> logger) : IEntraChangeNameService
 {
     /// <inheritdoc/>
-    public async Task<Result> ChangeNameAsync(
+    public async Task<Base.Framework.OperationResults.OperationResult> ChangeNameAsync(
         Guid externalUserId,
         string newFirstName,
         string newLastName,
@@ -39,17 +38,17 @@ public sealed class EntraChangeNameService(
     {
         if (externalUserId == Guid.Empty) {
             logger.LogWarning("ChangeNameAsync rejected: externalUserId is empty.");
-            return Result.Failure(EntraNameErrors.InvalidUserId);
+            return Base.Framework.OperationResults.OperationResult.Failure(EntraNameErrors.InvalidUserId);
         }
 
         if (string.IsNullOrWhiteSpace(newFirstName)) {
             logger.LogWarning("ChangeNameAsync rejected: newFirstName is empty or whitespace.");
-            return Result.Failure(EntraNameErrors.InvalidFirstName);
+            return Base.Framework.OperationResults.OperationResult.Failure(EntraNameErrors.InvalidFirstName);
         }
 
         if (string.IsNullOrWhiteSpace(newLastName)) {
             logger.LogWarning("ChangeNameAsync rejected: newLastName is empty or whitespace.");
-            return Result.Failure(EntraNameErrors.InvalidLastName);
+            return Base.Framework.OperationResults.OperationResult.Failure(EntraNameErrors.InvalidLastName);
         }
 
         var client = graphClientProvider.GetClient();
@@ -62,7 +61,7 @@ public sealed class EntraChangeNameService(
 
             await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
             logger.LogInformation("Successfully updated name for Entra user {UserId}", externalUserId);
-            return Result.Success();
+            return Base.Framework.OperationResults.OperationResult.Success();
         }
         catch (ODataError oDataEx) {
             var detail = oDataEx.Error?.Message ?? oDataEx.Message;
@@ -76,14 +75,14 @@ public sealed class EntraChangeNameService(
 
             if (oDataEx.ResponseStatusCode == 404 ||
                 string.Equals(code, "Request_ResourceNotFound", StringComparison.OrdinalIgnoreCase)) {
-                return Result.Failure(EntraNameErrors.UserNotFound(externalUserId));
+                return Base.Framework.OperationResults.OperationResult.Failure(EntraNameErrors.UserNotFound(externalUserId));
             }
 
-            return Result.Failure(EntraNameErrors.UserUpdateFailed(detail));
+            return Base.Framework.OperationResults.OperationResult.Failure(EntraNameErrors.UserUpdateFailed(detail));
         }
         catch (Exception ex) {
             logger.LogError(ex, "Unexpected error updating name for Entra user {UserId}", externalUserId);
-            return Result.Failure(EntraNameErrors.Unexpected(ex.Message));
+            return Base.Framework.OperationResults.OperationResult.Failure(EntraNameErrors.Unexpected(ex.Message));
         }
     }
 }

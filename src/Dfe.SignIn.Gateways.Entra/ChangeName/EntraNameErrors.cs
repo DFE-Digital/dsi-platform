@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 
 namespace Dfe.SignIn.Gateways.Entra.ChangeName;
 
@@ -40,19 +40,19 @@ public static class EntraNameErrors
     /// <summary>
     /// Error indicating that the external user ID provided was empty.
     /// </summary>
-    public static readonly Error InvalidUserId =
+    public static readonly OperationError InvalidUserId =
         new(InvalidUserIdCode, "External user ID must not be empty.", "externalUserId");
 
     /// <summary>
     /// Error indicating that the first name provided was null, empty, or whitespace.
     /// </summary>
-    public static readonly Error InvalidFirstName =
+    public static readonly OperationError InvalidFirstName =
         new(InvalidFirstNameCode, "First name must not be empty or whitespace.", "newFirstName");
 
     /// <summary>
     /// Error indicating that the last name provided was null, empty, or whitespace.
     /// </summary>
-    public static readonly Error InvalidLastName =
+    public static readonly OperationError InvalidLastName =
         new(InvalidLastNameCode, "Last name must not be empty or whitespace.", "newLastName");
 
     /// <summary>
@@ -60,7 +60,7 @@ public static class EntraNameErrors
     /// </summary>
     /// <param name="userId">The Entra OID of the user.</param>
     /// <returns>The created error.</returns>
-    public static Error UserNotFound(Guid userId)
+    public static OperationError UserNotFound(Guid userId)
         => new(UserNotFoundCode, $"User with Entra OID '{userId}' was not found.");
 
     /// <summary>
@@ -68,7 +68,7 @@ public static class EntraNameErrors
     /// </summary>
     /// <param name="detail">The detail of the error.</param>
     /// <returns>The created error.</returns>
-    public static Error UserUpdateFailed(string detail)
+    public static OperationError UserUpdateFailed(string detail)
         => new(UserUpdateFailedCode, $"Failed to update user name in Entra: {detail}");
 
     /// <summary>
@@ -76,6 +76,6 @@ public static class EntraNameErrors
     /// </summary>
     /// <param name="detail">The detail of the error.</param>
     /// <returns>The created error.</returns>
-    public static Error Unexpected(string detail)
+    public static OperationError Unexpected(string detail)
         => new(UnexpectedErrorCode, $"An unexpected error occurred during Entra name synchronization: {detail}");
 }

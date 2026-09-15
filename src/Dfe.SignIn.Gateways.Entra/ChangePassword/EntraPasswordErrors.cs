@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 
 namespace Dfe.SignIn.Gateways.Entra.ChangePassword;
 
@@ -20,18 +20,18 @@ public static class EntraPasswordErrors
     /// <summary>
     /// Gets the error when the provided current password is incorrect.
     /// </summary>
-    public static readonly Error InvalidCurrentPassword = new(
+    public static readonly OperationError InvalidCurrentPassword = new(
         InvalidCurrentPasswordCode, "Please enter your current password");
 
     /// <summary>
     /// Gets the error when the new password violates policy or is breached.
     /// </summary>
-    public static Error PasswordPolicyViolation(string message) => new(
+    public static OperationError PasswordPolicyViolation(string message) => new(
         PasswordPolicyViolationCode, message);
 
     /// <summary>
     /// Gets an unexpected error.
     /// </summary>
-    public static Error Unexpected(string message) => new(
+    public static OperationError Unexpected(string message) => new(
         "Entra.Password.Unexpected", message);
 }

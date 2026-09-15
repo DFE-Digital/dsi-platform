@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 
 namespace Dfe.SignIn.Core.Contracts.Common;
 
@@ -10,7 +10,7 @@ public abstract record ApiResponseWithWarnings
     /// <summary>
     /// Gets the list of warnings associated with the response.
     /// </summary>
-    public IReadOnlyList<Warning> Warnings { get; init; } = [];
+    public IReadOnlyList<OperationWarning> Warnings { get; init; } = [];
 
     /// <summary>
     /// Determines whether the response contains a warning with the specified code.

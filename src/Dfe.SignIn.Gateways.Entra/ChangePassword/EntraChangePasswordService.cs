@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 using Azure.Core;
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Graph;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
@@ -20,8 +20,8 @@ public interface IEntraChangePasswordService
     /// <param name="newPassword">The user's new password.</param>
     /// <param name="graphAccessToken">The delegated Graph access token for the user.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A Result indicating success or failure.</returns>
-    Task<Result> ChangePasswordAsync(string currentPassword, string newPassword, GraphAccessToken graphAccessToken, CancellationToken cancellationToken = default);
+    /// <returns>A OperationResult indicating success or failure.</returns>
+    Task<OperationResult> ChangePasswordAsync(string currentPassword, string newPassword, GraphAccessToken graphAccessToken, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -40,21 +40,21 @@ public sealed partial class EntraChangePasswordService(ILogger<EntraChangePasswo
     }
 
     /// <inheritdoc/>
-    public async Task<Result> ChangePasswordAsync(string currentPassword, string newPassword, GraphAccessToken graphAccessToken, CancellationToken cancellationToken = default)
+    public async Task<OperationResult> ChangePasswordAsync(string currentPassword, string newPassword, GraphAccessToken graphAccessToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(currentPassword)) {
             logger.LogWarning("ChangePasswordAsync rejected: currentPassword is empty.");
-            return Result.Failure(EntraPasswordErrors.InvalidCurrentPassword);
+            return OperationResult.Failure(EntraPasswordErrors.InvalidCurrentPassword);
         }
 
         if (string.IsNullOrWhiteSpace(newPassword)) {
             logger.LogWarning("ChangePasswordAsync rejected: newPassword is empty.");
-            return Result.Failure(EntraPasswordErrors.PasswordPolicyViolation("New password cannot be empty."));
+            return OperationResult.Failure(EntraPasswordErrors.PasswordPolicyViolation("New password cannot be empty."));
         }
 
         if (graphAccessToken is null || string.IsNullOrWhiteSpace(graphAccessToken.Token)) {
             logger.LogWarning("ChangePasswordAsync rejected: graphAccessToken is null or empty.");
-            return Result.Failure(EntraPasswordErrors.Unexpected("Missing access token."));
+            return OperationResult.Failure(EntraPasswordErrors.Unexpected("Missing access token."));
         }
 
         try {
@@ -67,7 +67,7 @@ public sealed partial class EntraChangePasswordService(ILogger<EntraChangePasswo
             }, cancellationToken: cancellationToken);
 
             logger.LogInformation("Successfully changed password for Entra user.");
-            return Result.Success();
+            return OperationResult.Success();
         }
         catch (ODataError oDataEx) {
             var message = oDataEx.Error?.Message ?? oDataEx.Message;
@@ -79,18 +79,18 @@ public sealed partial class EntraChangePasswordService(ILogger<EntraChangePasswo
                 string detailMessage = match.Groups[1].Value;
 
                 if (string.Equals(paramName, "oldPassword", StringComparison.OrdinalIgnoreCase)) {
-                    return Result.Failure(EntraPasswordErrors.InvalidCurrentPassword);
+                    return OperationResult.Failure(EntraPasswordErrors.InvalidCurrentPassword);
                 }
                 if (string.Equals(paramName, "newPassword", StringComparison.OrdinalIgnoreCase)) {
-                    return Result.Failure(EntraPasswordErrors.PasswordPolicyViolation(detailMessage));
+                    return OperationResult.Failure(EntraPasswordErrors.PasswordPolicyViolation(detailMessage));
                 }
             }
 
-            return Result.Failure(EntraPasswordErrors.Unexpected(message));
+            return OperationResult.Failure(EntraPasswordErrors.Unexpected(message));
         }
         catch (Exception ex) {
             logger.LogError(ex, "Unexpected error changing password for Entra user.");
-            return Result.Failure(EntraPasswordErrors.Unexpected(ex.Message));
+            return OperationResult.Failure(EntraPasswordErrors.Unexpected(ex.Message));
         }
     }
 
