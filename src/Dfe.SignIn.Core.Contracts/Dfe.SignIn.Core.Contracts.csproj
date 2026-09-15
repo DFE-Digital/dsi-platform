@@ -16,9 +16,5 @@
   <ItemGroup>
     <PackageReference Include="Refit" />
     <PackageReference Include="FluentValidation" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Features\Users\AutoLinkEntraUserToDsi\" />
-  </ItemGroup>    
+  </ItemGroup> 
 </Project>
