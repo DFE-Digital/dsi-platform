@@ -17,7 +17,7 @@ public interface IUserCreator
     /// <param name="userDto">User DTO representing the user to create</param>
     /// <param name="cancellationToken">Cancellation token representing the request</param>
     /// <returns></returns>
-    Task<UserEntity> CreateAsync(User userDto, CancellationToken cancellationToken);
+    Task<UserEntity> CreateAsync(UserCreationDto userDto, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -36,7 +36,7 @@ public sealed class UserCreator(DbDirectoriesContext directoriesDbContext,
     /// <param name="userDto"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<UserEntity> CreateAsync(User userDto, CancellationToken cancellationToken)
+    public async Task<UserEntity> CreateAsync(UserCreationDto userDto, CancellationToken cancellationToken)
     {
         var exstingUser = await directoriesDbContext.Users
             .FirstOrDefaultAsync(x => x.Email == userDto.Username, cancellationToken);

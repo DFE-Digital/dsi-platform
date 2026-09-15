@@ -187,7 +187,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
                 return pendingInvite.Uid.Value;
             }
             else {
-                var newUserResponse = await userCreator.CreateAsync(new User {
+                var newUserResponse = await userCreator.CreateAsync(new UserCreationDto {
                     EntraOid = request.EntraUserId!.Value,
                     Username = request.EmailAddress,
                     FirstName = request.FirstName,

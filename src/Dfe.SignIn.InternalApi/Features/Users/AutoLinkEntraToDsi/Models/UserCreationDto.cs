@@ -1,9 +1,9 @@
 namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Models;
 
 /// <summary>
-/// A class representing a basic user domain object
+/// A class representing a  user creation domain object
 /// </summary>
-public sealed class User
+public sealed class UserCreationDto
 {
     /// <summary>
     /// Username associated to the user
