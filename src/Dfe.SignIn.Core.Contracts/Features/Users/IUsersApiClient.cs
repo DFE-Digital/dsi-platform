@@ -16,11 +16,12 @@ public interface IUsersApiClient
     /// <summary>
     /// Changes the name of a user based on the provided request.
     /// </summary>
+    /// <param name="userId">The ID of the user whose name is being changed.</param>
     /// <param name="request">The request containing the user's new name information.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.ChangeName)]
-    Task<IApiResponse> ChangeName([Body] ChangeNameRequest request, CancellationToken cancellationToken = default);
+    Task<IApiResponse> ChangeName(Guid userId, [Body] ChangeNameRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Determins if the authenicated user is an approver.
