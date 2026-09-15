@@ -15,7 +15,7 @@ namespace Dfe.SignIn.InternalApi.Features.Users.ChangeEmail;
 /// An endpoint to initiate the change of a user's email address.
 /// </summary>
 public sealed class InitiateChangeEmailAddressEndpoint(
-            IAuditWriter auditWriter,
+        IAuditWriter auditWriter,
         IUserLookupService userLookupService,
         IUserCodeService userCodeService,
         IInteractionLimiter actionRateLimiter,

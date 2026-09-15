@@ -5,6 +5,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Gateways.EntityFramework;
+using Dfe.SignIn.Gateways.Entra.ChangeName;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ public sealed class ChangeNameEndpoint(
     DbDirectoriesContext directoriesDbContext,
     IAuditWriter auditWriter,
     IEventPublisher eventPublisher,
+    IEntraChangeNameService entraChangeNameService,
     ILogger<ChangeNameEndpoint> logger) : IEndpoint
 {
     /// <summary>
@@ -75,6 +77,19 @@ public sealed class ChangeNameEndpoint(
         }
 
         await directoriesDbContext.SaveChangesAsync(cancellationToken);
+
+        if (user.IsEntraUser()) {
+            var entraUpdateResult = await entraChangeNameService.ChangeNameAsync(user.EntraOid!.Value, user.FirstName, user.LastName, cancellationToken);
+            if (!entraUpdateResult.IsSuccess) {
+
+                //rollback db changes
+
+                logger.LogError("Failed to change name for Entra user {UserId}. Error: {Error}", userId, entraUpdateResult.Error.Description);
+                return Results.Problem(
+                        detail: entraUpdateResult.Error!.Description,
+                        statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
 
         await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeName,
