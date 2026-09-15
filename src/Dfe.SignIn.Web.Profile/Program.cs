@@ -3,12 +3,10 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
-using Dfe.SignIn.Core.Interfaces.Graph;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
-using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Profile;
 using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Services;
@@ -64,8 +62,6 @@ builder.Services
 builder.Services.AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>();
 builder.Services.AddScoped<IServiceNavigationBuilder, ServiceNavigationBuilder>();
 
-IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
-
 // Get token credential for making API requests to internal APIs.
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient")
@@ -78,7 +74,6 @@ var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOption
 builder.Services
     .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
     .SetupInternalApiClient(tokenCredential)
-    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
     .SetupResiliencePipelines(builder.Configuration)
     .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
@@ -107,9 +102,7 @@ builder.Services
 
 builder.Services
     .AddHttpContextAccessor()
-    .AddEntraDelegatedServices();
-
-builder.Services
+    .AddEntraDelegatedServices()
     .AddUsersApiClient(tokenCredential);
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
