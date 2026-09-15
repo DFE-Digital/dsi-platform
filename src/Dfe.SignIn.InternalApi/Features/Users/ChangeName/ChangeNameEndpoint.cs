@@ -63,31 +63,46 @@ public sealed class ChangeNameEndpoint(
             return Results.NotFound();
         }
 
-        if (user.FirstName == request.FirstName && user.LastName == request.LastName) {
+        var normalizedFirstName = request.FirstName.NormalizeWhitespace();
+        var normalizedLastName = request.LastName.NormalizeWhitespace();
+
+        if (user.FirstName == normalizedFirstName && user.LastName == normalizedLastName) {
             logger.LogInformation("No changes detected for user {UserId}. FirstName and LastName are the same.", userId);
             return Results.Ok();
         }
 
-        if (user.FirstName != request.FirstName) {
-            user.FirstName = request.FirstName.NormalizeWhitespace();
-        }
+        var originalFirstName = user.FirstName;
+        var originalLastName = user.LastName;
 
-        if (user.LastName != request.LastName) {
-            user.LastName = request.LastName.NormalizeWhitespace();
-        }
+        user.FirstName = normalizedFirstName;
+        user.LastName = normalizedLastName;
 
         await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
         if (user.IsEntraUser()) {
             var entraUpdateResult = await entraChangeNameService.ChangeNameAsync(user.EntraOid!.Value, user.FirstName, user.LastName, cancellationToken);
             if (!entraUpdateResult.IsSuccess) {
+                logger.LogError(
+                    "Failed to change name in Entra for user {UserId} (EntraOid: {EntraOid}): {Error}. Rolling back database change.",
+                    userId,
+                    user.EntraOid.Value,
+                    entraUpdateResult.Error.Description);
 
-                //rollback db changes
+                try {
+                    user.FirstName = originalFirstName;
+                    user.LastName = originalLastName;
+                    await directoriesDbContext.SaveChangesAsync(cancellationToken);
+                }
+                catch (Exception rollbackEx) {
+                    logger.LogCritical(
+                        rollbackEx,
+                        "CRITICAL: Failed to roll back database write for user {UserId} after Entra sync failure!",
+                        userId);
+                }
 
-                logger.LogError("Failed to change name for Entra user {UserId}. Error: {Error}", userId, entraUpdateResult.Error.Description);
                 return Results.Problem(
-                        detail: entraUpdateResult.Error!.Description,
-                        statusCode: StatusCodes.Status500InternalServerError);
+                    detail: entraUpdateResult.Error.Description,
+                    statusCode: StatusCodes.Status500InternalServerError);
             }
         }
 

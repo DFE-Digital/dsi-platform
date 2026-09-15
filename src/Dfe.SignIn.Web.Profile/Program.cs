@@ -5,6 +5,7 @@ using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Core.Interfaces.Graph;
 using Dfe.SignIn.Gateways.DistributedCache;
+using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.NodeApi.Client;
@@ -106,9 +107,7 @@ builder.Services
 
 builder.Services
     .AddHttpContextAccessor()
-    .AddScoped<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>()
-    .AddScoped<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>()
-    .AddScoped<IGraphApiChangeUserPersonalDetails, GraphApiChangeUserPersonalDetails>();
+    .AddEntraDelegatedServices();
 
 builder.Services
     .AddUsersApiClient(tokenCredential);

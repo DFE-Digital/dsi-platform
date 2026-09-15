@@ -1,5 +1,5 @@
 using Dfe.SignIn.Web.Profile.Configuration;
-using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -67,7 +67,7 @@ public sealed class ExternalAuthenticationExtensionsTests
         ExternalAuthenticationExtensions.AddExternalAuthentication(services, configuration);
 
         Assert.IsTrue(
-            services.Any(descriptor => descriptor.ServiceType == typeof(ISelectAssociatedAccountHelper))
+            services.Any(descriptor => descriptor.ServiceType == typeof(IAssociatedAccountAuthService))
         );
         Assert.IsTrue(
             services.Any(descriptor => descriptor.ServiceType == typeof(IAuthenticationService))

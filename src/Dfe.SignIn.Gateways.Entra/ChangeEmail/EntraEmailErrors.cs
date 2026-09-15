@@ -8,6 +8,16 @@ namespace Dfe.SignIn.Gateways.Entra.ChangeEmail;
 public static class EntraEmailErrors
 {
     /// <summary>
+    /// Indicates that the provided external user ID is invalid (empty).
+    /// </summary>
+    public static readonly Error InvalidUserId = new("Entra.Email.InvalidUserId", "The provided user ID is empty.");
+
+    /// <summary>
+    /// Indicates that the provided email address is invalid (empty or whitespace).
+    /// </summary>
+    public static readonly Error InvalidEmailAddress = new("Entra.Email.InvalidEmailAddress", "The provided email address is empty or whitespace.");
+
+    /// <summary>
     /// Indicates that updating the user's primary email in Entra failed.
     /// </summary>
     public const string UserUpdateFailedCode = "Entra.Email.UserUpdateFailed";

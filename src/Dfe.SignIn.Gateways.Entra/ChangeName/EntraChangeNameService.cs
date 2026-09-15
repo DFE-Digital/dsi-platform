@@ -1,6 +1,4 @@
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Results;
-using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ODataErrors;
@@ -39,33 +37,53 @@ public sealed class EntraChangeNameService(
         string newLastName,
         CancellationToken cancellationToken = default)
     {
-        ExceptionHelpers.ThrowIfArgumentEmpty(externalUserId, nameof(externalUserId));
-        ArgumentException.ThrowIfNullOrWhiteSpace(newFirstName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(newLastName);
+        if (externalUserId == Guid.Empty) {
+            logger.LogWarning("ChangeNameAsync rejected: externalUserId is empty.");
+            return Result.Failure(EntraNameErrors.InvalidUserId);
+        }
+
+        if (string.IsNullOrWhiteSpace(newFirstName)) {
+            logger.LogWarning("ChangeNameAsync rejected: newFirstName is empty or whitespace.");
+            return Result.Failure(EntraNameErrors.InvalidFirstName);
+        }
+
+        if (string.IsNullOrWhiteSpace(newLastName)) {
+            logger.LogWarning("ChangeNameAsync rejected: newLastName is empty or whitespace.");
+            return Result.Failure(EntraNameErrors.InvalidLastName);
+        }
+
         var client = graphClientProvider.GetClient();
         var userIdString = externalUserId.ToString();
         try {
             var userPatch = new User {
-                GivenName = newFirstName,
-                Surname = newLastName
+                GivenName = newFirstName.Trim(),
+                Surname = newLastName.Trim()
             };
 
             await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
             logger.LogInformation("Successfully updated name for Entra user {UserId}", externalUserId);
             return Result.Success();
         }
-        catch (Exception ex) {
-            if (ex is ODataError oDataEx) {
-                var detail = oDataEx.Error?.Message ?? oDataEx.Message;
-                logger.LogError(oDataEx,
-                    "OData error updating name for Entra user {UserId}: {Code} - {Message}",
-                    externalUserId,
-                    oDataEx.Error?.Code,
-                    detail);
-                return Result.Failure(EntraEmailErrors.UserUpdateFailed(detail));
+        catch (ODataError oDataEx) {
+            var detail = oDataEx.Error?.Message ?? oDataEx.Message;
+            var code = oDataEx.Error?.Code;
+
+            logger.LogError(oDataEx,
+                "OData error updating name for Entra user {UserId}: {Code} - {Message}",
+                externalUserId,
+                code,
+                detail);
+
+            if (oDataEx.ResponseStatusCode == 404 ||
+                string.Equals(code, "Request_ResourceNotFound", StringComparison.OrdinalIgnoreCase)) {
+                return Result.Failure(EntraNameErrors.UserNotFound(externalUserId));
             }
+
+            return Result.Failure(EntraNameErrors.UserUpdateFailed(detail));
+        }
+        catch (Exception ex) {
             logger.LogError(ex, "Unexpected error updating name for Entra user {UserId}", externalUserId);
-            return Result.Failure(EntraEmailErrors.UserUpdateFailed(ex.Message));
+            return Result.Failure(EntraNameErrors.Unexpected(ex.Message));
         }
     }
 }

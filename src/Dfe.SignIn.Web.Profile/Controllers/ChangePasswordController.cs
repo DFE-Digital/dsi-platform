@@ -1,13 +1,12 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Core.Contracts.Graph;
-using Dfe.SignIn.Core.Interfaces.Graph;
+using Dfe.SignIn.Gateways.Entra.ChangePassword;
 using Dfe.SignIn.Web.Profile.Models;
-using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Dfe.SignIn.WebFramework.Mvc.Policies;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -21,21 +20,19 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/change-password")]
 public sealed partial class ChangePasswordController(
     IUsersApiClient usersApiClient,
-    IGraphApiChangeUserPassword graphApiChangeUserPassword,
-    ISelectAssociatedAccountHelper selectAssociatedAccountHelper,
+    IEntraChangePasswordService entraChangePasswordService,
+    IAssociatedAccountAuthService associatedAccountAuthService,
     ILogger<ChangePasswordController> logger
 ) : Controller
 {
-    private const string GraphApiEndpoint = "https://graph.microsoft.com/.default";
-
     [HttpGet]
     public async Task<IActionResult> Index()
     {
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
         if (userProfileFeature.IsEntra) {
-            var actionResult = await selectAssociatedAccountHelper.AuthenticateAssociatedAccount(
-                this, [GraphApiEndpoint], SelectAssociatedReturnLocation.ChangePassword);
+            var actionResult = await associatedAccountAuthService.AuthenticateAssociatedAccount(
+                this, [AssociatedAccountConstants.DefaultGraphScope], SelectAssociatedReturnLocation.ChangePassword);
             if (actionResult is not null) {
                 return actionResult;
             }
@@ -62,26 +59,31 @@ public sealed partial class ChangePasswordController(
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
         if (userProfileFeature.IsEntra) {
             try {
-                GraphAccessToken? graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
-                    this, [GraphApiEndpoint]) ?? throw new InvalidOperationException("Provided graph token for user is null");
-                await graphApiChangeUserPassword.ChangePassword(
+                GraphAccessToken? graphAccessToken = await associatedAccountAuthService.CreateAccessTokenForAssociatedAccount(
+                    this, [AssociatedAccountConstants.DefaultGraphScope]) ?? throw new InvalidOperationException("Provided graph token for user is null");
+
+                var result = await entraChangePasswordService.ChangePasswordAsync(
                     viewModel.CurrentPasswordInput!,
                     viewModel.NewPasswordInput!,
                     graphAccessToken);
-            }
-            catch (ValidationException ex) {
-                foreach (var error in ex.Errors) {
-                    this.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+                if (!result.IsSuccess) {
+                    if (result.Error.Code == EntraPasswordErrors.InvalidCurrentPasswordCode) {
+                        this.ModelState.AddModelError(nameof(ChangePasswordViewModel.CurrentPasswordInput), result.Error.Description);
+                    } else if (result.Error.Code == EntraPasswordErrors.PasswordPolicyViolationCode) {
+                        this.ModelState.AddModelError(nameof(ChangePasswordViewModel.NewPasswordInput), result.Error.Description);
+                    } else {
+                        this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
+                    }
+                    return await this.Index();
                 }
-                return await this.Index();
             }
             catch (Exception ex) {
                 logger.LogError(ex, "An error occurred while changing the user's password.");
                 this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
                 return await this.Index();
             }
-        }
-        else {
+        } else {
             var request = new ChangePasswordRequest {
                 CurrentPassword = viewModel.CurrentPasswordInput!,
                 NewPassword = viewModel.NewPasswordInput!,

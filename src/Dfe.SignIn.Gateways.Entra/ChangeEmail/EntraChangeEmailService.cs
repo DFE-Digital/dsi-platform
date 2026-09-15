@@ -1,4 +1,3 @@
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
@@ -40,8 +39,15 @@ public sealed class EntraChangeEmailService(
         string newEmailAddress,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(newEmailAddress);
-        ExceptionHelpers.ThrowIfArgumentEmpty(externalUserId, nameof(externalUserId));
+        if (externalUserId == Guid.Empty) {
+            logger.LogWarning("ChangeEmailAsync rejected: externalUserId is empty.");
+            return Result.Failure(EntraEmailErrors.InvalidUserId);
+        }
+
+        if (string.IsNullOrWhiteSpace(newEmailAddress)) {
+            logger.LogWarning("ChangeEmailAsync rejected: newEmailAddress is empty or whitespace.");
+            return Result.Failure(EntraEmailErrors.InvalidEmailAddress);
+        }
 
         var client = graphClientProvider.GetClient();
         var userIdString = externalUserId.ToString();
