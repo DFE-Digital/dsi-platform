@@ -6,7 +6,6 @@ using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Policies;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -21,8 +20,6 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 public sealed class ChangeEmailController(
     IOptionsMonitor<ApplicationOidcOptions> oidcOptionsAccessor,
     IUsersApiClient usersApiClient,
-    IValidator<ChangeEmailViewModel> changeEmailValidator,
-    IValidator<VerificationCodeViewModel> verificationCodeValidator,
     //TODO: Review and remove dependency on IConfiguration
     IConfiguration configuration,
     ILogger<ChangeEmailController> logger
@@ -40,7 +37,8 @@ public sealed class ChangeEmailController(
         [FromQuery] bool? resend,
         ChangeEmailViewModel viewModel)
     {
-        var validationResult = await changeEmailValidator.ValidateAsync(viewModel);
+
+        var validationResult = await viewModel.ValidateAsync<ChangeEmailViewModelValidator, ChangeEmailViewModel>();
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
             return this.View("Index");
@@ -136,7 +134,7 @@ public sealed class ChangeEmailController(
         [FromRoute] Guid userId,
         VerificationCodeViewModel viewModel)
     {
-        var validationResult = await verificationCodeValidator.ValidateAsync(viewModel);
+        var validationResult = await viewModel.ValidateAsync<VerificationCodeViewModelValidator, VerificationCodeViewModel>();
         if (!validationResult.IsValid) {
             return await this.RenderVerificationCodeViewAsync(userId);
         }

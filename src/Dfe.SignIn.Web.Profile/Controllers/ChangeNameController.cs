@@ -1,11 +1,8 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Graph;
 using Dfe.SignIn.Web.Profile.Models;
-using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -19,26 +16,13 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/change-name")]
 public sealed class ChangeNameController(
     IUsersApiClient usersApiClient,
-    IValidator<ChangeNameViewModel> changeNameValidator,
-    ISelectAssociatedAccountHelper selectAssociatedAccountHelper,
-    IGraphApiChangeUserPersonalDetails graphApiChangeUserPersonalDetails,
     ILogger<ChangeNameController> logger
 ) : Controller
 {
-    private const string GraphApiEndpoint = "https://graph.microsoft.com/.default";
-
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
-
-        if (userProfileFeature.IsEntra) {
-            var actionResult = await selectAssociatedAccountHelper.AuthenticateAssociatedAccount(
-                this, [GraphApiEndpoint], SelectAssociatedReturnLocation.ChangeNameDetails);
-            if (actionResult is not null) {
-                return actionResult;
-            }
-        }
 
         return this.View("Index", new ChangeNameViewModel {
             FirstNameInput = userProfileFeature.FirstName,
@@ -48,54 +32,22 @@ public sealed class ChangeNameController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostIndex(
-        ChangeNameViewModel viewModel)
+    public async Task<IActionResult> PostIndex(ChangeNameViewModel viewModel)
     {
-        var validationResult = await changeNameValidator.ValidateAsync(viewModel);
-
-        var userDetails = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
-
+        var validationResult = await viewModel.ValidateAsync<ChangeNameViewModelValidator, ChangeNameViewModel>();
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
-            return await this.Index();
+            return this.Index();
         }
 
+        var userDetails = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
         if (string.Equals(viewModel.FirstNameInput, userDetails.FirstName, StringComparison.InvariantCultureIgnoreCase)
             && string.Equals(viewModel.LastNameInput, userDetails.LastName, StringComparison.InvariantCultureIgnoreCase)) {
-            return await this.Index();
+            return this.Index();
         }
 
-        try {
-            var request = new ChangeNameRequest {
-                FirstName = viewModel.FirstNameInput ?? string.Empty,
-                LastName = viewModel.LastNameInput ?? string.Empty,
-            };
-
-            await usersApiClient.ChangeName(this.User.GetUserId(), request);
-        }
-        catch (Exception ex) {
-            logger.LogError(ex, "An error occurred while changing the user's name.");
-            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
-            return await this.Index();
-        }
-
-        if (userDetails.IsEntra) {
-            try {
-                GraphAccessToken? graphAccessToken = null;
-                graphAccessToken = await selectAssociatedAccountHelper.CreateAccessTokenForAssociatedAccount(
-                    this, ["https://graph.microsoft.com/.default"]) ?? throw new Exception("Provided graph token for user is null");
-
-                await graphApiChangeUserPersonalDetails.ChangeName(this.User.GetUserId(),
-                    viewModel.FirstNameInput!,
-                    viewModel.LastNameInput!, graphAccessToken);
-            }
-
-            catch (Exception ex) {
-                await this.Rollback(userDetails.FirstName, userDetails.LastName);
-                logger.LogError(ex, "An error occurred while changing the user's name.");
-                this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
-                return await this.Index();
-            }
+        if (!await this.TryChangeNameAsync(viewModel)) {
+            return this.Index();
         }
 
         this.SetFlashSuccess(
@@ -104,6 +56,31 @@ public sealed class ChangeNameController(
         );
 
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
+    }
+
+    private async Task<bool> TryChangeNameAsync(ChangeNameViewModel viewModel)
+    {
+        try {
+            var request = new ChangeNameRequest {
+                FirstName = viewModel.FirstNameInput ?? string.Empty,
+                LastName = viewModel.LastNameInput ?? string.Empty,
+            };
+
+            var response = await usersApiClient.ChangeName(this.User.GetUserId(), request);
+
+            if (response.IsSuccessStatusCode) {
+                return true;
+            }
+
+            logger.LogError("Failed to change name for user {UserId}. StatusCode: {StatusCode}", this.User.GetUserId(), response.StatusCode);
+            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
+            return false;
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "An error occurred while changing the user's name.");
+            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
+            return false;
+        }
     }
 
     [HttpPost("cancel")]
@@ -116,21 +93,5 @@ public sealed class ChangeNameController(
         );
 
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
-    }
-
-    /// <summary>
-    /// If entra fails, we apply a roll back to prevent de-sync issues.
-    /// </summary>
-    /// <param name="forename"></param>
-    /// <param name="surname"></param>
-    /// <returns></returns>
-    private async Task Rollback(string forename, string surname)
-    {
-        var request = new ChangeNameRequest {
-            FirstName = forename,
-            LastName = surname
-        };
-
-        await usersApiClient.ChangeName(this.User.GetUserId(), request);
     }
 }

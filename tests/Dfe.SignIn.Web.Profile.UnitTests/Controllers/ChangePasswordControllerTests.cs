@@ -1,13 +1,14 @@
 using System.Net;
 using System.Security.Claims;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Core.Contracts.Graph;
-using Dfe.SignIn.Core.Interfaces.Graph;
+using Dfe.SignIn.Gateways.Entra.ChangePassword;
 using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
-using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using GovUk.Frontend.AspNetCore;
@@ -31,6 +32,10 @@ public sealed class ChangePasswordControllerTests
         autoMocker.GetMock<IUsersApiClient>()
             .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(mockResponse.Object);
+
+        autoMocker.GetMock<IEntraChangePasswordService>()
+            .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OperationResult.Success());
 
         var controller = autoMocker.CreateInstance<ChangePasswordController>();
 
@@ -99,12 +104,13 @@ public sealed class ChangePasswordControllerTests
         var autoMocker = new AutoMocker();
 
         var mockActionResult = new Mock<IActionResult>();
-        autoMocker.GetMock<ISelectAssociatedAccountHelper>()
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
             .Setup(x => x.AuthenticateAssociatedAccount(
                 It.Is<Controller>(controller => controller is ChangePasswordController),
                 It.IsAny<string[]>(),
                 It.IsAny<SelectAssociatedReturnLocation>(),
-                It.Is<bool>(force => !force)
+                It.Is<bool>(force => !force),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(mockActionResult.Object);
 
@@ -120,12 +126,13 @@ public sealed class ChangePasswordControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.GetMock<ISelectAssociatedAccountHelper>()
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
             .Setup(x => x.AuthenticateAssociatedAccount(
                 It.Is<Controller>(controller => controller is ChangePasswordController),
                 It.IsAny<string[]>(),
                 It.IsAny<SelectAssociatedReturnLocation>(),
-                It.Is<bool>(force => !force)
+                It.Is<bool>(force => !force),
+                It.IsAny<CancellationToken>()
             ))
             .Returns(Task.FromResult<IActionResult?>(null));
 
@@ -176,7 +183,7 @@ public sealed class ChangePasswordControllerTests
     }
 
     [TestMethod]
-    public async Task PostIndex_CallsGraphApi_WhenEntraUser()
+    public async Task PostIndex_CallsEntraChangePasswordService_WhenEntraUser()
     {
         var autoMocker = new AutoMocker();
 
@@ -185,18 +192,23 @@ public sealed class ChangePasswordControllerTests
             ExpiresOn = new DateTimeOffset(2025, 11, 05, 1, 23, 20, TimeSpan.Zero),
         };
 
-        autoMocker.GetMock<ISelectAssociatedAccountHelper>()
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
             .Setup(x => x.CreateAccessTokenForAssociatedAccount(
                 It.Is<Controller>(controller => controller is ChangePasswordController),
-                It.IsAny<string[]>()
+                It.IsAny<string[]>(),
+                It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(fakeAccessToken);
+
+        autoMocker.GetMock<IEntraChangePasswordService>()
+            .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OperationResult.Success());
 
         var controller = CreateController(autoMocker, isEntraUser: true);
 
         await controller.PostIndex(CreateValidChangePasswordViewModel());
 
-        autoMocker.GetMock<IGraphApiChangeUserPassword>().Verify(x => x.ChangePassword(
+        autoMocker.GetMock<IEntraChangePasswordService>().Verify(x => x.ChangePasswordAsync(
             "oldpassword",
             "NewPassword123!",
             fakeAccessToken,
@@ -255,6 +267,34 @@ public sealed class ChangePasswordControllerTests
         Assert.IsFalse(controller.ModelState.IsValid);
         Assert.IsTrue(controller.ModelState.ContainsKey(nameof(ChangePasswordViewModel.NewPasswordInput)));
         Assert.AreEqual("Password has been breached and is unsafe to use.", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_AddsModelErrorsAndPresentsView_WhenEntraReturnsInvalidCurrentPassword()
+    {
+        var autoMocker = new AutoMocker();
+
+        var fakeAccessToken = new GraphAccessToken { Token = "fake-token", ExpiresOn = DateTimeOffset.UtcNow };
+        var controller = CreateController(autoMocker, isEntraUser: true);
+
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(), It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fakeAccessToken);
+
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.AuthenticateAssociatedAccount(It.IsAny<Controller>(), It.IsAny<string[]>(), It.IsAny<SelectAssociatedReturnLocation>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+
+        autoMocker.GetMock<IEntraChangePasswordService>()
+            .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OperationResult.Failure(EntraPasswordErrors.InvalidCurrentPassword));
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsFalse(controller.ModelState.IsValid);
+        Assert.IsTrue(controller.ModelState.ContainsKey(nameof(ChangePasswordViewModel.CurrentPasswordInput)));
     }
 
     [TestMethod]

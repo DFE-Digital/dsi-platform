@@ -1,4 +1,3 @@
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.AspNetCore.Authentication;
@@ -15,7 +14,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 /// </summary>
 [Route("/")]
 public sealed class AuthController(
-    IInteractionDispatcher interaction,
+    IAuditWriter auditWriter,
     IOptionsMonitor<PlatformOptions> platformOptionsAccessor
 ) : Controller
 {
@@ -61,7 +60,7 @@ public sealed class AuthController(
         );
 
         if (this.User.Identity?.IsAuthenticated == true) {
-            await interaction.DispatchAsync(
+            await auditWriter.Log(
                 new WriteToAuditRequest {
                     EventCategory = AuditEventCategoryNames.SignOut,
                     Message = "User signing out",

@@ -8,6 +8,11 @@ namespace Dfe.SignIn.InternalApi.Client;
 public sealed class InternalApiClientOptions : IOptions<InternalApiClientOptions>
 {
     /// <summary>
+    /// Gets the name of the configuration section that contains the internal API client options.
+    /// </summary>
+    public const string SectionName = "InternalApiClient";
+
+    /// <summary>
     /// Gets or sets the base address of the API.
     /// </summary>
     public required Uri BaseAddress { get; set; }

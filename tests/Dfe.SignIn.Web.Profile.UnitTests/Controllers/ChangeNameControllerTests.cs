@@ -1,10 +1,9 @@
+using System.Net;
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
-using Dfe.SignIn.Core.Contracts.Graph;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
-using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using FluentValidation;
@@ -14,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Moq.AutoMock;
+using Refit;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
 
@@ -47,12 +47,17 @@ public sealed class ChangeNameControllerTests
         return controller;
     }
 
+    private static ChangeNameViewModel CreateValidChangeNameViewModel() => new() {
+        FirstNameInput = "Bob",
+        LastNameInput = "Clarkson",
+    };
+
     [TestMethod]
-    public async Task Index_InitialiseJobTitleInputFromUserProfile()
+    public void Index_InitialiseJobTitleInputFromUserProfile()
     {
         var controller = CreateController(new AutoMocker(), isEntra: false);
 
-        var result = await controller.Index();
+        var result = controller.Index();
 
         var viewModel = TypeAssert.IsViewModelType<ChangeNameViewModel>(result);
         Assert.AreEqual("Alex", viewModel.FirstNameInput);
@@ -60,26 +65,20 @@ public sealed class ChangeNameControllerTests
     }
 
     [TestMethod]
-    public async Task Index_PresentsExpectedView()
+    public void Index_PresentsExpectedView()
     {
         var controller = CreateController(new AutoMocker(), isEntra: false);
 
-        var result = await controller.Index();
+        var result = controller.Index();
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
     }
 
-    private static ChangeNameViewModel CreateValidChangeNameViewModel() => new() {
-        FirstNameInput = "Bob",
-        LastNameInput = "Clarkson",
-    };
-
     [TestMethod]
     public async Task PostIndex_PresentsExpectedView_WhenModelIsInvalid()
     {
         var autoMocker = new AutoMocker();
-
         var controller = CreateController(autoMocker, isEntra: false);
 
         var result = await controller.PostIndex(new ChangeNameViewModel());
@@ -91,16 +90,13 @@ public sealed class ChangeNameControllerTests
     [TestMethod]
     public async Task PostIndex_FlashSuccess_WhenSuccessful()
     {
-        var graphAccessToken = new GraphAccessToken { Token = "abc", ExpiresOn = DateTime.UtcNow };
-
-        Mock<ISelectAssociatedAccountHelper> selectedAccountMock = new();
-        selectedAccountMock.Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(),
-        It.Is<string[]>(scopes =>
-            scopes.Length == 1 &&
-            scopes[0] == "https://graph.microsoft.com/.default"))).ReturnsAsync(graphAccessToken);
-
         var autoMocker = new AutoMocker();
-        autoMocker.Use(selectedAccountMock);
+
+        var userClientMock = new Mock<IUsersApiClient>();
+        userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<object>(new HttpResponseMessage(HttpStatusCode.OK), null, new RefitSettings()));
+
+        autoMocker.Use(userClientMock.Object);
 
         var controller = CreateController(autoMocker, isEntra: false);
 
@@ -117,6 +113,12 @@ public sealed class ChangeNameControllerTests
     public async Task PostIndex_RedirectsToHome_WhenSuccessful()
     {
         var autoMocker = new AutoMocker();
+
+        var userClientMock = new Mock<IUsersApiClient>();
+        userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<object>(new HttpResponseMessage(HttpStatusCode.OK), null, new RefitSettings()));
+
+        autoMocker.Use(userClientMock.Object);
         var controller = CreateController(autoMocker, isEntra: false);
 
         var result = await controller.PostIndex(CreateValidChangeNameViewModel());
@@ -124,6 +126,46 @@ public sealed class ChangeNameControllerTests
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
         Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_ShowsErrorMessageAndReRendersView_WhenApiClientReturnsError()
+    {
+        var autoMocker = new AutoMocker();
+
+        var userClientMock = new Mock<IUsersApiClient>();
+        userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<object>(new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings()));
+
+        autoMocker.Use(userClientMock.Object);
+        var controller = CreateController(autoMocker, isEntra: true);
+
+        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsTrue(controller.ModelState.ContainsKey(string.Empty));
+        Assert.AreEqual("We couldn't save your name right now. Please try again.", controller.ModelState[string.Empty].Errors[0].ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_ShowsErrorMessageAndReRendersView_WhenApiClientThrows()
+    {
+        var autoMocker = new AutoMocker();
+
+        var userClientMock = new Mock<IUsersApiClient>();
+        userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Network failure"));
+
+        autoMocker.Use(userClientMock.Object);
+        var controller = CreateController(autoMocker, isEntra: true);
+
+        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.IsTrue(controller.ModelState.ContainsKey(string.Empty));
+        Assert.AreEqual("We couldn't save your name right now. Please try again.", controller.ModelState[string.Empty].Errors[0].ErrorMessage);
     }
 
     [TestMethod]
@@ -150,89 +192,5 @@ public sealed class ChangeNameControllerTests
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
         Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
-    }
-
-    [TestMethod]
-    public async Task Post_InvokesEntraAndShowsSuccess()
-    {
-        var graphAccessToken = new GraphAccessToken { Token = "abc", ExpiresOn = DateTime.UtcNow };
-
-        Mock<ISelectAssociatedAccountHelper> selectedAccountMock = new();
-        selectedAccountMock.Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(),
-        It.Is<string[]>(scopes =>
-            scopes.Length == 1 &&
-            scopes[0] == "https://graph.microsoft.com/.default")))
-            .ReturnsAsync(graphAccessToken);
-
-        var autoMocker = new AutoMocker();
-        autoMocker.Use(selectedAccountMock);
-
-        var controller = CreateController(autoMocker, isEntra: true);
-
-        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
-
-        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
-    }
-
-    [TestMethod]
-    public async Task Post_NotInvokesEntraWhenUserAccountIsNotEntraEnabled()
-    {
-        Mock<ISelectAssociatedAccountHelper> selectedAccountMock = new();
-        var autoMocker = new AutoMocker();
-        autoMocker.Use(selectedAccountMock);
-
-        var controller = CreateController(autoMocker, isEntra: false);
-
-        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
-
-        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
-        selectedAccountMock.Verify(
-    x => x.CreateAccessTokenForAssociatedAccount(
-        It.IsAny<Controller>(),
-        It.IsAny<string[]>()),
-    Times.Never);
-    }
-
-    [TestMethod]
-    public async Task EntraAccountNameUpdateFailsCausesDSIToRollback()
-    {
-        var graphAccessToken = new GraphAccessToken { Token = "abc", ExpiresOn = DateTime.UtcNow };
-
-        Mock<ISelectAssociatedAccountHelper> selectedAccountMock = new();
-        Mock<IGraphApiChangeUserPersonalDetails> graphApiMock = new();
-        Mock<IUsersApiClient> userClientMock = new();
-
-        var autoMocker = new AutoMocker();
-
-        selectedAccountMock.Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(),
-       It.Is<string[]>(scopes =>
-           scopes.Length == 1 &&
-           scopes[0] == "https://graph.microsoft.com/.default")))
-           .ReturnsAsync(graphAccessToken);
-
-        graphApiMock
-    .Setup(x => x.ChangeName(It.IsAny<Guid>(),
-        "Bob",
-        "Clarkson",
-        graphAccessToken))
-    .ThrowsAsync(new Exception("Something went wrong"));
-
-        autoMocker.Use(selectedAccountMock);
-        autoMocker.Use(userClientMock);
-        autoMocker.Use(graphApiMock);
-
-        var controller = CreateController(autoMocker, isEntra: true);
-
-        await controller.PostIndex(CreateValidChangeNameViewModel());
-
-        userClientMock.Verify(
-             x => x.ChangeName(It.IsAny<Guid>(), It.Is<ChangeNameRequest>(request =>
-                 request.FirstName == "Alex" &&
-                 request.LastName == "Johnson")),
-             Times.Once);
     }
 }

@@ -1,13 +1,10 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Interfaces.Audit;
-using Dfe.SignIn.Core.Interfaces.Graph;
 using Dfe.SignIn.Gateways.DistributedCache;
+using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
-using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.Web.Profile;
 using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Services;
@@ -22,6 +19,7 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- Host / infrastructure ---
 builder.AddServiceDefaults(["/v2/healthcheck"]);
 
 if (builder.Environment.IsEnvironment("Local")) {
@@ -33,95 +31,91 @@ builder.WebHost.ConfigureKestrel((context, options) => {
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
 
-// Add OpenTelemetry and configure it to use Azure Monitor.
+// Legacy AzureMonitor section — overlaps with AddServiceDefaults + APPLICATIONINSIGHTS_CONNECTION_STRING.
 if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
 
 builder.Services.Configure<ForwardedHeadersOptions>(options => {
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto |
+        ForwardedHeaders.XForwardedHost;
     options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
 
+// --- Auth / session ---
 builder.Services
     .AddUserSessions(builder.Configuration)
     .AddDsiAuthentication(builder.Configuration)
-    .AddExternalAuthentication(builder.Configuration);
-
-builder.Services
+    .AddExternalAuthentication(builder.Configuration)
     .AddAuthorization(options => options.AddDsiPolicies())
     .AddDsiAuthorizationHandlers();
 
-builder.Services.AddControllersWithViews().AddDsiMvcExtensions();
+// --- MVC / web framework ---
+builder.Services
+    .AddControllersWithViews()
+    .AddDsiMvcExtensions();
+
 builder.Services.ConfigureDsiAntiforgeryCookie();
 
+builder.Services.ConfigureDfeSignInJsonSerializerOptions();
+// .AddInteractionFramework(); // not needed — Profile no longer uses IInteractionDispatcher / interactors
+
+// --- Profile app services ---
 builder.Services
-    .ConfigureDfeSignInJsonSerializerOptions()
-    .AddInteractionFramework();
+    .AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>()
+    .AddScoped<IServiceNavigationBuilder, ServiceNavigationBuilder>();
 
-builder.Services.AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>();
-builder.Services.AddScoped<IServiceNavigationBuilder, ServiceNavigationBuilder>();
-
-IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Directories];
-
-// Get token credential for making API requests to internal APIs.
+// --- Credentials ---
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
-    builder.Configuration.GetRequiredSection("InternalApiClient")
-);
+    builder.Configuration.GetRequiredSection("InternalApiClient"));
 
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
+// --- Data protection ---
 builder.Services
-    .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
-    .SetupInternalApiClient(tokenCredential)
-    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
-    .SetupResiliencePipelines(builder.Configuration)
+    // .Configure<InternalApiClientOptions>(...); // not needed here — moved into another extension (with AddUsersApiClient)
+    // .SetupInternalApiClient(tokenCredential); // not needed — Profile uses Refit IUsersApiClient only
+    // .SetupResiliencePipelines(builder.Configuration); // not needed — only used by SetupInternalApiClient / Node clients
     .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
+// --- Caching ---
+// not needed — nothing in Profile uses GeneralCache (session + Entra token caches registered elsewhere)
+// builder.Services.SetupRedisCacheStore(
+//     DistributedCacheKeys.GeneralCache,
+//     builder.Configuration.GetRequiredSection("GeneralRedisCache"));
+
+// --- Auditing ---
 builder.Services
-    .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache,
-        builder.Configuration.GetRequiredSection("GeneralRedisCache"));
+    .SetupAuditContext()
+    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
+    .AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
 
-builder.Services
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
-
-if (builder.Environment.IsEnvironment("Local")) {
-    builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
-}
-
-builder.Services.AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
-
+// --- Options / frontend ---
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
-builder.Services
-    .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
-    .SetupAuditContext();
-builder.Services
-    .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
-    .SetupFrontendAssets();
 
-builder.Services
-    .AddHttpContextAccessor()
-    .AddScoped<IPersonalGraphServiceFactory, PersonalGraphServiceFactory>()
-    .AddScoped<IGraphApiChangeUserPassword, GraphApiChangeUserPassword>()
-    .AddScoped<IGraphApiChangeUserPersonalDetails, GraphApiChangeUserPersonalDetails>();
+builder.Services.SetupFrontendAssets();
 
+// --- API clients / Entra ---
 builder.Services
+    .AddHttpContextAccessor() // redundant with SetupAuditContext (TryAdd) — fine to leave
+    .AddEntraDelegatedServices()
     .AddUsersApiClient(tokenCredential);
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // TEMP: Add fake interactor implementations.
+// not needed — no interactors in Profile
 // builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
 
-// In local development, disable SSL certificate validation for the OpenID Connect backchannel to allow using self-signed certificates.
-// This should only be used in the Local environment and not in any other environment to avoid security risks.
-// Note: This is necessary because the OpenID Connect middleware makes backchannel HTTP requests to the identity provider for token validation and other operations, and in local development,
-// the identity provider may be using a self-signed certificate that is not trusted by the development machine.
+// --- Local-only overrides ---
+// Allow self-signed IdP certificates on the OIDC backchannel in Local only.
 if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.PostConfigure<OpenIdConnectOptions>(
         OpenIdConnectDefaults.AuthenticationScheme, options => {
@@ -134,15 +128,15 @@ if (builder.Environment.IsEnvironment("Local")) {
 
 var app = builder.Build();
 
-app.UseMiddleware<CancellationContextMiddleware>();
+// --- Pipeline ---
+// app.UseMiddleware<CancellationContextMiddleware>(); // not needed — only used with interaction framework
+
 app.UseDsiSecurityHeaderPolicy();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsEnvironment("Local")) {
     app.UseExceptionHandler("/Error/Index");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    app.UseHttpsRedirection();
+    // app.UseHttpsRedirection(); // not needed here — called once below after UseForwardedHeaders
 }
 
 app.UseForwardedHeaders();
@@ -150,9 +144,7 @@ app.UseHttpsRedirection();
 app.UseHealthChecks();
 app.UseLogContextEnrichment();
 
-var rewriteOptions = new RewriteOptions();
-rewriteOptions.AddRedirect("(.*)/$", "$1", statusCode: 301);
-app.UseRewriter(rewriteOptions);
+app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1", statusCode: 301));
 
 app.UseRouting();
 
@@ -168,8 +160,7 @@ app.MapControllerRoute(
 
 await app.RunAsync();
 
-// Expose the Program class to the integration tests project
 /// <summary>
-/// The entry point class for the application.
+/// The entry point class for the application (exposed for integration tests).
 /// </summary>
 internal sealed partial class Program { }
