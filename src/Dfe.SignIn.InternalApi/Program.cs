@@ -111,8 +111,7 @@ builder.Services
     .AddFeaturesServices(builder.Configuration)
     .AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
 
-builder.Services.AddTransient<IEventPublisher, BullMqEventPublisher>();
-builder.Services.AddScoped<IBullMqQueueFactory, BullMqQueueFactory>();
+builder.Services.AddBullMqServices();
 
 var app = builder.Build();
 
