@@ -1,6 +1,3 @@
-using Dfe.SignIn.AppHost;
-using Microsoft.Extensions.Configuration;
-
 namespace Dfe.SignIn.AppHost.Resources;
 
 /// <summary>

@@ -156,8 +156,7 @@ public static class ResourceBuilderExtensions
                 var expiresDays = context.Arguments.GetString("expiresDays") ?? "90";
                 var createInactive = context.Arguments.GetString("createInactive") ?? "false";
 
-                return new ProcessCommandSpec("pwsh")
-                {
+                return new ProcessCommandSpec("pwsh") {
                     WorkingDirectory = builder.ApplicationBuilder.AppHostDirectory,
                     Arguments =
                     [
@@ -179,8 +178,7 @@ public static class ResourceBuilderExtensions
                     ],
                 };
             },
-            commandOptions: new ProcessCommandOptions
-            {
+            commandOptions: new ProcessCommandOptions {
                 Description = "Generate a local development API key via PowerShell (stub).",
                 IconName = "Key",
                 IconVariant = IconVariant.Filled,
