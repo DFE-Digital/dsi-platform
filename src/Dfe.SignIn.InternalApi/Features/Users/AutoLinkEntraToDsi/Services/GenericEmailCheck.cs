@@ -1,4 +1,5 @@
-using System.Text.Json;
+using Dfe.SignIn.InternalApi.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
 
@@ -8,8 +9,8 @@ namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
 /// Designed to validate the provided email against a pre-configured
 /// generic blacklist.
 /// </summary>
-/// <param name="configuration"></param>
-public sealed class GenericEmailCheck(IConfiguration configuration)
+/// <param name="emailRestrictions"></param>
+public sealed class GenericEmailCheck(IOptions<EmailRestrictions> emailRestrictions)
 {
     /// <summary>
     /// A check to determine if an email address is generic.
@@ -18,12 +19,7 @@ public sealed class GenericEmailCheck(IConfiguration configuration)
     /// <returns>True, if the value is considered generic</returns>
     public bool IsEmailGeneric(string email)
     {
-        const string GenericEmailStrings = "GenericEmailStrings";
-        var json = configuration.GetValue<string>(GenericEmailStrings);
-        var genericEmailStrings =
-        JsonSerializer.Deserialize<List<string>>(json ?? "[]") ?? [];
-
-        return genericEmailStrings.Contains(email);
+        return emailRestrictions.Value.GenericEmailStrings.Contains(email);
 
     }
 }

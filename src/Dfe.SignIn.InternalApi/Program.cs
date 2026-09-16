@@ -4,7 +4,6 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
-using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Gateways.BullMq;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
@@ -46,8 +45,6 @@ builder.Services.AddOptions<NotificationSettings>()
 .ValidateDataAnnotations()
 .ValidateOnStart();
 
-builder.Services.Configure<NotificationSettings>(builder.Configuration.GetRequiredSection("Notifications"));
-
 builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
 builder.Services
@@ -88,12 +85,10 @@ builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
     .SetupAuditContext();
 
-builder.Services
-    .Configure<BlockedEmailAddressOptions>(options => {
-        var section = builder.Configuration.GetSection("BlockedEmailAddresses");
-        options.BlockedDomains = section.GetJsonList("BlockedDomains");
-        options.BlockedNames = section.GetJsonList("BlockedNames");
-    });
+builder.Services.AddOptions<EmailRestrictions>()
+.BindConfiguration(EmailRestrictions.SectionName)
+.ValidateDataAnnotations()
+.ValidateOnStart();
 
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);

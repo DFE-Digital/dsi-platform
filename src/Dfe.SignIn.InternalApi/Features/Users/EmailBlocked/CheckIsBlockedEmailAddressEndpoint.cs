@@ -11,10 +11,10 @@ namespace Dfe.SignIn.InternalApi.Features.Users.EmailBlocked;
 /// <summary>
 /// Endpoint for determing if an email address is valid
 /// </summary>
-/// <param name="blockedEmailAddressOptions">Configuration options containing the values for blacklisting</param>
+/// <param name="emailRestrictionsConfiguration">Configuration options containing the values for blacklisting</param>
 /// <param name="logger"></param>
 public sealed class CheckIsBlockedEmailAddressEndpoint(
-    IOptions<BlockedEmailAddressOptions> blockedEmailAddressOptions,
+    IOptions<EmailRestrictions> emailRestrictionsConfiguration,
     ILogger<CheckIsBlockedEmailAddressEndpoint> logger) : IEndpoint
 {
     /// <summary>
@@ -62,8 +62,8 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
         var localPart = parts[0];
         var domain = parts[1];
 
-        var blockedDomains = blockedEmailAddressOptions.Value.BlockedDomains;
-        var blockedNames = blockedEmailAddressOptions.Value.BlockedNames;
+        var blockedDomains = emailRestrictionsConfiguration.Value.BlockedDomains;
+        var blockedNames = emailRestrictionsConfiguration.Value.BlockedNames;
 
         var isBlockedDomain = blockedDomains.Contains(domain, StringComparer.OrdinalIgnoreCase);
         var isBlockedName = blockedNames.Any(blockedName => {
