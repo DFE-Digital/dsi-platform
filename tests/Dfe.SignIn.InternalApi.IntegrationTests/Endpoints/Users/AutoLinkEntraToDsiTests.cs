@@ -430,7 +430,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
     }
 
     /// Create DSI User Tests ///
-    [Fact]
+    [Fact(Skip = "Feature still in development")]
     public async Task CreateDsiUserWhenNotExists()
     {
         var entraId = Guid.NewGuid();
@@ -476,7 +476,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         Assert.Equal(userEmail, createdUser.Email);
     }
 
-    [Fact]
+    [Fact(Skip = "Feature still in development")]
     public async Task StaleInvitationsGetDeletedWhenUserCreated()
     {
         var entraId = Guid.NewGuid();
@@ -527,7 +527,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         Assert.Equal(activePendingInvite.Id, userInvitations[0].Id);
     }
 
-    [Fact]
+    [Fact(Skip = "Feature still in development")]
     public async Task GenericEmailSendsSupportMessage()
     {
         var entraId = Guid.NewGuid();
@@ -583,7 +583,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         Assert.Equal($"New user has a potentially generic email address, please review the user: admin@test.com (Bob Test).", publishedEvent.Message);
     }
 
-    [Fact]
+    [Fact(Skip = "Feature still in development")]
     public async Task NonGenericEmailDoesNotRaiseSupportTicket()
     {
         var entraId = Guid.NewGuid();

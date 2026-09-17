@@ -1,18 +1,11 @@
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
-using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Contracts.Users;
-using Dfe.SignIn.Core.Entities.Directories;
-using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Gateways.EntityFramework;
-using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
-using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Models;
-using Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
-using Dfe.SignIn.InternalApi.Services.Search;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi;
 
@@ -32,21 +25,12 @@ namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi;
 /// <param name="directoriesDbContext">The database peristence layer</param>
 /// <param name="auditWriter">The audit writer used for auditing</param>
 /// <param name="timeProvider">The ability to resolve the current system time</param>
-/// <param name="removeInviteService">Logic for removing a user invitation</param>
-/// <param name="genericEmailCheck">Guard rails to restrict email addresses used.</param>
-/// <param name="userCreator">A creator for creating the user</param>
-/// <param name="eventPublisher">An event publisher</param>
-/// <param name="notificationSettings">Application specific settings for notifications</param>
 /// <param name="logger">A generic logger for logging application level messages</param>
 public sealed class AutoLinkEntraToDsiEndpoint(
     DbDirectoriesContext directoriesDbContext,
     IAuditWriter auditWriter,
     TimeProvider timeProvider,
-    IRemoveInviteService removeInviteService,
-    GenericEmailCheck genericEmailCheck,
-    IUserCreator userCreator,
-    IEventPublisher eventPublisher,
-    IOptions<NotificationSettings> notificationSettings,
+    IInteractionDispatcher interaction,
     ILogger<AutoLinkEntraToDsiEndpoint> logger) : IEndpoint
 {
     /// <summary>
@@ -75,7 +59,12 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     {
         var UserId = await this.GetExistingLinkedUserAsync(request, cancellationToken)
             ?? await this.LinkToExistingDsiUserAsync(request, cancellationToken)
-            ?? await this.CreateDsiUserAsync(request, cancellationToken);
+            ?? await this.CreateDsiUserAsync(new AutoLinkEntraUserToDsiRequest {
+                EmailAddress = request.EmailAddress,
+                EntraUserId = request.EntraUserId,
+                FirstName = request.FirstName,
+                LastName = request.LastName
+            });
 
         return new AutoLinkEntraUserToDsiResponse {
             UserId = UserId
@@ -90,6 +79,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             .Select(x => new { x.Sub, x.Status })
             .FirstOrDefaultAsync(cancellationToken);
 
+        // User cannot be found via EntraId.
         if (user is null) {
             return null;
         }
@@ -106,6 +96,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         var user = await directoriesDbContext.Users.Where(x => x.Email == request.EmailAddress)
             .FirstOrDefaultAsync(cancellationToken);
 
+        // User cannot be found via email address.
         if (user is null) {
             return null;
         }
@@ -125,7 +116,6 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             .FirstOrDefaultAsync(cancellationToken);
 
         // Check if the target Entra Oid has already been linked to a different user
-        //TODO : This logic will never get invoked!!
         if (existingEntraUser is not null && existingEntraUser.Sub != user.Sub) {
             throw EntraAccountAlreadyLinkedToDifferentUserException.FromUserIds(
                 user.Sub, request.EntraUserId!.Value, existingEntraUser.Sub);
@@ -169,98 +159,52 @@ public sealed class AutoLinkEntraToDsiEndpoint(
 
         return user.Sub;
     }
-    private async Task<Guid> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
+
+    private async Task<Guid> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
     {
-        var pendingInvite = await directoriesDbContext.Invitations
-            .Where(x => x.Email == request.EmailAddress && !x.Completed)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (pendingInvite is not null) {
-            if (pendingInvite.Uid is not null) {
-                await auditWriter.Log(new WriteToAuditRequest {
-                    EventCategory = AuditEventCategoryNames.Auth,
-                    EventName = AuditAuthEventNames.LinkToInvitedUser,
-                    Message = $"Linked Entra account with pending DfE Sign-In invitation {request.EmailAddress}",
-                    UserId = pendingInvite.Uid
-                });
-
-                return pendingInvite.Uid.Value;
+        // User does not exist in the system; is there a pending invitation?
+        var completeAnyPendingInvitationResponse = await interaction.DispatchAsync(
+            new CompleteAnyPendingInvitationRequest {
+                EmailAddress = request.EmailAddress,
+                EntraUserId = request.EntraUserId!.Value,
             }
-            else {
-                var newUserResponse = await userCreator.CreateAsync(new UserCreationDto {
-                    EntraOid = request.EntraUserId!.Value,
-                    Username = request.EmailAddress,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName
-                }, cancellationToken);
+        ).To<CompleteAnyPendingInvitationResponse>();
 
-                if (pendingInvite is not null) {
-                    await this.MarkPendingInviteAsCompleted(newUserResponse.Sub, pendingInvite, cancellationToken);
+        if (completeAnyPendingInvitationResponse.UserId is not null) {
+            await interaction.DispatchAsync(new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.Auth,
+                EventName = AuditAuthEventNames.LinkToInvitedUser,
+                Message = $"Linked Entra account with pending DfE Sign-In invitation {request.EmailAddress}",
+                UserId = completeAnyPendingInvitationResponse.UserId,
+            });
 
-                    await this.CleanUpOldInvites(newUserResponse.Sub,
-                        pendingInvite.Id,
-                        request.EmailAddress,
-                        cancellationToken);
-                }
-
-                var isGenericEmail = genericEmailCheck.IsEmailGeneric(newUserResponse.Email);
-
-                if (isGenericEmail) {
-                    await eventPublisher.PublishAsync(new SupportRequestEvent {
-                        Email = notificationSettings.Value.SupportTeamEmail,
-                        Type = "potential-generic-email-address",
-                        TypeAdditionalInfo = null,
-                        Message = $"New user has a potentially generic email address, please review the user: {request.EmailAddress} ({request.FirstName} {request.LastName})."
-                    }, cancellationToken);
-                }
-
-                await auditWriter.Log(new WriteToAuditRequest {
-                    EventCategory = AuditEventCategoryNames.Auth,
-                    EventName = AuditAuthEventNames.LinkToNewUser,
-                    Message = $"Linked Entra account with new DfE Sign-In user {request.EmailAddress}",
-                    UserId = newUserResponse.Sub
-                });
-
-                return newUserResponse.Sub;
-            }
+            return completeAnyPendingInvitationResponse.UserId.Value;
         }
 
-        throw new Exception("Failed to link user Entra user to DSI");
+        // Create new user in system and link to the associated Entra user.
+        var createUserResponse = await interaction.DispatchAsync(
+            new CreateUserRequest {
+                EntraUserId = request.EntraUserId!.Value,
+                EmailAddress = request.EmailAddress,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+            }
+        ).To<CreateUserResponse>();
+
+        await interaction.DispatchAsync(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.Auth,
+            EventName = AuditAuthEventNames.LinkToNewUser,
+            Message = $"Linked Entra account with new DfE Sign-In user {request.EmailAddress}",
+            UserId = createUserResponse.UserId,
+        });
+
+        return createUserResponse.UserId;
     }
 
     private static void ValidateActiveUser(AccountStatus status)
     {
         if (status != AccountStatus.Active) {
             throw new CannotLinkInactiveUserException();
-        }
-    }
-
-    private async Task MarkPendingInviteAsCompleted(Guid newUserId, InvitationEntity pendingInvite, CancellationToken cancellationToken)
-    {
-        if (pendingInvite is not null) {
-            pendingInvite.Completed = true;
-            pendingInvite.Uid = newUserId;
-
-            await directoriesDbContext.SaveChangesAsync(cancellationToken);
-        }
-    }
-
-    private async Task CleanUpOldInvites(Guid newUserId, Guid pendingInviteId, string emailAddress, CancellationToken cancellationToken)
-    {
-
-        var allStaleInvitations = await directoriesDbContext.Invitations
-            .Where(x => x.Email == emailAddress
-            && x.Id != pendingInviteId && !x.Completed)
-            .ToListAsync(cancellationToken);
-
-        foreach (var staleInvite in allStaleInvitations) {
-            logger.LogInformation("Deleting stale invitation {staleInviteId} for email {staleInviteEmail} following completion of invitation ${invId}",
-               staleInvite.Id, staleInvite.Email, pendingInviteId);
-
-            directoriesDbContext.Invitations.Remove(staleInvite);
-            await directoriesDbContext.SaveChangesAsync(cancellationToken);
-
-            await removeInviteService.Handle(newUserId, staleInvite.Id);
         }
     }
 }
