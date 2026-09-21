@@ -198,8 +198,6 @@ public class TokenIssuanceStartHandlerTests
         Assert.AreEqual("d5ba1f44-1400-4c98-b834-5d5ba5b98995", provideClaimsAction.Claims[DsiClaimTypes.UserId]);
     }
 
-
-
     [TestMethod]
     public async Task Throws_WhenApiCallReturnsError()
     {
