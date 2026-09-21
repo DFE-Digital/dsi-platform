@@ -27,13 +27,12 @@ namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi;
 /// <param name="directoriesDbContext">The database peristence layer</param>
 /// <param name="auditWriter">The audit writer used for auditing</param>
 /// <param name="timeProvider">The ability to resolve the current system time</param>
-/// <param name="logger">A generic logger for logging application level messages</param>
+/// <param name="interaction">The ability to dispatch interaction requests.</param>
 public sealed class AutoLinkEntraToDsiEndpoint(
     DbDirectoriesContext directoriesDbContext,
     IAuditWriter auditWriter,
     TimeProvider timeProvider,
-    IInteractionDispatcher interaction,
-    ILogger<AutoLinkEntraToDsiEndpoint> logger) : IEndpoint
+    IInteractionDispatcher interaction) : IEndpoint
 {
     /// <summary>
     ///   /// Maps the endpoint to the specified <see cref="IEndpointRouteBuilder"/>.
