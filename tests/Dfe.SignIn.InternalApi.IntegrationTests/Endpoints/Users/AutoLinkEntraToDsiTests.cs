@@ -205,7 +205,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
     }
 
     [Fact]
-    public async Task UserExistsButAssociatedWithDifferentEntraIdThrowsException()
+    public async Task UserAlreadyLinkedButToADifferentAccountThrowsException()
     {
         var entraId = Guid.NewGuid();
         var OtherEntraId = Guid.NewGuid();
@@ -218,7 +218,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
             .RuleFor(x => x.IsEntra, (_, _) => false)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)0)
+            .RuleFor(x => x.Status, (_, _) => (short)1)
             .RuleFor(x => x.EntraOid, (_, _) => OtherEntraId)
             .Generate();
 
@@ -239,7 +239,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db =>
         db.Users.SingleAsync(x => x.Sub == user.Sub && x.Email == "test@Test.com"));
 
-        Assert.Equal(0, user.Status);
+        Assert.Equal(1, user.Status);
         Assert.Equal(user.FirstName, updatedUser.FirstName);
         Assert.Equal(user.LastName, updatedUser.LastName);
         Assert.Equal(user.Email, updatedUser.Email);
