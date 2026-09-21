@@ -42,7 +42,7 @@ public sealed class TokenIssuanceStartHandler(
 
         return ResponseAction(new ProvideClaimsForTokenAction {
             Claims = new() {
-                [DsiClaimTypes.UserId] = checkLinkedResponse.Content.UserId.ToString(),
+                [DsiClaimTypes.UserId] = response.UserId.ToString(),
             }
         });
     }

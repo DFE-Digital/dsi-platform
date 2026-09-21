@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
@@ -7,6 +8,7 @@ using Dfe.SignIn.TestHelpers.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Moq.AutoMock;
+using Refit;
 
 namespace Dfe.SignIn.Fn.AuthExtensions.UnitTests;
 
@@ -194,5 +196,39 @@ public class TokenIssuanceStartHandlerTests
         Assert.HasCount(1, data.Actions);
         var provideClaimsAction = TypeAssert.IsType<ProvideClaimsForTokenAction>(data.Actions[0]);
         Assert.AreEqual("d5ba1f44-1400-4c98-b834-5d5ba5b98995", provideClaimsAction.Claims[DsiClaimTypes.UserId]);
+    }
+
+
+
+    [TestMethod]
+    public async Task Throws_WhenApiCallReturnsError()
+    {
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IUsersApiClient>()
+                  .Setup(x => x.AutoLinkEntraUserToDsi(It.IsAny<AutoLinkEntraUserToDsiRequest>()))
+                  .ReturnsAsync(
+                    new ApiResponse<AutoLinkEntraUserToDsiResponse>(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError),
+                    null,
+                    new RefitSettings()));
+
+        var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
+
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent with {
+            Data = FakeEvent.Data with {
+                AuthenticationContext = FakeEvent.Data.AuthenticationContext with {
+                    User = FakeEvent.Data.AuthenticationContext.User with {
+                        Mail = "jo.bradford@example.com",
+                        GivenName = " Jo ",
+                        Surname = " MAY - FINNEGAN ",
+                    }
+                }
+            }
+        });
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => handler.Run(fakeRequest));
+
+        Assert.AreEqual("Auto-link failed. Status code: InternalServerError", exception.Message);
     }
 }
