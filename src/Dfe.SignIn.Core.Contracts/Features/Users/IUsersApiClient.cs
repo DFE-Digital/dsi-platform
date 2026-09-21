@@ -119,7 +119,11 @@ public interface IUsersApiClient
     Task<IApiResponse> ChangePassword(Guid userId, [Body] ChangePasswordRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Autolinks a Entra user to a Dsi User
+    /// Links an entra user to a DSI user via populating the EntraOid fields in DSI
+    ///
+    /// If the usr already exists, the name is udpated to reflect the entra values.
+    /// 
+    /// If the DSI user does not exist, the user will be created.
     /// </summary>
     /// <param name="autoLinkEntraUserToDsiRequest">The request object containing the user reference details</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>

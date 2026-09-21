@@ -31,11 +31,14 @@ public sealed class UserCreator(DbDirectoriesContext directoriesDbContext,
     IPasswordHasher passwordHasher) : IUserCreator
 {
     /// <summary>
-    /// 
+    /// Creates a new user from the supplied details or returns an existing user with the same email address.
+    /// Newly created users are marked as Entra users and are assigned the currently active password policy.
     /// </summary>
-    /// <param name="userDto"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="userDto">The user details used to create the account.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the operation.</param>
+    /// <returns>
+    /// The existing or newly created <see cref="UserEntity"/>.
+    /// </returns>
     public async Task<UserEntity> CreateAsync(UserCreationDto userDto, CancellationToken cancellationToken)
     {
         var exstingUser = await directoriesDbContext.Users

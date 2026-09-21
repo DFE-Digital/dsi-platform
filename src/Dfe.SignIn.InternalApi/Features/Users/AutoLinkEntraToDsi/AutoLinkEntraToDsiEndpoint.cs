@@ -58,17 +58,25 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     /// <returns></returns>
     public async Task<AutoLinkEntraUserToDsiResponse> Handle(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
     {
-        var UserId = await this.GetExistingLinkedUserAsync(request, cancellationToken)
-            ?? await this.LinkToExistingDsiUserAsync(request, cancellationToken)
-            ?? await this.CreateDsiUserAsync(new AutoLinkEntraUserToDsiRequest {
+        var userId = await this.GetExistingLinkedUserAsync(request, cancellationToken);
+
+#pragma warning disable IDE0074 // Use compound assignment
+        if (userId is null) {
+            userId = await this.LinkToExistingDsiUserAsync(request, cancellationToken);
+        }
+
+        if (userId is null) {
+            userId = await this.CreateDsiUserAsync(new AutoLinkEntraUserToDsiRequest {
                 EmailAddress = request.EmailAddress,
                 EntraUserId = request.EntraUserId,
                 FirstName = request.FirstName,
                 LastName = request.LastName
             });
+        }
+#pragma warning restore IDE0074 // Use compound assignment
 
         return new AutoLinkEntraUserToDsiResponse {
-            UserId = UserId
+            UserId = userId.Value
         };
     }
 

@@ -1,12 +1,13 @@
 namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Models;
 
 /// <summary>
-/// A class representing a  user creation domain object
+/// Encapsulates the user identity information required to create
+/// a new DSI user from an Entra ID account.
 /// </summary>
 public sealed class UserCreationDto
 {
     /// <summary>
-    /// Username associated to the user
+    /// Given name of the user.
     /// </summary>
     public required string Username { get; set; }
 
@@ -16,12 +17,12 @@ public sealed class UserCreationDto
     public required string FirstName { get; set; }
 
     /// <summary>
-    /// LastName associated to the user
+    /// Surname of the user.
     /// </summary>
     public required string LastName { get; set; }
 
     /// <summary>
-    /// EntraOid associated to the user
+    /// Unique object identifier of the user in Entra ID.
     /// </summary>
     public required Guid EntraOid { get; set; }
 }
