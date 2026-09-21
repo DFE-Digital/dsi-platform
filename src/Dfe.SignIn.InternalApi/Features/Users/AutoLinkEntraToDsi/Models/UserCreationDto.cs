@@ -1,9 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Models;
 
 /// <summary>
 /// Encapsulates the user identity information required to create
 /// a new DSI user from an Entra ID account.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class UserCreationDto
 {
     /// <summary>

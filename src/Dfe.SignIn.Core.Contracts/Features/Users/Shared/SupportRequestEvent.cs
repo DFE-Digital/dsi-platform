@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Core.Contracts.Messaging;
 
 namespace Dfe.SignIn.Core.Contracts.Features.Users.Shared;
@@ -5,6 +6,7 @@ namespace Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 /// <summary>
 /// Represents a support request.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record SupportRequestEvent : IIntegrationEvent
 {
     /// <summary>
