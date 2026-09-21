@@ -1,4 +1,5 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Base.Framework.Results;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
@@ -58,15 +59,15 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     /// <returns></returns>
     public async Task<AutoLinkEntraUserToDsiResponse> Handle(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
     {
-        var userId = await this.GetExistingLinkedUserAsync(request, cancellationToken);
+        var result = await this.GetExistingLinkedUserAsync(request, cancellationToken);
 
 #pragma warning disable IDE0074 // Use compound assignment
-        if (userId is null) {
-            userId = await this.LinkToExistingDsiUserAsync(request, cancellationToken);
+        if (result.IsFailure) {
+            result = await this.LinkToExistingDsiUserAsync(request, cancellationToken);
         }
 
-        if (userId is null) {
-            userId = await this.CreateDsiUserAsync(new AutoLinkEntraUserToDsiRequest {
+        if (result.IsFailure) {
+            result = await this.CreateDsiUserAsync(new AutoLinkEntraUserToDsiRequest {
                 EmailAddress = request.EmailAddress,
                 EntraUserId = request.EntraUserId,
                 FirstName = request.FirstName,
@@ -76,11 +77,12 @@ public sealed class AutoLinkEntraToDsiEndpoint(
 #pragma warning restore IDE0074 // Use compound assignment
 
         return new AutoLinkEntraUserToDsiResponse {
-            UserId = userId.Value
+            UserId = result.Value
         };
     }
 
-    private async Task<Guid?> GetExistingLinkedUserAsync(AutoLinkEntraUserToDsiRequest request,
+    //Result
+    private async Task<Result<Guid>> GetExistingLinkedUserAsync(AutoLinkEntraUserToDsiRequest request,
         CancellationToken cancellationToken)
     {
         var user = await directoriesDbContext.Users
@@ -90,7 +92,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
 
         // User cannot be found via EntraId.
         if (user is null) {
-            return null;
+            return Result.Failure<Guid>(new Error("Users.AutoLinkEntraToDsi.UserNotFound", "User not found"));
         }
 
         // User exists in the system; are they an active user though?
@@ -99,7 +101,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         return user.Sub;
     }
 
-    private async Task<Guid?> LinkToExistingDsiUserAsync(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
+    private async Task<Result<Guid>> LinkToExistingDsiUserAsync(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
     {
         // Let's try to associate the Entra user object with a DSI account.
         var user = await directoriesDbContext.Users.Where(x => x.Email == request.EmailAddress)
@@ -107,7 +109,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
 
         // User cannot be found via email address.
         if (user is null) {
-            return null;
+            return Result.Failure<Guid>(new Error("Users.AutoLinkEntraToDsi.UserNotFound", "User not found"));
         }
 
         // User exists in the system; are they an active user though?
@@ -176,7 +178,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         return (nameUpdated, entraAccountLinked);
     }
 
-    private async Task<Guid> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
+    private async Task<Result<Guid>> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
     {
         // User does not exist in the system; is there a pending invitation?
         var completeAnyPendingInvitationResponse = await interaction.DispatchAsync(
@@ -194,7 +196,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
                 UserId = completeAnyPendingInvitationResponse.UserId,
             });
 
-            return completeAnyPendingInvitationResponse.UserId.Value;
+            return Result.Success(completeAnyPendingInvitationResponse.UserId.Value);
         }
 
         // Create new user in system and link to the associated Entra user.
@@ -214,7 +216,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             UserId = createUserResponse.UserId,
         });
 
-        return createUserResponse.UserId;
+        return Result.Success(createUserResponse.UserId);
     }
 
     private static void ValidateActiveUser(AccountStatus status)
