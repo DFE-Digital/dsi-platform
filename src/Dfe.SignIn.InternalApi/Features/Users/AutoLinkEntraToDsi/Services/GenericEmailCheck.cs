@@ -19,7 +19,6 @@ public sealed class GenericEmailCheck(IOptions<EmailRestrictionsSettings> emailR
     /// <returns>True, if the value is considered generic</returns>
     public bool IsEmailGeneric(string email)
     {
-        return emailRestrictions.Value.GenericEmailStrings.Contains(email);
-
+        return emailRestrictions.Value.GenericEmailStrings.Contains(email, StringComparer.OrdinalIgnoreCase);
     }
 }
