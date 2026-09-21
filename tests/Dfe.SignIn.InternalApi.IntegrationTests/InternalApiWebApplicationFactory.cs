@@ -30,7 +30,6 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
     public FakeEmailRequestTracker FakeEmailTracker { get; } = new();
     public FakeEntraChangeEmailService FakeEntraChangeEmailService { get; } = new();
     public FakeEventPublisher FakeEventPublisher { get; } = new();
-    public FakeUserUpdatedPublisher FakeUserUpdatedPublisher { get; } = new();
     public CapturingWriteToAuditInteractor AuditCapturer { get; } = new();
     internal FakeTimestampInterceptor TimestampInterceptor { get; } = new();
     internal FailingDbCommandInterceptor FailingDbCommandInterceptor { get; } = new();
@@ -70,9 +69,6 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             services.RemoveAll<IEventPublisher>();
             services.AddSingleton<IEventPublisher>(this.FakeEventPublisher);
 
-            services.RemoveAll<IUserUpdatedPublisher>();
-            services.AddSingleton<IUserUpdatedPublisher>(this.FakeUserUpdatedPublisher);
-
             // Event publisher
             services.RemoveAll<IEventPublisher>();
             services.AddSingleton<IEventPublisher>(this.FakeEventPublisher);
@@ -100,7 +96,6 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         this.FakeEmailTracker.Clear();
         this.FakeEntraChangeEmailService.OnChangeEmail = null;
         this.FakeEventPublisher.Clear();
-        this.FakeUserUpdatedPublisher.Clear();
         this.FakeRemoveInviteService.Clear();
         this.AuditCapturer.Clear();
         this.TimestampInterceptor.Reset();

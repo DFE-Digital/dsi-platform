@@ -2,6 +2,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Microsoft.AspNetCore.Mvc;
@@ -121,24 +122,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
                 user.Sub, request.EntraUserId!.Value, existingEntraUser.Sub);
         }
 
-        bool nameUpdated = false;
-        bool entraAccountLinked = false;
-
-        if (user.FirstName != request.FirstName) {
-            user.FirstName = request.FirstName;
-            nameUpdated = true;
-        }
-        if (user.LastName != request.LastName) {
-            user.LastName = request.LastName;
-            nameUpdated = true;
-        }
-        if (user.EntraOid is null) {
-            user.EntraOid = request.EntraUserId;
-            user.IsEntra = true;
-            user.EntraLinked = timeProvider.GetUtcNow().UtcDateTime;
-            entraAccountLinked = true;
-        }
-        await directoriesDbContext.SaveChangesAsync(cancellationToken);
+        var (nameUpdated, entraAccountLinked) = await this.UpdateUserAsync(user, request, cancellationToken);
 
         if (nameUpdated) {
             await auditWriter.Log(new WriteToAuditRequest {
@@ -158,6 +142,30 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         }
 
         return user.Sub;
+    }
+
+    private async Task<(bool nameUpdated, bool entraAccountLinked)> UpdateUserAsync(UserEntity user, AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
+    {
+        bool nameUpdated = false;
+        bool entraAccountLinked = false;
+
+        if (user.FirstName != request.FirstName) {
+            user.FirstName = request.FirstName;
+            nameUpdated = true;
+        }
+        if (user.LastName != request.LastName) {
+            user.LastName = request.LastName;
+            nameUpdated = true;
+        }
+        if (user.EntraOid is null) {
+            user.EntraOid = request.EntraUserId;
+            user.IsEntra = true;
+            user.EntraLinked = timeProvider.GetUtcNow().UtcDateTime;
+            entraAccountLinked = true;
+        }
+        await directoriesDbContext.SaveChangesAsync(cancellationToken);
+
+        return (nameUpdated, entraAccountLinked);
     }
 
     private async Task<Guid> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
