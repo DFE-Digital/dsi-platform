@@ -31,7 +31,7 @@ public sealed class AttributeCollectionStartHandler(
             EmailAddress = @event.Data.UserSignUpInfo.Identities[0].IssuerAssignedId
         });
 
-        if (response is null || response.IsBlocked) {
+        if (!response.IsSuccessStatusCode || response.Content is null || response.Content.IsBlocked) {
             logger.LogInformation("Email address was blocked by policy requirements.");
             return ResponseAction(new ShowBlockPageAction {
                 Message = MessageConstants.BlockedEmailAddress,

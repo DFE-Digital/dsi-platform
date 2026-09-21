@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
@@ -213,5 +214,75 @@ public class ChangeJobTitleTests : InternalApiIntegrationEndpointTestBase
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ChangeJobTitle_UpdatesJobTitle_PublishesUserUpdated()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var newJobTitle = "Senior Software Developer";
+        var user = EntityFaker.User.Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeJobTitleRequest {
+            NewJobTitle = newJobTitle
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+        Assert.Equal(newJobTitle, updatedUser.JobTitle);
+
+        var userUpdatedEvent = Assert.Single(this.FakeEventPublisher.GetPublishedEvents<UserUpdatedEvent>());
+        Assert.Equal(user.Sub, userUpdatedEvent.UserId);
+        Assert.Equal(user.Email, userUpdatedEvent.Email);
+        Assert.Equal(user.Status, userUpdatedEvent.Status);
+    }
+
+    [Fact]
+    public async Task ChangeJobTitle_ReturnsNotFound_DoesNotPublishUserUpdated()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var user = EntityFaker.User.Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(Guid.NewGuid()), new ChangeJobTitleRequest {
+            NewJobTitle = "Senior Software Developer"
+        });
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Empty(this.FakeEventPublisher.GetPublishedEvents<UserUpdatedEvent>());
+    }
+
+    [Fact]
+    public async Task ChangeJobTitle_WhenNoChangesInJobTitle_DoesNotPublishUserUpdated()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var user = EntityFaker.User.Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeJobTitleRequest {
+            NewJobTitle = user.JobTitle
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+        Assert.Equal(user.FirstName, updatedUser.FirstName);
+        Assert.Equal(user.LastName, updatedUser.LastName);
+
+        Assert.Empty(this.FakeEventPublisher.GetPublishedEvents<UserUpdatedEvent>());
     }
 }

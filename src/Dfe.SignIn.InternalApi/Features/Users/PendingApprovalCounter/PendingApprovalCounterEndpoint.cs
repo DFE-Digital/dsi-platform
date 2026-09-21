@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Endpoints;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
@@ -10,7 +11,9 @@ namespace Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 /// <summary>
 /// An endpoint exposing user pending approval counts
 /// </summary>
-public class PendingApprovalCounterEndpoint : IEndpoint
+public class PendingApprovalCounterEndpoint(
+    DbOrganisationsContext organisationsDbContext,
+     IUserLookupService userLookupService) : IEndpoint
 {
     /// <summary>
     /// Endpoint mapping method holding configuration.
@@ -18,29 +21,25 @@ public class PendingApprovalCounterEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet(UsersApiRoutes.PendingApprovalCounter, Handler)
+        app.MapGet(UsersApiRoutes.PendingApprovalCounter, async (
+            [FromRoute] Guid userId,
+            [FromServices] PendingApprovalCounterEndpoint endpoint,
+            CancellationToken cancellationToken) =>
+            await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Pending Approval Counter")
             .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .RequireAuthorization()
-            .WithOpenApi();
+            .WithStandardResponses()
+            .RequireAuthorization();
     }
 
     /// <summary>
     /// Changes the name of a user.
     /// </summary>
-    /// <param name="organisationsDbContext">The database context to use for accessing user data.</param>
     /// <param name="userId">The userId that the request belongs to</param>
-    /// <param name="userLookupService">The service to use for looking up user information.</param>
-    /// <param name="logger">The logger to use for logging information.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
-    public static async Task<IResult> Handler(
-        DbOrganisationsContext organisationsDbContext,
+    public async Task<IResult> HandleAsync(
         Guid userId,
-        IUserLookupService userLookupService,
-        ILogger<PendingApprovalCounterEndpoint> logger,
         CancellationToken cancellationToken)
     {
         var userExists = await userLookupService.UserExists(userId, cancellationToken);

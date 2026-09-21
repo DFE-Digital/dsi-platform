@@ -8,7 +8,7 @@ public static class UsersApiRoutes
     /// <summary>
     /// The API route for changing a user's name.
     /// </summary>
-    public const string ChangeName = "/internal/Users.ChangeName";
+    public const string ChangeName = "/internal/users/{userId}/change-name";
 
     /// <summary>
     /// The API route for determining if a user is an approver.

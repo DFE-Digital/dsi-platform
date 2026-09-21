@@ -1,10 +1,9 @@
-using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.InternalApi.Endpoints;
-using Dfe.SignIn.InternalApi.Features.Users.ChangeName;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dfe.SignIn.InternalApi.Features.Users.IsApprover;
@@ -12,7 +11,10 @@ namespace Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 /// <summary>
 /// An endpoint exposing user approval permissions
 /// </summary>
-public class IsApproverEndpoint : IEndpoint
+public class IsApproverEndpoint(
+        DbOrganisationsContext organisationsDbContext,
+        ILogger<IsApproverEndpoint> logger
+    ) : IEndpoint
 {
     /// <summary>
     /// Endpoint mapping method holding configuration.
@@ -20,29 +22,25 @@ public class IsApproverEndpoint : IEndpoint
     /// <param name="app">The endpoint route builder to map the endpoint to</param>
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet(UsersApiRoutes.IsApprover, Handler)
+        app.MapGet(UsersApiRoutes.IsApprover, async (
+            [FromRoute] Guid userId,
+            [FromServices] IsApproverEndpoint endpoint,
+            CancellationToken cancellationToken) =>
+            await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Is Approver")
             .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .RequireAuthorization()
-            .WithOpenApi();
+            .WithStandardResponses()
+            .RequireAuthorization();
     }
 
     /// <summary>
     /// Changes the name of a user.
     /// </summary>
     /// <param name="userId">The ID of the user to check for approver status.</param>
-    /// <param name="organisationsDbContext">The database context to use for accessing user data.</param>
-    /// <param name="principal">The claims principle belonging to the logged in user</param>
-    /// <param name="logger">The logger to use for logging information.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
-    public static async Task<IsOrganisationApproverResponse> Handler(
+    public async Task<IsOrganisationApproverResponse> HandleAsync(
         Guid userId,
-        DbOrganisationsContext organisationsDbContext,
-        ClaimsPrincipal principal,
-        ILogger<ChangeNameEndpoint> logger,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Checking if user {userId} is an approver ", userId);

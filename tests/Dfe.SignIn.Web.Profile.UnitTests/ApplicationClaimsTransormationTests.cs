@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Organisations;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Public;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Moq;
 using Moq.AutoMock;
 
@@ -37,8 +38,7 @@ public sealed class ApplicationClaimsTransormationTests
         var userId = Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd");
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IsOrganisationApproverResponse(true));
+            .SetReturnsDefault(Task.FromResult(RefitTestHelper.CreateSuccessResponse(new IsOrganisationApproverResponse(true))));
 
         var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
 
@@ -66,8 +66,7 @@ public sealed class ApplicationClaimsTransormationTests
         var userId = Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd");
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IsOrganisationApproverResponse(false));
+            .SetReturnsDefault(Task.FromResult(RefitTestHelper.CreateSuccessResponse(new IsOrganisationApproverResponse(false))));
 
         var principal = new ClaimsPrincipal([
             new ClaimsIdentity((IEnumerable<Claim>?)[
@@ -90,11 +89,9 @@ public sealed class ApplicationClaimsTransormationTests
         // Arrange
         var autoMocker = new AutoMocker();
         var service = autoMocker.CreateInstance<ApplicationClaimsTransformation>();
-        var userId = Guid.Empty;
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IsOrganisationApproverResponse(false));
+            .SetReturnsDefault(Task.FromResult(RefitTestHelper.CreateSuccessResponse(new IsOrganisationApproverResponse(false))));
 
         var principal = new ClaimsPrincipal([
             new ClaimsIdentity((IEnumerable<Claim>?)[],
@@ -114,8 +111,7 @@ public sealed class ApplicationClaimsTransormationTests
         var userId = Guid.Parse("286101e9-a2dd-4894-bb3b-aefa8ea60ecd");
 
         autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.IsApprover(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IsOrganisationApproverResponse(false));
+            .SetReturnsDefault(Task.FromResult(RefitTestHelper.CreateSuccessResponse(new IsOrganisationApproverResponse(false))));
 
         var principal = new ClaimsPrincipal([
             new ClaimsIdentity((IEnumerable<Claim>?)[
@@ -125,7 +121,7 @@ public sealed class ApplicationClaimsTransormationTests
           ]);
 
         // Act
-        var result = await service.TransformAsync(principal);
+        await service.TransformAsync(principal);
 
         // Assert
         autoMocker.GetMock<IUsersApiClient>().Verify(x => x.IsApprover(

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
+using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
@@ -14,7 +15,7 @@ namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users;
 [Trait("Category", "Integration")]
 public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
 {
-    private static string GetEndpoint(Guid? userId) => $"internal/Users.ChangeName?userId={userId}";
+    private static string GetEndpoint(Guid? userId) => $"internal/users/{userId}/change-name";
 
     public ChangeNameTests(InternalApiWebApplicationFactory factory)
         : base(factory)
@@ -38,7 +39,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = expectedFirstName,
             LastName = expectedLastName
         });
@@ -66,7 +66,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         var userId = Guid.NewGuid();
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(userId), new ChangeNameRequest {
-            UserId = userId,
             FirstName = "Jane",
             LastName = "Smith"
         });
@@ -82,7 +81,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         var userId = Guid.NewGuid();
 
         var response = await anonymousClient.PostAsJsonAsync(GetEndpoint(userId), new ChangeNameRequest {
-            UserId = userId,
             FirstName = "Jane",
             LastName = "Smith"
         });
@@ -107,7 +105,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = firstName,
             LastName = lastName
         });
@@ -137,7 +134,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = newFirstName,
             LastName = newLastName
         });
@@ -165,7 +161,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         var userToUpdate = users[1];
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(userToUpdate.Sub), new ChangeNameRequest {
-            UserId = userToUpdate.Sub,
             FirstName = newFirstName,
             LastName = newLastName
         });
@@ -200,7 +195,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = invalidFirstName,
             LastName = "Smith"
         });
@@ -221,7 +215,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = "Jane",
             LastName = invalidLastName
         });
@@ -242,7 +235,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = longFirstName,
             LastName = "Smith"
         });
@@ -263,7 +255,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = "Jane",
             LastName = longLastName
         });
@@ -290,7 +281,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = newFirstName,
             LastName = initialLastName
         });
@@ -326,7 +316,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = initialFirstName,
             LastName = newLastName
         });
@@ -359,7 +348,6 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
 
         var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
-            UserId = user.Sub,
             FirstName = newFirstName,
             LastName = newLastName
         });
@@ -369,5 +357,82 @@ public class ChangeNameTests : InternalApiIntegrationEndpointTestBase
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
         Assert.Equal(expectedFirstName, updatedUser.FirstName);
         Assert.Equal(expectedLastName, updatedUser.LastName);
+    }
+
+    [Fact]
+    public async Task ChangeName_UpdatesNames_PublishesUserUpdated()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var newFirstName = "Jane";
+        var newLastName = "Smith";
+        var user = EntityFaker.User.Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
+            FirstName = newFirstName,
+            LastName = newLastName
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+        Assert.Equal(newFirstName, updatedUser.FirstName);
+        Assert.Equal(newLastName, updatedUser.LastName);
+
+        var userUpdatedEvent = Assert.Single(this.FakeEventPublisher.GetPublishedEvents<UserUpdatedEvent>());
+        Assert.Equal(user.Sub, userUpdatedEvent.UserId);
+        Assert.Equal(user.Email, userUpdatedEvent.Email);
+        Assert.Equal(newFirstName, userUpdatedEvent.FirstName);
+        Assert.Equal(newLastName, userUpdatedEvent.LastName);
+        Assert.Equal(user.Status, userUpdatedEvent.Status);
+    }
+
+    [Fact]
+    public async Task ChangeName_ReturnsNotFound_DoesNotPublishUserUpdatedAsync()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var user = EntityFaker.User.Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(Guid.NewGuid()), new ChangeNameRequest {
+            FirstName = "na",
+            LastName = "na"
+        });
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Empty(this.FakeEventPublisher.GetPublishedEvents<UserUpdatedEvent>());
+    }
+
+    [Fact]
+    public async Task ChangeName_WhenNoChangesInName_DoesNotPublishUserUpdated()
+    {
+        var authenticatedClient = this
+            .CreateClient()
+            .WithAuthentication();
+
+        var user = EntityFaker.User.Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangeNameRequest {
+            FirstName = user.FirstName,
+            LastName = user.LastName
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db => db.Users.SingleAsync(x => x.Sub == user.Sub));
+        Assert.Equal(user.FirstName, updatedUser.FirstName);
+        Assert.Equal(user.LastName, updatedUser.LastName);
+
+        Assert.Empty(this.FakeEventPublisher.GetPublishedEvents<UserUpdatedEvent>());
     }
 }

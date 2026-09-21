@@ -100,7 +100,9 @@ if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 }
 
-builder.Services.AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
+builder.Services
+    .AddAuditingWithServiceBus(builder.Configuration, builder.Environment)
+    .AddMessagingServices();
 
 builder.Services
     .AddGovNotify(builder.Configuration)

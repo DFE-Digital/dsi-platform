@@ -227,10 +227,10 @@ public sealed class ChangeNameControllerTests
 
         var controller = CreateController(autoMocker, isEntra: true);
 
-        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
+        await controller.PostIndex(CreateValidChangeNameViewModel());
 
         userClientMock.Verify(
-             x => x.ChangeName(It.Is<ChangeNameRequest>(request =>
+             x => x.ChangeName(It.IsAny<Guid>(), It.Is<ChangeNameRequest>(request =>
                  request.FirstName == "Alex" &&
                  request.LastName == "Johnson")),
              Times.Once);
