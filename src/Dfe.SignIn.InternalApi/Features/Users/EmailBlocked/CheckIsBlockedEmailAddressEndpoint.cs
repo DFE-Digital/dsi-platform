@@ -33,7 +33,7 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
-            .WithOpenApi();
+            .WithStandardResponses();
     }
 
     /// <summary>
