@@ -86,7 +86,6 @@ public static class UsersFeature
 
         services.AddScoped<IRemoveInviteService, RemoveInviteService>();
         services.AddScoped<GenericEmailCheck>();
-        services.AddScoped<IUserCreator, UserCreator>();
 
         // Register class-based endpoints with DI
         NewEndpointRegistry.RegisterServices(services);
