@@ -33,6 +33,13 @@ public sealed class TokenIssuanceStartHandler(
             LastName = @event.Data.AuthenticationContext.User.Surname.Trim()
         });
 
+        if (!checkLinkedResponse.IsSuccessStatusCode) {
+            throw new InvalidOperationException($"Auto-link failed. Status code: {checkLinkedResponse.StatusCode}");
+        }
+
+        var response = checkLinkedResponse.Content ??
+            throw new InvalidOperationException("Auto-link returned no content.");
+
         return ResponseAction(new ProvideClaimsForTokenAction {
             Claims = new() {
                 [DsiClaimTypes.UserId] = checkLinkedResponse.Content.UserId.ToString(),
