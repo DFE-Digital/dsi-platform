@@ -40,10 +40,7 @@ builder.Services
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions();
 
-builder.Services.AddOptions<NotificationSettings>()
-.BindConfiguration(NotificationSettings.SectionName)
-.ValidateDataAnnotations()
-.ValidateOnStart();
+builder.Services.AddOptionsWithValidation<NotificationSettings>(NotificationSettings.SectionName);
 
 builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
