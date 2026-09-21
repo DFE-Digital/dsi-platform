@@ -85,8 +85,8 @@ builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
     .SetupAuditContext();
 
-builder.Services.AddOptions<EmailRestrictions>()
-.BindConfiguration(EmailRestrictions.SectionName)
+builder.Services.AddOptions<EmailRestrictionsSettings>()
+.BindConfiguration(EmailRestrictionsSettings.SectionName)
 .ValidateDataAnnotations()
 .ValidateOnStart();
 

@@ -14,7 +14,7 @@ namespace Dfe.SignIn.InternalApi.Features.Users.EmailBlocked;
 /// <param name="emailRestrictionsConfiguration">Configuration options containing the values for blacklisting</param>
 /// <param name="logger"></param>
 public sealed class CheckIsBlockedEmailAddressEndpoint(
-    IOptions<EmailRestrictions> emailRestrictionsConfiguration,
+    IOptions<EmailRestrictionsSettings> emailRestrictionsConfiguration,
     ILogger<CheckIsBlockedEmailAddressEndpoint> logger) : IEndpoint
 {
     /// <summary>

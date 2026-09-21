@@ -3,8 +3,11 @@ namespace Dfe.SignIn.InternalApi.Configuration;
 /// <summary>
 /// 
 /// </summary>
-public sealed class EmailRestrictions
+public sealed class EmailRestrictionsSettings
 {
+    /// <summary>
+    /// Name of the key associated with the settings section held in configuration
+    /// </summary>
     public static string SectionName = "EmailRestrictions";
 
     /// <summary>

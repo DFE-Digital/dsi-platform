@@ -11,7 +11,7 @@ public class GenericEmailCheckerTests
     [TestMethod]
     public void IsEmailGeneric_ReturnsTrue_WhenEmailExistsInList()
     {
-        var options = Options.Create(new EmailRestrictions {
+        var options = Options.Create(new EmailRestrictionsSettings {
             GenericEmailStrings = ["admin", "adminoffice"]
         });
 
@@ -27,7 +27,7 @@ public class GenericEmailCheckerTests
     public void IsEmailGeneric_ReturnsFalse_WhenEmailDoesNotExistInList()
     {
         // Arrange
-        var options = Options.Create(new EmailRestrictions {
+        var options = Options.Create(new EmailRestrictionsSettings {
             GenericEmailStrings = ["admin", "adminoffice"]
         });
 
@@ -44,7 +44,7 @@ public class GenericEmailCheckerTests
     public void IsEmailGeneric_ReturnsFalse_WhenConfigurationValueMissing()
     {
         // Arrange
-        var options = Options.Create(new EmailRestrictions());
+        var options = Options.Create(new EmailRestrictionsSettings());
 
         var sut = new GenericEmailCheck(options);
 
@@ -59,7 +59,7 @@ public class GenericEmailCheckerTests
     public void IsEmailGeneric_ReturnsFalse_WhenListIsEmpty()
     {
         // Arrange
-        var options = Options.Create(new EmailRestrictions {
+        var options = Options.Create(new EmailRestrictionsSettings {
             GenericEmailStrings = []
         });
 

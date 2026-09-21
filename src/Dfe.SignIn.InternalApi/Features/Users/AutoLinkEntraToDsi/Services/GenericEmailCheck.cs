@@ -10,7 +10,7 @@ namespace Dfe.SignIn.InternalApi.Features.Users.AutoLinkEntraToDsi.Services;
 /// generic blacklist.
 /// </summary>
 /// <param name="emailRestrictions"></param>
-public sealed class GenericEmailCheck(IOptions<EmailRestrictions> emailRestrictions)
+public sealed class GenericEmailCheck(IOptions<EmailRestrictionsSettings> emailRestrictions)
 {
     /// <summary>
     /// A check to determine if an email address is generic.
