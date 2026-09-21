@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Base.Framework.Results;
 using Dfe.SignIn.Core.Contracts.Audit;
@@ -177,6 +178,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         return (nameUpdated, entraAccountLinked);
     }
 
+    [ExcludeFromCodeCoverage]
     private async Task<Result<Guid>> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
     {
         // User does not exist in the system; is there a pending invitation?
