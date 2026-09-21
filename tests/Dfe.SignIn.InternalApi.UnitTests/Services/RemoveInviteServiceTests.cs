@@ -46,4 +46,25 @@ public class RemoveInviteServiceTests
             ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Delete),
             ItExpr.IsAny<CancellationToken>());
     }
+
+    [TestMethod]
+    public async Task Handle_LogsWarning_WhenDeleteFails()
+    {
+        // Arrange
+        var invitationId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>()).ThrowsAsync(new HttpRequestException());
+
+        var client = new HttpClient(handler.Object);
+
+        var logger = new Mock<ILogger<RemoveInviteService>>();
+        var sut = new RemoveInviteService(client, logger.Object);
+
+        // Act
+        await sut.Handle(userId, invitationId);
+
+        // Assert
+        logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
 }
