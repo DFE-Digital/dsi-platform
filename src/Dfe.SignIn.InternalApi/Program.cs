@@ -40,7 +40,8 @@ builder.Services
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions();
 
-builder.Services.AddOptionsWithValidation<NotificationSettings>(NotificationSettings.SectionName);
+builder.Services
+    .AddOptionsWithValidation<NotificationSettings>(NotificationSettings.SectionName);
 
 builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
@@ -82,10 +83,8 @@ builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
     .SetupAuditContext();
 
-builder.Services.AddOptions<EmailRestrictionsSettings>()
-.BindConfiguration(EmailRestrictionsSettings.SectionName)
-.ValidateDataAnnotations()
-.ValidateOnStart();
+builder.Services
+    .AddOptionsWithValidation<EmailRestrictionsSettings>(EmailRestrictionsSettings.SectionName);
 
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
