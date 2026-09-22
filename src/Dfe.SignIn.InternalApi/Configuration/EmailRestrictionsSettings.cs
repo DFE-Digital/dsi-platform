@@ -8,7 +8,7 @@ public sealed class EmailRestrictionsSettings
     /// <summary>
     /// Name of the key associated with the settings section held in configuration
     /// </summary>
-    public static string SectionName = "EmailRestrictions";
+    public const string SectionName = "EmailRestrictions";
 
     /// <summary>
     /// Gets the list of blocked domain names.
