@@ -1,5 +1,5 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +11,10 @@ namespace Dfe.SignIn.InternalApi.Features.Users.EmailBlocked;
 /// <summary>
 /// Endpoint for determing if an email address is valid
 /// </summary>
-/// <param name="blockedEmailAddressOptions">Configuration options containing the values for blacklisting</param>
+/// <param name="emailRestrictionsConfiguration">Configuration options containing the values for blacklisting</param>
 /// <param name="logger"></param>
 public sealed class CheckIsBlockedEmailAddressEndpoint(
-    IOptions<BlockedEmailAddressOptions> blockedEmailAddressOptions,
+    IOptions<EmailRestrictionsSettings> emailRestrictionsConfiguration,
     ILogger<CheckIsBlockedEmailAddressEndpoint> logger) : IEndpoint
 {
     /// <summary>
@@ -30,10 +30,8 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
             endpoint.Handle(emailAddressToValidate))
             .WithName("Validates provided email against blacklist")
             .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .WithOpenApi();
+            .WithStandardResponses()
+            .WithValidationFilter<CheckIsBlockedEmailAddressRequest>();
     }
 
     /// <summary>
@@ -46,24 +44,13 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
     {
         logger.LogInformation("Determining if provided email is blacklisted.");
 
-        if (string.IsNullOrEmpty(request.EmailAddress)) {
-            return Results.BadRequest("Email address is required.");
-        }
-
-        var isValid = Core.Contracts.StringPatterns.EmailAddressRegex()
-                    .IsMatch(request.EmailAddress);
-
-        if (!isValid) {
-            return Results.BadRequest("Email address is invalid.");
-        }
-
         var parts = request.EmailAddress.Split('@');
 
         var localPart = parts[0];
         var domain = parts[1];
 
-        var blockedDomains = blockedEmailAddressOptions.Value.BlockedDomains;
-        var blockedNames = blockedEmailAddressOptions.Value.BlockedNames;
+        var blockedDomains = emailRestrictionsConfiguration.Value.BlockedDomains;
+        var blockedNames = emailRestrictionsConfiguration.Value.BlockedNames;
 
         var isBlockedDomain = blockedDomains.Contains(domain, StringComparer.OrdinalIgnoreCase);
         var isBlockedName = blockedNames.Any(blockedName => {

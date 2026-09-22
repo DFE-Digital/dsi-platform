@@ -30,8 +30,4 @@ public interface IPasswordHasher
     /// </summary>
     bool IsAttemptingToReusePassword(string newPassword, IEnumerable<(string PolicyCode, string PasswordHash, string Salt)>? passwordHistory);
 
-    /// <summary>
-    /// Gets the latest password hashing policy code.
-    /// </summary>
-    string LatestPolicyCode { get; }
 }

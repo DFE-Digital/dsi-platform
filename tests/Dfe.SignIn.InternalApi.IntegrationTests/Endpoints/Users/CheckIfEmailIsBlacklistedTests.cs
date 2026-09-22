@@ -1,7 +1,7 @@
 
 using System.Net;
 using System.Net.Http.Json;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
 using Assert = Xunit.Assert;
 
