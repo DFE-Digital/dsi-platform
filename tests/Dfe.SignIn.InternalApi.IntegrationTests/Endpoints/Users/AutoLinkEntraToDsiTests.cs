@@ -77,7 +77,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.IsEntra, (_, _) => true)
             .RuleFor(x => x.EntraOid, (_, _) => entraId)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)0)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Inactive)
             .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
@@ -97,7 +97,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db =>
         db.Users.SingleAsync(x => x.Sub == user.Sub && x.Email == "test@Test.com"));
 
-        Assert.Equal(0, user.Status);
+        Assert.Equal((short)AccountStatus.Inactive, user.Status);
         Assert.Equal(user.FirstName, updatedUser.FirstName);
         Assert.Equal(user.LastName, updatedUser.LastName);
         Assert.Equal(user.Email, updatedUser.Email);
@@ -123,7 +123,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
             .RuleFor(x => x.IsEntra, (_, _) => false)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)1)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Active)
             .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
@@ -143,7 +143,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db =>
         db.Users.SingleAsync(x => x.Sub == user.Sub && x.Email == "test@Test.com"));
 
-        Assert.Equal(1, user.Status);
+        Assert.Equal((short)AccountStatus.Active, user.Status);
         Assert.Equal(user.FirstName, updatedUser.FirstName);
         Assert.Equal(user.LastName, updatedUser.LastName);
         Assert.Equal(user.Email, updatedUser.Email);
@@ -170,7 +170,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
             .RuleFor(x => x.IsEntra, (_, _) => false)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)0)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Inactive)
             .Generate();
 
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
@@ -190,7 +190,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db =>
         db.Users.SingleAsync(x => x.Sub == user.Sub && x.Email == "test@Test.com"));
 
-        Assert.Equal(0, user.Status);
+        Assert.Equal((short)AccountStatus.Inactive, user.Status);
         Assert.Equal(user.FirstName, updatedUser.FirstName);
         Assert.Equal(user.LastName, updatedUser.LastName);
         Assert.Equal(user.Email, updatedUser.Email);
@@ -218,7 +218,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
             .RuleFor(x => x.IsEntra, (_, _) => false)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)1)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Active)
             .RuleFor(x => x.EntraOid, (_, _) => OtherEntraId)
             .Generate();
 
@@ -239,7 +239,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db =>
         db.Users.SingleAsync(x => x.Sub == user.Sub && x.Email == "test@Test.com"));
 
-        Assert.Equal(1, user.Status);
+        Assert.Equal((short)AccountStatus.Active, user.Status);
         Assert.Equal(user.FirstName, updatedUser.FirstName);
         Assert.Equal(user.LastName, updatedUser.LastName);
         Assert.Equal(user.Email, updatedUser.Email);
@@ -263,7 +263,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
             .RuleFor(x => x.IsEntra, (_, _) => false)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)1)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Active)
             .RuleFor(x => x.FirstName, (_, _) => "Test123")
             .Generate();
 
@@ -284,7 +284,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db =>
         db.Users.SingleAsync(x => x.Sub == user.Sub && x.Email == "test@Test.com"));
 
-        Assert.Equal(1, user.Status);
+        Assert.Equal((short)AccountStatus.Active, user.Status);
         Assert.Equal("Test", updatedUser.FirstName);
         Assert.Equal(user.LastName, updatedUser.LastName);
         Assert.Equal(user.Email, updatedUser.Email);
@@ -308,7 +308,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
             .RuleFor(x => x.IsEntra, (_, _) => false)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)1)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Active)
             .RuleFor(x => x.FirstName, (_, _) => "Test123")
             .RuleFor(x => x.LastName, (_, _) => "LastName123")
             .Generate();
@@ -330,7 +330,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
         var updatedUser = await this.ExecuteDbContextAsync<DbDirectoriesContext, UserEntity>(db =>
         db.Users.SingleAsync(x => x.Sub == user.Sub && x.Email == "test@Test.com"));
 
-        Assert.Equal(1, user.Status);
+        Assert.Equal((short)AccountStatus.Active, user.Status);
         Assert.Equal("Test", updatedUser.FirstName);
         Assert.Equal("LastName", updatedUser.LastName);
         Assert.Equal(user.Email, updatedUser.Email);
@@ -354,7 +354,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
             .RuleFor(x => x.IsEntra, (_, _) => false)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)1)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Active)
             .RuleFor(x => x.FirstName, (_, _) => "Test123")
             .RuleFor(x => x.LastName, (_, _) => "LastName123")
             .Generate();
@@ -402,7 +402,7 @@ public class AutoLinkEntraToDsiTests : InternalApiIntegrationEndpointTestBase
             .RuleFor(x => x.JobTitle, (_, _) => "Old Title")
             .RuleFor(x => x.IsEntra, (_, _) => false)
             .RuleFor(x => x.Email, (_, _) => "test@Test.com")
-            .RuleFor(x => x.Status, (_, _) => (short)1)
+            .RuleFor(x => x.Status, (_, _) => (short)AccountStatus.Active)
             .RuleFor(x => x.FirstName, (_, _) => "Test")
             .RuleFor(x => x.LastName, (_, _) => "LastName")
             .Generate();
