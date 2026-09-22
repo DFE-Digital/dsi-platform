@@ -1,5 +1,5 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Microsoft.AspNetCore.Mvc;
@@ -30,10 +30,8 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
             endpoint.Handle(emailAddressToValidate))
             .WithName("Validates provided email against blacklist")
             .WithTags("Users")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .WithStandardResponses();
+            .WithStandardResponses()
+            .WithValidationFilter<CheckIsBlockedEmailAddressRequest>();
     }
 
     /// <summary>
@@ -45,17 +43,6 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
         CheckIsBlockedEmailAddressRequest request)
     {
         logger.LogInformation("Determining if provided email is blacklisted.");
-
-        if (string.IsNullOrEmpty(request.EmailAddress)) {
-            return Results.BadRequest("Email address is required.");
-        }
-
-        var isValid = Core.Contracts.StringPatterns.EmailAddressRegex()
-                    .IsMatch(request.EmailAddress);
-
-        if (!isValid) {
-            return Results.BadRequest("Email address is invalid.");
-        }
 
         var parts = request.EmailAddress.Split('@');
 
