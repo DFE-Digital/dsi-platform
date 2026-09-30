@@ -1,5 +1,3 @@
-using Org.BouncyCastle.Pkcs;
-
 namespace Dfe.SignIn.Core.Contracts.Audit;
 
 /// <summary>
