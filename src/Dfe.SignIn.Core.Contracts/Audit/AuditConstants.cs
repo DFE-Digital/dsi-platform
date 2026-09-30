@@ -1,3 +1,5 @@
+using Org.BouncyCastle.Pkcs;
+
 namespace Dfe.SignIn.Core.Contracts.Audit;
 
 /// <summary>
@@ -137,4 +139,9 @@ public static class AuditChangePasswordEventNames
     /// Indicates that an incorrect password was provided.
     /// </summary>
     public const string IncorrectPassword = "incorrect-password";
+
+    /// <summary>
+    /// Incidaes that change password data failed validation requirements.
+    /// </summary>
+    public const string PasswordValidation = "password-validation";
 }
