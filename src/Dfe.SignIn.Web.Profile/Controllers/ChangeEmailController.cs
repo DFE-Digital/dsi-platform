@@ -63,7 +63,7 @@ public sealed class ChangeEmailController(
 
         var request = new InitiateChangeEmailAddressRequest(
             oidcOptionsAccessor.CurrentValue.ClientId,
-            viewModel.EmailAddressInput,
+            viewModel.EmailAddressInput!,
             true
         );
 
