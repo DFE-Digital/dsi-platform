@@ -177,7 +177,7 @@ public sealed class ChangeNameEndpointTests
     }
 
     [TestMethod]
-    public async Task HandleAsync_WhenEntraUserFails_RollsBackDb_DoesNotAuditOrPublishEvent_AndReturnsProblem()
+    public async Task HandleAsync_WhenEntraUserFails_RollsBackDb_AuditsFailure_DoesNotPublishEvent_AndReturnsProblem()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -206,8 +206,39 @@ public sealed class ChangeNameEndpointTests
         Assert.AreEqual("John", revertedUser.FirstName);
         Assert.AreEqual("Doe", revertedUser.LastName);
 
-        // Verify no success audit and no published events
-        this.auditWriterMock.Verify(x => x.Log(It.IsAny<WriteToAuditRequest>()), Times.Never);
+        // Verify failure audit and no published events
+        this.auditWriterMock.Verify(x => x.Log(It.Is<WriteToAuditRequest>(a =>
+            a.UserId == userId &&
+            a.EventCategory == AuditEventCategoryNames.ChangeName &&
+            a.Message == $"Failed to change name to Jane Smith (id: {userId})" &&
+            a.WasFailure == true
+        )), Times.Once);
         this.eventPublisherMock.Verify(x => x.PublishAsync(It.IsAny<UserUpdatedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task HandleAsync_WhenEventPublishingFails_LogsError_AndReturnsOk()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var user = CreateTestUser(userId, "John", "Doe", isEntra: false);
+        this.dbContext.Users.Add(user);
+        await this.dbContext.SaveChangesAsync();
+
+        this.eventPublisherMock
+            .Setup(x => x.PublishAsync(It.IsAny<UserUpdatedEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Service bus down"));
+
+        var endpoint = this.CreateEndpoint();
+        var request = new ChangeNameRequest { FirstName = "Jane", LastName = "Smith" };
+
+        // Act
+        var result = await endpoint.HandleAsync(userId, request, CancellationToken.None);
+
+        // Assert
+        Assert.IsInstanceOfType<Ok>(result);
+        var updatedUser = await this.dbContext.Users.SingleAsync(x => x.Sub == userId);
+        Assert.AreEqual("Jane", updatedUser.FirstName);
+        Assert.AreEqual("Smith", updatedUser.LastName);
     }
 }

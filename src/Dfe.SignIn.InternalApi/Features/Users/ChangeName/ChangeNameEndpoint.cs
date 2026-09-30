@@ -132,6 +132,9 @@ public sealed class ChangeNameEndpoint(
             user.EntraOid.Value,
             entraUpdateResult.Error.Description);
 
+        var targetFirstName = user.FirstName;
+        var targetLastName = user.LastName;
+
         user.FirstName = originalFirstName;
         user.LastName = originalLastName;
 
@@ -147,7 +150,7 @@ public sealed class ChangeNameEndpoint(
 
         await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeName,
-            Message = $"Failed to change name to {user.FirstName} {user.LastName} (id: {user.Sub})",
+            Message = $"Failed to change name to {targetFirstName} {targetLastName} (id: {user.Sub})",
             UserId = user.Sub,
             WasFailure = true
         });
