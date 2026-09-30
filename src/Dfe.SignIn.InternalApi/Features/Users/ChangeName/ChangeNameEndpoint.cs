@@ -1,8 +1,10 @@
 using Dfe.SignIn.Base.Framework;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
+using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Interfaces.Messaging;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.Gateways.Entra.ChangeName;
@@ -80,28 +82,10 @@ public sealed class ChangeNameEndpoint(
         await directoriesDbContext.SaveChangesAsync(cancellationToken);
 
         if (user.IsEntraUser()) {
-            var entraUpdateResult = await entraChangeNameService.ChangeNameAsync(user.EntraOid!.Value, user.FirstName, user.LastName, cancellationToken);
-            if (!entraUpdateResult.IsSuccess) {
-                logger.LogError(
-                    "Failed to change name in Entra for user {UserId} (EntraOid: {EntraOid}): {Error}. Rolling back database change.",
-                    userId,
-                    user.EntraOid.Value,
-                    entraUpdateResult.Error.Description);
-
-                try {
-                    user.FirstName = originalFirstName;
-                    user.LastName = originalLastName;
-                    await directoriesDbContext.SaveChangesAsync(cancellationToken);
-                }
-                catch (Exception rollbackEx) {
-                    logger.LogCritical(
-                        rollbackEx,
-                        "CRITICAL: Failed to roll back database write for user {UserId} after Entra sync failure!",
-                        userId);
-                }
-
+            var syncResult = await this.TrySyncEntraNameAsync(user, originalFirstName, originalLastName, cancellationToken);
+            if (syncResult.IsFailure) {
                 return Results.Problem(
-                    detail: entraUpdateResult.Error.Description,
+                    detail: syncResult.Error.Description,
                     statusCode: StatusCodes.Status500InternalServerError);
             }
         }
@@ -109,7 +93,7 @@ public sealed class ChangeNameEndpoint(
         await auditWriter.Log(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.ChangeName,
             Message = $"Successfully changed users name to {user.FirstName} {user.LastName}",
-            UserId = userId,
+            UserId = user.Sub,
         });
 
         try {
@@ -128,5 +112,39 @@ public sealed class ChangeNameEndpoint(
         logger.LogInformation("Successfully changed name for user {UserId}", userId);
 
         return Results.Ok();
+    }
+
+    private async Task<OperationResult> TrySyncEntraNameAsync(
+        UserEntity user,
+        string originalFirstName,
+        string originalLastName,
+        CancellationToken cancellationToken)
+    {
+        var entraUpdateResult = await entraChangeNameService.ChangeNameAsync(user.EntraOid!.Value, user.FirstName, user.LastName, cancellationToken);
+
+        if (entraUpdateResult.IsSuccess) {
+            return OperationResult.Success();
+        }
+
+        logger.LogError(
+            "Failed to change name in Entra for user {UserId} (EntraOid: {EntraOid}): {Error}. Rolling back database change.",
+            user.Sub,
+            user.EntraOid.Value,
+            entraUpdateResult.Error.Description);
+
+        user.FirstName = originalFirstName;
+        user.LastName = originalLastName;
+
+        try {
+            await directoriesDbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception rollbackEx) {
+            logger.LogCritical(
+                rollbackEx,
+                "CRITICAL: Failed to roll back database write for user {UserId} after Entra sync failure!",
+                user.Sub);
+        }
+
+        return entraUpdateResult;
     }
 }
