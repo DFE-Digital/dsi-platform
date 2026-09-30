@@ -211,8 +211,7 @@ public sealed class ChangeNameEndpointTests
             a.UserId == userId &&
             a.EventCategory == AuditEventCategoryNames.ChangeName &&
             a.Message == $"Failed to change name to Jane Smith (id: {userId})" &&
-            a.WasFailure == true
-        )), Times.Once);
+            a.WasFailure)), Times.Once);
         this.eventPublisherMock.Verify(x => x.PublishAsync(It.IsAny<UserUpdatedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

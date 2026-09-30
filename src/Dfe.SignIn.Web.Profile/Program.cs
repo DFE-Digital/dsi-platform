@@ -1,7 +1,6 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
@@ -120,8 +119,7 @@ if (builder.Environment.IsEnvironment("Local")) {
     builder.Services.PostConfigure<OpenIdConnectOptions>(
         OpenIdConnectDefaults.AuthenticationScheme, options => {
             options.BackchannelHttpHandler = new HttpClientHandler {
-                ServerCertificateCustomValidationCallback = // NOSONAR
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator // NOSONAR
             };
         });
 }

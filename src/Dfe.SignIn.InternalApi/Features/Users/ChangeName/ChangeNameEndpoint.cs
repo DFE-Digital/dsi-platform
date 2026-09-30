@@ -84,6 +84,14 @@ public sealed class ChangeNameEndpoint(
         if (user.IsEntraUser()) {
             var syncResult = await this.TrySyncEntraNameAsync(user, originalFirstName, originalLastName, cancellationToken);
             if (syncResult.IsFailure) {
+
+                await auditWriter.Log(new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.ChangeName,
+                    Message = $"Failed to change name to {normalizedFirstName} {normalizedLastName} (id: {user.Sub})",
+                    UserId = user.Sub,
+                    WasFailure = true
+                });
+
                 return Results.Problem(
                     detail: syncResult.Error.Description,
                     statusCode: StatusCodes.Status500InternalServerError);
@@ -132,9 +140,6 @@ public sealed class ChangeNameEndpoint(
             user.EntraOid.Value,
             entraUpdateResult.Error.Description);
 
-        var targetFirstName = user.FirstName;
-        var targetLastName = user.LastName;
-
         user.FirstName = originalFirstName;
         user.LastName = originalLastName;
 
@@ -147,13 +152,6 @@ public sealed class ChangeNameEndpoint(
                 "CRITICAL: Failed to roll back database write for user {UserId} after Entra sync failure!",
                 user.Sub);
         }
-
-        await auditWriter.Log(new WriteToAuditRequest {
-            EventCategory = AuditEventCategoryNames.ChangeName,
-            Message = $"Failed to change name to {targetFirstName} {targetLastName} (id: {user.Sub})",
-            UserId = user.Sub,
-            WasFailure = true
-        });
 
         return entraUpdateResult;
     }
