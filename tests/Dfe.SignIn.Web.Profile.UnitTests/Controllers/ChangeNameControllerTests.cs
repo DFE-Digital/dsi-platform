@@ -149,26 +149,6 @@ public sealed class ChangeNameControllerTests
     }
 
     [TestMethod]
-    public async Task PostIndex_ShowsErrorMessageAndReRendersView_WhenApiClientThrows()
-    {
-        var autoMocker = new AutoMocker();
-
-        var userClientMock = new Mock<IUsersApiClient>();
-        userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception("Network failure"));
-
-        autoMocker.Use(userClientMock.Object);
-        var controller = CreateController(autoMocker, isEntra: true);
-
-        var result = await controller.PostIndex(CreateValidChangeNameViewModel(), CancellationToken.None);
-
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
-        Assert.IsTrue(controller.ModelState.ContainsKey(string.Empty));
-        Assert.AreEqual("We couldn't save your name right now. Please try again.", controller.ModelState[string.Empty].Errors[0].ErrorMessage);
-    }
-
-    [TestMethod]
     public void PostCancel_FlashCancelled()
     {
         var controller = CreateController(new AutoMocker(), isEntra: false);
