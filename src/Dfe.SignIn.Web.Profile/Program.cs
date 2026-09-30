@@ -1,5 +1,4 @@
 using Azure.Identity;
-using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.Gateways.ServiceBus;
@@ -8,6 +7,7 @@ using Dfe.SignIn.Web.Profile;
 using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Services;
 using Dfe.SignIn.WebFramework.Configuration;
+using Dfe.SignIn.WebFramework.Extensions;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using FluentValidation;
@@ -21,7 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 // --- Host / infrastructure ---
 builder.AddServiceDefaults(["/v2/healthcheck"]);
 
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsLocalEnvironment()) {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
@@ -29,11 +29,6 @@ builder.WebHost.ConfigureKestrel((context, options) => {
     options.AddServerHeader = false;
     context.Configuration.GetSection("Kestrel").Bind(options);
 });
-
-// Legacy AzureMonitor section — overlaps with AddServiceDefaults + APPLICATIONINSIGHTS_CONNECTION_STRING.
-if (builder.Configuration.GetSection("AzureMonitor").Exists()) {
-    builder.Services.AddOpenTelemetry().UseAzureMonitor();
-}
 
 builder.Services.Configure<ForwardedHeadersOptions>(options => {
     options.ForwardedHeaders =
@@ -57,10 +52,9 @@ builder.Services
     .AddControllersWithViews()
     .AddDsiMvcExtensions();
 
-builder.Services.ConfigureDsiAntiforgeryCookie();
-
-builder.Services.ConfigureDfeSignInJsonSerializerOptions();
-// .AddInteractionFramework(); // not needed — Profile no longer uses IInteractionDispatcher / interactors
+builder.Services
+    .ConfigureDsiAntiforgeryCookie()
+    .ConfigureDfeSignInJsonSerializerOptions();
 
 // --- Profile app services ---
 builder.Services
@@ -72,14 +66,14 @@ var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient"));
 
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
-builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
+builder.Configuration
+    .GetSection("Azure")
+    .Bind(azureTokenCredentialOptions);
+
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
 // --- Data protection ---
 builder.Services
-    // .Configure<InternalApiClientOptions>(...); // not needed here — moved into another extension (with AddUsersApiClient)
-    // .SetupInternalApiClient(tokenCredential); // not needed — Profile uses Refit IUsersApiClient only
-    // .SetupResiliencePipelines(builder.Configuration); // not needed — only used by SetupInternalApiClient / Node clients
     .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
 // --- Caching ---
@@ -99,7 +93,8 @@ builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 
-builder.Services.SetupFrontendAssets();
+builder.Services
+    .SetupFrontendAssets();
 
 // --- API clients / Entra ---
 builder.Services
@@ -107,7 +102,8 @@ builder.Services
     .AddEntraDelegatedServices()
     .AddUsersApiClient(tokenCredential);
 
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services
+    .AddValidatorsFromAssemblyContaining<Program>();
 
 // TEMP: Add fake interactor implementations.
 // not needed — no interactors in Profile
@@ -115,7 +111,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // --- Local-only overrides ---
 // Allow self-signed IdP certificates on the OIDC backchannel in Local only.
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsLocalEnvironment()) {
     builder.Services.PostConfigure<OpenIdConnectOptions>(
         OpenIdConnectDefaults.AuthenticationScheme, options => {
             options.BackchannelHttpHandler = new HttpClientHandler {
@@ -127,14 +123,11 @@ if (builder.Environment.IsEnvironment("Local")) {
 var app = builder.Build();
 
 // --- Pipeline ---
-// app.UseMiddleware<CancellationContextMiddleware>(); // not needed — only used with interaction framework
-
 app.UseDsiSecurityHeaderPolicy();
 
 if (!app.Environment.IsEnvironment("Local")) {
-    app.UseExceptionHandler("/Error/Index");
-    app.UseHsts();
-    // app.UseHttpsRedirection(); // not needed here — called once below after UseForwardedHeaders
+    app.UseExceptionHandler("/Error/Index")
+       .UseHsts();
 }
 
 app.UseForwardedHeaders();
@@ -142,14 +135,13 @@ app.UseHttpsRedirection();
 app.UseHealthChecks();
 app.UseLogContextEnrichment();
 
-app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1", statusCode: 301));
+app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1", statusCode: 301))
+   .UseRouting();
 
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseMiddleware<UserProfileMiddleware>();
-app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
-app.UseAuthorization();
+app.UseAuthentication()
+   .UseMiddleware<UserProfileMiddleware>()
+   .UseStatusCodePagesWithReExecute("/Error", "?code={0}")
+   .UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
