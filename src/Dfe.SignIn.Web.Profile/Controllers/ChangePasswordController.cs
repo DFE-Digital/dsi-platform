@@ -30,8 +30,10 @@ public sealed partial class ChangePasswordController(
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
         if (userProfileFeature.IsEntra) {
-            var actionResult = await associatedAccountAuthService.AuthenticateAssociatedAccount(
-                this, [AssociatedAccountConstants.DefaultGraphScope], SelectAssociatedReturnLocation.ChangePassword);
+            var actionResult = await associatedAccountAuthService.AuthenticateAssociatedAccount(this,
+                [AssociatedAccountConstants.DefaultGraphScope],
+                SelectAssociatedReturnLocation.ChangePassword);
+
             if (actionResult is not null) {
                 return actionResult;
             }
@@ -47,7 +49,7 @@ public sealed partial class ChangePasswordController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostIndex(ChangePasswordViewModel viewModel)
+    public async Task<IActionResult> PostIndex(ChangePasswordViewModel viewModel, CancellationToken cancellationToken)
     {
         var validationResult = await viewModel.ValidateAsync<ChangePasswordViewModelValidator, ChangePasswordViewModel>();
         if (!validationResult.IsValid) {
@@ -58,8 +60,8 @@ public sealed partial class ChangePasswordController(
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
         var success = userProfileFeature.IsEntra
-            ? await this.TryChangeEntraPasswordAsync(viewModel)
-            : await this.TryChangeLocalPasswordAsync(viewModel, userProfileFeature.UserId);
+            ? await this.TryChangeEntraPasswordAsync(viewModel, cancellationToken)
+            : await this.TryChangeLocalPasswordAsync(viewModel, userProfileFeature.UserId, cancellationToken);
 
         if (!success) {
             return await this.Index();
@@ -73,16 +75,19 @@ public sealed partial class ChangePasswordController(
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
     }
 
-    private async Task<bool> TryChangeEntraPasswordAsync(ChangePasswordViewModel viewModel)
+    private async Task<bool> TryChangeEntraPasswordAsync(ChangePasswordViewModel viewModel, CancellationToken cancellationToken)
     {
         try {
-            var graphAccessToken = await associatedAccountAuthService.CreateAccessTokenForAssociatedAccount(
-                this, [AssociatedAccountConstants.DefaultGraphScope]) ?? throw new InvalidOperationException("Provided graph token for user is null");
+            var graphAccessToken = await associatedAccountAuthService.CreateAccessTokenForAssociatedAccount(this,
+                [AssociatedAccountConstants.DefaultGraphScope],
+                cancellationToken: cancellationToken)
+                ?? throw new InvalidOperationException("Provided graph token for user is null");
 
             var result = await entraChangePasswordService.ChangePasswordAsync(
                 viewModel.CurrentPasswordInput!,
                 viewModel.NewPasswordInput!,
-                graphAccessToken);
+                graphAccessToken,
+                cancellationToken);
 
             if (result.IsSuccess) {
                 return true;
@@ -108,7 +113,7 @@ public sealed partial class ChangePasswordController(
         }
     }
 
-    private async Task<bool> TryChangeLocalPasswordAsync(ChangePasswordViewModel viewModel, Guid userId)
+    private async Task<bool> TryChangeLocalPasswordAsync(ChangePasswordViewModel viewModel, Guid userId, CancellationToken cancellationToken)
     {
         var request = new ChangePasswordRequest {
             CurrentPassword = viewModel.CurrentPasswordInput!,
@@ -116,7 +121,7 @@ public sealed partial class ChangePasswordController(
             ConfirmNewPassword = viewModel.ConfirmNewPasswordInput!,
         };
 
-        var response = await usersApiClient.ChangePassword(userId, request);
+        var response = await usersApiClient.ChangePassword(userId, request, cancellationToken);
 
         if (response.IsSuccessStatusCode) {
             return true;

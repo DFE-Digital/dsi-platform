@@ -21,7 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 // --- Host / infrastructure ---
 builder.AddServiceDefaults(["/v2/healthcheck"]);
 
-if (builder.Environment.IsLocalEnvironment()) {
+if (builder.Environment.IsLocal()) {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
@@ -76,12 +76,6 @@ var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOption
 builder.Services
     .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
-// --- Caching ---
-// not needed — nothing in Profile uses GeneralCache (session + Entra token caches registered elsewhere)
-// builder.Services.SetupRedisCacheStore(
-//     DistributedCacheKeys.GeneralCache,
-//     builder.Configuration.GetRequiredSection("GeneralRedisCache"));
-
 // --- Auditing ---
 builder.Services
     .SetupAuditContext()
@@ -105,13 +99,9 @@ builder.Services
 builder.Services
     .AddValidatorsFromAssemblyContaining<Program>();
 
-// TEMP: Add fake interactor implementations.
-// not needed — no interactors in Profile
-// builder.Services.AddInteractors(InteractorReflectionHelpers.DiscoverInteractorTypesInAssembly(typeof(Program).Assembly));
-
 // --- Local-only overrides ---
 // Allow self-signed IdP certificates on the OIDC backchannel in Local only.
-if (builder.Environment.IsLocalEnvironment()) {
+if (builder.Environment.IsLocal()) {
     builder.Services.PostConfigure<OpenIdConnectOptions>(
         OpenIdConnectDefaults.AuthenticationScheme, options => {
             options.BackchannelHttpHandler = new HttpClientHandler {
@@ -125,7 +115,7 @@ var app = builder.Build();
 // --- Pipeline ---
 app.UseDsiSecurityHeaderPolicy();
 
-if (!app.Environment.IsEnvironment("Local")) {
+if (!app.Environment.IsLocal()) {
     app.UseExceptionHandler("/Error/Index")
        .UseHsts();
 }

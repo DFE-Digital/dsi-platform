@@ -81,7 +81,7 @@ public sealed class ChangeNameControllerTests
         var autoMocker = new AutoMocker();
         var controller = CreateController(autoMocker, isEntra: false);
 
-        var result = await controller.PostIndex(new ChangeNameViewModel());
+        var result = await controller.PostIndex(new ChangeNameViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -100,7 +100,7 @@ public sealed class ChangeNameControllerTests
 
         var controller = CreateController(autoMocker, isEntra: false);
 
-        await controller.PostIndex(CreateValidChangeNameViewModel());
+        await controller.PostIndex(CreateValidChangeNameViewModel(), CancellationToken.None);
 
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNotNull(flashNotification);
@@ -121,7 +121,7 @@ public sealed class ChangeNameControllerTests
         autoMocker.Use(userClientMock.Object);
         var controller = CreateController(autoMocker, isEntra: false);
 
-        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
+        var result = await controller.PostIndex(CreateValidChangeNameViewModel(), CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
@@ -140,7 +140,7 @@ public sealed class ChangeNameControllerTests
         autoMocker.Use(userClientMock.Object);
         var controller = CreateController(autoMocker, isEntra: true);
 
-        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
+        var result = await controller.PostIndex(CreateValidChangeNameViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -160,7 +160,7 @@ public sealed class ChangeNameControllerTests
         autoMocker.Use(userClientMock.Object);
         var controller = CreateController(autoMocker, isEntra: true);
 
-        var result = await controller.PostIndex(CreateValidChangeNameViewModel());
+        var result = await controller.PostIndex(CreateValidChangeNameViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);

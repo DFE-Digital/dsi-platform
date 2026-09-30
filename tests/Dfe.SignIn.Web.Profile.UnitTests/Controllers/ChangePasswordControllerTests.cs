@@ -160,7 +160,7 @@ public sealed class ChangePasswordControllerTests
         var autoMocker = new AutoMocker();
         var controller = CreateController(autoMocker, isEntraUser: false);
 
-        var result = await controller.PostIndex(new ChangePasswordViewModel());
+        var result = await controller.PostIndex(new ChangePasswordViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -173,7 +173,7 @@ public sealed class ChangePasswordControllerTests
         var autoMocker = new AutoMocker();
         var controller = CreateController(autoMocker, isEntraUser: false);
 
-        await controller.PostIndex(CreateValidChangePasswordViewModel());
+        await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         autoMocker.GetMock<IUsersApiClient>().Verify(x => x.ChangePassword(
             Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
@@ -206,7 +206,7 @@ public sealed class ChangePasswordControllerTests
 
         var controller = CreateController(autoMocker, isEntraUser: true);
 
-        await controller.PostIndex(CreateValidChangePasswordViewModel());
+        await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         autoMocker.GetMock<IEntraChangePasswordService>().Verify(x => x.ChangePasswordAsync(
             "oldpassword",
@@ -222,7 +222,7 @@ public sealed class ChangePasswordControllerTests
         var autoMocker = new AutoMocker();
         var controller = CreateController(autoMocker, isEntraUser: false);
 
-        await controller.PostIndex(CreateValidChangePasswordViewModel());
+        await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNotNull(flashNotification);
@@ -237,7 +237,7 @@ public sealed class ChangePasswordControllerTests
         var autoMocker = new AutoMocker();
         var controller = CreateController(autoMocker, isEntraUser: false);
 
-        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
@@ -260,7 +260,7 @@ public sealed class ChangePasswordControllerTests
             .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(RefitTestHelper.CreateProblemResponse(HttpStatusCode.BadRequest, problemDetails));
 
-        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -289,7 +289,7 @@ public sealed class ChangePasswordControllerTests
             .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(OperationResult.Failure(EntraPasswordErrors.InvalidCurrentPassword));
 
-        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -311,7 +311,7 @@ public sealed class ChangePasswordControllerTests
             .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(mockResponse.Object);
 
-        var result = await controller.PostIndex(CreateValidChangePasswordViewModel());
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);

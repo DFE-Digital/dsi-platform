@@ -12,7 +12,7 @@ public static class EnvironmentExtensions
     /// </summary>
     /// <param name="environment"></param>
     /// <returns></returns>
-    public static bool IsLocalEnvironment(this IWebHostEnvironment environment)
+    public static bool IsLocal(this IWebHostEnvironment environment)
     {
         return environment.IsEnvironment(EnvironmentName.Local);
     }

@@ -32,7 +32,7 @@ public sealed class ChangeNameController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostIndex(ChangeNameViewModel viewModel)
+    public async Task<IActionResult> PostIndex(ChangeNameViewModel viewModel, CancellationToken cancellationToken)
     {
         var validationResult = await viewModel.ValidateAsync<ChangeNameViewModelValidator, ChangeNameViewModel>();
         if (!validationResult.IsValid) {
@@ -40,13 +40,20 @@ public sealed class ChangeNameController(
             return this.Index();
         }
 
-        var userDetails = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
-        if (string.Equals(viewModel.FirstNameInput, userDetails.FirstName, StringComparison.InvariantCultureIgnoreCase)
-            && string.Equals(viewModel.LastNameInput, userDetails.LastName, StringComparison.InvariantCultureIgnoreCase)) {
+        if (!this.HasNameChanged(viewModel)) {
             return this.Index();
         }
 
-        if (!await this.TryChangeNameAsync(viewModel)) {
+        var request = new ChangeNameRequest {
+            FirstName = viewModel.FirstNameInput ?? string.Empty,
+            LastName = viewModel.LastNameInput ?? string.Empty,
+        };
+
+        var response = await usersApiClient.ChangeName(this.User.GetUserId(), request, cancellationToken);
+
+        if (!response.IsSuccessStatusCode) {
+            logger.LogError("Failed to change name for user {UserId}. StatusCode: {StatusCode}", this.User.GetUserId(), response.StatusCode);
+            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
             return this.Index();
         }
 
@@ -58,29 +65,14 @@ public sealed class ChangeNameController(
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
     }
 
-    private async Task<bool> TryChangeNameAsync(ChangeNameViewModel viewModel)
+    private bool HasNameChanged(ChangeNameViewModel viewModel)
     {
-        try {
-            var request = new ChangeNameRequest {
-                FirstName = viewModel.FirstNameInput ?? string.Empty,
-                LastName = viewModel.LastNameInput ?? string.Empty,
-            };
+        var userDetails = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
-            var response = await usersApiClient.ChangeName(this.User.GetUserId(), request);
+        var firstNameChanged = !string.Equals(viewModel.FirstNameInput, userDetails.FirstName, StringComparison.OrdinalIgnoreCase);
+        var lastNameChanged = !string.Equals(viewModel.LastNameInput, userDetails.LastName, StringComparison.OrdinalIgnoreCase);
 
-            if (response.IsSuccessStatusCode) {
-                return true;
-            }
-
-            logger.LogError("Failed to change name for user {UserId}. StatusCode: {StatusCode}", this.User.GetUserId(), response.StatusCode);
-            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
-            return false;
-        }
-        catch (Exception ex) {
-            logger.LogError(ex, "An error occurred while changing the user's name.");
-            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
-            return false;
-        }
+        return firstNameChanged || lastNameChanged;
     }
 
     [HttpPost("cancel")]
