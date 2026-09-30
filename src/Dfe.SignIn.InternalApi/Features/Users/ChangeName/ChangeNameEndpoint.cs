@@ -145,6 +145,13 @@ public sealed class ChangeNameEndpoint(
                 user.Sub);
         }
 
+        await auditWriter.Log(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.ChangeName,
+            Message = $"Failed to change name to {user.FirstName} {user.LastName} (id: {user.Sub})",
+            UserId = user.Sub,
+            WasFailure = true
+        });
+
         return entraUpdateResult;
     }
 }

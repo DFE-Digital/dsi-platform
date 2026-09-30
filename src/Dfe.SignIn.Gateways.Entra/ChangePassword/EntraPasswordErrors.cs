@@ -11,7 +11,7 @@ public static class EntraPasswordErrors
     /// The error code when the provided current password is incorrect.
     /// </summary>
     public const string InvalidCurrentPasswordCode = "Entra.Password.InvalidCurrent";
-    
+
     /// <summary>
     /// The error code when the new password violates policy or is breached.
     /// </summary>
