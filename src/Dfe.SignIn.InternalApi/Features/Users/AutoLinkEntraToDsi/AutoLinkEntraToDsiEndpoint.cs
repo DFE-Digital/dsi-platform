@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Users;
@@ -82,7 +82,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     }
 
     //Result
-    private async Task<Result<Guid>> GetExistingLinkedUserAsync(AutoLinkEntraUserToDsiRequest request,
+    private async Task<OperationResult<Guid>> GetExistingLinkedUserAsync(AutoLinkEntraUserToDsiRequest request,
         CancellationToken cancellationToken)
     {
         var user = await directoriesDbContext.Users
@@ -92,7 +92,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
 
         // User cannot be found via EntraId.
         if (user is null) {
-            return Result.Failure<Guid>(new Error("Users.AutoLinkEntraToDsi.UserNotFound", "User not found"));
+            return OperationResult.Failure<Guid>(new OperationError("Users.AutoLinkEntraToDsi.UserNotFound", "User not found"));
         }
 
         // User exists in the system; are they an active user though?
@@ -101,7 +101,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
         return user.Sub;
     }
 
-    private async Task<Result<Guid>> LinkToExistingDsiUserAsync(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
+    private async Task<OperationResult<Guid>> LinkToExistingDsiUserAsync(AutoLinkEntraUserToDsiRequest request, CancellationToken cancellationToken)
     {
         // Let's try to associate the Entra user object with a DSI account.
         var user = await directoriesDbContext.Users.Where(x => x.Email == request.EmailAddress)
@@ -109,7 +109,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
 
         // User cannot be found via email address.
         if (user is null) {
-            return Result.Failure<Guid>(new Error("Users.AutoLinkEntraToDsi.UserNotFound", "User not found"));
+            return OperationResult.Failure<Guid>(new OperationError("Users.AutoLinkEntraToDsi.UserNotFound", "User not found"));
         }
 
         // User exists in the system; are they an active user though?
@@ -179,7 +179,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
     }
 
     [ExcludeFromCodeCoverage]
-    private async Task<Result<Guid>> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
+    private async Task<OperationResult<Guid>> CreateDsiUserAsync(AutoLinkEntraUserToDsiRequest request)
     {
         // User does not exist in the system; is there a pending invitation?
         var completeAnyPendingInvitationResponse = await interaction.DispatchAsync(
@@ -197,7 +197,7 @@ public sealed class AutoLinkEntraToDsiEndpoint(
                 UserId = completeAnyPendingInvitationResponse.UserId,
             });
 
-            return Result.Success(completeAnyPendingInvitationResponse.UserId.Value);
+            return OperationResult.Success(completeAnyPendingInvitationResponse.UserId.Value);
         }
 
         // Create new user in system and link to the associated Entra user.
@@ -217,13 +217,15 @@ public sealed class AutoLinkEntraToDsiEndpoint(
             UserId = createUserResponse.UserId,
         });
 
-        return Result.Success(createUserResponse.UserId);
+        return OperationResult.Success(createUserResponse.UserId);
     }
 
     private static void ValidateActiveUser(AccountStatus status)
     {
-        if (status != AccountStatus.Active) {
-            throw new CannotLinkInactiveUserException();
+        if (status == AccountStatus.Active) {
+            return;
         }
+
+        throw new CannotLinkInactiveUserException();
     }
 }
