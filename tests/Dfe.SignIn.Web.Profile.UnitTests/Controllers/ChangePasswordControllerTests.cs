@@ -298,6 +298,71 @@ public sealed class ChangePasswordControllerTests
     }
 
     [TestMethod]
+    public async Task PostIndex_AddsModelErrorAndPresentsView_WhenEntraReturnsPasswordPolicyViolation()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker, isEntraUser: true);
+        var fakeAccessToken = new GraphAccessToken { Token = "fake-token", ExpiresOn = DateTimeOffset.UtcNow };
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.CreateAccessTokenForAssociatedAccount(It.Is<Controller>(actionController => actionController is ChangePasswordController), It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fakeAccessToken);
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.AuthenticateAssociatedAccount(It.Is<Controller>(actionController => actionController is ChangePasswordController), It.IsAny<string[]>(), SelectAssociatedReturnLocation.ChangePassword, It.Is<bool>(force => !force), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        autoMocker.GetMock<IEntraChangePasswordService>()
+            .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OperationResult.Failure(EntraPasswordErrors.PasswordPolicyViolation("Password does not meet policy.")));
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual("Password does not meet policy.", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_AddsDefaultErrorAndPresentsView_WhenEntraReturnsUnexpectedFailure()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker, isEntraUser: true);
+        var fakeAccessToken = new GraphAccessToken { Token = "fake-token", ExpiresOn = DateTimeOffset.UtcNow };
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.CreateAccessTokenForAssociatedAccount(It.Is<Controller>(actionController => actionController is ChangePasswordController), It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fakeAccessToken);
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.AuthenticateAssociatedAccount(It.Is<Controller>(actionController => actionController is ChangePasswordController), It.IsAny<string[]>(), SelectAssociatedReturnLocation.ChangePassword, It.Is<bool>(force => !force), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        autoMocker.GetMock<IEntraChangePasswordService>()
+            .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OperationResult.Failure(EntraPasswordErrors.Unexpected("Graph unavailable.")));
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual("We couldn't change your password right now. Please try again.", controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_AddsDefaultErrorAndPresentsView_WhenEntraTokenAcquisitionThrows()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker, isEntraUser: true);
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.CreateAccessTokenForAssociatedAccount(It.Is<Controller>(actionController => actionController is ChangePasswordController), It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Token acquisition failed."));
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.AuthenticateAssociatedAccount(It.Is<Controller>(actionController => actionController is ChangePasswordController), It.IsAny<string[]>(), SelectAssociatedReturnLocation.ChangePassword, It.Is<bool>(force => !force), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual("We couldn't change your password right now. Please try again.", controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+    }
+
+    [TestMethod]
     public async Task PostIndex_AddsDefaultErrorAndPresentsView_WhenApiReturnsNonSuccessWithoutProblemDetails()
     {
         var autoMocker = new AutoMocker();

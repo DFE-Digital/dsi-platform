@@ -28,7 +28,11 @@ public interface IEntraChangePasswordService
 /// A service that enables an Entra user to change their password via the Graph API using delegated permissions.
 /// </summary>
 /// <param name="logger">The logger instance.</param>
-public sealed partial class EntraChangePasswordService(ILogger<EntraChangePasswordService> logger) : IEntraChangePasswordService
+/// <param name="httpClient"></param>
+public sealed partial class EntraChangePasswordService(
+    ILogger<EntraChangePasswordService> logger,
+    HttpClient? httpClient = null
+) : IEntraChangePasswordService
 {
     private sealed class AccessTokenCredential(GraphAccessToken token) : TokenCredential
     {
@@ -59,7 +63,7 @@ public sealed partial class EntraChangePasswordService(ILogger<EntraChangePasswo
 
         try {
             var credential = new AccessTokenCredential(graphAccessToken);
-            var graphClient = new GraphServiceClient(credential);
+            var graphClient = new GraphServiceClient(httpClient, credential);
 
             await graphClient.Me.ChangePassword.PostAsync(new() {
                 CurrentPassword = currentPassword,
