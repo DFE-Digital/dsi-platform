@@ -15,6 +15,7 @@ using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
+using Dfe.SignIn.WebFramework.Extensions;
 using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,13 +36,15 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()
 
 // Add services to the container.
 builder.Services
-    .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
+
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions();
 
 builder.Services
-    .AddOptionsWithValidation<NotificationSettings>(NotificationSettings.SectionName);
+    .AddOptionsWithValidation<PlatformSettings>()
+    .AddOptionsWithValidation<EmailRestrictionsSettings>()
+    .AddOptionsWithValidation<NotificationSettings>();
 
 builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
@@ -82,9 +85,6 @@ builder.Services
 builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
     .SetupAuditContext();
-
-builder.Services
-    .AddOptionsWithValidation<EmailRestrictionsSettings>(EmailRestrictionsSettings.SectionName);
 
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
