@@ -31,19 +31,22 @@ public sealed class ChangeEmailControllerTests
     {
         autoMocker.GetMock<IOptionsMonitor<ApplicationOidcOptions>>()
             .Setup(x => x.CurrentValue)
-            .Returns(new ApplicationOidcOptions {
+            .Returns(new ApplicationOidcOptions
+            {
                 ClientId = "test",
             });
 
         autoMocker.GetMock<IOptionsMonitor<DistributedCacheInteractionLimiterOptions>>()
             .Setup(x => x.Get(nameof(InitiateChangeEmailAddressRequest)))
-            .Returns(new DistributedCacheInteractionLimiterOptions {
+            .Returns(new DistributedCacheInteractionLimiterOptions
+            {
                 InteractionsPerTimePeriod = 4,
                 TimePeriodInSeconds = 10,
             });
 
         var configuration = new ConfigurationBuilder()
-          .AddInMemoryCollection(new Dictionary<string, string?> {
+          .AddInMemoryCollection(new Dictionary<string, string?>
+          {
               ["EmailValidation"] = isEmailValidationEnabled.ToString()
           })
           .Build();
@@ -68,7 +71,8 @@ public sealed class ChangeEmailControllerTests
         autoMocker.Use<IValidator<VerificationCodeViewModel>>(new VerificationCodeViewModelValidator());
 
         var httpContext = new DefaultHttpContext();
-        httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature {
+        httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature
+        {
             UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             IsEntra = false,
             IsInternalUser = false,
@@ -96,7 +100,8 @@ public sealed class ChangeEmailControllerTests
             .Setup(x => x.GetPendingChangeEmail(
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new GetPendingChangeEmailResponse {
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new GetPendingChangeEmailResponse
+            {
                 NewEmailAddress = "alex.new@example.com",
                 CreatedAtUtc = new DateTime(2025, 11, 15, 11, 43, 11, DateTimeKind.Utc),
                 ExpiryTimeUtc = new DateTime(2025, 11, 15, 12, 43, 11, DateTimeKind.Utc),
@@ -141,7 +146,8 @@ public sealed class ChangeEmailControllerTests
 
         controller.ModelState.AddModelError("", expectedErrorMessage);
 
-        var result = await controller.PostIndex(resend: false, viewModel: new() {
+        var result = await controller.PostIndex(resend: false, viewModel: new()
+        {
             EmailAddressInput = emailAddress,
         }, cancellationToken: CancellationToken.None);
 
@@ -166,7 +172,8 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        await controller.PostIndex(resend: true, viewModel: new() {
+        await controller.PostIndex(resend: true, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -180,7 +187,8 @@ public sealed class ChangeEmailControllerTests
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
 
-        await controller.PostIndex(resend: true, viewModel: new() {
+        await controller.PostIndex(resend: true, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -195,7 +203,8 @@ public sealed class ChangeEmailControllerTests
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
 
-        await controller.PostIndex(resend: false, viewModel: new() {
+        await controller.PostIndex(resend: false, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -208,7 +217,8 @@ public sealed class ChangeEmailControllerTests
     {
         var controller = CreateControllerAuthenticated(new AutoMocker(), false);
 
-        await controller.PostIndex(resend: false, viewModel: new() {
+        await controller.PostIndex(resend: false, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -225,7 +235,8 @@ public sealed class ChangeEmailControllerTests
             .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(RefitTestHelper.CreateProblemResponse(
                 HttpStatusCode.TooManyRequests,
-                new ProblemDetails {
+                new ProblemDetails
+                {
                     Detail = "For security, only 4 verification code requests can be sent. Wait 10 seconds before raising another request, or enter your verification code below."
                 }));
 
@@ -233,7 +244,8 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        await controller.PostIndex(resend: true, viewModel: new() {
+        await controller.PostIndex(resend: true, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -256,13 +268,15 @@ public sealed class ChangeEmailControllerTests
             .Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(RefitTestHelper.CreateProblemResponse(
                 HttpStatusCode.TooManyRequests,
-                new ProblemDetails {
+                new ProblemDetails
+                {
                     Detail = "For security, only 4 verification code requests can be sent. Wait 10 seconds before trying again."
                 }));
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        await controller.PostIndex(resend: true, viewModel: new() {
+        await controller.PostIndex(resend: true, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -288,13 +302,15 @@ public sealed class ChangeEmailControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(RefitTestHelper.CreateProblemResponse(
                 HttpStatusCode.BadRequest,
-                new ProblemDetails {
+                new ProblemDetails
+                {
                     Detail = "The email address is already in use by another"
                 }));
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostIndex(resend: false, viewModel: new() {
+        var result = await controller.PostIndex(resend: false, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -320,7 +336,8 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostIndex(resend: false, viewModel: new() {
+        var result = await controller.PostIndex(resend: false, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -333,7 +350,8 @@ public sealed class ChangeEmailControllerTests
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
 
-        var result = await controller.PostIndex(resend: true, viewModel: new() {
+        var result = await controller.PostIndex(resend: true, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -358,7 +376,8 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMock, true);
 
-        var result = await controller.PostIndex(resend: true, viewModel: new() {
+        var result = await controller.PostIndex(resend: true, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -388,7 +407,8 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMock, false);
 
-        var result = await controller.PostIndex(resend: true, viewModel: new() {
+        var result = await controller.PostIndex(resend: true, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -413,7 +433,8 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMock, true);
 
-        var result = await controller.PostIndex(resend: true, viewModel: new() {
+        var result = await controller.PostIndex(resend: true, viewModel: new()
+        {
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
@@ -562,7 +583,41 @@ public sealed class ChangeEmailControllerTests
 
     #endregion
 
-    #region PostVerificationCode(Guid, VerificationCodeViewModel, CancellationToken)
+    #region PostAnonymousVerificationCode(Guid, VerificationCodeViewModel, CancellationToken)
+
+    [TestMethod]
+    public async Task PostVerificationCode_UsesAuthenticatedUserId()
+    {
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ConfirmChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new ConfirmChangeEmailAddressResponse
+            {
+                NewEmailAddress = "alex.new@example.com",
+            }));
+
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        var result = await controller.PostVerificationCode(
+            new VerificationCodeViewModel
+            {
+                UserId = Guid.NewGuid(),
+                NewEmailAddress = "alex.new@example.com",
+                VerificationCodeInput = "ABC1234"
+            },
+            CancellationToken.None);
+
+        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
+        Assert.AreEqual(nameof(ChangeEmailController.Complete), redirectResult.ActionName);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Verify(x => x.ConfirmChangeEmailAddress(
+                new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()), Times.Once);
+    }
 
     [TestMethod]
     public async Task PostVerificationCode_RedirectsToChangeEmailForm_WhenNoPendingChange()
@@ -576,16 +631,18 @@ public sealed class ChangeEmailControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(RefitTestHelper.CreateProblemResponse<ConfirmChangeEmailAddressResponse>(
                 HttpStatusCode.BadRequest,
-                new ProblemDetails {
+                new ProblemDetails
+                {
                     Type = ChangeEmailErrors.NoPendingRequest.Code,
                     Detail = "No pending change email request found"
                 }));
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            new VerificationCodeViewModel {
+            new VerificationCodeViewModel
+            {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "ABC1234"
@@ -606,9 +663,10 @@ public sealed class ChangeEmailControllerTests
 
         controller.ModelState.AddModelError("", "Fake input error.");
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            new VerificationCodeViewModel {
+            new VerificationCodeViewModel
+            {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
             },
@@ -634,15 +692,17 @@ public sealed class ChangeEmailControllerTests
                 It.IsAny<Guid>(),
                 It.IsAny<ConfirmChangeEmailAddressRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new ConfirmChangeEmailAddressResponse {
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new ConfirmChangeEmailAddressResponse
+            {
                 NewEmailAddress = "alex.new@example.com",
             }));
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            new VerificationCodeViewModel {
+            new VerificationCodeViewModel
+            {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "ABC1234"
@@ -659,7 +719,8 @@ public sealed class ChangeEmailControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        var successWithWarningResponse = RefitTestHelper.CreateSuccessResponse(new ConfirmChangeEmailAddressResponse {
+        var successWithWarningResponse = RefitTestHelper.CreateSuccessResponse(new ConfirmChangeEmailAddressResponse
+        {
             NewEmailAddress = "alex.new@example.com",
             Warnings = [ChangeEmailWarnings.EntraMfaSyncFailedWarning("FailedToUpdateAuthenticationMethodException")],
         });
@@ -673,9 +734,10 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            new VerificationCodeViewModel {
+            new VerificationCodeViewModel
+            {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "ABC1234"
@@ -701,9 +763,10 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            new VerificationCodeViewModel {
+            new VerificationCodeViewModel
+            {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "ABC1234"
@@ -721,7 +784,8 @@ public sealed class ChangeEmailControllerTests
         var autoMocker = new AutoMocker();
         SetupFakePendingEmailChange(autoMocker);
 
-        var problemDetails = new ValidationProblemDetails {
+        var problemDetails = new ValidationProblemDetails
+        {
             Errors = {
                 [nameof(ConfirmChangeEmailAddressRequest.VerificationCode)] = ["The verification code you entered is incorrect"]
             }
@@ -738,9 +802,10 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
-            new VerificationCodeViewModel {
+            new VerificationCodeViewModel
+            {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "WRONG"
