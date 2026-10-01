@@ -136,7 +136,7 @@ public sealed class ChangePasswordEndpoint(
         user.Password = passwordHasher.HashWithLatestPolicy(newPassword, newSalt);
         user.PasswordResetRequired = false;
 
-        var hasLatestPolicy = user.UserPasswordPolicies.Any(p => p.PolicyCode == passwordHasher.LatestPolicyCode);
+        var hasLatestPolicy = user.UserPasswordPolicies.Any(p => p.PolicyCode == PasswordHasher.LatestPolicyCode);
         if (hasLatestPolicy) {
             return;
         }
@@ -144,7 +144,7 @@ public sealed class ChangePasswordEndpoint(
         dbDirectoriesContext.UserPasswordPolicies.Add(new UserPasswordPolicyEntity {
             Id = Guid.NewGuid(),
             Uid = user.Sub,
-            PolicyCode = passwordHasher.LatestPolicyCode,
+            PolicyCode = PasswordHasher.LatestPolicyCode,
             PasswordHistoryLimit = PasswordHistoryLimit
         });
     }

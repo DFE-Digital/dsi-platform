@@ -27,7 +27,6 @@ public static class UserUseCaseExtensions
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
         ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
 
-        services.AddInteractor<AutoLinkEntraUserToDsiUseCase>();
         services.AddInteractor<CreateUserUseCase>();
         services.AddInteractor<GetOrganisationsAssociatedWithUserUseCase>();
         services.AddInteractor<GetUserOrganisationIdentifiersUseCase>();

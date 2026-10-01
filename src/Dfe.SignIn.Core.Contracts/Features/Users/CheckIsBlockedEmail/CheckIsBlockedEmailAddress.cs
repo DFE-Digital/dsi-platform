@@ -1,12 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-using Dfe.SignIn.Base.Framework;
-
-namespace Dfe.SignIn.Core.Contracts.Users;
-
+namespace Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 /// <summary>
 /// Represents a request to check whether an email address would be blocked.
 /// </summary>
-[AssociatedResponse(typeof(CheckIsBlockedEmailAddressResponse))]
 public sealed record CheckIsBlockedEmailAddressRequest
 {
     /// <summary>
@@ -15,7 +10,6 @@ public sealed record CheckIsBlockedEmailAddressRequest
     /// <value>
     /// A well formed email address.
     /// </value>
-    [RegularExpression(StringPatterns.EmailAddressPattern)]
     public required string EmailAddress { get; init; }
 }
 
