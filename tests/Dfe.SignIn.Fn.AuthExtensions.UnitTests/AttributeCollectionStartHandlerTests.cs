@@ -1,5 +1,5 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Dfe.SignIn.Fn.AuthExtensions.OnAttributeCollectionStart;
 using Dfe.SignIn.TestHelpers.Helpers;
