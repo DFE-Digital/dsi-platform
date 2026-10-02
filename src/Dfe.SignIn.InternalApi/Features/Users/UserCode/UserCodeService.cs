@@ -33,9 +33,10 @@ public interface IUserCodeService
     /// <param name="userInfo"></param>
     /// <param name="newEmailAddress">The new email address to associate with the verification code.</param>
     /// <param name="clientId">The client ID associated with the request.</param>
+    /// <param name="isSelfInvoked">Whether the change was initiated by the user themselves.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task CreateNewVerificationCodeAsync(UserInfo userInfo, string newEmailAddress, string clientId, CancellationToken cancellationToken);
+    Task CreateNewVerificationCodeAsync(UserInfo userInfo, string newEmailAddress, string clientId, bool isSelfInvoked, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets the pending change email code for the specified user, if one exists.
@@ -98,6 +99,7 @@ public class UserCodeService(
         UserInfo userInfo,
         string newEmailAddress,
         string clientId,
+        bool isSelfInvoked,
         CancellationToken cancellationToken)
     {
         var verificationCode = CodeGenerator.Generate(8, CodeGenerator.FullCharset);
@@ -129,12 +131,16 @@ public class UserCodeService(
             UserId = userInfo.UserId,
         });
 
-        await this.SendVerifyChangeEmailNotification(userCode.Email, userInfo.FirstName, userInfo.LastName, userCode.Code);
+        await this.SendVerifyChangeEmailNotification(userCode.Email, userInfo.FirstName, userInfo.LastName, userCode.Code, userInfo.UserId, isSelfInvoked);
         await this.SendNotifyMigratedEmailNotification(userInfo.EmailAddress, userInfo.FirstName, userInfo.LastName, userCode.Email);
     }
 
-    private async Task SendVerifyChangeEmailNotification(string email, string firstName, string lastName, string code)
+    private async Task SendVerifyChangeEmailNotification(string email, string firstName, string lastName, string code, Guid userId, bool isSelfInvoked)
     {
+        var returnPath = isSelfInvoked
+            ? ProfileRoutes.ChangeEmailVerification
+            : ProfileRoutes.ChangeEmailVerificationForUser(userId);
+
         await notificationService.SendAsync(
             recipientEmailAddress: email,
             templateId: NotificationTemplateIds.VerifyChangeEmail,
@@ -144,7 +150,7 @@ public class UserCodeService(
                     { "code",  code},
                     { "email", email},
                     { "helpUrl", platformSettings.Value.HelpUrl},
-                    { "returnUrl", new Uri(platformSettings.Value.ProfileUrl, ProfileRoutes.ChangeEmailVerification) }
+                    { "returnUrl", new Uri(platformSettings.Value.ProfileUrl, returnPath).ToString() }
                 }
         );
     }

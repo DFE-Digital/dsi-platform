@@ -22,7 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsLocal()) {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
@@ -95,7 +95,7 @@ builder.Services
 
 //todo: remove this once we have migrated all the code away from using the WriteToAuditInteractor to using the ServiceBusAuditInteractor.
 //This is only needed for local development, as the ServiceBusAuditInteractor will not work locally.
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsLocal()) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 }
 
