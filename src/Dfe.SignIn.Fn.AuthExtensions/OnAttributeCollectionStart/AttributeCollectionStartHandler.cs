@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using Dfe.SignIn.Core.Contracts.Features.Users;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.Fn.AuthExtensions.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

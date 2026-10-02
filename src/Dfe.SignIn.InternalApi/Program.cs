@@ -4,6 +4,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Interfaces.Audit;
+using Dfe.SignIn.Gateways.BullMq;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.GovNotify;
@@ -38,6 +39,9 @@ builder.Services
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions();
+
+builder.Services
+    .AddOptionsWithValidation<NotificationSettings>(NotificationSettings.SectionName);
 
 builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
@@ -80,11 +84,7 @@ builder.Services
     .SetupAuditContext();
 
 builder.Services
-    .Configure<BlockedEmailAddressOptions>(options => {
-        var section = builder.Configuration.GetSection("BlockedEmailAddresses");
-        options.BlockedDomains = section.GetJsonList("BlockedDomains");
-        options.BlockedNames = section.GetJsonList("BlockedNames");
-    });
+    .AddOptionsWithValidation<EmailRestrictionsSettings>(EmailRestrictionsSettings.SectionName);
 
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
@@ -108,6 +108,8 @@ builder.Services
     .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache, builder.Configuration.GetRequiredSection("GeneralRedisCache"))
     .AddFeaturesServices(builder.Configuration)
     .AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
+
+builder.Services.AddBullMqServices();
 
 var app = builder.Build();
 
