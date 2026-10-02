@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
-namespace Dfe.SignIn.Web.Profile.Services;
+namespace Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 
 /// <summary>
 /// Represents a service for authenticating the external account that is
 /// associated with the user's DfE Sign-In account.
 /// </summary>
-public interface ISelectAssociatedAccountHelper
+public interface IAssociatedAccountAuthService
 {
     /// <summary>
     /// Gets a URL from a named return location.
@@ -87,34 +87,13 @@ public interface ISelectAssociatedAccountHelper
 }
 
 /// <summary>
-/// The names of locations that the user can be returned to upon selecting an account.
-/// </summary>
-public enum SelectAssociatedReturnLocation
-{
-    /// <summary>
-    /// Home page of the profile component.
-    /// </summary>
-    Home = 0,
-
-    /// <summary>
-    /// Change password interface.
-    /// </summary>
-    ChangePassword = 1,
-
-    /// <summary>
-    /// Change name interface
-    /// </summary>
-    ChangeNameDetails = 3,
-}
-
-/// <summary>
 /// A service for authenticating the external account that is associated with
 /// the user's DfE Sign-In account.
 /// </summary>
-public sealed class SelectAssociatedAccountHelper(
+public sealed class AssociatedAccountAuthService(
     ITokenAcquisition tokenAcquisition,
     TimeProvider timeProvider
-) : ISelectAssociatedAccountHelper
+) : IAssociatedAccountAuthService
 {
     /// <inheritdoc/>
     public string GetUrlFromReturnLocation(IUrlHelper urlHelper, SelectAssociatedReturnLocation returnLocation)
@@ -126,8 +105,6 @@ public sealed class SelectAssociatedAccountHelper(
                 nameof(HomeController.Index), MvcNaming.Controller<HomeController>()),
             SelectAssociatedReturnLocation.ChangePassword => urlHelper.Action(
                 nameof(ChangePasswordController.Index), MvcNaming.Controller<ChangePasswordController>()),
-            SelectAssociatedReturnLocation.ChangeNameDetails => urlHelper.Action(
-            nameof(ChangeNameController.Index), MvcNaming.Controller<ChangeNameController>()),
             _ => "/",
         } ?? "/";
     }

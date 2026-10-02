@@ -1,16 +1,16 @@
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.WebFramework.Validation;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Dfe.SignIn.WebFramework.UnitTests.Validation;
 
 [TestClass]
-public sealed class ResultEndpointExtensionsTests
+public sealed class OperationResultEndpointExtensionsTests
 {
     [TestMethod]
     public void ToValidationProblem_SetsTypeFromErrorCode_WhenTypeNotSpecified()
     {
-        var error = new Error("ChangeEmail.NoPendingRequest", "No pending request found", "VerificationCode");
+        var error = new OperationError("ChangeEmail.NoPendingRequest", "No pending request found", "VerificationCode");
 
         var result = error.ToValidationProblem();
 
@@ -22,7 +22,7 @@ public sealed class ResultEndpointExtensionsTests
     [TestMethod]
     public void ToValidationProblem_UsesExplicitType_WhenSpecified()
     {
-        var error = new Error("SomeCode", "Some detail");
+        var error = new OperationError("SomeCode", "Some detail");
 
         var result = error.ToValidationProblem(propertyName: "Field", type: "Custom.Type");
 
@@ -33,8 +33,8 @@ public sealed class ResultEndpointExtensionsTests
     [TestMethod]
     public void ToValidationProblem_FromFailureResult_SetsTypeAndField()
     {
-        var error = new Error("ChangeEmail.InvalidCode", "Invalid code");
-        var failedResult = Result.Failure(error);
+        var error = new OperationError("ChangeEmail.InvalidCode", "Invalid code");
+        var failedResult = OperationResult.Failure(error);
 
         var result = failedResult.ToValidationProblem("VerificationCode");
 
@@ -46,7 +46,7 @@ public sealed class ResultEndpointExtensionsTests
     [TestMethod]
     public void ToValidationProblem_ThrowsInvalidOperationException_WhenResultIsSuccess()
     {
-        var successResult = Result.Success();
+        var successResult = OperationResult.Success();
 
         Assert.ThrowsExactly<InvalidOperationException>(() => successResult.ToValidationProblem());
     }

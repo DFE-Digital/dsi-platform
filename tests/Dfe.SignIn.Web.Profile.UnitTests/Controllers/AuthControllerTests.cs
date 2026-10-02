@@ -85,7 +85,9 @@ public sealed class AuthControllerTests
         var autoMocker = new AutoMocker();
 
         WriteToAuditRequest? capturedWriteToAudit = null;
-        autoMocker.CaptureRequest<WriteToAuditRequest>(req => capturedWriteToAudit = req);
+        autoMocker.GetMock<IAuditWriter>()
+            .Setup(x => x.Log(It.IsAny<WriteToAuditRequest>()))
+            .Callback<WriteToAuditRequest>(req => capturedWriteToAudit = req);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -120,7 +122,9 @@ public sealed class AuthControllerTests
         var autoMocker = new AutoMocker();
 
         WriteToAuditRequest? capturedWriteToAudit = null;
-        autoMocker.CaptureRequest<WriteToAuditRequest>(req => capturedWriteToAudit = req);
+        autoMocker.GetMock<IAuditWriter>()
+            .Setup(x => x.Log(It.IsAny<WriteToAuditRequest>()))
+            .Callback<WriteToAuditRequest>(req => capturedWriteToAudit = req);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
@@ -166,7 +170,9 @@ public sealed class AuthControllerTests
         var autoMocker = new AutoMocker();
 
         WriteToAuditRequest? capturedWriteToAudit = null;
-        autoMocker.CaptureRequest<WriteToAuditRequest>(req => capturedWriteToAudit = req);
+        autoMocker.GetMock<IAuditWriter>()
+            .Setup(x => x.Log(It.IsAny<WriteToAuditRequest>()))
+            .Callback<WriteToAuditRequest>(req => capturedWriteToAudit = req);
 
         var controller = CreateControllerAuthenticated(autoMocker);
 

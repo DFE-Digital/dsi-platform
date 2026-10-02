@@ -36,6 +36,9 @@ public static class InternalApiClientServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(credential);
 
+        services.AddOptions<InternalApiClientOptions>()
+            .BindConfiguration(InternalApiClientOptions.SectionName);
+
         services
             .AddRefitClient<TClient>()
             .ConfigureHttpClient((provider, client) => {
