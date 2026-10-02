@@ -9,7 +9,7 @@ namespace Dfe.SignIn.WebFramework.Configuration;
 [SuppressMessage("csharpsquid", "S1075",
     Justification = "Default URLs configuration for running locally on a development machine."
 )]
-[Obsolete("This class is obsolete and will be removed in a future version. Use the PlatformSettings record instead.")]
+[Obsolete("This class is obsolete and will be removed in a future version. Use the PlatformSettings record instead.", DiagnosticId = "DSI0001")]
 public sealed class PlatformOptions : IOptions<PlatformOptions>
 {
     /// <summary>
