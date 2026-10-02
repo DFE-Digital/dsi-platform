@@ -49,13 +49,13 @@ public sealed class ChangePasswordViewModelValidator : AbstractValidator<ChangeP
 
         this.RuleFor(x => x.NewPasswordInput)
             .NotEmpty().WithMessage("Please enter a new password")
-            .MinimumLength(PasswordRequirements.MinimumLength).WithMessage("Please enter a valid password")
-            .MaximumLength(PasswordRequirements.MaximumLength).WithMessage("Your password must not exceed 64 characters")
-            .Must(PasswordRequirements.MeetsComplexityRequirement).WithMessage("Your chosen password can be guessed too easily. Please create a more secure password (combining three or more words can increase security)")
-            .NotEqual(x => x.CurrentPasswordInput).WithMessage("Your new password cannot be the same as your current password");
+            .MinimumLength(PasswordRequirements.MinimumLength).WithMessage("Please enter a valid password.")
+            .MaximumLength(PasswordRequirements.MaximumLength).WithMessage("Your password must not exceed 64 characters.")
+            .Must(PasswordRequirements.MeetsComplexityRequirement).WithMessage("Your chosen password can be guessed too easily. Please create a more secure password (combining three or more words can increase security).")
+            .NotEqual(x => x.CurrentPasswordInput).WithMessage("Your new password cannot be the same as your current password.");
 
         this.RuleFor(x => x.ConfirmNewPasswordInput)
-            .NotEmpty().WithMessage("Please enter a matching password")
-            .Equal(x => x.NewPasswordInput).WithMessage("Please enter a matching password");
+            .NotEmpty().WithMessage("Please enter a matching password.")
+            .Equal(x => x.NewPasswordInput).WithMessage("Please enter a matching password.");
     }
 }
