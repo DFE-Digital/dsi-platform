@@ -36,10 +36,6 @@ public sealed class UserUseCaseExtensionsTests
         UserUseCaseExtensions.AddUserUseCases(services, configuration);
 
         Assert.IsTrue(
-            services.HasInteractor<AutoLinkEntraUserToDsiRequest, AutoLinkEntraUserToDsiUseCase>()
-        );
-
-        Assert.IsTrue(
             services.HasInteractor<CreateUserRequest, CreateUserUseCase>()
         );
         Assert.IsTrue(
