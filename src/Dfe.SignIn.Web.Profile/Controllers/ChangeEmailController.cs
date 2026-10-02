@@ -218,7 +218,7 @@ public sealed class ChangeEmailController(
     {
         var pendingChange = await this.GetPendingChangeEmailAddress(userId, cancellationToken);
         if (pendingChange is null) {
-            return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
+            return this.RedirectToAction(nameof(Index), MvcNaming.Controller<ChangeEmailController>());
         }
 
         this.ModelState.SetModelValue(nameof(VerificationCodeViewModel.VerificationCodeInput), null, "");
