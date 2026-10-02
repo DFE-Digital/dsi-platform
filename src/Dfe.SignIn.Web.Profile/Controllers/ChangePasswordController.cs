@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Core.Contracts.Graph;
@@ -23,6 +24,7 @@ public sealed partial class ChangePasswordController(
     IUsersApiClient usersApiClient,
     IGraphApiChangeUserPassword graphApiChangeUserPassword,
     ISelectAssociatedAccountHelper selectAssociatedAccountHelper,
+    IAuditWriter auditWriter,
     ILogger<ChangePasswordController> logger
 ) : Controller
 {
@@ -54,8 +56,17 @@ public sealed partial class ChangePasswordController(
     public async Task<IActionResult> PostIndex(ChangePasswordViewModel viewModel)
     {
         var validationResult = await viewModel.ValidateAsync<ChangePasswordViewModelValidator, ChangePasswordViewModel>();
+
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
+
+            await auditWriter.Log(new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangePassword,
+                Message = "Change password attempt failed",
+                EventName = AuditChangePasswordEventNames.PasswordValidation,
+                WasFailure = true
+            });
+
             return await this.Index();
         }
 
