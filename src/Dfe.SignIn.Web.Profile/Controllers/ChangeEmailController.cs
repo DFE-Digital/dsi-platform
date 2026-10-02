@@ -1,7 +1,7 @@
 using System.Net;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Policies;
@@ -217,7 +217,7 @@ public sealed class ChangeEmailController(
     {
         var pendingChange = await this.GetPendingChangeEmailAddress(userId);
         if (pendingChange is null) {
-            return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
+            return this.RedirectToAction(nameof(Index), MvcNaming.Controller<ChangeEmailController>());
         }
 
         this.ModelState.SetModelValue(nameof(VerificationCodeViewModel.VerificationCodeInput), null, "");

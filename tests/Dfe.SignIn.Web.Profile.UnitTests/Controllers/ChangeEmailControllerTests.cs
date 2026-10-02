@@ -2,7 +2,7 @@ using System.Net;
 using System.Security.Claims;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
@@ -437,8 +437,8 @@ public sealed class ChangeEmailControllerTests
         var result = await controller.VerificationCode();
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+        Assert.AreEqual(nameof(Index), redirectResult.ActionName);
+        Assert.AreEqual(MvcNaming.Controller<ChangeEmailController>(), redirectResult.ControllerName);
     }
 
     [TestMethod]
@@ -503,8 +503,8 @@ public sealed class ChangeEmailControllerTests
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"));
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+        Assert.AreEqual(nameof(Index), redirectResult.ActionName);
+        Assert.AreEqual(MvcNaming.Controller<ChangeEmailController>(), redirectResult.ControllerName);
     }
 
     [TestMethod]

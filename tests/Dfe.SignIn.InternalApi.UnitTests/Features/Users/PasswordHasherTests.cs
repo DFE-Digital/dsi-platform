@@ -37,7 +37,7 @@ public class PasswordHasherTests
     [TestMethod]
     public void LatestPolicyCode_ReturnsV4()
     {
-        Assert.AreEqual("v4", this.hasher.LatestPolicyCode);
+        Assert.AreEqual("v4", PasswordHasher.LatestPolicyCode);
     }
 
     [TestMethod]

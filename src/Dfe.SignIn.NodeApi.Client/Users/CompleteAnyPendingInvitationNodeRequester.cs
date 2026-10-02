@@ -136,7 +136,7 @@ public sealed class CompleteAnyPendingInvitationNodeRequester(
                 new UpdateUserInSearchIndexRequestDto {
                     Id = userId,
                 }
-            )!;
+            );
             response.EnsureSuccessStatusCode();
             logger.LogInformation(
                 "Updated search index pending invitation '{InvitationId}' for user '{UserId}'.",
