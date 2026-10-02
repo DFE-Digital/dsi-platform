@@ -49,7 +49,7 @@ public sealed class ChangeEmailController(
         var emailValidationEnabled = configuration.GetValue<bool>("EmailValidation");
         if (emailValidationEnabled) {
             var blockedResponse = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
-                EmailAddress = viewModel.EmailAddressInput
+                EmailAddress = viewModel.EmailAddressInput!
             });
 
             var isBlocked = !blockedResponse.IsSuccessStatusCode || blockedResponse.Content is null || blockedResponse.Content.IsBlocked;
@@ -63,7 +63,7 @@ public sealed class ChangeEmailController(
 
         var request = new InitiateChangeEmailAddressRequest(
             oidcOptionsAccessor.CurrentValue.ClientId,
-            viewModel.EmailAddressInput,
+            viewModel.EmailAddressInput!,
             true
         );
 
