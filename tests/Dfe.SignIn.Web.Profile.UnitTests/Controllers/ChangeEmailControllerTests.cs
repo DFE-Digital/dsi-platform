@@ -437,8 +437,8 @@ public sealed class ChangeEmailControllerTests
         var result = await controller.VerificationCode(CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+        Assert.AreEqual(nameof(Index), redirectResult.ActionName);
+        Assert.AreEqual(MvcNaming.Controller<ChangeEmailController>(), redirectResult.ControllerName);
     }
 
     [TestMethod]
@@ -504,8 +504,8 @@ public sealed class ChangeEmailControllerTests
             CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+        Assert.AreEqual(nameof(Index), redirectResult.ActionName);
+        Assert.AreEqual(MvcNaming.Controller<ChangeEmailController>(), redirectResult.ControllerName);
     }
 
     [TestMethod]
