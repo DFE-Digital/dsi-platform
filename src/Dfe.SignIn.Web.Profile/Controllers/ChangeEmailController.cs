@@ -129,13 +129,27 @@ public sealed class ChangeEmailController(
         return await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
     }
 
+    [HttpPost("verify")]
+    [ValidateAntiForgeryToken]
+    public Task<IActionResult> PostVerificationCode(
+        VerificationCodeViewModel viewModel,
+        CancellationToken cancellationToken)
+    {
+        return this.ExecutePostVerificationCode(this.User.GetUserId(), viewModel, cancellationToken);
+    }
+
     [AllowAnonymous]
     [HttpPost("{userId}/verify")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostVerificationCode(
+    public async Task<IActionResult> PostAnonymousVerificationCode(
         [FromRoute] Guid userId,
         VerificationCodeViewModel viewModel,
         CancellationToken cancellationToken)
+    {
+        return await this.ExecutePostVerificationCode(userId, viewModel, cancellationToken);
+    }
+
+    public async Task<IActionResult> ExecutePostVerificationCode(Guid userId, VerificationCodeViewModel viewModel, CancellationToken cancellationToken)
     {
         var validationResult = await viewModel.ValidateAsync<VerificationCodeViewModelValidator, VerificationCodeViewModel>();
         if (!validationResult.IsValid) {

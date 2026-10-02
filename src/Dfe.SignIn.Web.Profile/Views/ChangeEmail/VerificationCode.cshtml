@@ -1,11 +1,18 @@
 ﻿@model VerificationCodeViewModel
 
 @{
-    if (User.Identity?.IsAuthenticated == true) {
+    string verificationAction = nameof(ChangeEmailController.PostAnonymousVerificationCode);
+    Guid? routeUserId = Model.UserId;
+
+    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+    if (isAuthenticated) {
         ViewData[DsiLayoutConstants.BackLink] = new BackLinkViewModel(Url.Action(
             nameof(ChangeEmailController.Index),
             MvcNaming.Controller<ChangeEmailController>())
         );
+
+        verificationAction = nameof(ChangeEmailController.PostVerificationCode);
+        routeUserId = null;
     }
 
     ViewData[DsiLayoutConstants.Title] = "Enter your verification code";
@@ -55,7 +62,7 @@
             </govuk-fieldset>
 
             <div class="govuk-button-group">
-                <govuk-button asp-action=@nameof(ChangeEmailController.PostVerificationCode) asp-route-userId=@Model.UserId>
+                <govuk-button asp-action=@verificationAction asp-route-userId=@routeUserId>
                     Continue
                 </govuk-button>
 
