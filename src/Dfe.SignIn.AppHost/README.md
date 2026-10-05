@@ -1,6 +1,6 @@
 # Dfe.SignIn.AppHost
 
-.NET Aspire host that orchestrates the full local development environment — Redis, frontend assets, and all web apps.
+.NET Aspire host that orchestrates the full local development environment — Redis, frontend assets, and all web apps..
 
 ## Prerequisites
 
