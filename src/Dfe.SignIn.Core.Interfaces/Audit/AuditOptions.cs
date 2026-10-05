@@ -8,6 +8,11 @@ namespace Dfe.SignIn.Core.Interfaces.Audit;
 public sealed class AuditOptions : IOptions<AuditOptions>
 {
     /// <summary>
+    /// Gets the name of the configuration section that contains the audit options.
+    /// </summary>
+    public const string SectionName = "Audit";
+
+    /// <summary>
     /// The name of the application generating the audit event.
     /// </summary>
     public required string ApplicationName { get; set; }

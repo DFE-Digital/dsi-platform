@@ -2,6 +2,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeName;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.Core.Contracts.Features.Users.GetUserProfile;
 using Dfe.SignIn.Core.Contracts.Users;
 using Refit;
@@ -117,4 +118,17 @@ public interface IUsersApiClient
     /// <returns>A task representing the asynchronous operation.</returns>
     [Post(UsersApiRoutes.ChangePassword)]
     Task<IApiResponse> ChangePassword(Guid userId, [Body] ChangePasswordRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Links an entra user to a DSI user via populating the EntraOid fields in DSI
+    ///
+    /// If the usr already exists, the name is udpated to reflect the entra values.
+    /// 
+    /// If the DSI user does not exist, the user will be created.
+    /// </summary>
+    /// <param name="autoLinkEntraUserToDsiRequest">The request object containing the user reference details</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns></returns>
+    [Post(UsersApiRoutes.AutoLinkEntraToDsi)]
+    Task<IApiResponse<AutoLinkEntraUserToDsiResponse>> AutoLinkEntraUserToDsi([Body] AutoLinkEntraUserToDsiRequest autoLinkEntraUserToDsiRequest, CancellationToken cancellationToken = default);
 }

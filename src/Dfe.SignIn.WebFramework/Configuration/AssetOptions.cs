@@ -12,6 +12,11 @@ namespace Dfe.SignIn.WebFramework.Configuration;
 public sealed class AssetOptions : IOptions<AssetOptions>
 {
     /// <summary>
+    /// Gets the name of the configuration section that contains the asset options.
+    /// </summary>
+    public const string SectionName = "Assets";
+
+    /// <summary>
     /// Gets the assets base URL.
     /// </summary>
     /// <remarks>

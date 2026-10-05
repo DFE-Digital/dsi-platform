@@ -1,5 +1,3 @@
-using Dfe.SignIn.Base.Framework;
-using Dfe.SignIn.Base.Framework.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
@@ -24,7 +22,7 @@ public interface IEntraChangeEmailService
     /// <see cref="EntraEmailErrors.MfaAuthenticationMethodFailedCode"/> as a soft failure
     /// should expect Entra primary mail to already reflect <paramref name="newEmailAddress"/>.
     /// </remarks>
-    Task<Result> ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken = default);
+    Task<Base.Framework.OperationResults.OperationResult> ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -35,13 +33,20 @@ public sealed class EntraChangeEmailService(
     ILogger<EntraChangeEmailService> logger) : IEntraChangeEmailService
 {
     /// <inheritdoc/>
-    public async Task<Result> ChangeEmailAsync(
+    public async Task<Base.Framework.OperationResults.OperationResult> ChangeEmailAsync(
         Guid externalUserId,
         string newEmailAddress,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(newEmailAddress);
-        ExceptionHelpers.ThrowIfArgumentEmpty(externalUserId, nameof(externalUserId));
+        if (externalUserId == Guid.Empty) {
+            logger.LogWarning("ChangeEmailAsync rejected: externalUserId is empty.");
+            return Base.Framework.OperationResults.OperationResult.Failure(EntraEmailErrors.InvalidUserId);
+        }
+
+        if (string.IsNullOrWhiteSpace(newEmailAddress)) {
+            logger.LogWarning("ChangeEmailAsync rejected: newEmailAddress is empty or whitespace.");
+            return Base.Framework.OperationResults.OperationResult.Failure(EntraEmailErrors.InvalidEmailAddress);
+        }
 
         var client = graphClientProvider.GetClient();
         var userIdString = externalUserId.ToString();
@@ -55,7 +60,7 @@ public sealed class EntraChangeEmailService(
         return await this.UpdateMfaEmailMethodAsync(client, userIdString, externalUserId, newEmailAddress, cancellationToken);
     }
 
-    private async Task<Result> UpdatePrimaryEmailAsync(
+    private async Task<Base.Framework.OperationResults.OperationResult> UpdatePrimaryEmailAsync(
         GraphServiceClient client,
         string userIdString,
         Guid externalUserId,
@@ -67,14 +72,14 @@ public sealed class EntraChangeEmailService(
             await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
 
             logger.LogInformation("Successfully updated primary email for Entra user {UserId}", externalUserId);
-            return Result.Success();
+            return Base.Framework.OperationResults.OperationResult.Success();
         }
         catch (Exception ex) {
             return this.HandleGraphException(ex, externalUserId, "updating primary email", EntraEmailErrors.UserUpdateFailed);
         }
     }
 
-    private async Task<Result> UpdateMfaEmailMethodAsync(
+    private async Task<Base.Framework.OperationResults.OperationResult> UpdateMfaEmailMethodAsync(
         GraphServiceClient client,
         string userIdString,
         Guid externalUserId,
@@ -108,18 +113,18 @@ public sealed class EntraChangeEmailService(
                 logger.LogInformation("Successfully created new MFA email method for Entra user {UserId}", externalUserId);
             }
 
-            return Result.Success();
+            return Base.Framework.OperationResults.OperationResult.Success();
         }
         catch (Exception ex) {
             return this.HandleGraphException(ex, externalUserId, "updating MFA email authentication method", EntraEmailErrors.MfaAuthenticationMethodFailed);
         }
     }
 
-    private Result HandleGraphException(
+    private Base.Framework.OperationResults.OperationResult HandleGraphException(
         Exception ex,
         Guid externalUserId,
         string actionContext,
-        Func<string, Error> errorFactory)
+        Func<string, Base.Framework.OperationResults.OperationError> errorFactory)
     {
         if (ex is ODataError oDataEx) {
             var detail = oDataEx.Error?.Message ?? oDataEx.Message;
@@ -130,10 +135,10 @@ public sealed class EntraChangeEmailService(
                 oDataEx.Error?.Code,
                 detail);
 
-            return Result.Failure(errorFactory(detail));
+            return Base.Framework.OperationResults.OperationResult.Failure(errorFactory(detail));
         }
 
         logger.LogError(ex, "Unexpected error {Context} for Entra user {UserId}", actionContext, externalUserId);
-        return Result.Failure(errorFactory(ex.Message));
+        return Base.Framework.OperationResults.OperationResult.Failure(errorFactory(ex.Message));
     }
 }

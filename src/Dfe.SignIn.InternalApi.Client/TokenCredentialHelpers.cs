@@ -3,7 +3,7 @@ using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 
-namespace Dfe.SignIn.NodeApi.Client;
+namespace Dfe.SignIn.InternalApi.Client;
 
 /// <exclude/>
 [ExcludeFromCodeCoverage]
