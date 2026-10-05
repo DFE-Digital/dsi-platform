@@ -62,7 +62,7 @@ public sealed class ChangeEmailController(
 
         var request = new InitiateChangeEmailAddressRequest(
             oidcOptionsAccessor.CurrentValue.ClientId,
-            viewModel.EmailAddressInput,
+            viewModel.EmailAddressInput!,
             true
         );
 
@@ -129,13 +129,27 @@ public sealed class ChangeEmailController(
         return await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
     }
 
+    [HttpPost("verify")]
+    [ValidateAntiForgeryToken]
+    public Task<IActionResult> PostVerificationCode(
+        VerificationCodeViewModel viewModel,
+        CancellationToken cancellationToken)
+    {
+        return this.ExecutePostVerificationCode(this.User.GetUserId(), viewModel, cancellationToken);
+    }
+
     [AllowAnonymous]
     [HttpPost("{userId}/verify")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostVerificationCode(
+    public async Task<IActionResult> PostAnonymousVerificationCode(
         [FromRoute] Guid userId,
         VerificationCodeViewModel viewModel,
         CancellationToken cancellationToken)
+    {
+        return await this.ExecutePostVerificationCode(userId, viewModel, cancellationToken);
+    }
+
+    public async Task<IActionResult> ExecutePostVerificationCode(Guid userId, VerificationCodeViewModel viewModel, CancellationToken cancellationToken)
     {
         var validationResult = await viewModel.ValidateAsync<VerificationCodeViewModelValidator, VerificationCodeViewModel>();
         if (!validationResult.IsValid) {
@@ -218,7 +232,7 @@ public sealed class ChangeEmailController(
     {
         var pendingChange = await this.GetPendingChangeEmailAddress(userId, cancellationToken);
         if (pendingChange is null) {
-            return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
+            return this.RedirectToAction(nameof(Index), MvcNaming.Controller<ChangeEmailController>());
         }
 
         this.ModelState.SetModelValue(nameof(VerificationCodeViewModel.VerificationCodeInput), null, "");

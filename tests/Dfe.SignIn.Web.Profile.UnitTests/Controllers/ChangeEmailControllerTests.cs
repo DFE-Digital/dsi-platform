@@ -437,8 +437,8 @@ public sealed class ChangeEmailControllerTests
         var result = await controller.VerificationCode(CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+        Assert.AreEqual(nameof(Index), redirectResult.ActionName);
+        Assert.AreEqual(MvcNaming.Controller<ChangeEmailController>(), redirectResult.ControllerName);
     }
 
     [TestMethod]
@@ -504,8 +504,8 @@ public sealed class ChangeEmailControllerTests
             CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+        Assert.AreEqual(nameof(Index), redirectResult.ActionName);
+        Assert.AreEqual(MvcNaming.Controller<ChangeEmailController>(), redirectResult.ControllerName);
     }
 
     [TestMethod]
@@ -562,7 +562,39 @@ public sealed class ChangeEmailControllerTests
 
     #endregion
 
-    #region PostVerificationCode(Guid, VerificationCodeViewModel, CancellationToken)
+    #region PostAnonymousVerificationCode(Guid, VerificationCodeViewModel, CancellationToken)
+
+    [TestMethod]
+    public async Task PostVerificationCode_UsesAuthenticatedUserId()
+    {
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ConfirmChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new ConfirmChangeEmailAddressResponse {
+                NewEmailAddress = "alex.new@example.com",
+            }));
+
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        var result = await controller.PostVerificationCode(
+            new VerificationCodeViewModel {
+                UserId = Guid.NewGuid(),
+                NewEmailAddress = "alex.new@example.com",
+                VerificationCodeInput = "ABC1234"
+            },
+            CancellationToken.None);
+
+        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
+        Assert.AreEqual(nameof(ChangeEmailController.Complete), redirectResult.ActionName);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Verify(x => x.ConfirmChangeEmailAddress(
+                new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()), Times.Once);
+    }
 
     [TestMethod]
     public async Task PostVerificationCode_RedirectsToChangeEmailForm_WhenNoPendingChange()
@@ -583,7 +615,7 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
@@ -606,7 +638,7 @@ public sealed class ChangeEmailControllerTests
 
         controller.ModelState.AddModelError("", "Fake input error.");
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
@@ -640,7 +672,7 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
@@ -673,7 +705,7 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
@@ -701,7 +733,7 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
@@ -738,7 +770,7 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
