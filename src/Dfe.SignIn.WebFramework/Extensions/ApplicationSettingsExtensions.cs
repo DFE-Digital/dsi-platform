@@ -24,7 +24,7 @@ public static class ApplicationSettingsExtensions
     /// <param name="sectionName">The key relating to the configuration option to validate</param>
     /// <returns>The updated service collection</returns>
     public static IServiceCollection AddOptionsWithValidation<T>(this IServiceCollection services, string? sectionName = null)
-        where T : class, IApplicationSettings, new()
+        where T : class, IApplicationSettings
     {
         sectionName ??= T.SectionName;
 

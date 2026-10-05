@@ -26,10 +26,10 @@ public static class NotificationTemplateIds
     /// <summary>
     /// The template ID for the "Verify Change Email" notification, used when a user initiates a change of their email address and needs to verify the new email.
     /// </summary>
-    public const string VerifyChangeEmail = "8a6b7625-87d5-41bc-bc58-035343571d81";
+    public static readonly string VerifyChangeEmail = "8a6b7625-87d5-41bc-bc58-035343571d81";
 
     /// <summary>
     /// The template ID for the "Notify Migrated Email" notification, used to inform users that their email address has been successfully migrated or changed.
     /// </summary>
-    public const string NotifyMigratedEmail = "18e0e804-04c6-4f73-9462-ab3cbf8b990f";
+    public static readonly string NotifyMigratedEmail = "18e0e804-04c6-4f73-9462-ab3cbf8b990f";
 }

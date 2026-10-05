@@ -15,57 +15,57 @@ public sealed record PlatformSettings : IApplicationSettings
     /// <summary>
     /// Gets URL of the survey that the user can use to provide feedback.
     /// </summary>
-    public Uri SurveyUrl { get; set; } = new Uri("https://survey.localhost");
+    public required Uri SurveyUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Help" frontend component.
     /// </summary>
-    public Uri HelpUrl { get; set; } = new Uri("http://localhost:5012");
+    public required Uri HelpUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Manage" frontend component.
     /// </summary>
-    public Uri ManageUrl { get; set; } = new Uri("https://manage.localhost");
+    public required Uri ManageUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Profile" frontend component.
     /// </summary>
-    public Uri ProfileUrl { get; set; } = new Uri("http://localhost:41011");
+    public required Uri ProfileUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Services" frontend component.
     /// </summary>
-    public Uri ServicesUrl { get; set; } = new Uri("https://services.localhost");
+    public required Uri ServicesUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Support" frontend component.
     /// </summary>
-    public Uri SupportUrl { get; set; } = new Uri("https://support.localhost");
+    public required Uri SupportUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Cookies" page.
     /// </summary>
-    public Uri CookiesUrl { get; set; } = new Uri("http://localhost:5012/cookies");
+    public required Uri CookiesUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Terms and conditions" page.
     /// </summary>
-    public Uri TermsUrl { get; set; } = new Uri("http://localhost:5012/terms");
+    public required Uri TermsUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Privacy notice" page.
     /// </summary>
-    public Uri PrivacyUrl { get; set; } = new Uri("http://localhost:5012/privacy");
+    public required Uri PrivacyUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Accessibility statement" page.
     /// </summary>
-    public Uri AccessibilityUrl { get; set; } = new Uri("https://help.localhost/accessibility-statement");
+    public required Uri AccessibilityUrl { get; set; }
 
     /// <summary>
     /// Gets URL of the "Contact us" page.
     /// </summary>
-    public Uri ContactUrl { get; set; } = new Uri("http://localhost:5012/contact-us");
+    public required Uri ContactUrl { get; set; }
 
     /// <summary>
     /// Gets the name of the current application environment.
