@@ -183,7 +183,7 @@ public sealed class ChangeEmailController(
 
                 this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = true;
 
-                await this.RenderVerificationCodeViewAsync(userId);
+                await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
             }
 
             await response.TryAddProblemDetailsToModelStateAsync(
@@ -241,7 +241,7 @@ public sealed class ChangeEmailController(
 
     private async Task<IActionResult> RenderVerificationCodeViewAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var pendingChange = await this.GetPendingChangeEmailAddress(userId);
+        var pendingChange = await this.GetPendingChangeEmailAddress(userId, cancellationToken);
 
         if (pendingChange is null) {
             return this.View("VerificationCode", new VerificationCodeViewModel {
