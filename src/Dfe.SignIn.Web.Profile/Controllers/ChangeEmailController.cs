@@ -1,12 +1,11 @@
 using System.Net;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
-using Dfe.SignIn.Core.Contracts.Users;
+using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Policies;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -21,8 +20,6 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 public sealed class ChangeEmailController(
     IOptionsMonitor<ApplicationOidcOptions> oidcOptionsAccessor,
     IUsersApiClient usersApiClient,
-    IValidator<ChangeEmailViewModel> changeEmailValidator,
-    IValidator<VerificationCodeViewModel> verificationCodeValidator,
     //TODO: Review and remove dependency on IConfiguration
     IConfiguration configuration,
     ILogger<ChangeEmailController> logger
@@ -38,9 +35,11 @@ public sealed class ChangeEmailController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
         [FromQuery] bool? resend,
-        ChangeEmailViewModel viewModel)
+        ChangeEmailViewModel viewModel,
+        CancellationToken cancellationToken)
     {
-        var validationResult = await changeEmailValidator.ValidateAsync(viewModel);
+
+        var validationResult = await viewModel.ValidateAsync<ChangeEmailViewModelValidator, ChangeEmailViewModel>();
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
             return this.View("Index");
@@ -49,8 +48,8 @@ public sealed class ChangeEmailController(
         var emailValidationEnabled = configuration.GetValue<bool>("EmailValidation");
         if (emailValidationEnabled) {
             var blockedResponse = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
-                EmailAddress = viewModel.EmailAddressInput
-            });
+                EmailAddress = viewModel.EmailAddressInput!
+            }, cancellationToken);
 
             var isBlocked = !blockedResponse.IsSuccessStatusCode || blockedResponse.Content is null || blockedResponse.Content.IsBlocked;
             if (isBlocked) {
@@ -63,11 +62,11 @@ public sealed class ChangeEmailController(
 
         var request = new InitiateChangeEmailAddressRequest(
             oidcOptionsAccessor.CurrentValue.ClientId,
-            viewModel.EmailAddressInput,
+            viewModel.EmailAddressInput!,
             true
         );
 
-        var response = await usersApiClient.InitiateChangeEmailAddress(this.User.GetUserId(), request);
+        var response = await usersApiClient.InitiateChangeEmailAddress(this.User.GetUserId(), request, cancellationToken);
         if (response.IsSuccessStatusCode) {
             if (resend == true) {
                 this.SetFlashSuccess(
@@ -115,36 +114,56 @@ public sealed class ChangeEmailController(
     }
 
     [HttpGet("verify")]
-    public Task<IActionResult> VerificationCode()
+    public Task<IActionResult> VerificationCode(CancellationToken cancellationToken)
     {
-        return this.VerificationCodeAnonymous(this.User.GetUserId());
+        return this.VerificationCodeAnonymous(this.User.GetUserId(), cancellationToken);
     }
 
     [AllowAnonymous]
     [HttpGet("{userId}/verify")]
     public async Task<IActionResult> VerificationCodeAnonymous(
-        [FromRoute] Guid userId)
+        [FromRoute] Guid userId,
+        CancellationToken cancellationToken)
     {
-        return await this.RenderVerificationCodeViewAsync(userId);
+        if (!this.ModelState.IsValid) {
+            return this.BadRequest();
+        }
+
+        return await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
+    }
+
+    [HttpPost("verify")]
+    [ValidateAntiForgeryToken]
+    public Task<IActionResult> PostVerificationCode(
+        VerificationCodeViewModel viewModel,
+        CancellationToken cancellationToken)
+    {
+        return this.ExecutePostVerificationCode(this.User.GetUserId(), viewModel, cancellationToken);
     }
 
     [AllowAnonymous]
     [HttpPost("{userId}/verify")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostVerificationCode(
+    public async Task<IActionResult> PostAnonymousVerificationCode(
         [FromRoute] Guid userId,
-        VerificationCodeViewModel viewModel)
+        VerificationCodeViewModel viewModel,
+        CancellationToken cancellationToken)
     {
-        var validationResult = await verificationCodeValidator.ValidateAsync(viewModel);
+        return await this.ExecutePostVerificationCode(userId, viewModel, cancellationToken);
+    }
+
+    public async Task<IActionResult> ExecutePostVerificationCode(Guid userId, VerificationCodeViewModel viewModel, CancellationToken cancellationToken)
+    {
+        var validationResult = await viewModel.ValidateAsync<VerificationCodeViewModelValidator, VerificationCodeViewModel>();
         if (!validationResult.IsValid) {
-            return await this.RenderVerificationCodeViewAsync(userId);
+            return await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
         }
 
         var request = new ConfirmChangeEmailAddressRequest {
             VerificationCode = viewModel.VerificationCodeInput!,
         };
 
-        var response = await usersApiClient.ConfirmChangeEmailAddress(userId, request);
+        var response = await usersApiClient.ConfirmChangeEmailAddress(userId, request, cancellationToken);
         if (response.IsSuccessStatusCode) {
             if (response.Content?.HasWarning(ChangeEmailWarnings.EntraMfaSyncFailed) == true) {
                 logger.LogError("Partially failed to change email address for user {UserId}: Entra MFA sync failed.", userId);
@@ -172,7 +191,7 @@ public sealed class ChangeEmailController(
                 VerificationCodeViewModel.RequestPropertyMap,
                 fallbackField: nameof(VerificationCodeViewModel.VerificationCodeInput));
 
-            return await this.RenderVerificationCodeViewAsync(userId);
+            return await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
         }
 
         logger.LogError("Failed to change email address for user {UserId}. StatusCode: {StatusCode}", userId, response.StatusCode);
@@ -201,9 +220,9 @@ public sealed class ChangeEmailController(
 
     [HttpPost("cancel")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostCancel()
+    public async Task<IActionResult> PostCancel(CancellationToken cancellationToken)
     {
-        var response = await usersApiClient.CancelChangeEmailAddress(this.User.GetUserId());
+        var response = await usersApiClient.CancelChangeEmailAddress(this.User.GetUserId(), cancellationToken);
         if (!response.IsSuccessStatusCode) {
             logger.LogError(
                 "Failed to cancel change email for user {UserId}. StatusCode: {StatusCode}",
@@ -220,7 +239,7 @@ public sealed class ChangeEmailController(
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
     }
 
-    private async Task<IActionResult> RenderVerificationCodeViewAsync(Guid userId)
+    private async Task<IActionResult> RenderVerificationCodeViewAsync(Guid userId, CancellationToken cancellationToken)
     {
         var pendingChange = await this.GetPendingChangeEmailAddress(userId);
 
@@ -239,9 +258,9 @@ public sealed class ChangeEmailController(
         });
     }
 
-    private async Task<GetPendingChangeEmailResponse?> GetPendingChangeEmailAddress(Guid userId)
+    private async Task<GetPendingChangeEmailResponse?> GetPendingChangeEmailAddress(Guid userId, CancellationToken cancellationToken)
     {
-        var response = await usersApiClient.GetPendingChangeEmail(userId);
+        var response = await usersApiClient.GetPendingChangeEmail(userId, cancellationToken);
         if (response.IsSuccessStatusCode) {
             return response.Content;
         }

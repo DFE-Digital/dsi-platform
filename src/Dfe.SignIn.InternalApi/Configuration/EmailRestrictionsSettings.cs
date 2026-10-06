@@ -1,12 +1,15 @@
-using Microsoft.Extensions.Options;
-
 namespace Dfe.SignIn.InternalApi.Configuration;
 
 /// <summary>
-/// Options for Blocked Email address configuration/>.
+/// 
 /// </summary>
-public sealed class BlockedEmailAddressOptions : IOptions<BlockedEmailAddressOptions>
+public sealed class EmailRestrictionsSettings
 {
+    /// <summary>
+    /// Name of the key associated with the settings section held in configuration
+    /// </summary>
+    public const string SectionName = "EmailRestrictions";
+
     /// <summary>
     /// Gets the list of blocked domain names.
     /// </summary>
@@ -43,6 +46,22 @@ public sealed class BlockedEmailAddressOptions : IOptions<BlockedEmailAddressOpt
     /// </remarks>
     public List<string> BlockedNames { get; set; } = [];
 
-    /// <inheritdoc/>
-    BlockedEmailAddressOptions IOptions<BlockedEmailAddressOptions>.Value => this;
+    /// <summary>
+    /// Gets the list of emails that are considered generic.
+    /// </summary>
+    /// <remarks>
+    ///   <example>
+    ///     <para>Specify the list of considered email user names:</para>
+    ///     <code language="csharp"><![CDATA[
+    ///       options.BlockedNames = [
+    ///           "admin@admin.com",
+    ///           "info@admin.com",
+    ///       ];
+    ///     ]]></code>
+    ///     <para>This would effectively flag up the use of the email address
+    ///     "info@admin.com".</para>
+    ///   </example>
+    /// </remarks>
+    public List<string> GenericEmailStrings { get; set; } = [];
+
 }

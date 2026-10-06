@@ -37,7 +37,7 @@ public sealed class BullMqExtensionsTests
         Assert.AreEqual(typeof(BullMqQueueFactory), factoryDescriptor.ImplementationType);
 
         var publisherDescriptor = services.Single(d => d.ServiceType == typeof(IEventPublisher));
-        Assert.AreEqual(ServiceLifetime.Singleton, publisherDescriptor.Lifetime);
+        Assert.AreEqual(ServiceLifetime.Scoped, publisherDescriptor.Lifetime);
         Assert.AreEqual(typeof(BullMqEventPublisher), publisherDescriptor.ImplementationType);
 
         Assert.AreEqual("BullMq", BullMqSettings.SectionName);

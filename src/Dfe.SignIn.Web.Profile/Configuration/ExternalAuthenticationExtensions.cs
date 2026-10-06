@@ -1,6 +1,6 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Gateways.DistributedCache;
-using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Microsoft.Extensions.Caching.Distributed;
@@ -45,7 +45,7 @@ public static class ExternalAuthenticationExtensions
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddDistributedTokenCaches();
 
-        services.AddScoped<ISelectAssociatedAccountHelper, SelectAssociatedAccountHelper>();
+        services.AddScoped<IAssociatedAccountAuthService, AssociatedAccountAuthService>();
 
         services.SetupRedisCacheStore(DistributedCacheKeys.EntraTokenCache,
             configuration.GetRequiredSection(TokenRedisCacheConfigurationSectionName));
