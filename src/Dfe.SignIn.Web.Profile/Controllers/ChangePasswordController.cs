@@ -94,7 +94,7 @@ public sealed partial class ChangePasswordController(
             if (result.IsSuccess) {
                 await auditWriter.Log(new WriteToAuditRequest {
                     Message = "Successfully changed password",
-                    EventCategory = "change-password"
+                    EventCategory = AuditEventCategoryNames.ChangePassword
                 });
 
                 return true;
@@ -104,16 +104,16 @@ public sealed partial class ChangePasswordController(
                 this.ModelState.AddModelError(nameof(ChangePasswordViewModel.CurrentPasswordInput), result.Error.Description);
 
                 await auditWriter.Log(new WriteToAuditRequest {
-                    EventCategory = "change-password",
-                    EventName = "incorrect-password",
+                    EventCategory = AuditEventCategoryNames.ChangePassword,
+                    EventName = AuditChangePasswordEventNames.IncorrectPassword,
                     WasFailure = true,
                     Message = "Failed changed password. Incorrect current password"
                 });
 
                 await auditWriter.Log(new WriteToAuditRequest {
                     Message = "Change password attempt failed.",
-                    EventCategory = "change-password",
-                    EventName = "password-vaidation",
+                    EventCategory = AuditEventCategoryNames.ChangePassword,
+                    EventName = AuditChangePasswordEventNames.PasswordValidation,
                     WasFailure = true
                 });
 
@@ -125,8 +125,8 @@ public sealed partial class ChangePasswordController(
 
                 await auditWriter.Log(new WriteToAuditRequest {
                     Message = "Change password attempt failed.",
-                    EventCategory = "change-password",
-                    EventName = "password-vaidation",
+                    EventCategory = AuditEventCategoryNames.ChangePassword,
+                    EventName = AuditChangePasswordEventNames.PasswordValidation,
                     WasFailure = true
                 });
 
