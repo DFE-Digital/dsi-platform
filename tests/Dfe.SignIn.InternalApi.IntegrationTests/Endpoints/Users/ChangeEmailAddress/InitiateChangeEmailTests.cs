@@ -7,7 +7,13 @@ using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.TestHelpers.Integration.Data;
 using Dfe.SignIn.TestHelpers.Integration.Extensions;
+using DotNet.Testcontainers.Builders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
+using Microsoft.Graph.Models.Security;
+using Microsoft.Graph.Models.TermStore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 using Assert = Xunit.Assert;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Endpoints.Users.ChangeEmailAddress;
@@ -280,7 +286,12 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         var pendingCode = await this.GetChangeEmailCode(user.Sub);
         Assert.Null(pendingCode);
 
-        Assert.Empty(this.AuditCapturer.CapturedRequests);
+        var auditRequest = this.AuditCapturer.CapturedRequests[0];
+        Assert.NotNull(auditRequest);
+        Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditRequest.EventCategory);
+        Assert.Equal(AuditChangeEmailEventNames.RequestToChangeEmail, auditRequest.EventName);
+        Assert.Equal("For security, only 3 verification code requests can be sent.\nWait 1 hour before trying again.", auditRequest.Message);
+        Assert.Equal(user.Sub, auditRequest.UserId);
     }
 
     [Theory]

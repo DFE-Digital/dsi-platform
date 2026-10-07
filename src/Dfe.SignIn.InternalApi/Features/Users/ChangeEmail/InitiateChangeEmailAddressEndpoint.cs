@@ -87,7 +87,7 @@ public sealed class InitiateChangeEmailAddressEndpoint(
         }
         catch (InteractionRejectedByLimiterException ex) {
             logger.LogWarning(ex, "Rate limit exceeded for user {UserId} when attempting to change email address", existingUserInfo.UserId);
-            return GetLimitExceededResult(limiterOptions.Get<InitiateChangeEmailAddressRequest>());
+            return await this.GetLimitExceededResult(limiterOptions.Get<InitiateChangeEmailAddressRequest>());
         }
 
         await auditWriter.Log(new WriteToAuditRequest {
@@ -105,16 +105,25 @@ public sealed class InitiateChangeEmailAddressEndpoint(
         return Results.Ok();
     }
 
-    private static IResult GetLimitExceededResult(DistributedCacheInteractionLimiterOptions options)
+    private async Task<IResult> GetLimitExceededResult(DistributedCacheInteractionLimiterOptions options)
     {
         var timePeriod = TimeSpan.FromSeconds(options.TimePeriodInSeconds).Humanize();
         string reason = $"Wait {timePeriod} before trying again.";
 
-        return Results.Problem(
-            detail: $"""
+        var message = $"""
                     For security, only {options.InteractionsPerTimePeriod} verification code requests can be sent.
                     {reason}
-                    """,
+                    """;
+
+        await auditWriter.Log(new WriteToAuditRequest {
+            EventCategory = AuditEventCategoryNames.ChangeEmail,
+            EventName = AuditChangeEmailEventNames.RequestToChangeEmail,
+            Message = message,
+            WasFailure = true
+        });
+
+        return Results.Problem(
+            detail: message,
             title: "Rate limit exceeded",
             statusCode: StatusCodes.Status429TooManyRequests);
     }
