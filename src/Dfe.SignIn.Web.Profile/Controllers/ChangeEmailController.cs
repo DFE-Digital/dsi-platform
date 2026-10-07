@@ -156,6 +156,7 @@ public sealed class ChangeEmailController(
     {
         var validationResult = await viewModel.ValidateAsync<VerificationCodeViewModelValidator, VerificationCodeViewModel>();
         if (!validationResult.IsValid) {
+            validationResult.AddToModelState(this.ModelState);
             return await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
         }
 
