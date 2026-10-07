@@ -68,7 +68,22 @@ public sealed class EntraChangeEmailService(
         CancellationToken cancellationToken)
     {
         try {
+
             var userPatch = new User { Mail = newEmailAddress };
+
+            var entraExternalIdUser = await client.Users[userIdString].GetAsync(config => {
+                config.QueryParameters.Select = ["identities"];
+            }, cancellationToken: cancellationToken);
+
+            var identities = entraExternalIdUser?.Identities ?? [];
+            var emailIdentity = identities.FirstOrDefault(i => i.SignInType == "emailAddress");
+
+            if (emailIdentity is not null && emailIdentity.IssuerAssignedId != newEmailAddress) {
+                logger.LogInformation("Setting email address the user signs in with");
+                emailIdentity.IssuerAssignedId = newEmailAddress;
+                userPatch.Identities = identities;
+            }
+
             await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
 
             logger.LogInformation("Successfully updated primary email for Entra user {UserId}", externalUserId);
