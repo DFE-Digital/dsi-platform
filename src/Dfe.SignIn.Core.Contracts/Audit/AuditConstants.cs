@@ -137,4 +137,9 @@ public static class AuditChangePasswordEventNames
     /// Indicates that an incorrect password was provided.
     /// </summary>
     public const string IncorrectPassword = "incorrect-password";
+
+    /// <summary>
+    /// Indicates that a problem occured with password validation constraints
+    /// </summary>
+    public const string PasswordValidation = "password-vaidation";
 }
