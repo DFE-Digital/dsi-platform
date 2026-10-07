@@ -19,14 +19,24 @@ public sealed class AuthControllerTests
 {
     private static AuthController CreateController(AutoMocker autoMocker, HttpContext httpContext)
     {
+        autoMocker.GetMock<IOptions<PlatformSettings>>()
+            .Setup(x => x.Value)
+            .Returns(new PlatformSettings {
+                ServicesUrl = new Uri("http://services.localhost"),
+                SurveyUrl = new Uri("http://survey.localhost"),
+                HelpUrl = new Uri("http://help.localhost"),
+                ManageUrl = new Uri("http://manage.localhost"),
+                ProfileUrl = new Uri("http://profile.localhost"),
+                SupportUrl = new Uri("http://support.localhost"),
+                CookiesUrl = new Uri("http://cookies.localhost"),
+                TermsUrl = new Uri("http://terms.localhost"),
+                PrivacyUrl = new Uri("http://privacy.localhost"),
+                AccessibilityUrl = new Uri("http://accessibility.localhost"),
+                ContactUrl = new Uri("http://contact.localhost"),
+            });
+
         var controller = autoMocker.CreateInstance<AuthController>();
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
-
-        autoMocker.GetMock<IOptionsMonitor<PlatformOptions>>()
-            .Setup(x => x.CurrentValue)
-            .Returns(new PlatformOptions {
-                ServicesUrl = new Uri("http://services.localhost"),
-            });
 
         var mockUrlHelper = new Mock<IUrlHelper>();
         mockUrlHelper

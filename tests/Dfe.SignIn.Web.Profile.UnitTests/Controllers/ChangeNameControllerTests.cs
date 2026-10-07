@@ -6,10 +6,12 @@ using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using Dfe.SignIn.WebFramework.Mvc.Models;
 using FluentValidation;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Moq.AutoMock;
@@ -43,6 +45,12 @@ public sealed class ChangeNameControllerTests
 
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         controller.TempData = autoMocker.CreateInstance<TempDataDictionary>();
+
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        mockUrlHelper
+            .Setup(x => x.Action(It.IsAny<UrlActionContext>()))
+            .Returns<UrlActionContext>(context => $"/{context.Controller}/{context.Action}");
+        controller.Url = mockUrlHelper.Object;
 
         return controller;
     }
@@ -129,7 +137,7 @@ public sealed class ChangeNameControllerTests
     }
 
     [TestMethod]
-    public async Task PostIndex_ShowsErrorMessageAndReRendersView_WhenApiClientReturnsError()
+    public async Task PostIndex_PresentsErrorView_WhenApiClientReturnsError()
     {
         var autoMocker = new AutoMocker();
 
@@ -142,10 +150,34 @@ public sealed class ChangeNameControllerTests
 
         var result = await controller.PostIndex(CreateValidChangeNameViewModel(), CancellationToken.None);
 
+        AssertPresentsNameUpdateFailedErrorView(result);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_PresentsErrorView_WhenApiClientThrows()
+    {
+        var autoMocker = new AutoMocker();
+
+        var userClientMock = new Mock<IUsersApiClient>();
+        userClientMock.Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("API unavailable"));
+
+        autoMocker.Use(userClientMock.Object);
+        var controller = CreateController(autoMocker, isEntra: false);
+
+        var result = await controller.PostIndex(CreateValidChangeNameViewModel(), CancellationToken.None);
+
+        AssertPresentsNameUpdateFailedErrorView(result);
+    }
+
+    private static void AssertPresentsNameUpdateFailedErrorView(IActionResult result)
+    {
         var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
-        Assert.IsTrue(controller.ModelState.ContainsKey(string.Empty));
-        Assert.AreEqual("We couldn't save your name right now. Please try again.", controller.ModelState[string.Empty].Errors[0].ErrorMessage);
+        Assert.AreEqual(ControllerExtensions.DefaultErrorViewName, viewResult.ViewName);
+        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        Assert.AreEqual("System error", viewModel.Heading);
+        Assert.AreEqual("Try again", viewModel.ActionButtonText);
+        Assert.AreEqual("/ChangeName/Index", viewModel.ActionButtonUrl);
     }
 
     [TestMethod]

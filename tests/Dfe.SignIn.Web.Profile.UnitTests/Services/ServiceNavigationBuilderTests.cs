@@ -28,13 +28,7 @@ public sealed class ServiceNavigationBuilderTests
         userClientMock.Setup(x => x.PendingApprovalCount(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(response));
 
-        var options = Options.Create(
-            new PlatformOptions {
-                ServicesUrl = new Uri("https://services.test/"),
-                ProfileUrl = new Uri("https://profile.test/"),
-                HelpUrl = new Uri("https://help.test/")
-            });
-
+        var options = Options.Create(CreateDefaultPlatformSettings());
         var snb = new ServiceNavigationBuilder(options, userClientMock.Object);
 
         // Act
@@ -52,13 +46,7 @@ public sealed class ServiceNavigationBuilderTests
 
         var userClientMock = new Mock<IUsersApiClient>();
 
-        var options = Options.Create(
-            new PlatformOptions {
-                ServicesUrl = new Uri("https://services.test"),
-                ProfileUrl = new Uri("https://profile.test"),
-                HelpUrl = new Uri("https://help.test")
-            });
-
+        var options = Options.Create(CreateDefaultPlatformSettings());
         var snb = new ServiceNavigationBuilder(options, userClientMock.Object);
 
         // Act
@@ -89,13 +77,7 @@ public sealed class ServiceNavigationBuilderTests
         userClientMock.Setup(x => x.PendingApprovalCount(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(response));
 
-        var options = Options.Create(
-            new PlatformOptions {
-                ServicesUrl = new Uri("https://services.test"),
-                ProfileUrl = new Uri("https://profile.test"),
-                HelpUrl = new Uri("https://help.test")
-            });
-
+        var options = Options.Create(CreateDefaultPlatformSettings());
         var snb = new ServiceNavigationBuilder(options, userClientMock.Object);
 
         // Act
@@ -135,5 +117,22 @@ public sealed class ServiceNavigationBuilderTests
             : new ClaimsIdentity();
 
         return new ClaimsPrincipal(identity);
+    }
+
+    private static PlatformSettings CreateDefaultPlatformSettings()
+    {
+        return new PlatformSettings {
+            ServicesUrl = new Uri("https://services.test/"),
+            ProfileUrl = new Uri("https://profile.test/"),
+            HelpUrl = new Uri("https://help.test/"),
+            SurveyUrl = new Uri("https://survey.test/"),
+            ManageUrl = new Uri("https://manage.test/"),
+            SupportUrl = new Uri("https://support.test/"),
+            ContactUrl = new Uri("https://contact.test/"),
+            CookiesUrl = new Uri("https://cookies.test/"),
+            TermsUrl = new Uri("https://terms.test/"),
+            PrivacyUrl = new Uri("https://privacy.test/"),
+            AccessibilityUrl = new Uri("https://accessibility.test/")
+        };
     }
 }
