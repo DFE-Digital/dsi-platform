@@ -1,6 +1,6 @@
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
 
-@if (platformOptionsAccessor.Value?.EnvironmentName != EnvironmentName.Prod && Env.EnvironmentName != "Local")
+@if (platformSettingsAccessor.Value?.EnvironmentName != EnvironmentName.Prod && Env.EnvironmentName != "Local")
 {
     <div class="app-environment-banner">
         <div class="govuk-width-container">

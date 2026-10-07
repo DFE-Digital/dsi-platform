@@ -1,7 +1,7 @@
 @{
     ViewData[DsiLayoutConstants.Title] = "There has been an error";
 
-    Uri contactUsUrl = new Uri(platformOptionsAccessor.Value.HelpUrl, Model.ShowRequestId
+    Uri contactUsUrl = new Uri(platformSettingsAccessor.Value.HelpUrl, Model.ShowRequestId
         ? $"contact-us?exceptionTraceId={Model.RequestId}"
         : "contact-us");
 }

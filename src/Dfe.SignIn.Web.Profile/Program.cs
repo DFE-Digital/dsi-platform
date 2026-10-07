@@ -84,7 +84,6 @@ builder.Services
 
 // --- Options / frontend ---
 builder.Services
-    .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"))
     .AddOptionsWithValidation<PlatformSettings>();
 
