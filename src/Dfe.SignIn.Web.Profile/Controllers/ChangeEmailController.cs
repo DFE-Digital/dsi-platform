@@ -83,12 +83,15 @@ public sealed class ChangeEmailController(
         }
 
         if (response.StatusCode == HttpStatusCode.BadRequest) {
-            await response.TryAddProblemDetailsToModelStateAsync(
-                this.ModelState,
-                ChangeEmailViewModel.RequestPropertyMap,
-                fallbackField: nameof(ChangeEmailViewModel.EmailAddressInput));
 
-            return this.View("Index");
+            //ASP.NET Core's default TempData provider is cookie-based.
+            //Data within it is encrypted, signed and sent back on each request.
+            //It's needed to show the users 'new' email in the flash message. Without it
+            //we have no way of knowing what the user tried to use. If we don't show
+            //anything we leak the fact that the email is in use causing a information leak.
+            this.TempData["NewEmail"] = viewModel.EmailAddressInput;
+
+            return this.RedirectToAction(nameof(VerificationCode));
         }
 
         if (response.StatusCode == HttpStatusCode.TooManyRequests) {
@@ -172,7 +175,15 @@ public sealed class ChangeEmailController(
 
         if (response.StatusCode == HttpStatusCode.BadRequest) {
             if (await response.IsProblemType(ChangeEmailErrors.NoPendingRequest.Code)) {
-                return this.RedirectToAction(nameof(Index));
+                // add message to view model and return view otherwise
+                // we're now leaking that no code was found
+                this.ModelState.AddModelError(
+                    nameof(viewModel.VerificationCodeInput),
+                    "The verification code you entered is incorrect. Please check and try again.");
+
+                this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = true;
+
+                await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
             }
 
             await response.TryAddProblemDetailsToModelStateAsync(
@@ -231,8 +242,12 @@ public sealed class ChangeEmailController(
     private async Task<IActionResult> RenderVerificationCodeViewAsync(Guid userId, CancellationToken cancellationToken)
     {
         var pendingChange = await this.GetPendingChangeEmailAddress(userId, cancellationToken);
+
         if (pendingChange is null) {
-            return this.RedirectToAction(nameof(Index), MvcNaming.Controller<ChangeEmailController>());
+            return this.View("VerificationCode", new VerificationCodeViewModel {
+                UserId = userId,
+                NewEmailAddress = this.TempData.Peek("NewEmail")?.ToString() ?? string.Empty
+            });
         }
 
         this.ModelState.SetModelValue(nameof(VerificationCodeViewModel.VerificationCodeInput), null, "");
