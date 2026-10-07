@@ -283,8 +283,10 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         Assert.Empty(this.AuditCapturer.CapturedRequests);
     }
 
-    [Fact]
-    public async Task InitiateChangeEmail_SendsEmailOrNotification_WhenApplicable()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task InitiateChangeEmail_SendsEmailOrNotification_WhenApplicable(bool isSelfInvoked)
     {
         var authenticatedClient = this
             .CreateClient()
@@ -303,7 +305,7 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
 
         var response = await authenticatedClient.PostAsJsonAsync(
             GetEndpoint(user.Sub),
-            CreateRequest(newEmail));
+            CreateRequest(newEmail, isSelfInvoked));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -319,6 +321,10 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         Assert.Equal(pendingCode.Code, verificationRequest.Personalisation["code"]);
         Assert.Equal(user.FirstName, verificationRequest.Personalisation["firstName"]);
         Assert.Equal(user.LastName, verificationRequest.Personalisation["lastName"]);
+        var expectedReturnUrl = isSelfInvoked
+            ? "http://localhost:41011/change-email/verify"
+            : $"http://localhost:41011/change-email/{user.Sub}/verify";
+        Assert.Equal(expectedReturnUrl, verificationRequest.Personalisation["returnUrl"].ToString());
 
         var migratedEmailRequest = Assert.Single(trackedRequests, x => x.RecipientEmailAddress == existingEmail);
         Assert.Equal("18e0e804-04c6-4f73-9462-ab3cbf8b990f", migratedEmailRequest.TemplateId);
@@ -384,8 +390,8 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         Assert.Empty(this.AuditCapturer.CapturedRequests);
     }
 
-    private static InitiateChangeEmailAddressRequest CreateRequest(string newEmailAddress)
-        => new("test-client", newEmailAddress, true);
+    private static InitiateChangeEmailAddressRequest CreateRequest(string newEmailAddress, bool isSelfInvoked = true)
+        => new("test-client", newEmailAddress, isSelfInvoked);
 
     private async Task<UserCodeEntity?> GetChangeEmailCode(Guid userId)
     {

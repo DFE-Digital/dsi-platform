@@ -1,3 +1,4 @@
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Gateways.Entra.ChangePassword;
@@ -21,6 +22,7 @@ public sealed partial class ChangePasswordController(
     IUsersApiClient usersApiClient,
     IEntraChangePasswordService entraChangePasswordService,
     IAssociatedAccountAuthService associatedAccountAuthService,
+    IAuditWriter auditWriter,
     ILogger<ChangePasswordController> logger
 ) : Controller
 {
@@ -90,16 +92,44 @@ public sealed partial class ChangePasswordController(
                 cancellationToken);
 
             if (result.IsSuccess) {
+                await auditWriter.Log(new WriteToAuditRequest {
+                    Message = "Successfully changed password",
+                    EventCategory = AuditEventCategoryNames.ChangePassword
+                });
+
                 return true;
             }
 
             if (result.Error.Code == EntraPasswordErrors.InvalidCurrentPasswordCode) {
                 this.ModelState.AddModelError(nameof(ChangePasswordViewModel.CurrentPasswordInput), result.Error.Description);
+
+                await auditWriter.Log(new WriteToAuditRequest {
+                    EventCategory = AuditEventCategoryNames.ChangePassword,
+                    EventName = AuditChangePasswordEventNames.IncorrectPassword,
+                    WasFailure = true,
+                    Message = "Failed changed password. Incorrect current password"
+                });
+
+                await auditWriter.Log(new WriteToAuditRequest {
+                    Message = "Change password attempt failed.",
+                    EventCategory = AuditEventCategoryNames.ChangePassword,
+                    EventName = AuditChangePasswordEventNames.PasswordValidation,
+                    WasFailure = true
+                });
+
                 return false;
             }
 
             if (result.Error.Code == EntraPasswordErrors.PasswordPolicyViolationCode) {
                 this.ModelState.AddModelError(nameof(ChangePasswordViewModel.NewPasswordInput), result.Error.Description);
+
+                await auditWriter.Log(new WriteToAuditRequest {
+                    Message = "Change password attempt failed.",
+                    EventCategory = AuditEventCategoryNames.ChangePassword,
+                    EventName = AuditChangePasswordEventNames.PasswordValidation,
+                    WasFailure = true
+                });
+
                 return false;
             }
 

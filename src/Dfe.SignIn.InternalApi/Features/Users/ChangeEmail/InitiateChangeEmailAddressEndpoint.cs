@@ -98,7 +98,7 @@ public sealed class InitiateChangeEmailAddressEndpoint(
         });
 
         await userCodeService.DeleteExistingCodesAsync(existingUserInfo.UserId, cancellationToken);
-        await userCodeService.CreateNewVerificationCodeAsync(existingUserInfo, request.NewEmailAddress, request.ClientId, cancellationToken);
+        await userCodeService.CreateNewVerificationCodeAsync(existingUserInfo, request.NewEmailAddress, request.ClientId, request.IsSelfInvoked, cancellationToken);
 
         logger.LogInformation("Successfully initiated change of email address for user {UserId}", existingUserInfo.UserId);
 
