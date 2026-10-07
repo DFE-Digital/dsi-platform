@@ -2,19 +2,47 @@
 
 @{
     ViewData[DsiLayoutConstants.ServiceNavigationItems] = Array.Empty<NavigationItemViewModel>();
-    ViewData[DsiLayoutConstants.Title] = "There has been an error";
-    Uri contactUsUrl = new Uri(platformOptionsAccessor.Value.HelpUrl, Model.ShowRequestId ? $"contact-us?exceptionTraceId={Model.RequestId}" : "contact-us");
+    ViewData[DsiLayoutConstants.Title] = Model.PageTitle;
+
+    if (Model.BackLink is not null)
+    {
+        ViewData[DsiLayoutConstants.BackLink] = Model.BackLink;
+    }
+
+    var helpBase = platformSettingsAccessor.Value.HelpUrl.ToString().TrimEnd('/');
+    var contactUsUrl = (Model.ShowRequestId && !string.IsNullOrEmpty(Model.RequestId))
+        ? $"{helpBase}/{Model.HelpLinkPath}?exceptionTraceId={Model.RequestId}"
+        : $"{helpBase}/{Model.HelpLinkPath}";
 }
 
-<h1 class="govuk-heading-xl govuk-!-margin-top-3">There has been an error</h1>
+<div class="govuk-grid-row">
+    <div class="@Model.ColumnClass">
+        <h1 class="@Model.HeadingClass">@Model.Heading</h1>
 
-<p class="govuk-body">
-    If the problem continues, follow the link to <a class="govuk-link govuk-link-bold" href="@contactUsUrl">submit a support request</a>.
-</p>
+        @foreach (var paragraph in Model.Paragraphs)
+        {
+            <p class="govuk-body">@paragraph</p>
+        }
 
-@if (Model.ShowRequestId)
-{
-    <p class="govuk-body">
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+        @if (Model.ShowHelpLink)
+        {
+            <p class="govuk-body">
+                @Model.HelpLinkPrefix<a class="govuk-link" href="@contactUsUrl">@Model.HelpLinkText</a>@Model.HelpLinkSuffix
+            </p>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ActionButtonText) && !string.IsNullOrEmpty(Model.ActionButtonUrl))
+        {
+            <govuk-button-link href="@Model.ActionButtonUrl">
+                @Model.ActionButtonText
+            </govuk-button-link>
+        }
+
+        @if (Model.ShowRequestId && !string.IsNullOrEmpty(Model.RequestId))
+        {
+            <p class="govuk-body govuk-!-margin-top-4">
+                <strong>Request ID:</strong> <code>@Model.RequestId</code>
+            </p>
+        }
+    </div>
+</div>

@@ -45,7 +45,7 @@ public sealed class ControllerExtensionsTests
 
         var result = ControllerExtensions.ErrorView(controller);
 
-        TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        TypeAssert.IsViewModelType<LegacyErrorViewModel>(result);
     }
 
     [TestMethod]
@@ -57,11 +57,11 @@ public sealed class ControllerExtensionsTests
             },
         };
 
-        var model = new ErrorViewModel();
+        var model = new LegacyErrorViewModel();
 
         var result = ControllerExtensions.ErrorView(controller, model: model);
 
-        var actualModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        var actualModel = TypeAssert.IsViewModelType<LegacyErrorViewModel>(result);
         Assert.AreSame(model, actualModel);
     }
 
@@ -78,7 +78,7 @@ public sealed class ControllerExtensionsTests
 
         var result = controller.Index();
 
-        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        var viewModel = TypeAssert.IsViewModelType<LegacyErrorViewModel>(result);
         Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
     }
 

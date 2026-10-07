@@ -85,7 +85,8 @@ builder.Services
 // --- Options / frontend ---
 builder.Services
     .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
-    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
+    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"))
+    .AddOptionsWithValidation<PlatformSettings>();
 
 builder.Services
     .SetupFrontendAssets();
@@ -113,12 +114,18 @@ if (builder.Environment.IsLocal()) {
 var app = builder.Build();
 
 // --- Pipeline ---
-app.UseDsiSecurityHeaderPolicy();
-
 if (!app.Environment.IsLocal()) {
     app.UseExceptionHandler("/Error/Index")
        .UseHsts();
 }
+else {
+    app.UseExceptionHandler("/Error/Index");
+    //app.UseDeveloperExceptionPage();
+}
+
+//app.UseExceptionHandler("/Error/Index");
+
+app.UseDsiSecurityHeaderPolicy();
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();

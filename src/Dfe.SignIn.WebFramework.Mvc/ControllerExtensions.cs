@@ -11,6 +11,11 @@ namespace Dfe.SignIn.WebFramework.Mvc;
 public static class ControllerExtensions
 {
     /// <summary>
+    /// The default error view name.
+    /// </summary>
+    public static readonly string DefaultErrorViewName = "/Views/Error/Index.cshtml";
+
+    /// <summary>
     /// Creates an error view and includes the unique request ID to improve traceability.
     /// </summary>
     /// <param name="controller">The controller.</param>
@@ -22,12 +27,37 @@ public static class ControllerExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="controller"/> is null.</para>
     /// </exception>
-    public static IActionResult ErrorView(this Controller controller, string? viewName = null, ErrorViewModel? model = null)
+    public static IActionResult ErrorView(this Controller controller, string? viewName = null, LegacyErrorViewModel? model = null)
     {
         ExceptionHelpers.ThrowIfArgumentNull(controller, nameof(controller));
 
-        model ??= new ErrorViewModel();
+        model ??= new LegacyErrorViewModel();
         model.RequestId = Activity.Current?.Id ?? controller.HttpContext.TraceIdentifier;
+
+        return controller.View(viewName, model);
+    }
+
+    /// <summary>
+    /// Creates an error view and includes the unique request ID to improve traceability.
+    /// </summary>
+    /// <param name="controller">The controller.</param>
+    /// <param name="model">The error view model.</param>
+    /// <param name="viewName">The name of the view.</param>
+    /// <returns>The action result for the view.</returns>
+    public static IActionResult ErrorView(this Controller controller, ErrorViewModel model, string? viewName = null)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(controller, nameof(controller));
+        ExceptionHelpers.ThrowIfArgumentNull(model, nameof(model));
+
+        viewName ??= DefaultErrorViewName;
+
+        if (model.StatusCode.HasValue) {
+            controller.Response.StatusCode = model.StatusCode.Value;
+        }
+
+        if (model.ShowRequestId && string.IsNullOrEmpty(model.RequestId)) {
+            model.RequestId = Activity.Current?.Id ?? controller.HttpContext.TraceIdentifier;
+        }
 
         return controller.View(viewName, model);
     }

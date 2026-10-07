@@ -61,7 +61,7 @@ public sealed class BaseErrorControllerTests
 
         var result = controller.Index(statusCode);
 
-        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        var viewModel = TypeAssert.IsViewModelType<LegacyErrorViewModel>(result);
         Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
         Assert.AreEqual(statusCode, controller.Response.StatusCode);
     }
