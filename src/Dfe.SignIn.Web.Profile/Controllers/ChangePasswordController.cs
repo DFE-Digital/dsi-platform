@@ -3,6 +3,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Gateways.Entra.ChangePassword;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
+using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Dfe.SignIn.WebFramework.Mvc.Policies;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
@@ -59,11 +60,13 @@ public sealed partial class ChangePasswordController(
 
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
-        var success = userProfileFeature.IsEntra
-            ? await this.TryChangeEntraPasswordAsync(viewModel, cancellationToken)
-            : await this.TryChangeLocalPasswordAsync(viewModel, userProfileFeature.UserId, cancellationToken);
-
-        if (!success) {
+        if (userProfileFeature.IsEntra) {
+            var entraResult = await this.TryChangeEntraPasswordAsync(viewModel, cancellationToken);
+            if (entraResult is not null) {
+                return entraResult;
+            }
+        }
+        else if (!await this.TryChangeLocalPasswordAsync(viewModel, userProfileFeature.UserId, cancellationToken)) {
             return await this.Index();
         }
 
@@ -75,7 +78,7 @@ public sealed partial class ChangePasswordController(
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
     }
 
-    private async Task<bool> TryChangeEntraPasswordAsync(ChangePasswordViewModel viewModel, CancellationToken cancellationToken)
+    private async Task<IActionResult?> TryChangeEntraPasswordAsync(ChangePasswordViewModel viewModel, CancellationToken cancellationToken)
     {
         try {
             var graphAccessToken = await associatedAccountAuthService.CreateAccessTokenForAssociatedAccount(this,
@@ -90,26 +93,31 @@ public sealed partial class ChangePasswordController(
                 cancellationToken);
 
             if (result.IsSuccess) {
-                return true;
+                return null;
             }
 
             if (result.Error.Code == EntraPasswordErrors.InvalidCurrentPasswordCode) {
                 this.ModelState.AddModelError(nameof(ChangePasswordViewModel.CurrentPasswordInput), result.Error.Description);
-                return false;
+                return await this.Index();
             }
 
             if (result.Error.Code == EntraPasswordErrors.PasswordPolicyViolationCode) {
-                this.ModelState.AddModelError(nameof(ChangePasswordViewModel.NewPasswordInput), result.Error.Description);
-                return false;
+                // Node InsufficientPasswordError uses fixed copy on the form.
+                this.ModelState.AddModelError(
+                    nameof(ChangePasswordViewModel.NewPasswordInput),
+                    "Please enter a valid password");
+                return await this.Index();
             }
 
-            this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
-            return false;
+            logger.LogError(
+                "Unexpected failure changing password for Entra user. Code: {ErrorCode}. Description: {Description}",
+                result.Error.Code,
+                result.Error.Description);
+            return this.ErrorView(ProfileErrorPresets.PasswordUpdateFailed(this.Url));
         }
         catch (Exception ex) {
             logger.LogError(ex, "An error occurred while changing the user's password.");
-            this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
-            return false;
+            return this.ErrorView(ProfileErrorPresets.PasswordUpdateFailed(this.Url));
         }
     }
 

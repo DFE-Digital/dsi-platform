@@ -11,9 +11,11 @@ using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using Dfe.SignIn.WebFramework.Mvc.Models;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Moq.AutoMock;
@@ -56,7 +58,12 @@ public sealed class ChangePasswordControllerTests
 
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         controller.TempData = autoMocker.CreateInstance<TempDataDictionary>();
-        controller.Url = new Mock<IUrlHelper>().Object;
+
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        mockUrlHelper
+            .Setup(x => x.Action(It.IsAny<UrlActionContext>()))
+            .Returns<UrlActionContext>(context => $"/{context.Controller}/{context.Action}");
+        controller.Url = mockUrlHelper.Object;
 
         return controller;
     }
@@ -295,6 +302,9 @@ public sealed class ChangePasswordControllerTests
         Assert.AreEqual("Index", viewResult.ViewName);
         Assert.IsFalse(controller.ModelState.IsValid);
         Assert.IsTrue(controller.ModelState.ContainsKey(nameof(ChangePasswordViewModel.CurrentPasswordInput)));
+        Assert.AreEqual(
+            "We do not recognise the password you entered. Please check and try again.",
+            controller.ModelState[nameof(ChangePasswordViewModel.CurrentPasswordInput)]!.Errors[0].ErrorMessage);
     }
 
     [TestMethod]
@@ -317,11 +327,11 @@ public sealed class ChangePasswordControllerTests
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
-        Assert.AreEqual("Password does not meet policy.", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
+        Assert.AreEqual("Please enter a valid password", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
     }
 
     [TestMethod]
-    public async Task PostIndex_AddsDefaultErrorAndPresentsView_WhenEntraReturnsUnexpectedFailure()
+    public async Task PostIndex_PresentsErrorView_WhenEntraReturnsUnexpectedFailure()
     {
         var autoMocker = new AutoMocker();
         var controller = CreateController(autoMocker, isEntraUser: true);
@@ -338,13 +348,11 @@ public sealed class ChangePasswordControllerTests
 
         var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
-        Assert.AreEqual("We couldn't change your password right now. Please try again.", controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+        AssertPresentsPasswordUpdateFailedErrorView(result);
     }
 
     [TestMethod]
-    public async Task PostIndex_AddsDefaultErrorAndPresentsView_WhenEntraTokenAcquisitionThrows()
+    public async Task PostIndex_PresentsErrorView_WhenEntraTokenAcquisitionThrows()
     {
         var autoMocker = new AutoMocker();
         var controller = CreateController(autoMocker, isEntraUser: true);
@@ -357,9 +365,7 @@ public sealed class ChangePasswordControllerTests
 
         var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
-        Assert.AreEqual("We couldn't change your password right now. Please try again.", controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+        AssertPresentsPasswordUpdateFailedErrorView(result);
     }
 
     [TestMethod]
@@ -416,4 +422,17 @@ public sealed class ChangePasswordControllerTests
     }
 
     #endregion
+
+    private static void AssertPresentsPasswordUpdateFailedErrorView(IActionResult result)
+    {
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual(ControllerExtensions.DefaultErrorViewName, viewResult.ViewName);
+        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        Assert.AreEqual("System error", viewModel.Heading);
+        Assert.AreEqual(
+            "An error ocurred while trying to change your password, please try again.",
+            viewModel.Paragraphs.Single());
+        Assert.AreEqual("Try again", viewModel.ActionButtonText);
+        Assert.AreEqual("/ChangePassword/Index", viewModel.ActionButtonUrl);
+    }
 }

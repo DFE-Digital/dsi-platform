@@ -15,7 +15,7 @@ public sealed class BaseErrorControllerTests
     #region Index(int code)
 
     [TestMethod]
-    public void Index_PresentsNotFoundView_WhenStatusIs404()
+    public void Index_PresentsNotFoundError_WhenStatusIs404()
     {
         var controller = new FakeErrorController {
             ControllerContext = new() {
@@ -26,7 +26,12 @@ public sealed class BaseErrorControllerTests
         var result = controller.Index(404);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("NotFound", viewResult.ViewName);
+        Assert.AreEqual(ControllerExtensions.DefaultErrorViewName, viewResult.ViewName);
+        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        Assert.AreEqual("Page not found", viewModel.Heading);
+        Assert.IsNotNull(viewModel.HelpLink);
+        Assert.AreEqual("contact the helpdesk", viewModel.HelpLink.LinkText);
+        Assert.IsFalse(viewModel.ShowRequestId);
         Assert.AreEqual(404, controller.Response.StatusCode);
     }
 

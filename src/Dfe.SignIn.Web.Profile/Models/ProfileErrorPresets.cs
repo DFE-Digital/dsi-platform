@@ -57,4 +57,21 @@ public static class ProfileErrorPresets
             Path: "contact-us"
         ),
     };
+
+    /// <summary>
+    /// Unexpected password change failure
+    /// (Node <c>entraPasswordChangeHandlerError.ejs</c> parity).
+    /// </summary>
+    /// <remarks>
+    /// Used for unexpected Entra failures already handled in .NET.
+    /// The Node "form expired" / unauthorised page is not migrated yet.
+    /// </remarks>
+    public static ErrorViewModel PasswordUpdateFailed(IUrlHelper url) => new() {
+        PageTitle = "System error",
+        Heading = "System error",
+        Paragraphs = ["An error ocurred while trying to change your password, please try again."],
+        ActionButtonText = "Try again",
+        ActionButtonUrl = url.Action("Index", "ChangePassword"),
+        HelpLink = PersistServiceDeskHelp,
+    };
 }

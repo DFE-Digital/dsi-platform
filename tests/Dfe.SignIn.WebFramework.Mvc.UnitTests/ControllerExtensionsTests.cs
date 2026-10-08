@@ -10,80 +10,6 @@ public sealed class ControllerExtensionsTests
 {
     private sealed class FakeErrorController : BaseErrorController { }
 
-    #region ErrorView(Controller, string?, LegacyErrorViewModel?)
-
-    [TestMethod]
-    public void ErrorView_Throws_WhenControllerArgumentIsNull()
-    {
-        Assert.ThrowsExactly<ArgumentNullException>(()
-            => ControllerExtensions.ErrorView(null!));
-    }
-
-    [TestMethod]
-    public void ErrorView_PresentsNamedView_WhenViewNameIsSpecified()
-    {
-        var controller = new FakeErrorController {
-            ControllerContext = new() {
-                HttpContext = new DefaultHttpContext(),
-            },
-        };
-
-        var result = ControllerExtensions.ErrorView(controller, "ExampleViewName");
-
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("ExampleViewName", viewResult.ViewName);
-    }
-
-    [TestMethod]
-    public void ErrorView_PresentsEmptyViewModel_WhenModelArgumentIsNull()
-    {
-        var controller = new FakeErrorController {
-            ControllerContext = new() {
-                HttpContext = new DefaultHttpContext(),
-            },
-        };
-
-        var result = ControllerExtensions.ErrorView(controller);
-
-        TypeAssert.IsViewModelType<LegacyErrorViewModel>(result);
-    }
-
-    [TestMethod]
-    public void ErrorView_PresentsGivenViewModel_WhenModelArgumentIsSpecified()
-    {
-        var controller = new FakeErrorController {
-            ControllerContext = new() {
-                HttpContext = new DefaultHttpContext(),
-            },
-        };
-
-        var model = new LegacyErrorViewModel();
-
-        var result = ControllerExtensions.ErrorView(controller, model: model);
-
-        var actualModel = TypeAssert.IsViewModelType<LegacyErrorViewModel>(result);
-        Assert.AreSame(model, actualModel);
-    }
-
-    [TestMethod]
-    public void ErrorView_PresentsTraceIdentifierAsRequestId()
-    {
-        var controller = new FakeErrorController {
-            ControllerContext = new() {
-                HttpContext = new DefaultHttpContext {
-                    TraceIdentifier = "a492f33c-a859-4098-8c01-b8b2f09a6090"
-                },
-            },
-        };
-
-        var result = ControllerExtensions.ErrorView(controller);
-
-        var viewModel = TypeAssert.IsViewModelType<LegacyErrorViewModel>(result);
-        Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
-    }
-
-    #endregion
-
     #region ErrorView(Controller, ErrorViewModel, string?)
 
     [TestMethod]
@@ -103,7 +29,7 @@ public sealed class ControllerExtensionsTests
         };
 
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => ControllerExtensions.ErrorView(controller, model: (ErrorViewModel)null!));
+            => ControllerExtensions.ErrorView(controller, model: null!));
     }
 
     [TestMethod]

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.WebFramework.Mvc.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -14,28 +13,6 @@ public static class ControllerExtensions
     /// The default error view name.
     /// </summary>
     public static readonly string DefaultErrorViewName = "/Views/Error/Index.cshtml";
-
-    /// <summary>
-    /// Creates an error view and includes the unique request ID to improve traceability.
-    /// </summary>
-    /// <param name="controller">The controller.</param>
-    /// <param name="viewName">Optional, name of the view.</param>
-    /// <param name="model">Optional, customised model for error view.</param>
-    /// <returns>
-    ///   <para>The action result for the view.</para>
-    /// </returns>
-    /// <exception cref="ArgumentException">
-    ///   <para>If <paramref name="controller"/> is null.</para>
-    /// </exception>
-    public static IActionResult ErrorView(this Controller controller, string? viewName = null, LegacyErrorViewModel? model = null)
-    {
-        ExceptionHelpers.ThrowIfArgumentNull(controller, nameof(controller));
-
-        model ??= new LegacyErrorViewModel();
-        model.RequestId = Activity.Current?.Id ?? controller.HttpContext.TraceIdentifier;
-
-        return controller.View(viewName, model);
-    }
 
     /// <summary>
     /// Creates an error view and includes the unique request ID to improve traceability.

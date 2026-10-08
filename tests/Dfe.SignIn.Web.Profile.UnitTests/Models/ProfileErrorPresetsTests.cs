@@ -79,4 +79,22 @@ public sealed class ProfileErrorPresetsTests
         Assert.IsNull(viewModel.BackLink);
         Assert.IsFalse(viewModel.ShowRequestId);
     }
+
+    [TestMethod]
+    public void PasswordUpdateFailed_ReturnsExpectedErrorViewModel()
+    {
+        var viewModel = ProfileErrorPresets.PasswordUpdateFailed(CreateUrlHelper());
+
+        Assert.AreEqual("System error", viewModel.PageTitle);
+        Assert.AreEqual("System error", viewModel.Heading);
+        CollectionAssert.AreEqual(
+            new[] { "An error ocurred while trying to change your password, please try again." },
+            viewModel.Paragraphs.ToArray());
+        Assert.AreEqual("Try again", viewModel.ActionButtonText);
+        Assert.AreEqual("/ChangePassword/Index", viewModel.ActionButtonUrl);
+        Assert.IsNotNull(viewModel.HelpLink);
+        Assert.AreEqual("If the problem persists ", viewModel.HelpLink.TextBefore);
+        Assert.AreEqual("contact our service desk team", viewModel.HelpLink.LinkText);
+        Assert.IsFalse(viewModel.ShowRequestId);
+    }
 }

@@ -27,7 +27,7 @@ public abstract class BaseErrorController : Controller
     public IActionResult Index([FromQuery] int code = StatusCodes.Status500InternalServerError)
     {
         return code switch {
-            StatusCodes.Status404NotFound => this.NotFoundView(),
+            StatusCodes.Status404NotFound => this.ErrorView(FrameworkErrorPresets.NotFound()),
             StatusCodes.Status401Unauthorized or StatusCodes.Status403Forbidden
                 => this.ErrorView(FrameworkErrorPresets.NotAuthorised(code)),
             StatusCodes.Status405MethodNotAllowed => HttpMethods.IsGet(this.Request.Method)
@@ -35,12 +35,6 @@ public abstract class BaseErrorController : Controller
                 : this.ServerErrorView(code),
             _ => this.ServerErrorView(code),
         };
-    }
-
-    private IActionResult NotFoundView()
-    {
-        this.Response.StatusCode = StatusCodes.Status404NotFound;
-        return this.View("NotFound");
     }
 
     private IActionResult ServerErrorView(int statusCode)
