@@ -16,7 +16,7 @@ public static class AssetConfigurationExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
-    public static void SetupFrontendAssets(this IServiceCollection services)
+    public static IServiceCollection AddFrontendAssets(this IServiceCollection services)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
@@ -28,5 +28,7 @@ public static class AssetConfigurationExtensions
             options.Rebrand = true;
             options.DefaultButtonPreventDoubleClick = true;
         });
+
+        return services;
     }
 }
