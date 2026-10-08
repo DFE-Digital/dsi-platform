@@ -190,6 +190,88 @@ public sealed class EntraChangeEmailServiceTests
     }
 
     [TestMethod]
+    public async Task ChangeEmailAsync_GivenExistingEmailAddress_WhenPrimarySucceeds_ReturnsSuccessResultAndDoesNotLogInformation()
+    {
+
+        var logMessages = new List<string>();
+
+        // Arrange
+        this.loggerMock
+            .Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation => {
+                logMessages.Add(invocation.Arguments[2].ToString()!);
+            }));
+
+        var userId = Guid.NewGuid();
+        const string newEmail = "updated.user@example.com";
+        var requestsRecorded = new List<HttpRequestMessage>();
+
+        var client = CreateGraphClient(req => {
+            requestsRecorded.Add(req);
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(identities)/$entity",
+                    "identities": [
+                        {
+                            "signInType": "emailAddress",
+                            "issuer": "contoso.onmicrosoft.com",
+                            "issuerAssignedId": "updated.user@example.com"
+                        }
+                    ]
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "value": [
+                        {
+                            "id": "existing-mfa-method-id",
+                            "emailAddress": "old.user@example.com"
+                        }
+                    ]
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.Contains("existing-mfa-method-id")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act
+        var result = await sut.ChangeEmailAsync(userId, newEmail);
+
+        // Assert
+        Assert.IsTrue(result.IsSuccess);
+        Assert.IsFalse(logMessages.Any(m => m.Contains("Setting email address the user signs in with")));
+
+    }
+
+    [TestMethod]
     public async Task ChangeEmailAsync_WhenNoExistingMfaMethod_PostsNewMfaMethod_AndReturnsSuccess()
     {
         // Arrange
