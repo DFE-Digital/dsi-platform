@@ -1,6 +1,7 @@
 using System.Net;
 using System.Security.Claims;
 using Dfe.SignIn.Base.Framework.OperationResults;
+using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
 using Dfe.SignIn.Core.Contracts.Graph;
@@ -26,7 +27,7 @@ namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
 [TestClass]
 public sealed class ChangePasswordControllerTests
 {
-    private static ChangePasswordController CreateController(AutoMocker autoMocker, bool isEntraUser)
+    private static ChangePasswordController CreateController(AutoMocker autoMocker, bool isEntraUser, OperationResult? entraPasswordChangeOperationalResult = null)
     {
         var mockResponse = new Mock<IApiResponse>();
         mockResponse.SetupGet(r => r.IsSuccessStatusCode).Returns(true);
@@ -35,9 +36,11 @@ public sealed class ChangePasswordControllerTests
             .Setup(x => x.ChangePassword(It.IsAny<Guid>(), It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(mockResponse.Object);
 
-        autoMocker.GetMock<IEntraChangePasswordService>()
-            .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OperationResult.Success());
+        if (entraPasswordChangeOperationalResult is not null) {
+            autoMocker.GetMock<IEntraChangePasswordService>()
+                .Setup(x => x.ChangePasswordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<GraphAccessToken>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(entraPasswordChangeOperationalResult);
+        }
 
         var controller = autoMocker.CreateInstance<ChangePasswordController>();
 
@@ -270,7 +273,7 @@ public sealed class ChangePasswordControllerTests
         var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual("/Views/Error/Index.cshtml", viewResult.ViewName);
         Assert.IsFalse(controller.ModelState.IsValid);
         Assert.IsTrue(controller.ModelState.ContainsKey(nameof(ChangePasswordViewModel.NewPasswordInput)));
         Assert.AreEqual("Password has been breached and is unsafe to use.", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
@@ -299,7 +302,7 @@ public sealed class ChangePasswordControllerTests
         var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual("/Views/Error/Index.cshtml", viewResult.ViewName);
         Assert.IsFalse(controller.ModelState.IsValid);
         Assert.IsTrue(controller.ModelState.ContainsKey(nameof(ChangePasswordViewModel.CurrentPasswordInput)));
         Assert.AreEqual(
@@ -326,8 +329,8 @@ public sealed class ChangePasswordControllerTests
         var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
-        Assert.AreEqual("Please enter a valid password", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
+        Assert.AreEqual("/Views/Error/Index.cshtml", viewResult.ViewName);
+        Assert.AreEqual("Password does not meet policy.", controller.ModelState[nameof(ChangePasswordViewModel.NewPasswordInput)]!.Errors[0].ErrorMessage);
     }
 
     [TestMethod]
@@ -385,10 +388,93 @@ public sealed class ChangePasswordControllerTests
         var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual("/Views/Error/Index.cshtml", viewResult.ViewName);
         Assert.IsFalse(controller.ModelState.IsValid);
         Assert.IsTrue(controller.ModelState.ContainsKey(string.Empty));
         Assert.AreEqual("We couldn't process your request right now. Please try again.", controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_SuccessfullyAuditsWhenEntraChangeWasSuccessful()
+    {
+        var fakeAccessToken = new GraphAccessToken { Token = "fake-token", ExpiresOn = DateTimeOffset.UtcNow };
+
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IAuditWriter>().Setup(x => x.Log(It.IsAny<WriteToAuditRequest>()));
+
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(), It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fakeAccessToken);
+
+        var controller = CreateController(autoMocker, isEntraUser: true, entraPasswordChangeOperationalResult: OperationResult.Success());
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+
+        autoMocker.GetMock<IAuditWriter>()
+            .Verify(x => x.Log(It.Is<WriteToAuditRequest>(r => !r.WasFailure && r.EventCategory == "change-password" && r.Message == "Successfully changed password")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_SuccessfullyAuditsWhenEntraChangeWasUnSuccessful_InvalidCurrentPasswordCode()
+    {
+        var fakeAccessToken = new GraphAccessToken { Token = "fake-token", ExpiresOn = DateTimeOffset.UtcNow };
+
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IAuditWriter>().Setup(x => x.Log(It.IsAny<WriteToAuditRequest>()));
+
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(), It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fakeAccessToken);
+
+        var controller = CreateController(autoMocker, isEntraUser: true, entraPasswordChangeOperationalResult:
+            OperationResult.Failure(EntraPasswordErrors.InvalidCurrentPassword));
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+
+        autoMocker.GetMock<IAuditWriter>()
+            .Verify(x => x.Log(It.IsAny<WriteToAuditRequest>()), Times.Exactly(2));
+
+        autoMocker.GetMock<IAuditWriter>()
+            .Verify(x => x.Log(It.Is<WriteToAuditRequest>(r => r.WasFailure &&
+                r.EventCategory == "change-password" &&
+                r.EventName == "incorrect-password" &&
+                r.Message == "Failed changed password. Incorrect current password")),
+            Times.Once);
+
+        autoMocker.GetMock<IAuditWriter>()
+           .Verify(x => x.Log(It.Is<WriteToAuditRequest>(r => r.WasFailure &&
+               r.EventCategory == "change-password" &&
+               r.EventName == "password-vaidation" &&
+               r.Message == "Change password attempt failed.")),
+           Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_SuccessfullyAuditsWhenEntraChangeWasUnSuccessful_PasswordPolicyViolationCode()
+    {
+        var fakeAccessToken = new GraphAccessToken { Token = "fake-token", ExpiresOn = DateTimeOffset.UtcNow };
+
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IAuditWriter>().Setup(x => x.Log(It.IsAny<WriteToAuditRequest>()));
+
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
+            .Setup(x => x.CreateAccessTokenForAssociatedAccount(It.IsAny<Controller>(), It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fakeAccessToken);
+
+        var controller = CreateController(autoMocker, isEntraUser: true, entraPasswordChangeOperationalResult:
+            OperationResult.Failure(EntraPasswordErrors.PasswordPolicyViolation("New password cannot be empty.")));
+
+        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+
+        autoMocker.GetMock<IAuditWriter>()
+            .Verify(x => x.Log(It.IsAny<WriteToAuditRequest>()), Times.Once);
+
+        autoMocker.GetMock<IAuditWriter>()
+           .Verify(x => x.Log(It.Is<WriteToAuditRequest>(r => r.WasFailure &&
+               r.EventCategory == "change-password" &&
+               r.EventName == "password-vaidation" &&
+               r.Message == "Change password attempt failed.")),
+           Times.Once);
     }
 
     #endregion
