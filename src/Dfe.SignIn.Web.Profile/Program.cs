@@ -10,7 +10,6 @@ using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Extensions;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
-using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -53,8 +52,7 @@ builder.Services
     .AddDsiMvcExtensions();
 
 builder.Services
-    .ConfigureDsiAntiforgeryCookie()
-    .ConfigureDfeSignInJsonSerializerOptions();
+    .ConfigureDsiAntiforgeryCookie();
 
 // --- Profile app services ---
 builder.Services
@@ -78,9 +76,7 @@ builder.Services
 
 // --- Auditing ---
 builder.Services
-    .SetupAuditContext()
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
-    .AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
+    .AddDsiAuditing(builder.Configuration, azureTokenCredential, builder.Environment);
 
 // --- Options / frontend ---
 builder.Services
@@ -92,12 +88,8 @@ builder.Services
 
 // --- API clients / Entra ---
 builder.Services
-    .AddHttpContextAccessor() // redundant with SetupAuditContext (TryAdd) — fine to leave
     .AddEntraDelegatedServices()
     .AddUsersApiClient(tokenCredential);
-
-builder.Services
-    .AddValidatorsFromAssemblyContaining<Program>();
 
 // --- Local-only overrides ---
 // Allow self-signed IdP certificates on the OIDC backchannel in Local only.
@@ -113,16 +105,10 @@ if (builder.Environment.IsLocal()) {
 var app = builder.Build();
 
 // --- Pipeline ---
+app.UseExceptionHandler("/Error/Index");
 if (!app.Environment.IsLocal()) {
-    app.UseExceptionHandler("/Error/Index")
-       .UseHsts();
+    app.UseHsts();
 }
-else {
-    app.UseExceptionHandler("/Error/Index");
-    //app.UseDeveloperExceptionPage();
-}
-
-//app.UseExceptionHandler("/Error/Index");
 
 app.UseDsiSecurityHeaderPolicy();
 

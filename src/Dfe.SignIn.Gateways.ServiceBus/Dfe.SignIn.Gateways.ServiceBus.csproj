@@ -23,6 +23,7 @@
     <ProjectReference Include="..\Dfe.SignIn.Base.Framework\Dfe.SignIn.Base.Framework.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.Contracts\Dfe.SignIn.Core.Contracts.csproj" />
     <ProjectReference Include="..\Dfe.SignIn.Core.Interfaces\Dfe.SignIn.Core.Interfaces.csproj" />
+    <ProjectReference Include="..\Dfe.SignIn.WebFramework\Dfe.SignIn.WebFramework.csproj" />
   </ItemGroup>
 
 </Project>
