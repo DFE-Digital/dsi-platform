@@ -107,7 +107,7 @@ public sealed class ChangeEmailController(
         }
 
         logger.LogError("Failed to initiate change email address for user {UserId}. StatusCode: {StatusCode}", this.User.GetUserId(), response.StatusCode);
-        return this.ErrorView("ErrorUpdateEmailAddress");
+        return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
     }
 
     [HttpGet("verify")]
@@ -164,7 +164,7 @@ public sealed class ChangeEmailController(
         if (response.IsSuccessStatusCode) {
             if (response.Content?.HasWarning(ChangeEmailWarnings.EntraMfaSyncFailed) == true) {
                 logger.LogError("Partially failed to change email address for user {UserId}: Entra MFA sync failed.", userId);
-                return this.ErrorView("ErrorUpdateAuthenticationMethod");
+                return this.ErrorView(ProfileErrorPresets.EmailMfaSyncFailed(this.Url));
             }
 
             return this.RedirectToAction(nameof(Complete));
@@ -184,7 +184,7 @@ public sealed class ChangeEmailController(
         }
 
         logger.LogError("Failed to change email address for user {UserId}. StatusCode: {StatusCode}", userId, response.StatusCode);
-        return this.ErrorView("ErrorUpdateEmailAddress");
+        return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
     }
 
     [AllowAnonymous]
@@ -217,7 +217,7 @@ public sealed class ChangeEmailController(
                 "Failed to cancel change email for user {UserId}. StatusCode: {StatusCode}",
                 this.User.GetUserId(),
                 response.StatusCode);
-            return this.ErrorView("ErrorUpdateEmailAddress");
+            return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
         }
 
         this.SetFlashNotification(
