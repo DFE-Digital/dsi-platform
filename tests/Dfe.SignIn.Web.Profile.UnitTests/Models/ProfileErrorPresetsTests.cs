@@ -25,8 +25,12 @@ public sealed class ProfileErrorPresetsTests
             viewModel.Paragraphs.ToArray());
         Assert.AreEqual("Try again", viewModel.ActionButtonText);
         Assert.AreEqual("/ChangeName/Index", viewModel.ActionButtonUrl);
-        Assert.AreEqual("contact our service desk team", viewModel.HelpLinkText);
-        Assert.AreEqual("If the problem persists ", viewModel.HelpLinkPrefix);
+        Assert.IsNotNull(viewModel.HelpLink);
+        Assert.AreEqual("If the problem persists ", viewModel.HelpLink.TextBefore);
+        Assert.AreEqual("contact our service desk team", viewModel.HelpLink.LinkText);
+        Assert.AreEqual(".", viewModel.HelpLink.TextAfter);
+        Assert.AreEqual("contact-us", viewModel.HelpLink.Path);
+        Assert.IsFalse(viewModel.ShowRequestId);
         Assert.IsNotNull(viewModel.BackLink);
         Assert.AreEqual("/Home/Index", viewModel.BackLink.Href.ToString());
     }

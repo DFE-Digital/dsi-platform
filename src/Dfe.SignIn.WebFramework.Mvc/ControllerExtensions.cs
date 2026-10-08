@@ -55,10 +55,6 @@ public static class ControllerExtensions
             controller.Response.StatusCode = model.StatusCode.Value;
         }
 
-        if (model.ShowRequestId && string.IsNullOrEmpty(model.RequestId)) {
-            model.RequestId = Activity.Current?.Id ?? controller.HttpContext.TraceIdentifier;
-        }
-
         return controller.View(viewName, model);
     }
 }

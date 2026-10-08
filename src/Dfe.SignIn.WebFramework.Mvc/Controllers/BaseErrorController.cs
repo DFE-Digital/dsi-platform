@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Dfe.SignIn.WebFramework.Mvc.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Controllers;
@@ -22,15 +24,29 @@ public abstract class BaseErrorController : Controller
         Justification = "Size validated upstream by RequestSizeLimit attribute, RequestBodySizeLimitFilter filter and Kestrel."
     )]
     [DisableRequestSizeLimit]
-    public IActionResult Index([FromQuery] int code = 500)
+    public IActionResult Index([FromQuery] int code = StatusCodes.Status500InternalServerError)
     {
-        this.Response.StatusCode = code;
         return code switch {
-            404 => this.View("NotFound"),
-            405 => HttpMethods.IsGet(this.Request.Method)
+            StatusCodes.Status404NotFound => this.NotFoundView(),
+            StatusCodes.Status401Unauthorized or StatusCodes.Status403Forbidden
+                => this.ErrorView(FrameworkErrorPresets.NotAuthorised(code)),
+            StatusCodes.Status405MethodNotAllowed => HttpMethods.IsGet(this.Request.Method)
                 ? this.Redirect("/") // eg. when authentication occurs when submitting a form.
-                : this.ErrorView(),
-            _ => this.ErrorView(),
+                : this.ServerErrorView(code),
+            _ => this.ServerErrorView(code),
         };
+    }
+
+    private IActionResult NotFoundView()
+    {
+        this.Response.StatusCode = StatusCodes.Status404NotFound;
+        return this.View("NotFound");
+    }
+
+    private IActionResult ServerErrorView(int statusCode)
+    {
+        var model = FrameworkErrorPresets.DefaultServerError(statusCode);
+        model.RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier;
+        return this.ErrorView(model);
     }
 }

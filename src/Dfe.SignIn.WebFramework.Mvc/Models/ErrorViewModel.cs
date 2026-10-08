@@ -50,29 +50,17 @@ public sealed record ErrorViewModel
     // Support & Helpdesk
 
     /// <summary>
-    /// Gets or sets a value indicating whether to show the help link on the error page.
+    /// Gets or sets the optional help sentence with an embedded link.
+    /// Null hides the help paragraph.
     /// </summary>
-    public bool ShowHelpLink { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets the text for the help link on the error page.
-    /// </summary>
-    public string HelpLinkText { get; set; } = "contact our service desk team";
-
-    /// <summary>
-    /// Gets or sets the path for the help link on the error page.
-    /// </summary>
-    public string HelpLinkPath { get; set; } = "contact-us";
-
-    /// <summary>
-    /// Gets or sets the prefix text for the help link on the error page.
-    /// </summary>
-    public string HelpLinkPrefix { get; set; } = "If the problem persists, ";
-
-    /// <summary>
-    /// Gets or sets the suffix text for the help link on the error page.
-    /// </summary>
-    public string? HelpLinkSuffix { get; set; } = ".";
+    /// <remarks>
+    /// Defaults match the legacy Express generic 500 page. Journey presets override this.
+    /// </remarks>
+    public LinkSentence? HelpLink { get; set; } = new(
+        TextBefore: "If the problem continues, follow the link to ",
+        LinkText: "submit a support request",
+        Path: "contact-us"
+    );
 
     // Traceability & Status Code
 
@@ -82,9 +70,9 @@ public sealed record ErrorViewModel
     public string? RequestId { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the request ID should be presented.
+    /// Gets a value indicating whether the request ID should be presented.
     /// </summary>
-    public bool ShowRequestId { get; set; } = false;
+    public bool ShowRequestId => !string.IsNullOrEmpty(this.RequestId);
 
     /// <summary>
     /// Gets or sets the HTTP status code associated with the error.

@@ -9,10 +9,7 @@
         ViewData[DsiLayoutConstants.BackLink] = Model.BackLink;
     }
 
-    var helpBase = platformSettingsAccessor.Value.HelpUrl.ToString().TrimEnd('/');
-    var contactUsUrl = (Model.ShowRequestId && !string.IsNullOrEmpty(Model.RequestId))
-        ? $"{helpBase}/{Model.HelpLinkPath}?exceptionTraceId={Model.RequestId}"
-        : $"{helpBase}/{Model.HelpLinkPath}";
+    var helpQuery = Model.ShowRequestId ? $"exceptionTraceId={Model.RequestId}" : null;
 }
 
 <div class="govuk-grid-row">
@@ -24,10 +21,13 @@
             <p class="govuk-body">@paragraph</p>
         }
 
-        @if (Model.ShowHelpLink)
+        @if (Model.HelpLink is not null)
         {
+            var contactUsUrl = Model.HelpLink.ResolveHref(
+                platformSettingsAccessor.Value.HelpUrl,
+                helpQuery);
             <p class="govuk-body">
-                @Model.HelpLinkPrefix<a class="govuk-link" href="@contactUsUrl">@Model.HelpLinkText</a>@Model.HelpLinkSuffix
+                @Model.HelpLink.TextBefore<a class="govuk-link" href="@contactUsUrl">@Model.HelpLink.LinkText</a>@Model.HelpLink.TextAfter
             </p>
         }
 
@@ -38,7 +38,7 @@
             </govuk-button-link>
         }
 
-        @if (Model.ShowRequestId && !string.IsNullOrEmpty(Model.RequestId))
+        @if (Model.ShowRequestId)
         {
             <p class="govuk-body govuk-!-margin-top-4">
                 <strong>Request ID:</strong> <code>@Model.RequestId</code>

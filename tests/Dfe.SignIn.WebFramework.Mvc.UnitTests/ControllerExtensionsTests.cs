@@ -76,7 +76,7 @@ public sealed class ControllerExtensionsTests
             },
         };
 
-        var result = controller.Index();
+        var result = ControllerExtensions.ErrorView(controller);
 
         var viewModel = TypeAssert.IsViewModelType<LegacyErrorViewModel>(result);
         Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
@@ -167,7 +167,7 @@ public sealed class ControllerExtensionsTests
     }
 
     [TestMethod]
-    public void ErrorView_WithErrorViewModel_FillsRequestId_WhenShowRequestIdIsTrueAndRequestIdIsEmpty()
+    public void ErrorView_WithErrorViewModel_DoesNotFillRequestId()
     {
         var controller = new FakeErrorController {
             ControllerContext = new() {
@@ -177,16 +177,15 @@ public sealed class ControllerExtensionsTests
             },
         };
 
-        var model = new ErrorViewModel { ShowRequestId = true };
-
-        var result = ControllerExtensions.ErrorView(controller, model);
+        var result = ControllerExtensions.ErrorView(controller, new ErrorViewModel());
 
         var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
-        Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
+        Assert.IsNull(viewModel.RequestId);
+        Assert.IsFalse(viewModel.ShowRequestId);
     }
 
     [TestMethod]
-    public void ErrorView_WithErrorViewModel_PreservesExistingRequestId_WhenShowRequestIdIsTrue()
+    public void ErrorView_WithErrorViewModel_PreservesExistingRequestId()
     {
         var controller = new FakeErrorController {
             ControllerContext = new() {
@@ -197,7 +196,6 @@ public sealed class ControllerExtensionsTests
         };
 
         var model = new ErrorViewModel {
-            ShowRequestId = true,
             RequestId = "existing-request-id",
         };
 
@@ -205,25 +203,7 @@ public sealed class ControllerExtensionsTests
 
         var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
         Assert.AreEqual("existing-request-id", viewModel.RequestId);
-    }
-
-    [TestMethod]
-    public void ErrorView_WithErrorViewModel_DoesNotFillRequestId_WhenShowRequestIdIsFalse()
-    {
-        var controller = new FakeErrorController {
-            ControllerContext = new() {
-                HttpContext = new DefaultHttpContext {
-                    TraceIdentifier = "a492f33c-a859-4098-8c01-b8b2f09a6090",
-                },
-            },
-        };
-
-        var model = new ErrorViewModel { ShowRequestId = false };
-
-        var result = ControllerExtensions.ErrorView(controller, model);
-
-        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
-        Assert.IsNull(viewModel.RequestId);
+        Assert.IsTrue(viewModel.ShowRequestId);
     }
 
     #endregion
