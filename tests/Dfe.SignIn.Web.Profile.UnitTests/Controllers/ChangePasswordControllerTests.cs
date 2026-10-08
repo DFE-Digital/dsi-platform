@@ -408,7 +408,7 @@ public sealed class ChangePasswordControllerTests
 
         var controller = CreateController(autoMocker, isEntraUser: true, entraPasswordChangeOperationalResult: OperationResult.Success());
 
-        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+        await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         autoMocker.GetMock<IAuditWriter>()
             .Verify(x => x.Log(It.Is<WriteToAuditRequest>(r => !r.WasFailure && r.EventCategory == "change-password" && r.Message == "Successfully changed password")), Times.Once);
@@ -429,7 +429,7 @@ public sealed class ChangePasswordControllerTests
         var controller = CreateController(autoMocker, isEntraUser: true, entraPasswordChangeOperationalResult:
             OperationResult.Failure(EntraPasswordErrors.InvalidCurrentPassword));
 
-        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+        await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         autoMocker.GetMock<IAuditWriter>()
             .Verify(x => x.Log(It.IsAny<WriteToAuditRequest>()), Times.Exactly(2));
@@ -464,7 +464,7 @@ public sealed class ChangePasswordControllerTests
         var controller = CreateController(autoMocker, isEntraUser: true, entraPasswordChangeOperationalResult:
             OperationResult.Failure(EntraPasswordErrors.PasswordPolicyViolation("New password cannot be empty.")));
 
-        var result = await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
+        await controller.PostIndex(CreateValidChangePasswordViewModel(), CancellationToken.None);
 
         autoMocker.GetMock<IAuditWriter>()
             .Verify(x => x.Log(It.IsAny<WriteToAuditRequest>()), Times.Once);
