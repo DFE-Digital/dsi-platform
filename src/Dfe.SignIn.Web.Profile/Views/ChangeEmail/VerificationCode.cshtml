@@ -1,4 +1,4 @@
-﻿@model VerificationCodeViewModel
+@model VerificationCodeViewModel
 
 @{
     string verificationAction = nameof(ChangeEmailController.PostAnonymousVerificationCode);
@@ -34,7 +34,7 @@
                 </p>
                 <p class="govuk-body">
                     If <strong>@Model.NewEmailAddress</strong> is a valid email address, we will have sent you an email containing a verification code.
-                    If you are experiencing problems please <a class="govuk-link" href=@platformOptionsAccessor.Value.ContactUrl>Contact DfE Sign-in</a>.
+                    If you are experiencing problems please <a class="govuk-link" href=@platformSettingsAccessor.Value.ContactUrl>Contact DfE Sign-in</a>.
                 </p>
                 <form method="post" asp-antiforgery=true>
                     <input type="hidden" name=@nameof(ChangeEmailViewModel.EmailAddressInput) value=@Model.NewEmailAddress />

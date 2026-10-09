@@ -19,13 +19,13 @@ public interface IServiceNavigationBuilder
 /// </summary>
 public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
 {
-    private readonly PlatformOptions platformOptions;
+    private readonly PlatformSettings platformSettings;
     private readonly IUsersApiClient userApiClient;
 
     public ServiceNavigationBuilder(
-        IOptions<PlatformOptions> platformOptionsAccessor, IUsersApiClient userApiClient)
+        IOptions<PlatformSettings> platformSettings, IUsersApiClient userApiClient)
     {
-        this.platformOptions = platformOptionsAccessor.Value;
+        this.platformSettings = platformSettings.Value;
         this.userApiClient = userApiClient;
     }
 
@@ -42,12 +42,12 @@ public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
         {
             new StandardNavigationItemViewModel()
             {
-                Href = new Uri(this.platformOptions.ServicesUrl, "my-services"),
+                Href = new Uri(this.platformSettings.ServicesUrl, "my-services"),
                 Text = "Services",
             },
             new StandardNavigationItemViewModel()
             {
-                Href = new Uri(this.platformOptions.ServicesUrl, "organisations"),
+                Href = new Uri(this.platformSettings.ServicesUrl, "organisations"),
                 Text = "Organisations",
             }
         };
@@ -60,25 +60,25 @@ public sealed class ServiceNavigationBuilder : IServiceNavigationBuilder
                 : 0;
 
             items.Add(new StandardNavigationItemViewModel {
-                Href = new Uri(this.platformOptions.ServicesUrl, "approvals/users"),
+                Href = new Uri(this.platformSettings.ServicesUrl, "approvals/users"),
                 Text = "Manage users",
             });
 
             items.Add(new CountNavigationItemViewModel {
-                Href = new Uri(this.platformOptions.ServicesUrl, "access-requests"),
+                Href = new Uri(this.platformSettings.ServicesUrl, "access-requests"),
                 Text = "Requests",
                 Count = count
             });
         }
 
         items.Add(new StandardNavigationItemViewModel {
-            Href = this.platformOptions.ProfileUrl,
+            Href = this.platformSettings.ProfileUrl,
             Text = "Profile",
             IsActive = true,
         });
 
         items.Add(new StandardNavigationItemViewModel {
-            Href = this.platformOptions.HelpUrl,
+            Href = this.platformSettings.HelpUrl,
             Text = "Help",
         });
 

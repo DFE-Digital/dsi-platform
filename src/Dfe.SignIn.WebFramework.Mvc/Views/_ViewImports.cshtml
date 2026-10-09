@@ -1,4 +1,4 @@
-﻿@using Dfe.SignIn.WebFramework;
+@using Dfe.SignIn.WebFramework;
 @using Dfe.SignIn.WebFramework.Configuration;
 @using Dfe.SignIn.WebFramework.Mvc;
 @using Dfe.SignIn.WebFramework.Mvc.Configuration;
@@ -9,5 +9,5 @@
 @addTagHelper *, NetEscapades.AspNetCore.SecurityHeaders.TagHelpers
 @addTagHelper *, GovUk.Frontend.AspNetCore
 
-@inject IOptions<PlatformOptions> platformOptionsAccessor
 @inject IOptions<AssetOptions> assetOptionsAccessor
+@inject IOptions<PlatformSettings> platformSettingsAccessor

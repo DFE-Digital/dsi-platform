@@ -10,10 +10,12 @@ using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
+using Dfe.SignIn.WebFramework.Mvc.Models;
 using FluentValidation;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -57,6 +59,12 @@ public sealed class ChangeEmailControllerTests
 
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         controller.TempData = autoMocker.CreateInstance<TempDataDictionary>();
+
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        mockUrlHelper
+            .Setup(x => x.Action(It.IsAny<UrlActionContext>()))
+            .Returns<UrlActionContext>(context => $"/{context.Controller}/{context.Action}");
+        controller.Url = mockUrlHelper.Object;
 
         return controller;
     }
@@ -320,8 +328,7 @@ public sealed class ChangeEmailControllerTests
             EmailAddressInput = "alex.new@example.com",
         }, cancellationToken: CancellationToken.None);
 
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("ErrorUpdateEmailAddress", viewResult.ViewName);
+        AssertPresentsEmailUpdateFailedErrorView(result);
     }
 
     [TestMethod]
@@ -685,8 +692,7 @@ public sealed class ChangeEmailControllerTests
             CancellationToken.None
         );
 
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("ErrorUpdateAuthenticationMethod", viewResult.ViewName);
+        AssertPresentsEmailMfaSyncFailedErrorView(result);
     }
 
     [TestMethod]
@@ -713,8 +719,7 @@ public sealed class ChangeEmailControllerTests
             CancellationToken.None
         );
 
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("ErrorUpdateEmailAddress", viewResult.ViewName);
+        AssertPresentsEmailUpdateFailedErrorView(result);
     }
 
     [TestMethod]
@@ -845,9 +850,37 @@ public sealed class ChangeEmailControllerTests
 
         var result = await controller.PostCancel(CancellationToken.None);
 
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("ErrorUpdateEmailAddress", viewResult.ViewName);
+        AssertPresentsEmailUpdateFailedErrorView(result);
     }
 
     #endregion
+
+    private static void AssertPresentsEmailUpdateFailedErrorView(IActionResult result)
+    {
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual(ControllerExtensions.DefaultErrorViewName, viewResult.ViewName);
+        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        Assert.AreEqual("System error", viewModel.Heading);
+        Assert.AreEqual(
+            "An error ocurred while trying to change your email address, please try again.",
+            viewModel.Paragraphs.Single());
+        Assert.AreEqual("Try again", viewModel.ActionButtonText);
+        Assert.AreEqual("/ChangeEmail/Index", viewModel.ActionButtonUrl);
+    }
+
+    private static void AssertPresentsEmailMfaSyncFailedErrorView(IActionResult result)
+    {
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual(ControllerExtensions.DefaultErrorViewName, viewResult.ViewName);
+        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        Assert.AreEqual("System error", viewModel.Heading);
+        Assert.AreEqual(
+            "Your email address has been updated, however, Multi-factor authentication (MFA) codes will still be sent to your old email address.",
+            viewModel.Paragraphs.Single());
+        Assert.AreEqual("Try again", viewModel.ActionButtonText);
+        Assert.AreEqual("/ChangeEmail/Index", viewModel.ActionButtonUrl);
+        Assert.IsNotNull(viewModel.HelpLink);
+        Assert.AreEqual("Please ", viewModel.HelpLink.TextBefore);
+        Assert.AreEqual(" so that they can resolve this.", viewModel.HelpLink.TextAfter);
+    }
 }

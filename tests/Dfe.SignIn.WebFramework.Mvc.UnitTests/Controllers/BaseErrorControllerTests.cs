@@ -15,7 +15,7 @@ public sealed class BaseErrorControllerTests
     #region Index(int code)
 
     [TestMethod]
-    public void Index_PresentsNotFoundView_WhenStatusIs404()
+    public void Index_PresentsNotFoundError_WhenStatusIs404()
     {
         var controller = new FakeErrorController {
             ControllerContext = new() {
@@ -26,7 +26,12 @@ public sealed class BaseErrorControllerTests
         var result = controller.Index(404);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("NotFound", viewResult.ViewName);
+        Assert.AreEqual(ControllerExtensions.DefaultErrorViewName, viewResult.ViewName);
+        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        Assert.AreEqual("Page not found", viewModel.Heading);
+        Assert.IsNotNull(viewModel.HelpLink);
+        Assert.AreEqual("contact the helpdesk", viewModel.HelpLink.LinkText);
+        Assert.IsFalse(viewModel.ShowRequestId);
         Assert.AreEqual(404, controller.Response.StatusCode);
     }
 
@@ -49,7 +54,7 @@ public sealed class BaseErrorControllerTests
     [TestMethod]
     [DataRow(405)]
     [DataRow(500)]
-    public void Index_UsesTraceIdentifierAsRequestId(int statusCode)
+    public void Index_PresentsDefaultServerError_WithRequestId(int statusCode)
     {
         var controller = new FakeErrorController {
             ControllerContext = new() {
@@ -58,11 +63,40 @@ public sealed class BaseErrorControllerTests
                 },
             },
         };
+        controller.Request.Method = HttpMethods.Post;
+
+        var result = controller.Index(statusCode);
+
+        var viewResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual(ControllerExtensions.DefaultErrorViewName, viewResult.ViewName);
+        var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
+        Assert.AreEqual("There has been an error", viewModel.Heading);
+        Assert.IsNotNull(viewModel.HelpLink);
+        Assert.AreEqual("submit a support request", viewModel.HelpLink.LinkText);
+        Assert.AreEqual("If the problem continues, follow the link to ", viewModel.HelpLink.TextBefore);
+        Assert.IsTrue(viewModel.ShowRequestId);
+        Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
+        Assert.AreEqual(statusCode, controller.Response.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow(401)]
+    [DataRow(403)]
+    public void Index_PresentsNotAuthorised_WhenStatusIsUnauthorizedOrForbidden(int statusCode)
+    {
+        var controller = new FakeErrorController {
+            ControllerContext = new() {
+                HttpContext = new DefaultHttpContext(),
+            },
+        };
 
         var result = controller.Index(statusCode);
 
         var viewModel = TypeAssert.IsViewModelType<ErrorViewModel>(result);
-        Assert.AreEqual("a492f33c-a859-4098-8c01-b8b2f09a6090", viewModel.RequestId);
+        Assert.AreEqual("You are not authorised to view this information", viewModel.Heading);
+        Assert.AreEqual("govuk-heading-m govuk-!-margin-top-8", viewModel.HeadingClass);
+        Assert.IsNull(viewModel.HelpLink);
+        Assert.IsFalse(viewModel.ShowRequestId);
         Assert.AreEqual(statusCode, controller.Response.StatusCode);
     }
 
