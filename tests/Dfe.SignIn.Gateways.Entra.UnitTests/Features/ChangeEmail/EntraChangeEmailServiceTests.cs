@@ -66,7 +66,7 @@ public sealed class EntraChangeEmailServiceTests
             }
 
             if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
-                return new HttpResponseMessage(HttpStatusCode.NoContent);
+                return CreateUserIdentitiesResponse("old.user@example.com");
             }
 
             if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
@@ -287,7 +287,7 @@ public sealed class EntraChangeEmailServiceTests
             }
 
             if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
-                return new HttpResponseMessage(HttpStatusCode.NoContent);
+                return CreateUserIdentitiesResponse("old.user@example.com");
             }
 
             if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
@@ -342,6 +342,10 @@ public sealed class EntraChangeEmailServiceTests
         var client = CreateGraphClient(req => {
             requestsRecorded.Add(req);
 
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return CreateUserIdentitiesResponse("old.user@example.com");
+            }
+
             if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
                 var errorContent = /*lang=json,strict*/ """
                 {
@@ -384,7 +388,7 @@ public sealed class EntraChangeEmailServiceTests
             requestsRecorded.Add(req);
 
             if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
-                return new HttpResponseMessage(HttpStatusCode.NoContent);
+                return CreateUserIdentitiesResponse("old.user@example.com");
             }
 
             if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
@@ -419,6 +423,150 @@ public sealed class EntraChangeEmailServiceTests
         Assert.AreEqual(EntraEmailErrors.MfaAuthenticationMethodFailed("Failed to retrieve MFA methods."), result.Error);
         Assert.Contains("Failed to retrieve MFA methods", result.Error.Description);
         Assert.AreEqual(3, requestsRecorded.Count);
+    }
+
+    [TestMethod]
+    public async Task ChangeEmailAsync_WhenUserHasNoEmailIdentity_SkipsIdentitiesAndPatchesMailSuccessfully()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        const string newEmail = "new.user@example.com";
+        string? capturedPatchBody = null;
+        var requestsRecorded = new List<HttpRequestMessage>();
+
+        var client = CreateGraphClient(req => {
+            requestsRecorded.Add(req);
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(identities)/$entity",
+                    "identities": []
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                capturedPatchBody = req.Content?.ReadAsStringAsync().Result;
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "value": []
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Post && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var responseContent = /*lang=json,strict*/ """
+                {
+                    "id": "created-mfa-id",
+                    "emailAddress": "new.user@example.com"
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.Created) {
+                    Content = new StringContent(responseContent, Encoding.UTF8, "application/json")
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act
+        var result = await sut.ChangeEmailAsync(userId, newEmail);
+
+        // Assert
+        Assert.IsTrue(result.IsSuccess);
+        Assert.IsNotNull(capturedPatchBody);
+        Assert.Contains($"\"mail\":\"{newEmail}\"", capturedPatchBody);
+        Assert.IsFalse(capturedPatchBody.Contains("\"identities\""));
+        Assert.AreEqual(4, requestsRecorded.Count);
+    }
+
+    [TestMethod]
+    public async Task ChangeEmailAsync_WhenEmailIdentityNeedsUpdate_RecreatesObjectIdentitiesWithAllRequiredFieldsInPatchBody()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        const string newEmail = "updated.user@example.com";
+        string? capturedPatchBody = null;
+
+        var client = CreateGraphClient(req => {
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return CreateUserIdentitiesResponse("old.user@example.com");
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                capturedPatchBody = req.Content?.ReadAsStringAsync().Result;
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "value": [
+                        {
+                            "id": "existing-mfa-method-id",
+                            "emailAddress": "old.user@example.com"
+                        }
+                    ]
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.Contains("existing-mfa-method-id")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act
+        var result = await sut.ChangeEmailAsync(userId, newEmail);
+
+        // Assert
+        Assert.IsTrue(result.IsSuccess);
+        Assert.IsNotNull(capturedPatchBody);
+        Assert.Contains("\"signInType\":\"emailAddress\"", capturedPatchBody);
+        Assert.Contains("\"issuer\":\"contoso.onmicrosoft.com\"", capturedPatchBody);
+        Assert.Contains($"\"issuerAssignedId\":\"{newEmail}\"", capturedPatchBody);
+        Assert.Contains($"\"mail\":\"{newEmail}\"", capturedPatchBody);
+    }
+
+    private static HttpResponseMessage CreateUserIdentitiesResponse(string email)
+    {
+        var content = $$"""
+        {
+            "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(identities)/$entity",
+            "identities": [
+                {
+                    "signInType": "emailAddress",
+                    "issuer": "contoso.onmicrosoft.com",
+                    "issuerAssignedId": "{{email}}"
+                }
+            ]
+        }
+        """;
+        return new HttpResponseMessage(HttpStatusCode.OK) {
+            Content = new StringContent(content, Encoding.UTF8, "application/json")
+        };
     }
 
     private static GraphServiceClient CreateGraphClient(Func<HttpRequestMessage, HttpResponseMessage> handlerFunc)

@@ -6,26 +6,6 @@ using Microsoft.Graph.Models.ODataErrors;
 namespace Dfe.SignIn.Gateways.Entra.ChangeEmail;
 
 /// <summary>
-/// Service for updating user email addresses and MFA methods in Microsoft Entra ID.
-/// </summary>
-public interface IEntraChangeEmailService
-{
-    /// <summary>
-    /// Changes the primary email address and updates the MFA email authentication method for a user in Microsoft Entra ID.
-    /// </summary>
-    /// <param name="externalUserId">The external user ID.</param>
-    /// <param name="newEmailAddress">The new email address.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The result of the operation.</returns>
-    /// <remarks>
-    /// Primary email may succeed while MFA email-method update fails. Callers that treat
-    /// <see cref="EntraEmailErrors.MfaAuthenticationMethodFailedCode"/> as a soft failure
-    /// should expect Entra primary mail to already reflect <paramref name="newEmailAddress"/>.
-    /// </remarks>
-    Task<Base.Framework.OperationResults.OperationResult> ChangeEmailAsync(Guid externalUserId, string newEmailAddress, CancellationToken cancellationToken = default);
-}
-
-/// <summary>
 /// Implementation of <see cref="IEntraChangeEmailService"/> executing Microsoft Graph calls.
 /// </summary>
 public sealed class EntraChangeEmailService(
@@ -50,14 +30,15 @@ public sealed class EntraChangeEmailService(
 
         var client = graphClientProvider.GetClient();
         var userIdString = externalUserId.ToString();
+        var normalizedEmail = newEmailAddress.Trim().ToLowerInvariant();
 
-        var primaryEmailResult = await this.UpdatePrimaryEmailAsync(client, userIdString, externalUserId, newEmailAddress, cancellationToken);
+        var primaryEmailResult = await this.UpdatePrimaryEmailAsync(client, userIdString, externalUserId, normalizedEmail, cancellationToken);
 
         if (!primaryEmailResult.IsSuccess) {
             return primaryEmailResult;
         }
 
-        return await this.UpdateMfaEmailMethodAsync(client, userIdString, externalUserId, newEmailAddress, cancellationToken);
+        return await this.UpdateMfaEmailMethodAsync(client, userIdString, externalUserId, normalizedEmail, cancellationToken);
     }
 
     private async Task<Base.Framework.OperationResults.OperationResult> UpdatePrimaryEmailAsync(
@@ -68,7 +49,6 @@ public sealed class EntraChangeEmailService(
         CancellationToken cancellationToken)
     {
         try {
-
             var userPatch = new User { Mail = newEmailAddress };
 
             var entraExternalIdUser = await client.Users[userIdString].GetAsync(config => {
@@ -76,12 +56,25 @@ public sealed class EntraChangeEmailService(
             }, cancellationToken: cancellationToken);
 
             var identities = entraExternalIdUser?.Identities ?? [];
-            var emailIdentity = identities.FirstOrDefault(i => i.SignInType == "emailAddress");
+            var emailIdentity = identities.FirstOrDefault(i =>
+                string.Equals(i.SignInType, "emailAddress", StringComparison.OrdinalIgnoreCase));
 
-            if (emailIdentity is not null && emailIdentity.IssuerAssignedId != newEmailAddress) {
+            if (emailIdentity is null) {
+                // Identity email update is not needed/applicable (e.g. is a federated user).
+                logger.LogInformation("Entra user {UserId} has no 'emailAddress' sign-in identity; skipping identity update", externalUserId);
+            }
+            else if (!string.Equals(emailIdentity.IssuerAssignedId, newEmailAddress, StringComparison.OrdinalIgnoreCase)) {
                 logger.LogInformation("Setting email address the user signs in with");
-                emailIdentity.IssuerAssignedId = newEmailAddress;
-                userPatch.Identities = identities;
+
+                // Graph replaces the full collection and requires signInType, issuer, and issuerAssignedId.
+                // Recreating ObjectIdentity avoids Kiota backing-store partial serialisation dropping required fields.
+                userPatch.Identities = [.. identities.Select(i => new ObjectIdentity {
+                    SignInType = i.SignInType,
+                    Issuer = i.Issuer,
+                    IssuerAssignedId = string.Equals(i.SignInType, "emailAddress", StringComparison.OrdinalIgnoreCase)
+                        ? newEmailAddress
+                        : i.IssuerAssignedId
+                })];
             }
 
             await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
