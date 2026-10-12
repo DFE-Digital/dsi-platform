@@ -96,9 +96,9 @@ public static partial class DsiAuthenticationExtensions
                 };
 
                 options.Events.OnSignedOutCallbackRedirect = context => {
-                    var platformOptions = context.HttpContext.RequestServices
-                        .GetRequiredService<IOptionsMonitor<PlatformOptions>>().CurrentValue;
-                    context.Response.Redirect(platformOptions.ServicesUrl.ToString());
+                    var platformSettings = context.HttpContext.RequestServices
+                        .GetRequiredService<IOptionsMonitor<PlatformSettings>>().CurrentValue;
+                    context.Response.Redirect(platformSettings.ServicesUrl.ToString());
                     return Task.CompletedTask;
                 };
             })

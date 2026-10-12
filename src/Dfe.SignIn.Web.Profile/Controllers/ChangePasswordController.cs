@@ -66,7 +66,7 @@ public sealed partial class ChangePasswordController(
             : await this.TryChangeLocalPasswordAsync(viewModel, userProfileFeature.UserId, cancellationToken);
 
         if (!success) {
-            return await this.Index();
+            return this.ErrorView(ProfileErrorPresets.PasswordUpdateFailed(this.Url));
         }
 
         this.SetFlashSuccess(

@@ -290,10 +290,15 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         Assert.Equal(user.Sub, auditRequest.UserId);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task InitiateChangeEmail_SendsEmailOrNotification_WhenApplicable(bool isSelfInvoked)
+    [Fact]
+    public Task InitiateChangeEmail_SendsEmailOrNotification_WhenSelfInvoked()
+        => this.InitiateChangeEmail_SendsEmailOrNotification_WhenApplicable(isSelfInvoked: true);
+
+    [Fact]
+    public Task InitiateChangeEmail_SendsEmailOrNotification_WhenNotSelfInvoked()
+        => this.InitiateChangeEmail_SendsEmailOrNotification_WhenApplicable(isSelfInvoked: false);
+
+    private async Task InitiateChangeEmail_SendsEmailOrNotification_WhenApplicable(bool isSelfInvoked)
     {
         var authenticatedClient = this
             .CreateClient()
