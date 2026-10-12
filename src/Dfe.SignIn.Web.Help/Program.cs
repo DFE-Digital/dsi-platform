@@ -78,7 +78,7 @@ builder.Services
     .SetupAuditContext();
 builder.Services
     .Configure<AssetOptions>(builder.Configuration.GetRequiredSection("Assets"))
-    .SetupFrontendAssets();
+    .AddFrontendAssets();
 
 builder.Services.SetupContentProcessing();
 

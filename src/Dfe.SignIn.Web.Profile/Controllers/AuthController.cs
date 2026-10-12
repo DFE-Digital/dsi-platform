@@ -15,16 +15,16 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/")]
 public sealed class AuthController(
     IAuditWriter auditWriter,
-    IOptionsMonitor<PlatformOptions> platformOptionsAccessor
+    IOptions<PlatformSettings> platformSettingsAccessor
 ) : Controller
 {
     [AllowAnonymous]
     [HttpGet("signout")]
     public new Task<IActionResult> SignOut()
     {
-        var platformOptions = platformOptionsAccessor.CurrentValue;
+        var platformSettings = platformSettingsAccessor.Value;
 
-        var serviceUrl = platformOptions.ServicesUrl.ToString();
+        var serviceUrl = platformSettings.ServicesUrl.ToString();
         if (this.User.Identity?.IsAuthenticated == true) {
             serviceUrl += "signout";
         }
