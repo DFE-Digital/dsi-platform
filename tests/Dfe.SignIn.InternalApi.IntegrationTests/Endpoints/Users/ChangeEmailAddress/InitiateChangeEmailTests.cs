@@ -280,7 +280,14 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         var pendingCode = await this.GetChangeEmailCode(user.Sub);
         Assert.Null(pendingCode);
 
-        Assert.Empty(this.AuditCapturer.CapturedRequests);
+        Assert.Single(this.AuditCapturer.CapturedRequests);
+        var auditRequest = this.AuditCapturer.CapturedRequests[0];
+
+        Assert.NotNull(auditRequest);
+        Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditRequest.EventCategory);
+        Assert.Equal(AuditChangeEmailEventNames.RequestToChangeEmail, auditRequest.EventName);
+        Assert.Equal($"For security, only 3 verification code requests can be sent.\nWait 1 hour before trying again.", auditRequest.Message);
+        Assert.Equal(user.Sub, auditRequest.UserId);
     }
 
     [Theory]
@@ -387,7 +394,14 @@ public sealed class InitiateChangeEmailTests : InternalApiIntegrationEndpointTes
         var rateLimitedPendingCode = await this.GetChangeEmailCode(rateLimitedUser.Sub);
         Assert.Null(rateLimitedPendingCode);
 
-        Assert.Empty(this.AuditCapturer.CapturedRequests);
+        Assert.Single(this.AuditCapturer.CapturedRequests);
+        var auditRequest = this.AuditCapturer.CapturedRequests[0];
+
+        Assert.NotNull(auditRequest);
+        Assert.Equal(AuditEventCategoryNames.ChangeEmail, auditRequest.EventCategory);
+        Assert.Equal(AuditChangeEmailEventNames.RequestToChangeEmail, auditRequest.EventName);
+        Assert.Equal($"For security, only 3 verification code requests can be sent.\nWait 1 hour before trying again.", auditRequest.Message);
+        Assert.Equal(rateLimitedUser.Sub, auditRequest.UserId);
     }
 
     private static InitiateChangeEmailAddressRequest CreateRequest(string newEmailAddress, bool isSelfInvoked = true)
