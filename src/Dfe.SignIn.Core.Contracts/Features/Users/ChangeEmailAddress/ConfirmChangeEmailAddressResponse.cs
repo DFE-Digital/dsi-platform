@@ -1,4 +1,4 @@
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Common;
 
 namespace Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
@@ -29,7 +29,7 @@ public static class ChangeEmailWarnings
     /// </summary>
     /// <param name="detail">The detail of the warning.</param>
     /// <returns>The created warning.</returns>
-    public static Warning EntraMfaSyncFailedWarning(string detail)
+    public static OperationWarning EntraMfaSyncFailedWarning(string detail)
     {
         return new(EntraMfaSyncFailed, detail);
     }

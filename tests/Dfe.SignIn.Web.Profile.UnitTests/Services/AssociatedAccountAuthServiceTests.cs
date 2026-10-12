@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
-using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authentication;
@@ -15,7 +15,7 @@ using Moq.AutoMock;
 namespace Dfe.SignIn.Web.Profile.UnitTests.Services;
 
 [TestClass]
-public sealed class SelectAssociatedAccountHelperTests
+public sealed class AssociatedAccountAuthServiceTests
 {
     private sealed class FakeController : Controller { }
 
@@ -107,7 +107,7 @@ public sealed class SelectAssociatedAccountHelperTests
     public void GetUrlFromReturnLocation_Throws_WhenUrlHelperArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         Assert.ThrowsExactly<ArgumentNullException>(()
             => service.GetUrlFromReturnLocation(
@@ -125,10 +125,7 @@ public sealed class SelectAssociatedAccountHelperTests
      SelectAssociatedReturnLocation.ChangePassword,
      nameof(ChangePasswordController.Index),
      "/change-password")]
-    [DataRow(
-     SelectAssociatedReturnLocation.ChangeNameDetails,
-     nameof(ChangeNameController.Index),
-     "/change-name")]
+
     public void GetUrlFromReturnLocation_ReturnsExpectedUrl(
      SelectAssociatedReturnLocation returnLocation,
      string expectedAction,
@@ -144,7 +141,7 @@ public sealed class SelectAssociatedAccountHelperTests
                 context.Action == expectedAction)))
             .Returns(expectedUrl);
 
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         // Act
         var result = service.GetUrlFromReturnLocation(
@@ -162,7 +159,7 @@ public sealed class SelectAssociatedAccountHelperTests
     public async Task AuthenticateAssociatedAccount_Throws_WhenControllerArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
             => service.AuthenticateAssociatedAccount(
@@ -177,7 +174,7 @@ public sealed class SelectAssociatedAccountHelperTests
     public async Task AuthenticateAssociatedAccount_Throws_WhenScopesArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
             => service.AuthenticateAssociatedAccount(
@@ -201,7 +198,7 @@ public sealed class SelectAssociatedAccountHelperTests
             .ReturnsAsync(AuthenticateResult.Fail("Failed."));
 
         var controller = CreateMockControllerWithEntraUser(autoMocker);
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         var result = await service.AuthenticateAssociatedAccount(
             controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword);
@@ -226,7 +223,7 @@ public sealed class SelectAssociatedAccountHelperTests
             );
 
         var controller = CreateMockControllerWithEntraUser(autoMocker);
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         var result = await service.AuthenticateAssociatedAccount(
             controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword, force: true);
@@ -251,7 +248,7 @@ public sealed class SelectAssociatedAccountHelperTests
             );
 
         var controller = CreateMockControllerWithEntraUser(autoMocker);
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         var result = await service.AuthenticateAssociatedAccount(
             controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword, force: false);
@@ -278,7 +275,7 @@ public sealed class SelectAssociatedAccountHelperTests
             );
 
         var controller = CreateMockControllerWithEntraUser(autoMocker);
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         var result = await service.AuthenticateAssociatedAccount(controller, ["fake-scope"],
             SelectAssociatedReturnLocation.ChangePassword, force: false);
@@ -309,7 +306,7 @@ public sealed class SelectAssociatedAccountHelperTests
             );
 
         var controller = CreateMockControllerWithEntraUser(autoMocker);
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         await service.AuthenticateAssociatedAccount(controller, ["fake-scope"],
             SelectAssociatedReturnLocation.ChangePassword, force: false);
@@ -346,7 +343,7 @@ public sealed class SelectAssociatedAccountHelperTests
             );
 
         var controller = CreateMockControllerWithEntraUser(autoMocker);
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         var result = await service.AuthenticateAssociatedAccount(
             controller, ["fake-scope"], SelectAssociatedReturnLocation.ChangePassword, force: false);
@@ -373,7 +370,7 @@ public sealed class SelectAssociatedAccountHelperTests
             );
 
         var controller = CreateMockControllerWithEntraUser(autoMocker);
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         autoMocker.GetMock<ITokenAcquisition>()
             .Setup(x => x.GetAccessTokenForUserAsync(
@@ -400,7 +397,7 @@ public sealed class SelectAssociatedAccountHelperTests
     public async Task CreateAccessTokenForAssociatedAccount_Throws_WhenControllerArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
             => service.CreateAccessTokenForAssociatedAccount(
@@ -413,7 +410,7 @@ public sealed class SelectAssociatedAccountHelperTests
     public async Task CreateAccessTokenForAssociatedAccount_Throws_WhenScopesArgumentIsNull()
     {
         var autoMocker = new AutoMocker();
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(()
             => service.CreateAccessTokenForAssociatedAccount(
@@ -426,7 +423,7 @@ public sealed class SelectAssociatedAccountHelperTests
     public async Task CreateAccessTokenForAssociatedAccount_ReturnsNull_WhenNotEntraUser()
     {
         var autoMocker = new AutoMocker();
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
         var controller = CreateMockControllerWithNonEntraUser(autoMocker);
 
         var result = await service.CreateAccessTokenForAssociatedAccount(controller, ["fake-scope"]);
@@ -446,7 +443,7 @@ public sealed class SelectAssociatedAccountHelperTests
             ))
             .ReturnsAsync(AuthenticateResult.Fail("Failed."));
 
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
         var controller = CreateMockControllerWithEntraUser(autoMocker);
 
         var exception = await Assert.ThrowsExactlyAsync<BadHttpRequestException>(()
@@ -469,7 +466,7 @@ public sealed class SelectAssociatedAccountHelperTests
             ))
             .ReturnsAsync(AuthenticateResult.Success(new(fakeUser, ExternalAuthConstants.OpenIdConnectSchemeName)));
 
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
         var controller = CreateMockControllerWithEntraUser(autoMocker);
 
         var exception = await Assert.ThrowsExactlyAsync<BadHttpRequestException>(()
@@ -494,7 +491,7 @@ public sealed class SelectAssociatedAccountHelperTests
             ))
             .ReturnsAsync(AuthenticateResult.Success(new(fakeUser, ExternalAuthConstants.OpenIdConnectSchemeName)));
 
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
         var controller = CreateMockControllerWithEntraUser(autoMocker);
 
         var exception = await Assert.ThrowsExactlyAsync<BadHttpRequestException>(()
@@ -520,7 +517,7 @@ public sealed class SelectAssociatedAccountHelperTests
             ))
             .ReturnsAsync(AuthenticateResult.Success(new(fakeUser, ExternalAuthConstants.OpenIdConnectSchemeName)));
 
-        var service = autoMocker.CreateInstance<SelectAssociatedAccountHelper>();
+        var service = autoMocker.CreateInstance<AssociatedAccountAuthService>();
         var controller = CreateMockControllerWithEntraUser(autoMocker);
 
         var accessToken = await service.CreateAccessTokenForAssociatedAccount(controller, ["fake-scope"]);

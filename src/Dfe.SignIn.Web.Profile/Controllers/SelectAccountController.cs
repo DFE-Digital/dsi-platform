@@ -1,5 +1,5 @@
 using Dfe.SignIn.Web.Profile.Models;
-using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
@@ -14,7 +14,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/select-account")]
 public sealed class SelectAccountController(
-    ISelectAssociatedAccountHelper selectAssociatedAccountHelper
+    IAssociatedAccountAuthService associatedAccountAuthService
 ) : Controller
 {
     [HttpPost]
@@ -28,7 +28,7 @@ public sealed class SelectAccountController(
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
         if (userProfileFeature.IsEntra) {
-            var actionResult = await selectAssociatedAccountHelper.AuthenticateAssociatedAccount(
+            var actionResult = await associatedAccountAuthService.AuthenticateAssociatedAccount(
                 this, [], viewModel.ReturnLocation, force: true);
             if (actionResult is not null) {
                 return actionResult;
@@ -36,7 +36,7 @@ public sealed class SelectAccountController(
         }
 
         return this.Redirect(
-            selectAssociatedAccountHelper.GetUrlFromReturnLocation(
+            associatedAccountAuthService.GetUrlFromReturnLocation(
                 this.Url, viewModel.ReturnLocation)
         );
     }

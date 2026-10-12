@@ -15,13 +15,14 @@ using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
+using Dfe.SignIn.WebFramework.Extensions;
 using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsLocal()) {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
@@ -35,13 +36,15 @@ if (builder.Configuration.GetSection("AzureMonitor").Exists()
 
 // Add services to the container.
 builder.Services
-    .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
     .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
+
 builder.Services
     .ConfigureDfeSignInJsonSerializerOptions();
 
 builder.Services
-    .AddOptionsWithValidation<NotificationSettings>(NotificationSettings.SectionName);
+    .AddOptionsWithValidation<PlatformSettings>()
+    .AddOptionsWithValidation<EmailRestrictionsSettings>()
+    .AddOptionsWithValidation<NotificationSettings>();
 
 builder.Services.AddSwagger();
 builder.Services.AddHealthChecks();
@@ -83,9 +86,6 @@ builder.Services
     .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
     .SetupAuditContext();
 
-builder.Services
-    .AddOptionsWithValidation<EmailRestrictionsSettings>(EmailRestrictionsSettings.SectionName);
-
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
@@ -95,7 +95,7 @@ builder.Services
 
 //todo: remove this once we have migrated all the code away from using the WriteToAuditInteractor to using the ServiceBusAuditInteractor.
 //This is only needed for local development, as the ServiceBusAuditInteractor will not work locally.
-if (builder.Environment.IsEnvironment("Local")) {
+if (builder.Environment.IsLocal()) {
     builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
 }
 

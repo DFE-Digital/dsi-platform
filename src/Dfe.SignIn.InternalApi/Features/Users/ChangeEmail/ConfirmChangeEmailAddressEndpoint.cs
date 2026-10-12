@@ -1,5 +1,5 @@
 using System.Globalization;
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
@@ -99,7 +99,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
     private async Task<IResult> CompleteMfaSyncFailedChangeAsync(
         UserEntity user,
         string newEmail,
-        Error entraError,
+        OperationError entraError,
         CancellationToken cancellationToken)
     {
         // Parity with legacy Node: code is cleaned up, but user updated integration event is skipped
@@ -151,7 +151,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         });
     }
 
-    private async Task<Result<UserCodeEntity>> ValidatePendingEmailChangeAsync(
+    private async Task<OperationResult<UserCodeEntity>> ValidatePendingEmailChangeAsync(
         UserEntity user,
         string verificationCode,
         CancellationToken cancellationToken)
@@ -159,7 +159,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
         var pendingCode = await userCodeService.GetPendingChangeEmailCodeAsync(user.Sub, cancellationToken);
         if (pendingCode is null) {
             logger.LogWarning("No pending email change request found for user {UserId}", user.Sub);
-            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.NoPendingRequest);
+            return OperationResult.Failure<UserCodeEntity>(ChangeEmailErrors.NoPendingRequest);
         }
 
         if (!string.Equals(verificationCode, pendingCode.Code, StringComparison.OrdinalIgnoreCase)) {
@@ -171,7 +171,7 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                 UserId = user.Sub,
                 WasFailure = true,
             });
-            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidCode);
+            return OperationResult.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidCode);
         }
 
         var expiryTime = pendingCode.CreatedAt.AddHours(ChangeEmailConstants.VerificationCodeExpiryHours);
@@ -185,15 +185,15 @@ public sealed class ConfirmChangeEmailAddressEndpoint(
                 UserId = user.Sub,
                 WasFailure = true,
             });
-            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.CodeExpired);
+            return OperationResult.Failure<UserCodeEntity>(ChangeEmailErrors.CodeExpired);
         }
 
         if (string.IsNullOrWhiteSpace(pendingCode.Email)) {
             logger.LogWarning("Pending change email request for user {UserId} has no associated email address", user.Sub);
-            return Result.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidRequest);
+            return OperationResult.Failure<UserCodeEntity>(ChangeEmailErrors.InvalidRequest);
         }
 
-        return Result.Success(pendingCode);
+        return OperationResult.Success(pendingCode);
     }
 
     private async Task SaveEmailChangeAsync(UserEntity user, string newEmail, CancellationToken cancellationToken)

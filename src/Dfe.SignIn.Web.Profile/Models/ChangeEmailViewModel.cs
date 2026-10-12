@@ -20,7 +20,7 @@ public sealed class ChangeEmailViewModel
     /// <summary>
     /// Gets or sets the email address of the user.
     /// </summary>
-    public required string EmailAddressInput { get; set; }
+    public string? EmailAddressInput { get; set; }
 }
 
 public sealed class ChangeEmailViewModelValidator : AbstractValidator<ChangeEmailViewModel>

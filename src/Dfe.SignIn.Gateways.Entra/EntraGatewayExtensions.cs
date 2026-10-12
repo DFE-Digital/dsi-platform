@@ -1,4 +1,6 @@
 using Dfe.SignIn.Gateways.Entra.ChangeEmail;
+using Dfe.SignIn.Gateways.Entra.ChangeName;
+using Dfe.SignIn.Gateways.Entra.ChangePassword;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dfe.SignIn.Gateways.Entra;
@@ -21,7 +23,17 @@ public static class EntraGatewayExtensions
 
         services.AddSingleton<IApplicationGraphClientProvider, ApplicationGraphClientProvider>();
         services.AddScoped<IEntraChangeEmailService, EntraChangeEmailService>();
+        services.AddScoped<IEntraChangeNameService, EntraChangeNameService>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Registers Entra delegated services that operate on behalf of a user.
+    /// </summary>
+    public static IServiceCollection AddEntraDelegatedServices(this IServiceCollection services)
+    {
+        services.AddScoped<IEntraChangePasswordService, EntraChangePasswordService>();
         return services;
     }
 }

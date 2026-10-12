@@ -143,7 +143,7 @@ public sealed class ChangeEmailControllerTests
 
         var result = await controller.PostIndex(resend: false, viewModel: new() {
             EmailAddressInput = emailAddress,
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -168,7 +168,7 @@ public sealed class ChangeEmailControllerTests
 
         await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("test", capturedRequest.ClientId);
@@ -182,7 +182,7 @@ public sealed class ChangeEmailControllerTests
 
         await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNotNull(flashNotification);
@@ -197,7 +197,7 @@ public sealed class ChangeEmailControllerTests
 
         await controller.PostIndex(resend: false, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNull(flashNotification);
@@ -210,7 +210,7 @@ public sealed class ChangeEmailControllerTests
 
         await controller.PostIndex(resend: false, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         bool hideResend = (bool)controller.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey]!;
         Assert.IsFalse(hideResend);
@@ -235,7 +235,7 @@ public sealed class ChangeEmailControllerTests
 
         await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNotNull(flashNotification);
@@ -264,7 +264,7 @@ public sealed class ChangeEmailControllerTests
 
         await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNotNull(flashNotification);
@@ -296,14 +296,10 @@ public sealed class ChangeEmailControllerTests
 
         var result = await controller.PostIndex(resend: false, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
-        var viewResult = TypeAssert.IsType<ViewResult>(result);
-        Assert.AreEqual("Index", viewResult.ViewName);
-        Assert.IsFalse(controller.ModelState.IsValid);
-        var error = controller.ModelState[nameof(ChangeEmailViewModel.EmailAddressInput)]?.Errors.Single();
-        Assert.IsNotNull(error);
-        Assert.AreEqual("The email address is already in use by another", error.ErrorMessage);
+        var viewResult = TypeAssert.IsType<RedirectToActionResult>(result);
+        Assert.AreEqual("VerificationCode", viewResult.ActionName);
     }
 
     [TestMethod]
@@ -322,7 +318,7 @@ public sealed class ChangeEmailControllerTests
 
         var result = await controller.PostIndex(resend: false, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("ErrorUpdateEmailAddress", viewResult.ViewName);
@@ -335,7 +331,7 @@ public sealed class ChangeEmailControllerTests
 
         var result = await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(ChangeEmailController.VerificationCode), redirectResult.ActionName);
@@ -360,7 +356,7 @@ public sealed class ChangeEmailControllerTests
 
         var result = await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("Index", viewResult.ViewName);
@@ -390,7 +386,7 @@ public sealed class ChangeEmailControllerTests
 
         var result = await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(ChangeEmailController.VerificationCode), redirectResult.ActionName);
@@ -415,7 +411,7 @@ public sealed class ChangeEmailControllerTests
 
         var result = await controller.PostIndex(resend: true, viewModel: new() {
             EmailAddressInput = "alex.new@example.com",
-        });
+        }, cancellationToken: CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(ChangeEmailController.VerificationCode), redirectResult.ActionName);
@@ -434,23 +430,10 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.VerificationCode();
+        var result = await controller.VerificationCode(CancellationToken.None);
 
-        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<ChangeEmailController>(), redirectResult.ControllerName);
-    }
-
-    [TestMethod]
-    public async Task VerificationCode_BadRequest_WhenModelStateIsInvalid()
-    {
-        var controller = CreateControllerAuthenticated(new AutoMocker());
-
-        controller.ModelState.AddModelError("", "Fake error.");
-
-        var result = await controller.VerificationCode();
-
-        TypeAssert.IsType<BadRequestResult>(result);
+        var vResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual(nameof(ChangeEmailController.VerificationCode), vResult.ViewName);
     }
 
     [TestMethod]
@@ -463,7 +446,7 @@ public sealed class ChangeEmailControllerTests
         controller.ModelState.SetModelValue(nameof(VerificationCodeViewModel.VerificationCodeInput), "abc123", "abc123");
         controller.ModelState.MarkFieldValid(nameof(VerificationCodeViewModel.VerificationCodeInput));
 
-        await controller.VerificationCode();
+        await controller.VerificationCode(CancellationToken.None);
 
         var currentInputState = controller.ModelState[nameof(VerificationCodeViewModel.VerificationCodeInput)];
         Assert.IsNull(currentInputState!.RawValue);
@@ -477,7 +460,7 @@ public sealed class ChangeEmailControllerTests
         SetupFakePendingEmailChange(autoMocker);
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.VerificationCode();
+        var result = await controller.VerificationCode(CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("VerificationCode", viewResult.ViewName);
@@ -500,24 +483,11 @@ public sealed class ChangeEmailControllerTests
         var controller = CreateControllerAnonymous(autoMocker);
 
         var result = await controller.VerificationCodeAnonymous(
-            new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"));
+            new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            CancellationToken.None);
 
-        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(Index), redirectResult.ActionName);
-        Assert.AreEqual(MvcNaming.Controller<ChangeEmailController>(), redirectResult.ControllerName);
-    }
-
-    [TestMethod]
-    public async Task VerificationCodeAnonymous_BadRequest_WhenModelStateIsInvalid()
-    {
-        var controller = CreateControllerAnonymous(new AutoMocker());
-
-        controller.ModelState.AddModelError("", "Fake error.");
-
-        var result = await controller.VerificationCodeAnonymous(
-            new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"));
-
-        TypeAssert.IsType<BadRequestResult>(result);
+        var vResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual(nameof(ChangeEmailController.VerificationCode), vResult.ViewName);
     }
 
     [TestMethod]
@@ -531,7 +501,8 @@ public sealed class ChangeEmailControllerTests
         controller.ModelState.MarkFieldValid(nameof(VerificationCodeViewModel.VerificationCodeInput));
 
         await controller.VerificationCodeAnonymous(
-            new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"));
+            new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            CancellationToken.None);
 
         var currentInputState = controller.ModelState[nameof(VerificationCodeViewModel.VerificationCodeInput)];
         Assert.IsNull(currentInputState!.RawValue);
@@ -546,7 +517,8 @@ public sealed class ChangeEmailControllerTests
         var controller = CreateControllerAnonymous(autoMocker);
 
         var result = await controller.VerificationCodeAnonymous(
-            new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"));
+            new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("VerificationCode", viewResult.ViewName);
@@ -558,10 +530,42 @@ public sealed class ChangeEmailControllerTests
 
     #endregion
 
-    #region PostVerificationCode(Guid, VerificationCodeViewModel, CancellationToken)
+    #region PostAnonymousVerificationCode(Guid, VerificationCodeViewModel, CancellationToken)
 
     [TestMethod]
-    public async Task PostVerificationCode_RedirectsToChangeEmailForm_WhenNoPendingChange()
+    public async Task PostVerificationCode_UsesAuthenticatedUserId()
+    {
+        var autoMocker = new AutoMocker();
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ConfirmChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse(new ConfirmChangeEmailAddressResponse {
+                NewEmailAddress = "alex.new@example.com",
+            }));
+
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        var result = await controller.PostVerificationCode(
+            new VerificationCodeViewModel {
+                UserId = Guid.NewGuid(),
+                NewEmailAddress = "alex.new@example.com",
+                VerificationCodeInput = "ABC1234"
+            },
+            CancellationToken.None);
+
+        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
+        Assert.AreEqual(nameof(ChangeEmailController.Complete), redirectResult.ActionName);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Verify(x => x.ConfirmChangeEmailAddress(
+                new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PostVerificationCode_LeavesUserOnVerifyPage_WhenNoPendingChange()
     {
         var autoMocker = new AutoMocker();
 
@@ -577,19 +581,22 @@ public sealed class ChangeEmailControllerTests
                     Detail = "No pending change email request found"
                 }));
 
+        SetupNoPendingEmailChange(autoMocker);
+
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "ABC1234"
-            }
+            },
+            CancellationToken.None
         );
 
-        var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
-        Assert.AreEqual(nameof(ChangeEmailController.Index), redirectResult.ActionName);
+        var redirectResult = TypeAssert.IsType<ViewResult>(result);
+        Assert.AreEqual("VerificationCode", redirectResult.ViewName);
     }
 
     [TestMethod]
@@ -601,12 +608,13 @@ public sealed class ChangeEmailControllerTests
 
         controller.ModelState.AddModelError("", "Fake input error.");
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
-            }
+            },
+            CancellationToken.None
         );
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
@@ -634,13 +642,14 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "ABC1234"
-            }
+            },
+            CancellationToken.None
         );
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
@@ -666,13 +675,14 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "ABC1234"
-            }
+            },
+            CancellationToken.None
         );
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
@@ -693,13 +703,14 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "ABC1234"
-            }
+            },
+            CancellationToken.None
         );
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
@@ -729,13 +740,14 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostVerificationCode(
+        var result = await controller.PostAnonymousVerificationCode(
             new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
             new VerificationCodeViewModel {
                 UserId = new Guid("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
                 NewEmailAddress = "alex.new@example.com",
                 VerificationCodeInput = "WRONG"
-            }
+            },
+            CancellationToken.None
         );
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
@@ -800,7 +812,7 @@ public sealed class ChangeEmailControllerTests
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
 
-        await controller.PostCancel();
+        await controller.PostCancel(CancellationToken.None);
 
         var flashNotification = controller.TempData.GetFlashNotification();
         Assert.IsNotNull(flashNotification);
@@ -814,7 +826,7 @@ public sealed class ChangeEmailControllerTests
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
 
-        var result = await controller.PostCancel();
+        var result = await controller.PostCancel(CancellationToken.None);
 
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
@@ -831,7 +843,7 @@ public sealed class ChangeEmailControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        var result = await controller.PostCancel();
+        var result = await controller.PostCancel(CancellationToken.None);
 
         var viewResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("ErrorUpdateEmailAddress", viewResult.ViewName);

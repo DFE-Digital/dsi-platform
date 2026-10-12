@@ -15,11 +15,15 @@ public static class AuditConfigurationExtensions
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="services"/> is null.</para>
     /// </exception>
-    public static void SetupAuditContext(this IServiceCollection services)
+    public static IServiceCollection SetupAuditContext(this IServiceCollection services)
     {
         ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
 
+        services.AddOptions<AuditOptions>().BindConfiguration(AuditOptions.SectionName);
+
         services.AddHttpContextAccessor();
         services.AddSingleton<IAuditContextBuilder, HttpAuditContextBuilder>();
+
+        return services;
     }
 }

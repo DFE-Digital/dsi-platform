@@ -1,14 +1,16 @@
+using Dfe.SignIn.WebFramework.Extensions;
+
 namespace Dfe.SignIn.InternalApi.Configuration;
 
 /// <summary>
 /// 
 /// </summary>
-public sealed class EmailRestrictionsSettings
+public sealed class EmailRestrictionsSettings : IApplicationSettings
 {
     /// <summary>
     /// Name of the key associated with the settings section held in configuration
     /// </summary>
-    public const string SectionName = "EmailRestrictions";
+    static string IApplicationSettings.SectionName => "EmailRestrictions";
 
     /// <summary>
     /// Gets the list of blocked domain names.

@@ -23,25 +23,31 @@ public sealed class EntraChangeEmailServiceTests
     }
 
     [TestMethod]
-    public async Task ChangeEmailAsync_WhenNewEmailIsNullOrWhiteSpace_ThrowsArgumentException()
+    public async Task ChangeEmailAsync_WhenNewEmailIsNullOrWhiteSpace_ReturnsInvalidEmailAddress()
     {
         // Arrange
         var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
 
-        // Act & Assert
-        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
-            sut.ChangeEmailAsync(Guid.NewGuid(), "   "));
+        // Act
+        var result = await sut.ChangeEmailAsync(Guid.NewGuid(), "   ");
+
+        // Assert
+        Assert.IsTrue(result.IsFailure);
+        Assert.AreEqual(EntraEmailErrors.InvalidEmailAddress, result.Error);
     }
 
     [TestMethod]
-    public async Task ChangeEmailAsync_WhenExternalUserIdIsEmpty_ThrowsArgumentException()
+    public async Task ChangeEmailAsync_WhenExternalUserIdIsEmpty_ReturnsInvalidUserId()
     {
         // Arrange
         var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
 
-        // Act & Assert
-        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
-            sut.ChangeEmailAsync(Guid.Empty, "updated.user@example.com"));
+        // Act
+        var result = await sut.ChangeEmailAsync(Guid.Empty, "updated.user@example.com");
+
+        // Assert
+        Assert.IsTrue(result.IsFailure);
+        Assert.AreEqual(EntraEmailErrors.InvalidUserId, result.Error);
     }
 
     [TestMethod]

@@ -3,7 +3,6 @@ using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Dfe.SignIn.WebFramework.Mvc.Validation;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -16,8 +15,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/change-job-title")]
 public sealed class ChangeJobTitleController(
-    IUsersApiClient usersApiClient,
-    IValidator<ChangeJobTitleViewModel> changeJobTitleValidator
+    IUsersApiClient usersApiClient
 ) : Controller
 {
     [HttpGet]
@@ -33,10 +31,9 @@ public sealed class ChangeJobTitleController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostIndex(
-        ChangeJobTitleViewModel viewModel)
+        ChangeJobTitleViewModel viewModel, CancellationToken cancellationToken)
     {
-        var validationResult = await changeJobTitleValidator.ValidateAsync(viewModel);
-
+        var validationResult = await viewModel.ValidateAsync<ChangeJobTitleViewModelValidator, ChangeJobTitleViewModel>();
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
             return this.Index();
@@ -44,7 +41,7 @@ public sealed class ChangeJobTitleController(
 
         await usersApiClient.ChangeJobTitle(this.User.GetUserId(), new ChangeJobTitleRequest {
             NewJobTitle = viewModel.JobTitleInput
-        });
+        }, cancellationToken);
 
         this.SetFlashSuccess(
             heading: "Job title updated successfully",

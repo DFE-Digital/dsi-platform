@@ -4,7 +4,6 @@ using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Fn.AuthExtensions.Configuration;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
-using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;

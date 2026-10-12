@@ -91,7 +91,7 @@ public static class CancellationContextExtensions
     /// <param name="behaviour">The behaviour that is to be invoked within the new cancellation scope.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
-    ///   <para>Result of the behaviour.</para>
+    ///   <para>OperationResult of the behaviour.</para>
     /// </returns>
     /// <exception cref="ArgumentException">
     ///   <para>If <paramref name="context"/> is null.</para>

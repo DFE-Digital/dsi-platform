@@ -13,7 +13,7 @@ public static class BullMqExtensions
     /// </summary>
     /// <remarks>
     /// Registers this gateway as the sole <see cref="IEventPublisher"/> implementation.
-    /// A later <c>AddSingleton&lt;IEventPublisher, ...&gt;</c> registration would replace it.
+    /// A later <c>AddScoped&lt;IEventPublisher, ...&gt;</c> registration would replace it.
     /// </remarks>
     public static IServiceCollection AddBullMqServices(
         this IServiceCollection services)
@@ -31,8 +31,10 @@ public static class BullMqExtensions
                 options.ConnectionString = redisConfig.ToString(includePassword: true);
             });
 
+        // IBullMqQueueFactory must be a Singleton because it manages long-lived Redis connections
+        // and internal queue caching. Making it Scoped/Transient would lead to socket exhaustion.
         services.AddSingleton<IBullMqQueueFactory, BullMqQueueFactory>();
-        services.AddSingleton<IEventPublisher, BullMqEventPublisher>();
+        services.AddScoped<IEventPublisher, BullMqEventPublisher>();
 
         return services;
     }

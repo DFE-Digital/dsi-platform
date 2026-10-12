@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 
 namespace Dfe.SignIn.Web.Profile.Models;
 

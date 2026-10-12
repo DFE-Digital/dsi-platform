@@ -1,30 +1,30 @@
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 
 namespace Dfe.SignIn.Base.Framework.UnitTests;
 
 [TestClass]
-public sealed class ResultTests
+public sealed class OperationResultTests
 {
     [TestMethod]
     public void Success_ReturnsIsSuccessTrue_AndNoError()
     {
         // Act
-        var result = Result.Success();
+        var result = OperationResult.Success();
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.IsFalse(result.IsFailure);
-        Assert.AreEqual(Error.None, result.Error);
+        Assert.AreEqual(OperationError.None, result.Error);
     }
 
     [TestMethod]
     public void Failure_ReturnsIsSuccessFalse_AndError()
     {
         // Arrange
-        var error = new Error("Test.Code", "Test description", "TargetProperty");
+        var error = new OperationError("Test.Code", "Test description", "TargetProperty");
 
         // Act
-        var result = Result.Failure(error);
+        var result = OperationResult.Failure(error);
 
         // Assert
         Assert.IsFalse(result.IsSuccess);
@@ -42,23 +42,23 @@ public sealed class ResultTests
         var value = "Hello World";
 
         // Act
-        var result = Result.Success(value);
+        var result = OperationResult.Success(value);
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.IsFalse(result.IsFailure);
         Assert.AreEqual(value, result.Value);
-        Assert.AreEqual(Error.None, result.Error);
+        Assert.AreEqual(OperationError.None, result.Error);
     }
 
     [TestMethod]
     public void FailureT_ThrowsInvalidOperationException_WhenAccessingValue()
     {
         // Arrange
-        var error = new Error("Test.Code", "Failure occurred");
+        var error = new OperationError("Test.Code", "Failure occurred");
 
         // Act
-        var result = Result.Failure<string>(error);
+        var result = OperationResult.Failure<string>(error);
 
         // Assert
         Assert.IsFalse(result.IsSuccess);
@@ -74,7 +74,7 @@ public sealed class ResultTests
         const int expectedValue = 42;
 
         // Act
-        Result<int> result = expectedValue;
+        OperationResult<int> result = expectedValue;
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
@@ -85,10 +85,10 @@ public sealed class ResultTests
     public void ImplicitConversion_FromErrorToResultT_ReturnsFailureResult()
     {
         // Arrange
-        var error = new Error("Error.Code", "Error message");
+        var error = new OperationError("Error.Code", "Error message");
 
         // Act
-        Result<string> result = error;
+        OperationResult<string> result = error;
 
         // Assert
         Assert.IsTrue(result.IsFailure);
@@ -99,10 +99,10 @@ public sealed class ResultTests
     public void ImplicitConversion_FromErrorToResult_ReturnsFailureResult()
     {
         // Arrange
-        var error = new Error("Error.Code", "Error message");
+        var error = new OperationError("Error.Code", "Error message");
 
         // Act
-        Result result = error;
+        OperationResult result = error;
 
         // Assert
         Assert.IsTrue(result.IsFailure);

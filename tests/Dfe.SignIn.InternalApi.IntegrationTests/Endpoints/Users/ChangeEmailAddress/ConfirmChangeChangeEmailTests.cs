@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Dfe.SignIn.Base.Framework.Results;
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
@@ -280,9 +280,9 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
-        // Set up the fake to return the expected MFA failure Result
+        // Set up the fake to return the expected MFA failure OperationResult
         this.FakeEntraChangeEmailService.OnChangeEmail = (externalUserId, newEmail, ct) =>
-            Task.FromResult(Result.Failure(EntraEmailErrors.MfaAuthenticationMethodFailed("FailedToUpdateAuthenticationMethodException")));
+            Task.FromResult(OperationResult.Failure(EntraEmailErrors.MfaAuthenticationMethodFailed("FailedToUpdateAuthenticationMethodException")));
 
         var response = await authenticatedClient.PostAsJsonAsync(
             GetEndpoint(user.Sub),
@@ -340,7 +340,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         await this.InsertEntityAsync<DbDirectoriesContext, UserCodeEntity>(pendingCode);
 
         this.FakeEntraChangeEmailService.OnChangeEmail = (_, _, _) =>
-            Task.FromResult(Result.Failure(EntraEmailErrors.UserUpdateFailed("primary patch failed")));
+            Task.FromResult(OperationResult.Failure(EntraEmailErrors.UserUpdateFailed("primary patch failed")));
 
         var response = await authenticatedClient.PostAsJsonAsync(
             GetEndpoint(user.Sub),
@@ -391,7 +391,7 @@ public sealed class ConfirmChangeChangeEmailTests : InternalApiIntegrationEndpoi
         Guid? capturedEntraOid = null;
         this.FakeEntraChangeEmailService.OnChangeEmail = (externalUserId, newEmail, _) => {
             capturedEntraOid = externalUserId;
-            return Task.FromResult(Result.Success());
+            return Task.FromResult(OperationResult.Success());
         };
 
         var response = await authenticatedClient.PostAsJsonAsync(

@@ -1,6 +1,6 @@
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
-using Dfe.SignIn.Web.Profile.Services;
+using Dfe.SignIn.Web.Profile.Services.AssociatedAccountAuth;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ public sealed class SelectAccountControllerTests
 {
     private static SelectAccountController CreateController(AutoMocker autoMocker, bool isEntraUser)
     {
-        autoMocker.GetMock<ISelectAssociatedAccountHelper>()
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
             .Setup(x => x.GetUrlFromReturnLocation(
                 It.IsAny<IUrlHelper>(),
                 It.Is<SelectAssociatedReturnLocation>(returnLocation
@@ -73,7 +73,7 @@ public sealed class SelectAccountControllerTests
         var autoMocker = new AutoMocker();
 
         var mockActionResult = new Mock<IActionResult>();
-        autoMocker.GetMock<ISelectAssociatedAccountHelper>()
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
             .Setup(x => x.AuthenticateAssociatedAccount(
                 It.Is<Controller>(controller => controller is SelectAccountController),
                 It.IsAny<string[]>(),
@@ -97,7 +97,7 @@ public sealed class SelectAccountControllerTests
     {
         var autoMocker = new AutoMocker();
 
-        autoMocker.GetMock<ISelectAssociatedAccountHelper>()
+        autoMocker.GetMock<IAssociatedAccountAuthService>()
             .Setup(x => x.AuthenticateAssociatedAccount(
                 It.Is<Controller>(controller => controller is SelectAccountController),
                 It.IsAny<string[]>(),
