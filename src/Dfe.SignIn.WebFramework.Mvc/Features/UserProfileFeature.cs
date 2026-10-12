@@ -1,4 +1,5 @@
 using Dfe.SignIn.Core.Contracts.Features.Users;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace Dfe.SignIn.WebFramework.Mvc.Features;
 
@@ -86,30 +87,41 @@ public sealed class UserProfileMiddleware(
     /// <param name="context">Context for the current request.</param>
     public async Task InvokeAsync(HttpContext context)
     {
+        var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        if (exceptionFeature is not null) {
+            await next(context);
+            return;
+        }
+
         var userProfileFeature = context.Features.Get<IUserProfileFeature>();
         if (userProfileFeature is not null) {
+            await next(context);
             return;
         }
 
         if (context.User?.Identity?.IsAuthenticated == true) {
             Guid userId = context.User.GetUserId();
-
-            var profileResponse = await usersApiClient.GetUserProfile(userId, context.RequestAborted);
-            if (!profileResponse.IsSuccessStatusCode || profileResponse.Content is null) {
-                throw new InvalidOperationException($"Failed to retrieve user profile for user {userId}. Status code: {profileResponse.StatusCode}");
-            }
-
-            context.Features.Set<IUserProfileFeature>(new UserProfileFeature {
-                UserId = userId,
-                IsEntra = profileResponse.Content.IsEntra,
-                IsInternalUser = profileResponse.Content.IsInternalUser,
-                FirstName = profileResponse.Content.FirstName,
-                LastName = profileResponse.Content.LastName,
-                EmailAddress = profileResponse.Content.EmailAddress,
-                JobTitle = profileResponse.Content.JobTitle,
-            });
+            await this.SetUserProfileFeature(context, userId);
         }
 
         await next(context);
+    }
+
+    private async Task SetUserProfileFeature(HttpContext context, Guid userId)
+    {
+        var profileResponse = await usersApiClient.GetUserProfile(userId, context.RequestAborted);
+        if (!profileResponse.IsSuccessStatusCode || profileResponse.Content is null) {
+            throw new InvalidOperationException($"Failed to retrieve user profile for user {userId}. Status code: {profileResponse.StatusCode}");
+        }
+
+        context.Features.Set<IUserProfileFeature>(new UserProfileFeature {
+            UserId = userId,
+            IsEntra = profileResponse.Content.IsEntra,
+            IsInternalUser = profileResponse.Content.IsInternalUser,
+            FirstName = profileResponse.Content.FirstName,
+            LastName = profileResponse.Content.LastName,
+            EmailAddress = profileResponse.Content.EmailAddress,
+            JobTitle = profileResponse.Content.JobTitle,
+        });
     }
 }

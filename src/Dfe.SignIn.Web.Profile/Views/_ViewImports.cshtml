@@ -1,4 +1,4 @@
-﻿@using Dfe.SignIn.Web.Profile
+@using Dfe.SignIn.Web.Profile
 @using Dfe.SignIn.Web.Profile.Controllers
 @using Dfe.SignIn.Web.Profile.Models
 @using Dfe.SignIn.WebFramework;
@@ -14,5 +14,5 @@
 @addTagHelper *, NetEscapades.AspNetCore.SecurityHeaders.TagHelpers
 @addTagHelper *, GovUk.Frontend.AspNetCore
 
-@inject IOptions<PlatformOptions> platformOptionsAccessor
+@inject IOptions<PlatformSettings> platformSettingsAccessor
 @inject IAuthorizationService authorizationService
