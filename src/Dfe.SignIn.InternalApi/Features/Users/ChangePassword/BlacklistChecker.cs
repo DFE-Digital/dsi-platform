@@ -1,3 +1,6 @@
+
+namespace Dfe.SignIn.InternalApi.Features.Users.ChangePassword;
+
 /// <summary>
 /// A utility class for determining if a provided
 /// password is on the blacklist
