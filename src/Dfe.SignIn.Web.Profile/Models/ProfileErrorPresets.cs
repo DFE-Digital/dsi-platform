@@ -19,10 +19,10 @@ public static class ProfileErrorPresets
         Heading = "System error",
         Paragraphs = ["An error ocurred while trying to change your name, please try again."],
         ActionButtonText = "Try again",
-        ActionButtonUrl = url.Action("Index", "ChangeName"),
+        ActionButtonUrl = url.Action(nameof(Controllers.ChangeNameController.Index), "ChangeName"),
         HelpLink = PersistServiceDeskHelp,
         BackLink = new BackLinkViewModel {
-            Href = new Uri(url.Action("Index", "Home") ?? "/", UriKind.Relative)
+            Href = new Uri(url.Action(nameof(Controllers.HomeController.Index), "Home") ?? "/", UriKind.Relative)
         }
     };
 
@@ -34,7 +34,7 @@ public static class ProfileErrorPresets
         Heading = "System error",
         Paragraphs = ["An error ocurred while trying to change your email address, please try again."],
         ActionButtonText = "Try again",
-        ActionButtonUrl = url.Action("Index", "ChangeEmail"),
+        ActionButtonUrl = url.Action(nameof(Controllers.ChangeEmailController.Index), "ChangeEmail"),
         HelpLink = PersistServiceDeskHelp,
     };
 
@@ -49,7 +49,7 @@ public static class ProfileErrorPresets
             "Your email address has been updated, however, Multi-factor authentication (MFA) codes will still be sent to your old email address.",
         ],
         ActionButtonText = "Try again",
-        ActionButtonUrl = url.Action("Index", "ChangeEmail"),
+        ActionButtonUrl = url.Action(nameof(Controllers.ChangeEmailController.Index), "ChangeEmail"),
         HelpLink = new LinkSentence(
             TextBefore: "Please ",
             LinkText: "contact our service desk team",
@@ -71,7 +71,7 @@ public static class ProfileErrorPresets
         Heading = "System error",
         Paragraphs = ["An error ocurred while trying to change your password, please try again."],
         ActionButtonText = "Try again",
-        ActionButtonUrl = url.Action("Index", "ChangePassword"),
+        ActionButtonUrl = url.Action(nameof(Controllers.ChangePasswordController.Index), "ChangePassword"),
         HelpLink = PersistServiceDeskHelp,
     };
 }
