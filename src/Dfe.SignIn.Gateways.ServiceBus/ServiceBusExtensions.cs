@@ -4,9 +4,12 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Gateways.ServiceBus.Audit;
 using Dfe.SignIn.WebFramework.Configuration;
+using Dfe.SignIn.WebFramework.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Gateways.ServiceBus;
 
@@ -39,17 +42,20 @@ public static class ServiceBusExtensions
         ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
         ExceptionHelpers.ThrowIfArgumentNull(tokenCredential, nameof(tokenCredential));
 
-        var serviceBusSection = configuration.GetSection("ServiceBus");
+        var serviceBusSection = configuration.GetSection(ServiceBusOptions.SectionName);
         if (!serviceBusSection.Exists()) {
             return services;
         }
 
-        var options = Activator.CreateInstance<ServiceBusOptions>();
-        serviceBusSection.Bind(options);
+        services.TryAddSingleton<IConfiguration>(configuration);
+        services.AddOptionsWithValidation<ServiceBusOptions>();
 
-        services.AddSingleton(_ => new ServiceBusClient(options.Namespace, tokenCredential, new() {
-            TransportType = ServiceBusTransportType.AmqpWebSockets,
-        }));
+        services.AddSingleton(provider => {
+            var options = provider.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
+            return new ServiceBusClient(options.Namespace, tokenCredential, new() {
+                TransportType = ServiceBusTransportType.AmqpWebSockets,
+            });
+        });
 
         return services;
     }
@@ -123,9 +129,7 @@ public static class ServiceBusExtensions
             return null;
         }
 
-        var options = Activator.CreateInstance<ServiceBusTopicProcessorOptions>();
-        section.Bind(options);
-        return options;
+        return section.Get<ServiceBusTopicProcessorOptions>();
     }
 
     /// <summary>
