@@ -15,6 +15,15 @@ public abstract class BaseErrorController : Controller
     /// Presents the error page.
     /// </summary>
     /// <param name="code">HTTP status code.</param>
+    /// <remarks>
+    ///   <para>
+    ///   Disables request body size limits so that requests that failed due to payload size limits
+    ///   (HTTP 413) or failed during an oversized request can still be re-executed into this error
+    ///   action (via <c>UseStatusCodePagesWithReExecute</c> or <c>UseExceptionHandler</c>) without
+    ///   triggering a secondary size limit failure. Because this action only renders an error view
+    ///   and never reads or buffers the request body, disabling the limit poses no DoS or memory risk.
+    ///   </para>
+    /// </remarks>
     [SuppressMessage("csharpsquid", "S6967",
         Justification = "An error page should be presented regardless of ModelState."
     )]
