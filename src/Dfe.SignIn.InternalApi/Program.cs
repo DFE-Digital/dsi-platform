@@ -22,6 +22,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+PasswordChecker.Initialize();
+
 if (builder.Environment.IsLocal()) {
     builder.Configuration.AddUserSecrets<Program>();
 }
