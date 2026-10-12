@@ -2,8 +2,6 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
-using Dfe.SignIn.Core.Contracts.Audit;
-using Dfe.SignIn.Core.Interfaces.Audit;
 using Dfe.SignIn.Gateways.BullMq;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
@@ -82,25 +80,14 @@ builder.Services
         addAudit: false
     );
 
-builder.Services
-    .Configure<AuditOptions>(builder.Configuration.GetRequiredSection("Audit"))
-    .SetupAuditContext();
-
 var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
 builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
 builder.Services
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential);
-
-//todo: remove this once we have migrated all the code away from using the WriteToAuditInteractor to using the ServiceBusAuditInteractor.
-//This is only needed for local development, as the ServiceBusAuditInteractor will not work locally.
-if (builder.Environment.IsLocal()) {
-    builder.Services.AddNullInteractor<WriteToAuditRequest, WriteToAuditResponse>();
-}
+    .AddDsiAuditing(builder.Configuration, azureTokenCredential, builder.Environment);
 
 builder.Services
-    .AddAuditingWithServiceBus(builder.Configuration, builder.Environment)
     .AddMessagingServices();
 
 builder.Services

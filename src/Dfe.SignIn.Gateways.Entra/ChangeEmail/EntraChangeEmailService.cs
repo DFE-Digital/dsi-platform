@@ -56,25 +56,42 @@ public sealed class EntraChangeEmailService(
             }, cancellationToken: cancellationToken);
 
             var identities = entraExternalIdUser?.Identities ?? [];
-            var emailIdentity = identities.FirstOrDefault(i =>
-                string.Equals(i.SignInType, "emailAddress", StringComparison.OrdinalIgnoreCase));
 
-            if (emailIdentity is null) {
-                // Identity email update is not needed/applicable (e.g. is a federated user).
-                logger.LogInformation("Entra user {UserId} has no 'emailAddress' sign-in identity; skipping identity update", externalUserId);
+            // Check if the user has a federated identity type
+            bool isFederated = identities.Any(i =>
+                string.Equals(i.SignInType, "federated", StringComparison.OrdinalIgnoreCase));
+
+            if (isFederated) {
+                // For federated or external accounts (like corporate logins or social providers), Microsoft Entra ID 
+                // does not own or manage the underlying credentials—an external identity provider does. 
+                // Entra treats the identities collection for federated accounts as restricted. 
+                // Attempting to patch or modify the 'identities' collection via the Graph API violates Entra's 
+                // security model, causing it to reject the request and throw the ODataError. 
+                // Therefore, we bypass updating userPatch.Identities entirely for these users, leaving their 
+                // external trust relationship untouched while still successfully updating their profile contact email above.
+                logger.LogInformation("Entra user {UserId} has a federated identity; skipping identity collection update and updating profile 'Mail' only", externalUserId);
             }
-            else if (!string.Equals(emailIdentity.IssuerAssignedId, newEmailAddress, StringComparison.OrdinalIgnoreCase)) {
-                logger.LogInformation("Setting email address the user signs in with");
+            else {
+                // For pure local cloud accounts (where Entra fully manages credentials), 
+                // it is permitted to update the 'emailAddress' sign-in identity.
+                var emailIdentity = identities.FirstOrDefault(i =>
+                    string.Equals(i.SignInType, "emailAddress", StringComparison.OrdinalIgnoreCase));
 
-                // Graph replaces the full collection and requires signInType, issuer, and issuerAssignedId.
-                // Recreating ObjectIdentity avoids Kiota backing-store partial serialisation dropping required fields.
-                userPatch.Identities = [.. identities.Select(i => new ObjectIdentity {
-                    SignInType = i.SignInType,
-                    Issuer = i.Issuer,
-                    IssuerAssignedId = string.Equals(i.SignInType, "emailAddress", StringComparison.OrdinalIgnoreCase)
-                        ? newEmailAddress
-                        : i.IssuerAssignedId
-                })];
+                if (emailIdentity is null) {
+                    logger.LogInformation("Entra user {UserId} has no 'emailAddress' sign-in identity; skipping identity update", externalUserId);
+                }
+                else if (!string.Equals(emailIdentity.IssuerAssignedId, newEmailAddress, StringComparison.OrdinalIgnoreCase)) {
+                    logger.LogInformation("Setting email address the user signs in with for local account");
+
+                    // Reconstruct the identities array, updating only the emailAddress issuerAssignedId to the new address.
+                    userPatch.Identities = [.. identities.Select(i => new ObjectIdentity {
+                        SignInType = i.SignInType,
+                        Issuer = i.Issuer,
+                        IssuerAssignedId = string.Equals(i.SignInType, "emailAddress", StringComparison.OrdinalIgnoreCase)
+                            ? newEmailAddress
+                            : i.IssuerAssignedId
+                    })];
+                }
             }
 
             await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);

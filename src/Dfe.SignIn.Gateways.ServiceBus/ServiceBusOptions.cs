@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.WebFramework.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -15,8 +14,7 @@ public sealed class ServiceBusOptions : IApplicationSettings, IOptions<ServiceBu
     /// <summary>
     /// Gets or sets the Service Bus namespace.
     /// </summary>
-    [Required]
-    public required string Namespace { get; set; }
+    public string Namespace { get; set; } = string.Empty;
 
     /// <inheritdoc/>
     ServiceBusOptions IOptions<ServiceBusOptions>.Value => this;
