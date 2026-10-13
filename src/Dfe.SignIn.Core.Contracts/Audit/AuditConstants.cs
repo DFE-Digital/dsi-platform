@@ -138,7 +138,8 @@ public static class AuditChangePasswordEventNames
     /// </summary>
     public const string IncorrectPassword = "incorrect-password";
 
-    /// Indicates that a problem occured with password validation constraints
+    /// <summary>
+    /// Indicates that a problem occured with password validWation constraints
     /// </summary>
     public const string PasswordValidation = "password-vaidation";
 }
