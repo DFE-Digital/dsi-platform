@@ -11,6 +11,7 @@ using Dfe.SignIn.InternalApi.Client;
 using Dfe.SignIn.InternalApi.Configuration;
 using Dfe.SignIn.InternalApi.Endpoints;
 using Dfe.SignIn.InternalApi.Features;
+using Dfe.SignIn.InternalApi.Features.Users.ChangePassword;
 using Dfe.SignIn.NodeApi.Client;
 using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Extensions;
@@ -19,6 +20,8 @@ using FluentValidation;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+PasswordChecker.Initialize();
 
 if (builder.Environment.IsLocal()) {
     builder.Configuration.AddUserSecrets<Program>();

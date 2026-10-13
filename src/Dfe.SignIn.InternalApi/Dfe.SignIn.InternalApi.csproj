@@ -11,6 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ncscBlacklist.txt" />
+    <EmbeddedResource Include="dfeBlacklist.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
   </ItemGroup>
 

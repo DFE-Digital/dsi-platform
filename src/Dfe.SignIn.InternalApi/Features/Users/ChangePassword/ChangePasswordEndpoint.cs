@@ -75,6 +75,24 @@ public sealed class ChangePasswordEndpoint(
             });
         }
 
+        var isOnBlacklist = PasswordChecker.IsBlacklisted(request.NewPassword);
+
+        if (isOnBlacklist) {
+            logger.LogWarning("User {UserId} attempted to change password to one found on the blacklist", userId);
+
+            await auditWriter.Log(new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangePassword,
+                EventName = AuditChangePasswordEventNames.PasswordValidation,
+                Message = "Change password attempt failed",
+                UserId = userId,
+                WasFailure = true
+            });
+
+            return Results.ValidationProblem(new Dictionary<string, string[]> {
+                [nameof(request.NewPassword)] = ["Please create a more secure password"],
+            });
+        }
+
         await this.RotatePasswordHistoryAsync(user, cancellationToken);
         this.UpdateUserPassword(user, request.NewPassword);
 
