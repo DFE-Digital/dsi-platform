@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Dfe.SignIn.WebFramework.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -13,10 +12,10 @@ public sealed class ServiceBusOptions : IApplicationSettings, IOptions<ServiceBu
     public static string SectionName => "ServiceBus";
 
     /// <summary>
-    /// Gets or sets the Service Bus namespace.
+    /// Gets or sets the fully qualified domain name of the Service Bus namespace,
+    /// which is the container for queues, topics, and other messaging resources.
     /// </summary>
-    [Required]
-    public required string Namespace { get; set; }
+    public string Namespace { get; set; } = string.Empty;
 
     /// <inheritdoc/>
     ServiceBusOptions IOptions<ServiceBusOptions>.Value => this;
