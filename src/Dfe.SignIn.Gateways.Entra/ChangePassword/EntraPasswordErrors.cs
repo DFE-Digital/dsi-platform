@@ -21,7 +21,8 @@ public static class EntraPasswordErrors
     /// Gets the error when the provided current password is incorrect.
     /// </summary>
     public static readonly OperationError InvalidCurrentPassword = new(
-        InvalidCurrentPasswordCode, "Please enter your current password");
+        InvalidCurrentPasswordCode,
+        "We do not recognise the password you entered. Please check and try again.");
 
     /// <summary>
     /// Gets the error when the new password violates policy or is breached.

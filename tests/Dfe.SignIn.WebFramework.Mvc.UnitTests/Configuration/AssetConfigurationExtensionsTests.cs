@@ -14,7 +14,7 @@ public sealed class AssetConfigurationExtensionsTests
     public void SetupFrontendAssets_Throws_WhenServicesArgumentIsNull()
     {
         Assert.ThrowsExactly<ArgumentNullException>(()
-            => AssetConfigurationExtensions.SetupFrontendAssets(
+            => AssetConfigurationExtensions.AddFrontendAssets(
                 services: null!
             ));
     }
@@ -24,7 +24,7 @@ public sealed class AssetConfigurationExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.SetupFrontendAssets();
+        services.AddFrontendAssets();
 
         Assert.IsTrue(
             services.Any(descriptor =>
@@ -39,7 +39,7 @@ public sealed class AssetConfigurationExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.SetupFrontendAssets();
+        services.AddFrontendAssets();
 
         var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<GovUkFrontendOptions>>();

@@ -49,12 +49,17 @@ public sealed class ChangeNameController(
             LastName = viewModel.LastNameInput ?? string.Empty,
         };
 
-        var response = await usersApiClient.ChangeName(this.User.GetUserId(), request, cancellationToken);
+        try {
+            var response = await usersApiClient.ChangeName(this.User.GetUserId(), request, cancellationToken);
 
-        if (!response.IsSuccessStatusCode) {
-            logger.LogError("Failed to change name for user {UserId}. StatusCode: {StatusCode}", this.User.GetUserId(), response.StatusCode);
-            this.ModelState.AddModelError(string.Empty, "We couldn't save your name right now. Please try again.");
-            return this.Index();
+            if (!response.IsSuccessStatusCode) {
+                logger.LogError("Failed to change name for user {UserId}. StatusCode: {StatusCode}", this.User.GetUserId(), response.StatusCode);
+                return this.ErrorView(ProfileErrorPresets.NameUpdateFailed(this.Url));
+            }
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "An exception occurred while changing name for user {UserId}", this.User.GetUserId());
+            return this.ErrorView(ProfileErrorPresets.NameUpdateFailed(this.Url));
         }
 
         this.SetFlashSuccess(

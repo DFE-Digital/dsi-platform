@@ -1,5 +1,4 @@
 using Azure.Identity;
-using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Gateways.Entra;
 using Dfe.SignIn.Gateways.ServiceBus;
 using Dfe.SignIn.InternalApi.Client;
@@ -10,7 +9,6 @@ using Dfe.SignIn.WebFramework.Configuration;
 using Dfe.SignIn.WebFramework.Extensions;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Features;
-using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -18,7 +16,7 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Host / infrastructure ---
+// Host / infrastructure
 builder.AddServiceDefaults(["/v2/healthcheck"]);
 
 if (builder.Environment.IsLocal()) {
@@ -39,7 +37,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options => {
     options.KnownProxies.Clear();
 });
 
-// --- Auth / session ---
+// Auth / session
 builder.Services
     .AddUserSessions(builder.Configuration)
     .AddDsiAuthentication(builder.Configuration)
@@ -47,21 +45,20 @@ builder.Services
     .AddAuthorization(options => options.AddDsiPolicies())
     .AddDsiAuthorizationHandlers();
 
-// --- MVC / web framework ---
+// MVC / web framework
 builder.Services
     .AddControllersWithViews()
     .AddDsiMvcExtensions();
 
 builder.Services
-    .ConfigureDsiAntiforgeryCookie()
-    .ConfigureDfeSignInJsonSerializerOptions();
+    .ConfigureDsiAntiforgeryCookie();
 
-// --- Profile app services ---
+// Profile app services
 builder.Services
     .AddScoped<IClaimsTransformation, ApplicationClaimsTransformation>()
     .AddScoped<IServiceNavigationBuilder, ServiceNavigationBuilder>();
 
-// --- Credentials ---
+// Credentials
 var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient"));
 
@@ -72,34 +69,28 @@ builder.Configuration
 
 var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
 
-// --- Data protection ---
+// Data protection
 builder.Services
     .AddDsiDataProtection(builder.Configuration, azureTokenCredential, typeof(Program).Assembly.GetName().Name!);
 
-// --- Auditing ---
+// Auditing
 builder.Services
-    .SetupAuditContext()
-    .AddServiceBusIntegration(builder.Configuration, azureTokenCredential)
-    .AddAuditingWithServiceBus(builder.Configuration, builder.Environment);
+    .AddDsiAuditing(builder.Configuration, azureTokenCredential, builder.Environment);
 
-// --- Options / frontend ---
+// Options / frontend
 builder.Services
-    .Configure<PlatformOptions>(builder.Configuration.GetRequiredSection("Platform"))
-    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
+    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"))
+    .AddOptionsWithValidation<PlatformSettings>();
 
 builder.Services
-    .SetupFrontendAssets();
+    .AddFrontendAssets();
 
-// --- API clients / Entra ---
+// API clients / Entra
 builder.Services
-    .AddHttpContextAccessor() // redundant with SetupAuditContext (TryAdd) — fine to leave
     .AddEntraDelegatedServices()
     .AddUsersApiClient(tokenCredential);
 
-builder.Services
-    .AddValidatorsFromAssemblyContaining<Program>();
-
-// --- Local-only overrides ---
+// Local-only overrides
 // Allow self-signed IdP certificates on the OIDC backchannel in Local only.
 if (builder.Environment.IsLocal()) {
     builder.Services.PostConfigure<OpenIdConnectOptions>(
@@ -112,13 +103,13 @@ if (builder.Environment.IsLocal()) {
 
 var app = builder.Build();
 
-// --- Pipeline ---
-app.UseDsiSecurityHeaderPolicy();
-
+// Pipeline
+app.UseExceptionHandler("/Error/Index");
 if (!app.Environment.IsLocal()) {
-    app.UseExceptionHandler("/Error/Index")
-       .UseHsts();
+    app.UseHsts();
 }
+
+app.UseDsiSecurityHeaderPolicy();
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();

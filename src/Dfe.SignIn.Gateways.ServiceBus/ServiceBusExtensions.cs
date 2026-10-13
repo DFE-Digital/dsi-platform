@@ -1,10 +1,15 @@
+using Azure.Core;
 using Azure.Messaging.ServiceBus;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Gateways.ServiceBus.Audit;
+using Dfe.SignIn.WebFramework.Configuration;
+using Dfe.SignIn.WebFramework.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Dfe.SignIn.Gateways.ServiceBus;
 
@@ -13,6 +18,89 @@ namespace Dfe.SignIn.Gateways.ServiceBus;
 /// </summary>
 public static class ServiceBusExtensions
 {
+    /// <summary>
+    /// Registers a <see cref="ServiceBusClient"/> when the <c>ServiceBus</c> configuration
+    /// section is present. No-op when the section is missing.
+    /// </summary>
+    /// <param name="services">The services collection.</param>
+    /// <param name="configuration">The root configuration.</param>
+    /// <param name="tokenCredential">Token credential to connect to Azure Service Bus.</param>
+    /// <returns>
+    ///   <para>The <paramref name="services"/> instance for chained calls.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="services"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="configuration"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="tokenCredential"/> is null.</para>
+    /// </exception>
+    public static IServiceCollection AddServiceBusClient(
+        this IServiceCollection services, IConfigurationRoot configuration, TokenCredential tokenCredential)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
+        ExceptionHelpers.ThrowIfArgumentNull(tokenCredential, nameof(tokenCredential));
+
+        var serviceBusSection = configuration.GetSection(ServiceBusOptions.SectionName);
+        if (!serviceBusSection.Exists()) {
+            return services;
+        }
+
+        services.TryAddSingleton<IConfiguration>(configuration);
+        services.AddOptionsWithValidation<ServiceBusOptions>();
+
+        services.AddSingleton(provider => {
+            var options = provider.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
+            return new ServiceBusClient(options.Namespace, tokenCredential, new() {
+                TransportType = ServiceBusTransportType.AmqpWebSockets,
+            });
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers HTTP audit context, Service Bus client, and Service Bus audit writers.
+    /// </summary>
+    /// <remarks>
+    ///   <para>Suitable for apps that publish audit events via Service Bus.
+    ///   Apps that only need HTTP audit context (for example Help) should call
+    ///   <see cref="AuditConfigurationExtensions.SetupAuditContext"/> instead.</para>
+    /// </remarks>
+    /// <param name="services">The services collection.</param>
+    /// <param name="configuration">The root configuration.</param>
+    /// <param name="tokenCredential">Token credential to connect to Azure Service Bus.</param>
+    /// <param name="environment">The hosting environment.</param>
+    /// <returns>
+    ///   <para>The <paramref name="services"/> instance for chained calls.</para>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <para>If <paramref name="services"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="configuration"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="tokenCredential"/> is null.</para>
+    ///   <para>- or -</para>
+    ///   <para>If <paramref name="environment"/> is null.</para>
+    /// </exception>
+    public static IServiceCollection AddDsiAuditing(
+        this IServiceCollection services,
+        IConfigurationRoot configuration,
+        TokenCredential tokenCredential,
+        IHostEnvironment environment)
+    {
+        ExceptionHelpers.ThrowIfArgumentNull(services, nameof(services));
+        ExceptionHelpers.ThrowIfArgumentNull(configuration, nameof(configuration));
+        ExceptionHelpers.ThrowIfArgumentNull(tokenCredential, nameof(tokenCredential));
+        ExceptionHelpers.ThrowIfArgumentNull(environment, nameof(environment));
+
+        return services
+            .SetupAuditContext()
+            .AddServiceBusClient(configuration, tokenCredential)
+            .AddAuditingWithServiceBus(configuration, environment);
+    }
+
     /// <summary>
     /// Gets any configuration that has been associated with a Service Bus topic.
     /// </summary>
@@ -41,9 +129,7 @@ public static class ServiceBusExtensions
             return null;
         }
 
-        var options = Activator.CreateInstance<ServiceBusTopicProcessorOptions>();
-        section.Bind(options);
-        return options;
+        return section.Get<ServiceBusTopicProcessorOptions>();
     }
 
     /// <summary>

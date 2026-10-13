@@ -86,6 +86,33 @@ public class ChangePasswordTests : InternalApiIntegrationEndpointTestBase
     }
 
     [Fact]
+    public async Task ChangePassword_Returns400_AndWritesIncorrectPasswordAudit_WhenNewPAsswordIsBlacklisted()
+    {
+        var authenticatedClient = this.CreateClient().WithAuthentication();
+        var salt = this.hasher.GenerateSalt();
+
+        var user = EntityFaker.User
+            .RuleFor(x => x.Salt, (_, _) => salt)
+            .RuleFor(x => x.Password, (_, _) => this.hasher.Hash("v2", "TheRealPassword1!", salt))
+            .Generate();
+
+        await this.InsertEntityAsync<DbDirectoriesContext, UserEntity>(user);
+
+        var response = await authenticatedClient.PostAsJsonAsync(GetEndpoint(user.Sub), new ChangePasswordRequest {
+            CurrentPassword = "TheRealPassword1!",
+            NewPassword = "PolniyPizdec110211",
+            ConfirmNewPassword = "PolniyPizdec110211",
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var auditRequest = this.AuditCapturer.CapturedRequests.Single();
+        Assert.Equal(AuditEventCategoryNames.ChangePassword, auditRequest.EventCategory);
+        Assert.Equal(AuditChangePasswordEventNames.PasswordValidation, auditRequest.EventName);
+        Assert.Equal("Change password attempt failed", auditRequest.Message);
+        Assert.True(auditRequest.WasFailure);
+    }
+    [Fact]
     public async Task ChangePassword_Returns404_WhenUserDoesNotExist()
     {
         var authenticatedClient = this.CreateClient().WithAuthentication();
