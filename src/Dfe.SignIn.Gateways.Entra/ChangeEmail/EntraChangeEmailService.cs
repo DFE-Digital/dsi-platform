@@ -46,7 +46,7 @@ public sealed class EntraChangeEmailService(
     }
 
     private async Task<Base.Framework.OperationResults.OperationResult> UpdatePrimaryEmailAsync(
-        GraphServiceClient client,
+        GraphServiceClient graphClient,
         string userIdString,
         Guid externalUserId,
         string newEmailAddress,
@@ -55,7 +55,7 @@ public sealed class EntraChangeEmailService(
         try {
             var userPatch = new User { Mail = newEmailAddress };
 
-            var entraExternalIdUser = await client.Users[userIdString].GetAsync(config => {
+            var entraExternalIdUser = await graphClient.Users[userIdString].GetAsync(config => {
                 config.QueryParameters.Select = [IdentiesCollectionPropertyName];
             }, cancellationToken: cancellationToken);
 
@@ -98,7 +98,7 @@ public sealed class EntraChangeEmailService(
                 }
             }
 
-            await client.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
+            await graphClient.Users[userIdString].PatchAsync(userPatch, cancellationToken: cancellationToken);
 
             logger.LogInformation("Successfully updated primary email for Entra user {UserId}", externalUserId);
             return Base.Framework.OperationResults.OperationResult.Success();
