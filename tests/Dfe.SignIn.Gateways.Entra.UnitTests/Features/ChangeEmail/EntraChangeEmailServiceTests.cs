@@ -65,6 +65,10 @@ public sealed class EntraChangeEmailServiceTests
                 return new HttpResponseMessage(HttpStatusCode.NoContent);
             }
 
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return CreateUserIdentitiesResponse("old.user@example.com");
+            }
+
             if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
                 var content = /*lang=json,strict*/ """
                 {
@@ -96,10 +100,175 @@ public sealed class EntraChangeEmailServiceTests
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(3, requestsRecorded.Count);
-        Assert.AreEqual(HttpMethod.Patch, requestsRecorded[0].Method);
-        Assert.AreEqual(HttpMethod.Get, requestsRecorded[1].Method);
-        Assert.AreEqual(HttpMethod.Patch, requestsRecorded[2].Method);
+        Assert.AreEqual(4, requestsRecorded.Count);
+        Assert.AreEqual(HttpMethod.Get, requestsRecorded[0].Method);
+        Assert.AreEqual(HttpMethod.Patch, requestsRecorded[1].Method);
+        Assert.AreEqual(HttpMethod.Get, requestsRecorded[2].Method);
+        Assert.AreEqual(HttpMethod.Patch, requestsRecorded[3].Method);
+    }
+
+    [TestMethod]
+    public async Task ChangeEmailAsync_GivenNewEmailAddress_WhenPrimarySucceeds_ReturnsSuccessResultAndLogsInformation()
+    {
+
+        var logMessages = new List<string>();
+
+        // Arrange
+        this.loggerMock
+            .Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation => {
+                logMessages.Add(invocation.Arguments[2].ToString()!);
+            }));
+
+        var userId = Guid.NewGuid();
+        const string newEmail = "updated.user@example.com";
+        var requestsRecorded = new List<HttpRequestMessage>();
+
+        var client = CreateGraphClient(req => {
+            requestsRecorded.Add(req);
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(identities)/$entity",
+                    "identities": [
+                        {
+                            "signInType": "emailAddress",
+                            "issuer": "contoso.onmicrosoft.com",
+                            "issuerAssignedId": "old.user@example.com"
+                        }
+                    ]
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "value": [
+                        {
+                            "id": "existing-mfa-method-id",
+                            "emailAddress": "old.user@example.com"
+                        }
+                    ]
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.Contains("existing-mfa-method-id")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act
+        var result = await sut.ChangeEmailAsync(userId, newEmail);
+
+        // Assert
+        Assert.IsTrue(result.IsSuccess);
+        Assert.IsTrue(logMessages.Any(m => m.Contains("Setting email address the user signs in with")));
+
+    }
+
+    [TestMethod]
+    public async Task ChangeEmailAsync_GivenExistingEmailAddress_WhenPrimarySucceeds_ReturnsSuccessResultAndDoesNotLogInformation()
+    {
+
+        var logMessages = new List<string>();
+
+        // Arrange
+        this.loggerMock
+            .Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation => {
+                logMessages.Add(invocation.Arguments[2].ToString()!);
+            }));
+
+        var userId = Guid.NewGuid();
+        const string newEmail = "updated.user@example.com";
+        var requestsRecorded = new List<HttpRequestMessage>();
+
+        var client = CreateGraphClient(req => {
+            requestsRecorded.Add(req);
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(identities)/$entity",
+                    "identities": [
+                        {
+                            "signInType": "emailAddress",
+                            "issuer": "contoso.onmicrosoft.com",
+                            "issuerAssignedId": "updated.user@example.com"
+                        }
+                    ]
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "value": [
+                        {
+                            "id": "existing-mfa-method-id",
+                            "emailAddress": "old.user@example.com"
+                        }
+                    ]
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.Contains("existing-mfa-method-id")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act
+        var result = await sut.ChangeEmailAsync(userId, newEmail);
+
+        // Assert
+        Assert.IsTrue(result.IsSuccess);
+        Assert.IsFalse(logMessages.Any(m => m.Contains("Setting email address the user signs in with")));
+
     }
 
     [TestMethod]
@@ -114,6 +283,174 @@ public sealed class EntraChangeEmailServiceTests
             requestsRecorded.Add(req);
 
             if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return CreateUserIdentitiesResponse("old.user@example.com");
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "value": []
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Post && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var responseContent = /*lang=json,strict*/ """
+                {
+                    "id": "created-mfa-id",
+                    "emailAddress": "new.user@example.com"
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.Created) {
+                    Content = new StringContent(responseContent, Encoding.UTF8, "application/json")
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act
+        var result = await sut.ChangeEmailAsync(userId, newEmail);
+
+        // Assert
+        Assert.IsTrue(result.IsSuccess);
+        Assert.AreEqual(4, requestsRecorded.Count);
+        Assert.AreEqual(HttpMethod.Get, requestsRecorded[0].Method);
+        Assert.AreEqual(HttpMethod.Patch, requestsRecorded[1].Method);
+        Assert.AreEqual(HttpMethod.Get, requestsRecorded[2].Method);
+        Assert.AreEqual(HttpMethod.Post, requestsRecorded[3].Method);
+    }
+
+    [TestMethod]
+    public async Task ChangeEmailAsync_WhenPrimaryUserUpdateFails_ReturnsUserUpdateFailed_AndDoesNotAttemptMfa()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        const string newEmail = "new.user@example.com";
+        var requestsRecorded = new List<HttpRequestMessage>();
+
+        var client = CreateGraphClient(req => {
+            requestsRecorded.Add(req);
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return CreateUserIdentitiesResponse("old.user@example.com");
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                var errorContent = /*lang=json,strict*/ """
+                {
+                    "error": {
+                        "code": "Request_ResourceNotFound",
+                        "message": "Resource does not exist."
+                    }
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.NotFound) {
+                    Content = new StringContent(errorContent, Encoding.UTF8, "application/json")
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        });
+
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act
+        var result = await sut.ChangeEmailAsync(userId, newEmail);
+
+        // Assert
+        Assert.IsTrue(result.IsFailure);
+        Assert.AreEqual(EntraEmailErrors.UserUpdateFailed("Resource does not exist."), result.Error);
+        Assert.Contains("Resource does not exist", result.Error.Description);
+        Assert.AreEqual(2, requestsRecorded.Count);
+    }
+
+    [TestMethod]
+    public async Task ChangeEmailAsync_WhenPrimarySucceeds_AndMfaFails_ReturnsMfaAuthenticationMethodFailed()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        const string newEmail = "new.user@example.com";
+        var requestsRecorded = new List<HttpRequestMessage>();
+
+        var client = CreateGraphClient(req => {
+            requestsRecorded.Add(req);
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return CreateUserIdentitiesResponse("old.user@example.com");
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
+                var errorContent = /*lang=json,strict*/ """
+                {
+                    "error": {
+                        "code": "GeneralException",
+                        "message": "Failed to retrieve MFA methods."
+                    }
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError) {
+                    Content = new StringContent(errorContent, Encoding.UTF8, "application/json")
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        });
+
+        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
+        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
+
+        // Act
+        var result = await sut.ChangeEmailAsync(userId, newEmail);
+
+        // Assert
+        Assert.IsTrue(result.IsFailure);
+        Assert.AreEqual(EntraEmailErrors.MfaAuthenticationMethodFailed("Failed to retrieve MFA methods."), result.Error);
+        Assert.Contains("Failed to retrieve MFA methods", result.Error.Description);
+        Assert.AreEqual(3, requestsRecorded.Count);
+    }
+
+    [TestMethod]
+    public async Task ChangeEmailAsync_WhenUserHasNoEmailIdentity_SkipsIdentitiesAndPatchesMailSuccessfully()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        const string newEmail = "new.user@example.com";
+        string? capturedPatchBody = null;
+        var requestsRecorded = new List<HttpRequestMessage>();
+
+        var client = CreateGraphClient(req => {
+            requestsRecorded.Add(req);
+
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                var content = /*lang=json,strict*/ """
+                {
+                    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(identities)/$entity",
+                    "identities": []
+                }
+                """;
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
+                };
+            }
+
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                capturedPatchBody = req.Content?.ReadAsStringAsync().Result;
                 return new HttpResponseMessage(HttpStatusCode.NoContent);
             }
 
@@ -151,83 +488,51 @@ public sealed class EntraChangeEmailServiceTests
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(3, requestsRecorded.Count);
-        Assert.AreEqual(HttpMethod.Patch, requestsRecorded[0].Method);
-        Assert.AreEqual(HttpMethod.Get, requestsRecorded[1].Method);
-        Assert.AreEqual(HttpMethod.Post, requestsRecorded[2].Method);
+        Assert.IsNotNull(capturedPatchBody);
+        Assert.Contains($"\"mail\":\"{newEmail}\"", capturedPatchBody);
+        Assert.IsFalse(capturedPatchBody.Contains("\"identities\""));
+        Assert.AreEqual(4, requestsRecorded.Count);
     }
 
     [TestMethod]
-    public async Task ChangeEmailAsync_WhenPrimaryUserUpdateFails_ReturnsUserUpdateFailed_AndDoesNotAttemptMfa()
+    public async Task ChangeEmailAsync_WhenEmailIdentityNeedsUpdate_RecreatesObjectIdentitiesWithAllRequiredFieldsInPatchBody()
     {
         // Arrange
         var userId = Guid.NewGuid();
-        const string newEmail = "new.user@example.com";
-        var requestsRecorded = new List<HttpRequestMessage>();
+        const string newEmail = "updated.user@example.com";
+        string? capturedPatchBody = null;
 
         var client = CreateGraphClient(req => {
-            requestsRecorded.Add(req);
-
-            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
-                var errorContent = /*lang=json,strict*/ """
-                {
-                    "error": {
-                        "code": "Request_ResourceNotFound",
-                        "message": "Resource does not exist."
-                    }
-                }
-                """;
-                return new HttpResponseMessage(HttpStatusCode.NotFound) {
-                    Content = new StringContent(errorContent, Encoding.UTF8, "application/json")
-                };
+            if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                return CreateUserIdentitiesResponse("old.user@example.com");
             }
 
-            return new HttpResponseMessage(HttpStatusCode.OK);
-        });
-
-        this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
-        var sut = new EntraChangeEmailService(this.graphClientProviderMock.Object, this.loggerMock.Object);
-
-        // Act
-        var result = await sut.ChangeEmailAsync(userId, newEmail);
-
-        // Assert
-        Assert.IsTrue(result.IsFailure);
-        Assert.AreEqual(EntraEmailErrors.UserUpdateFailed("Resource does not exist."), result.Error);
-        Assert.Contains("Resource does not exist", result.Error.Description);
-        Assert.AreEqual(1, requestsRecorded.Count);
-    }
-
-    [TestMethod]
-    public async Task ChangeEmailAsync_WhenPrimarySucceeds_AndMfaFails_ReturnsMfaAuthenticationMethodFailed()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        const string newEmail = "new.user@example.com";
-        var requestsRecorded = new List<HttpRequestMessage>();
-
-        var client = CreateGraphClient(req => {
-            requestsRecorded.Add(req);
-
             if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}")) {
+                capturedPatchBody = req.Content?.ReadAsStringAsync().Result;
                 return new HttpResponseMessage(HttpStatusCode.NoContent);
             }
 
             if (req.Method == HttpMethod.Get && req.RequestUri!.AbsolutePath.EndsWith($"/users/{userId}/authentication/emailMethods")) {
-                var errorContent = /*lang=json,strict*/ """
+                var content = /*lang=json,strict*/ """
                 {
-                    "error": {
-                        "code": "GeneralException",
-                        "message": "Failed to retrieve MFA methods."
-                    }
+                    "value": [
+                        {
+                            "id": "existing-mfa-method-id",
+                            "emailAddress": "old.user@example.com"
+                        }
+                    ]
                 }
                 """;
-                return new HttpResponseMessage(HttpStatusCode.InternalServerError) {
-                    Content = new StringContent(errorContent, Encoding.UTF8, "application/json")
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(content, Encoding.UTF8, "application/json")
                 };
             }
 
-            return new HttpResponseMessage(HttpStatusCode.OK);
+            if (req.Method == HttpMethod.Patch && req.RequestUri!.AbsolutePath.Contains("existing-mfa-method-id")) {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
         });
 
         this.graphClientProviderMock.Setup(x => x.GetClient()).Returns(client);
@@ -237,10 +542,31 @@ public sealed class EntraChangeEmailServiceTests
         var result = await sut.ChangeEmailAsync(userId, newEmail);
 
         // Assert
-        Assert.IsTrue(result.IsFailure);
-        Assert.AreEqual(EntraEmailErrors.MfaAuthenticationMethodFailed("Failed to retrieve MFA methods."), result.Error);
-        Assert.Contains("Failed to retrieve MFA methods", result.Error.Description);
-        Assert.AreEqual(2, requestsRecorded.Count);
+        Assert.IsTrue(result.IsSuccess);
+        Assert.IsNotNull(capturedPatchBody);
+        Assert.Contains("\"signInType\":\"emailAddress\"", capturedPatchBody);
+        Assert.Contains("\"issuer\":\"contoso.onmicrosoft.com\"", capturedPatchBody);
+        Assert.Contains($"\"issuerAssignedId\":\"{newEmail}\"", capturedPatchBody);
+        Assert.Contains($"\"mail\":\"{newEmail}\"", capturedPatchBody);
+    }
+
+    private static HttpResponseMessage CreateUserIdentitiesResponse(string email)
+    {
+        var content = $$"""
+        {
+            "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(identities)/$entity",
+            "identities": [
+                {
+                    "signInType": "emailAddress",
+                    "issuer": "contoso.onmicrosoft.com",
+                    "issuerAssignedId": "{{email}}"
+                }
+            ]
+        }
+        """;
+        return new HttpResponseMessage(HttpStatusCode.OK) {
+            Content = new StringContent(content, Encoding.UTF8, "application/json")
+        };
     }
 
     private static GraphServiceClient CreateGraphClient(Func<HttpRequestMessage, HttpResponseMessage> handlerFunc)
