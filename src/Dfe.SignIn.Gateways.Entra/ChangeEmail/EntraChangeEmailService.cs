@@ -12,6 +12,10 @@ public sealed class EntraChangeEmailService(
     IApplicationGraphClientProvider graphClientProvider,
     ILogger<EntraChangeEmailService> logger) : IEntraChangeEmailService
 {
+    private const string IdentityTypeEmailAddress = "emailAddress";
+    private const string IdentityTypeFederated = "federated";
+    private const string IdentiesCollectionPropertyName = "identities";
+
     /// <inheritdoc/>
     public async Task<Base.Framework.OperationResults.OperationResult> ChangeEmailAsync(
         Guid externalUserId,
@@ -52,14 +56,14 @@ public sealed class EntraChangeEmailService(
             var userPatch = new User { Mail = newEmailAddress };
 
             var entraExternalIdUser = await client.Users[userIdString].GetAsync(config => {
-                config.QueryParameters.Select = ["identities"];
+                config.QueryParameters.Select = [IdentiesCollectionPropertyName];
             }, cancellationToken: cancellationToken);
 
             var identities = entraExternalIdUser?.Identities ?? [];
 
             // Check if the user has a federated identity type
             bool isFederated = identities.Any(i =>
-                string.Equals(i.SignInType, "federated", StringComparison.OrdinalIgnoreCase));
+                string.Equals(i.SignInType, IdentityTypeFederated, StringComparison.OrdinalIgnoreCase));
 
             if (isFederated) {
                 // For federated or external accounts (like corporate logins or social providers), Microsoft Entra ID 
@@ -75,7 +79,7 @@ public sealed class EntraChangeEmailService(
                 // For pure local cloud accounts (where Entra fully manages credentials), 
                 // it is permitted to update the 'emailAddress' sign-in identity.
                 var emailIdentity = identities.FirstOrDefault(i =>
-                    string.Equals(i.SignInType, "emailAddress", StringComparison.OrdinalIgnoreCase));
+                    string.Equals(i.SignInType, IdentityTypeEmailAddress, StringComparison.OrdinalIgnoreCase));
 
                 if (emailIdentity is null) {
                     logger.LogInformation("Entra user {UserId} has no 'emailAddress' sign-in identity; skipping identity update", externalUserId);
@@ -87,7 +91,7 @@ public sealed class EntraChangeEmailService(
                     userPatch.Identities = [.. identities.Select(i => new ObjectIdentity {
                         SignInType = i.SignInType,
                         Issuer = i.Issuer,
-                        IssuerAssignedId = string.Equals(i.SignInType, "emailAddress", StringComparison.OrdinalIgnoreCase)
+                        IssuerAssignedId = string.Equals(i.SignInType, IdentityTypeEmailAddress, StringComparison.OrdinalIgnoreCase)
                             ? newEmailAddress
                             : i.IssuerAssignedId
                     })];
