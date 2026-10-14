@@ -54,8 +54,17 @@ public sealed partial class ChangePasswordController(
     public async Task<IActionResult> PostIndex(ChangePasswordViewModel viewModel, CancellationToken cancellationToken)
     {
         var validationResult = await viewModel.ValidateAsync<ChangePasswordViewModelValidator, ChangePasswordViewModel>();
+
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
+
+            await auditWriter.Log(new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangePassword,
+                Message = "Change password attempt failed",
+                EventName = AuditChangePasswordEventNames.PasswordValidation,
+                WasFailure = true
+            });
+
             return await this.Index();
         }
 
