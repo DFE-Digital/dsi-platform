@@ -11,7 +11,7 @@ jobs:
       - name: Say hello
         run: echo "Hello World"
 
-  build container:
+  build-container:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
