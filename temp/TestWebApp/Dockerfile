@@ -15,16 +15,16 @@ WORKDIR /src
 COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["Directory.Build.targets", "."]
-COPY ["TestWebApp/TestWebApp.csproj", "TestWebApp/"]
-RUN dotnet restore "./TestWebApp/TestWebApp.csproj"
+COPY ["temp/TestWebApp", "src/TestWebApp/"]
+RUN dotnet restore "src/TestWebApp/TestWebApp.csproj"
 COPY . .
-WORKDIR "/src/TestWebApp"
-RUN dotnet build "./TestWebApp.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+RUN dotnet build "src/TestWebApp/TestWebApp.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./TestWebApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "src/TestWebApp/TestWebApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final

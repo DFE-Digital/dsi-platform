@@ -24,4 +24,8 @@ jobs:
 
       - name: build project
         run: dotnet build 'src/Dfe.SignIn.Core.Entities/Dfe.SignIn.Core.Entities.csproj' --configuration Release
+
+      - name: Build Docker image
+        run: |
+          docker build -f temp/TestWebApp/Dockerfile -t testwebapp:latest \.
     
