@@ -2,10 +2,26 @@ name: Hello World
 
 on:
   push:
-
+    branches:
+      - chore/DSI-111-test-ci
 jobs:
   hello:
     runs-on: ubuntu-latest
     steps:
       - name: Say hello
         run: echo "Hello World"
+
+  builds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: build project
+        run: dotnet build 'src/Dfe.SignIn.Core.Entities/Dfe.SignIn.Core.Entities.csproj' --configuration Release
+    
