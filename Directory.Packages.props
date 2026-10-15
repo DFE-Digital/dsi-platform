@@ -38,6 +38,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.8" />-->
     <!-- Decorator pattern -->
     <PackageVersion Include="Microsoft.Kiota.Abstractions" Version="1.22.0" />
+    <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.24.2-preview.1" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="OpenTelemetry.Api" Version="1.15.3" />
     <PackageVersion Include="Scrutor" Version="6.1.0" />
@@ -160,7 +161,7 @@
   <ItemGroup>
     <PackageVersion Include="BullMQ" Version="1.0.0" />
     <PackageVersion Include="StackExchange.Redis" Version="2.13.17" />
-  </ItemGroup>  
+  </ItemGroup>
   <!--Advisories updates-->
   <ItemGroup>
     <!-- CVE-2026-48798 -->
