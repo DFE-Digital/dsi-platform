@@ -45,5 +45,5 @@ jobs:
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
         with:
            registry: ${{ vars.ACR_REGISTRY_TRAN }}
-           username: ${{ secrets[format('ACR_{0}_CLIENT_ID', secrets.ACR_TRAN_CLIENT_ID)] }}
-           password: ${{ secrets[format('ACR_{0}_CLIENT_SECRET', secrets.ACR_TRAN_CLIENT_SECRET)] }}
+           username: ${{ secrets.ACR_TRAN_CLIENT_ID }}
+           password: ${{ secrets.ACR_TRAN_CLIENT_SECRET }}
