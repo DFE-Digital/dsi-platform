@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - chore/DSI-111-test-ci
+
+
+permissions:
+  id-token: write # Needed by 'azure/login'
+
 jobs:
   hello:
     runs-on: ubuntu-latest
