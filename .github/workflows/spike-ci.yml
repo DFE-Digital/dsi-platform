@@ -54,5 +54,5 @@ jobs:
       - name: Tag Docker image
         run:  docker tag testwebapp:latest ${{ vars.ACR_REGISTRY_TRAN }}/testwebapp:latest
 
-      #- name: Push Docker image
-      #  run: docker push ${{ vars.ACR_REGISTRY_TRAN }}/testwebapp:latest
+      - name: Push Docker image
+        run: docker push ${{ vars.ACR_REGISTRY_TRAN }}/testwebapp:latest
