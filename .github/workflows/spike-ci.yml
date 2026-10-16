@@ -12,6 +12,7 @@ permissions:
 jobs:
   hello:
     runs-on: ubuntu-latest
+    enviroment: 'Development Lifecycle'
     steps:
       - name: Say hello
         run: echo "Hello World"
