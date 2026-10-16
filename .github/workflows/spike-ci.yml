@@ -30,7 +30,7 @@ jobs:
       #    docker build -f temp/TestWebApp/Dockerfile -t testwebapp:latest \.
 
       - name: Login to Azure
-        uses: azure/login@v3
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
