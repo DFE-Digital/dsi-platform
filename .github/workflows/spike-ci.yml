@@ -22,17 +22,22 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: build project
-        run: dotnet build 'src/Dfe.SignIn.Core.Entities/Dfe.SignIn.Core.Entities.csproj' --configuration Release
+      #- name: build project
+      #  run: dotnet build 'src/Dfe.SignIn.Core.Entities/Dfe.SignIn.Core.Entities.csproj' --configuration Release
 
-      - name: Build Docker image
-        run: |
-          docker build -f temp/TestWebApp/Dockerfile -t testwebapp:latest \.
+      #- name: Build Docker image
+      #  run: |
+      #    docker build -f temp/TestWebApp/Dockerfile -t testwebapp:latest \.
 
-      - name: Log in to Azure Container Registry
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
+      - name: Login to Azure
+        uses: azure/login@v3
         with:
-          registry: ${{ vars.ACR_REGISTRY_TRAN }}
-          username: ${{ secrets[format('ACR_{0}_CLIENT_ID', secrets.ACR_TRAN_CLIENT_ID)] }}
-          password: ${{ secrets[format('ACR_{0}_CLIENT_SECRET', inputs.ACR_TRAN_CLIENT_SECRET)] }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      #- name: Log in to Azure Container Registry
+      #   uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
+      #   with:
+      #     registry: ${{ vars.ACR_REGISTRY_TRAN }}
+      #     username: ${{ secrets[format('ACR_{0}_CLIENT_ID', secrets.ACR_TRAN_CLIENT_ID)] }}
+      #     password: ${{ secrets[format('ACR_{0}_CLIENT_SECRET', inputs.ACR_TRAN_CLIENT_SECRET)] }}
     
