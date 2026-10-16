@@ -46,4 +46,4 @@ jobs:
         with:
            registry: ${{ vars.ACR_REGISTRY_TRAN }}
            username: ${{ secrets[format('ACR_{0}_CLIENT_ID', secrets.ACR_TRAN_CLIENT_ID)] }}
-           password: ${{ secrets[format('ACR_{0}_CLIENT_SECRET', inputs.ACR_TRAN_CLIENT_SECRET)] }}
+           password: ${{ secrets[format('ACR_{0}_CLIENT_SECRET', secrets.ACR_TRAN_CLIENT_SECRET)] }}
