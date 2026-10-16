@@ -19,6 +19,8 @@ jobs:
 
   build-container:
     runs-on: ubuntu-latest
+    environment: 'Development Lifecycle'
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
