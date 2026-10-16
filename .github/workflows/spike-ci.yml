@@ -33,9 +33,9 @@ jobs:
       #- name: build project
       #  run: dotnet build 'src/Dfe.SignIn.Core.Entities/Dfe.SignIn.Core.Entities.csproj' --configuration Release
 
-      #- name: Build Docker image
-      #  run: |
-      #    docker build -f temp/TestWebApp/Dockerfile -t testwebapp:latest \.
+      - name: Build Docker image
+        run: |
+          docker build -f temp/TestWebApp/Dockerfile -t testwebapp:latest \.
 
       #- name: Login to Azure
       #  uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
@@ -50,3 +50,9 @@ jobs:
            registry: ${{ vars.ACR_REGISTRY_TRAN }}
            username: ${{ secrets.ACR_TRAN_CLIENT_ID }}
            password: ${{ secrets.ACR_TRAN_CLIENT_SECRET }}
+
+      - name: Tag Docker image
+        run:  docker tag testwebapp:latest ${{ vars.ACR_REGISTRY_TRAN }}/testwebapp:latest
+
+      #- name: Push Docker image
+      #  run: docker push ${{ vars.ACR_REGISTRY_TRAN }}/testwebapp:latest
