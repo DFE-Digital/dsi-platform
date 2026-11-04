@@ -4,6 +4,7 @@ using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.Entities.Directories;
 using Dfe.SignIn.Core.Interfaces.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
 
@@ -22,7 +23,8 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 public sealed class CreateUserUseCase(
     IInteractionDispatcher interaction,
     IUnitOfWorkDirectories unitOfWork,
-    TimeProvider timeProvider
+    TimeProvider timeProvider,
+    ILogger<CreateUserUseCase> logger
 ) : Interactor<CreateUserRequest, CreateUserResponse>
 {
     /// <inheritdoc/>
@@ -40,6 +42,12 @@ public sealed class CreateUserUseCase(
                 .SingleOrDefaultAsync(cancellationToken);
 
         if (user is not null) {
+            logger.LogWarning(
+                "Cannot create user for Entra account '{EntraUserId}' ({EmailAddress}) because a user already exists with the same {Match}.",
+                context.Request.EntraUserId,
+                context.Request.EmailAddress,
+                user.Email.Equals(context.Request.EmailAddress, StringComparison.OrdinalIgnoreCase) ? "email address" : "Entra identity"
+            );
             throw user.Email.Equals(context.Request.EmailAddress, StringComparison.OrdinalIgnoreCase)
                 ? CannotCreateNewUserException.FromEmailAddress(context.Request.EmailAddress)
                 : throw CannotCreateNewUserException.FromEntraUserId(context.Request.EntraUserId);
@@ -60,7 +68,51 @@ public sealed class CreateUserUseCase(
         };
 
         await unitOfWork.AddAsync(newUser, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        try {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex)) {
+            // A concurrent request for the same Entra identity may have won the race to
+            // create this user (e.g. two simultaneous sign-ins for the same account).
+            // Email and EntraOid are each independently enforced as unique, so a row
+            // matching both values is the unambiguous race winner. A row matching only
+            // one of the two (e.g. the email is already used by a different Entra
+            // identity) is a genuine conflict, not a self-race - that must surface as
+            // the original exception rather than silently resolving to someone else's
+            // account.
+            var raceWinner = await unitOfWork.Repository<UserEntity>()
+                    .Where(x =>
+                        x.Email == context.Request.EmailAddress &&
+                        x.EntraOid == context.Request.EntraUserId)
+                    .Select(x => new { x.Sub })
+                    .SingleOrDefaultAsync(cancellationToken);
+
+            if (raceWinner is null) {
+                logger.LogError(
+                    ex,
+                    "Unique constraint violation creating user for Entra account '{EntraUserId}' ({EmailAddress}), but no existing user matches both values.",
+                    context.Request.EntraUserId,
+                    context.Request.EmailAddress
+                );
+                throw;
+            }
+
+            // The pending insert will never succeed; stop the context tracking it so a
+            // later SaveChanges in the same scope cannot try to insert it again.
+            unitOfWork.Remove(newUser);
+
+            logger.LogInformation(
+                "Registration race detected for Entra account '{EntraUserId}' ({EmailAddress}); returning existing user '{UserId}'.",
+                context.Request.EntraUserId,
+                context.Request.EmailAddress,
+                raceWinner.Sub
+            );
+
+            return new CreateUserResponse {
+                UserId = raceWinner.Sub
+            };
+        }
 
         await interaction.DispatchAsync(
             new UpdateUserInSearchIndexRequest {
@@ -71,5 +123,18 @@ public sealed class CreateUserUseCase(
         return new CreateUserResponse {
             UserId = newUser.Sub
         };
+    }
+
+    // SqlException's constructors are internal, so it can't be inspected by type/Number
+    // here without a hard dependency on Microsoft.Data.SqlClient in this layer. Matching
+    // on the well-known SQL Server unique-violation message text (2601: unique index,
+    // 2627: named unique constraint - this table has both, see UserEntityConfiguration)
+    // keeps this scoped to actual unique-constraint races, not any other DbUpdateException
+    // cause (e.g. FK violations, timeouts) that recovery-by-lookup would misinterpret.
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+    {
+        var message = ex.GetBaseException().Message;
+        return message.Contains("UNIQUE KEY constraint", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("duplicate key row", StringComparison.OrdinalIgnoreCase);
     }
 }

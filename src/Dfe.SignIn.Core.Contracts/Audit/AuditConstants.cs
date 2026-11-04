@@ -68,6 +68,13 @@ public static class AuditAuthEventNames
     /// Indicates that a new user was created and linked.
     /// </summary>
     public const string LinkToNewUser = "link-to-new-user";
+
+    /// <summary>
+    /// Indicates that linking an Entra account to a DfE Sign-In user failed. Some causes
+    /// are permanent (e.g. an inactive account) while others may self-heal on the user's
+    /// next sign-in (e.g. a registration race); see the audit message for guidance.
+    /// </summary>
+    public const string LinkFailed = "link-failed";
 }
 
 /// <summary>

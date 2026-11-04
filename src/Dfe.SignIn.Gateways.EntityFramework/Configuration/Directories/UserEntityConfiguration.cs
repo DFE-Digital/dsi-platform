@@ -19,6 +19,12 @@ internal sealed class UserEntityConfiguration : IEntityTypeConfiguration<UserEnt
                 .IsUnique()
                 .HasFilter("([entra_oid] IS NOT NULL)");
 
+        // Models the unique index only. Existing databases get it from the
+        // NSA-9931 script in login.dfe.db-scripts (schema/dirs-db/), not from an EF
+        // Core migration, which would need __EFMigrationsHistory baselining.
+        builder.HasIndex(e => e.Email, "IDX__user__email__unique")
+                .IsUnique();
+
         builder.Property(e => e.Sub)
                 .ValueGeneratedNever()
                 .HasColumnName("sub");
