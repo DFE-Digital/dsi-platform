@@ -198,6 +198,9 @@ public sealed class CreateUserUseCaseTests
             });
 
         Assert.AreEqual(raceWinnerId, response.UserId);
+
+        // The pending insert must be untracked so a later SaveChanges can't retry it.
+        mockUnitOfWork.Verify(u => u.Remove(It.IsAny<UserEntity>()), Times.Once);
     }
 
     [TestMethod]

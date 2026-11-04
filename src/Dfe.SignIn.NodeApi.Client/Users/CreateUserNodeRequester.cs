@@ -56,6 +56,11 @@ public sealed class CreateUserNodeRequester(
 
         var user = (await response.Content.ReadFromJsonAsync<CreateUserResponseDto>(CancellationToken.None))!;
 
+        logger.LogInformation(
+            "Directories API returned user '{UserId}' for Entra account '{EntraUserId}'.",
+            user.Id, context.Request.EntraUserId
+        );
+
         await interaction.DispatchAsync(
             new UpdateUserInSearchIndexRequest {
                 UserId = user!.Id

@@ -27,6 +27,12 @@ public sealed class TokenIssuanceStartHandler(
 
         @event.Validate();
 
+        logger.LogInformation(
+            "Linking Entra account {EntraUserId} to a DfE Sign-In user. CorrelationId: {CorrelationId}",
+            @event.Data.AuthenticationContext.User.Id,
+            @event.Data.AuthenticationContext.CorrelationId
+        );
+
         AutoLinkEntraUserToDsiResponse checkLinkedResponse;
         try {
             checkLinkedResponse = await interaction.DispatchAsync(
@@ -60,12 +66,16 @@ public sealed class TokenIssuanceStartHandler(
                 _ => "unexpected failure, see application logs for the full exception",
             };
 
+            // The exception itself is not passed to the logger: it is rethrown below, so the
+            // Functions host records it with its stack trace. This adds the context the
+            // host's entry lacks (which account, and the Entra correlation id).
             logger.LogError(
-                ex,
-                "Failed to link Entra account {EntraUserId} ({EmailAddress}) to a DfE Sign-In user. CorrelationId: {CorrelationId}",
+                "Failed to link Entra account {EntraUserId} ({EmailAddress}) to a DfE Sign-In user. CorrelationId: {CorrelationId}. {ExceptionType}: {Reason}",
                 @event.Data.AuthenticationContext.User.Id,
                 @event.Data.AuthenticationContext.User.Mail.Trim(),
-                @event.Data.AuthenticationContext.CorrelationId
+                @event.Data.AuthenticationContext.CorrelationId,
+                ex.GetType().Name,
+                ex.Message
             );
 
             try {
@@ -84,6 +94,13 @@ public sealed class TokenIssuanceStartHandler(
 
             throw;
         }
+
+        logger.LogInformation(
+            "Linked Entra account {EntraUserId} to DfE Sign-In user {UserId}. CorrelationId: {CorrelationId}",
+            @event.Data.AuthenticationContext.User.Id,
+            checkLinkedResponse.UserId,
+            @event.Data.AuthenticationContext.CorrelationId
+        );
 
         return ResponseAction(new ProvideClaimsForTokenAction {
             Claims = new() {
