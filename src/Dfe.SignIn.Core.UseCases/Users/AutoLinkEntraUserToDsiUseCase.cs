@@ -9,6 +9,7 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for automatically linking an Entra user to a DfE Sign-in user.
 /// </summary>
 /// <param name="interaction">Service to dispatch interaction requests.</param>
+/// <param name="logger">Service to write log entries.</param>
 public sealed class AutoLinkEntraUserToDsiUseCase(
     IInteractionDispatcher interaction,
     ILogger<AutoLinkEntraUserToDsiUseCase> logger
@@ -149,28 +150,14 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
                 }
             ).To<CreateUserResponse>();
         }
-        catch (CannotCreateNewUserException) {
-            // A concurrent request (e.g. a repeated token issuance for the same
-            // registration) may have created the DSI user between our lookups and the
-            // create. Look again rather than failing and leaving the Entra account
-            // orphaned; if there is still no matching user this is a genuine conflict.
-            logger.LogWarning(
-                "Creating a DfE Sign-In user for Entra account {EntraUserId} was refused as a conflict; checking for a user created concurrently.",
-                request.EntraUserId);
+        catch (CannotCreateNewUserException ex) {
+            var recoveredUserId = await this.RecoverFromCreateConflictAsync(request, ex);
 
-            var recoveredUserId = await this.GetExistingLinkedUserAsync(request)
-                ?? await this.LinkToExistingDsiUserAsync(request);
-
+            // Still no matching user: this is a genuine conflict.
             if (recoveredUserId is null) {
-                logger.LogError(
-                    "Create conflict for Entra account {EntraUserId} but no existing DfE Sign-In user could be found to link to.",
-                    request.EntraUserId);
                 throw;
             }
 
-            logger.LogInformation(
-                "Recovered from create conflict: Entra account {EntraUserId} resolved to DfE Sign-In user {UserId}.",
-                request.EntraUserId, recoveredUserId);
             return recoveredUserId.Value;
         }
 
@@ -182,5 +169,32 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
         });
 
         return createUserResponse.UserId;
+    }
+
+    // A concurrent request (e.g. a repeated token issuance for the same registration)
+    // may have created the DSI user between our lookups and the create. Look again
+    // rather than failing and leaving the Entra account orphaned.
+    private async Task<Guid?> RecoverFromCreateConflictAsync(
+        AutoLinkEntraUserToDsiRequest request, CannotCreateNewUserException conflict)
+    {
+        logger.LogWarning(
+            conflict,
+            "Creating a DfE Sign-In user for Entra account {EntraUserId} was refused as a conflict; checking for a user created concurrently.",
+            request.EntraUserId);
+
+        var recoveredUserId = await this.GetExistingLinkedUserAsync(request)
+            ?? await this.LinkToExistingDsiUserAsync(request);
+
+        if (recoveredUserId is null) {
+            logger.LogError(
+                "Create conflict for Entra account {EntraUserId} but no existing DfE Sign-In user could be found to link to.",
+                request.EntraUserId);
+            return null;
+        }
+
+        logger.LogInformation(
+            "Recovered from create conflict: Entra account {EntraUserId} resolved to DfE Sign-In user {UserId}.",
+            request.EntraUserId, recoveredUserId);
+        return recoveredUserId;
     }
 }
