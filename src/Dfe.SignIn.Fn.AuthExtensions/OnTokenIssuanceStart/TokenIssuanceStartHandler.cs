@@ -38,10 +38,7 @@ public sealed class TokenIssuanceStartHandler(
                 }
             ).To<AutoLinkEntraUserToDsiResponse>();
         }
-        catch (Exception ex) when (ex is CannotLinkInactiveUserException
-            or CannotCreateNewUserException
-            or UserAlreadyLinkedToEntraAccountException
-            or EntraAccountAlreadyLinkedToDifferentUserException) {
+        catch (Exception ex) {
             // CannotLinkInactiveUserException is a permanent failure requiring account
             // reactivation: retrying (e.g. on the user's next sign-in attempt) will hit the
             // same conflict every time. CannotCreateNewUserException is not reliably
@@ -50,14 +47,26 @@ public sealed class TokenIssuanceStartHandler(
             // will find the now-committed row by email via
             // AutoLinkEntraUserToDsiUseCase.LinkToExistingDsiUserAsync and self-heal. Other
             // linking-conflict exceptions indicate a genuine conflict that will not resolve
-            // without support intervention. Audit either way so support has visibility, then
+            // without support intervention. Any other exception (e.g. a failed call to the
+            // Node APIs) is just as capable of leaving an orphaned Entra account, so it is
+            // logged and audited too. Audit either way so support has visibility, then
             // rethrow — this extension point has no way to return a custom error response to
             // Entra, only claims for a successful token.
             string outcomeGuidance = ex switch {
                 CannotLinkInactiveUserException => "permanent failure requiring account reactivation",
                 CannotCreateNewUserException => "may self-heal on the user's next sign-in if this was a registration race, but investigate if recurring for the same account",
-                _ => "permanent failure requiring support investigation",
+                UserAlreadyLinkedToEntraAccountException
+                    or EntraAccountAlreadyLinkedToDifferentUserException => "permanent failure requiring support investigation",
+                _ => "unexpected failure, see application logs for the full exception",
             };
+
+            logger.LogError(
+                ex,
+                "Failed to link Entra account {EntraUserId} ({EmailAddress}) to a DfE Sign-In user. CorrelationId: {CorrelationId}",
+                @event.Data.AuthenticationContext.User.Id,
+                @event.Data.AuthenticationContext.User.Mail.Trim(),
+                @event.Data.AuthenticationContext.CorrelationId
+            );
 
             try {
                 await interaction.DispatchAsync(new WriteToAuditRequest {

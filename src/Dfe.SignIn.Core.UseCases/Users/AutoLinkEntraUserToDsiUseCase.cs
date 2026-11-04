@@ -110,14 +110,31 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
         }
 
         // Create new user in system and link to the associated Entra user.
-        var createUserResponse = await interaction.DispatchAsync(
-            new CreateUserRequest {
-                EntraUserId = request.EntraUserId,
-                EmailAddress = request.EmailAddress,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
+        CreateUserResponse createUserResponse;
+        try {
+            createUserResponse = await interaction.DispatchAsync(
+                new CreateUserRequest {
+                    EntraUserId = request.EntraUserId,
+                    EmailAddress = request.EmailAddress,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                }
+            ).To<CreateUserResponse>();
+        }
+        catch (CannotCreateNewUserException) {
+            // A concurrent request (e.g. a repeated token issuance for the same
+            // registration) may have created the DSI user between our lookups and the
+            // create. Look again rather than failing and leaving the Entra account
+            // orphaned; if there is still no matching user this is a genuine conflict.
+            var recoveredUserId = await this.GetExistingLinkedUserAsync(request)
+                ?? await this.LinkToExistingDsiUserAsync(request);
+
+            if (recoveredUserId is null) {
+                throw;
             }
-        ).To<CreateUserResponse>();
+
+            return recoveredUserId.Value;
+        }
 
         await interaction.DispatchAsync(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.Auth,

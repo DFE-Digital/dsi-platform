@@ -255,6 +255,30 @@ public class TokenIssuanceStartHandlerTests
     }
 
     [TestMethod]
+    public async Task WritesAuditAndRethrows_WhenUnexpectedExceptionOccurs()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.MockThrows<AutoLinkEntraUserToDsiRequest>(new HttpRequestException("Directories API unavailable."));
+
+        var capturedWriteToAudit = new List<WriteToAuditRequest>();
+        autoMocker.CaptureRequest<WriteToAuditRequest>(capturedWriteToAudit.Add);
+
+        var handler = autoMocker.CreateInstance<TokenIssuanceStartHandler>();
+
+        var fakeRequest = HttpServerMocking.CreateJsonRequest(FakeEvent);
+
+        await Assert.ThrowsAsync<HttpRequestException>(()
+            => handler.Run(fakeRequest));
+
+        Assert.HasCount(1, capturedWriteToAudit);
+        Assert.AreEqual(AuditAuthEventNames.LinkFailed, capturedWriteToAudit[0].EventName);
+        Assert.IsTrue(capturedWriteToAudit[0].WasFailure);
+        StringAssert.Contains(capturedWriteToAudit[0].Message, "HttpRequestException");
+        StringAssert.Contains(capturedWriteToAudit[0].Message, "unexpected failure");
+    }
+
+    [TestMethod]
     public async Task RethrowsOriginalException_WhenAuditDispatchItselfThrows()
     {
         var autoMocker = new AutoMocker();
