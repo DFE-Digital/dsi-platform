@@ -1,6 +1,8 @@
+using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.Core.UseCases.Users;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Core.UseCases.UnitTests.Users;
@@ -306,6 +308,111 @@ public sealed class AutoLinkEntraUserToDsiUseCaseTests
             UserId = expectedDsiUserId,
         };
         Assert.Contains(expectedAuditRequest, capturedWriteToAudit);
+    }
+
+    [TestMethod]
+    public async Task NewUser_LinksToExistingUser_WhenCreateFailsBecauseConcurrentRequestCreatedIt()
+    {
+        var autoMocker = new AutoMocker();
+
+        var capturedWriteToAudit = new List<WriteToAuditRequest>();
+        autoMocker.CaptureRequest<WriteToAuditRequest>(capturedWriteToAudit.Add);
+
+        autoMocker.MockResponse(
+            new GetUserStatusRequest {
+                EntraUserId = new Guid("c64bc171-ceef-4656-b22d-43918c14210f"),
+            },
+            new GetUserStatusResponse {
+                UserExists = false,
+            }
+        );
+
+        // No DSI user exists for the first email lookup, but a concurrent request has
+        // created one by the time the create fails and the lookup is repeated.
+        autoMocker.GetMock<IInteractionDispatcher>()
+            .SetupSequence(x => x.DispatchAsync(
+                It.Is<InteractionContext<GetUserStatusRequest>>(
+                    c => c.Request.EmailAddress == "jo.bradford@example.com")))
+            .Returns(InteractionTask.FromResult(new GetUserStatusResponse {
+                UserExists = false,
+            }))
+            .Returns(InteractionTask.FromResult(new GetUserStatusResponse {
+                UserExists = true,
+                UserId = new Guid("cfc50de5-d4d5-42c4-b27c-ac2130f47ef2"),
+                AccountStatus = AccountStatus.Active,
+            }));
+
+        autoMocker.MockResponse(
+            new CompleteAnyPendingInvitationRequest {
+                EmailAddress = "jo.bradford@example.com",
+                EntraUserId = new Guid("c64bc171-ceef-4656-b22d-43918c14210f"),
+            },
+            new CompleteAnyPendingInvitationResponse {
+                WasCompleted = false,
+            }
+        );
+
+        autoMocker.MockThrows<CreateUserRequest>(
+            CannotCreateNewUserException.FromEmailAddress("jo.bradford@example.com"));
+
+        autoMocker.MockResponse(
+            new LinkEntraUserToDsiRequest {
+                DsiUserId = new Guid("cfc50de5-d4d5-42c4-b27c-ac2130f47ef2"),
+                EntraUserId = new Guid("c64bc171-ceef-4656-b22d-43918c14210f"),
+                FirstName = "Jo",
+                LastName = "Bradford",
+            },
+            new LinkEntraUserToDsiResponse()
+        );
+
+        var interactor = autoMocker.CreateInstance<AutoLinkEntraUserToDsiUseCase>();
+
+        var response = await interactor.InvokeAsync(FakeRequest);
+
+        Assert.AreEqual(new Guid("cfc50de5-d4d5-42c4-b27c-ac2130f47ef2"), response.UserId);
+        Assert.IsTrue(capturedWriteToAudit.Exists(x => x.EventName == AuditAuthEventNames.LinkToExistingUser));
+    }
+
+    [TestMethod]
+    public async Task NewUser_Throws_WhenCreateFailsAndNoExistingUserCanBeFound()
+    {
+        var autoMocker = new AutoMocker();
+
+        autoMocker.MockResponse(
+            new GetUserStatusRequest {
+                EntraUserId = new Guid("c64bc171-ceef-4656-b22d-43918c14210f"),
+            },
+            new GetUserStatusResponse {
+                UserExists = false,
+            }
+        );
+
+        autoMocker.MockResponse(
+            new GetUserStatusRequest {
+                EmailAddress = "jo.bradford@example.com",
+            },
+            new GetUserStatusResponse {
+                UserExists = false,
+            }
+        );
+
+        autoMocker.MockResponse(
+            new CompleteAnyPendingInvitationRequest {
+                EmailAddress = "jo.bradford@example.com",
+                EntraUserId = new Guid("c64bc171-ceef-4656-b22d-43918c14210f"),
+            },
+            new CompleteAnyPendingInvitationResponse {
+                WasCompleted = false,
+            }
+        );
+
+        autoMocker.MockThrows<CreateUserRequest>(
+            CannotCreateNewUserException.FromEmailAddress("jo.bradford@example.com"));
+
+        var interactor = autoMocker.CreateInstance<AutoLinkEntraUserToDsiUseCase>();
+
+        await Assert.ThrowsExactlyAsync<CannotCreateNewUserException>(()
+            => interactor.InvokeAsync(FakeRequest));
     }
 
     #endregion

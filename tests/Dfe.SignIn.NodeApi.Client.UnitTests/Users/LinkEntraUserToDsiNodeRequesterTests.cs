@@ -1,6 +1,8 @@
 using System.Net;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.Users;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
 
@@ -24,7 +26,9 @@ public sealed class LinkEntraUserToDsiNodeRequesterTests
             BaseAddress = new Uri("http://directories.localhost")
         };
 
-        return new LinkEntraUserToDsiNodeRequester(directoriesClient);
+        return new LinkEntraUserToDsiNodeRequester(
+            directoriesClient,
+            Mock.Of<ILogger<LinkEntraUserToDsiNodeRequester>>());
     }
 
     [TestMethod]

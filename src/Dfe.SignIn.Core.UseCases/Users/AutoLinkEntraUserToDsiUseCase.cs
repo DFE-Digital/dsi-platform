@@ -1,6 +1,7 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Users;
+using Microsoft.Extensions.Logging;
 
 namespace Dfe.SignIn.Core.UseCases.Users;
 
@@ -8,8 +9,10 @@ namespace Dfe.SignIn.Core.UseCases.Users;
 /// Use case for automatically linking an Entra user to a DfE Sign-in user.
 /// </summary>
 /// <param name="interaction">Service to dispatch interaction requests.</param>
+/// <param name="logger">Service to write log entries.</param>
 public sealed class AutoLinkEntraUserToDsiUseCase(
-    IInteractionDispatcher interaction
+    IInteractionDispatcher interaction,
+    ILogger<AutoLinkEntraUserToDsiUseCase> logger
 ) : Interactor<AutoLinkEntraUserToDsiRequest, AutoLinkEntraUserToDsiResponse>
 {
     /// <inheritdoc/>
@@ -40,14 +43,23 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
         ).To<GetUserStatusResponse>();
 
         if (!userStatusResponse.UserExists) {
+            logger.LogInformation(
+                "No DfE Sign-In user is linked to Entra account {EntraUserId}.",
+                request.EntraUserId);
             return null;
         }
 
         // User exists in the system; are they an active user though?
         if (userStatusResponse.AccountStatus != AccountStatus.Active) {
+            logger.LogWarning(
+                "Entra account {EntraUserId} is linked to DfE Sign-In user {UserId} whose account status is {AccountStatus}.",
+                request.EntraUserId, userStatusResponse.UserId, userStatusResponse.AccountStatus);
             throw new CannotLinkInactiveUserException();
         }
 
+        logger.LogInformation(
+            "Entra account {EntraUserId} is already linked to DfE Sign-In user {UserId}.",
+            request.EntraUserId, userStatusResponse.UserId);
         return userStatusResponse.UserId;
     }
 
@@ -61,13 +73,23 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
         ).To<GetUserStatusResponse>();
 
         if (!userStatusResponse.UserExists) {
+            logger.LogInformation(
+                "No existing DfE Sign-In user matches the email address of Entra account {EntraUserId}.",
+                request.EntraUserId);
             return null;
         }
 
         // User exists in the system; are they an active user though?
         if (userStatusResponse.AccountStatus != AccountStatus.Active) {
+            logger.LogWarning(
+                "Existing DfE Sign-In user {UserId} matching Entra account {EntraUserId} has account status {AccountStatus}.",
+                userStatusResponse.UserId, request.EntraUserId, userStatusResponse.AccountStatus);
             throw new CannotLinkInactiveUserException();
         }
+
+        logger.LogInformation(
+            "Linking Entra account {EntraUserId} to existing DfE Sign-In user {UserId}.",
+            request.EntraUserId, userStatusResponse.UserId);
 
         await interaction.DispatchAsync(
             new LinkEntraUserToDsiRequest {
@@ -106,18 +128,38 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
                 UserId = completeAnyPendingInvitationResponse.UserId,
             });
 
+            logger.LogInformation(
+                "Linked Entra account {EntraUserId} to pending invitation user {UserId}.",
+                request.EntraUserId, completeAnyPendingInvitationResponse.UserId);
             return completeAnyPendingInvitationResponse.UserId.Value;
         }
 
         // Create new user in system and link to the associated Entra user.
-        var createUserResponse = await interaction.DispatchAsync(
-            new CreateUserRequest {
-                EntraUserId = request.EntraUserId,
-                EmailAddress = request.EmailAddress,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
+        logger.LogInformation(
+            "No existing user or pending invitation for Entra account {EntraUserId}; creating a new DfE Sign-In user.",
+            request.EntraUserId);
+
+        CreateUserResponse createUserResponse;
+        try {
+            createUserResponse = await interaction.DispatchAsync(
+                new CreateUserRequest {
+                    EntraUserId = request.EntraUserId,
+                    EmailAddress = request.EmailAddress,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                }
+            ).To<CreateUserResponse>();
+        }
+        catch (CannotCreateNewUserException ex) {
+            var recoveredUserId = await this.RecoverFromCreateConflictAsync(request, ex);
+
+            // Still no matching user: this is a genuine conflict.
+            if (recoveredUserId is null) {
+                throw;
             }
-        ).To<CreateUserResponse>();
+
+            return recoveredUserId.Value;
+        }
 
         await interaction.DispatchAsync(new WriteToAuditRequest {
             EventCategory = AuditEventCategoryNames.Auth,
@@ -127,5 +169,32 @@ public sealed class AutoLinkEntraUserToDsiUseCase(
         });
 
         return createUserResponse.UserId;
+    }
+
+    // A concurrent request (e.g. a repeated token issuance for the same registration)
+    // may have created the DSI user between our lookups and the create. Look again
+    // rather than failing and leaving the Entra account orphaned.
+    private async Task<Guid?> RecoverFromCreateConflictAsync(
+        AutoLinkEntraUserToDsiRequest request, CannotCreateNewUserException conflict)
+    {
+        logger.LogWarning(
+            conflict,
+            "Creating a DfE Sign-In user for Entra account {EntraUserId} was refused as a conflict; checking for a user created concurrently.",
+            request.EntraUserId);
+
+        var recoveredUserId = await this.GetExistingLinkedUserAsync(request)
+            ?? await this.LinkToExistingDsiUserAsync(request);
+
+        if (recoveredUserId is null) {
+            logger.LogError(
+                "Create conflict for Entra account {EntraUserId} but no existing DfE Sign-In user could be found to link to.",
+                request.EntraUserId);
+            return null;
+        }
+
+        logger.LogInformation(
+            "Recovered from create conflict: Entra account {EntraUserId} resolved to DfE Sign-In user {UserId}.",
+            request.EntraUserId, recoveredUserId);
+        return recoveredUserId;
     }
 }

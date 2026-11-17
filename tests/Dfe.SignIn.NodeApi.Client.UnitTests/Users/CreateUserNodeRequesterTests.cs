@@ -3,6 +3,7 @@ using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts.Search;
 using Dfe.SignIn.Core.Contracts.Users;
 using Dfe.SignIn.NodeApi.Client.Users;
+using Microsoft.Extensions.Logging;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.NodeApi.Client.UnitTests.Users;
@@ -39,7 +40,10 @@ public sealed class CreateUserNodeRequesterTests
             BaseAddress = new Uri("http://directories.localhost")
         };
 
-        return new CreateUserNodeRequester(directoriesClient, autoMocker.Get<IInteractionDispatcher>());
+        return new CreateUserNodeRequester(
+            directoriesClient,
+            autoMocker.Get<IInteractionDispatcher>(),
+            autoMocker.Get<ILogger<CreateUserNodeRequester>>());
     }
 
     [TestMethod]
@@ -71,6 +75,26 @@ public sealed class CreateUserNodeRequesterTests
         var interactor = CreateCreateUserNodeRequester(responseMappings, autoMocker);
 
         await Assert.ThrowsExactlyAsync<HttpRequestException>(() =>
+            interactor.InvokeAsync(new CreateUserRequest {
+                EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
+                EmailAddress = "jo.bradford@example.com",
+                FirstName = "Jo",
+                LastName = "Bradford",
+            }));
+    }
+
+    [TestMethod]
+    public async Task Throws_CannotCreateNewUser_WhenDirectoriesApiReportsConflict()
+    {
+        var responseMappings = GetNodeResponseMappingsForHappyPath();
+
+        responseMappings["(POST) http://directories.localhost/users"] =
+            new MappedResponse(HttpStatusCode.Conflict);
+
+        var autoMocker = new AutoMocker();
+        var interactor = CreateCreateUserNodeRequester(responseMappings, autoMocker);
+
+        await Assert.ThrowsExactlyAsync<CannotCreateNewUserException>(() =>
             interactor.InvokeAsync(new CreateUserRequest {
                 EntraUserId = new Guid("207ec104-8569-4d80-9d16-5f7e1516ae01"),
                 EmailAddress = "jo.bradford@example.com",

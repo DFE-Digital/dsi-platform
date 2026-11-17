@@ -125,5 +125,7 @@
     <!-- Mocking -->
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Moq.AutoMock" Version="3.5.0" />
+    <!-- Relational-constraint testing (EF Core InMemory provider does not enforce unique indexes) -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
   </ItemGroup>
 </Project>
