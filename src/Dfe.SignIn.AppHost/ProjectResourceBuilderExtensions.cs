@@ -66,34 +66,6 @@ public static class ProjectResourceBuilderExtensions
     }
 
     /// <summary>
-    /// Configures the resource with frontend asset settings, including the internal API client base address and a dependency on the internal API resource.
-    /// </summary>
-    /// <param name="builder">The resource builder.</param>
-    /// <param name="frontendAssets"></param>
-    /// <param name="configuration"></param>
-    /// <returns>The resource builder.</returns>
-    public static IResourceBuilder<ProjectResource> WithFrontendAssets(
-        this IResourceBuilder<ProjectResource> builder,
-        IResourceBuilder<ContainerResource> frontendAssets,
-        IConfiguration configuration)
-    {
-        var assets = configuration.GetSection("Assets");
-        var appHostConfig = configuration.GetSection("Components:Frontend");
-        var useHostedAssets = appHostConfig.GetValue<bool>("UseHostedAssets");
-
-        if (useHostedAssets) {
-            builder = builder.WithEnvironment("Assets__BaseAddress", assets["BaseAddress"]);
-        }
-        else {
-            builder = builder.WithEnvironment("Assets__BaseAddress", frontendAssets.GetEndpoint("http"));
-        }
-
-        return builder
-            .WithEnvironment("Assets__FrontendVersion", assets["FrontendVersion"])
-            .WaitFor(frontendAssets);
-    }
-
-    /// <summary>
     /// Configures the resource with notification-related environment variables from the application configuration.
     /// </summary>
     /// <param name="builder"></param>

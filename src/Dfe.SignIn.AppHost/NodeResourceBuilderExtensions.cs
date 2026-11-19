@@ -10,7 +10,7 @@ public static class NodeResourceBuilderExtensions
 {
     /// <summary>
     /// Adds a Node.js platform application resource with preconfigured HTTPS endpoint, environment variables, and
-    /// optional Redis and frontend endpoint integration.
+    /// optional Redis integration.
     /// </summary>
     /// <param name="builder">The distributed application builder.</param>
     /// <param name="name">The name of the resource.</param>
@@ -18,7 +18,6 @@ public static class NodeResourceBuilderExtensions
     /// <param name="appName">The name of the application subdirectory within the root directory.</param>
     /// <param name="port">The port number for the HTTPS endpoint.</param>
     /// <param name="redisConnectionString">Optional Redis connection string reference to be configured as LOCAL_REDIS_CONN environment variable.</param>
-    /// <param name="frontendEndpoint">Optional frontend endpoint reference to be configured for CDN settings.</param>
     /// <param name="scriptName">The npm script to execute. Defaults to "start".</param>
     /// <param name="envFileName">The environment file name to load. Defaults to ".env".</param>
     /// <returns>A resource builder for the Node.js application resource.</returns>
@@ -29,7 +28,6 @@ public static class NodeResourceBuilderExtensions
         string appName,
         int port,
         ReferenceExpression? redisConnectionString = null,
-        EndpointReference? frontendEndpoint = null,
         string scriptName = "start",
         string envFileName = ".env")
     {
@@ -37,12 +35,6 @@ public static class NodeResourceBuilderExtensions
             .WithHttpsEndpoint(port: port, targetPort: port, env: "PORT", isProxied: false)
             .WithEnvFile($"{nodeRootDir}/{envFileName}")  // loads .env defaults first
             .WithEnvironment("NODE_TLS_REJECT_UNAUTHORIZED", "0");
-
-        if (frontendEndpoint is not null) {
-            npmApp.WithEnvironment("Assets__BaseAddress", frontendEndpoint);
-            npmApp.WithEnvironment("CDN_BASE_ADDRESS", frontendEndpoint);
-            npmApp.WithEnvironment("CDN_HOST_NAME", frontendEndpoint);
-        }
 
         if (redisConnectionString is not null) {
             npmApp.WithEnvironment("LOCAL_REDIS_CONN", redisConnectionString);

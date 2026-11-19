@@ -47,8 +47,6 @@ var nodeRedisConnectionString = ReferenceExpression.Create(
 var frontend = builder.AddDockerfile("infra-frontend", "../../", "docker/frontend/Dockerfile")
     .WithHttpEndpoint(targetPort: 8080, name: "http");
 
-var frontendEndpoint = frontend.GetEndpoint("http");
-
 // Extract shared configuration sections to easily reuse them across projects
 var govNotifyConfig = builder.Configuration.GetSection("GovNotify");
 var supportEmailConfig = builder.Configuration.GetSection("RaiseSupportTicketByEmail");
@@ -163,20 +161,23 @@ var nodeEnvFileName = builder.Configuration["NodeEnvFileName"]
 // Node components
 IResourceBuilder<NodeAppResource>? oidc = null;
 if (nodeComponents.GetValue("OidcEnabled", true)) {
-    oidc = builder.AddNodePlatformApp("node-oidc", nodeRootDir, "login.dfe.oidc", 4436, nodeRedisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName, scriptName: "dev")
+    oidc = builder.AddNodePlatformApp("node-oidc", nodeRootDir, "login.dfe.oidc", 4436, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+    .WithFrontendAssets(frontend, builder.Configuration)
     .WithNpmPackageInstallation()
     .WaitFor(redis);
 }
 
 IResourceBuilder<NodeAppResource>? interactor = null;
 if (nodeComponents.GetValue("InteractionsEnabled", true)) {
-    interactor = builder.AddNodePlatformApp("node-interactions", nodeRootDir, "login.dfe.interactions", 4431, nodeRedisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName, scriptName: "dev")
+    interactor = builder.AddNodePlatformApp("node-interactions", nodeRootDir, "login.dfe.interactions", 4431, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+    .WithFrontendAssets(frontend, builder.Configuration)
     .WithNpmPackageInstallation()
     .WaitForIfPresent(oidc);
 }
 
 if (nodeComponents.GetValue("ServicesEnabled", true)) {
-    builder.AddNodePlatformApp("node-services", nodeRootDir, "login.dfe.services", 41012, nodeRedisConnectionString, frontendEndpoint, envFileName: nodeEnvFileName)
+    builder.AddNodePlatformApp("node-services", nodeRootDir, "login.dfe.services", 41012, nodeRedisConnectionString, envFileName: nodeEnvFileName)
+    .WithFrontendAssets(frontend, builder.Configuration)
     .WithNpmPackageInstallation()
     .WaitForIfPresent(oidc)
     .WaitForIfPresent(interactor);

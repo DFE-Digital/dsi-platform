@@ -129,6 +129,20 @@ aspire stop
 | `node-services`     | Node Services app on port 41012 — conditional on `Components:Node:ServicesEnabled` (default: true)        |
 | `tool-tls-proxy`    | Local TLS proxy (`Start-DsiTlsProxy` PowerShell function)                                                 |
 
+## Frontend assets
+
+Both .NET and Node apps use `WithFrontendAssets(frontend, builder.Configuration)`.
+The overloads share address selection and dependency wiring in `FrontendResourceBuilderExtensions`.
+Set `Components:Frontend:UseHostedAssets` to `true` to use `Assets:BaseAddress`,
+or `false` to use the local `infra-frontend` HTTP endpoint.
+Node apps require a non-empty `Assets:BaseAddress` when hosted assets are enabled.
+
+For Node apps, this sets `Assets__BaseAddress`, `CDN_BASE_ADDRESS`, and `CDN_HOST_NAME`,
+overriding values loaded from the Node environment file. Node apps use the asset URL
+directly; `Assets:FrontendVersion` remains a .NET-only setting.
+
+In both modes, apps wait for `infra-frontend`, matching the existing .NET behavior.
+
 ## Aspire dashboard
 
 The dashboard is available at the URL printed to the console on startup (typically `http://localhost:15142`). Use it to view logs, traces, and the state of all resources.
