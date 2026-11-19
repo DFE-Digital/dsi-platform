@@ -1,17 +1,13 @@
-﻿<Project Sdk="Aspire.AppHost.Sdk/13.4.0">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Dfe.SignIn.Web.Help\Dfe.SignIn.Web.Help.csproj" />
-    <ProjectReference Include="..\Dfe.SignIn.Web.Profile\Dfe.SignIn.Web.Profile.csproj" />
-    <ProjectReference Include="..\Dfe.SignIn.InternalApi\Dfe.SignIn.InternalApi.csproj" />
-    <ProjectReference Include="..\Dfe.SignIn.PublicApi\Dfe.SignIn.PublicApi.csproj" />
-      <ProjectReference Include="..\Dfe.SignIn.InternalApi\Dfe.SignIn.InternalApi.csproj" />
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Dotnet" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Redis" />
-	<PackageReference Include="Aspire.Hosting.NodeJs" />
-	<PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" />	  
     <PackageReference Include="MessagePack" />	  
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" />
   </ItemGroup>

@@ -1,4 +1,7 @@
 using System.Reflection;
+using Aspire.Hosting;
+using Aspire.Hosting.Dotnet;
+using Aspire.Hosting.JavaScript;
 using Azure.Identity;
 using Dfe.SignIn.AppHost;
 using Microsoft.Extensions.Configuration;
@@ -64,7 +67,8 @@ var dotNetComponents = builder.Configuration.GetSection("Components:DotNet");
 var nodeComponents = builder.Configuration.GetSection("Components:Node");
 
 if (dotNetComponents.GetValue("HelpEnabled", true)) {
-    builder.AddProject<Projects.Dfe_SignIn_Web_Help>("app-help", launchProfileName: "http")
+    builder.AddDotnetProject("app-help", "../Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj",
+            options => options.LaunchProfileName = "http")
         .WithDefaultConfiguration(builder.Configuration)
         .WithHostedInternalApiSettings(builder.Configuration)
         .WithPlatformSettings(builder.Configuration)
@@ -76,7 +80,8 @@ if (dotNetComponents.GetValue("HelpEnabled", true)) {
         .WaitFor(redis);
 }
 
-var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-internal-api", launchProfileName: "http")
+var internalApi = builder.AddDotnetProject("app-internal-api", "../Dfe.SignIn.InternalApi/Dfe.SignIn.InternalApi.csproj",
+        options => options.LaunchProfileName = "http")
     .WithDefaultConfiguration(builder.Configuration)
     .WithServiceBusAuditingSettings(serviceBusConfig)
     .WithHostedInternalApiSettings(builder.Configuration)
@@ -99,7 +104,8 @@ var internalApi = builder.AddProject<Projects.Dfe_SignIn_InternalApi>("app-inter
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"]);
 
 if (dotNetComponents.GetValue("ProfileEnabled", true)) {
-    builder.AddProject<Projects.Dfe_SignIn_Web_Profile>("app-profile", launchProfileName: "http")
+    builder.AddDotnetProject("app-profile", "../Dfe.SignIn.Web.Profile/Dfe.SignIn.Web.Profile.csproj",
+            options => options.LaunchProfileName = "http")
         .WithDefaultConfiguration(builder.Configuration)
         .WithPlatformSettings(builder.Configuration)
         .WithFrontendAssets(frontend, builder.Configuration)
@@ -124,7 +130,8 @@ if (dotNetComponents.GetValue("ProfileEnabled", true)) {
 }
 
 if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
-    builder.AddProject<Projects.Dfe_SignIn_PublicApi>("app-public-api", launchProfileName: "http")
+    builder.AddDotnetProject("app-public-api", "../Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj",
+            options => options.LaunchProfileName = "http")
         .WithDefaultConfiguration(builder.Configuration)
         .WithPlatformSettings(builder.Configuration)
         .WithFrontendAssets(frontend, builder.Configuration)
@@ -159,26 +166,23 @@ var nodeEnvFileName = builder.Configuration["NodeEnvFileName"]
     ?? throw new InvalidOperationException("NodeEnvFileName is not configured.");
 
 // Node components
-IResourceBuilder<NodeAppResource>? oidc = null;
+IResourceBuilder<JavaScriptAppResource>? oidc = null;
 if (nodeComponents.GetValue("OidcEnabled", true)) {
     oidc = builder.AddNodePlatformApp("node-oidc", nodeRootDir, "login.dfe.oidc", 4436, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
     .WithFrontendAssets(frontend, builder.Configuration)
-    .WithNpmPackageInstallation()
     .WaitFor(redis);
 }
 
-IResourceBuilder<NodeAppResource>? interactor = null;
+IResourceBuilder<JavaScriptAppResource>? interactor = null;
 if (nodeComponents.GetValue("InteractionsEnabled", true)) {
     interactor = builder.AddNodePlatformApp("node-interactions", nodeRootDir, "login.dfe.interactions", 4431, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
     .WithFrontendAssets(frontend, builder.Configuration)
-    .WithNpmPackageInstallation()
     .WaitForIfPresent(oidc);
 }
 
 if (nodeComponents.GetValue("ServicesEnabled", true)) {
     builder.AddNodePlatformApp("node-services", nodeRootDir, "login.dfe.services", 41012, nodeRedisConnectionString, envFileName: nodeEnvFileName)
     .WithFrontendAssets(frontend, builder.Configuration)
-    .WithNpmPackageInstallation()
     .WaitForIfPresent(oidc)
     .WaitForIfPresent(interactor);
 }

@@ -1,9 +1,10 @@
+using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.Dotnet;
+using Aspire.Hosting.JavaScript;
 using Microsoft.Extensions.Configuration;
 
 namespace Dfe.SignIn.AppHost;
-
-// Review the difference between ProjectResource and NodeResource?
-
 
 /// <summary>
 /// Provides shared frontend asset configuration for .NET and Node.js resources.
@@ -17,8 +18,8 @@ public static class FrontendResourceBuilderExtensions
     /// <param name="frontendAssets">The local frontend asset resource.</param>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The resource builder.</returns>
-    public static IResourceBuilder<ProjectResource> WithFrontendAssets(
-        this IResourceBuilder<ProjectResource> builder,
+    public static IResourceBuilder<DotnetProjectResource> WithFrontendAssets(
+        this IResourceBuilder<DotnetProjectResource> builder,
         IResourceBuilder<ContainerResource> frontendAssets,
         IConfiguration configuration)
     {
@@ -33,8 +34,8 @@ public static class FrontendResourceBuilderExtensions
     /// <param name="frontendAssets">The local frontend asset resource.</param>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The resource builder.</returns>
-    public static IResourceBuilder<NodeAppResource> WithFrontendAssets(
-        this IResourceBuilder<NodeAppResource> builder,
+    public static IResourceBuilder<JavaScriptAppResource> WithFrontendAssets(
+        this IResourceBuilder<JavaScriptAppResource> builder,
         IResourceBuilder<ContainerResource> frontendAssets,
         IConfiguration configuration)
     {

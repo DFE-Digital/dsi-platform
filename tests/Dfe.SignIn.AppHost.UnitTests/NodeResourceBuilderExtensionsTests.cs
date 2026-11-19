@@ -60,7 +60,8 @@ public sealed class NodeResourceBuilderExtensionsTests
             }
 
             Assert.AreEqual("preserved", environment["UNCHANGED_SETTING"]);
-            var dependency = node.Resource.Annotations.OfType<WaitAnnotation>().Single();
+            var dependency = node.Resource.Annotations.OfType<WaitAnnotation>()
+                .Single(annotation => ReferenceEquals(annotation.Resource, frontend.Resource));
             Assert.AreSame(frontend.Resource, dependency.Resource);
             Assert.AreEqual(WaitType.WaitUntilHealthy, dependency.WaitType);
         }
@@ -84,7 +85,7 @@ public sealed class NodeResourceBuilderExtensionsTests
             ["Assets:BaseAddress"] = baseAddress
         });
         var frontend = builder.AddContainer("frontend", "nginx").WithHttpEndpoint(targetPort: 8080);
-        var node = builder.AddNpmApp("node", Path.GetTempPath());
+        var node = builder.AddJavaScriptApp("node", Path.GetTempPath()).WithNpm();
 
         var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
             node.WithFrontendAssets(frontend, builder.Configuration));

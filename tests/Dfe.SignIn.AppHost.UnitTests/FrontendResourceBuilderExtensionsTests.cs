@@ -1,3 +1,4 @@
+using Aspire.Hosting.Dotnet;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +27,8 @@ public sealed class FrontendResourceBuilderExtensionsTests
             .WithHttpEndpoint(targetPort: 8080, name: "http");
         var endpoint = frontend.Resource.Annotations.OfType<EndpointAnnotation>().Single();
         endpoint.AllocatedEndpoint = new AllocatedEndpoint(endpoint, "localhost", 8080);
-        var project = builder.AddResource(new ProjectResource("project"));
+        var project = builder.AddDotnetProject("project", Path.Combine(Path.GetTempPath(), "project.csproj"),
+            options => options.ExcludeLaunchProfile = true);
 
         var result = project.WithFrontendAssets(frontend, builder.Configuration);
 
@@ -43,7 +45,8 @@ public sealed class FrontendResourceBuilderExtensionsTests
         Assert.AreEqual("12.0.10", environment["Assets__FrontendVersion"]);
         Assert.IsFalse(environment.ContainsKey("CDN_BASE_ADDRESS"));
         Assert.IsFalse(environment.ContainsKey("CDN_HOST_NAME"));
-        var dependency = project.Resource.Annotations.OfType<WaitAnnotation>().Single();
+        var dependency = project.Resource.Annotations.OfType<WaitAnnotation>()
+            .Single(annotation => ReferenceEquals(annotation.Resource, frontend.Resource));
         Assert.AreSame(frontend.Resource, dependency.Resource);
         Assert.AreEqual(WaitType.WaitUntilHealthy, dependency.WaitType);
     }
@@ -60,7 +63,8 @@ public sealed class FrontendResourceBuilderExtensionsTests
             ["Assets:BaseAddress"] = null
         });
         var frontend = builder.AddContainer("frontend", "nginx");
-        var project = builder.AddResource(new ProjectResource("project"));
+        var project = builder.AddDotnetProject("project", Path.Combine(Path.GetTempPath(), "project.csproj"),
+            options => options.ExcludeLaunchProfile = true);
 
         Assert.AreSame(project, project.WithFrontendAssets(frontend, builder.Configuration));
     }

@@ -18,10 +18,11 @@
     <!-- Local Orchestration -->
     <!-- Version pinned due to advisory: GHSA-hv8m-jj95-wg3x -->
     <PackageVersion Include="Bogus" Version="35.6.5" />
-    <PackageVersion Include="MessagePack" Version="2.5.301" />
-    <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.0" />
-    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.9.0" />
+    <PackageVersion Include="MessagePack" Version="2.5.307" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="17.0.0" />
     <!-- Dependency injection -->
     <PackageVersion Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="8.5.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />

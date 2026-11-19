@@ -1,3 +1,6 @@
+using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.JavaScript;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -21,7 +24,7 @@ public static class NodeResourceBuilderExtensions
     /// <param name="scriptName">The npm script to execute. Defaults to "start".</param>
     /// <param name="envFileName">The environment file name to load. Defaults to ".env".</param>
     /// <returns>A resource builder for the Node.js application resource.</returns>
-    public static IResourceBuilder<NodeAppResource> AddNodePlatformApp(
+    public static IResourceBuilder<JavaScriptAppResource> AddNodePlatformApp(
         this IDistributedApplicationBuilder builder,
         string name,
         string nodeRootDir,
@@ -31,7 +34,9 @@ public static class NodeResourceBuilderExtensions
         string scriptName = "start",
         string envFileName = ".env")
     {
-        var npmApp = builder.AddNpmApp(name, $"{nodeRootDir}/{appName}", scriptName)
+        var npmApp = builder.AddJavaScriptApp(name, $"{nodeRootDir}/{appName}")
+            .WithRunScript(scriptName)
+            .WithNpm()
             .WithHttpsEndpoint(port: port, targetPort: port, env: "PORT", isProxied: false)
             .WithEnvFile($"{nodeRootDir}/{envFileName}")  // loads .env defaults first
             .WithEnvironment("NODE_TLS_REJECT_UNAUTHORIZED", "0");
@@ -95,8 +100,8 @@ public static class NodeResourceBuilderExtensions
     /// <param name="builder">The resource builder.</param>
     /// <param name="pattern">The log pattern indicating the application is ready.</param>
     /// <returns>The resource builder.</returns>
-    public static IResourceBuilder<NodeAppResource> WithReadyLogCheck(
-        this IResourceBuilder<NodeAppResource> builder,
+    public static IResourceBuilder<JavaScriptAppResource> WithReadyLogCheck(
+        this IResourceBuilder<JavaScriptAppResource> builder,
         string pattern = "Dev server listening")
     {
         var healthCheckKey = $"{builder.Resource.Name}-log-ready";

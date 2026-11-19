@@ -1,3 +1,6 @@
+using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.Dotnet;
 using Microsoft.Extensions.Configuration;
 
 namespace Dfe.SignIn.AppHost;
@@ -13,8 +16,8 @@ public static class ProjectResourceBuilderExtensions
     /// <param name="builder">The resource builder.</param>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The resource builder.</returns>
-    public static IResourceBuilder<ProjectResource> WithPlatformSettings(
-        this IResourceBuilder<ProjectResource> builder,
+    public static IResourceBuilder<DotnetProjectResource> WithPlatformSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
         IConfiguration configuration)
     {
         var platform = configuration.GetSection("Platform");
@@ -39,8 +42,8 @@ public static class ProjectResourceBuilderExtensions
     /// <param name="builder">The resource builder.</param>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The resource builder.</returns>
-    public static IResourceBuilder<ProjectResource> WithServiceBusAuditingSettings(
-        this IResourceBuilder<ProjectResource> builder,
+    public static IResourceBuilder<DotnetProjectResource> WithServiceBusAuditingSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
         IConfiguration configuration)
     {
         var serviceBusConfig = configuration.GetSection("ServiceBus");
@@ -56,9 +59,9 @@ public static class ProjectResourceBuilderExtensions
     /// <param name="builder">The resource builder.</param>
     /// <param name="internalApi">The internal API resource builder.</param>
     /// <returns>The resource builder.</returns>
-    public static IResourceBuilder<ProjectResource> WithLocalInternalApi(
-        this IResourceBuilder<ProjectResource> builder,
-        IResourceBuilder<ProjectResource> internalApi)
+    public static IResourceBuilder<DotnetProjectResource> WithLocalInternalApi(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IResourceBuilder<DotnetProjectResource> internalApi)
     {
         return builder
             .WithEnvironment("InternalApiClient__BaseAddress", internalApi.GetEndpoint("https"))
@@ -71,8 +74,8 @@ public static class ProjectResourceBuilderExtensions
     /// <param name="builder"></param>
     /// <param name="configuration"></param>
     /// <returns></returns>
-    public static IResourceBuilder<ProjectResource> WithDefaultConfiguration(
-        this IResourceBuilder<ProjectResource> builder,
+    public static IResourceBuilder<DotnetProjectResource> WithDefaultConfiguration(
+        this IResourceBuilder<DotnetProjectResource> builder,
         IConfiguration configuration)
     {
         var environment = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Local";
@@ -86,8 +89,8 @@ public static class ProjectResourceBuilderExtensions
     /// <param name="builder">The resource builder to configure.</param>
     /// <param name="configuration">The application configuration containing the settings.</param>
     /// <returns>The configured resource builder.</returns>
-    public static IResourceBuilder<ProjectResource> WithHostedInternalApiSettings(
-        this IResourceBuilder<ProjectResource> builder,
+    public static IResourceBuilder<DotnetProjectResource> WithHostedInternalApiSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
         IConfiguration configuration)
     {
         var internalApiConfig = configuration.GetSection("InternalApiClient");
