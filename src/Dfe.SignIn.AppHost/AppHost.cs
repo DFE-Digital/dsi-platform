@@ -1,209 +1,113 @@
-using System.Reflection;
-using Aspire.Hosting;
-using Aspire.Hosting.Dotnet;
 using Aspire.Hosting.JavaScript;
-using Azure.Identity;
 using Dfe.SignIn.AppHost;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-
-const string infrastructureTag = "Infrastructure";
-const string dotnetTag = "Dotnet";
-const string nodeTag = "Node";
 
 var builder = DistributedApplication.CreateBuilder(args);
+builder.Configuration.AddAppHostConfiguration();
 
-builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: true);
-
-var appConfigurationConnectionString = builder.Configuration.GetConnectionString("AppConfiguration");
-if (!string.IsNullOrEmpty(appConfigurationConnectionString)) {
-    var appConfigurationTag = builder.Configuration["AppConfiguration:Tag"];
-    if (string.IsNullOrEmpty(appConfigurationTag)) {
-        throw new InvalidOperationException("AppConfiguration Tag missing from configuration.");
-    }
-
-    builder.Configuration.AddAzureAppConfiguration(options => {
-        options.Connect(appConfigurationConnectionString)
-               .Select(KeyFilter.Any, appConfigurationTag)
-               .ConfigureKeyVault(kv => kv.SetCredential(new DefaultAzureCredential()));
-    });
-
-    builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: true);
-}
-
+// Infrastructure
 #pragma warning disable ASPIRERESOURCETRAITS001 // Dashboard tags are experimental in Aspire 17.
-#pragma warning disable ASPIRECERTIFICATES001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-var redis = builder.AddRedis("redis")
-    .WithTags(infrastructureTag)
-    .WithPassword(null)
-    .WithEndpointProxySupport(false)
-    .WithImage("redis", "latest")
-    .WithDataVolume()
-    .WithoutHttpsCertificate()
-    .WithRedisInsight(insight => insight.WithTags(infrastructureTag));
-#pragma warning restore ASPIRECERTIFICATES001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-
-var redisTcpEndpoint = redis.GetEndpoint("tcp");
-
-// .NET Format (No prefix, StackExchange.Redis expects "host:port")
-var dotnetRedisConnectionString = ReferenceExpression.Create(
-    $"{redisTcpEndpoint.Property(EndpointProperty.Host)}:{redisTcpEndpoint.Property(EndpointProperty.Port)}");
-
-// Node.js Format (Requires "redis://" URI prefix)
-var nodeRedisConnectionString = ReferenceExpression.Create(
-    $"redis://{redisTcpEndpoint.Property(EndpointProperty.Host)}:{redisTcpEndpoint.Property(EndpointProperty.Port)}");
+var redis = builder.AddPlatformRedis("redis");
+var dotnetRedisConnectionString = redis.GetDotnetConnectionString();
+var nodeRedisConnectionString = redis.GetNodeConnectionString();
 
 var frontend = builder.AddDockerfile("frontend", "../../", "docker/frontend/Dockerfile")
-    .WithTags(infrastructureTag)
+    .WithTags(ResourceTags.Infrastructure)
     .WithHttpEndpoint(targetPort: 8080, name: "http");
 
-// Extract shared configuration sections to easily reuse them across projects
-var govNotifyConfig = builder.Configuration.GetSection("GovNotify");
-var supportEmailConfig = builder.Configuration.GetSection("RaiseSupportTicketByEmail");
-var oidcConfig = builder.Configuration.GetSection("Oidc");
-var externalIdConfig = builder.Configuration.GetSection("ExternalId");
-var sessionConfig = builder.Configuration.GetSection("Session");
-var bearerTokenConfig = builder.Configuration.GetSection("BearerToken");
-var publicApiSecretConfig = builder.Configuration.GetSection("PublicApiSecretEncryption");
-var selectOrgConfig = builder.Configuration.GetSection("SelectOrganisation");
-var efConfig = builder.Configuration.GetSection("EntityFramework");
-var generalRedisConfig = builder.Configuration.GetSection("GeneralRedisCache");
-var serviceBusConfig = builder.Configuration.GetSection("ServiceBus");
-
+// .NET applications
 var dotNetComponents = builder.Configuration.GetSection("Components:DotNet");
-var nodeComponents = builder.Configuration.GetSection("Components:Node");
 
 if (dotNetComponents.GetValue("HelpEnabled", true)) {
-    builder.AddDotnetProject("help", "../Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj",
-            options => options.LaunchProfileName = "http")
-        .WithTags(dotnetTag)
-        .WithDefaultConfiguration(builder.Configuration)
-        .WithHostedInternalApiSettings(builder.Configuration)
+    builder.AddDotnetPlatformApp("help", "../Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj")
+        .WithInternalApiSettings(builder.Configuration)
         .WithPlatformSettings(builder.Configuration)
         .WithFrontendAssets(frontend, builder.Configuration)
-        .WithEnvironment("InteractionsRedisCache__ConnectionString", dotnetRedisConnectionString)
-        .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"])
-        .WithEnvironment("RaiseSupportTicketByEmail__SupportEmailAddress", supportEmailConfig["SupportEmailAddress"])
-        .WithEnvironment("RaiseSupportTicketByEmail__EmailTemplateId", supportEmailConfig["EmailTemplateId"])
+        .WithRedisConnectionStrings(dotnetRedisConnectionString, "InteractionsRedisCache")
+        .WithGovNotifySettings(builder.Configuration)
+        .WithSupportEmailSettings(builder.Configuration)
         .WaitFor(redis);
 }
 
-var internalApi = builder.AddDotnetProject("internal-api", "../Dfe.SignIn.InternalApi/Dfe.SignIn.InternalApi.csproj",
-        options => options.LaunchProfileName = "http")
-    .WithTags(dotnetTag)
-    .WithDefaultConfiguration(builder.Configuration)
-    .WithServiceBusAuditingSettings(serviceBusConfig)
-    .WithHostedInternalApiSettings(builder.Configuration)
+var internalApi = builder.AddDotnetPlatformApp("internal-api", "../Dfe.SignIn.InternalApi/Dfe.SignIn.InternalApi.csproj")
+    .WithServiceBusAuditingSettings(builder.Configuration)
+    .WithInternalApiSettings(builder.Configuration)
     .WithEnvironment("Authentication__LocalBypass", builder.Configuration["ASPNETCORE_ENVIRONMENT"] == "Local" ? "true" : "false")
-    .WithEnvironment("EntityFramework__Directories__Host", efConfig["Directories:Host"])
-    .WithEnvironment("EntityFramework__Directories__Name", efConfig["Directories:Name"])
-    .WithEnvironment("EntityFramework__Directories__Username", efConfig["Directories:Username"])
-    .WithEnvironment("EntityFramework__Directories__Password", efConfig["Directories:Password"])
-    .WithEnvironment("EntityFramework__Organisations__Host", efConfig["Organisations:Host"])
-    .WithEnvironment("EntityFramework__Organisations__Name", efConfig["Organisations:Name"])
-    .WithEnvironment("EntityFramework__Organisations__Username", efConfig["Organisations:Username"])
-    .WithEnvironment("EntityFramework__Organisations__Password", efConfig["Organisations:Password"])
-    .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
-    .WithEnvironment("ExternalId__ClientId", externalIdConfig["ClientId"])
-    .WithEnvironment("ExternalId__ClientSecret", externalIdConfig["ClientSecret"])
-    .WithEnvironment("ExternalId__TenantId", externalIdConfig["TenantId"])
-    .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
-    .WithEnvironment("GeneralRedisCache__DatabaseNumber", generalRedisConfig["DatabaseNumber"])
-    .WithEnvironment("BullMQ__ConnectionString", dotnetRedisConnectionString)
-    .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"]);
+    .WithEfSettings(builder.Configuration, "Directories", "Organisations")
+    .WithPublicApiSecretEncryptionSettings(builder.Configuration)
+    .WithExternalIdClientSettings(builder.Configuration)
+    .WithRedisConnectionStrings(dotnetRedisConnectionString, "GeneralRedisCache", "BullMQ")
+    .WithEnvironment("GeneralRedisCache__DatabaseNumber", builder.Configuration["GeneralRedisCache:DatabaseNumber"])
+    .WithGovNotifySettings(builder.Configuration);
 
 if (dotNetComponents.GetValue("ProfileEnabled", true)) {
-    builder.AddDotnetProject("profile", "../Dfe.SignIn.Web.Profile/Dfe.SignIn.Web.Profile.csproj",
-            options => options.LaunchProfileName = "http")
-        .WithTags(dotnetTag)
-        .WithDefaultConfiguration(builder.Configuration)
+    builder.AddDotnetPlatformApp("profile", "../Dfe.SignIn.Web.Profile/Dfe.SignIn.Web.Profile.csproj")
         .WithPlatformSettings(builder.Configuration)
         .WithFrontendAssets(frontend, builder.Configuration)
-        .WithServiceBusAuditingSettings(serviceBusConfig)
-        .WithHostedInternalApiSettings(builder.Configuration) //todo: is this still needed?
+        .WithServiceBusAuditingSettings(builder.Configuration)
+        .WithInternalApiSettings(builder.Configuration)
         .WithLocalInternalApi(internalApi)
-        .WithEnvironment("GeneralRedisCache__ConnectionString", dotnetRedisConnectionString)
-        .WithEnvironment("SessionRedisCache__ConnectionString", dotnetRedisConnectionString)
-        .WithEnvironment("TokenRedisCache__ConnectionString", dotnetRedisConnectionString)
-        .WithEnvironment("Oidc__ClientId", oidcConfig["ClientId"])
-        .WithEnvironment("Oidc__ClientSecret", oidcConfig["ClientSecret"])
-        .WithEnvironment("Oidc__Authority", oidcConfig["Authority"])
-        .WithEnvironment("Oidc__MetadataAddress", oidcConfig["MetadataAddress"])
-        .WithEnvironment("ExternalId__ClientId", externalIdConfig["ClientId"])
-        .WithEnvironment("ExternalId__ClientSecret", externalIdConfig["ClientSecret"])
-        .WithEnvironment("ExternalId__Authority", externalIdConfig["Authority"])
-        .WithEnvironment("ExternalId__Instance", externalIdConfig["Instance"])
-        .WithEnvironment("ExternalId__TenantId", externalIdConfig["TenantId"])
-        .WithEnvironment("Session__DurationInMinutes", sessionConfig["DurationInMinutes"])
-        .WithEnvironment("Session__NotifyRemainingMinutes", sessionConfig["NotifyRemainingMinutes"])
+        .WithRedisConnectionStrings(dotnetRedisConnectionString, "GeneralRedisCache", "SessionRedisCache", "TokenRedisCache")
+        .WithOidcSettings(builder.Configuration)
+        .WithExternalIdSettings(builder.Configuration)
+        .WithSessionSettings(builder.Configuration)
         .WaitFor(redis);
 }
 
 if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
-    builder.AddDotnetProject("public-api", "../Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj",
-            options => options.LaunchProfileName = "http")
-        .WithTags(dotnetTag)
-        .WithDefaultConfiguration(builder.Configuration)
+    builder.AddDotnetPlatformApp("public-api", "../Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj")
         .WithPlatformSettings(builder.Configuration)
         .WithFrontendAssets(frontend, builder.Configuration)
-        .WithServiceBusAuditingSettings(serviceBusConfig)
-        .WithHostedInternalApiSettings(builder.Configuration) //todo: is this still needed?
+        .WithServiceBusAuditingSettings(builder.Configuration)
+        .WithInternalApiSettings(builder.Configuration)
         .WithLocalInternalApi(internalApi)
-        .WithEnvironment("SelectOrganisationSessionRedisCache__ConnectionString", dotnetRedisConnectionString)
-        .WithEnvironment("InteractionsRedisCache__ConnectionString", dotnetRedisConnectionString)
-        .WithEnvironment("BearerToken__ValidAudience", bearerTokenConfig["ValidAudience"])
-        .WithEnvironment("PublicApiSecretEncryption__Key", publicApiSecretConfig["Key"])
-        .WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrgConfig["SelectOrganisationBaseAddress"])
-        .WithEnvironment("EntityFramework__Organisations__Username", efConfig["Organisations:Username"])
-        .WithEnvironment("EntityFramework__Organisations__Password", efConfig["Organisations:Password"])
-        .WithEnvironment("EntityFramework__Organisations__Name", efConfig["Organisations:Name"])
-        .WithEnvironment("EntityFramework__Organisations__Host", efConfig["Organisations:Host"])
-        .WithEnvironment("EntityFramework__Directories__Username", efConfig["Directories:Username"])
-        .WithEnvironment("EntityFramework__Directories__Password", efConfig["Directories:Password"])
-        .WithEnvironment("EntityFramework__Directories__Name", efConfig["Directories:Name"])
-        .WithEnvironment("EntityFramework__Directories__Host", efConfig["Directories:Host"])
-        .WithEnvironment("EntityFramework__Audit__Username", efConfig["Audit:Username"])
-        .WithEnvironment("EntityFramework__Audit__Password", efConfig["Audit:Password"])
-        .WithEnvironment("EntityFramework__Audit__Name", efConfig["Audit:Name"])
-        .WithEnvironment("EntityFramework__Audit__Host", efConfig["Audit:Host"])
+        .WithRedisConnectionStrings(dotnetRedisConnectionString, "SelectOrganisationSessionRedisCache", "InteractionsRedisCache")
+        .WithBearerTokenSettings(builder.Configuration)
+        .WithPublicApiSecretEncryptionSettings(builder.Configuration)
+        .WithSelectOrganisationSettings(builder.Configuration)
+        .WithEfSettings(builder.Configuration, "Organisations", "Directories", "Audit")
         .WaitFor(internalApi)
         .WaitFor(redis);
 }
 
+// Node applications
+var nodeComponents = builder.Configuration.GetSection("Components:Node");
 var nodeRootDir = builder.Configuration["NodePlatformDirectory"]
     ?? throw new InvalidOperationException("NodePlatformDirectory is not configured.");
 
 var nodeEnvFileName = builder.Configuration["NodeEnvFileName"]
     ?? throw new InvalidOperationException("NodeEnvFileName is not configured.");
 
-// Node components
 IResourceBuilder<JavaScriptAppResource>? oidc = null;
 if (nodeComponents.GetValue("OidcEnabled", true)) {
-    oidc = builder.AddNodePlatformApp("oidc", nodeRootDir, "login.dfe.oidc", 4436, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
-    .WithTags(nodeTag)
-    .WithFrontendAssets(frontend, builder.Configuration)
-    .WaitFor(redis);
+    oidc = builder.AddNodePlatformApp("oidc", nodeRootDir, "login.dfe.oidc", 4436,
+            nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+        .WithTags(ResourceTags.Node)
+        .WithFrontendAssets(frontend, builder.Configuration)
+        .WaitFor(redis);
 }
 
 IResourceBuilder<JavaScriptAppResource>? interactor = null;
 if (nodeComponents.GetValue("InteractionsEnabled", true)) {
-    interactor = builder.AddNodePlatformApp("interactions", nodeRootDir, "login.dfe.interactions", 4431, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
-    .WithTags(nodeTag)
-    .WithFrontendAssets(frontend, builder.Configuration)
-    .WaitForIfPresent(oidc);
+    interactor = builder.AddNodePlatformApp("interactions", nodeRootDir, "login.dfe.interactions", 4431,
+            nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+        .WithTags(ResourceTags.Node)
+        .WithFrontendAssets(frontend, builder.Configuration)
+        .WaitForIfPresent(oidc);
 }
 
 if (nodeComponents.GetValue("ServicesEnabled", true)) {
-    builder.AddNodePlatformApp("services", nodeRootDir, "login.dfe.services", 41012, nodeRedisConnectionString, envFileName: nodeEnvFileName)
-    .WithTags(nodeTag)
-    .WithFrontendAssets(frontend, builder.Configuration)
-    .WaitForIfPresent(oidc)
-    .WaitForIfPresent(interactor);
+    builder.AddNodePlatformApp("services", nodeRootDir, "login.dfe.services", 41012,
+            nodeRedisConnectionString, envFileName: nodeEnvFileName)
+        .WithTags(ResourceTags.Node)
+        .WithFrontendAssets(frontend, builder.Configuration)
+        .WaitForIfPresent(oidc)
+        .WaitForIfPresent(interactor);
 }
 
 if (nodeComponents.GetValue("Run-TlsProxy", false)) {
     builder.AddExecutable("tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy")
-        .WithTags(infrastructureTag);
+        .WithTags(ResourceTags.Infrastructure);
 }
 #pragma warning restore ASPIRERESOURCETRAITS001
 await builder.Build().RunAsync();

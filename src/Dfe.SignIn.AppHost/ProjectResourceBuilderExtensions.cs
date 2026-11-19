@@ -11,6 +11,173 @@ namespace Dfe.SignIn.AppHost;
 public static class ProjectResourceBuilderExtensions
 {
     /// <summary>
+    /// Adds a .NET platform application with the HTTP launch profile, tag and default environment.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> AddDotnetPlatformApp(
+        this IDistributedApplicationBuilder builder,
+        string name,
+        string projectPath)
+    {
+#pragma warning disable ASPIRERESOURCETRAITS001 // Dashboard tags are experimental in Aspire 17.
+        return builder.AddDotnetProject(name, projectPath, options => options.LaunchProfileName = "http")
+            .WithTags(ResourceTags.Dotnet)
+            .WithDefaultConfiguration(builder.Configuration);
+#pragma warning restore ASPIRERESOURCETRAITS001
+    }
+
+    /// <summary>
+    /// Configures the selected Entity Framework databases.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithEfSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration,
+        params string[] databaseNames)
+    {
+        var ef = configuration.GetSection("EntityFramework");
+        foreach (var databaseName in databaseNames) {
+            var database = ef.GetSection(databaseName);
+            builder
+                .WithEnvironment($"EntityFramework__{databaseName}__Host", database["Host"])
+                .WithEnvironment($"EntityFramework__{databaseName}__Name", database["Name"])
+                .WithEnvironment($"EntityFramework__{databaseName}__Username", database["Username"])
+                .WithEnvironment($"EntityFramework__{databaseName}__Password", database["Password"]);
+        }
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Configures the selected Redis connection strings without changing cache database settings.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithRedisConnectionStrings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        ReferenceExpression connectionString,
+        params string[] sectionNames)
+    {
+        foreach (var sectionName in sectionNames) {
+            builder.WithEnvironment($"{sectionName}__ConnectionString", connectionString);
+        }
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Configures GOV.UK Notify.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithGovNotifySettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        return builder.WithEnvironment("GovNotify__ApiKey", configuration["GovNotify:ApiKey"]);
+    }
+
+    /// <summary>
+    /// Configures support ticket email delivery.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithSupportEmailSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        var supportEmail = configuration.GetSection("RaiseSupportTicketByEmail");
+
+        return builder
+            .WithEnvironment("RaiseSupportTicketByEmail__SupportEmailAddress", supportEmail["SupportEmailAddress"])
+            .WithEnvironment("RaiseSupportTicketByEmail__EmailTemplateId", supportEmail["EmailTemplateId"]);
+    }
+
+    /// <summary>
+    /// Configures public API secret encryption.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithPublicApiSecretEncryptionSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        return builder.WithEnvironment("PublicApiSecretEncryption__Key", configuration["PublicApiSecretEncryption:Key"]);
+    }
+
+    /// <summary>
+    /// Configures External ID client credentials without interactive sign-in settings.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithExternalIdClientSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        var externalId = configuration.GetSection("ExternalId");
+
+        return builder
+            .WithEnvironment("ExternalId__ClientId", externalId["ClientId"])
+            .WithEnvironment("ExternalId__ClientSecret", externalId["ClientSecret"])
+            .WithEnvironment("ExternalId__TenantId", externalId["TenantId"]);
+    }
+
+    /// <summary>
+    /// Configures External ID client credentials and interactive sign-in settings.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithExternalIdSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        var externalId = configuration.GetSection("ExternalId");
+
+        return builder
+            .WithExternalIdClientSettings(configuration)
+            .WithEnvironment("ExternalId__Authority", externalId["Authority"])
+            .WithEnvironment("ExternalId__Instance", externalId["Instance"]);
+    }
+
+    /// <summary>
+    /// Configures the OpenID Connect client.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithOidcSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        var oidc = configuration.GetSection("Oidc");
+
+        return builder
+            .WithEnvironment("Oidc__ClientId", oidc["ClientId"])
+            .WithEnvironment("Oidc__ClientSecret", oidc["ClientSecret"])
+            .WithEnvironment("Oidc__Authority", oidc["Authority"])
+            .WithEnvironment("Oidc__MetadataAddress", oidc["MetadataAddress"]);
+    }
+
+    /// <summary>
+    /// Configures session duration and expiry notifications.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithSessionSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        var session = configuration.GetSection("Session");
+
+        return builder
+            .WithEnvironment("Session__DurationInMinutes", session["DurationInMinutes"])
+            .WithEnvironment("Session__NotifyRemainingMinutes", session["NotifyRemainingMinutes"]);
+    }
+
+    /// <summary>
+    /// Configures bearer token validation.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithBearerTokenSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        return builder.WithEnvironment("BearerToken__ValidAudience", configuration["BearerToken:ValidAudience"]);
+    }
+
+    /// <summary>
+    /// Configures the organisation selection address.
+    /// </summary>
+    public static IResourceBuilder<DotnetProjectResource> WithSelectOrganisationSettings(
+        this IResourceBuilder<DotnetProjectResource> builder,
+        IConfiguration configuration)
+    {
+        var selectOrg = configuration.GetSection("SelectOrganisation");
+
+        return builder.WithEnvironment("SelectOrganisation__SelectOrganisationBaseAddress", selectOrg["SelectOrganisationBaseAddress"]);
+    }
+
+    /// <summary>
     /// Configures the resource with platform-related environment variables from the application configuration.
     /// </summary>
     /// <param name="builder">The resource builder.</param>
@@ -89,7 +256,7 @@ public static class ProjectResourceBuilderExtensions
     /// <param name="builder">The resource builder to configure.</param>
     /// <param name="configuration">The application configuration containing the settings.</param>
     /// <returns>The configured resource builder.</returns>
-    public static IResourceBuilder<DotnetProjectResource> WithHostedInternalApiSettings(
+    public static IResourceBuilder<DotnetProjectResource> WithInternalApiSettings(
         this IResourceBuilder<DotnetProjectResource> builder,
         IConfiguration configuration)
     {

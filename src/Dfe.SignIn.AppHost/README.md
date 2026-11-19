@@ -224,6 +224,17 @@ new process before debugging again. Do not rely on watch mode for these
 
 ## What gets started
 
+`AppHost.cs` defines resource registrations, component switches, tags and dependencies.
+Configuration-provider setup lives in `AppHostConfigurationExtensions.cs`. Reusable .NET settings
+helpers live in `ProjectResourceBuilderExtensions.cs`, grouped by concern (for example,
+`WithEfSettings`, `WithInternalApiSettings`, `WithOidcSettings` and `WithGovNotifySettings`).
+Each application explicitly composes the settings it needs in `AppHost.cs`.
+`AddDotnetPlatformApp` applies the shared HTTP launch profile, Dotnet tag and default
+environment. `RedisResourceBuilderExtensions.cs` contains Redis/Insight registration
+and the .NET (`host:port`) and Node (`redis://host:port`) connection-string helpers.
+Node setup and frontend asset configuration remain in `NodeResourceBuilderExtensions.cs`
+and `FrontendResourceBuilderExtensions.cs`.
+
 The defaults below are from the checked-in `appsettings.json`; local or remote
 configuration can override them.
 
@@ -284,7 +295,7 @@ resource does not automatically instrument it.
 Select **Group resources > Tags** beside **Filters** to group resources by
 **Infrastructure**, **Dotnet**, and **Node**. The dashboard remembers this selection
 across navigation and reloads; adding tags in code does not select the grouping mode.
-Tag names are defined once as constants at the top of `AppHost.cs` and applied
+Tag names are defined once as constants in `ResourceTags.cs` and applied
 with `WithTags`, where the experimental `ASPIRERESOURCETRAITS001` diagnostic is suppressed.
 
 Export the running application's resource graph from the dashboard or the solution root:
