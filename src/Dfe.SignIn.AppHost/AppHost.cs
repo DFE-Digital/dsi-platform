@@ -7,6 +7,10 @@ using Dfe.SignIn.AppHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 
+const string infrastructureTag = "Infrastructure";
+const string dotnetTag = "Dotnet";
+const string nodeTag = "Node";
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: true);
@@ -27,14 +31,16 @@ if (!string.IsNullOrEmpty(appConfigurationConnectionString)) {
     builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: true);
 }
 
+#pragma warning disable ASPIRERESOURCETRAITS001 // Dashboard tags are experimental in Aspire 17.
 #pragma warning disable ASPIRECERTIFICATES001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-var redis = builder.AddRedis("infra-redis")
+var redis = builder.AddRedis("redis")
+    .WithTags(infrastructureTag)
     .WithPassword(null)
     .WithEndpointProxySupport(false)
     .WithImage("redis", "latest")
     .WithDataVolume()
     .WithoutHttpsCertificate()
-    .WithRedisInsight();
+    .WithRedisInsight(insight => insight.WithTags(infrastructureTag));
 #pragma warning restore ASPIRECERTIFICATES001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
 var redisTcpEndpoint = redis.GetEndpoint("tcp");
@@ -47,7 +53,8 @@ var dotnetRedisConnectionString = ReferenceExpression.Create(
 var nodeRedisConnectionString = ReferenceExpression.Create(
     $"redis://{redisTcpEndpoint.Property(EndpointProperty.Host)}:{redisTcpEndpoint.Property(EndpointProperty.Port)}");
 
-var frontend = builder.AddDockerfile("infra-frontend", "../../", "docker/frontend/Dockerfile")
+var frontend = builder.AddDockerfile("frontend", "../../", "docker/frontend/Dockerfile")
+    .WithTags(infrastructureTag)
     .WithHttpEndpoint(targetPort: 8080, name: "http");
 
 // Extract shared configuration sections to easily reuse them across projects
@@ -67,8 +74,9 @@ var dotNetComponents = builder.Configuration.GetSection("Components:DotNet");
 var nodeComponents = builder.Configuration.GetSection("Components:Node");
 
 if (dotNetComponents.GetValue("HelpEnabled", true)) {
-    builder.AddDotnetProject("app-help", "../Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj",
+    builder.AddDotnetProject("help", "../Dfe.SignIn.Web.Help/Dfe.SignIn.Web.Help.csproj",
             options => options.LaunchProfileName = "http")
+        .WithTags(dotnetTag)
         .WithDefaultConfiguration(builder.Configuration)
         .WithHostedInternalApiSettings(builder.Configuration)
         .WithPlatformSettings(builder.Configuration)
@@ -80,8 +88,9 @@ if (dotNetComponents.GetValue("HelpEnabled", true)) {
         .WaitFor(redis);
 }
 
-var internalApi = builder.AddDotnetProject("app-internal-api", "../Dfe.SignIn.InternalApi/Dfe.SignIn.InternalApi.csproj",
+var internalApi = builder.AddDotnetProject("internal-api", "../Dfe.SignIn.InternalApi/Dfe.SignIn.InternalApi.csproj",
         options => options.LaunchProfileName = "http")
+    .WithTags(dotnetTag)
     .WithDefaultConfiguration(builder.Configuration)
     .WithServiceBusAuditingSettings(serviceBusConfig)
     .WithHostedInternalApiSettings(builder.Configuration)
@@ -104,8 +113,9 @@ var internalApi = builder.AddDotnetProject("app-internal-api", "../Dfe.SignIn.In
     .WithEnvironment("GovNotify__ApiKey", govNotifyConfig["ApiKey"]);
 
 if (dotNetComponents.GetValue("ProfileEnabled", true)) {
-    builder.AddDotnetProject("app-profile", "../Dfe.SignIn.Web.Profile/Dfe.SignIn.Web.Profile.csproj",
+    builder.AddDotnetProject("profile", "../Dfe.SignIn.Web.Profile/Dfe.SignIn.Web.Profile.csproj",
             options => options.LaunchProfileName = "http")
+        .WithTags(dotnetTag)
         .WithDefaultConfiguration(builder.Configuration)
         .WithPlatformSettings(builder.Configuration)
         .WithFrontendAssets(frontend, builder.Configuration)
@@ -130,8 +140,9 @@ if (dotNetComponents.GetValue("ProfileEnabled", true)) {
 }
 
 if (dotNetComponents.GetValue("PublicApiEnabled", true)) {
-    builder.AddDotnetProject("app-public-api", "../Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj",
+    builder.AddDotnetProject("public-api", "../Dfe.SignIn.PublicApi/Dfe.SignIn.PublicApi.csproj",
             options => options.LaunchProfileName = "http")
+        .WithTags(dotnetTag)
         .WithDefaultConfiguration(builder.Configuration)
         .WithPlatformSettings(builder.Configuration)
         .WithFrontendAssets(frontend, builder.Configuration)
@@ -168,26 +179,31 @@ var nodeEnvFileName = builder.Configuration["NodeEnvFileName"]
 // Node components
 IResourceBuilder<JavaScriptAppResource>? oidc = null;
 if (nodeComponents.GetValue("OidcEnabled", true)) {
-    oidc = builder.AddNodePlatformApp("node-oidc", nodeRootDir, "login.dfe.oidc", 4436, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+    oidc = builder.AddNodePlatformApp("oidc", nodeRootDir, "login.dfe.oidc", 4436, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+    .WithTags(nodeTag)
     .WithFrontendAssets(frontend, builder.Configuration)
     .WaitFor(redis);
 }
 
 IResourceBuilder<JavaScriptAppResource>? interactor = null;
 if (nodeComponents.GetValue("InteractionsEnabled", true)) {
-    interactor = builder.AddNodePlatformApp("node-interactions", nodeRootDir, "login.dfe.interactions", 4431, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+    interactor = builder.AddNodePlatformApp("interactions", nodeRootDir, "login.dfe.interactions", 4431, nodeRedisConnectionString, envFileName: nodeEnvFileName, scriptName: "dev")
+    .WithTags(nodeTag)
     .WithFrontendAssets(frontend, builder.Configuration)
     .WaitForIfPresent(oidc);
 }
 
 if (nodeComponents.GetValue("ServicesEnabled", true)) {
-    builder.AddNodePlatformApp("node-services", nodeRootDir, "login.dfe.services", 41012, nodeRedisConnectionString, envFileName: nodeEnvFileName)
+    builder.AddNodePlatformApp("services", nodeRootDir, "login.dfe.services", 41012, nodeRedisConnectionString, envFileName: nodeEnvFileName)
+    .WithTags(nodeTag)
     .WithFrontendAssets(frontend, builder.Configuration)
     .WaitForIfPresent(oidc)
     .WaitForIfPresent(interactor);
 }
 
 if (nodeComponents.GetValue("Run-TlsProxy", false)) {
-    builder.AddExecutable("tool-tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy");
+    builder.AddExecutable("tls-proxy", "pwsh", "../../", "-Command", "Start-DsiTlsProxy")
+        .WithTags(infrastructureTag);
 }
+#pragma warning restore ASPIRERESOURCETRAITS001
 await builder.Build().RunAsync();

@@ -171,8 +171,8 @@ an IDE launch configuration or a separate `dotnet run`; this can cause port conf
 and bypass the environment variables configured by the AppHost.
 
 Ensure the application's component flag is enabled and its resource is running.
-The .NET resources are `app-help`, `app-profile`, `app-public-api`, and
-`app-internal-api`. Attach to the application you want to debug, not
+The .NET resources are `help`, `profile`, `public-api`, and
+`internal-api`. Attach to the application you want to debug, not
 `Dfe.SignIn.AppHost` or the `dotnet run` launcher.
 
 ### Visual Studio Code: attach through the Aspire view
@@ -227,18 +227,22 @@ new process before debugging again. Do not rely on watch mode for these
 The defaults below are from the checked-in `appsettings.json`; local or remote
 configuration can override them.
 
-| Resource | Description | Configuration flag | Checked-in default |
-| --- | --- | --- | --- |
-| `infra-redis` | Redis with a persistent data volume and Redis Insight UI | Always added | On |
-| `infra-frontend` | Asset server built from `docker\frontend\Dockerfile` | Always added, including hosted-assets mode | On |
-| `app-help` | Help web app | `Components:DotNet:HelpEnabled` | On |
-| `app-profile` | Profile web app | `Components:DotNet:ProfileEnabled` | On |
-| `app-public-api` | Public API | `Components:DotNet:PublicApiEnabled` | On |
-| `app-internal-api` | Internal API | Always added | On |
-| `node-oidc` | Node OIDC app on HTTPS port 4436 | `Components:Node:OidcEnabled` | Off |
-| `node-interactions` | Node Interactions app on HTTPS port 4431 | `Components:Node:InteractionsEnabled` | Off |
-| `node-services` | Node Services app on HTTPS port 41012 | `Components:Node:ServicesEnabled` | Off |
-| `tool-tls-proxy` | Runs the `Start-DsiTlsProxy` PowerShell function | `Components:Node:Run-TlsProxy` | Off |
+| Resource | Tag | Description | Configuration flag | Checked-in default |
+| --- | --- | --- | --- | --- |
+| `redis` | Infrastructure | Redis with a persistent data volume and Redis Insight UI | Always added | On |
+| `frontend` | Infrastructure | Asset server built from `docker\frontend\Dockerfile` | Always added, including hosted-assets mode | On |
+| `help` | Dotnet | Help web app | `Components:DotNet:HelpEnabled` | On |
+| `profile` | Dotnet | Profile web app | `Components:DotNet:ProfileEnabled` | On |
+| `public-api` | Dotnet | Public API | `Components:DotNet:PublicApiEnabled` | On |
+| `internal-api` | Dotnet | Internal API | Always added | On |
+| `oidc` | Node | Node OIDC app on HTTPS port 4436 | `Components:Node:OidcEnabled` | Off |
+| `interactions` | Node | Node Interactions app on HTTPS port 4431 | `Components:Node:InteractionsEnabled` | Off |
+| `services` | Node | Node Services app on HTTPS port 41012 | `Components:Node:ServicesEnabled` | Off |
+| `tls-proxy` | Infrastructure | Runs the `Start-DsiTlsProxy` PowerShell function | `Components:Node:Run-TlsProxy` | Off |
+
+Resource names no longer use category prefixes. The Redis volume name is generated
+from the application and resource names, so this rename uses a new Redis data volume.
+Any volume from the old resource name is left intact but is not automatically reused.
 
 Use User Secrets for personal component choices rather than changing shared defaults:
 
@@ -253,14 +257,14 @@ The Select Organisation app is not registered in this AppHost.
 Both .NET and Node apps use `WithFrontendAssets(frontend, builder.Configuration)`.
 The overloads share address selection and dependency wiring in `FrontendResourceBuilderExtensions`.
 Set `Components:Frontend:UseHostedAssets` to `true` (the checked-in default) to use `Assets:BaseAddress`,
-or `false` to use the local `infra-frontend` HTTP endpoint.
+or `false` to use the local `frontend` HTTP endpoint.
 Node apps require a non-empty `Assets:BaseAddress` when hosted assets are enabled.
 
 For Node apps, this sets `Assets__BaseAddress`, `CDN_BASE_ADDRESS`, and `CDN_HOST_NAME`,
 overriding values loaded from the Node environment file. Node apps use the asset URL
 directly; `Assets:FrontendVersion` remains a .NET-only setting.
 
-In both modes, apps wait for `infra-frontend`, matching the existing .NET behavior.
+In both modes, apps wait for `frontend`, matching the existing .NET behavior.
 Hosted-assets mode does not disable the local container. `Assets:BaseAddress` must
 point to an independently reachable asset server; the `Local` defaults use
 `http://localhost:8081`, which is not the dynamically allocated Aspire frontend endpoint.
@@ -276,6 +280,12 @@ Aspire 17 provides a searchable resource table, an application overview, resourc
 details, logs, traces, metrics, and a dedicated Terminals page for supported resources.
 Structured logs, traces, and metrics require apps to send telemetry; starting a
 resource does not automatically instrument it.
+
+Select **Group resources > Tags** beside **Filters** to group resources by
+**Infrastructure**, **Dotnet**, and **Node**. The dashboard remembers this selection
+across navigation and reloads; adding tags in code does not select the grouping mode.
+Tag names are defined once as constants at the top of `AppHost.cs` and applied
+with `WithTags`, where the experimental `ASPIRERESOURCETRAITS001` diagnostic is suppressed.
 
 Export the running application's resource graph from the dashboard or the solution root:
 
