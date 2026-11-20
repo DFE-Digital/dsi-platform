@@ -4,7 +4,7 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
-namespace Dfe.SignIn.InternalApi.Configuration;
+namespace Dfe.SignIn.InternalApi.Infrastructure.Authentication;
 
 /// <summary>
 /// An authentication handler that allows local development bypass of authentication for testing purposes.

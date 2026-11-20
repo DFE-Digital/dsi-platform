@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
 using Dfe.SignIn.InternalApi.Contracts;
-using Dfe.SignIn.InternalApi.Swagger;
+using Dfe.SignIn.InternalApi.Infrastructure.Swagger;
 using Microsoft.OpenApi.Models;
 
 namespace Dfe.SignIn.InternalApi.Configuration;

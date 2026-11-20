@@ -7,7 +7,7 @@ using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Dfe.SignIn.InternalApi.Swagger;
+namespace Dfe.SignIn.InternalApi.Infrastructure.Swagger;
 
 /// <summary>
 /// Schema filter which generates information about serialized exceptions showing
