@@ -2,6 +2,7 @@ using System.Net;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
+using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
 using Dfe.SignIn.WebFramework.Mvc.Policies;
@@ -20,8 +21,7 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 public sealed class ChangeEmailController(
     IOptionsMonitor<ApplicationOidcOptions> oidcOptionsAccessor,
     IUsersApiClient usersApiClient,
-    //TODO: Review and remove dependency on IConfiguration
-    IConfiguration configuration,
+    IOptions<EmailValidationSettings> EmailValidationSettings,
     ILogger<ChangeEmailController> logger
 ) : Controller
 {
@@ -38,15 +38,13 @@ public sealed class ChangeEmailController(
         ChangeEmailViewModel viewModel,
         CancellationToken cancellationToken)
     {
-
         var validationResult = await viewModel.ValidateAsync<ChangeEmailViewModelValidator, ChangeEmailViewModel>();
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
             return this.View("Index");
         }
 
-        var emailValidationEnabled = configuration.GetValue<bool>("EmailValidation");
-        if (emailValidationEnabled) {
+        if (EmailValidationSettings.Value.Enabled) {
             var blockedResponse = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
                 EmailAddress = viewModel.EmailAddressInput!
             }, cancellationToken);
@@ -67,12 +65,20 @@ public sealed class ChangeEmailController(
         );
 
         var response = await usersApiClient.InitiateChangeEmailAddress(this.User.GetUserId(), request, cancellationToken);
+        return await this.HandleInitiateChangeResponseAsync(response, viewModel.EmailAddressInput!, resend == true);
+    }
+
+    private async Task<IActionResult> HandleInitiateChangeResponseAsync(
+        Refit.IApiResponse response,
+        string emailAddress,
+        bool isResend)
+    {
         if (response.IsSuccessStatusCode) {
-            if (resend == true) {
+            if (isResend) {
                 this.SetFlashSuccess(
                     heading: "Verification code resent",
                     message: $"""
-                        We have sent an account verification email to {viewModel.EmailAddressInput}.
+                        We have sent an account verification email to {emailAddress}.
                         If the email address you provided is valid you will receive an email containing a verification code.
                         """
                 );
@@ -89,7 +95,7 @@ public sealed class ChangeEmailController(
             //It's needed to show the users 'new' email in the flash message. Without it
             //we have no way of knowing what the user tried to use. If we don't show
             //anything we leak the fact that the email is in use causing a information leak.
-            this.TempData["NewEmail"] = viewModel.EmailAddressInput;
+            this.TempData[VerificationCodeViewModel.NewEmailAddressTempDataKey] = emailAddress;
 
             return this.RedirectToAction(nameof(VerificationCode));
         }
@@ -109,7 +115,10 @@ public sealed class ChangeEmailController(
             return this.RedirectToAction(nameof(VerificationCode));
         }
 
-        logger.LogError("Failed to initiate change email address for user {UserId}. StatusCode: {StatusCode}", this.User.GetUserId(), response.StatusCode);
+        logger.LogError(
+            "Failed to initiate change email address for user {UserId}. StatusCode: {StatusCode}",
+            this.User.GetUserId(),
+            response.StatusCode);
         return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
     }
 
@@ -138,7 +147,7 @@ public sealed class ChangeEmailController(
         VerificationCodeViewModel viewModel,
         CancellationToken cancellationToken)
     {
-        return this.ExecutePostVerificationCode(this.User.GetUserId(), viewModel, cancellationToken);
+        return this.ConfirmEmailChangeAsync(this.User.GetUserId(), viewModel, cancellationToken);
     }
 
     [AllowAnonymous]
@@ -149,10 +158,13 @@ public sealed class ChangeEmailController(
         VerificationCodeViewModel viewModel,
         CancellationToken cancellationToken)
     {
-        return await this.ExecutePostVerificationCode(userId, viewModel, cancellationToken);
+        return await this.ConfirmEmailChangeAsync(userId, viewModel, cancellationToken);
     }
 
-    public async Task<IActionResult> ExecutePostVerificationCode(Guid userId, VerificationCodeViewModel viewModel, CancellationToken cancellationToken)
+    private async Task<IActionResult> ConfirmEmailChangeAsync(
+        Guid userId,
+        VerificationCodeViewModel viewModel,
+        CancellationToken cancellationToken)
     {
         var validationResult = await viewModel.ValidateAsync<VerificationCodeViewModelValidator, VerificationCodeViewModel>();
         if (!validationResult.IsValid) {
@@ -165,6 +177,14 @@ public sealed class ChangeEmailController(
         };
 
         var response = await usersApiClient.ConfirmChangeEmailAddress(userId, request, cancellationToken);
+        return await this.HandleConfirmationResponseAsync(response, userId, cancellationToken);
+    }
+
+    private async Task<IActionResult> HandleConfirmationResponseAsync(
+        Refit.IApiResponse<ConfirmChangeEmailAddressResponse> response,
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
         if (response.IsSuccessStatusCode) {
             if (response.Content?.HasWarning(ChangeEmailWarnings.EntraMfaSyncFailed) == true) {
                 logger.LogError("Partially failed to change email address for user {UserId}: Entra MFA sync failed.", userId);
@@ -176,15 +196,14 @@ public sealed class ChangeEmailController(
 
         if (response.StatusCode == HttpStatusCode.BadRequest) {
             if (await response.IsProblemType(ChangeEmailErrors.NoPendingRequest.Code)) {
-                // add message to view model and return view otherwise
-                // we're now leaking that no code was found
+                // Keep API details private on this anonymous verification route.
                 this.ModelState.AddModelError(
-                    nameof(viewModel.VerificationCodeInput),
+                    nameof(VerificationCodeViewModel.VerificationCodeInput),
                     "The verification code you entered is incorrect. Please check and try again.");
 
                 this.TempData[VerificationCodeViewModel.HideResendVerificationTempDataKey] = true;
 
-                await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
+                return await this.RenderVerificationCodeViewAsync(userId, cancellationToken);
             }
 
             await response.TryAddProblemDetailsToModelStateAsync(
@@ -245,9 +264,11 @@ public sealed class ChangeEmailController(
         var pendingChange = await this.GetPendingChangeEmailAddress(userId, cancellationToken);
 
         if (pendingChange is null) {
+            var emailAddress = this.TempData
+                .Peek(VerificationCodeViewModel.NewEmailAddressTempDataKey)?.ToString() ?? string.Empty;
             return this.View("VerificationCode", new VerificationCodeViewModel {
                 UserId = userId,
-                NewEmailAddress = this.TempData.Peek("NewEmail")?.ToString() ?? string.Empty
+                NewEmailAddress = emailAddress,
             });
         }
 

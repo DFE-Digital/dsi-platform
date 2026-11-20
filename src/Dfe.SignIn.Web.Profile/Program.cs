@@ -79,8 +79,11 @@ builder.Services
 
 // Options / frontend
 builder.Services
-    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"))
-    .AddOptionsWithValidation<PlatformSettings>();
+    .Configure<SecurityHeaderPolicyOptions>(builder.Configuration.GetSection("SecurityHeaderPolicy"));
+
+builder.Services
+    .AddOptionsWithValidation<PlatformSettings>()
+    .AddOptionsWithValidation<EmailValidationSettings>();
 
 builder.Services
     .AddFrontendAssets();

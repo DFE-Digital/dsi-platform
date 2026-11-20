@@ -6,6 +6,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users.CheckIsBlockedEmail;
 using Dfe.SignIn.Gateways.DistributedCache.Interactions;
 using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
+using Dfe.SignIn.Web.Profile.Configuration;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
 using Dfe.SignIn.WebFramework.Mvc.Configuration;
@@ -17,7 +18,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.AutoMock;
@@ -44,13 +44,9 @@ public sealed class ChangeEmailControllerTests
                 TimePeriodInSeconds = 10,
             });
 
-        var configuration = new ConfigurationBuilder()
-          .AddInMemoryCollection(new Dictionary<string, string?> {
-              ["EmailValidation"] = isEmailValidationEnabled.ToString()
-          })
-          .Build();
-
-        autoMocker.Use<IConfiguration>(configuration);
+        autoMocker.Use(Options.Create(new EmailValidationSettings {
+            Enabled = isEmailValidationEnabled,
+        }));
 
         autoMocker.GetMock<IUsersApiClient>()
             .SetReturnsDefault(Task.FromResult(RefitTestHelper.CreateSuccessResponse()));
@@ -119,6 +115,21 @@ public sealed class ChangeEmailControllerTests
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(RefitTestHelper.CreateProblemResponse<GetPendingChangeEmailResponse>(HttpStatusCode.NotFound));
+    }
+
+    private static void SetupNoPendingChangeConfirmation(AutoMocker autoMocker)
+    {
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ConfirmChangeEmailAddress(
+                It.IsAny<Guid>(),
+                It.IsAny<ConfirmChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse<ConfirmChangeEmailAddressResponse>(
+                HttpStatusCode.BadRequest,
+                new ProblemDetails {
+                    Type = ChangeEmailErrors.NoPendingRequest.Code,
+                    Detail = "No pending change email request found"
+                }));
     }
 
     #region Index()
@@ -575,19 +586,7 @@ public sealed class ChangeEmailControllerTests
     public async Task PostVerificationCode_LeavesUserOnVerifyPage_WhenNoPendingChange()
     {
         var autoMocker = new AutoMocker();
-
-        autoMocker.GetMock<IUsersApiClient>()
-            .Setup(x => x.ConfirmChangeEmailAddress(
-                It.IsAny<Guid>(),
-                It.IsAny<ConfirmChangeEmailAddressRequest>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(RefitTestHelper.CreateProblemResponse<ConfirmChangeEmailAddressResponse>(
-                HttpStatusCode.BadRequest,
-                new ProblemDetails {
-                    Type = ChangeEmailErrors.NoPendingRequest.Code,
-                    Detail = "No pending change email request found"
-                }));
-
+        SetupNoPendingChangeConfirmation(autoMocker);
         SetupNoPendingEmailChange(autoMocker);
 
         var controller = CreateControllerAuthenticated(autoMocker);
@@ -604,6 +603,33 @@ public sealed class ChangeEmailControllerTests
 
         var redirectResult = TypeAssert.IsType<ViewResult>(result);
         Assert.AreEqual("VerificationCode", redirectResult.ViewName);
+        var errorMessages = controller.ModelState.Values
+            .SelectMany(x => x.Errors)
+            .Select(x => x.ErrorMessage)
+            .ToArray();
+        Assert.IsTrue(errorMessages.Contains("The verification code you entered is incorrect. Please check and try again."));
+        Assert.IsFalse(errorMessages.Contains("No pending change email request found"));
+    }
+
+    [TestMethod]
+    public async Task PostVerificationCode_FetchesPendingEmailOnce_WhenNoPendingChange()
+    {
+        var autoMocker = new AutoMocker();
+        SetupNoPendingChangeConfirmation(autoMocker);
+        SetupNoPendingEmailChange(autoMocker);
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        await controller.PostAnonymousVerificationCode(
+            Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+            new VerificationCodeViewModel {
+                UserId = Guid.Parse("15eb0a65-2d08-4f96-8dc9-9d77798e6c54"),
+                NewEmailAddress = "alex.new@example.com",
+                VerificationCodeInput = "ABC1234"
+            },
+            CancellationToken.None);
+
+        autoMocker.GetMock<IUsersApiClient>()
+            .Verify(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]

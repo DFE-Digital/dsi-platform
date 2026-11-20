@@ -15,6 +15,12 @@ public sealed class VerificationCodeViewModel
     public const string HideResendVerificationTempDataKey = "HideResendVerification";
 
     /// <summary>
+    /// The unique 'TempData' key for the submitted email address when the API
+    /// intentionally does not disclose whether the address is already in use.
+    /// </summary>
+    public const string NewEmailAddressTempDataKey = "NewEmail";
+
+    /// <summary>
     /// Gets or sets the unique ID of the user.
     /// </summary>
     [ValidateNever]
