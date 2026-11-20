@@ -2,7 +2,6 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.Contracts;
-using Dfe.SignIn.Gateways.BullMq;
 using Dfe.SignIn.Gateways.DistributedCache;
 using Dfe.SignIn.Gateways.EntityFramework.Configuration;
 using Dfe.SignIn.Gateways.GovNotify;
@@ -53,17 +52,18 @@ builder.Services
     .AddGlobalExceptionHandler()
     .AddInternalApiAuthentication(builder.Configuration, builder.Environment);
 
+// Transitional Search integration: retain until the Node Search client is replaced.
 IEnumerable<NodeApiName> requiredNodeApiNames = [NodeApiName.Search];
-// Get token credential for making API requests to internal APIs.
-var tokenCredential = TokenCredentialHelpers.CreateFromConfiguration(
+var searchApiCredential = TokenCredentialHelpers.CreateFromConfiguration(
     builder.Configuration.GetRequiredSection("InternalApiClient")
 );
 
 builder.Services
     .Configure<InternalApiClientOptions>(builder.Configuration.GetRequiredSection("InternalApiClient"))
-    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), tokenCredential)
+    .SetupNodeApiClient(requiredNodeApiNames, builder.Configuration.GetRequiredSection("InternalApiClient"), searchApiCredential)
     .SetupResiliencePipelines(builder.Configuration);
 
+// Temporary: remove after legacy callers and feature-internal dispatches are migrated.
 builder.Services
     .AddInteractionFramework()
     .AddInteractionCaching(builder.Configuration);
@@ -83,23 +83,28 @@ builder.Services
         addAudit: false
     );
 
-var azureTokenCredentialOptions = new DefaultAzureCredentialOptions();
-builder.Configuration.GetSection("Azure").Bind(azureTokenCredentialOptions);
-var azureTokenCredential = new DefaultAzureCredential(azureTokenCredentialOptions);
+var serviceBusCredentialOptions = new DefaultAzureCredentialOptions();
+builder.Configuration.GetSection("Azure").Bind(serviceBusCredentialOptions);
+var serviceBusCredential = new DefaultAzureCredential(serviceBusCredentialOptions);
 
 builder.Services
-    .AddDsiAuditing(builder.Configuration, azureTokenCredential, builder.Environment);
+    .AddDsiAuditing(builder.Configuration, serviceBusCredential, builder.Environment);
 
 builder.Services
     .AddMessagingServices();
 
 builder.Services
-    .AddGovNotify(builder.Configuration)
-    .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache, builder.Configuration.GetRequiredSection("GeneralRedisCache"))
-    .AddFeaturesServices(builder.Configuration)
-    .AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
+    .AddGovNotify(builder.Configuration);
 
-builder.Services.AddBullMqServices();
+builder.Services
+    .SetupRedisCacheStore(DistributedCacheKeys.GeneralCache, builder.Configuration.GetRequiredSection("GeneralRedisCache"));
+
+// Feature-local endpoint services and request validators.
+builder.Services
+    .AddFeaturesServices(builder.Configuration);
+
+builder.Services
+    .AddValidatorsFromAssemblyContaining<CoreContractsMarker>();
 
 var app = builder.Build();
 
@@ -117,12 +122,14 @@ app.UseAuthorization();
 app.UseHttpsRedirection();
 app.UseHealthChecks();
 
+// Temporary: interaction-backed HTTP endpoints.
 app.UseApplicationEndpoints();
 app.UseOrganisationEndpoints();
 app.UsePublicApiEndpoints();
 app.UseSupportTicketEndpoints();
 app.UseUserEndpoints();
 
+// Migrated feature endpoints.
 app.MapFeaturesEndpoints();
 
 await app.RunAsync();

@@ -44,5 +44,8 @@ public sealed class UserUseCaseExtensionsTests
         Assert.IsTrue(
             services.HasInteractor<GetUserStatusRequest, GetUserStatusUseCase>()
         );
+        Assert.IsTrue(
+            services.HasInteractor<GetUserOrganisationIdentifiersRequest, GetUserOrganisationIdentifiersUseCase>()
+        );
     }
 }

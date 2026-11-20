@@ -1,6 +1,5 @@
 using Dfe.SignIn.Base.Framework;
 using Dfe.SignIn.Core.UseCases.PublicApi;
-using Dfe.SignIn.Core.UseCases.Users;
 
 namespace Dfe.SignIn.InternalApi.Configuration;
 
@@ -31,7 +30,6 @@ public static class PublicApiUseCaseExtensions
         services.Configure<ApiSecretEncryptionOptions>(configuration.GetRequiredSection("PublicApiSecretEncryption"));
         services.AddInteractor<EncryptApiSecretUseCase>();
         services.AddInteractor<DecryptApiSecretUseCase>();
-        services.AddInteractor<GetUserOrganisationIdentifiersUseCase>();
 
         return services;
     }
