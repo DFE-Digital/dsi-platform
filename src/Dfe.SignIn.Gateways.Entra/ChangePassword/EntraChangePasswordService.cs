@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.RegularExpressions;
 using Azure.Core;
 using Dfe.SignIn.Base.Framework.OperationResults;
@@ -77,25 +78,36 @@ public sealed partial class EntraChangePasswordService(
             var message = oDataEx.Error?.Message ?? oDataEx.Message;
             logger.LogError(oDataEx, "OData error changing password for Entra user: {Code} - {Message}", oDataEx.Error?.Code, message);
 
-            var match = GraphErrorMessagePattern().Match(message);
-            if (match.Success) {
-                string paramName = match.Groups[3].Value;
-                string detailMessage = match.Groups[1].Value;
-
-                if (string.Equals(paramName, "oldPassword", StringComparison.OrdinalIgnoreCase)) {
-                    return OperationResult.Failure(EntraPasswordErrors.InvalidCurrentPassword);
-                }
-                if (string.Equals(paramName, "newPassword", StringComparison.OrdinalIgnoreCase)) {
-                    return OperationResult.Failure(EntraPasswordErrors.PasswordPolicyViolation(detailMessage));
-                }
-            }
-
-            return OperationResult.Failure(EntraPasswordErrors.Unexpected(message));
+            return OperationResult.Failure(MapGraphError(oDataEx));
         }
-        catch (Exception ex) {
+        catch (Exception ex) when (ex is not OperationCanceledException) {
             logger.LogError(ex, "Unexpected error changing password for Entra user.");
             return OperationResult.Failure(EntraPasswordErrors.Unexpected(ex.Message));
         }
+    }
+
+    private static OperationError MapGraphError(ODataError error)
+    {
+        if (error.ResponseStatusCode == (int)HttpStatusCode.Unauthorized) {
+            return EntraPasswordErrors.AuthenticationRequired;
+        }
+
+        var message = error.Error?.Message ?? error.Message;
+        var match = GraphErrorMessagePattern().Match(message);
+        if (!match.Success) {
+            return EntraPasswordErrors.Unexpected(message);
+        }
+
+        var parameter = match.Groups[3].Value;
+        if (string.Equals(parameter, "oldPassword", StringComparison.OrdinalIgnoreCase)) {
+            return EntraPasswordErrors.InvalidCurrentPassword;
+        }
+
+        if (string.Equals(parameter, "newPassword", StringComparison.OrdinalIgnoreCase)) {
+            return EntraPasswordErrors.PasswordPolicyViolation(match.Groups[1].Value);
+        }
+
+        return EntraPasswordErrors.Unexpected(message);
     }
 
     [GeneratedRegex("(.+)( paramName: ([A-Za-z_0-9]+))")]

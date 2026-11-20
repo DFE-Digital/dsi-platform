@@ -59,12 +59,23 @@ public static class ProfileErrorPresets
     };
 
     /// <summary>
+    /// Password change requires renewed associated-account authentication.
+    /// </summary>
+    public static ErrorViewModel PasswordAuthenticationRequired(IUrlHelper url) => new() {
+        PageTitle = "Sign in again",
+        Heading = "Sign in again",
+        Paragraphs = ["Your password change session is no longer valid. Sign in again to change your password."],
+        ActionButtonText = "Sign in again",
+        ActionButtonUrl = url.Action(nameof(Controllers.ChangePasswordController.Index), "ChangePassword",
+            new { reauthenticate = true }),
+    };
+
+    /// <summary>
     /// Unexpected password change failure
     /// (Node <c>entraPasswordChangeHandlerError.ejs</c> parity).
     /// </summary>
     /// <remarks>
     /// Used for unexpected Entra failures already handled in .NET.
-    /// The Node "form expired" / unauthorised page is not migrated yet.
     /// </remarks>
     public static ErrorViewModel PasswordUpdateFailed(IUrlHelper url) => new() {
         PageTitle = "System error",

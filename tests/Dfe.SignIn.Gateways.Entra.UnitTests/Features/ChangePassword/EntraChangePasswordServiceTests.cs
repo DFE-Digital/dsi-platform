@@ -129,6 +129,32 @@ public sealed class EntraChangePasswordServiceTests
         Assert.AreEqual("Entra.Password.Unexpected", result.Error.Code);
     }
 
+    [TestMethod]
+    public async Task ChangePasswordAsync_PropagatesCancellation()
+    {
+        using var httpClient = new HttpClient(new TestHttpMessageHandler(_ => throw new OperationCanceledException()));
+        var service = CreateService(httpClient);
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            service.ChangePasswordAsync("oldPassword", "newPassword", CreateToken()));
+    }
+
+    [TestMethod]
+    public async Task ChangePasswordAsync_ReturnsAuthenticationRequired_WhenGraphReturnsUnauthorized()
+    {
+        using var httpClient = new HttpClient(new TestHttpMessageHandler(_ =>
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.Unauthorized) {
+                Content = new StringContent(
+                    "{\"error\":{\"code\":\"InvalidAuthenticationToken\",\"message\":\"Token expired\"}}",
+                    System.Text.Encoding.UTF8, "application/json")
+            })));
+        var service = CreateService(httpClient);
+
+        var result = await service.ChangePasswordAsync("oldPassword", "newPassword", CreateToken());
+
+        Assert.AreEqual(EntraPasswordErrors.AuthenticationRequiredCode, result.Error.Code);
+    }
+
     private static EntraChangePasswordService CreateService(HttpClient httpClient)
         => new(NullLogger<EntraChangePasswordService>.Instance, httpClient);
 

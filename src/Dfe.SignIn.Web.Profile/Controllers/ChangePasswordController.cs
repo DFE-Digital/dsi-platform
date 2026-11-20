@@ -1,3 +1,4 @@
+using Dfe.SignIn.Base.Framework.OperationResults;
 using Dfe.SignIn.Core.Contracts.Audit;
 using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangePassword;
@@ -26,22 +27,35 @@ public sealed partial class ChangePasswordController(
     ILogger<ChangePasswordController> logger
 ) : Controller
 {
+    private enum PasswordChangeOutcome
+    {
+        Succeeded,
+        Invalid,
+        Failed,
+        AuthenticationRequired,
+    }
+
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(bool reauthenticate = false)
     {
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
         if (userProfileFeature.IsEntra) {
             var actionResult = await associatedAccountAuthService.AuthenticateAssociatedAccount(this,
                 [AssociatedAccountConstants.DefaultGraphScope],
-                SelectAssociatedReturnLocation.ChangePassword);
+                SelectAssociatedReturnLocation.ChangePassword, force: reauthenticate);
 
             if (actionResult is not null) {
                 return actionResult;
             }
         }
 
-        // Ensure that any prior inputs are cleared (eg. on failed form submission).
+        return this.PasswordForm();
+    }
+
+    private IActionResult PasswordForm()
+    {
+        // Never redisplay submitted passwords, but retain their validation errors.
         this.ModelState.SetModelValue(nameof(ChangePasswordViewModel.CurrentPasswordInput), null, "");
         this.ModelState.SetModelValue(nameof(ChangePasswordViewModel.NewPasswordInput), null, "");
         this.ModelState.SetModelValue(nameof(ChangePasswordViewModel.ConfirmNewPasswordInput), null, "");
@@ -58,23 +72,31 @@ public sealed partial class ChangePasswordController(
         if (!validationResult.IsValid) {
             validationResult.AddToModelState(this.ModelState);
 
-            await auditWriter.Log(new WriteToAuditRequest {
+            await this.WriteAuditAsync(new WriteToAuditRequest {
                 EventCategory = AuditEventCategoryNames.ChangePassword,
                 Message = "Change password attempt failed",
                 EventName = AuditChangePasswordEventNames.PasswordValidation,
                 WasFailure = true
             });
 
-            return await this.Index();
+            return this.PasswordForm();
         }
 
         var userProfileFeature = this.HttpContext.Features.GetRequiredFeature<IUserProfileFeature>();
 
-        var success = userProfileFeature.IsEntra
+        var outcome = userProfileFeature.IsEntra
             ? await this.TryChangeEntraPasswordAsync(viewModel, cancellationToken)
             : await this.TryChangeLocalPasswordAsync(viewModel, userProfileFeature.UserId, cancellationToken);
 
-        if (!success) {
+        if (outcome == PasswordChangeOutcome.Invalid) {
+            return this.PasswordForm();
+        }
+
+        if (outcome == PasswordChangeOutcome.AuthenticationRequired) {
+            return this.ErrorView(ProfileErrorPresets.PasswordAuthenticationRequired(this.Url));
+        }
+
+        if (outcome == PasswordChangeOutcome.Failed) {
             return this.ErrorView(ProfileErrorPresets.PasswordUpdateFailed(this.Url));
         }
 
@@ -86,7 +108,13 @@ public sealed partial class ChangePasswordController(
         return this.RedirectToAction(nameof(HomeController.Index), MvcNaming.Controller<HomeController>());
     }
 
-    private async Task<bool> TryChangeEntraPasswordAsync(ChangePasswordViewModel viewModel, CancellationToken cancellationToken)
+    private async Task<PasswordChangeOutcome> TryChangeEntraPasswordAsync(ChangePasswordViewModel viewModel, CancellationToken cancellationToken)
+    {
+        var result = await this.ExecuteEntraPasswordChangeAsync(viewModel, cancellationToken);
+        return await this.HandleEntraPasswordChangeResultAsync(result);
+    }
+
+    private async Task<OperationResult> ExecuteEntraPasswordChangeAsync(ChangePasswordViewModel viewModel, CancellationToken cancellationToken)
     {
         try {
             var graphAccessToken = await associatedAccountAuthService.CreateAccessTokenForAssociatedAccount(this,
@@ -94,65 +122,80 @@ public sealed partial class ChangePasswordController(
                 cancellationToken: cancellationToken)
                 ?? throw new InvalidOperationException("Provided graph token for user is null");
 
-            var result = await entraChangePasswordService.ChangePasswordAsync(
+            return await entraChangePasswordService.ChangePasswordAsync(
                 viewModel.CurrentPasswordInput!,
                 viewModel.NewPasswordInput!,
                 graphAccessToken,
                 cancellationToken);
-
-            if (result.IsSuccess) {
-                await auditWriter.Log(new WriteToAuditRequest {
-                    Message = "Successfully changed password",
-                    EventCategory = AuditEventCategoryNames.ChangePassword
-                });
-
-                return true;
-            }
-
-            if (result.Error.Code == EntraPasswordErrors.InvalidCurrentPasswordCode) {
-                this.ModelState.AddModelError(nameof(ChangePasswordViewModel.CurrentPasswordInput), result.Error.Description);
-
-                await auditWriter.Log(new WriteToAuditRequest {
-                    EventCategory = AuditEventCategoryNames.ChangePassword,
-                    EventName = AuditChangePasswordEventNames.IncorrectPassword,
-                    WasFailure = true,
-                    Message = "Failed changed password. Incorrect current password"
-                });
-
-                await auditWriter.Log(new WriteToAuditRequest {
-                    Message = "Change password attempt failed.",
-                    EventCategory = AuditEventCategoryNames.ChangePassword,
-                    EventName = AuditChangePasswordEventNames.PasswordValidation,
-                    WasFailure = true
-                });
-
-                return false;
-            }
-
-            if (result.Error.Code == EntraPasswordErrors.PasswordPolicyViolationCode) {
-                this.ModelState.AddModelError(nameof(ChangePasswordViewModel.NewPasswordInput), result.Error.Description);
-
-                await auditWriter.Log(new WriteToAuditRequest {
-                    Message = "Change password attempt failed.",
-                    EventCategory = AuditEventCategoryNames.ChangePassword,
-                    EventName = AuditChangePasswordEventNames.PasswordValidation,
-                    WasFailure = true
-                });
-
-                return false;
-            }
-
-            this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
-            return false;
         }
-        catch (Exception ex) {
+        catch (BadHttpRequestException ex) when (ex.StatusCode == StatusCodes.Status403Forbidden) {
+            logger.LogWarning(ex, "Associated account authentication failed during password change.");
+            return OperationResult.Failure(EntraPasswordErrors.AuthenticationRequired);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) {
             logger.LogError(ex, "An error occurred while changing the user's password.");
-            this.ModelState.AddModelError(string.Empty, "We couldn't change your password right now. Please try again.");
-            return false;
+            return OperationResult.Failure(EntraPasswordErrors.Unexpected(ex.Message));
         }
     }
 
-    private async Task<bool> TryChangeLocalPasswordAsync(ChangePasswordViewModel viewModel, Guid userId, CancellationToken cancellationToken)
+    private async Task<PasswordChangeOutcome> HandleEntraPasswordChangeResultAsync(OperationResult result)
+    {
+        if (result.IsSuccess) {
+            await this.WriteAuditAsync(new WriteToAuditRequest {
+                Message = "Successfully changed password",
+                EventCategory = AuditEventCategoryNames.ChangePassword
+            });
+            return PasswordChangeOutcome.Succeeded;
+        }
+
+        if (result.Error.Code == EntraPasswordErrors.AuthenticationRequiredCode) {
+            return PasswordChangeOutcome.AuthenticationRequired;
+        }
+
+        var field = result.Error.Code switch {
+            EntraPasswordErrors.InvalidCurrentPasswordCode => nameof(ChangePasswordViewModel.CurrentPasswordInput),
+            EntraPasswordErrors.PasswordPolicyViolationCode => nameof(ChangePasswordViewModel.NewPasswordInput),
+            _ => null,
+        };
+
+        if (field is null) {
+            logger.LogWarning("Entra password change failed with code {ErrorCode}.", result.Error.Code);
+            return PasswordChangeOutcome.Failed;
+        }
+
+        this.ModelState.AddModelError(field, result.Error.Description);
+        if (result.Error.Code == EntraPasswordErrors.InvalidCurrentPasswordCode) {
+            await this.WriteAuditAsync(new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.ChangePassword,
+                EventName = AuditChangePasswordEventNames.IncorrectPassword,
+                WasFailure = true,
+                Message = "Failed changed password. Incorrect current password"
+            });
+        }
+
+        await this.AuditEntraValidationFailureAsync();
+        return PasswordChangeOutcome.Invalid;
+    }
+
+    private Task AuditEntraValidationFailureAsync() => this.WriteAuditAsync(new WriteToAuditRequest {
+        Message = "Change password attempt failed.",
+        EventCategory = AuditEventCategoryNames.ChangePassword,
+        EventName = AuditChangePasswordEventNames.PasswordValidation,
+        WasFailure = true
+    });
+
+    private async Task WriteAuditAsync(WriteToAuditRequest request)
+    {
+        try {
+            await auditWriter.Log(request);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) {
+            // Audit delivery failure must not misrepresent the password operation's outcome.
+            logger.LogError(ex, "Failed to publish password change audit event {EventName}.", request.EventName);
+        }
+    }
+
+    private async Task<PasswordChangeOutcome> TryChangeLocalPasswordAsync(ChangePasswordViewModel viewModel, Guid userId, CancellationToken cancellationToken)
     {
         var request = new ChangePasswordRequest {
             CurrentPassword = viewModel.CurrentPasswordInput!,
@@ -160,15 +203,28 @@ public sealed partial class ChangePasswordController(
             ConfirmNewPassword = viewModel.ConfirmNewPasswordInput!,
         };
 
-        var response = await usersApiClient.ChangePassword(userId, request, cancellationToken);
+        try {
+            var response = await usersApiClient.ChangePassword(userId, request, cancellationToken);
 
-        if (response.IsSuccessStatusCode) {
-            return true;
+            if (response.IsSuccessStatusCode) {
+                return PasswordChangeOutcome.Succeeded;
+            }
+
+            logger.LogWarning("Failed to change password for user {UserId}. Status: {StatusCode}", userId, response.StatusCode);
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+                await response.TryAddProblemDetailsToModelStateAsync(this.ModelState, ChangePasswordViewModel.RequestPropertyMap);
+                if (this.ModelState.Any(entry => ChangePasswordViewModel.RequestPropertyMap.Values.Contains(entry.Key)
+                    && entry.Value is { Errors.Count: > 0 })) {
+                    return PasswordChangeOutcome.Invalid;
+                }
+            }
+
+            return PasswordChangeOutcome.Failed;
         }
-
-        await response.TryAddProblemDetailsToModelStateAsync(this.ModelState, ChangePasswordViewModel.RequestPropertyMap);
-        logger.LogWarning("Failed to change password for user {UserId}. Response: {Response}", userId, response);
-        return false;
+        catch (Exception ex) when (ex is not OperationCanceledException) {
+            logger.LogError(ex, "An error occurred while changing the user's password.");
+            return PasswordChangeOutcome.Failed;
+        }
     }
 
     [HttpPost("cancel")]

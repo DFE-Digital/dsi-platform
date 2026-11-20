@@ -8,6 +8,17 @@ namespace Dfe.SignIn.Gateways.Entra.ChangePassword;
 public static class EntraPasswordErrors
 {
     /// <summary>
+    /// The error code when delegated authentication must be renewed.
+    /// </summary>
+    public const string AuthenticationRequiredCode = "Entra.Password.AuthenticationRequired";
+
+    /// <summary>
+    /// Gets the error when delegated authentication must be renewed.
+    /// </summary>
+    public static readonly OperationError AuthenticationRequired = new(
+        AuthenticationRequiredCode, "Please authenticate again before changing your password.");
+
+    /// <summary>
     /// The error code when the provided current password is incorrect.
     /// </summary>
     public const string InvalidCurrentPasswordCode = "Entra.Password.InvalidCurrent";
