@@ -17,7 +17,7 @@ using Dfe.SignIn.InternalApi.Features.Users.GetUserProfile;
 using Dfe.SignIn.InternalApi.Features.Users.IsApprover;
 using Dfe.SignIn.InternalApi.Features.Users.PendingApprovalCounter;
 using Dfe.SignIn.InternalApi.Features.Users.UserCode;
-using Dfe.SignIn.InternalApi.Services.Search;
+using Dfe.SignIn.InternalApi.Infrastructure.Search;
 using Dfe.SignIn.WebFramework.Configuration;
 
 namespace Dfe.SignIn.InternalApi.Features.Users;
@@ -28,7 +28,7 @@ namespace Dfe.SignIn.InternalApi.Features.Users;
 [ExcludeFromCodeCoverage]
 public static class UsersFeature
 {
-    private static readonly EndpointRegistry NewEndpointRegistry = new EndpointRegistry()
+    private static readonly EndpointRegistry Endpoints = new EndpointRegistry()
         .Add<CancelChangeEmailAddressEndpoint>()
         .Add<ConfirmChangeEmailAddressEndpoint>()
         .Add<CheckIsBlockedEmailAddressEndpoint>()
@@ -48,14 +48,13 @@ public static class UsersFeature
     /// <param name="app">The endpoint route builder to map the endpoints to.</param>
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
-        // class-based endpoint mapped via registry
-        NewEndpointRegistry.MapRoutes(app);
+        Endpoints.MapRoutes(app);
 
         return app;
     }
 
     /// <summary>
-    /// Adds the <see cref="IUserLookupService"/> to the service collection.
+    /// Registers user feature services and class-based endpoints.
     /// </summary>
     /// <param name="services">The service collection to add the service to.</param>
     /// <param name="configuration">The configuration root to retrieve configuration settings from.</param>
@@ -65,8 +64,7 @@ public static class UsersFeature
         services
             .AddScoped<IUserLookupService, UserLookupService>()
             .AddScoped<IUserCodeService, UserCodeService>()
-            .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>()
-            .AddScoped<IPasswordHasher, PasswordHasher>();
+            .AddScoped<IEntraEmailUpdater, EntraEmailUpdater>();
 
         services
             .AddInteractionLimiter<InitiateChangeEmailAddressRequest>(configuration);
@@ -84,11 +82,10 @@ public static class UsersFeature
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
-        services.AddScoped<IRemoveInviteService, RemoveInviteService>();
+        services.AddScoped<IInvitationSearchRemover, InvitationSearchRemover>();
         services.AddScoped<GenericEmailCheck>();
 
-        // Register class-based endpoints with DI
-        NewEndpointRegistry.RegisterServices(services);
+        Endpoints.RegisterServices(services);
 
         return services;
     }

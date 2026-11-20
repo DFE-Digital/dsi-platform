@@ -1,12 +1,12 @@
 namespace Dfe.SignIn.InternalApi.Endpoints;
 
 /// <summary>
-/// Provides extension methods for configuring standard responses and behaviors for API endpoints.
+/// Provides extension methods for documenting standard endpoint responses.
 /// </summary>
 public static class EndpointMetadataExtensions
 {
     /// <summary>
-    /// Configures standard responses and behaviors for an API endpoint, including common HTTP status codes, validation filters, and OpenAPI documentation.
+    /// Documents an empty successful response and standard ProblemDetails responses.
     /// </summary>
     /// <param name="builder"> The route handler builder.</param>
     /// <returns> The updated route handler builder.</returns>
@@ -19,7 +19,7 @@ public static class EndpointMetadataExtensions
     }
 
     /// <summary>
-    /// Configures standard responses and behaviors for an API endpoint that returns a specific response type, including common HTTP status codes, validation filters, and OpenAPI documentation.
+    /// Documents a typed successful response and standard ProblemDetails responses.
     /// </summary>
     /// <typeparam name="TResponse">The type of the response.</typeparam>
     /// <param name="builder">The route handler builder.</param>

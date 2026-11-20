@@ -1,13 +1,13 @@
 using System.Net;
-using Dfe.SignIn.InternalApi.Services.Search;
+using Dfe.SignIn.InternalApi.Infrastructure.Search;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 
-namespace Dfe.SignIn.InternalApi.UnitTests.Services;
+namespace Dfe.SignIn.InternalApi.UnitTests.Infrastructure.Search;
 
 [TestClass]
-public class RemoveInviteServiceTests
+public class InvitationSearchRemoverTests
 {
     [TestMethod]
     public async Task DeletesInviteFromSearchIndex()
@@ -32,9 +32,9 @@ public class RemoveInviteServiceTests
             BaseAddress = new Uri("https://test/")
         };
 
-        var logger = new Mock<ILogger<RemoveInviteService>>();
+        var logger = new Mock<ILogger<InvitationSearchRemover>>();
 
-        var sut = new RemoveInviteService(client, logger.Object);
+        var sut = new InvitationSearchRemover(client, logger.Object);
 
         // Act
         await sut.Handle(userId, invitationId);
@@ -58,8 +58,8 @@ public class RemoveInviteServiceTests
 
         var client = new HttpClient(handler.Object);
 
-        var logger = new Mock<ILogger<RemoveInviteService>>();
-        var sut = new RemoveInviteService(client, logger.Object);
+        var logger = new Mock<ILogger<InvitationSearchRemover>>();
+        var sut = new InvitationSearchRemover(client, logger.Object);
 
         // Act
         await sut.Handle(userId, invitationId);

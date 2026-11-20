@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace Dfe.SignIn.InternalApi.Features.Users.EmailBlocked;
 
 /// <summary>
-/// Endpoint for determing if an email address is valid
+/// Checks whether an email address matches the configured blacklist.
 /// </summary>
 /// <param name="emailRestrictionsConfiguration">Configuration options containing the values for blacklisting</param>
 /// <param name="logger"></param>
@@ -30,7 +30,7 @@ public sealed class CheckIsBlockedEmailAddressEndpoint(
             endpoint.Handle(emailAddressToValidate))
             .WithName("Validates provided email against blacklist")
             .WithTags("Users")
-            .WithStandardResponses()
+            .WithStandardResponses<CheckIsBlockedEmailAddressResponse>()
             .WithValidationFilter<CheckIsBlockedEmailAddressRequest>();
     }
 

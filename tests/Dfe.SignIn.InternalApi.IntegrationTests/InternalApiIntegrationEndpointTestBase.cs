@@ -18,7 +18,7 @@ public abstract class InternalApiIntegrationEndpointTestBase(InternalApiWebAppli
     protected CapturingWriteToAuditInteractor AuditCapturer => this.WebAppFactory.AuditCapturer;
     internal FakeTimestampInterceptor TimestampInterceptor => this.WebAppFactory.TimestampInterceptor;
     internal FailingDbCommandInterceptor FailingDbCommandInterceptor => this.WebAppFactory.FailingDbCommandInterceptor;
-    internal FakeRemoveInviteService FakeRemoveInviteService => this.WebAppFactory.FakeRemoveInviteService;
+    internal FakeInvitationSearchRemover FakeInvitationSearchRemover => this.WebAppFactory.FakeInvitationSearchRemover;
 
     public async Task InitializeAsync()
     {

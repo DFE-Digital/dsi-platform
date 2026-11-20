@@ -1,8 +1,8 @@
-using Dfe.SignIn.InternalApi.Services.Search;
+using Dfe.SignIn.InternalApi.Infrastructure.Search;
 
 namespace Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
 
-public sealed class FakeRemoveInviteService : IRemoveInviteService
+public sealed class FakeInvitationSearchRemover : IInvitationSearchRemover
 {
     private readonly Dictionary<Guid, List<Guid>> RemovedInvitationsByUserId = [];
 

@@ -29,12 +29,12 @@ public class IsApproverEndpoint(
             await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Is Approver")
             .WithTags("Users")
-            .WithStandardResponses()
+            .WithStandardResponses<IsOrganisationApproverResponse>()
             .RequireAuthorization();
     }
 
     /// <summary>
-    /// Changes the name of a user.
+    /// Checks whether the user is an organisation approver.
     /// </summary>
     /// <param name="userId">The ID of the user to check for approver status.</param>
     /// <param name="cancellationToken">The cancellation token.</param>

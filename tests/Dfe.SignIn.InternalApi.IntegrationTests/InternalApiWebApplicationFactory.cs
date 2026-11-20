@@ -5,7 +5,7 @@ using Dfe.SignIn.Core.Interfaces.Notifications;
 using Dfe.SignIn.Gateways.EntityFramework;
 using Dfe.SignIn.Gateways.Entra.ChangeEmail;
 using Dfe.SignIn.InternalApi.IntegrationTests.Mocks;
-using Dfe.SignIn.InternalApi.Services.Search;
+using Dfe.SignIn.InternalApi.Infrastructure.Search;
 using Dfe.SignIn.TestHelpers.Integration;
 using Dfe.SignIn.TestHelpers.Integration.Mocks;
 using Microsoft.AspNetCore.Authentication;
@@ -33,7 +33,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
     public CapturingWriteToAuditInteractor AuditCapturer { get; } = new();
     internal FakeTimestampInterceptor TimestampInterceptor { get; } = new();
     internal FailingDbCommandInterceptor FailingDbCommandInterceptor { get; } = new();
-    internal FakeRemoveInviteService FakeRemoveInviteService { get; } = new();
+    internal FakeInvitationSearchRemover FakeInvitationSearchRemover { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -81,8 +81,8 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
             services.AddSingleton<DbCommandInterceptor>(this.FailingDbCommandInterceptor);
 
             // Search API - Removal of invitation
-            services.RemoveAll<IRemoveInviteService>();
-            services.AddSingleton<IRemoveInviteService>(this.FakeRemoveInviteService);
+            services.RemoveAll<IInvitationSearchRemover>();
+            services.AddSingleton<IInvitationSearchRemover>(this.FakeInvitationSearchRemover);
         });
     }
 
@@ -96,7 +96,7 @@ public class InternalApiWebApplicationFactory : IntegrationTestFactory<Program>,
         this.FakeEmailTracker.Clear();
         this.FakeEntraChangeEmailService.OnChangeEmail = null;
         this.FakeEventPublisher.Clear();
-        this.FakeRemoveInviteService.Clear();
+        this.FakeInvitationSearchRemover.Clear();
         this.AuditCapturer.Clear();
         this.TimestampInterceptor.Reset();
         this.FailingDbCommandInterceptor.Reset();

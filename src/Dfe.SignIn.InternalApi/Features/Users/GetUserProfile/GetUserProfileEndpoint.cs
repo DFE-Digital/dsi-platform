@@ -27,7 +27,7 @@ public sealed class GetUserProfileEndpoint(
             await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Get User Profile")
             .WithTags("Users")
-            .WithStandardResponses();
+            .WithStandardResponses<GetUserProfileResponse>();
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public sealed class GetUserProfileEndpoint(
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
     public async Task<IResult> HandleAsync(
-        [FromRoute] Guid userId,
+        Guid userId,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Getting profile for user {UserId}", userId);

@@ -2,6 +2,7 @@ using Dfe.SignIn.Core.Contracts.Features.Users.Shared;
 
 namespace Dfe.SignIn.Core.Contracts.Features.Users;
 
+// TODO: Move this service contract alongside the user features when retiring Core.UseCases.
 /// <summary>
 /// Service for looking up user information from the database.
 /// </summary>

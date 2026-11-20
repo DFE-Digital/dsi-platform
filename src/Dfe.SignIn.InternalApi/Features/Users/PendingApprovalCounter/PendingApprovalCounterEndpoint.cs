@@ -28,12 +28,12 @@ public class PendingApprovalCounterEndpoint(
             await endpoint.HandleAsync(userId, cancellationToken))
             .WithName("Pending Approval Counter")
             .WithTags("Users")
-            .WithStandardResponses()
+            .WithStandardResponses<PendingApprovalCountResponse>()
             .RequireAuthorization();
     }
 
     /// <summary>
-    /// Changes the name of a user.
+    /// Gets the number of pending approval requests for the user.
     /// </summary>
     /// <param name="userId">The userId that the request belongs to</param>
     /// <param name="cancellationToken">The cancellation token.</param>

@@ -1,34 +1,32 @@
 using Dfe.SignIn.NodeApi.Client;
 
-namespace Dfe.SignIn.InternalApi.Services.Search;
+namespace Dfe.SignIn.InternalApi.Infrastructure.Search;
 
 /// <summary>
-/// Contract representing a Removal invitation service
+/// Removes invitation records from the search index.
 /// </summary>
-public interface IRemoveInviteService
+public interface IInvitationSearchRemover
 {
     /// <summary>
-    /// Removes the user invitation based on the invitation Id provided
-    /// from the DSI database.
+    /// Removes the invitation's search index record.
     /// </summary>
-    /// <param name="userId">ID represeting the user to remove the invitation from</param>
-    /// <param name="invitationId">ID represting the users invitation to remove</param>
+    /// <param name="userId">The user ID used for logging.</param>
+    /// <param name="invitationId">The invitation ID identifying the search record.</param>
     /// <returns></returns>
     Task Handle(Guid userId, Guid invitationId);
 }
 
 /// <summary>
-/// An implementation to remove user invitations from DSI
+/// Removes invitation records through the Search API.
 /// </summary>
-public class RemoveInviteService([FromKeyedServices(NodeApiName.Search)] HttpClient searchClient,
-    ILogger<RemoveInviteService> logger) : IRemoveInviteService
+public class InvitationSearchRemover([FromKeyedServices(NodeApiName.Search)] HttpClient searchClient,
+    ILogger<InvitationSearchRemover> logger) : IInvitationSearchRemover
 {
     /// <summary>
-    /// Removes the user invitation based on the invitation Id provided
-    /// from the DSI database.
+    /// Removes the invitation's search index record.
     /// </summary>
-    /// <param name="userId">ID represeting the user to remove the invitation from</param>
-    /// <param name="invitationId">ID represting the users invitation to remove</param>
+    /// <param name="userId">The user ID used for logging.</param>
+    /// <param name="invitationId">The invitation ID identifying the search record.</param>
     /// <returns></returns>
     public async Task Handle(Guid userId, Guid invitationId)
     {
