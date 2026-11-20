@@ -15,7 +15,8 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Authorize]
 [Route("/change-job-title")]
 public sealed class ChangeJobTitleController(
-    IUsersApiClient usersApiClient
+    IUsersApiClient usersApiClient,
+    ILogger<ChangeJobTitleController> logger
 ) : Controller
 {
     [HttpGet]
@@ -39,9 +40,20 @@ public sealed class ChangeJobTitleController(
             return this.Index();
         }
 
-        await usersApiClient.ChangeJobTitle(this.User.GetUserId(), new ChangeJobTitleRequest {
-            NewJobTitle = viewModel.JobTitleInput
-        }, cancellationToken);
+        var userId = this.User.GetUserId();
+        try {
+            var response = await usersApiClient.ChangeJobTitle(userId, new ChangeJobTitleRequest {
+                NewJobTitle = viewModel.JobTitleInput
+            }, cancellationToken);
+            if (!response.IsSuccessStatusCode) {
+                logger.LogError("Failed to change job title for user {UserId}. StatusCode: {StatusCode}", userId, response.StatusCode);
+                return this.ErrorView(ProfileErrorPresets.JobTitleUpdateFailed(this.Url));
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) {
+            logger.LogError(ex, "An exception occurred while changing job title for user {UserId}", userId);
+            return this.ErrorView(ProfileErrorPresets.JobTitleUpdateFailed(this.Url));
+        }
 
         this.SetFlashSuccess(
             heading: "Job title updated successfully",

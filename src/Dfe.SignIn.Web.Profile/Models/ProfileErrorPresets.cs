@@ -5,6 +5,30 @@ namespace Dfe.SignIn.Web.Profile.Models;
 
 public static class ProfileErrorPresets
 {
+    /// <summary>
+    /// Profile details could not be loaded.
+    /// </summary>
+    public static ErrorViewModel ProfileLoadFailed(IUrlHelper url) => new() {
+        PageTitle = "System error",
+        Heading = "System error",
+        Paragraphs = ["We couldn't load your profile right now. Please try again."],
+        ActionButtonText = "Try again",
+        ActionButtonUrl = url.Action(nameof(Controllers.HomeController.Index), "Home"),
+        HelpLink = PersistServiceDeskHelp,
+    };
+
+    /// <summary>
+    /// Job title update failed.
+    /// </summary>
+    public static ErrorViewModel JobTitleUpdateFailed(IUrlHelper url) => new() {
+        PageTitle = "System error",
+        Heading = "System error",
+        Paragraphs = ["We couldn't change your job title right now. Please try again."],
+        ActionButtonText = "Try again",
+        ActionButtonUrl = url.Action(nameof(Controllers.ChangeJobTitleController.Index), "ChangeJobTitle"),
+        HelpLink = PersistServiceDeskHelp,
+    };
+
     private static LinkSentence PersistServiceDeskHelp { get; } = new(
         TextBefore: "If the problem persists ",
         LinkText: "contact our service desk team",

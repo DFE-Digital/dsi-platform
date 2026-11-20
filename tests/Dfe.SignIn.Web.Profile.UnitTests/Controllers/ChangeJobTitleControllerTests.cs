@@ -1,5 +1,8 @@
+using System.Net;
 using System.Security.Claims;
+using Dfe.SignIn.Core.Contracts.Features.Users;
 using Dfe.SignIn.Core.Contracts.Features.Users.ChangeJobTitle;
+using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
 using Dfe.SignIn.WebFramework.Mvc;
@@ -8,7 +11,9 @@ using FluentValidation;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
 using Moq.AutoMock;
 
 namespace Dfe.SignIn.Web.Profile.UnitTests.Controllers;
@@ -18,6 +23,9 @@ public sealed class ChangeJobTitleControllerTests
 {
     private static ChangeJobTitleController CreateController(AutoMocker autoMocker)
     {
+        autoMocker.GetMock<IUsersApiClient>()
+            .SetReturnsDefault(Task.FromResult(RefitTestHelper.CreateSuccessResponse()));
+
         var controller = autoMocker.CreateInstance<ChangeJobTitleController>();
 
         var httpContext = new DefaultHttpContext();
@@ -37,6 +45,9 @@ public sealed class ChangeJobTitleControllerTests
 
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         controller.TempData = autoMocker.CreateInstance<TempDataDictionary>();
+        var url = new Mock<IUrlHelper>();
+        url.Setup(x => x.Action(It.IsAny<UrlActionContext>())).Returns("/change-job-title");
+        controller.Url = url.Object;
 
         return controller;
     }
@@ -119,6 +130,60 @@ public sealed class ChangeJobTitleControllerTests
         var redirectResult = TypeAssert.IsType<RedirectToActionResult>(result);
         Assert.AreEqual(nameof(HomeController.Index), redirectResult.ActionName);
         Assert.AreEqual(MvcNaming.Controller<HomeController>(), redirectResult.ControllerName);
+    }
+
+    [TestMethod]
+    [DataRow(HttpStatusCode.InternalServerError)]
+    [DataRow(HttpStatusCode.NotFound)]
+    public async Task PostIndex_DoesNotReportSuccess_WhenApiReturnsFailure(HttpStatusCode statusCode)
+    {
+        var autoMocker = new AutoMocker();
+        autoMocker.Use<IValidator<ChangeJobTitleViewModel>>(new ChangeJobTitleViewModelValidator());
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangeJobTitle(
+                It.IsAny<Guid>(),
+                It.IsAny<ChangeJobTitleRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse(statusCode));
+
+        var controller = CreateController(autoMocker);
+
+        var result = await controller.PostIndex(CreateValidChangeJobTitleViewModel(), CancellationToken.None);
+
+        Assert.IsFalse(result is RedirectToActionResult);
+        var flashNotification = controller.TempData.GetFlashNotification();
+        Assert.IsFalse(flashNotification?.Type == NotificationBannerType.Success);
+        Assert.AreEqual("/Views/Error/Index.cshtml", TypeAssert.IsType<ViewResult>(result).ViewName);
+    }
+
+    [TestMethod]
+    public async Task PostIndex_PresentsErrorView_WhenApiThrows()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangeJobTitle(It.IsAny<Guid>(), It.IsAny<ChangeJobTitleRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("API unavailable"));
+
+        var result = await controller.PostIndex(CreateValidChangeJobTitleViewModel(), CancellationToken.None);
+
+        Assert.AreEqual("/Views/Error/Index.cshtml", TypeAssert.IsType<ViewResult>(result).ViewName);
+        Assert.IsNull(controller.TempData.GetFlashNotification());
+    }
+
+    [TestMethod]
+    public async Task PostIndex_PropagatesCancellation()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangeJobTitle(It.IsAny<Guid>(), It.IsAny<ChangeJobTitleRequest>(), cancellation.Token))
+            .ThrowsAsync(new OperationCanceledException(cancellation.Token));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            controller.PostIndex(CreateValidChangeJobTitleViewModel(), cancellation.Token));
     }
 
     #endregion

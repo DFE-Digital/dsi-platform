@@ -57,7 +57,7 @@ public sealed class ChangeNameController(
                 return this.ErrorView(ProfileErrorPresets.NameUpdateFailed(this.Url));
             }
         }
-        catch (Exception ex) {
+        catch (Exception ex) when (ex is not OperationCanceledException) {
             logger.LogError(ex, "An exception occurred while changing name for user {UserId}", this.User.GetUserId());
             return this.ErrorView(ProfileErrorPresets.NameUpdateFailed(this.Url));
         }

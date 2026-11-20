@@ -44,13 +44,29 @@ public sealed class ChangeEmailController(
             return this.View("Index");
         }
 
+        try {
+            return await this.InitiateEmailChangeAsync(viewModel, resend == true, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) {
+            logger.LogError(ex, "Failed to initiate change email address for user {UserId}.", this.User.GetUserId());
+            return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
+        }
+    }
+
+    private async Task<IActionResult> InitiateEmailChangeAsync(
+        ChangeEmailViewModel viewModel, bool isResend, CancellationToken cancellationToken)
+    {
         if (EmailValidationSettings.Value.Enabled) {
             var blockedResponse = await usersApiClient.CheckIfEmailAddressIsBlocked(new CheckIsBlockedEmailAddressRequest {
                 EmailAddress = viewModel.EmailAddressInput!
             }, cancellationToken);
 
-            var isBlocked = !blockedResponse.IsSuccessStatusCode || blockedResponse.Content is null || blockedResponse.Content.IsBlocked;
-            if (isBlocked) {
+            if (!blockedResponse.IsSuccessStatusCode || blockedResponse.Content is null) {
+                logger.LogError("Failed to check email blocklist. StatusCode: {StatusCode}", blockedResponse.StatusCode);
+                return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
+            }
+
+            if (blockedResponse.Content.IsBlocked) {
                 this.ModelState.AddModelError(
                     nameof(viewModel.EmailAddressInput),
                     "This email address is not valid for this service. Generic email names (for example, headmaster@, admin@) and domains (for example, @yahoo.co.uk, @gmail.com) compromise security. Enter an email address that is associated with your organisation.");
@@ -65,7 +81,7 @@ public sealed class ChangeEmailController(
         );
 
         var response = await usersApiClient.InitiateChangeEmailAddress(this.User.GetUserId(), request, cancellationToken);
-        return await this.HandleInitiateChangeResponseAsync(response, viewModel.EmailAddressInput!, resend == true);
+        return await this.HandleInitiateChangeResponseAsync(response, viewModel.EmailAddressInput!, isResend);
     }
 
     private async Task<IActionResult> HandleInitiateChangeResponseAsync(
@@ -176,8 +192,14 @@ public sealed class ChangeEmailController(
             VerificationCode = viewModel.VerificationCodeInput!,
         };
 
-        var response = await usersApiClient.ConfirmChangeEmailAddress(userId, request, cancellationToken);
-        return await this.HandleConfirmationResponseAsync(response, userId, cancellationToken);
+        try {
+            var response = await usersApiClient.ConfirmChangeEmailAddress(userId, request, cancellationToken);
+            return await this.HandleConfirmationResponseAsync(response, userId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) {
+            logger.LogError(ex, "Failed to confirm change email address for user {UserId}.", userId);
+            return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
+        }
     }
 
     private async Task<IActionResult> HandleConfirmationResponseAsync(
@@ -242,7 +264,14 @@ public sealed class ChangeEmailController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostCancel(CancellationToken cancellationToken)
     {
-        var response = await usersApiClient.CancelChangeEmailAddress(this.User.GetUserId(), cancellationToken);
+        Refit.IApiResponse response;
+        try {
+            response = await usersApiClient.CancelChangeEmailAddress(this.User.GetUserId(), cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) {
+            logger.LogError(ex, "Failed to cancel change email for user {UserId}.", this.User.GetUserId());
+            return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
+        }
         if (!response.IsSuccessStatusCode) {
             logger.LogError(
                 "Failed to cancel change email for user {UserId}. StatusCode: {StatusCode}",
@@ -261,9 +290,16 @@ public sealed class ChangeEmailController(
 
     private async Task<IActionResult> RenderVerificationCodeViewAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var pendingChange = await this.GetPendingChangeEmailAddress(userId, cancellationToken);
+        Refit.IApiResponse<GetPendingChangeEmailResponse> response;
+        try {
+            response = await usersApiClient.GetPendingChangeEmail(userId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException) {
+            logger.LogError(ex, "Failed to retrieve pending change email for user {UserId}.", userId);
+            return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
+        }
 
-        if (pendingChange is null) {
+        if (response.StatusCode == HttpStatusCode.NotFound) {
             var emailAddress = this.TempData
                 .Peek(VerificationCodeViewModel.NewEmailAddressTempDataKey)?.ToString() ?? string.Empty;
             return this.View("VerificationCode", new VerificationCodeViewModel {
@@ -272,25 +308,17 @@ public sealed class ChangeEmailController(
             });
         }
 
+        if (!response.IsSuccessStatusCode || response.Content is null) {
+            logger.LogError("Failed to retrieve pending change email for user {UserId}. StatusCode: {StatusCode}",
+                userId, response.StatusCode);
+            return this.ErrorView(ProfileErrorPresets.EmailUpdateFailed(this.Url));
+        }
+
         this.ModelState.SetModelValue(nameof(VerificationCodeViewModel.VerificationCodeInput), null, "");
 
         return this.View("VerificationCode", new VerificationCodeViewModel {
             UserId = userId,
-            NewEmailAddress = pendingChange.NewEmailAddress,
+            NewEmailAddress = response.Content.NewEmailAddress,
         });
-    }
-
-    private async Task<GetPendingChangeEmailResponse?> GetPendingChangeEmailAddress(Guid userId, CancellationToken cancellationToken)
-    {
-        var response = await usersApiClient.GetPendingChangeEmail(userId, cancellationToken);
-        if (response.IsSuccessStatusCode) {
-            return response.Content;
-        }
-
-        if (response.StatusCode != HttpStatusCode.NotFound) {
-            logger.LogWarning("Unexpected status code {StatusCode} when retrieving pending change email for user {UserId}", response.StatusCode, userId);
-        }
-
-        return null;
     }
 }

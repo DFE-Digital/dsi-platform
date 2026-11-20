@@ -4,9 +4,11 @@ using Dfe.SignIn.Core.Contracts.Features.Users.ChangeEmailAddress;
 using Dfe.SignIn.TestHelpers.Helpers;
 using Dfe.SignIn.Web.Profile.Controllers;
 using Dfe.SignIn.Web.Profile.Models;
+using Dfe.SignIn.WebFramework.Mvc.Models;
 using Dfe.SignIn.WebFramework.Mvc.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using Moq.AutoMock;
 using Refit;
@@ -55,6 +57,9 @@ public sealed class HomeControllerTests
             JobTitle = "Software Developer",
         });
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        var url = new Mock<IUrlHelper>();
+        url.Setup(x => x.Action(It.IsAny<UrlActionContext>())).Returns("/");
+        controller.Url = url.Object;
 
         return controller;
     }
@@ -108,7 +113,7 @@ public sealed class HomeControllerTests
     }
 
     [TestMethod]
-    public async Task Index_OmitsPendingEmailAddress_AndRendersPage_WhenApiReturnsError()
+    public async Task Index_PresentsErrorView_WhenApiThrows()
     {
         var autoMocker = new AutoMocker();
         var internalServerErrorException = ApiException.Create(
@@ -121,35 +126,49 @@ public sealed class HomeControllerTests
 
         var result = await controller.Index();
 
-        var viewModel = TypeAssert.IsViewModelType<HomeViewModel>(result);
-        Assert.IsNull(viewModel.PendingEmailAddress);
+        Assert.AreEqual("System error", TypeAssert.IsViewModelType<ErrorViewModel>(result).Heading);
     }
 
     [TestMethod]
-    public async Task Index_OmitsPendingEmailAddress_WhenApiReturnsInternalServerError()
+    [DataRow(HttpStatusCode.InternalServerError)]
+    [DataRow(HttpStatusCode.Unauthorized)]
+    public async Task Index_PresentsErrorView_WhenApiReturnsFailure(HttpStatusCode statusCode)
     {
         var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker);
         autoMocker.GetMock<IUsersApiClient>()
             .Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(RefitTestHelper.CreateProblemResponse<GetPendingChangeEmailResponse>(HttpStatusCode.InternalServerError));
-
-        var controller = autoMocker.CreateInstance<HomeController>();
-        var httpContext = new DefaultHttpContext();
-        httpContext.Features.Set<IUserProfileFeature>(new UserProfileFeature {
-            UserId = TestUserId,
-            IsEntra = false,
-            IsInternalUser = false,
-            FirstName = "Alex",
-            LastName = "Johnson",
-            EmailAddress = "alex.johnson@example.com",
-            JobTitle = "Software Developer",
-        });
-        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+            .ReturnsAsync(RefitTestHelper.CreateProblemResponse<GetPendingChangeEmailResponse>(statusCode));
 
         var result = await controller.Index();
 
-        var viewModel = TypeAssert.IsViewModelType<HomeViewModel>(result);
-        Assert.IsNull(viewModel.PendingEmailAddress);
+        Assert.AreEqual("System error", TypeAssert.IsViewModelType<ErrorViewModel>(result).Heading);
+    }
+
+    [TestMethod]
+    public async Task Index_PresentsErrorView_WhenSuccessfulResponseHasNoContent()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RefitTestHelper.CreateSuccessResponse<GetPendingChangeEmailResponse>(null!));
+
+        Assert.AreEqual("System error", TypeAssert.IsViewModelType<ErrorViewModel>(await controller.Index()).Heading);
+    }
+
+    [TestMethod]
+    public async Task Index_PassesTokenAndPropagatesCancellation()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.GetPendingChangeEmail(TestUserId, cancellation.Token))
+            .ThrowsAsync(new OperationCanceledException(cancellation.Token));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => controller.Index(cancellation.Token));
     }
 
     #endregion

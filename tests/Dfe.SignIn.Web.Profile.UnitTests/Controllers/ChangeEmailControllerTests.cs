@@ -108,6 +108,116 @@ public sealed class ChangeEmailControllerTests
             }));
     }
 
+    [TestMethod]
+    [DataRow(HttpStatusCode.InternalServerError)]
+    [DataRow(HttpStatusCode.OK)]
+    public async Task PostIndex_ShowsSystemError_WhenBlocklistCheckFails(HttpStatusCode statusCode)
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateControllerAuthenticated(autoMocker, isEmailBlacklistBehaviourEnabled: true);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.CheckIfEmailAddressIsBlocked(It.IsAny<CheckIsBlockedEmailAddressRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(statusCode == HttpStatusCode.OK
+                ? RefitTestHelper.CreateSuccessResponse<CheckIsBlockedEmailAddressResponse>(null!)
+                : RefitTestHelper.CreateProblemResponse<CheckIsBlockedEmailAddressResponse>(statusCode));
+
+        var result = await controller.PostIndex(null,
+            new ChangeEmailViewModel { EmailAddressInput = "new@example.com" }, CancellationToken.None);
+
+        Assert.AreEqual("System error", TypeAssert.IsViewModelType<ErrorViewModel>(result).Heading);
+        Assert.IsTrue(controller.ModelState.IsValid);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Verify(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>(),
+                It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow(false, HttpStatusCode.InternalServerError)]
+    [DataRow(true, HttpStatusCode.InternalServerError)]
+    [DataRow(true, HttpStatusCode.OK)]
+    public async Task VerificationCode_ShowsSystemError_WhenPendingLookupFails(bool anonymous, HttpStatusCode statusCode)
+    {
+        var autoMocker = new AutoMocker();
+        var controller = anonymous ? CreateControllerAnonymous(autoMocker) : CreateControllerAuthenticated(autoMocker);
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(statusCode == HttpStatusCode.OK
+                ? RefitTestHelper.CreateSuccessResponse<GetPendingChangeEmailResponse>(null!)
+                : RefitTestHelper.CreateProblemResponse<GetPendingChangeEmailResponse>(statusCode));
+
+        var result = anonymous
+            ? await controller.VerificationCodeAnonymous(Guid.NewGuid(), CancellationToken.None)
+            : await controller.VerificationCode(CancellationToken.None);
+
+        Assert.AreEqual("System error", TypeAssert.IsViewModelType<ErrorViewModel>(result).Heading);
+        Assert.IsTrue(controller.ModelState.IsValid);
+    }
+
+    [TestMethod]
+    [DataRow("initiate", false)]
+    [DataRow("blocklist", false)]
+    [DataRow("confirm", false)]
+    [DataRow("pending", false)]
+    [DataRow("cancel", false)]
+    [DataRow("initiate", true)]
+    [DataRow("blocklist", true)]
+    [DataRow("confirm", true)]
+    [DataRow("pending", true)]
+    [DataRow("cancel", true)]
+    public async Task ApiCall_HandlesExceptionsWithoutSwallowingCancellation(string operation, bool cancelled)
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateControllerAuthenticated(autoMocker, isEmailBlacklistBehaviourEnabled: operation == "blocklist");
+        using var cancellation = new CancellationTokenSource();
+        if (cancelled) {
+            cancellation.Cancel();
+        }
+        Exception exception = cancelled
+            ? new OperationCanceledException(cancellation.Token)
+            : new HttpRequestException("API unavailable");
+        var client = autoMocker.GetMock<IUsersApiClient>();
+        switch (operation) {
+            case "initiate":
+                client.Setup(x => x.InitiateChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<InitiateChangeEmailAddressRequest>(), cancellation.Token))
+                    .ThrowsAsync(exception);
+                break;
+            case "blocklist":
+                client.Setup(x => x.CheckIfEmailAddressIsBlocked(It.IsAny<CheckIsBlockedEmailAddressRequest>(), cancellation.Token))
+                    .ThrowsAsync(exception);
+                break;
+            case "confirm":
+                client.Setup(x => x.ConfirmChangeEmailAddress(It.IsAny<Guid>(), It.IsAny<ConfirmChangeEmailAddressRequest>(), cancellation.Token))
+                    .ThrowsAsync(exception);
+                break;
+            case "pending":
+                client.Setup(x => x.GetPendingChangeEmail(It.IsAny<Guid>(), cancellation.Token)).ThrowsAsync(exception);
+                break;
+            case "cancel":
+                client.Setup(x => x.CancelChangeEmailAddress(It.IsAny<Guid>(), cancellation.Token)).ThrowsAsync(exception);
+                break;
+        }
+
+        Task<IActionResult> Invoke() => operation switch {
+            "initiate" or "blocklist" => controller.PostIndex(null,
+                new ChangeEmailViewModel { EmailAddressInput = "new@example.com" }, cancellation.Token),
+            "confirm" => controller.PostVerificationCode(new VerificationCodeViewModel {
+                UserId = controller.User.GetUserId(),
+                NewEmailAddress = "new@example.com",
+                VerificationCodeInput = "123456",
+            }, cancellation.Token),
+            "pending" => controller.VerificationCode(cancellation.Token),
+            "cancel" => controller.PostCancel(cancellation.Token),
+            _ => throw new ArgumentOutOfRangeException(nameof(operation)),
+        };
+
+        if (cancelled) {
+            await Assert.ThrowsAsync<OperationCanceledException>(Invoke);
+        }
+        else {
+            Assert.AreEqual("System error", TypeAssert.IsViewModelType<ErrorViewModel>(await Invoke()).Heading);
+        }
+    }
+
     private static void SetupNoPendingEmailChange(AutoMocker autoMocker)
     {
         autoMocker.GetMock<IUsersApiClient>()

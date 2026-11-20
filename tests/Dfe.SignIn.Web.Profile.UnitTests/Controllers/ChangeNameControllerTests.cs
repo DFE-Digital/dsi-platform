@@ -61,6 +61,21 @@ public sealed class ChangeNameControllerTests
     };
 
     [TestMethod]
+    public async Task PostIndex_PropagatesCancellation()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateController(autoMocker, isEntra: false);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        autoMocker.GetMock<IUsersApiClient>()
+            .Setup(x => x.ChangeName(It.IsAny<Guid>(), It.IsAny<ChangeNameRequest>(), cancellation.Token))
+            .ThrowsAsync(new OperationCanceledException(cancellation.Token));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            controller.PostIndex(CreateValidChangeNameViewModel(), cancellation.Token));
+    }
+
+    [TestMethod]
     public void Index_InitialiseJobTitleInputFromUserProfile()
     {
         var controller = CreateController(new AutoMocker(), isEntra: false);
