@@ -15,12 +15,13 @@ namespace Dfe.SignIn.Web.Profile.Controllers;
 [Route("/")]
 public sealed class AuthController(
     IAuditWriter auditWriter,
-    IOptions<PlatformSettings> platformSettingsAccessor
+    IOptions<PlatformSettings> platformSettingsAccessor,
+    ILogger<AuthController> logger
 ) : Controller
 {
     [AllowAnonymous]
     [HttpGet("signout")]
-    public new Task<IActionResult> SignOut()
+    public Task<IActionResult> SignOutUser()
     {
         var platformSettings = platformSettingsAccessor.Value;
 
@@ -29,14 +30,14 @@ public sealed class AuthController(
             serviceUrl += "signout";
         }
 
-        return this.SignOutHelper(serviceUrl);
+        return this.CreateSignOutResultAsync(serviceUrl);
     }
 
     [AllowAnonymous]
     [HttpGet("/session/end-timeout")]
     public Task<IActionResult> EndSessionTimeout()
     {
-        return this.SignOutHelper(this.Url.Action(nameof(Timeout)));
+        return this.CreateSignOutResultAsync(this.Url.Action(nameof(Timeout)));
     }
 
     [AllowAnonymous]
@@ -44,13 +45,13 @@ public sealed class AuthController(
     public async Task<IActionResult> Timeout()
     {
         if (this.User.Identity?.IsAuthenticated == true) {
-            return await this.SignOut();
+            return await this.SignOutUser();
         }
 
         return this.View("Auth/SessionTimeout");
     }
 
-    private async Task<IActionResult> SignOutHelper(string? redirectUri = null)
+    private async Task<IActionResult> CreateSignOutResultAsync(string? redirectUri = null)
     {
         var result = this.SignOut(
             new AuthenticationProperties { RedirectUri = redirectUri },
@@ -60,13 +61,19 @@ public sealed class AuthController(
         );
 
         if (this.User.Identity?.IsAuthenticated == true) {
-            await auditWriter.Log(
-                new WriteToAuditRequest {
-                    EventCategory = AuditEventCategoryNames.SignOut,
-                    Message = "User signing out",
-                    UserId = this.User.GetUserId(),
-                }
-            );
+            var request = new WriteToAuditRequest {
+                EventCategory = AuditEventCategoryNames.SignOut,
+                Message = "User signing out",
+                UserId = this.User.GetUserId(),
+            };
+
+            try {
+                await auditWriter.Log(request);
+            }
+            catch (Exception ex) {
+                // Audit publication must not prevent the sign-out result from executing.
+                logger.LogError(ex, "Failed to publish sign-out audit event for user {UserId}.", request.UserId);
+            }
         }
 
         return result;

@@ -11,7 +11,7 @@
     if (User.Identity?.IsAuthenticated == true)
     {
         ViewData[DsiLayoutConstants.SignOutUrl] = Url.Action(
-            nameof(AuthController.SignOut),
+            nameof(AuthController.SignOutUser),
             MvcNaming.Controller<AuthController>()
         );
     }

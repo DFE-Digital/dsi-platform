@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.AutoMock;
 
@@ -74,14 +75,14 @@ public sealed class AuthControllerTests
         return CreateController(autoMocker, new DefaultHttpContext());
     }
 
-    #region SignOut()
+    #region SignOutUser()
 
     [TestMethod]
-    public async Task SignOut_SignOutUser_WhenUserIsAuthenticated()
+    public async Task SignOutUser_SignOutUser_WhenUserIsAuthenticated()
     {
         var controller = CreateControllerAuthenticated(new AutoMocker());
 
-        var result = await controller.SignOut();
+        var result = await controller.SignOutUser();
 
         var signOutResult = TypeAssert.IsType<SignOutResult>(result);
         Assert.AreEqual("http://services.localhost/signout", signOutResult.Properties?.RedirectUri);
@@ -90,7 +91,7 @@ public sealed class AuthControllerTests
     }
 
     [TestMethod]
-    public async Task SignOut_WritesToAudit_WhenUserIsAboutToSignOut()
+    public async Task SignOutUser_WritesToAudit_WhenUserIsAboutToSignOut()
     {
         var autoMocker = new AutoMocker();
 
@@ -101,7 +102,7 @@ public sealed class AuthControllerTests
 
         var controller = CreateControllerAuthenticated(autoMocker);
 
-        await controller.SignOut();
+        await controller.SignOutUser();
 
         Assert.IsNotNull(capturedWriteToAudit);
         Assert.AreEqual(AuditEventCategoryNames.SignOut, capturedWriteToAudit.EventCategory);
@@ -110,6 +111,53 @@ public sealed class AuthControllerTests
     }
 
     #endregion
+
+    [TestMethod]
+    [DataRow(nameof(AuthController.SignOutUser), "http://services.localhost/signout")]
+    [DataRow(nameof(AuthController.EndSessionTimeout), "/session-timeout")]
+    [DataRow(nameof(AuthController.Timeout), "http://services.localhost/signout")]
+    public async Task SignOut_ReturnsResultAndLogsFailure_WhenAuditThrows(string action, string redirectUri)
+    {
+        var autoMocker = new AutoMocker();
+        var exception = new InvalidOperationException("Audit unavailable");
+        autoMocker.GetMock<IAuditWriter>()
+            .Setup(x => x.Log(It.IsAny<WriteToAuditRequest>()))
+            .ThrowsAsync(exception);
+        var controller = CreateControllerAuthenticated(autoMocker);
+
+        var result = action switch {
+            nameof(AuthController.SignOutUser) => await controller.SignOutUser(),
+            nameof(AuthController.EndSessionTimeout) => await controller.EndSessionTimeout(),
+            nameof(AuthController.Timeout) => await controller.Timeout(),
+            _ => throw new ArgumentOutOfRangeException(nameof(action)),
+        };
+
+        var signOutResult = TypeAssert.IsType<SignOutResult>(result);
+        Assert.AreEqual(redirectUri, signOutResult.Properties?.RedirectUri);
+        Assert.Contains(OpenIdConnectDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
+        Assert.Contains(CookieAuthenticationDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
+        Assert.Contains(ExternalAuthConstants.CookiesSchemeName, signOutResult.AuthenticationSchemes);
+        autoMocker.GetMock<ILogger<AuthController>>()
+            .Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                exception,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SignOutUser_SkipsAudit_WhenUserIsAnonymous()
+    {
+        var autoMocker = new AutoMocker();
+        var controller = CreateControllerAnonymous(autoMocker);
+
+        var result = await controller.SignOutUser();
+
+        Assert.AreEqual("http://services.localhost/", TypeAssert.IsType<SignOutResult>(result).Properties?.RedirectUri);
+        autoMocker.GetMock<IAuditWriter>()
+            .Verify(x => x.Log(It.IsAny<WriteToAuditRequest>()), Times.Never);
+    }
 
     #region EndSessionTimeout()
 
